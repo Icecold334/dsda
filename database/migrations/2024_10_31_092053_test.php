@@ -9,10 +9,10 @@ return new class extends Migration
     public function up()
     {
         // Tabel-tabel lain sesuai SQL dump dalam bahasa Indonesia
-        Schema::create('in_1_agenda', function (Blueprint $table) {
+        Schema::create('agenda', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('aset_id')->constrained('in_1_aset')->onDelete('cascade');
+            $table->foreignId('aset_id')->constrained('aset')->onDelete('cascade');
             $table->string('tipe', 16)->default('mingguan');
             $table->integer('hari')->default(0);
             $table->integer('tanggal')->default(0);
@@ -22,22 +22,22 @@ return new class extends Migration
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_1_aset', function (Blueprint $table) {
+        Schema::create('aset', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('foto', 256)->nullable();
             $table->string('systemcode', 32)->nullable();
             $table->string('kode', 128)->nullable();
             $table->string('nama', 128)->nullable();
-            $table->foreignId('kategori')->constrained('in_1_kategori')->onDelete('set null');
-            $table->foreignId('merk_id')->constrained('in_1_merk')->onDelete('set null');
+            $table->foreignId('kategori')->constrained('kategori')->onDelete('set null');
+            $table->foreignId('merk_id')->constrained('merk')->onDelete('set null');
             $table->string('tipe', 256)->nullable();
             $table->string('produsen', 256)->nullable();
             $table->string('noseri', 128)->nullable();
             $table->string('thproduksi', 32)->nullable();
             $table->text('deskripsi')->nullable();
             $table->integer('tanggalbeli')->default(0);
-            $table->foreignId('toko_id')->constrained('in_1_toko')->onDelete('set null');
+            $table->foreignId('toko_id')->constrained('toko')->onDelete('set null');
             $table->string('invoice', 128)->nullable();
             $table->decimal('jumlah', 16, 2)->default(1.00);
             $table->decimal('hargasatuan', 28, 2)->default(0.00);
@@ -46,8 +46,8 @@ return new class extends Migration
             $table->decimal('penyusutan', 16, 2)->default(0.00);
             $table->text('keterangan')->nullable();
             $table->integer('tanggalhistory')->default(0);
-            $table->foreignId('person')->constrained('in_1_person')->onDelete('set null');
-            $table->foreignId('lokasi')->constrained('in_1_lokasi')->onDelete('set null');
+            $table->foreignId('person')->constrained('person')->onDelete('set null');
+            $table->foreignId('lokasi')->constrained('lokasi')->onDelete('set null');
             $table->integer('keuangan_id')->default(0);
             $table->integer('keuangan_tgl')->default(0);
             $table->boolean('prepublish')->default(0);
@@ -58,13 +58,13 @@ return new class extends Migration
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_1_history', function (Blueprint $table) {
+        Schema::create('history', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('aset_id')->constrained('in_1_aset')->onDelete('cascade');
+            $table->foreignId('aset_id')->constrained('aset')->onDelete('cascade');
             $table->integer('tanggal')->default(0);
-            $table->foreignId('person_id')->constrained('in_1_person')->onDelete('set null');
-            $table->foreignId('lokasi_id')->constrained('in_1_lokasi')->onDelete('set null');
+            $table->foreignId('person_id')->constrained('person')->onDelete('set null');
+            $table->foreignId('lokasi_id')->constrained('lokasi')->onDelete('set null');
             $table->decimal('jumlah', 16, 2)->default(1.00);
             $table->integer('kondisi')->default(100);
             $table->integer('kelengkapan')->default(100);
@@ -72,28 +72,28 @@ return new class extends Migration
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_1_jurnal', function (Blueprint $table) {
+        Schema::create('jurnal', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('aset_id')->constrained('in_1_aset')->onDelete('cascade');
+            $table->foreignId('aset_id')->constrained('aset')->onDelete('cascade');
             $table->integer('tanggal')->default(0);
             $table->text('keterangan')->nullable();
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_1_kategori', function (Blueprint $table) {
+        Schema::create('kategori', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('nama', 256)->nullable();
             $table->text('keterangan')->nullable();
-            $table->foreignId('parent')->nullable()->constrained('in_1_kategori')->onDelete('cascade');
+            $table->foreignId('parent')->nullable()->constrained('kategori')->onDelete('cascade');
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_1_keuangan', function (Blueprint $table) {
+        Schema::create('keuangan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('aset_id')->constrained('in_1_aset')->onDelete('cascade');
+            $table->foreignId('aset_id')->constrained('aset')->onDelete('cascade');
             $table->integer('tanggal')->default(0);
             $table->string('tipe', 8)->default('out');
             $table->text('keterangan')->nullable();
@@ -101,15 +101,15 @@ return new class extends Migration
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_1_lampiran', function (Blueprint $table) {
+        Schema::create('lampiran', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('aset_id')->constrained('in_1_aset')->onDelete('cascade');
+            $table->foreignId('aset_id')->constrained('aset')->onDelete('cascade');
             $table->text('keterangan')->nullable();
             $table->string('file', 256)->nullable();
         });
 
-        Schema::create('in_1_lokasi', function (Blueprint $table) {
+        Schema::create('lokasi', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('nama', 256)->nullable();
@@ -118,7 +118,7 @@ return new class extends Migration
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_1_merk', function (Blueprint $table) {
+        Schema::create('merk', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('nama', 256)->nullable();
@@ -127,7 +127,7 @@ return new class extends Migration
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_1_person', function (Blueprint $table) {
+        Schema::create('person', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('nama', 256)->nullable();
@@ -140,7 +140,7 @@ return new class extends Migration
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_1_toko', function (Blueprint $table) {
+        Schema::create('toko', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('nama', 256)->nullable();
@@ -153,54 +153,54 @@ return new class extends Migration
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_2_bagian_stok', function (Blueprint $table) {
+        Schema::create('bagian_stok', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('lokasi_id')->constrained('in_2_lokasi_stok')->onDelete('cascade');
+            $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('cascade');
             $table->string('nama', 255);
         });
 
-        Schema::create('in_2_barang_stok', function (Blueprint $table) {
+        Schema::create('barang_stok', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 255);
             $table->string('kode', 100);
             $table->text('deskripsi')->nullable();
         });
 
-        Schema::create('in_2_kontrak_vendor', function (Blueprint $table) {
+        Schema::create('kontrak_vendor', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('vendor_id')->constrained('in_2_vendor_stok')->onDelete('cascade');
+            $table->foreignId('vendor_id')->constrained('vendor_stok')->onDelete('cascade');
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
             $table->text('keterangan')->nullable();
         });
 
-        Schema::create('in_2_lokasi_stok', function (Blueprint $table) {
+        Schema::create('lokasi_stok', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 255);
         });
 
-        Schema::create('in_2_merek_stok', function (Blueprint $table) {
+        Schema::create('merek_stok', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barang_id')->constrained('in_2_barang_stok')->onDelete('cascade');
+            $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
             $table->string('nama', 255);
             $table->integer('jumlah');
             $table->string('satuan', 100);
-            $table->foreignId('lokasi_id')->constrained('in_2_lokasi_stok')->onDelete('restrict');
-            $table->foreignId('bagian_id')->nullable()->constrained('in_2_bagian_stok')->onDelete('set null');
-            $table->foreignId('posisi_id')->nullable()->constrained('in_2_posisi_stok')->onDelete('set null');
-            $table->foreignId('vendor_id')->nullable()->constrained('in_2_vendor_stok')->onDelete('set null');
-            $table->foreignId('kontrak_id')->nullable()->constrained('in_2_kontrak_vendor')->onDelete('set null');
+            $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('restrict');
+            $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('set null');
+            $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('set null');
+            $table->foreignId('vendor_id')->nullable()->constrained('vendor_stok')->onDelete('set null');
+            $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor')->onDelete('set null');
             $table->integer('stok_awal')->default(0);
             $table->integer('stok_sisa')->default(0);
         });
 
-        Schema::create('in_2_posisi_stok', function (Blueprint $table) {
+        Schema::create('posisi_stok', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bagian_id')->constrained('in_2_bagian_stok')->onDelete('cascade');
+            $table->foreignId('bagian_id')->constrained('bagian_stok')->onDelete('cascade');
             $table->string('nama', 255);
         });
 
-        Schema::create('in_2_vendor_stok', function (Blueprint $table) {
+        Schema::create('vendor_stok', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 255);
             $table->text('alamat')->nullable();
@@ -208,7 +208,7 @@ return new class extends Migration
             $table->string('email', 100)->nullable();
         });
 
-        Schema::create('in_bank', function (Blueprint $table) {
+        Schema::create('bank', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 128)->nullable();
             $table->string('rekening', 128)->nullable();
@@ -216,7 +216,7 @@ return new class extends Migration
             $table->boolean('status')->default(1);
         });
 
-        // Schema::create('in_child', function (Blueprint $table) {
+        // Schema::create('child', function (Blueprint $table) {
         //     $table->id();
         //     $table->string('nama', 256)->nullable();
         //     $table->text('keterangan')->nullable();
@@ -227,7 +227,7 @@ return new class extends Migration
         //     $table->boolean('status')->default(1);
         // });
 
-        Schema::create('in_diskon', function (Blueprint $table) {
+        Schema::create('diskon', function (Blueprint $table) {
             $table->id();
             $table->string('kode', 64)->nullable();
             $table->integer('persen')->default(0);
@@ -237,7 +237,7 @@ return new class extends Migration
             $table->boolean('aktif')->default(1);
         });
 
-        Schema::create('in_harga', function (Blueprint $table) {
+        Schema::create('harga', function (Blueprint $table) {
             $table->id();
             $table->integer('paket')->default(0);
             $table->integer('bulan')->default(0);
@@ -246,10 +246,10 @@ return new class extends Migration
             $table->integer('diskon')->default(0);
         });
 
-        Schema::create('in_konfirmasi', function (Blueprint $table) {
+        Schema::create('konfirmasi', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('order_id')->constrained('in_order')->onDelete('cascade');
+            $table->foreignId('order_id')->constrained('order')->onDelete('cascade');
             $table->integer('paket')->default(0);
             $table->integer('bulan')->default(12);
             $table->integer('tanggal')->default(0);
@@ -261,13 +261,13 @@ return new class extends Migration
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_kota', function (Blueprint $table) {
+        Schema::create('kota', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 255)->nullable();
-            $table->foreignId('prov_id')->nullable()->constrained('in_provinsi')->onDelete('set null');
+            $table->foreignId('prov_id')->nullable()->constrained('provinsi')->onDelete('set null');
         });
 
-        Schema::create('in_option', function (Blueprint $table) {
+        Schema::create('option', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('kodeaset', 256)->default('[nomor]/INV/[tahun]');
@@ -281,7 +281,7 @@ return new class extends Migration
             $table->text('scan_qr_history')->nullable();
         });
 
-        Schema::create('in_order', function (Blueprint $table) {
+        Schema::create('order', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->integer('tanggal')->default(0);
@@ -297,7 +297,7 @@ return new class extends Migration
             $table->boolean('status')->default(1);
         });
 
-        Schema::create('in_provinsi', function (Blueprint $table) {
+        Schema::create('provinsi', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 255)->nullable();
         });
@@ -305,31 +305,31 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('in_2_posisi_stok');
-        Schema::dropIfExists('in_2_merek_stok');
-        Schema::dropIfExists('in_2_kontrak_vendor');
-        Schema::dropIfExists('in_2_barang_stok');
-        Schema::dropIfExists('in_2_bagian_stok');
-        Schema::dropIfExists('in_2_vendor_stok');
-        Schema::dropIfExists('in_1_jurnal');
-        Schema::dropIfExists('in_1_history');
-        Schema::dropIfExists('in_1_aset');
-        Schema::dropIfExists('in_1_agenda');
-        Schema::dropIfExists('in_1_kategori');
-        Schema::dropIfExists('in_1_keuangan');
-        Schema::dropIfExists('in_1_lampiran');
-        Schema::dropIfExists('in_1_lokasi');
-        Schema::dropIfExists('in_1_merk');
-        Schema::dropIfExists('in_1_person');
-        Schema::dropIfExists('in_1_toko');
-        Schema::dropIfExists('in_bank');
-        // Schema::dropIfExists('in_child');
-        Schema::dropIfExists('in_diskon');
-        Schema::dropIfExists('in_harga');
-        Schema::dropIfExists('in_konfirmasi');
-        Schema::dropIfExists('in_kota');
-        Schema::dropIfExists('in_option');
-        Schema::dropIfExists('in_order');
-        Schema::dropIfExists('in_provinsi');
+        Schema::dropIfExists('posisi_stok');
+        Schema::dropIfExists('merek_stok');
+        Schema::dropIfExists('kontrak_vendor');
+        Schema::dropIfExists('barang_stok');
+        Schema::dropIfExists('bagian_stok');
+        Schema::dropIfExists('vendor_stok');
+        Schema::dropIfExists('jurnal');
+        Schema::dropIfExists('history');
+        Schema::dropIfExists('aset');
+        Schema::dropIfExists('agenda');
+        Schema::dropIfExists('kategori');
+        Schema::dropIfExists('keuangan');
+        Schema::dropIfExists('lampiran');
+        Schema::dropIfExists('lokasi');
+        Schema::dropIfExists('merk');
+        Schema::dropIfExists('person');
+        Schema::dropIfExists('toko');
+        Schema::dropIfExists('bank');
+        // Schema::dropIfExists('child');
+        Schema::dropIfExists('diskon');
+        Schema::dropIfExists('harga');
+        Schema::dropIfExists('konfirmasi');
+        Schema::dropIfExists('kota');
+        Schema::dropIfExists('option');
+        Schema::dropIfExists('order');
+        Schema::dropIfExists('provinsi');
     }
 };
