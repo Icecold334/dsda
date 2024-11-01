@@ -202,11 +202,5 @@ export default {
         },
     },
 
-    plugins: [
-        forms,
-        require("flowbite/plugin")({
-            wysiwyg: true,
-            datatables: true,
-        }),
-    ],
+    plugins: [forms, require("flowbite/plugin")],
 };
