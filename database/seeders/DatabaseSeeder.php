@@ -325,5 +325,60 @@ class DatabaseSeeder extends Seeder
                 'status' => 1
             ]);
         }
+
+        // Seeder for History (Riwayat)
+        for ($i = 1; $i <= 10; $i++) {
+            DB::table('history')->insert([
+                'user_id' => $userId,
+                'aset_id' => Aset::inRandomOrder()->first()->id,
+                'tanggal' => now()->subDays(rand(0, 1000))->format('Ymd'),
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'jumlah' => rand(1, 10),
+                'kondisi' => rand(80, 100),
+                'kelengkapan' => rand(80, 100),
+                'keterangan' => $faker->sentence,
+                'status' => 1,
+            ]);
+        }
+
+        // Seeder for Financial Records (Keuangan)
+        for ($i = 1; $i <= 10; $i++) {
+            DB::table('keuangan')->insert([
+                'user_id' => $userId,
+                'aset_id' => Aset::inRandomOrder()->first()->id,
+                'tanggal' => now()->subDays(rand(0, 365))->format('Ymd'),
+                'tipe' => $faker->randomElement(['in', 'out']),
+                'keterangan' => $faker->sentence,
+                'nominal' => $faker->numberBetween(1000, 10000),
+                'status' => 1,
+            ]);
+        }
+
+        // Seeder for Agendas
+        for ($i = 1; $i <= 10; $i++) {
+            DB::table('agenda')->insert([
+                'user_id' => $userId,
+                'aset_id' => Aset::inRandomOrder()->first()->id,
+                'tipe' => $faker->randomElement(['mingguan', 'bulanan']),
+                'hari' => $faker->numberBetween(1, 7),
+                'tanggal' => now()->subDays(rand(0, 365))->format('Ymd'),
+                'bulan' => $faker->numberBetween(1, 12),
+                'tahun' => $faker->numberBetween(2020, 2023),
+                'keterangan' => $faker->sentence,
+                'status' => 1,
+            ]);
+        }
+
+        // Seeder for Journals (Jurnal)
+        for ($i = 1; $i <= 10; $i++) {
+            DB::table('jurnal')->insert([
+                'user_id' => $userId,
+                'aset_id' => Aset::inRandomOrder()->first()->id,
+                'tanggal' => now()->subDays(rand(0, 365))->format('Ymd'),
+                'keterangan' => $faker->sentence,
+                'status' => 1,
+            ]);
+        }
     }
 }

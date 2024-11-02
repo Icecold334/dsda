@@ -2,7 +2,7 @@
     <h1 class="text-2xl font-bold text-primary-900 mb-4">ASET AKTIF</h1>
 
 
-    <table class="w-full shadow-md border-3 border-separate border-spacing-y-4 ">
+    <table class="w-full  border-3 border-separate border-spacing-y-4 ">
         <thead>
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold rounded-l-lg">NAMA ASET</th>
@@ -17,7 +17,7 @@
         </thead>
         <tbody>
             @foreach ($asets as $aset)
-                <tr class="bg-gray-50 border-8 hover:bg-gray-100 transition duration-200 rounded-2xl ">
+                <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl ">
                     <td class="py-1 px-6">
                         <div>
                             <p class="font-semibold text-gray-800">{{ $aset->nama }}</p>
