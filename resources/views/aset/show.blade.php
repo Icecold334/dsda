@@ -5,11 +5,19 @@
         <div>
             <a href="{{ route('aset.index') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
+            <a data-tooltip-target="tooltip-Edit" href="{{ route('aset.edit', ['aset' => $aset->id]) }}"
+                class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"><i
+                    class="fa-solid fa-pen"></i></a>
+            <div id="tooltip-Edit" role="tooltip"
+                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                Edit Aset
+                <div class="tooltip-arrow" data-popper-arrow></div>
+            </div>
         </div>
     </div>
 
 
-    <div class="grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
             <x-card title="Data Aset" class="mb-5">
                 <table class="text-gray-600 w-full">
@@ -29,26 +37,35 @@
                     <tr>
                         <td class="" style="width: 30%">Kategori</td>
                         <td class="">
-                            @if ($aset->kategori->parent == null)
-                                {{ $aset->kategori->nama }}
+                            @if ($aset->kategori)
+                                @if ($aset->kategori->parent == null)
+                                    {{ $aset->kategori->nama }}
+                                @else
+                                    {{ $aset->kategori->parent->nama }} - {{ $aset->kategori->nama }}
+                                @endif
                             @else
-                                {{ $aset->kategori->parent->nama }} - {{ $aset->kategori->nama }}
+                                Tidak Berkategori
                             @endif
                     </tr>
                 </table>
             </x-card>
             <x-card title="Foto & QR Code" class="mb-5">
-                <div class="grid grid-cols-2 gap-5">
-                    <div>
-                        <img src="{{ asset('img/default-pic.png') }}" alt="">
+                <div class="flex justify-around">
+                    <div
+                        class="w-80 h-80 overflow-hidden relative flex justify-center  p-1 hover:shadow-lg transition duration-200 hover:opacity-80 border-2 rounded-lg bg-white">
+                        <img src="{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic.png') }}"
+                            alt="" class="w-full h-full object-cover object-center rounded-sm">
                     </div>
-                    <div>
-                        <img src="{{ asset('img/default-pic.png') }}" data-tooltip-target="tooltip-QR" alt="">
-                        <div id="tooltip-QR" role="tooltip"
-                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                            Klik Untuk Mengunduh QR-Code Ini
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
+                    <div
+                        class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
+                        <img src="{{ asset($aset->systemcode ? 'storage/qr/' . $aset->systemcode . '.png' : 'img/default-pic.png') }}"
+                            data-tooltip-target="tooltip-QR" alt=""
+                            class="w-full h-full object-cover object-center rounded-sm">
+                    </div>
+                    <div id="tooltip-QR" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                        Klik Untuk Mengunduh QR-Code Ini
+                        <div class="tooltip-arrow" data-popper-arrow></div>
                     </div>
                 </div>
             </x-card>

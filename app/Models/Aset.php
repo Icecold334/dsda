@@ -19,7 +19,7 @@ class Aset extends Model
         'systemcode',
         'kode',
         'nama',
-        'kategori',
+        'kategori_id',
         'merk_id',
         'tipe',
         'produsen',

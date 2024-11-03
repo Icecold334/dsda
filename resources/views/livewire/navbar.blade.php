@@ -8,7 +8,7 @@
                             src="{{ asset('img/inventa-logo.png') }}" class=" w-[250px] h-auto" alt=""></span>
                 </a>
             </div>
-            <div class="flex items-center mx-8 lg:order-2 text-[#003569]">
+            <div class="hidden xl:flex items-center mx-8 lg:order-2 text-[#003569]">
                 <ul class="grid grid-flow-col gap-0 -my-4 ">
                     <livewire:nav-item href="/home" title="home" />
                     <livewire:nav-item title="aset" :child="[

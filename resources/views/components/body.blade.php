@@ -24,7 +24,7 @@
 
 <body>
     <livewire:navbar />
-    <div class="mx-[3%] p-10">
+    <div class="mx-[3%] px-1 py-10">
         {{ $slot }}
     </div>
     @stack('html')

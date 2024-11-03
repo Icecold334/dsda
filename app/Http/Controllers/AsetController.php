@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Console\View\Components\Ask;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AsetController extends Controller
 {
@@ -34,7 +35,16 @@ class AsetController extends Controller
      */
     public function create()
     {
-        //
+        // $data = QrCode::size(512)
+        //     ->format('png')
+        //     ->errorCorrection('M')
+        //     ->generate(
+        //         'https://twitter.com/HarryKir',
+        //     );
+
+        // return response($data)
+        //     ->header('Content-type', 'image/png');
+        return view('aset.create');
     }
 
     /**
@@ -58,9 +68,9 @@ class AsetController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Aset $aset)
     {
-        //
+        return view('aset.edit', compact('aset'));
     }
 
     /**

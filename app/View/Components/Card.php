@@ -31,7 +31,7 @@ class Card extends Component
                 {{ $title }}</h1>
         </div>
         <div>
-            <div class=" p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800">
+            <div class=" p-5 bg-white rounded-lg  dark:bg-gray-800">
                 {{ $slot }}
             </div>
         </div>

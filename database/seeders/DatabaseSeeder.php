@@ -380,5 +380,18 @@ class DatabaseSeeder extends Seeder
                 'status' => 1,
             ]);
         }
+        DB::table('option')->insert([
+            'user_id' => 1,
+            'kodeaset' => '[nomor]/INV/[tahun]',
+            'qr_judul' => 'perusahaan',
+            'qr_judul_other' => 'PT SAD',
+            'qr_baris1' => 'nama',
+            'qr_baris1_other' => 'Joko Wiyono',
+            'qr_baris2' => 'kode',
+            'qr_baris2_other' => null,
+            'scan_qr_history' => 'enabled',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }
