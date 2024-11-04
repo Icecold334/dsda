@@ -10,9 +10,9 @@
             </div>
             <div class="hidden xl:flex items-center mx-8 lg:order-2 text-[#003569]">
                 <ul class="grid grid-flow-col gap-0 -my-4 ">
-                    <livewire:nav-item href="/home" title="home" />
+                    <livewire:nav-item href="/dashboard" title="home" />
                     <livewire:nav-item title="aset" :child="[
-                        ['href' => '/aset-aktif', 'title' => 'aset aktif'],
+                        ['href' => '/aset', 'title' => 'aset aktif'],
                         ['href' => '/aset-non-aktif', 'title' => 'aset non aktif'],
                     ]" />
                     <livewire:nav-item title="inventaris" :child="[
