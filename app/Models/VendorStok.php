@@ -1,32 +1,20 @@
 <?php
 
-// app/Models/VendorStok.php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class VendorStok extends Model
 {
-    use HasFactory;
-
     protected $table = 'vendor_stok';
 
-    protected $fillable = [
-        'nama',
-        'alamat',
-        'telepon',
-        'email'
-    ];
-
-    public function kontrakVendors()
+    public function kontrakVendorStok()
     {
-        return $this->hasMany(KontrakVendor::class);
+        return $this->hasMany(KontrakVendorStok::class, 'vendor_id');
     }
 
-    public function merekStok()
+    public function transaksiDaruratStok()
     {
-        return $this->hasMany(MerekStok::class);
+        return $this->hasMany(TransaksiDaruratStok::class, 'vendor_id');
     }
 }

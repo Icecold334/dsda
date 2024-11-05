@@ -1,30 +1,20 @@
 <?php
 
-// app/Models/BagianStok.php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BagianStok extends Model
 {
-    use HasFactory;
-
     protected $table = 'bagian_stok';
 
-    protected $fillable = [
-        'lokasi_id',
-        'nama'
-    ];
-
-    public function lokasi()
+    public function lokasiStok()
     {
-        return $this->belongsTo(LokasiStok::class);
+        return $this->belongsTo(LokasiStok::class, 'lokasi_id');
     }
 
     public function posisiStok()
     {
-        return $this->hasMany(PosisiStok::class);
+        return $this->hasMany(PosisiStok::class, 'bagian_id');
     }
 }

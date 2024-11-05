@@ -5,18 +5,22 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 
-class KontrakVendorController extends Controller
+class KontrakVendorStokController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // Get all kontrak_vendor grouped by tanggal_kontrak
-        $kontrakVendors = KontrakVendorStok::all();
-        dd($kontrakVendors);
+        $kontrakVendorsAll = KontrakVendorStok::all();
+
+        // Use a collection to filter distinct records based on tanggal_kontrak and vendor_id
+        $kontrakVendors = $kontrakVendorsAll->unique(function ($item) {
+            return $item->tanggal_kontrak . '-' . $item->vendor_id;
+        });
+
+
         return view('rekam.index', compact('kontrakVendors'));
     }
 

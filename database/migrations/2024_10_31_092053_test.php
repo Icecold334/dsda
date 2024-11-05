@@ -163,67 +163,67 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('bagian_stok', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('lokasi_stok_id')->constrained('lokasi_stok')->onDelete('cascade');
-            $table->string('nama', 255);
-            $table->timestamps();
-        });
+        // Schema::create('bagian_stok', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('lokasi_stok_id')->constrained('lokasi_stok')->onDelete('cascade');
+        //     $table->string('nama', 255);
+        //     $table->timestamps();
+        // });
 
-        Schema::create('barang_stok', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama', 255);
-            $table->string('kode', 100);
-            $table->text('deskripsi')->nullable();
-            $table->timestamps();
-        });
+        // Schema::create('barang_stok', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('nama', 255);
+        //     $table->string('kode', 100);
+        //     $table->text('deskripsi')->nullable();
+        //     $table->timestamps();
+        // });
 
-        Schema::create('kontrak_vendor', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('vendor_id')->constrained('vendor_stok')->onDelete('cascade');
-            $table->date('tanggal_mulai');
-            $table->date('tanggal_selesai');
-            $table->text('keterangan')->nullable();
-            $table->timestamps();
-        });
+        // Schema::create('kontrak_vendor', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('vendor_id')->constrained('vendor_stok')->onDelete('cascade');
+        //     $table->date('tanggal_mulai');
+        //     $table->date('tanggal_selesai');
+        //     $table->text('keterangan')->nullable();
+        //     $table->timestamps();
+        // });
 
-        Schema::create('lokasi_stok', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama', 255);
-            $table->timestamps();
-        });
+        // Schema::create('lokasi_stok', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('nama', 255);
+        //     $table->timestamps();
+        // });
 
-        Schema::create('merek_stok', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
-            $table->string('nama', 255);
-            $table->integer('jumlah');
-            $table->string('satuan', 100);
-            $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('restrict');
-            $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('set null');
-            $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('set null');
-            $table->foreignId('vendor_id')->nullable()->constrained('vendor_stok')->onDelete('set null');
-            $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor')->onDelete('set null');
-            $table->integer('stok_awal')->default(0);
-            $table->integer('stok_sisa')->default(0);
-            $table->timestamps();
-        });
+        // Schema::create('merek_stok', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
+        //     $table->string('nama', 255);
+        //     $table->integer('jumlah');
+        //     $table->string('satuan', 100);
+        //     $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('restrict');
+        //     $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('set null');
+        //     $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('set null');
+        //     $table->foreignId('vendor_id')->nullable()->constrained('vendor_stok')->onDelete('set null');
+        //     $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor')->onDelete('set null');
+        //     $table->integer('stok_awal')->default(0);
+        //     $table->integer('stok_sisa')->default(0);
+        //     $table->timestamps();
+        // });
 
-        Schema::create('posisi_stok', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('bagian_id')->constrained('bagian_stok')->onDelete('cascade');
-            $table->string('nama', 255);
-            $table->timestamps();
-        });
+        // Schema::create('posisi_stok', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('bagian_id')->constrained('bagian_stok')->onDelete('cascade');
+        //     $table->string('nama', 255);
+        //     $table->timestamps();
+        // });
 
-        Schema::create('vendor_stok', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama', 255);
-            $table->text('alamat')->nullable();
-            $table->string('telepon', 50)->nullable();
-            $table->string('email', 100)->nullable();
-            $table->timestamps();
-        });
+        // Schema::create('vendor_stok', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('nama', 255);
+        //     $table->text('alamat')->nullable();
+        //     $table->string('telepon', 50)->nullable();
+        //     $table->string('email', 100)->nullable();
+        //     $table->timestamps();
+        // });
 
         Schema::create('bank', function (Blueprint $table) {
             $table->id();
@@ -321,9 +321,9 @@ return new class extends Migration
     {
         Schema::dropIfExists('agenda');
         Schema::dropIfExists('aset');
-        Schema::dropIfExists('bagian_stok');
+        // Schema::dropIfExists('bagian_stok');
         Schema::dropIfExists('bank');
-        Schema::dropIfExists('barang_stok');
+        // Schema::dropIfExists('barang_stok');
         Schema::dropIfExists('diskon');
         Schema::dropIfExists('harga');
         Schema::dropIfExists('history');
@@ -334,15 +334,15 @@ return new class extends Migration
         Schema::dropIfExists('kota');
         Schema::dropIfExists('lampiran');
         Schema::dropIfExists('lokasi');
-        Schema::dropIfExists('lokasi_stok');
+        // Schema::dropIfExists('lokasi_stok');
         Schema::dropIfExists('merk');
-        Schema::dropIfExists('merek_stok');
+        // Schema::dropIfExists('merek_stok');
         Schema::dropIfExists('option');
         Schema::dropIfExists('order');
         Schema::dropIfExists('person');
-        Schema::dropIfExists('posisi_stok');
+        // Schema::dropIfExists('posisi_stok');
         Schema::dropIfExists('provinsi');
         Schema::dropIfExists('toko');
-        Schema::dropIfExists('vendor_stok');
+        // Schema::dropIfExists('vendor_stok');
     }
 };

@@ -19,6 +19,8 @@
                         ['href' => '/aset-aktif', 'title' => 'inventaris'],
                         ['href' => '/aset-non-aktif', 'title' => 'stok'],
                     ]" />
+                    <livewire:nav-item href="/kontrak-vendor-stok" title="rekam kontrak" />
+
                     <livewire:nav-item title="Form" :child="[
                         ['href' => '/aset-aktif', 'title' => 'Form peminjaman Umum'],
                         ['href' => '/aset-non-aktif', 'title' => 'Form permintaan spare part'],

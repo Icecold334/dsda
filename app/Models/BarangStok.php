@@ -1,26 +1,20 @@
 <?php
 
-// app/Models/BarangStok.php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BarangStok extends Model
 {
-    use HasFactory;
-
     protected $table = 'barang_stok';
 
-    protected $fillable = [
-        'nama',
-        'kode',
-        'deskripsi'
-    ];
-
-    public function merekStok()
+    public function jenisStok()
     {
-        return $this->hasMany(MerekStok::class);
+        return $this->belongsTo(JenisStok::class, 'jenis_id');
+    }
+
+    public function merkStok()
+    {
+        return $this->hasMany(MerkStok::class, 'barang_id');
     }
 }
