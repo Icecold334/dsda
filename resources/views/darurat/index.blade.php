@@ -1,14 +1,14 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">Kontrak Vendor</h1>
+        <h1 class="text-2xl font-bold text-primary-900 ">Barang Belum Berkontrak</h1>
         <div>
-            <a href="{{ route('kontrak-vendor-stok.create') }}"
+            {{-- <a href="{{ route('kontrak-vendor-stok.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                Rekam Kontrak Baru</a>
+                Rekam Kontrak Baru</a> --}}
         </div>
     </div>
-
+    {{-- @dump($transaksiDarurat) --}}
     <table class="w-full border-3 border-separate border-spacing-y-4">
         <thead>
             <tr class="text-white">

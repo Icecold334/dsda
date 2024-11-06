@@ -17,6 +17,10 @@ class TransaksiDaruratStok extends Model
     {
         return $this->belongsTo(VendorStok::class, 'vendor_id');
     }
+    public function kontrakRetrospektifStok()
+    {
+        return $this->belongsTo(KontrakRetrospektifStok::class, 'kontrak_retrospektif_id');
+    }
 
     public function user()
     {

@@ -11,7 +11,7 @@
                     @foreach ($child as $item)
                         <li>
                             <a href="{{ $item['href'] }}"
-                                class="block px-4 py-4 -my-3  hover:bg-primary-950 hover:text-white dark:hover:bg-gray-600 dark:hover:text-white">{{ $item['title'] }}</a>
+                                class="block px-4 py-4 -my-3  hover:bg-primary-950 transition duration-200 hover:text-white dark:hover:bg-gray-600 dark:hover:text-white">{{ $item['title'] }}</a>
                         </li>
                     @endforeach
                 </ul>

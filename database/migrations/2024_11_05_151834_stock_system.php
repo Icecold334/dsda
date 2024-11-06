@@ -20,9 +20,24 @@ return new class extends Migration
             $table->timestamps();
             $table->id();
             $table->foreignId('jenis_id')->constrained('jenis_stok');
+            $table->foreignId('satuan_besar_id')->constrained('satuan_besar'); // Foreign key to satuan_besar
+            $table->foreignId('satuan_kecil_id')->constrained('satuan_kecil'); // Foreign key to satuan_kecil
             $table->string('nama');
             $table->text('deskripsi')->nullable();
         });
+
+        Schema::create('satuan_besar', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama'); // e.g., "Box"
+            $table->timestamps();
+        });
+
+        Schema::create('satuan_kecil', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama'); // e.g., "Rim"
+            $table->timestamps();
+        });
+
 
         Schema::create('merk_stok', function (Blueprint $table) {
             $table->timestamps();
@@ -60,18 +75,27 @@ return new class extends Migration
             $table->string('nama');
         });
 
+        Schema::create('list_kontrak_stok', function (Blueprint $table) {
+            $table->timestamps();
+            $table->id();
+            $table->foreignId('merk_id')->constrained('merk_stok');
+            $table->foreignId('kontrak_id')->constrained('kontrak_vendor_stok');
+            $table->integer('jumlah_total');
+        });
         Schema::create('kontrak_vendor_stok', function (Blueprint $table) {
             $table->timestamps();
             $table->id();
+            $table->string('nomor_kontrak')->nullable();
             $table->foreignId('vendor_id')->constrained('vendor_stok');
-            $table->foreignId('merk_id')->constrained('merk_stok');
             $table->date('tanggal_kontrak');
+            $table->string('penulis1');
             $table->integer('jumlah_total');
         });
 
         Schema::create('pengiriman_stok', function (Blueprint $table) {
             $table->timestamps();
             $table->id();
+            $table->string('kode_pengiriman_stok')->nullable();
             $table->foreignId('kontrak_id')->constrained('kontrak_vendor_stok');
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->date('tanggal_pengiriman');
@@ -84,6 +108,7 @@ return new class extends Migration
         Schema::create('transaksi_stok', function (Blueprint $table) {
             $table->timestamps();
             $table->id();
+            $table->string('kode_transaksi_stok')->nullable();
             $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']);
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->integer('jumlah');
@@ -99,6 +124,7 @@ return new class extends Migration
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->foreignId('vendor_id')->constrained('vendor_stok');
             $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('kontrak_retrospektif_id')->nullable()->constrained('kontrak_retrospektif_stok');
             $table->date('tanggal');
             $table->integer('jumlah');
             $table->enum('tipe', ['Penggunaan Langsung']);
@@ -109,10 +135,11 @@ return new class extends Migration
         Schema::create('kontrak_retrospektif_stok', function (Blueprint $table) {
             $table->timestamps();
             $table->id();
-            $table->foreignId('vendor_id')->constrained('vendor_stok');
-            $table->foreignId('merk_id')->constrained('merk_stok');
+            $table->string('bukti_kontrak');
+            // $table->foreignId('vendor_id')->constrained('vendor_stok');
+            // $table->foreignId('merk_id')->constrained('merk_stok');
             $table->date('tanggal_kontrak');
-            $table->integer('jumlah_total');
+            // $table->integer('jumlah_total');
             $table->text('deskripsi_kontrak');
         });
 

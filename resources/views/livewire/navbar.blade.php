@@ -17,14 +17,19 @@
                     ]" />
                     <livewire:nav-item title="inventaris" :child="[
                         ['href' => '/aset-aktif', 'title' => 'inventaris'],
+                    
                         ['href' => '/aset-non-aktif', 'title' => 'stok'],
                     ]" />
-                    <livewire:nav-item href="/kontrak-vendor-stok" title="rekam kontrak" />
+                    <livewire:nav-item title="Rekam Kontrak" :child="[
+                        ['href' => '/kontrak-vendor-stok', 'title' => 'Daftar Kontrak'],
+                        ['href' => '/transaksi-darurat-stok', 'title' => 'Barang Belum Berkontrak'],
+                    ]" />
 
                     <livewire:nav-item title="Form" :child="[
                         ['href' => '/aset-aktif', 'title' => 'Form peminjaman Umum'],
                         ['href' => '/aset-non-aktif', 'title' => 'Form permintaan spare part'],
                         ['href' => '/aset-non-aktif', 'title' => 'Form permintaan material'],
+                        ['href' => '/aset-non-aktif', 'title' => 'Form barang datang'],
                     ]" />
                     <livewire:nav-item title="data" :child="[
                         ['href' => '/aset-aktif', 'title' => 'kategori'],

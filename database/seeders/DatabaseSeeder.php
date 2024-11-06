@@ -17,6 +17,8 @@ use App\Models\BarangStok;
 use App\Models\LokasiStok;
 use App\Models\PosisiStok;
 use App\Models\VendorStok;
+use App\Models\SatuanBesar;
+use App\Models\SatuanKecil;
 use Faker\Factory as Faker;
 use Illuminate\Support\Str;
 use App\Models\KontrakVendor;
@@ -419,11 +421,48 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        $satuanBesarData = [
+            ['nama' => 'Kotak'],      // Box
+            ['nama' => 'Palet'],      // Pallet
+            ['nama' => 'Gulung'],     // Roll
+            ['nama' => 'Paket'],      // Packet
+            ['nama' => 'Keranjang'],  // Crate
+            ['nama' => 'Sak'],        // Sack
+            ['nama' => 'Drum'],       // Drum
+            ['nama' => 'Kardus'],     // Carton
+            ['nama' => 'Rim'],        // Rim
+            ['nama' => 'Karton'],     // Cardboard
+        ];
+
+        foreach ($satuanBesarData as $data) {
+            SatuanBesar::create($data);
+        }
+
+        // Seed Satuan Kecil with Indonesian names
+        $satuanKecilData = [
+            ['nama' => 'Lembar'],     // Sheet
+            ['nama' => 'Unit'],       // Unit
+            ['nama' => 'Gram'],       // Gram
+            ['nama' => 'Kilogram'],   // Kilogram
+            ['nama' => 'Liter'],      // Liter
+            ['nama' => 'Mililiter'],  // Milliliter
+            ['nama' => 'Pcs'],        // Pieces
+            ['nama' => 'Set'],        // Set
+            ['nama' => 'Botol'],      // Bottle
+            ['nama' => 'Kemasan'],    // Packaging
+        ];
+
+        foreach ($satuanKecilData as $data) {
+            SatuanKecil::create($data);
+        }
+
         // Seed for BarangStok
         for ($i = 1; $i <= 5; $i++) {
             BarangStok::create([
                 'jenis_id' => JenisStok::inRandomOrder()->first()->id,
                 'nama' => 'Barang ' . $i,
+                'satuan_besar_id' => SatuanBesar::inRandomOrder()->first()->id,
+                'satuan_kecil_id' => SatuanKecil::inRandomOrder()->first()->id,
                 'deskripsi' => 'Deskripsi untuk Barang ' . $i,
             ]);
         }
@@ -534,10 +573,11 @@ class DatabaseSeeder extends Seeder
             $i++
         ) {
             KontrakRetrospektifStok::create([
-                'vendor_id' => VendorStok::inRandomOrder()->first()->id,
-                'merk_id' => MerkStok::inRandomOrder()->first()->id,
+                'bukti_kontrak' => 'ini bukti.jpg',
+                // 'vendor_id' => VendorStok::inRandomOrder()->first()->id,
+                // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
                 'tanggal_kontrak' => strtotime($faker->date()),
-                'jumlah_total' => rand(100, 500),
+                // 'jumlah_total' => rand(100, 500),
                 'deskripsi_kontrak' => $faker->sentence,
             ]);
         }

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BarangStok;
 use Illuminate\Http\Request;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\TransaksiDaruratStok;
 
 class KontrakVendorStokController extends Controller
 {
@@ -13,15 +16,38 @@ class KontrakVendorStokController extends Controller
      */
     public function index()
     {
-        $kontrakVendorsAll = KontrakVendorStok::all();
 
-        // Use a collection to filter distinct records based on tanggal_kontrak and vendor_id
-        $kontrakVendors = $kontrakVendorsAll->unique(function ($item) {
-            return $item->tanggal_kontrak . '-' . $item->vendor_id;
+
+
+        $transaksiDarurat = TransaksiDaruratStok::all();
+        $groupedTransactions = $transaksiDarurat->groupBy(function ($item) {
+            return $item->vendor_id; // First level grouping by vendor_id
+        })->map(function ($vendorGroup) {
+            return $vendorGroup->groupBy(function ($item) {
+                return $item->kontrak_retrospektif_id ?? 'null'; // Second level grouping by kontrak_retrospektif_id
+            });
         });
 
+        $result = [];
+        foreach ($groupedTransactions as $vendorId => $kontrakGroups) {
+            // Only include groups where the kontrak_id is not null
+            foreach ($kontrakGroups as $kontrakId => $transactions) {
+                if ($kontrakId !== 'null') {
+                    $result[] = [
+                        'vendor_id' => $vendorId,
+                        'transactions' => $transactions,
+                        'kontrak_id' => $kontrakId, // This will be the actual kontrak_retrospektif_id
+                        'status' => true, // Indicate that it has a kontrak
+                    ];
+                }
+            }
+        }
 
-        return view('rekam.index', compact('kontrakVendors'));
+        // Now $result will only contain entries with valid kontrak_retrospektif_id
+
+
+
+        return view('rekam.index', compact('result'));
     }
 
     /**
