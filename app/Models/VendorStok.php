@@ -13,13 +13,13 @@ class VendorStok extends Model
         return $this->hasMany(KontrakVendorStok::class, 'vendor_id');
     }
 
-    public function transaksiDaruratStok()
-    {
-        return $this->hasMany(TransaksiDaruratStok::class, 'vendor_id');
-    }
+    // public function transaksiDaruratStok()
+    // {
+    //     return $this->hasMany(TransaksiDaruratStok::class, 'vendor_id');
+    // }
 
-    public function kontrakRetrospektif()
-    {
-        return $this->hasMany(KontrakRetrospektifStok::class, 'vendor_id');
-    }
+    // public function kontrakRetrospektif()
+    // {
+    //     return $this->hasMany(KontrakRetrospektifStok::class, 'vendor_id');
+    // }
 }

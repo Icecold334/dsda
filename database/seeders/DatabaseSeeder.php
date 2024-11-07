@@ -6,6 +6,7 @@ use App\Models\Aset;
 use App\Models\Merk;
 use App\Models\Stok;
 use App\Models\Toko;
+use App\Models\User;
 use App\Models\Lokasi;
 use App\Models\Person;
 use App\Models\Kategori;
@@ -512,75 +513,74 @@ class DatabaseSeeder extends Seeder
         for ($i = 1; $i <= 5; $i++) {
             KontrakVendorStok::create([
                 'vendor_id' => VendorStok::inRandomOrder()->first()->id,
-                'merk_id' => MerkStok::inRandomOrder()->first()->id,
+                // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
+                'user_id' => User::inRandomOrder()->first()->id,
                 'tanggal_kontrak' => strtotime($faker->date()),
-                'jumlah_total' => rand(100, 1000),
+                'type' => rand(0, 1),
             ]);
         }
 
         // Seed for PengirimanStok
-        for (
-            $i = 1;
-            $i <= 5;
-            $i++
-        ) {
+
+        for ($i = 1; $i <= 5; $i++) {
             PengirimanStok::create([
-                'kontrak_id' => KontrakVendorStok::inRandomOrder()->first()->id,
-                'merk_id' => MerkStok::inRandomOrder()->first()->id,
-                'tanggal_pengiriman' => strtotime($faker->date()),
-                'jumlah' => rand(1, 50),
-                'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
-                'bagian_id' => BagianStok::inRandomOrder()->first()->id,
-                'posisi_id' => PosisiStok::inRandomOrder()->first()->id,
+                'kode_pengiriman_stok' => $faker->unique()->numerify('PGS#####'), // Generating a unique code
+                'kontrak_id' => KontrakVendorStok::inRandomOrder()->first()->id, // Randomly picking a contract
+                'merk_id' => MerkStok::inRandomOrder()->first()->id, // Randomly picking a merk
+                'tanggal_pengiriman' => $faker->date(), // Generating a random date
+                'jumlah' => rand(1, 50), // Random quantity between 1 and 50
+                'lokasi_id' => LokasiStok::inRandomOrder()->first()->id, // Randomly picking a location
+                'bagian_id' => BagianStok::inRandomOrder()->first()->id, // Randomly picking a department
+                'posisi_id' => PosisiStok::inRandomOrder()->first()->id, // Randomly picking a position
             ]);
         }
 
         // Seed for TransaksiStok
-        for (
-            $i = 1;
-            $i <= 5;
-            $i++
-        ) {
+        for ($i = 0; $i < 10; $i++) {
             TransaksiStok::create([
+                'kode_transaksi_stok' => $faker->unique()->numerify('TRX#####'),
                 'tipe' => $faker->randomElement(['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']),
                 'merk_id' => MerkStok::inRandomOrder()->first()->id,
-                'jumlah' => rand(1, 20),
-                'tanggal' => strtotime($faker->date()),
-                'user_id' => 1, // Assuming you have a user with ID 1
+                'vendor_id' => VendorStok::inRandomOrder()->take(1)->pluck('id')->first(),
+                'user_id' => User::inRandomOrder()->first()->id,
                 'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
-                'pengiriman_id' => PengirimanStok::inRandomOrder()->first()->id,
+                'kontrak_id' => $i < 6 ? KontrakVendorStok::inRandomOrder()->take(1)->pluck('id')->first() : null,
+                'tanggal' => strtotime(now()),
+                'jumlah' => $faker->numberBetween(1, 100),
+                'deskripsi' => $faker->sentence(),
+                'lokasi_penerimaan' => $faker->address(),
             ]);
         }
 
         // Seed for TransaksiDaruratStok
-        for ($i = 1; $i <= 5; $i++) {
-            TransaksiDaruratStok::create([
-                'merk_id' => MerkStok::inRandomOrder()->first()->id,
-                'vendor_id' => VendorStok::inRandomOrder()->first()->id,
-                'user_id' => 1, // Assuming you have a user with ID 1
-                'tanggal' => strtotime($faker->date()),
-                'jumlah' => rand(1, 10),
-                'tipe' => 'Penggunaan Langsung',
-                'deskripsi' => $faker->sentence,
-                'lokasi_penerimaan' => $faker->address,
-            ]);
-        }
+        // for ($i = 1; $i <= 5; $i++) {
+        //     TransaksiDaruratStok::create([
+        //         'merk_id' => MerkStok::inRandomOrder()->first()->id,
+        //         'vendor_id' => VendorStok::inRandomOrder()->first()->id,
+        //         'user_id' => 1, // Assuming you have a user with ID 1
+        //         'tanggal' => strtotime($faker->date()),
+        //         'jumlah' => rand(1, 10),
+        //         'tipe' => 'Penggunaan Langsung',
+        //         'deskripsi' => $faker->sentence,
+        //         'lokasi_penerimaan' => $faker->address,
+        //     ]);
+        // }
 
         // Seed for KontrakRetrospektifStok
-        for (
-            $i = 1;
-            $i <= 5;
-            $i++
-        ) {
-            KontrakRetrospektifStok::create([
-                'bukti_kontrak' => 'ini bukti.jpg',
-                // 'vendor_id' => VendorStok::inRandomOrder()->first()->id,
-                // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
-                'tanggal_kontrak' => strtotime($faker->date()),
-                // 'jumlah_total' => rand(100, 500),
-                'deskripsi_kontrak' => $faker->sentence,
-            ]);
-        }
+        // for (
+        //     $i = 1;
+        //     $i <= 5;
+        //     $i++
+        // ) {
+        //     KontrakRetrospektifStok::create([
+        //         'bukti_kontrak' => 'ini bukti.jpg',
+        //         // 'vendor_id' => VendorStok::inRandomOrder()->first()->id,
+        //         // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
+        //         'tanggal_kontrak' => strtotime($faker->date()),
+        //         // 'jumlah_total' => rand(100, 500),
+        //         'deskripsi_kontrak' => $faker->sentence,
+        //     ]);
+        // }
 
         // Seed for Stok
         for ($i = 1; $i <= 5; $i++) {

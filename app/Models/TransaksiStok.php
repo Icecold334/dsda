@@ -13,6 +13,11 @@ class TransaksiStok extends Model
         return $this->belongsTo(MerkStok::class, 'merk_id');
     }
 
+    public function vendorStok()
+    {
+        return $this->belongsTo(VendorStok::class, 'vendor_id');
+    }
+
     public function lokasiStok()
     {
         return $this->belongsTo(LokasiStok::class, 'lokasi_id');

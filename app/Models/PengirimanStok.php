@@ -8,6 +8,8 @@ class PengirimanStok extends Model
 {
     protected $table = 'pengiriman_stok';
 
+    protected $guarded = ['id'];
+
     public function kontrakVendorStok()
     {
         return $this->belongsTo(KontrakVendorStok::class, 'kontrak_id');

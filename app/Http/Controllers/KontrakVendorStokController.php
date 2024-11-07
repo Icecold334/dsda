@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\BarangStok;
 use Illuminate\Http\Request;
+use App\Models\TransaksiStok;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\TransaksiDaruratStok;
+use App\Models\VendorStok;
 
 class KontrakVendorStokController extends Controller
 {
@@ -16,38 +18,19 @@ class KontrakVendorStokController extends Controller
      */
     public function index()
     {
+        // Get transactions with a filled kontrak_id
+        $transaksi = TransaksiStok::whereNotNull('kontrak_id')->get();
 
+        // Sort transactions by date (you could sort by any other attribute relevant to your context)
+        $sortedTransaksi = $transaksi->sortByDesc('tanggal');
 
-
-        $transaksiDarurat = TransaksiDaruratStok::all();
-        $groupedTransactions = $transaksiDarurat->groupBy(function ($item) {
-            return $item->vendor_id; // First level grouping by vendor_id
-        })->map(function ($vendorGroup) {
-            return $vendorGroup->groupBy(function ($item) {
-                return $item->kontrak_retrospektif_id ?? 'null'; // Second level grouping by kontrak_retrospektif_id
+        // Group the sorted transactions by vendor_id, then by kontrak_id
+        $groupedTransactions = $sortedTransaksi->groupBy('vendor_id')->map(function ($vendorGroup) {
+            return $vendorGroup->groupBy('kontrak_id')->map(function ($kontrakGroup) {
+                return $kontrakGroup->groupBy('id'); // Group by transaction ID for distinction
             });
         });
-
-        $result = [];
-        foreach ($groupedTransactions as $vendorId => $kontrakGroups) {
-            // Only include groups where the kontrak_id is not null
-            foreach ($kontrakGroups as $kontrakId => $transactions) {
-                if ($kontrakId !== 'null') {
-                    $result[] = [
-                        'vendor_id' => $vendorId,
-                        'transactions' => $transactions,
-                        'kontrak_id' => $kontrakId, // This will be the actual kontrak_retrospektif_id
-                        'status' => true, // Indicate that it has a kontrak
-                    ];
-                }
-            }
-        }
-
-        // Now $result will only contain entries with valid kontrak_retrospektif_id
-
-
-
-        return view('rekam.index', compact('result'));
+        return view('rekam.index', compact('groupedTransactions'));
     }
 
     /**
@@ -55,7 +38,8 @@ class KontrakVendorStokController extends Controller
      */
     public function create()
     {
-        //
+        $vendors = VendorStok::all();
+        return view('rekam.create', compact('vendors'));
     }
 
     /**

@@ -17,10 +17,10 @@ class KontrakVendorStok extends Model
     // {
     //     return $this->belongsTo(MerkStok::class, 'merk_id');
     // }
-    public function listKontrak()
-    {
-        return $this->hasMany(ListKontrakStok::class, 'kontrak_id');
-    }
+    // public function listKontrak()
+    // {
+    //     return $this->hasMany(ListKontrakStok::class, 'kontrak_id');
+    // }
 
     public function pengirimanStok()
     {
