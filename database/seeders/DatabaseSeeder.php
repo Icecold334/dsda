@@ -461,6 +461,7 @@ class DatabaseSeeder extends Seeder
         for ($i = 1; $i <= 5; $i++) {
             BarangStok::create([
                 'jenis_id' => JenisStok::inRandomOrder()->first()->id,
+                'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
                 'nama' => 'Barang ' . $i,
                 'satuan_besar_id' => SatuanBesar::inRandomOrder()->first()->id,
                 'satuan_kecil_id' => SatuanKecil::inRandomOrder()->first()->id,
@@ -527,7 +528,7 @@ class DatabaseSeeder extends Seeder
                 'kode_pengiriman_stok' => $faker->unique()->numerify('PGS#####'), // Generating a unique code
                 'kontrak_id' => KontrakVendorStok::inRandomOrder()->first()->id, // Randomly picking a contract
                 'merk_id' => MerkStok::inRandomOrder()->first()->id, // Randomly picking a merk
-                'tanggal_pengiriman' => $faker->date(), // Generating a random date
+                'tanggal_pengiriman' => strtotime($faker->date()), // Generating a random date
                 'jumlah' => rand(1, 50), // Random quantity between 1 and 50
                 'lokasi_id' => LokasiStok::inRandomOrder()->first()->id, // Randomly picking a location
                 'bagian_id' => BagianStok::inRandomOrder()->first()->id, // Randomly picking a department

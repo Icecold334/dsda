@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\KontrakRetrospektifStok;
 use App\Models\VendorStok;
 use Illuminate\Http\Request;
+use App\Models\TransaksiStok;
 use App\Models\TransaksiDaruratStok;
+use App\Models\KontrakRetrospektifStok;
 
 class TransaksiDaruratStokController extends Controller
 {
@@ -14,32 +15,20 @@ class TransaksiDaruratStokController extends Controller
      */
     public function index()
     {
-        $transaksiDarurat = TransaksiDaruratStok::all();
-        $groupedTransactions = $transaksiDarurat->groupBy(function ($item) {
-            return $item->vendor_id; // First level grouping by vendor_id
-        })->map(function ($vendorGroup) {
-            return $vendorGroup->groupBy(function ($item) {
-                return $item->kontrak_retrospektif_id ?? 'null'; // Second level grouping by kontrak_retrospektif_id
+        // Get transactions with a filled kontrak_id
+        $transaksi = TransaksiStok::whereNull('kontrak_id')->get();
+
+        // Sort transactions by date (you could sort by any other attribute relevant to your context)
+        $sortedTransaksi = $transaksi->sortByDesc('tanggal');
+
+        // Group the sorted transactions by vendor_id, then by kontrak_id
+        $groupedTransactions = $sortedTransaksi->groupBy('vendor_id')->map(function ($vendorGroup) {
+            return $vendorGroup->groupBy('kontrak_id')->map(function ($kontrakGroup) {
+                return $kontrakGroup->groupBy('id'); // Group by transaction ID for distinction
             });
         });
 
-        $result = [];
-        foreach ($groupedTransactions as $vendorId => $kontrakGroups) {
-            // Only include groups where the kontrak_id is null
-            if (isset($kontrakGroups['null'])) {
-                $transactions = $kontrakGroups['null'];
-                $result[] = [
-                    'vendor_id' => $vendorId,
-                    'transactions' => $transactions,
-                    'kontrak_id' => 'null', // Explicitly set to 'null'
-                    'status' => false, // Indicate that it has no kontrak
-                ];
-            }
-        }
-
-        // Now $result will only contain entries with null kontrak_retrospektif_id
-
-        return view('darurat.index', compact('result'));
+        return view('darurat.index', compact('groupedTransactions'));
     }
 
     /**

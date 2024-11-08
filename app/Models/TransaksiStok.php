@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class TransaksiStok extends Model
 {
     protected $table = 'transaksi_stok';
+    protected $guarded = ['id'];
 
     public function merkStok()
     {
@@ -16,6 +17,10 @@ class TransaksiStok extends Model
     public function vendorStok()
     {
         return $this->belongsTo(VendorStok::class, 'vendor_id');
+    }
+    public function kontrakStok()
+    {
+        return $this->belongsTo(KontrakVendorStok::class, 'kontrak_id');
     }
 
     public function lokasiStok()

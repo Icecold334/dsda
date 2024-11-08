@@ -53,10 +53,15 @@ class KontrakVendorStokController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        // Retrieve the contract details with related data (such as vendor and items)
+        $kontrak = KontrakVendorStok::findOrFail($id);
+
+        // Return the view with the contract data
+        return view('rekam.show', compact('kontrak'));
     }
+
 
     /**
      * Show the form for editing the specified resource.

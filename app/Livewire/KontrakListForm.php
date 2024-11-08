@@ -5,7 +5,11 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
+use Illuminate\Support\Str;
 use Livewire\Attributes\On;
+use App\Models\TransaksiStok;
+use App\Models\KontrakVendorStok;
+use Illuminate\Support\Facades\Auth;
 
 class KontrakListForm extends Component
 {
@@ -109,7 +113,52 @@ class KontrakListForm extends Component
         $this->list = array_values($this->list);
     }
 
+    public function saveKontrak()
+    {
+        // Validate the required fields
+        $this->validate([
+            'vendor_id' => 'required',
+            'list' => 'required|array|min:1',
+            'list.*.barang_id' => 'required|integer',
+            'list.*.merk_id' => 'required|integer',
+            'list.*.jumlah' => 'required|integer|min:1',
+        ]);
 
+        // Create a new contract (assuming you have a model like `KontrakVendorStok`)
+        $kontrak = KontrakVendorStok::create([
+            'vendor_id' => $this->vendor_id,
+            'tanggal_kontrak' => strtotime(now()),
+            'nomor_kontrak' => $this->generateContractNumber(), // Assuming a method to generate contract number
+            'user_id' => Auth::id(), // Assuming the logged-in user's name as the author
+            // 'jumlah_total' => array_sum(array_column($this->list, 'jumlah')),
+            'type' => true
+        ]);
+
+        // Loop through each item in the list and create related entries
+        foreach ($this->list as $item) {
+            TransaksiStok::create([
+                'merk_id' => $item['merk_id'],
+                'vendor_id' => $this->vendor_id,
+                'user_id' => Auth::id(),
+                'kontrak_id' => $kontrak->id,
+                'tanggal' => strtotime(now()),
+                'jumlah' => $item['jumlah'],
+                'tipe' => 'Pemasukan'
+
+            ]);
+        }
+
+        // Clear the list and reset the input fields
+        $this->reset(['list', 'vendor_id', 'barang_id', 'merk_id', 'jumlah']);
+
+        // Emit a success message or redirect if desired
+        session()->flash('message', 'Kontrak berhasil disimpan.');
+    }
+
+    protected function generateContractNumber()
+    {
+        return 'CN-' . strtoupper(Str::random(6));
+    }
 
     public function render()
     {

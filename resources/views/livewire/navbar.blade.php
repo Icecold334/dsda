@@ -16,9 +16,8 @@
                         ['href' => '/aset-non-aktif', 'title' => 'aset non aktif'],
                     ]" />
                     <livewire:nav-item title="inventaris" :child="[
-                        ['href' => '/aset-aktif', 'title' => 'inventaris'],
-                    
-                        ['href' => '/aset-non-aktif', 'title' => 'stok'],
+                        ['href' => '/pengiriman-stok', 'title' => 'inventaris'],
+                        ['href' => '/stok', 'title' => 'stok'],
                     ]" />
                     <livewire:nav-item title="Rekam Kontrak" :child="[
                         ['href' => '/kontrak-vendor-stok', 'title' => 'Daftar Kontrak'],

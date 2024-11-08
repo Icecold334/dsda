@@ -8,9 +8,15 @@ class KontrakVendorStok extends Model
 {
     protected $table = 'kontrak_vendor_stok';
 
+    protected $guarded = ['id'];
+
     public function vendorStok()
     {
         return $this->belongsTo(VendorStok::class, 'vendor_id');
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // public function merkStok()
@@ -25,5 +31,9 @@ class KontrakVendorStok extends Model
     public function pengirimanStok()
     {
         return $this->hasMany(PengirimanStok::class, 'kontrak_id');
+    }
+    public function transaksiStok()
+    {
+        return $this->hasMany(TransaksiStok::class, 'kontrak_id');
     }
 }

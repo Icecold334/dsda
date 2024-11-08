@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\VendorStok;
 use Illuminate\Http\Request;
+use App\Models\PengirimanStok;
 
 class PengirimanStokController extends Controller
 {
@@ -11,7 +13,8 @@ class PengirimanStokController extends Controller
      */
     public function index()
     {
-        //
+        $datangs = PengirimanStok::orderBy('id', 'desc')->get()->groupBy('kode_pengiriman_stok');
+        return view('pengiriman.index', compact('datangs'));
     }
 
     /**
@@ -19,7 +22,10 @@ class PengirimanStokController extends Controller
      */
     public function create()
     {
-        //
+        $vendors = VendorStok::whereHas('kontrakVendorStok', function ($query) {
+            $query->where('type', true); // Adjust 'tipe' column as needed
+        })->get();
+        return view('pengiriman.create', compact('vendors'));
     }
 
     /**

@@ -16,17 +16,17 @@ class VendorKontrakForm extends Component
 
     public function mount()
     {
-        $transaksi = TransaksiStok::all();
+        // $transaksi = TransaksiStok::all();
 
-        // Filter transactions to get only those with a filled kontrak_id
-        $vendorIdsWithKontrak = $transaksi->filter(function ($transaction) {
-            return $transaction->kontrak_id !== null;
-        })->pluck('vendor_id')->unique(); // Get unique vendor IDs
+        // // Filter transactions to get only those with a filled kontrak_id
+        // $vendorIdsWithKontrak = $transaksi->filter(function ($transaction) {
+        //     return $transaction->kontrak_id !== null;
+        // })->pluck('vendor_id')->unique(); // Get unique vendor IDs
 
-        // Filter vendors collection based on these vendor IDs
-        $this->vendors = $this->vendors->filter(function ($vendor) use ($vendorIdsWithKontrak) {
-            return $vendorIdsWithKontrak->contains($vendor->id);
-        });
+        // // Filter vendors collection based on these vendor IDs
+        // $this->vendors = $this->vendors->filter(function ($vendor) use ($vendorIdsWithKontrak) {
+        //     return $vendorIdsWithKontrak->contains($vendor->id);
+        // });
     }
 
     public function updatedVendorId()

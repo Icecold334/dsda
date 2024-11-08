@@ -15,7 +15,7 @@ class MerkStok extends Model
 
     public function stok()
     {
-        return $this->hasOne(Stok::class, 'merk_id');
+        return $this->hasMany(Stok::class, 'merk_id');
     }
 
     public function kontrakVendorStok()

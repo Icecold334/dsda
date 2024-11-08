@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BarangStok;
+use App\Models\Stok;
 use Illuminate\Http\Request;
 
 class StokController extends Controller
@@ -11,7 +13,18 @@ class StokController extends Controller
      */
     public function index()
     {
-        //
+        $barangs = BarangStok::whereHas('merkStok', function ($merkQuery) {
+            $merkQuery->whereHas('stok', function ($stokQuery) {
+                $stokQuery->where('jumlah', '>', 0);
+            });
+        })->get();
+
+        $stoks = Stok::where('jumlah', '>', 0)
+            ->with('merkStok') // Ensure we load related merk information for display
+            ->get()
+            ->groupBy('merkStok.barang_id'); // Group stocks by barang_id
+
+        return view('stok.index', compact('barangs', 'stoks'));
     }
 
     /**

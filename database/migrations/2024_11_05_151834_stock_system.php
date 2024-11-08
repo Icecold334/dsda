@@ -19,6 +19,7 @@ return new class extends Migration
         Schema::create('barang_stok', function (Blueprint $table) {
             $table->timestamps();
             $table->id();
+            $table->string('kode_barang');
             $table->foreignId('jenis_id')->constrained('jenis_stok');
             $table->foreignId('satuan_besar_id')->constrained('satuan_besar'); // Foreign key to satuan_besar
             $table->foreignId('satuan_kecil_id')->constrained('satuan_kecil'); // Foreign key to satuan_kecil

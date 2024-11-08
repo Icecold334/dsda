@@ -73,25 +73,25 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('option', OptionController::class);
     Route::resource('order', OrderController::class);
     Route::resource('provinsi', ProvinsiController::class);
+    Route::resources([
+        'jenis-stok' => JenisStokController::class,
+        'barang-stok' => BarangStokController::class,
+        'merk-stok' => MerkStokController::class,
+        'vendor-stok' => VendorStokController::class,
+        'lokasi-stok' => LokasiStokController::class,
+        'bagian-stok' => BagianStokController::class,
+        'posisi-stok' => PosisiStokController::class,
+        'kontrak-vendor-stok' => KontrakVendorStokController::class,
+        'pengiriman-stok' => PengirimanStokController::class,
+        'transaksi-stok' => TransaksiStokController::class,
+        'transaksi-darurat-stok' => TransaksiDaruratStokController::class,
+        'kontrak-retrospektif-stok' => KontrakRetrospektifStokController::class,
+        'stok' => StokController::class,
+        'permintaan-stok' => PermintaanStokController::class,
+    ]);
 });
 
 // Register all resource routes
-Route::resources([
-    'jenis-stok' => JenisStokController::class,
-    'barang-stok' => BarangStokController::class,
-    'merk-stok' => MerkStokController::class,
-    'vendor-stok' => VendorStokController::class,
-    'lokasi-stok' => LokasiStokController::class,
-    'bagian-stok' => BagianStokController::class,
-    'posisi-stok' => PosisiStokController::class,
-    'kontrak-vendor-stok' => KontrakVendorStokController::class,
-    'pengiriman-stok' => PengirimanStokController::class,
-    'transaksi-stok' => TransaksiStokController::class,
-    'transaksi-darurat-stok' => TransaksiDaruratStokController::class,
-    'kontrak-retrospektif-stok' => KontrakRetrospektifStokController::class,
-    'stok' => StokController::class,
-    'permintaan-stok' => PermintaanStokController::class,
-]);
 
 
 // Route::view('dashboard', 'dashboard')

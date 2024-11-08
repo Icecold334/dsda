@@ -37,25 +37,28 @@
                             <table class="w-full text-sm border-spacing-y-2">
                                 <thead class="text-primary-800">
                                     <tr>
+                                        <th class="w-1/3">Barang</th>
                                         <th class="w-1/3">Merk</th>
                                         <th class="w-1/3">Jumlah</th>
-                                        <th class="w-1/3">Tanggal</th>
+                                        {{-- <th class="w-1/3">Tanggal</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($transactions as $transaction)
                                         <tr class="border-b-[1px] border-primary-800">
+                                            <td>{{ $transaction[0]->merkStok->barangStok->nama }}</td>
                                             <td>{{ $transaction[0]->merkStok->nama ?? 'Unknown Merk' }}</td>
                                             <td>{{ $transaction[0]->jumlah }}
                                                 {{ $transaction[0]->merkStok->barangStok->satuanBesar->nama }}</td>
-                                            <td>{{ date('j F Y', $transaction[0]->tanggal) }}</td>
+                                            {{-- <td>{{ date('j F Y', $transaction[0]->tanggal) }}</td> --}}
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </td>
                         <td class="py-3 px-6 text-center">
-                            <a href="#" class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
+                            <a href="{{ route('kontrak-vendor-stok.show', ['kontrak_vendor_stok' => $kontrakId]) }}"
+                                class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-kontrak-{{ $transactions->first()[0]->id }}">
                                 <i class="fa-solid fa-eye"></i>
                             </a>
