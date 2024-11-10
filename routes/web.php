@@ -1,6 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\AsetController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\KotaController;
@@ -38,7 +40,18 @@ use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
 
-Route::view('/', 'welcome');
+Route::get('/', function () {
+    return redirect()->to('/login');
+});
+Route::get('/logout', function () {
+    Auth::guard('web')->logout();
+
+    Session::invalidate();
+    Session::regenerateToken();
+
+    return redirect()->to('/login');
+});
+
 
 Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])

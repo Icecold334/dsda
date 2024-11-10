@@ -22,10 +22,16 @@ class KontrakListForm extends Component
     public $merk_id;
     public $jumlah;
     public $vendor_id;
+    public $dokumenCount;
     #[On('vendor_id')]
     public function fillVendor($vendor_id)
     {
         $this->vendor_id = $vendor_id;
+    }
+    #[On('dokumenCount')]
+    public function fillBukti($count)
+    {
+        $this->dokumenCount = $count;
     }
     public function mount()
     {
@@ -74,7 +80,7 @@ class KontrakListForm extends Component
             'merks' => MerkStok::where('barang_id', $this->barang_id)->whereNotIn('id', collect($this->list)->pluck('merk_id'))->get(),
             'jumlah' => $this->jumlah,
         ];
-
+        $this->dispatch('listCount', count: count($this->list));
         // Reset selected values to add a new item cleanly
         $this->reset(['barang_id', 'merk_id', 'jumlah', 'merks', 'barang_item', 'merk_item']);
     }
@@ -111,6 +117,7 @@ class KontrakListForm extends Component
 
         // Re-index the array to maintain correct indexing
         $this->list = array_values($this->list);
+        $this->dispatch('listCount', count: count($this->list));
     }
 
     public function saveKontrak()

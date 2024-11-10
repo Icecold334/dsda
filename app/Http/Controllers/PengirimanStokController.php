@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetailPengirimanStok;
 use App\Models\VendorStok;
 use Illuminate\Http\Request;
 use App\Models\PengirimanStok;
@@ -13,7 +14,8 @@ class PengirimanStokController extends Controller
      */
     public function index()
     {
-        $datangs = PengirimanStok::orderBy('id', 'desc')->get()->groupBy('kode_pengiriman_stok');
+        // $datangs = PengirimanStok::orderBy('id', 'desc')->get()->groupBy('kode_pengiriman_stok');
+        $datangs = DetailPengirimanStok::orderBy('id', 'desc')->get();
         return view('pengiriman.index', compact('datangs'));
     }
 
@@ -41,8 +43,13 @@ class PengirimanStokController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // Ambil detail pengiriman berdasarkan ID yang diberikan
+        $pengiriman = DetailPengirimanStok::findOrFail($id);
+
+        // Kirim data pengiriman ke view
+        return view('pengiriman.show', compact('pengiriman'));
     }
+
 
     /**
      * Show the form for editing the specified resource.

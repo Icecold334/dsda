@@ -29,6 +29,7 @@ use App\Models\PermintaanStok;
 use Illuminate\Database\Seeder;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\DB;
+use App\Models\DetailPengirimanStok;
 use App\Models\TransaksiDaruratStok;
 use Illuminate\Support\Facades\Hash;
 use App\Models\KontrakRetrospektifStok;
@@ -513,19 +514,35 @@ class DatabaseSeeder extends Seeder
         // Seed for KontrakVendorStok
         for ($i = 1; $i <= 5; $i++) {
             KontrakVendorStok::create([
+                'nomor_kontrak' => $faker->unique()->bothify('KV#####'),
                 'vendor_id' => VendorStok::inRandomOrder()->first()->id,
+                'tanggal_kontrak' => strtotime($faker->date()),
                 // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
                 'user_id' => User::inRandomOrder()->first()->id,
-                'tanggal_kontrak' => strtotime($faker->date()),
                 'type' => rand(0, 1),
             ]);
         }
 
+        $kontrakVendorStoks = KontrakVendorStok::all();
+        $users = User::all();
+
+        foreach (range(1, 10) as $index) {
+            DetailPengirimanStok::create([
+                'kode_pengiriman_stok' => 'PGS' . strtoupper(Str::random(6)),
+                'kontrak_id' => $kontrakVendorStoks->random()->id,
+                'tanggal' => strtotime(now()),
+                'user_id' => $users->random()->id,
+                'super_id' => $users->random()->id,
+                'admin_id' => $users->random()->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
         // Seed for PengirimanStok
 
         for ($i = 1; $i <= 5; $i++) {
             PengirimanStok::create([
-                'kode_pengiriman_stok' => $faker->unique()->numerify('PGS#####'), // Generating a unique code
+                'detail_pengiriman_id' => DetailPengirimanStok::inRandomOrder()->first()->id, // Generating a unique code
                 'kontrak_id' => KontrakVendorStok::inRandomOrder()->first()->id, // Randomly picking a contract
                 'merk_id' => MerkStok::inRandomOrder()->first()->id, // Randomly picking a merk
                 'tanggal_pengiriman' => strtotime($faker->date()), // Generating a random date

@@ -14,6 +14,14 @@ class KontrakVendorStok extends Model
     {
         return $this->belongsTo(VendorStok::class, 'vendor_id');
     }
+    public function super()
+    {
+        return $this->belongsTo(User::class, 'super_id');
+    }
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'admin_id');
+    }
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -28,6 +36,10 @@ class KontrakVendorStok extends Model
     //     return $this->hasMany(ListKontrakStok::class, 'kontrak_id');
     // }
 
+    public function detailPengirimanStok()
+    {
+        return $this->hasMany(DetailPengirimanStok::class, 'kontrak_id');
+    }
     public function pengirimanStok()
     {
         return $this->hasMany(PengirimanStok::class, 'kontrak_id');

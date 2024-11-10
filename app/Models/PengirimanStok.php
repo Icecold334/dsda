@@ -15,6 +15,11 @@ class PengirimanStok extends Model
         return $this->belongsTo(KontrakVendorStok::class, 'kontrak_id');
     }
 
+    public function detailPengirimanStok()
+    {
+        return $this->belongsTo(DetailPengirimanStok::class, 'detail_pengiriman_id');
+    }
+
     public function merkStok()
     {
         return $this->belongsTo(MerkStok::class, 'merk_id');

@@ -8,7 +8,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-2">
+    <div class="grid grid-col-1 lg:grid-cols-2 mb-3">
         <div>
             <x-card title="Data Umum" class="mb-3">
                 <livewire:vendor-kontrak-form :vendors="$vendors" />
@@ -18,4 +18,7 @@
             </x-card>
         </div>
     </div>
+    <x-card title="Detail item barang">
+        <livewire:list-pengiriman-form>
+    </x-card>
 </x-body>

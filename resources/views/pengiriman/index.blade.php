@@ -26,22 +26,22 @@
 
                     </td>
                     <td class="px-6 py-3 font-semibold">
-                        {{ $datang->first()->kode_pengiriman_stok }}
+                        {{ $datang->kode_pengiriman_stok }}
                     </td>
                     <td class="px-6 py-3 font-semibold">
-                        {{ date('j F Y', $datang->first()->tanggal_pengiriman) }}
+                        {{ date('j F Y', $datang->tanggal) }}
                     </td>
                     <td class="px-6 py-3 text-center">
                         <span
-                            class="bg-green-400 text-green-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Selesai</span>
+                            class="bg-{{ $datang->super_id && $datang->admin_id ? 'success' : 'warning' }}-400 text-{{ $datang->super_id && $datang->admin_id ? 'white' : 'black' }} text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-{{ $datang->super_id && $datang->admin_id ? 'success' : 'warning' }}-900 dark:text-{{ $datang->super_id && $datang->admin_id ? 'success' : 'warning' }}-300">{{ $datang->super_id && $datang->admin_id ? 'Selesai' : 'Proses' }}</span>
                     </td>
                     <td class="py-3 px-6 text-center">
-                        <a href="{{ route('pengiriman-stok.show', ['pengiriman_stok' => $datang->first()->id]) }}"
+                        <a href="{{ route('pengiriman-stok.show', ['pengiriman_stok' => $datang->id]) }}"
                             class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
-                            data-tooltip-target="tooltip-aset-{{ $datang->first()->id }}">
+                            data-tooltip-target="tooltip-aset-{{ $datang->id }}">
                             <i class="fa-solid fa-eye"></i>
                         </a>
-                        <div id="tooltip-aset-{{ $datang->first()->id }}" role="tooltip"
+                        <div id="tooltip-aset-{{ $datang->id }}" role="tooltip"
                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                             Lihat Detail Kedatangan Barang
                             <div class="tooltip-arrow" data-popper-arrow></div>

@@ -27,4 +27,8 @@ class MerkStok extends Model
     {
         return $this->hasMany(PengirimanStok::class, 'merk_id');
     }
+    public function transaksiStok()
+    {
+        return $this->hasMany(TransaksiStok::class, 'merk_id');
+    }
 }

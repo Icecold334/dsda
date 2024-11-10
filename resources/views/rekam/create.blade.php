@@ -8,11 +8,16 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
             <div class="border-2 rounded-lg px-4 py-1">
                 <livewire:vendor-kontrak-form :vendors="$vendors" />
             </div>
+        </div>
+        <div>
+            <x-card title="surat kontrak">
+                <livewire:upload-surat-kontrak />
+            </x-card>
         </div>
     </div>
     <livewire:kontrak-list-form />
