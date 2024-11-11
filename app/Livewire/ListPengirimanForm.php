@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Stok;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BagianStok;
@@ -9,16 +10,22 @@ use App\Models\LokasiStok;
 use App\Models\PosisiStok;
 use Livewire\Attributes\On;
 use App\Models\TransaksiStok;
+use Livewire\WithFileUploads;
 use App\Models\PengirimanStok;
 use App\Models\DetailPengirimanStok;
 use Illuminate\Support\Facades\Auth;
 
 class ListPengirimanForm extends Component
 {
+    use WithFileUploads;
+    public $old = [];
     public $list = [];
     public $lokasis = [];
     public $errorsList = [];
     public $vendor_id;
+    public $penulis;
+    public $pj1;
+    public $pj2;
 
     #[On('merkSelected')]
     public function addMerkToList($merkId)
@@ -26,11 +33,16 @@ class ListPengirimanForm extends Component
         $this->appendList($merkId);
     }
 
+    public function removePhoto($index)
+    {
+        if (isset($this->list[$index]['bukti'])) {
+            unset($this->list[$index]['bukti']);  // Remove the photo from the list
+        }
+    }
+
 
     public function savePengiriman()
     {
-
-
         // Validate that all items have required data
         foreach ($this->list as $index => $item) {
             if (!$item['jumlah'] || !$item['lokasi_id']) {
@@ -39,81 +51,140 @@ class ListPengirimanForm extends Component
             }
         }
 
-        // Create a new detail_pengiriman_stok record as the "parent" for this shipment
-        $detailPengiriman = DetailPengirimanStok::create([
-            'kode_pengiriman_stok' => 'PGS' . mt_rand(10000, 99999), // Generate random kode
-            'kontrak_id' => 2,
-            'tanggal' => strtotime(now()),
-            'user_id' => Auth::id(),
-            // 'created_at' => now(),
+        // Create a new detail_pengiriman_stok record if needed
+        $this->validate([
+            'penulis' => 'required|string',
+            'pj1' => 'nullable|string',
+            'pj2' => 'nullable|string',
         ]);
+
+        $detailPengiriman = DetailPengirimanStok::updateOrCreate(
+            [
+                'id' => count($this->old) > 0 ? $this->old[0]->id : 0,
+            ],
+            [
+                'kode_pengiriman_stok' => fake()->bothify('KP#######'),
+                'kontrak_id' => 2,
+                'tanggal' => strtotime(now()),
+                'user_id' => Auth::id(),
+                'penerima' => $this->penulis,
+                'pj1' => $this->pj1,
+                'pj2' => $this->pj2,
+            ]
+        );
+
 
         foreach ($this->list as $item) {
             $requestedQuantity = $item['jumlah'];
             $merkId = $item['merk_id'];
 
-            // Ambil transaksi untuk kontrak yang bertipe `Pemasukan`, urutkan berdasarkan yang paling lama
-            $transactions = \App\Models\TransaksiStok::where('vendor_id', $this->vendor_id)
-                ->where('merk_id', $merkId)
-                ->where('tipe', 'Pemasukan')
-                ->whereNotNull('kontrak_id')
-                ->orderBy('tanggal')
-                ->get();
-
-            foreach ($transactions as $transaction) {
-                // Hitung jumlah sisa di transaksi kontrak ini
-                $shippedQty = \App\Models\PengirimanStok::where('kontrak_id', $transaction->kontrak_id)
-                    ->where('merk_id', $merkId)
-                    ->sum('jumlah');
-
-                $remainingQty = $transaction->jumlah - $shippedQty;
-
-                // Jika tidak ada jumlah tersisa di kontrak ini, lanjut ke kontrak berikutnya
-                if ($remainingQty <= 0) {
-                    continue;
-                }
-
-                // Jumlah yang bisa dipenuhi dari kontrak ini
-                $fulfillableQty = min($remainingQty, $requestedQuantity);
-
-                // Buat entri PengirimanStok
-                \App\Models\PengirimanStok::create([
-                    'detail_pengiriman_id' => $detailPengiriman->id,
-                    'kontrak_id' => $transaction->kontrak_id,
-                    'merk_id' => $merkId,
-                    'tanggal_pengiriman' => strtotime(now()),
-                    'jumlah' => $fulfillableQty,
-                    'lokasi_id' => $item['lokasi_id'],
+            if (isset($item['detail'])) {
+                // Update existing PengirimanStok record if `detail` is set
+                $pengirimanStok = PengirimanStok::find($item['id']);
+                $pengirimanStok->update([
+                    // 'jumlah' => $requestedQuantity,
+                    // 'lokasi_id' => $item['lokasi_id'],
                     'bagian_id' => $item['bagian_id'] ?? null,
                     'posisi_id' => $item['posisi_id'] ?? null,
+                    'img' => isset($item['bukti']) && !is_string($item['bukti']) ? str_replace('buktiPengiriman/', '', $item['bukti']->storeAs('buktiPengiriman', $item['bukti']->getClientOriginalName(), 'public')) : $pengirimanStok->img,
+                    // 'tanggal_pengiriman' => strtotime(now()),
                 ]);
+            } else {
+                $transactions = \App\Models\TransaksiStok::where('vendor_id', $this->vendor_id)
+                    ->where('merk_id', $merkId)
+                    ->where('tipe', 'Pemasukan')
+                    ->whereNotNull('kontrak_id')
+                    ->orderBy('tanggal')
+                    ->get();
+                foreach ($transactions as $transaction) {
+                    $shippedQty = PengirimanStok::where('kontrak_id', $transaction->kontrak_id)
+                        ->where('merk_id', $merkId)
+                        ->sum('jumlah');
+                    $remainingQty = $transaction->jumlah - $shippedQty;
 
-                // Kurangi jumlah yang diminta dengan jumlah yang sudah dipenuhi
-                $requestedQuantity -= $fulfillableQty;
+                    if ($remainingQty <= 0) {
+                        continue;
+                    }
 
-                // Jika semua jumlah yang diminta sudah terpenuhi, berhenti
-                if ($requestedQuantity <= 0) {
-                    break;
+                    $fulfillableQty = min($remainingQty, $requestedQuantity);
+
+                    PengirimanStok::create([
+                        'detail_pengiriman_id' => $detailPengiriman->id,
+                        'kontrak_id' => $transaction->kontrak_id,
+                        'merk_id' => $merkId,
+                        'img' => isset($item['bukti']) && !is_string($item['bukti'])  ? str_replace('buktiPengiriman/', '', $item['bukti']->storeAs('buktiPengiriman', $item['bukti']->getClientOriginalName(), 'public')) : null,
+                        'tanggal_pengiriman' => strtotime(now()),
+                        'jumlah' => $fulfillableQty,
+                        'lokasi_id' => $item['lokasi_id'],
+                        'bagian_id' => $item['bagian_id'] ?? null,
+                        'posisi_id' => $item['posisi_id'] ?? null,
+                    ]);
+
+                    $requestedQuantity -= $fulfillableQty;
+
+                    if ($requestedQuantity <= 0) {
+                        break;
+                    }
                 }
             }
+        }
+        if ($detailPengiriman->penerima && $detailPengiriman->pj1 && $detailPengiriman->pj2) {
+            // Menambahkan stok
+            $pengirimanItems = PengirimanStok::where('detail_pengiriman_id', $detailPengiriman->id)->get();
 
-            // Jika masih ada jumlah yang belum terpenuhi, tampilkan pesan error
-            if ($requestedQuantity > 0) {
-                session()->flash('error', "Jumlah stok tidak mencukupi di kontrak untuk merk ID $merkId.");
+            foreach ($pengirimanItems as $pengiriman) {
+                // Menambahkan stok sesuai lokasi, bagian, dan posisi
+                $stok = Stok::firstOrCreate(
+                    [
+                        'merk_id' => $pengiriman->merk_id,
+                        'lokasi_id' => $pengiriman->lokasi_id,
+                        'bagian_id' => $pengiriman->bagian_id,
+                        'posisi_id' => $pengiriman->posisi_id,
+                    ],
+                    ['jumlah' => 0]  // Atur stok awal jika belum ada
+                );
+
+                $stok->jumlah += $pengiriman->jumlah;
+                $stok->save();
             }
         }
-
-        // Kosongkan list dan reset pilihan vendor
+        // Clear the list and reset the vendor selection
         $this->list = [];
         $this->vendor_id = null;
 
-        // Tampilkan pesan sukses
-        session()->flash('success', 'Pengiriman berhasil disimpan.');
+        // Display a success message
+        return redirect()->route('pengiriman-stok.index');
     }
+
 
     public function mount()
     {
         $this->lokasis = LokasiStok::all();
+        if (count($this->old)) {
+            foreach ($this->old as $old) {
+                // if (!collect($this->list)->contains('merk_id', $merkId)) {
+                $transaksi = PengirimanStok::findOrFail($old->id);
+                $isEditable = is_null($transaksi->bagian_id) && is_null($transaksi->posisi_id);
+                $this->list[] = [
+                    'id' => $transaksi->id,
+                    'merk_id' => $transaksi->merkStok->id,
+                    'merk' => $transaksi->merkStok->nama,
+                    'detail' => $transaksi->detail_pengiriman_id ?? null,
+                    'bukti' => $transaksi->img,
+                    'lokasi_id' => $transaksi->lokasi_id,
+                    'bagian_id' => $transaksi->bagian_id,
+                    'posisi_id' => $transaksi->posisi_id,
+                    'bagians' => BagianStok::where('lokasi_id', $transaksi->lokasi_id)->get(),
+                    'posisis' => collect(),
+                    'jumlah' => $transaksi->jumlah ?? 1,
+                    'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
+                    'editable' => $isEditable,
+                ];
+
+                $this->dispatch('listCount', count: count($this->list));
+                // }
+            }
+        }
     }
 
     #[On('vendor_id')]
@@ -124,25 +195,31 @@ class ListPengirimanForm extends Component
     // #[On('merkId')]
     public function appendList($merkId)
     {
-        // Avoid duplicates by checking if the merk with the given ID is already in the list
         if (!collect($this->list)->contains('merk_id', $merkId)) {
             $transaksi = MerkStok::findOrFail($merkId);
+            $isEditable = is_null($transaksi->bagian_id) && is_null($transaksi->posisi_id);
+
             $this->list[] = [
+                'id' => null,
                 'merk_id' => $transaksi->id,
                 'merk' => $transaksi->nama,
                 'lokasi_id' => null,
+                'detail' => null,
                 'bagian_id' => null,
                 'posisi_id' => null,
                 'bagians' => collect(),
                 'posisis' => collect(),
                 'jumlah' => 1,
-                'max_jumlah' => $this->calculateMaxJumlah($merkId)
+                'max_jumlah' => $this->calculateMaxJumlah($merkId),
+                'editable' => $isEditable,
             ];
+
             $this->dispatch('listCount', count: count($this->list));
         } else {
             $this->dispatch('merkExist');
         }
     }
+
 
     public function calculateMaxJumlah($merkId)
     {

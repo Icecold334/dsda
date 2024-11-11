@@ -10,9 +10,11 @@ use Livewire\Attributes\On;
 use App\Models\TransaksiStok;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\Auth;
+use Livewire\WithFileUploads;
 
 class TransaksiDaruratList extends Component
 {
+    use WithFileUploads;
     public $transaksi = [];
     public $list = [];
     public $barangs;
@@ -24,7 +26,20 @@ class TransaksiDaruratList extends Component
     public $newLokasiPenerimaan;
     public $merk_item;
     public $vendor_id;
+    public $jenis_id;
     public $dokumenCount;
+    public $newBukti;
+
+    public function removeNewPhoto()
+    {
+        $this->newBukti = null;
+    }
+    #[On('jenis_id')]
+    public function fillJenis($jenis_id)
+    {
+        $this->jenis_id = $jenis_id;
+        $this->mount();
+    }
     #[On('vendor_id')]
     public function fillVendor($vendor_id)
     {
@@ -37,7 +52,9 @@ class TransaksiDaruratList extends Component
     }
     public function mount()
     {
-        $this->barangs = BarangStok::whereHas('merkStok')->get();
+        $this->barangs = BarangStok::whereHas('merkStok', function ($query) {
+            // Optionally, add conditions to the query if needed
+        })->where('jenis_id', $this->jenis_id)->get()->sortBy('jenis_id');
         $this->newJumlah = 1;
         // $this->transaksi = $transaksi;
         $this->merks = [];
@@ -48,6 +65,7 @@ class TransaksiDaruratList extends Component
                 'barang_id' => $transaction->merkStok->barang_id,
                 'merks' => MerkStok::where('barang_id', $transaction->merkStok->barang_id)->get(),
                 'merk_id' => $transaction->merk_id,
+                'bukti' => $transaction->img,
                 'tanggal' => $transaction->tanggal,
                 'jumlah' => $transaction->jumlah,
                 'keterangan' => $transaction->deskripsi,
@@ -99,7 +117,8 @@ class TransaksiDaruratList extends Component
             'newMerkId' => 'required',
             'newJumlah' => 'required|integer|min:1',
             'newKeterangan' => 'nullable|string',
-            'newLokasiPenerimaan' => 'nullable|string'
+            'newLokasiPenerimaan' => 'nullable|string',
+            'newBukti' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5024',
         ]);
 
         $this->list[] = [
@@ -107,6 +126,7 @@ class TransaksiDaruratList extends Component
             'merks' => MerkStok::where('barang_id', $this->newBarangId)->get(),
             'merk_id' => $this->newMerkId,
             'tanggal' => null,
+            'bukti' => $this->newBukti,
             'jumlah' => $this->newJumlah,
             'keterangan' => $this->newKeterangan,
             'lokasi_penerimaan' => $this->newLokasiPenerimaan,
@@ -115,7 +135,7 @@ class TransaksiDaruratList extends Component
         $this->merks = [];
         $this->dispatch('listCount', count: count($this->list));
 
-        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newLokasiPenerimaan',]);
+        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newLokasiPenerimaan', 'newBukti']);
     }
 
     public function updateList($index, $field, $value)
@@ -151,12 +171,25 @@ class TransaksiDaruratList extends Component
 
         // Loop through each item in the list and create a related transaction
         foreach ($this->list as $item) {
+            if ($item['tanggal'] !== null) {
+                // Find the existing transaction and update `bukti` if available
+                $transaksi = TransaksiStok::find($item['id']);
+                if ($transaksi && isset($item['bukti']) && $transaksi->img == null) {
+                    $transaksi->update([
+                        'img' =>
+                        str_replace('buktiTransaksi/', '', $item['bukti']->storeAs('buktiTransaksi', $item['bukti']->getClientOriginalName(), 'public')), // Save the file to public storage
+                    ]);
+                }
+                // Skip further processing for older items
+                continue;
+            }
             if ($item['tanggal'] == null) {
                 // dd('oke');
                 TransaksiStok::create([
                     'tipe' => 'Penggunaan Langsung', // Assuming 'Pemasukan' represents a stock addition
                     'merk_id' => $item['merk_id'],
                     'vendor_id' => $this->vendor_id,
+                    'img' => $item['bukti'] != null ? str_replace('buktiTransaksi/', '', $item['bukti']->storeAs('buktiTransaksi', $item['bukti']->getClientOriginalName(), 'public')) : null,
                     'user_id' => Auth::id(),
                     'kontrak_id' => null,
                     'tanggal' => strtotime(now()),
@@ -168,7 +201,7 @@ class TransaksiDaruratList extends Component
         }
 
         // Clear the list and reset input fields
-        $this->reset(['list', 'vendor_id', 'newBarangId', 'newMerkId', 'newJumlah', 'merks']);
+        $this->reset(['list', 'vendor_id', 'newBarangId', 'newMerkId', 'newJumlah', 'merks', 'newBukti']);
         return redirect()->route('transaksi-darurat-stok.index');
         // $this->dispatchBrowserEvent('kontrakSaved'); // Trigger any frontend success indication if needed
 
@@ -195,6 +228,12 @@ class TransaksiDaruratList extends Component
         }
 
         $this->dispatch('saveDokumen', kontrak_id: $newKontrak->id);
+    }
+    public function removePhoto($index)
+    {
+        if (isset($this->list[$index]['bukti'])) {
+            unset($this->list[$index]['bukti']);
+        }
     }
 
     protected function generateContractNumber()

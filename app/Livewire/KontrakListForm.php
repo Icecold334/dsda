@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
@@ -15,6 +16,8 @@ class KontrakListForm extends Component
 {
     public $list = [];
     public $barangs;
+    public $tanggal_kontrak;
+    public $nomor_kontrak;
     public $barang_item;
     public $barang_id;
     public $merks;
@@ -24,6 +27,18 @@ class KontrakListForm extends Component
     public $jenis_id;
     public $vendor_id;
     public $dokumenCount;
+    #[On('nomor_kontrak')]
+    public function fillNomor($nomor)
+    {
+        $this->nomor_kontrak = $nomor;
+        $this->mount();
+    }
+    #[On('tanggal_kontrak')]
+    public function fillTanggal($tanggal)
+    {
+        $this->tanggal_kontrak = $tanggal;
+        $this->mount();
+    }
     #[On('jenis_id')]
     public function fillJenis($jenis_id)
     {
@@ -42,6 +57,8 @@ class KontrakListForm extends Component
     }
     public function mount()
     {
+        $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
+
         $this->barangs = BarangStok::whereHas('merkStok', function ($query) {
             // Optionally, add conditions to the query if needed
         })->where('jenis_id', $this->jenis_id)->get()->sortBy('jenis_id');
@@ -142,8 +159,8 @@ class KontrakListForm extends Component
         // Create a new contract (assuming you have a model like `KontrakVendorStok`)
         $kontrak = KontrakVendorStok::create([
             'vendor_id' => $this->vendor_id,
-            'tanggal_kontrak' => strtotime(now()),
-            'nomor_kontrak' => $this->generateContractNumber(), // Assuming a method to generate contract number
+            'tanggal_kontrak' => $this->tanggal_kontrak ?? strtotime(now()),
+            'nomor_kontrak' => $this->nomor_kontrak ?? $this->generateContractNumber(), // Assuming a method to generate contract number
             'user_id' => Auth::id(), // Assuming the logged-in user's name as the author
             // 'jumlah_total' => array_sum(array_column($this->list, 'jumlah')),
             'type' => true

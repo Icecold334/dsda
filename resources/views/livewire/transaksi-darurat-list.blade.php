@@ -1,13 +1,14 @@
 <div>
-    @if ($vendor_id)
+    @if ($vendor_id && $jenis_id)
         <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
             <thead>
                 <tr class="text-white">
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold  rounded-l-lg">BARANG</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold">MERK</th>
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">JUMLAH</th>
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12 ">JUMLAH</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">KETERANGAN</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">LOKASI PENERIMAAN</th>
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">BUKTI</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
                 </tr>
             </thead>
@@ -61,6 +62,38 @@
                             <textarea wire:model.live="list.{{ $index }}.lokasi_penerimaan"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 {{ $item['editable'] ? '' : 'cursor-not-allowed' }} text-sm rounded-lg p-2.5 w-full"
                                 placeholder="Lokasi Penerimaan" {{ $item['editable'] ? '' : 'disabled' }}></textarea>
+                        </td>
+                        <td class="py-3 px-6">
+                            <input type="file"
+                                wire:change="updateList({{ $index }}, 'bukti', $event.target.value)"
+                                wire:model.live="list.{{ $index }}.bukti" class="hidden"
+                                id="upload-bukti-{{ $index }}">
+
+                            @if (isset($item['bukti']))
+                                <!-- Display uploaded proof preview with remove icon -->
+                                <div class="relative inline-block">
+                                    <a href="{{ is_string($item['bukti']) ? asset('storage/buktiTransaksi/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
+                                        download="{{ is_string($item['bukti']) ? is_string($item['bukti']) : $item['bukti']->getClientOriginalName() }}">
+                                        <img src="{{ is_string($item['bukti']) ? asset('storage/buktiTransaksi/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
+                                            alt="Bukti" class="w-16 h-16 rounded-md">
+                                    </a>
+                                    <button wire:click="removePhoto({{ $index }})"
+                                        class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs">
+                                        &times;
+                                    </button>
+                                </div>
+                            @else
+                                <!-- Show upload button if no file is selected -->
+                                <button type="button"
+                                    onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
+                                    class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                    Unggah Bukti
+                                </button>
+                            @endif
+
+                            @error("list.{$index}.bukti")
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                            @enderror
                         </td>
                         <td class="text-center py-3">
                             @if ($item['editable'])
@@ -120,11 +153,39 @@
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
                             placeholder="Lokasi Penerimaan"></textarea>
                     </td>
+                    <td class="py-3 px-6">
+                        <input type="file" wire:model="newBukti" class="hidden" id="upload-new-bukti">
+
+                        @if ($newBukti)
+                            <!-- Display uploaded proof preview with remove icon -->
+                            <div class="relative inline-block">
+                                <a href="{{ $newBukti->temporaryUrl() }}"
+                                    download="{{ $newBukti->getClientOriginalName() }}">
+                                    <img src="{{ $newBukti->temporaryUrl() }}" alt="Bukti"
+                                        class="w-16 h-16 rounded-md">
+                                </a>
+                                <button wire:click="removeNewPhoto"
+                                    class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs">
+                                    &times;
+                                </button>
+                            </div>
+                        @else
+                            <!-- Show upload button if no file is selected -->
+                            <button type="button" onclick="document.getElementById('upload-new-bukti').click()"
+                                class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                Unggah Bukti
+                            </button>
+                        @endif
+
+                        @error('newBukti')
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                    </td>
                     <td class="text-center py-3">
                         <button wire:click="addToList"
                             class="text-primary-900 border-primary-600 text-xl border  {{ $newMerkId && $newKeterangan && $newLokasiPenerimaan ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200"
                             @disabled(empty($newMerkId))>
-                            <i class="fa-solid fa-circle-plus"></i>
+                            <i class="fa-solid fa-circle-check"></i>
                         </button>
                     </td>
                 </tr>

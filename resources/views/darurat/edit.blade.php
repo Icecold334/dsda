@@ -40,5 +40,5 @@
         </div>
     </div>
 
-    <livewire:transaksi-darurat-list :transaksi="$transaksi" :vendor_id="$transaksi->first()->vendorStok->id">
+    <livewire:transaksi-darurat-list :transaksi="$transaksi" :vendor_id="$transaksi->first()->vendorStok->id" :jenis_id="$transaksi->first()->merkStok->barangStok->jenisStok->id">
 </x-body>

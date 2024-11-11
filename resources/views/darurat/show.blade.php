@@ -76,8 +76,9 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">JUMLAH</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">TANGGAL PENGIRIMAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/5 ">KETERANGAN</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold  w-1/5 rounded-r-lg">LOKASI PENERIMAAN
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold  w-1/5">LOKASI PENERIMAAN
                 </th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/5  rounded-r-lg">BUKTI</th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold "></th> --}}
             </tr>
         </thead>
@@ -102,6 +103,17 @@
                     </td>
                     <td class="py-3 px-6 font-semibold">
                         {{ $transaksi->lokasi_penerimaan }}
+                    </td>
+                    <td class="py-3 px-6 font-semibold text-center">
+                        @if ($transaksi->img)
+                            <a href="{{ asset('storage/buktiTransaksi/' . $transaksi->img) }}" target="_blank"
+                                download="{{ basename($transaksi->img) }}">
+                                <img src="{{ asset('storage/buktiTransaksi/' . $transaksi->img) }}" alt="Bukti"
+                                    class="w-16 h-16 rounded-md">
+                            </a>
+                        @else
+                            <span class="text-gray-500">Belum ada unggahan</span>
+                        @endif
                     </td>
                 </tr>
             @endforeach

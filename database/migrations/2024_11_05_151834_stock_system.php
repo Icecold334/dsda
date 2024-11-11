@@ -80,6 +80,9 @@ return new class extends Migration
             $table->id();
             $table->string('kode_pengiriman_stok')->nullable();
             $table->string('tanggal')->nullable();
+            $table->string('penerima')->nullable();
+            $table->string('pj1')->nullable();
+            $table->string('pj2')->nullable();
             $table->foreignId('kontrak_id')->constrained('kontrak_vendor_stok');
             $table->foreignId('user_id')->nullable()->constrained('users');
             $table->foreignId('super_id')->nullable()->constrained('users');
@@ -109,15 +112,15 @@ return new class extends Migration
         //     $table->integer('jumlah_total');
         // });
         Schema::create('kontrak_vendor_stok', function (Blueprint $table) {
-
-
-
             $table->timestamps();
             $table->id();
             $table->string('nomor_kontrak')->nullable();
-            $table->string('img')->nullable();
+            // $table->string('img')->nullable();
             $table->foreignId('vendor_id')->constrained('vendor_stok');
             $table->date('tanggal_kontrak');
+            $table->string('penulis')->nullable();
+            $table->string('pj1')->nullable();
+            $table->string('pj2')->nullable();
             $table->foreignId('user_id')->nullable()->constrained('users');
             $table->foreignId('super_id')->nullable()->constrained('users');
             $table->foreignId('admin_id')->nullable()->constrained('users');
@@ -137,6 +140,7 @@ return new class extends Migration
         Schema::create('transaksi_stok', function (Blueprint $table) {
             $table->id();
             $table->string('kode_transaksi_stok')->nullable();
+            $table->string('img')->nullable();
             $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']);
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->foreignId('vendor_id')->nullable()->constrained('vendor_stok');

@@ -2,9 +2,10 @@
 
 namespace App\Livewire;
 
+use Carbon\Carbon;
 use Livewire\Component;
-use App\Models\BarangStok;
 use App\Models\JenisStok;
+use App\Models\BarangStok;
 use App\Models\VendorStok;
 use Livewire\Attributes\On;
 use App\Models\TransaksiStok;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Request;
 class VendorKontrakForm extends Component
 {
     public $vendors;
+    public $nomor_kontrak;
+    public $tanggal_kontrak;
     public $barangs;
     public $vendor_id;
     public $barang_id;
@@ -22,6 +25,34 @@ class VendorKontrakForm extends Component
     public $listCount;
     public $show;
     public $showAddVendorForm = false;
+    public $query = ''; // Untuk query input saran vendor
+    public $suggestions = []; // Untuk menyimpan hasil saran
+
+    public function updatedQuery()
+    {
+        // dd('aa');
+        // Ambil data dari database berdasarkan query
+        $this->suggestions = VendorStok::where('nama', 'like', '%' . $this->query . '%')
+            ->limit(5)
+            ->get()
+            ->toArray();
+
+        $exactMatch = VendorStok::where('nama', $this->query)->first();
+
+        if ($exactMatch) {
+            // Jika ada kecocokan, isi vendor_id dan kosongkan suggestions
+            $this->selectSuggestion($exactMatch->id, $exactMatch->nama);
+        }
+    }
+
+    public function selectSuggestion($vendorId, $vendorName)
+    {
+        // Ketika saran dipilih, isi input dengan nilai tersebut
+        $this->vendor_id = $vendorId;
+        $this->query = $vendorName;
+        $this->suggestions = [];
+        $this->updatedVendorId();
+    }
 
     #[On('listCount')]
     public function fillListCount($count)
@@ -31,6 +62,7 @@ class VendorKontrakForm extends Component
 
     public function mount()
     {
+        $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
         $this->show = !request()->is('pengiriman-stok/create');
         $this->barangs = JenisStok::all();
         $this->vendors = VendorStok::all();
@@ -38,6 +70,15 @@ class VendorKontrakForm extends Component
         //     $vendorIdsWithKontrak = TransaksiStok::whereNull('kontrak_id')->pluck('vendor_id')->unique();
         //     $this->vendors = $this->vendors->whereNotIn('id', $vendorIdsWithKontrak);
         // }
+    }
+
+    public function updatedTanggalKontrak()
+    {
+        $this->dispatch('tanggal_kontrak', tanggal: $this->tanggal_kontrak);
+    }
+    public function updatedNomorKontrak()
+    {
+        $this->dispatch('nomor_kontrak', nomor: $this->nomor_kontrak);
     }
 
     public function updatedBarangId()
@@ -70,7 +111,8 @@ class VendorKontrakForm extends Component
         ]);
 
         $this->vendors->push($newVendor);
-        $this->vendor_id = $newVendor->id;
+        $this->selectSuggestion($newVendor->id, $newVendor->nama);
+        // $this->vendor_id = $newVendor->id;
         $this->showAddVendorForm = false;
 
         $this->updatedVendorId();
@@ -78,6 +120,12 @@ class VendorKontrakForm extends Component
         // Reset form fields
         $this->reset(['nama', 'alamat', 'kontak']);
     }
+
+    public function hideSuggestions()
+    {
+        $this->suggestions = [];
+    }
+
 
     public function render()
     {
