@@ -27,6 +27,12 @@ class KontrakVendorStok extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function dokumen()
+    {
+        return $this->hasMany(DokumenKontrakStok::class, 'kontrak_id');
+    }
+
+
     // public function merkStok()
     // {
     //     return $this->belongsTo(MerkStok::class, 'merk_id');

@@ -4,6 +4,8 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use App\Models\DokumenKontrakStok;
+use Livewire\Attributes\On;
 
 class UploadSuratKontrak extends Component
 {
@@ -13,6 +15,28 @@ class UploadSuratKontrak extends Component
 
     public $attachments = [];
     public $newAttachments = [];
+
+    #[On('saveDokumen')]
+    public function saveAttachments($kontrak_id)
+    {
+        $this->validate([
+            'attachments.*' => 'file|max:5024',  // Validate before saving
+        ]);
+
+        foreach ($this->attachments as $file) {
+            $path = str_replace('dokumenKontrak/', '', $file->storeAs('dokumenKontrak', $file->getClientOriginalName(), 'public'));  // Store the file
+
+            DokumenKontrakStok::create([
+                'kontrak_id' => $kontrak_id,  // Associate with kontrak
+                'file' => $path,
+            ]);
+        }
+
+        // Optionally reset the attachments after saving
+        $this->reset('attachments');
+        return redirect()->route('kontrak-vendor-stok.index');
+    }
+
 
     public function updatedNewAttachments()
     {

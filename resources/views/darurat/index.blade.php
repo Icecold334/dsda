@@ -1,7 +1,7 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">Barang Belum Berkontrak</h1>
+        <h1 class="text-2xl font-bold text-primary-900 ">Transaksi Belum Berkontrak</h1>
         <div>
             <a href="{{ route('transaksi-darurat-stok.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
@@ -55,14 +55,25 @@
                                 </tbody>
                             </table>
                         </td>
-                        <td class="py-3 px-6 text-center">
-                            <a href="#" class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
+                        <td class="py-3 px-6 w-1/6 text-center">
+                            <a href="{{ route('transaksi-darurat-stok.show', ['transaksi_darurat_stok' => $transactions->first()[0]->vendorStok->id]) }}"
+                                class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-kontrak-{{ $transactions->first()[0]->id }}">
                                 <i class="fa-solid fa-eye"></i>
                             </a>
                             <div id="tooltip-kontrak-{{ $transactions->first()[0]->id }}" role="tooltip"
                                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                                 Lihat Detail Kontrak
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                            <a href="{{ route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $transactions->first()[0]->vendorStok->id]) }}"
+                                class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300"
+                                data-tooltip-target="tooltip-edit-kontrak-{{ $transactions->first()[0]->id }}">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <div id="tooltip-edit-kontrak-{{ $transactions->first()[0]->id }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                Perbarui Kontrak
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
                         </td>

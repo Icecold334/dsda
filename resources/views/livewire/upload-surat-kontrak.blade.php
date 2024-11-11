@@ -7,23 +7,38 @@
     </label>
     <div class="mt-3">
         @foreach ($attachments as $index => $attachment)
-            <div class="flex  items-center justify-between border-b-4 p-2 rounded my-1">
-                <span><span class="text-primary-600 me-3"> @php
-                    $fileType = $attachment->getClientOriginalExtension();
-                @endphp
+            <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
+                <span class="flex items-center space-x-3">
+                    @php
+                        $fileType = $attachment->getClientOriginalExtension();
+                    @endphp
+                    <span class="text-primary-600">
                         @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
                             <i class="fa-solid fa-image text-green-500"></i>
                         @elseif($fileType == 'pdf')
                             <i class="fa-solid fa-file-pdf text-red-500"></i>
-                        @elseif($fileType == 'doc' || $fileType == 'docx')
+                        @elseif(in_array($fileType, ['doc', 'docx']))
                             <i class="fa-solid fa-file-word text-blue-500"></i>
                         @else
                             <i class="fa-solid fa-file text-gray-500"></i>
                         @endif
-                    </span><span>{{ $attachment->getClientOriginalName() }}</span></span>
+                    </span>
+
+                    <!-- File name with underline on hover and a temporary URL -->
+                    <span>
+                        <a href="{{ $attachment->temporaryUrl() }}" target="_blank"
+                            class="text-gray-800 hover:underline">
+                            {{ $attachment->getClientOriginalName() }}
+                        </a>
+                    </span>
+                </span>
+
+                <!-- Remove Button -->
                 <button wire:click="removeAttachment({{ $index }})"
-                    class="text-red-500 hover:text-red-700">&times;</button>
+                    class="text-red-500 hover:text-red-700">&times;
+                </button>
             </div>
         @endforeach
+
     </div>
 </div>

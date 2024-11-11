@@ -21,8 +21,15 @@ class KontrakListForm extends Component
     public $merk_item;
     public $merk_id;
     public $jumlah;
+    public $jenis_id;
     public $vendor_id;
     public $dokumenCount;
+    #[On('jenis_id')]
+    public function fillJenis($jenis_id)
+    {
+        $this->jenis_id = $jenis_id;
+        $this->mount();
+    }
     #[On('vendor_id')]
     public function fillVendor($vendor_id)
     {
@@ -37,7 +44,7 @@ class KontrakListForm extends Component
     {
         $this->barangs = BarangStok::whereHas('merkStok', function ($query) {
             // Optionally, add conditions to the query if needed
-        })->get()->sortBy('jenis_id');
+        })->where('jenis_id', $this->jenis_id)->get()->sortBy('jenis_id');
     }
 
     public function updatedBarangId()
@@ -122,6 +129,7 @@ class KontrakListForm extends Component
 
     public function saveKontrak()
     {
+
         // Validate the required fields
         $this->validate([
             'vendor_id' => 'required',
@@ -156,10 +164,9 @@ class KontrakListForm extends Component
         }
 
         // Clear the list and reset the input fields
-        $this->reset(['list', 'vendor_id', 'barang_id', 'merk_id', 'jumlah']);
+        // $this->reset(['list', 'vendor_id', 'barang_id', 'merk_id', 'jumlah']);
 
-        // Emit a success message or redirect if desired
-        session()->flash('message', 'Kontrak berhasil disimpan.');
+        $this->dispatch('saveDokumen', kontrak_id: $kontrak->id);
     }
 
     protected function generateContractNumber()

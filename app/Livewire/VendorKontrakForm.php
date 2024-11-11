@@ -3,18 +3,25 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Models\BarangStok;
+use App\Models\JenisStok;
+use App\Models\VendorStok;
+use Livewire\Attributes\On;
 use App\Models\TransaksiStok;
 use Illuminate\Support\Facades\Request;
-use Livewire\Attributes\On;
 
 class VendorKontrakForm extends Component
 {
     public $vendors;
+    public $barangs;
     public $vendor_id;
+    public $barang_id;
     public $nama;
     public $alamat;
     public $kontak;
     public $listCount;
+    public $show;
+    public $showAddVendorForm = false;
 
     #[On('listCount')]
     public function fillListCount($count)
@@ -22,27 +29,54 @@ class VendorKontrakForm extends Component
         $this->listCount = $count;
     }
 
-
     public function mount()
     {
-        if (Request::routeIs('kontrak-vendor-stok.create')) {
-            $transaksi = TransaksiStok::all();
+        $this->show = !request()->is('pengiriman-stok/create');
+        $this->barangs = JenisStok::all();
+        $this->vendors = VendorStok::all();
+        // if (Request::routeIs('kontrak-vendor-stok.create') || Request::routeIs('transaksi-darurat-stok.create')) {
+        //     $vendorIdsWithKontrak = TransaksiStok::whereNull('kontrak_id')->pluck('vendor_id')->unique();
+        //     $this->vendors = $this->vendors->whereNotIn('id', $vendorIdsWithKontrak);
+        // }
+    }
 
-            // Filter transactions to get only those with a filled kontrak_id
-            $vendorIdsWithKontrak = $transaksi->filter(function ($transaction) {
-                return $transaction->kontrak_id !== null;
-            })->pluck('vendor_id')->unique(); // Get unique vendor IDs
-
-            // Filter vendors collection based on these vendor IDs
-            $this->vendors = $this->vendors->filter(function ($vendor) use ($vendorIdsWithKontrak) {
-                return $vendorIdsWithKontrak->contains($vendor->id);
-            });
-        }
+    public function updatedBarangId()
+    {
+        $this->dispatch('jenis_id', jenis_id: $this->barang_id);
     }
 
     public function updatedVendorId()
     {
         $this->dispatch('vendor_id', vendor_id: $this->vendor_id);
+    }
+
+    public function toggleAddVendorForm()
+    {
+        $this->showAddVendorForm = !$this->showAddVendorForm;
+    }
+
+    public function addNewVendor()
+    {
+        $this->validate([
+            'nama' => 'required|string|max:255',
+            'alamat' => 'required|string|max:500',
+            'kontak' => 'required|string|max:50',
+        ]);
+
+        $newVendor = VendorStok::create([
+            'nama' => $this->nama,
+            'alamat' => $this->alamat,
+            'kontak' => $this->kontak,
+        ]);
+
+        $this->vendors->push($newVendor);
+        $this->vendor_id = $newVendor->id;
+        $this->showAddVendorForm = false;
+
+        $this->updatedVendorId();
+
+        // Reset form fields
+        $this->reset(['nama', 'alamat', 'kontak']);
     }
 
     public function render()

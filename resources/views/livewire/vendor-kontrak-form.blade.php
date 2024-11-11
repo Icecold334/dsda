@@ -1,21 +1,78 @@
-<table class="w-full border-separate border-spacing-y-4">
-    <tr>
-        <td class="w-1/3">
-            <label for="nama" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Nama Vendor *</label>
-        </td>
-        <td>
-            <select wire:model.live="vendor_id" @disabled($listCount)
-                class="bg-gray-50 border border-gray-300 {{ $listCount ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option value="">Pilih Vendor</option>
-                @foreach ($vendors as $vendor)
-                    <option value="{{ $vendor->id }}">{{ $vendor->nama }}</option>
-                @endforeach
-            </select>
-            @error('vendor_id')
-                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-            @enderror
-        </td>
-    </tr>
+<div>
+    <table class="w-full border-separate border-spacing-y-4">
+        <tr>
+            <td class="w-1/3">
+                <label for="vendor_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Nama Vendor *</label>
+            </td>
+            <td>
+                <select wire:model.live="vendor_id" @disabled($listCount)
+                    class="bg-gray-50 border border-gray-300 {{ $listCount ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                    <option value="">Pilih Vendor</option>
+                    @foreach ($vendors as $vendor)
+                        <option value="{{ $vendor->id }}" @selected($vendor->id == $vendor_id)>{{ $vendor->nama }}</option>
+                    @endforeach
+                </select>
+                @error('vendor_id')
+                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                @enderror
+            </td>
+        </tr>
+        <tr>
+            <td class="w-1/3">
+                <label for="barang_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Jenis Barang *</label>
+            </td>
+            <td>
+                <select wire:model.live="barang_id" @disabled($listCount) @disabled($vendor_id == null)
+                    class="bg-gray-50 border border-gray-300 {{ $listCount || $vendor_id == null ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                    <option value="">Pilih Jenis Barang</option>
+                    @foreach ($barangs as $barang)
+                        <option value="{{ $barang->id }}" @selected($barang->id == $barang_id)>{{ $barang->nama }}</option>
+                    @endforeach
+                </select>
+                @error('barang_id')
+                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                @enderror
+            </td>
+        </tr>
+    </table>
+    <!-- Button to toggle Add New Vendor form -->
+    @if ($show)
+        <div class="mt-3">
+            <button wire:click="toggleAddVendorForm"
+                class="text-sm text-white bg-primary-600 px-2 rounded-lg  hover:shadow-lg hover:bg-primary-400 transition duration-200">{{ $showAddVendorForm ? 'Batal' : '+ Tambah Vendor Baru' }}</button>
+        </div>
+    @endif
 
-</table>
+    <!-- Add New Vendor Form -->
+    @if ($showAddVendorForm)
+        <div class="mt-4 border p-4 rounded bg-gray-100">
+            <h3 class="text-md font-semibold mb-2">Tambah Vendor Baru</h3>
+            <div class="mb-3">
+                <label for="nama" class="block text-sm font-medium">Nama</label>
+                <input type="text" wire:model.live="nama" class="border p-2 rounded w-full">
+                @error('nama')
+                    <span class="text-sm text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-3">
+                <label for="alamat" class="block text-sm font-medium">Alamat</label>
+                <input type="text" wire:model.live="alamat" class="border p-2 rounded w-full">
+                @error('alamat')
+                    <span class="text-sm text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-3">
+                <label for="kontak" class="block text-sm font-medium">Kontak</label>
+                <input type="text" wire:model.live="kontak" class="border p-2 rounded w-full">
+                @error('kontak')
+                    <span class="text-sm text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
+            <button wire:click="addNewVendor"
+                class="bg-primary-500 text-white text-sm px-2 py-1 rounded hover:bg-primary-600 transition duration-200">Simpan
+                Vendor Baru</button>
+        </div>
+    @endif
+</div>

@@ -8,7 +8,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
-        @if ($vendor_id)
+        @if ($vendor_id && $jenis_id)
             <tbody class="">
                 @foreach ($list as $index => $item)
                     <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">

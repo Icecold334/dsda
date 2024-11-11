@@ -80,7 +80,9 @@
                             </span>
                         </div>
                         @if (isset($errorsList[$index]))
-                            <p class="text-red-500 text-xs mt-1">{{ $errorsList[$index] }}</p>
+                            <p class="text-red-600 text-xs mt-1">{{ $errorsList[$index] }}</p>
+                        @else
+                            <p class="text-black text-xs mt-1">Jumlah maksimal : {{ $item['max_jumlah'] }}</p>
                         @endif
                     </td>
 

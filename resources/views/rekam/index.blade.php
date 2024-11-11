@@ -16,6 +16,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA VENDOR</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL KONTRAK</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DETAIL TRANSAKSI</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TIPE KONTRAK</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
@@ -55,6 +56,11 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                        </td>
+                        <td class="py-3 px-6">
+                            <p class="font-semibold text-gray-800 text-center">
+                                {{ $transactions->first()[0]->kontrakStok->type ? 'Pengadaan' : 'Penggunaan Langsung' }}
+                            </p>
                         </td>
                         <td class="py-3 px-6 text-center">
                             <a href="{{ route('kontrak-vendor-stok.show', ['kontrak_vendor_stok' => $kontrakId]) }}"

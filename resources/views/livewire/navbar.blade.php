@@ -21,7 +21,7 @@
                     ]" />
                     <livewire:nav-item title="Rekam Kontrak" :child="[
                         ['href' => '/kontrak-vendor-stok', 'title' => 'Daftar Kontrak'],
-                        ['href' => '/transaksi-darurat-stok', 'title' => 'Barang Belum Berkontrak'],
+                        ['href' => '/transaksi-darurat-stok', 'title' => 'Transaksi Belum Berkontrak'],
                     ]" />
 
                     <livewire:nav-item title="Form" :child="[

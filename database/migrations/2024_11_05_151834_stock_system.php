@@ -109,6 +109,9 @@ return new class extends Migration
         //     $table->integer('jumlah_total');
         // });
         Schema::create('kontrak_vendor_stok', function (Blueprint $table) {
+
+
+
             $table->timestamps();
             $table->id();
             $table->string('nomor_kontrak')->nullable();
@@ -121,6 +124,15 @@ return new class extends Migration
             $table->boolean('type');
             // $table->integer('jumlah_total');
         });
+
+        Schema::create('dokumen_kontrak_stok', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
+            $table->string('file')->nullable();
+            $table->timestamps();
+        });
+
+
 
         Schema::create('transaksi_stok', function (Blueprint $table) {
             $table->id();

@@ -20,6 +20,12 @@ class ListPengirimanForm extends Component
     public $errorsList = [];
     public $vendor_id;
 
+    #[On('merkSelected')]
+    public function addMerkToList($merkId)
+    {
+        $this->appendList($merkId);
+    }
+
 
     public function savePengiriman()
     {
@@ -115,7 +121,7 @@ class ListPengirimanForm extends Component
     {
         $this->vendor_id = $vendor_id;
     }
-    #[On('merkId')]
+    // #[On('merkId')]
     public function appendList($merkId)
     {
         // Avoid duplicates by checking if the merk with the given ID is already in the list
@@ -203,12 +209,16 @@ class ListPengirimanForm extends Component
 
     public function removeFromList($index)
     {
+
+        $merkId = $this->list[$index]['merk_id'];
         // Use unset to remove the item at the given index from the list
         unset($this->list[$index]);
 
         // Reindex the array to ensure continuous indices
         $this->list = array_values($this->list);
         $this->dispatch('listCount', count: count($this->list));
+        // Emit event ke ListKontrakBarang untuk mengembalikan merk yang dihapus
+        $this->dispatch('merkRemoved', merkId: $merkId);
     }
 
 

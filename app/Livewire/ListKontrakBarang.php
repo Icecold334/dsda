@@ -11,7 +11,28 @@ use App\Models\PengirimanStok;
 class ListKontrakBarang extends Component
 {
     public $vendor_id;
-    public $merkList = [];
+    public $jenis_id;
+    public $merkList;
+    #[On('jenis_id')]
+    public function fillJenis($jenis_id)
+    {
+        $this->jenis_id = $jenis_id;
+
+        $merks = MerkStok::whereHas('transaksiStok', function ($query) {
+            $query->whereHas('kontrakStok', function ($kontrakQuery) {
+                $kontrakQuery->where('vendor_id', $this->vendor_id)
+                    ->where('type', true); // Assuming 'type' is a boolean field
+            });
+        })->get();
+
+        // Filter merks to only include those with max jumlah > 0
+        $this->merkList = $merks->filter(function ($merk) {
+            $maxJumlah = $this->calculateMaxJumlah($merk->id);
+            return $maxJumlah > 0;
+        })->filter(function ($merk) {
+            return $merk->barangStok->jenis_id == $this->jenis_id;
+        });
+    }
     #[On('vendor_id')]
     public function fillVendor($vendor_id)
     {
@@ -63,9 +84,26 @@ class ListKontrakBarang extends Component
         $this->merkList = [];
     }
 
+    #[On('merkRemoved')]
+    public function addMerkBackToList($merkId)
+    {
+        // Ambil merk berdasarkan ID dan tambahkan ke merkList
+        $merk = MerkStok::find($merkId);
+        if ($merk) {
+            $this->merkList->push($merk);
+        }
+    }
+
     public function merkClick($id)
     {
         $this->dispatch('merkId', merkId: $id);
+        // Emit event to ListPengirimanForm to add this merk to the list
+        $this->dispatch('merkSelected', merkId: $id);
+
+        // Remove merk from the current list
+        $this->merkList = $this->merkList->filter(function ($merk) use ($id) {
+            return $merk->id !== $id;
+        });
     }
     public function render()
     {

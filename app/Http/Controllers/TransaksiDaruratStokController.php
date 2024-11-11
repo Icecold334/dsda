@@ -36,7 +36,8 @@ class TransaksiDaruratStokController extends Controller
      */
     public function create()
     {
-        //
+        $vendors = VendorStok::all();
+        return view('darurat.create', compact('vendors'));
     }
 
     /**
@@ -52,7 +53,14 @@ class TransaksiDaruratStokController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // Retrieve the transaction by ID with a null kontrak_id
+        $transaksi = TransaksiStok::where('vendor_id', $id)
+            ->whereNull('kontrak_id')
+            ->get();
+
+
+        // Pass the data to the view
+        return view('darurat.show', compact('transaksi'));
     }
 
     /**
@@ -60,7 +68,13 @@ class TransaksiDaruratStokController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $transaksi = TransaksiStok::where('vendor_id', $id)
+            ->whereNull('kontrak_id')
+            ->get();
+
+
+        // Pass the data to the view
+        return view('darurat.edit', compact('transaksi'));
     }
 
     /**
