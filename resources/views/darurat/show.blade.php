@@ -17,6 +17,10 @@
                         <td>{{ $transaksi->first()->vendorStok->nama }}</td>
                     </tr>
                     <tr>
+                        <td>Jenis Transaksi</td>
+                        <td>{{ $transaksi->first()->merkStok->barangStok->jenisStok->nama }}</td>
+                    </tr>
+                    {{-- <tr>
                         <td>Nomor Kontrak</td>
                         <td>{{ $transaksi->first()->nomor_kontrak ?? '---' }}</td>
                     </tr>
@@ -28,7 +32,7 @@
                     <tr>
                         <td>Penulis</td>
                         <td>{{ $transaksi->first()->user->name }}</td>
-                    </tr>
+                    </tr> --}}
 
                 </table>
             </x-card>

@@ -24,6 +24,7 @@ class VendorKontrakForm extends Component
     public $kontak;
     public $listCount;
     public $show;
+    public $showNomor;
     public $showAddVendorForm = false;
     public $query = ''; // Untuk query input saran vendor
     public $suggestions = []; // Untuk menyimpan hasil saran
@@ -64,6 +65,7 @@ class VendorKontrakForm extends Component
     {
         $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
         $this->show = !request()->is('pengiriman-stok/create');
+        $this->showNomor = !(request()->is('transaksi-darurat-stok/create') || request()->is('pengiriman-stok/create'));
         $this->barangs = JenisStok::all();
         $this->vendors = VendorStok::all();
         // if (Request::routeIs('kontrak-vendor-stok.create') || Request::routeIs('transaksi-darurat-stok.create')) {

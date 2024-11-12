@@ -57,10 +57,9 @@ class ListPengirimanForm extends Component
             'pj1' => 'nullable|string',
             'pj2' => 'nullable|string',
         ]);
-
         $detailPengiriman = DetailPengirimanStok::updateOrCreate(
             [
-                'id' => count($this->old) > 0 ? $this->old[0]->id : 0,
+                'id' => count($this->old) > 0 ? $this->old[0]->detail_pengiriman_id : 0,
             ],
             [
                 'kode_pengiriman_stok' => fake()->bothify('KP#######'),

@@ -40,7 +40,7 @@
                 @enderror
             </td> --}}
         </tr>
-        @if ($showAddVendorForm)
+        @if ($showNomor)
             <tr>
                 <td class="w-1/3">
                     <label for="nomor_kontrak"

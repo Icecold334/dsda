@@ -25,10 +25,10 @@
                         <td>{{ $transaksi->first()->tanggal_kontrak ? date('j F Y', $transaksi->first()->tanggal_kontrak) : '---' }}
                         </td>
                     </tr>
-                    <tr>
+                    {{-- <tr>
                         <td>Penulis</td>
                         <td>{{ $transaksi->first()->user->name }}</td>
-                    </tr>
+                    </tr> --}}
 
                 </table>
             </x-card>

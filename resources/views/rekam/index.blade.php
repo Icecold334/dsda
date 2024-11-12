@@ -14,6 +14,7 @@
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA VENDOR</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS KONTRAK</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL KONTRAK</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DETAIL TRANSAKSI</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TIPE KONTRAK</th>
@@ -28,6 +29,10 @@
                         <td class="py-3 px-6">
                             <p class="font-semibold text-gray-800">
                                 {{ $transactions->first()[0]->vendorStok->nama ?? 'Unknown Vendor' }}</p>
+                        </td>
+                        <td class="py-3 px-6">
+                            <p class="font-semibold text-gray-800">
+                                {{ $transactions->first()[0]->merkStok->barangStok->jenisStok->nama }}</p>
                         </td>
                         <td class="py-3 px-6">
                             <p class="font-semibold text-gray-800">

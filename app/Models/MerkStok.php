@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class MerkStok extends Model
 {
     protected $table = 'merk_stok';
+    protected $guarded = ['id'];
 
     public function barangStok()
     {

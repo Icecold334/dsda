@@ -5,12 +5,15 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
+use App\Models\SatuanBesar;
+use App\Models\SatuanKecil;
+use Faker\Factory as Faker;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Models\TransaksiStok;
+use Livewire\WithFileUploads;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\Auth;
-use Livewire\WithFileUploads;
 
 class TransaksiDaruratList extends Component
 {
@@ -20,6 +23,7 @@ class TransaksiDaruratList extends Component
     public $barangs;
     public $merks;
     public $newBarangId;
+    public $newBarangItem;
     public $newMerkId;
     public $newJumlah;
     public $newKeterangan;
@@ -29,6 +33,130 @@ class TransaksiDaruratList extends Component
     public $jenis_id;
     public $dokumenCount;
     public $newBukti;
+    public $penulis;
+    public $pj1;
+    public $pj2;
+    public $barangSuggestions = [];
+    public $merkSuggestions = [];
+    public $newBarang = '';
+    public $newMerk = '';
+
+    // For new Barang Modal
+    public $showBarangModal = false;
+    public $newBarangName = '';
+    public $newBarangSatuanBesar = '';
+    public $newBarangSatuanKecil = '';
+    public $satuanBesarOptions;
+    public $satuanKecilOptions;
+
+    public function openBarangModal()
+    {
+        $this->showBarangModal = true;
+    }
+
+    public function closeBarangModal()
+    {
+        $this->reset(['newBarangName', 'newBarangSatuanBesar', 'newBarangSatuanKecil']);
+        $this->showBarangModal = false;
+    }
+
+    public function saveNewBarang()
+    {
+        $this->validate([
+            'newBarangName' => 'required|string|max:255',
+            'newBarangSatuanBesar' => 'required',
+            'newBarangSatuanKecil' => 'required',
+        ]);
+        $faker = Faker::create();
+
+        $barang = BarangStok::create([
+            'nama' => $this->newBarangName,
+            'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
+            'jenis_id' => $this->jenis_id,
+            'satuan_besar_id' => $this->newBarangSatuanBesar,
+            'satuan_kecil_id' => $this->newBarangSatuanKecil,
+        ]);
+
+        $this->selectBarang($barang->id, $barang->nama); // Select newly created barang
+        $this->closeBarangModal();
+    }
+
+    public function updatedNewBarang()
+    {
+        $this->barangSuggestions = BarangStok::where('jenis_id', $this->jenis_id)
+            ->where('nama', 'like', '%' . $this->newBarang . '%')
+            ->get();
+    }
+
+    public function selectBarang($barangId, $barangName)
+    {
+        $this->newBarangId = $barangId;
+        $this->newBarangItem = BarangStok::find($barangId);
+        $this->newBarang = $barangName;
+        $this->barangSuggestions = [];
+    }
+
+    public function blurBarang()
+    {
+        $barang = BarangStok::where('jenis_id', $this->jenis_id)->where('nama', $this->newBarang)->get();
+        if ($barang->count() == 0) {
+            $this->newBarangId = null;
+        } else {
+            $this->newBarangId = $barang->first()->id;
+            $this->newBarangItem = $barang->first();
+            $this->newJumlah = 1;
+        }
+        $this->barangSuggestions = [];
+    }
+
+    public function blurMerk()
+    {
+        $merk = MerkStok::where('barang_id', $this->newBarangId)->where('nama', $this->newMerk)->get();
+        if ($merk->count() == 0) {
+            $this->newMerkId = null;
+        } else {
+            $this->newMerkId = $merk->first()->id;
+        }
+        $this->merkSuggestions = [];
+    }
+
+    public function selectMerk($merkId, $merkName)
+    {
+        $this->newMerkId = $merkId;
+        $this->newJumlah = 1;
+        $this->newMerk = $merkName;
+        $this->merkSuggestions = [];
+    }
+
+    public function updatedNewMerk()
+    {
+        if ($this->newBarangId) {
+            $this->merkSuggestions = MerkStok::where('barang_id', $this->newBarangId)
+                ->where('nama', 'like', '%' . $this->newMerk . '%')
+                ->get();
+        }
+    }
+
+    public function createNewBarang()
+    {
+        $barang = BarangStok::create([
+            'nama' => $this->newBarang,
+            'jenis_id' => $this->jenis_id,
+        ]);
+
+        $this->selectBarang($barang->id, $barang->nama);
+    }
+
+    public function createNewMerk()
+    {
+        $merk = MerkStok::create([
+            'nama' => $this->newMerk,
+            'barang_id' => $this->newBarangId,
+        ]);
+
+        $this->selectMerk($merk->id, $merk->nama);
+    }
+
 
     public function removeNewPhoto()
     {
@@ -52,9 +180,9 @@ class TransaksiDaruratList extends Component
     }
     public function mount()
     {
-        $this->barangs = BarangStok::whereHas('merkStok', function ($query) {
-            // Optionally, add conditions to the query if needed
-        })->where('jenis_id', $this->jenis_id)->get()->sortBy('jenis_id');
+        $this->satuanBesarOptions = SatuanBesar::all();
+        $this->satuanKecilOptions = SatuanKecil::all();
+        $this->barangs = BarangStok::where('jenis_id', $this->jenis_id)->get()->sortBy('jenis_id');
         $this->newJumlah = 1;
         // $this->transaksi = $transaksi;
         $this->merks = [];
@@ -135,7 +263,7 @@ class TransaksiDaruratList extends Component
         $this->merks = [];
         $this->dispatch('listCount', count: count($this->list));
 
-        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newLokasiPenerimaan', 'newBukti']);
+        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newLokasiPenerimaan', 'newBukti', 'newBarang', 'newMerk']);
     }
 
     public function updateList($index, $field, $value)
@@ -214,6 +342,9 @@ class TransaksiDaruratList extends Component
         $newKontrak = KontrakVendorStok::create([
             'vendor_id' => $this->vendor_id,
             'tanggal_kontrak' => strtotime(now()),
+            'penulis' => $this->penulis,
+            'pj1' => $this->pj1,
+            'pj2' => $this->pj2,
             'type' => false,
             'user_id' => Auth::id(),
             'nomor_kontrak' => $this->generateContractNumber(), // Method to generate contract number if needed

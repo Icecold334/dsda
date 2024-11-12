@@ -13,6 +13,8 @@
         <thead>
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA VENDOR</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS PENGIRIMAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KODE PENGIRIMAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th>
@@ -26,6 +28,12 @@
 
                     </td>
                     <td class="px-6 py-3 font-semibold">
+                        {{ $datang->kontrakVendorStok->vendorStok->nama }}
+                    </td>
+                    <td class="px-6 py-3 font-semibold">
+                        {{ $datang->pengirimanStok->first()->merkStok->barangStok->jenisStok->nama }}
+                    </td>
+                    <td class="px-6 py-3 font-semibold">
                         {{ $datang->kode_pengiriman_stok }}
                     </td>
                     <td class="px-6 py-3 font-semibold">
@@ -33,7 +41,7 @@
                     </td>
                     <td class="px-6 py-3 text-center">
                         <span
-                            class="bg-{{ $datang->super_id && $datang->admin_id ? 'success' : 'warning' }}-400 text-{{ $datang->super_id && $datang->admin_id ? 'white' : 'black' }} text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-{{ $datang->super_id && $datang->admin_id ? 'success' : 'warning' }}-900 dark:text-{{ $datang->super_id && $datang->admin_id ? 'success' : 'warning' }}-300">{{ $datang->super_id && $datang->admin_id ? 'Selesai' : 'Proses' }}</span>
+                            class="bg-{{ $datang->penerima && $datang->pj1 && $datang->pj2 ? 'success' : 'warning' }}-400 text-{{ $datang->penerima && $datang->pj1 && $datang->pj2 ? 'white' : 'black' }} text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-{{ $datang->penerima && $datang->pj1 && $datang->pj2 ? 'success' : 'warning' }}-900 dark:text-{{ $datang->penerima && $datang->pj1 && $datang->pj2 ? 'success' : 'warning' }}-300">{{ $datang->penerima && $datang->pj1 && $datang->pj2 ? 'Selesai' : 'Proses' }}</span>
                     </td>
                     <td class="py-3 px-6 text-center">
                         <a href="{{ route('pengiriman-stok.show', ['pengiriman_stok' => $datang->id]) }}"
