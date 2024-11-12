@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class LokasiStok extends Model
 {
     protected $table = 'lokasi_stok';
+    protected $guarded = ['id'];
 
     public function bagianStok()
     {

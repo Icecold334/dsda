@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LokasiStok;
 use Illuminate\Http\Request;
 
 class LokasiStokController extends Controller
@@ -11,7 +12,11 @@ class LokasiStokController extends Controller
      */
     public function index()
     {
-        //
+        // Retrieve all lokasi stok from the database, you could also add pagination here if needed
+        $lokasiStok = LokasiStok::all(); // or ->paginate(10) if you prefer pagination
+
+        // Pass lokasiStok to the view
+        return view('lokasi_stok.index', compact('lokasiStok'));
     }
 
     /**

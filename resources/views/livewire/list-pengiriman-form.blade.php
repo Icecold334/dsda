@@ -129,7 +129,7 @@
     <div class="flex w-full justify-evenly">
         <!-- Penulis -->
         <div class="flex items-center space-x-2">
-            <label for="penulis" class="block text-sm font-medium text-gray-900">Penulis</label>
+            <label for="penulis" class="block text-sm font-medium text-gray-900">Penerima</label>
             <input type="text" id="penulis" wire:model.live="penulis"
                 class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
             <button type="button" class="bg-gray-200 rounded-full p-2">

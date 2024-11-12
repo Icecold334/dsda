@@ -13,7 +13,7 @@
                     <livewire:nav-item href="/dashboard" title="home" />
                     <livewire:nav-item title="aset" :child="[
                         ['href' => '/aset', 'title' => 'aset aktif'],
-                        ['href' => '/aset-non-aktif', 'title' => 'aset non aktif'],
+                        ['href' => '/#', 'title' => 'aset non aktif'],
                     ]" />
                     <livewire:nav-item title="inventaris" :child="[
                         ['href' => '/pengiriman-stok', 'title' => 'inventaris'],
@@ -25,17 +25,18 @@
                     ]" />
 
                     <livewire:nav-item title="Form" :child="[
-                        ['href' => '/aset-aktif', 'title' => 'Form peminjaman Umum'],
-                        ['href' => '/aset-non-aktif', 'title' => 'Form permintaan spare part'],
-                        ['href' => '/aset-non-aktif', 'title' => 'Form permintaan material'],
-                        ['href' => '/aset-non-aktif', 'title' => 'Form barang datang'],
+                        ['href' => '/#', 'title' => 'Form peminjaman Umum'],
+                        ['href' => '/#', 'title' => 'Form permintaan spare part'],
+                        ['href' => '/#', 'title' => 'Form permintaan material'],
+                        ['href' => '/#', 'title' => 'Form barang datang'],
                     ]" />
                     <livewire:nav-item title="data" :child="[
                         ['href' => '/aset-aktif', 'title' => 'kategori'],
-                        ['href' => '/aset-non-aktif', 'title' => 'Merk'],
-                        ['href' => '/aset-non-aktif', 'title' => 'Toko / distributor'],
-                        ['href' => '/aset-non-aktif', 'title' => 'Penanggung jawab'],
-                        ['href' => '/aset-non-aktif', 'title' => 'lokasi'],
+                        ['href' => '/#', 'title' => 'Merk'],
+                        ['href' => '/#', 'title' => 'Toko / distributor'],
+                        ['href' => '/#', 'title' => 'Penanggung jawab'],
+                        ['href' => '/#', 'title' => 'lokasi'],
+                        ['href' => '/lokasi-stok', 'title' => 'lokasi stok'],
                     ]" />
                     <livewire:nav-item href="/home"
                         title='                <button data-tooltip-target="tooltipKalender" data-tooltip-placement="bottom" type="button"><i
