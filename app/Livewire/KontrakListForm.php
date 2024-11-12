@@ -83,6 +83,7 @@ class KontrakListForm extends Component
         $this->barangSuggestions = BarangStok::where('jenis_id', $this->jenis_id)
             ->where('nama', 'like', '%' . $this->newBarang . '%')
             ->get();
+        $this->newBarangName = $this->newBarang;
     }
 
     public function selectBarang($barangId, $barangName)
@@ -164,6 +165,7 @@ class KontrakListForm extends Component
 
     public function addToList()
     {
+        // dd($this->barang_id);
         $this->validate([
             'barang_id' => 'required',
             'merk_id' => 'required',
@@ -174,10 +176,11 @@ class KontrakListForm extends Component
             'barang_id' => $this->barang_id,
             'merk_id' => $this->merk_id,
             'merks' => MerkStok::where('barang_id', $this->barang_id)
-                ->whereNotIn('id', collect($this->list)->pluck('merk_id'))
+                // ->whereNotIn('id', collect($this->list)->pluck('merk_id'))
                 ->get(),
             'jumlah' => $this->jumlah,
         ];
+        $this->mount();
         $this->reset(['barang_id', 'merk_id', 'jumlah', 'newBarang', 'newMerk']);
     }
 

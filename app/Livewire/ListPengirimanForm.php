@@ -53,7 +53,7 @@ class ListPengirimanForm extends Component
 
         // Create a new detail_pengiriman_stok record if needed
         $this->validate([
-            'penulis' => 'required|string',
+            'penulis' => 'nullable|string',
             'pj1' => 'nullable|string',
             'pj2' => 'nullable|string',
         ]);

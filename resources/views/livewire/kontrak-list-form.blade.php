@@ -198,7 +198,7 @@
                         <button wire:click="addToList" wire:loading.attr="disabled" wire:target="merk_id, addToList"
                             class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 me-2 mb-2 transition duration-200"
                             {{ $merk_id ? '' : 'hidden' }}>
-                            <i class="fa-solid fa-circle-plus"></i>
+                            <i class="fa-solid fa-circle-check"></i>
                         </button>
                     </td>
                 </tr>

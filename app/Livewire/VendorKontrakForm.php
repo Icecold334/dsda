@@ -34,7 +34,7 @@ class VendorKontrakForm extends Component
         // dd('aa');
         // Ambil data dari database berdasarkan query
         $this->suggestions = VendorStok::where('nama', 'like', '%' . $this->query . '%')
-            ->limit(5)
+            // ->limit(5)
             ->get()
             ->toArray();
 

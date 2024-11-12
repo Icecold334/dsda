@@ -86,6 +86,7 @@ class TransaksiDaruratList extends Component
         $this->barangSuggestions = BarangStok::where('jenis_id', $this->jenis_id)
             ->where('nama', 'like', '%' . $this->newBarang . '%')
             ->get();
+        $this->newBarangName = $this->newBarang;
     }
 
     public function selectBarang($barangId, $barangName)
@@ -262,7 +263,7 @@ class TransaksiDaruratList extends Component
         ];
         $this->merks = [];
         $this->dispatch('listCount', count: count($this->list));
-
+        $this->mount();
         $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newLokasiPenerimaan', 'newBukti', 'newBarang', 'newMerk']);
     }
 
