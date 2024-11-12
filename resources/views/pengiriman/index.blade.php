@@ -47,7 +47,7 @@
                         <a href="{{ route('pengiriman-stok.show', ['pengiriman_stok' => $datang->id]) }}"
                             class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
                             data-tooltip-target="tooltip-aset-{{ $datang->id }}">
-                            <i class="fa-solid fa-eye"></i>
+                            <i class="fa-solid fa-pen"></i>
                         </a>
                         <div id="tooltip-aset-{{ $datang->id }}" role="tooltip"
                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">

@@ -12,12 +12,16 @@
             <x-card title="Data Umum" class="h-full">
                 <table class="w-full">
                     <tr class="font-semibold">
+                        <td>Nama Vendor</td>
+                        <td>{{ $pengiriman->pengirimanStok->first()->kontrakVendorStok->vendorStok->nama }}</td>
+                    </tr>
+                    <tr class="font-semibold">
                         <td class="w-1/3">Kode Barang Masuk</td>
                         <td>{{ $pengiriman->kode_pengiriman_stok }}</td>
                     </tr>
                     <tr class="font-semibold">
-                        <td>Nama Vendor</td>
-                        <td>{{ $pengiriman->pengirimanStok->first()->kontrakVendorStok->vendorStok->nama }}</td>
+                        <td class="w-1/3">Jenis Pengiriman</td>
+                        <td>{{ $pengiriman->pengirimanStok->first()->merkStok->barangStok->jenisStok->nama }}</td>
                     </tr>
                 </table>
             </x-card>
