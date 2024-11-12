@@ -4,15 +4,15 @@
         <h1 class="text-2xl font-bold text-primary-900 ">Daftar Lokasi Penyimpanan Stok</h1>
         <div>
             {{-- <a href="{{ route('lokasi-stok.create', ['tipe' => 0]) }}" --}}
-            <a href="#"
+            <a href="/lokasi-stok/lokasi"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Tambah Lokasi</a>
             {{-- <a href="{{ route('lokasi-stok.create', ['tipe' => 1]) }}" --}}
-            <a href="#"
+            <a href="/lokasi-stok/bagian"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Tambah Bagian</a>
             {{-- <a href="{{ route('lokasi-stok.create', ['tipe' => 2]) }}" --}}
-            <a href="#"
+            <a href="/lokasi-stok/posisi"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Tambah Posisi</a>
         </div>

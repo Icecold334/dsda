@@ -74,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('bagian-stok', BagianStokController::class);
     Route::resource('barang-stok', BarangStokController::class);
     // Route::resource('kontrak-vendor', KontrakVendorController::class);
+    Route::get('lokasi-stok/{tipe}', [LokasiStokController::class, 'create']);
     Route::resource('lokasi-stok', LokasiStokController::class);
     Route::resource('merek-stok', MerekStokController::class);
     Route::resource('posisi-stok', PosisiStokController::class);

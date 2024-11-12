@@ -22,9 +22,9 @@ class LokasiStokController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($tipe)
     {
-        //
+        return view('lokasi_stok.create', compact('tipe'));
     }
 
     /**

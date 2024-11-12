@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BagianStok extends Model
 {
     protected $table = 'bagian_stok';
-
+    protected $guarded = ['id'];
     public function lokasiStok()
     {
         return $this->belongsTo(LokasiStok::class, 'lokasi_id');
