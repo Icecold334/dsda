@@ -92,4 +92,8 @@ class Aset extends Model
     {
         return $this->hasMany(Lampiran::class);
     }
+    public function jurnals()
+    {
+        return $this->hasMany(Jurnal::class);
+    }
 }
