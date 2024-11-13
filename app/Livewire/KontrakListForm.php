@@ -182,6 +182,7 @@ class KontrakListForm extends Component
         ];
         $this->mount();
         $this->reset(['barang_id', 'merk_id', 'jumlah', 'newBarang', 'newMerk']);
+        $this->dispatch('listCount', count: count($this->list));
     }
 
     public function updateList($index, $field, $value)
@@ -208,6 +209,7 @@ class KontrakListForm extends Component
     {
         unset($this->list[$index]);
         $this->list = array_values($this->list);
+        $this->dispatch('listCount', count: count($this->list));
     }
 
     public function saveKontrak()

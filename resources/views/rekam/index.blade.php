@@ -14,10 +14,11 @@
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA VENDOR</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS KONTRAK</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NOMOR KONTRAK</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KATEGORI BARANG</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL KONTRAK</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DETAIL TRANSAKSI</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TIPE KONTRAK</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS PENGADAAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
@@ -29,6 +30,10 @@
                         <td class="py-3 px-6">
                             <p class="font-semibold text-gray-800">
                                 {{ $transactions->first()[0]->vendorStok->nama ?? 'Unknown Vendor' }}</p>
+                        </td>
+                        <td class="py-3 px-6">
+                            <p class="font-semibold text-gray-800">
+                                {{ $transactions->first()[0]->kontrakStok->nomor_kontrak }}</p>
                         </td>
                         <td class="py-3 px-6">
                             <p class="font-semibold text-gray-800">
@@ -44,7 +49,7 @@
                                 <thead class="text-primary-800">
                                     <tr>
                                         <th class="w-1/3">Barang</th>
-                                        <th class="w-1/3">Merk</th>
+                                        <th class="w-1/3">Spesifikasi</th>
                                         <th class="w-1/3">Jumlah</th>
                                         {{-- <th class="w-1/3">Tanggal</th> --}}
                                     </tr>

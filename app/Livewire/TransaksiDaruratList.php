@@ -40,6 +40,7 @@ class TransaksiDaruratList extends Component
     public $merkSuggestions = [];
     public $newBarang = '';
     public $newMerk = '';
+    public $nomor_kontrak;
 
     // For new Barang Modal
     public $showBarangModal = false;
@@ -48,6 +49,13 @@ class TransaksiDaruratList extends Component
     public $newBarangSatuanKecil = '';
     public $satuanBesarOptions;
     public $satuanKecilOptions;
+
+    #[On('nomor_kontrak')]
+    public function fillNomor($nomor)
+    {
+        $this->nomor_kontrak = $nomor;
+        $this->mount();
+    }
 
     public function openBarangModal()
     {
@@ -202,6 +210,7 @@ class TransaksiDaruratList extends Component
                 'editable' => false,
             ];
         }
+        $this->dispatch('listCount', count: count($this->list));
     }
 
     public function updatedNewBarangId()
@@ -263,7 +272,7 @@ class TransaksiDaruratList extends Component
         ];
         $this->merks = [];
         $this->dispatch('listCount', count: count($this->list));
-        $this->mount();
+        // $this->mount();
         $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newLokasiPenerimaan', 'newBukti', 'newBarang', 'newMerk']);
     }
 
@@ -276,6 +285,7 @@ class TransaksiDaruratList extends Component
     {
         unset($this->list[$index]);
         $this->list = array_values($this->list);
+        $this->dispatch('listCount', count: count($this->list));
     }
 
     public function saveKontrak()
