@@ -14,32 +14,8 @@
                                         Aset</h5>
                                 </div>
                             </div>
-
-                            <div>
-                                <div class="flex" id="devices">
-                                    <div class="flex items-center me-4">
-                                        <input id="desktop" type="checkbox" value="desktop"
-                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="desktop"
-                                            class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Desktop</label>
-                                    </div>
-                                    <div class="flex items-center me-4">
-                                        <input id="tablet" type="checkbox" value="tablet"
-                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="tablet"
-                                            class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Tablet</label>
-                                    </div>
-                                    <div class="flex items-center me-4">
-                                        <input id="mobile" type="checkbox" value="mobile"
-                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="mobile"
-                                            class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Mobile</label>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Donut Chart -->
-                            <div class="py-6" id="donut-chart"></div>
+                            <div class="py-6" id="jumlah-donut-chart"></div>
                             @push('scripts')
                                 <script type="module">
                                     const getChartOptions = () => {
@@ -61,14 +37,14 @@
                                                         labels: {
                                                             show: true,
                                                             name: {
-                                                                show: true,
+                                                                show: false,
                                                                 fontFamily: "Inter, sans-serif",
                                                                 offsetY: 20,
                                                             },
                                                             total: {
                                                                 showAlways: true,
                                                                 show: true,
-                                                                label: "Unique visitors",
+                                                                label: "Jumlah Aset",
                                                                 fontFamily: "Inter, sans-serif",
                                                                 formatter: function(w) {
                                                                     const sum = w.globals.seriesTotals.reduce((a, b) => {
@@ -78,7 +54,7 @@
                                                                 },
                                                             },
                                                             value: {
-                                                                show: true,
+                                                                show: false,
                                                                 fontFamily: "Inter, sans-serif",
                                                                 offsetY: -20,
                                                                 formatter: function(value) {
@@ -86,7 +62,7 @@
                                                                 },
                                                             },
                                                         },
-                                                        size: "80%",
+                                                        size: "50%",
                                                     },
                                                 },
                                             },
@@ -102,6 +78,7 @@
                                             legend: {
                                                 position: "bottom",
                                                 fontFamily: "Inter, sans-serif",
+                                                show: false,
                                             },
                                             yaxis: {
                                                 labels: {
@@ -126,44 +103,13 @@
                                         }
                                     }
 
-                                    if (document.getElementById("donut-chart") && typeof ApexCharts !== 'undefined') {
-                                        const chart = new ApexCharts(document.getElementById("donut-chart"), getChartOptions());
+                                    if (document.getElementById("jumlah-donut-chart") && typeof ApexCharts !== 'undefined') {
+                                        const chart = new ApexCharts(document.getElementById("jumlah-donut-chart"), getChartOptions());
                                         chart.render();
-
-                                        // Get all the checkboxes by their class name
-                                        const checkboxes = document.querySelectorAll('#devices input[type="checkbox"]');
-
-                                        // Function to handle the checkbox change event
-                                        function handleCheckboxChange(event, chart) {
-                                            const checkbox = event.target;
-                                            if (checkbox.checked) {
-                                                switch (checkbox.value) {
-                                                    case 'desktop':
-                                                        chart.updateSeries([15.1, 22.5, 4.4, 8.4]);
-                                                        break;
-                                                    case 'tablet':
-                                                        chart.updateSeries([25.1, 26.5, 1.4, 3.4]);
-                                                        break;
-                                                    case 'mobile':
-                                                        chart.updateSeries([45.1, 27.5, 8.4, 2.4]);
-                                                        break;
-                                                    default:
-                                                        chart.updateSeries([55.1, 28.5, 1.4, 5.4]);
-                                                }
-
-                                            } else {
-                                                chart.updateSeries([35.1, 23.5, 2.4, 5.4]);
-                                            }
-                                        }
-
-                                        // Attach the event listener to each checkbox
-                                        checkboxes.forEach((checkbox) => {
-                                            checkbox.addEventListener('change', (event) => handleCheckboxChange(event, chart));
-                                        });
                                     }
                                 </script>
                             @endpush
-                           </div>
+                        </div>
                         <div class="w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
                             <div class="flex justify-center items-center mb-3">
                                 <h5 class="text-lg font-bold leading-none text-gray-900 dark:text-white pe-1">Nilai
@@ -172,13 +118,106 @@
                             </div>
                             <!-- Donut Chart -->
                             <div class="py-6" id="nilai-donut-chart"></div>
+                            @push('scripts')
+                                <script type="module">
+                                    const getChartOptions = () => {
+                                        return {
+                                            series: [35.1, 23.5, 2.4, 5.4],
+                                            colors: ["#1C64F2", "#16BDCA", "#FDBA8C", "#E74694"],
+                                            chart: {
+                                                height: 320,
+                                                width: "100%",
+                                                type: "donut",
+                                            },
+                                            stroke: {
+                                                colors: ["transparent"],
+                                                lineCap: "",
+                                            },
+                                            plotOptions: {
+                                                pie: {
+                                                    donut: {
+                                                        labels: {
+                                                            show: true,
+                                                            name: {
+                                                                show: false,
+                                                                fontFamily: "Inter, sans-serif",
+                                                                offsetY: 20,
+                                                            },
+                                                            total: {
+                                                                showAlways: true,
+                                                                show: true,
+                                                                label: "Jumlah Aset",
+                                                                fontFamily: "Inter, sans-serif",
+                                                                formatter: function(w) {
+                                                                    const sum = w.globals.seriesTotals.reduce((a, b) => {
+                                                                        return a + b
+                                                                    }, 0)
+                                                                    return '$' + sum + 'k'
+                                                                },
+                                                            },
+                                                            value: {
+                                                                show: false,
+                                                                fontFamily: "Inter, sans-serif",
+                                                                offsetY: -20,
+                                                                formatter: function(value) {
+                                                                    return value + "k"
+                                                                },
+                                                            },
+                                                        },
+                                                        size: "50%",
+                                                    },
+                                                },
+                                            },
+                                            grid: {
+                                                padding: {
+                                                    top: -2,
+                                                },
+                                            },
+                                            labels: ["Direct", "Sponsor", "Affiliate", "Email marketing"],
+                                            dataLabels: {
+                                                enabled: false,
+                                            },
+                                            legend: {
+                                                position: "bottom",
+                                                fontFamily: "Inter, sans-serif",
+                                                show: false,
+                                            },
+                                            yaxis: {
+                                                labels: {
+                                                    formatter: function(value) {
+                                                        return value + "k"
+                                                    },
+                                                },
+                                            },
+                                            xaxis: {
+                                                labels: {
+                                                    formatter: function(value) {
+                                                        return value + "k"
+                                                    },
+                                                },
+                                                axisTicks: {
+                                                    show: false,
+                                                },
+                                                axisBorder: {
+                                                    show: false,
+                                                },
+                                            },
+                                        }
+                                    }
+
+                                    if (document.getElementById("nilai-donut-chart") && typeof ApexCharts !== 'undefined') {
+                                        const chart = new ApexCharts(document.getElementById("nilai-donut-chart"), getChartOptions());
+                                        chart.render();
+                                    }
+                                </script>
+                            @endpush
                         </div>
                     </div>
                 </x-card>
             </div>
             <div>
                 <x-card title="nilai aset" class="mb-3">
-                    <div class=" w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+                    <div class=" w-full h-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
                         <div id="data-labels-chart"></div>
                     </div>
                     @push('scripts')
@@ -193,7 +232,7 @@
                                     },
                                 },
                                 grid: {
-                                    show: false,
+                                    show: true,
                                     strokeDashArray: 4,
                                     padding: {
                                         left: 16,
@@ -202,13 +241,13 @@
                                     },
                                 },
                                 series: [{
-                                        name: "Developer Edition",
-                                        data: [150, 141, 145, 152, 135, 125],
+                                        name: "Nilai Perolehan",
+                                        data: @json($nilaiPerolehan),
                                         color: "#1A56DB",
                                     },
                                     {
-                                        name: "Designer Edition",
-                                        data: [64, 41, 76, 41, 113, 173],
+                                        name: "Nilai Sesudah Penyusutan",
+                                        data: @json($nilaiPenyusutan),
                                         color: "#7E3BF2",
                                     },
                                 ],
@@ -246,11 +285,9 @@
                                     width: 6,
                                 },
                                 xaxis: {
-                                    categories: ['01 February', '02 February', '03 February', '04 February', '05 February', '06 February',
-                                        '07 February'
-                                    ],
+                                    categories: @json($categories),
                                     labels: {
-                                        show: false,
+                                        show: true,
                                     },
                                     axisBorder: {
                                         show: false,
@@ -260,10 +297,10 @@
                                     },
                                 },
                                 yaxis: {
-                                    show: false,
+                                    show: true,
                                     labels: {
                                         formatter: function(value) {
-                                            return '$' + value;
+                                            return value;
                                         }
                                     }
                                 },

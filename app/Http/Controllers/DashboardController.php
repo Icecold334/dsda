@@ -12,6 +12,7 @@ use App\Models\Keuangan;
 use App\Models\TransaksiStok;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\DB;
 
 
 class DashboardController extends Controller
@@ -74,30 +75,30 @@ class DashboardController extends Controller
         $penyusutan_bulan = 0;
 
         foreach ($asets as $aset) {
-         // Cek jika umur aset tidak nol
-        if ($aset->umur > 0) {
-            // Hitung nilai sekarang untuk setiap aset
-            $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, $aset->tanggalbeli, $aset->umur);
-            $tanggalBeli = strtotime($aset->tanggalbeli);
-            // Akumulasi total untuk nilai sekarang, harga total, dan penyusutan
-            $totalNilaiSekarang += $nilaiSekarang;
-            $totalHarga += $aset->hargatotal;
-            $totalPenyusutan += $aset->hargatotal - $nilaiSekarang;
+            // Cek jika umur aset tidak nol
+            if ($aset->umur > 0) {
+                // Hitung nilai sekarang untuk setiap aset
+                $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, $aset->tanggalbeli, $aset->umur);
+                $tanggalBeli = strtotime($aset->tanggalbeli);
+                // Akumulasi total untuk nilai sekarang, harga total, dan penyusutan
+                $totalNilaiSekarang += $nilaiSekarang;
+                $totalHarga += $aset->hargatotal;
+                $totalPenyusutan += $aset->hargatotal - $nilaiSekarang;
 
-            // Hitung penyusutan per bulan berdasarkan umur dan harga total
-            $penyusutanBulanan = $aset->hargatotal / ($aset->umur * 12);
+                // Hitung penyusutan per bulan berdasarkan umur dan harga total
+                $penyusutanBulanan = $aset->hargatotal / ($aset->umur * 12);
 
-            // Hitung jumlah bulan yang telah berlalu sejak tanggal pembelian hingga akhir bulan ini
-            $tanggalBeli = Carbon::parse($aset->tanggalbeli);
-            $bulanBerjalan = $tanggalBeli->diffInMonths(Carbon::now()->endOfMonth());
+                // Hitung jumlah bulan yang telah berlalu sejak tanggal pembelian hingga akhir bulan ini
+                $tanggalBeli = Carbon::parse($aset->tanggalbeli);
+                $bulanBerjalan = $tanggalBeli->diffInMonths(Carbon::now()->endOfMonth());
 
-            // Total penyusutan sampai akhir bulan ini
-            $penyusutan_bulan += $penyusutanBulanan * $bulanBerjalan;
-        } else {
-            // Jika umur 0, lewati penyusutan untuk aset ini atau set nilai ke 0
-            $aset->nilaiSekarang = 0;
-            $aset->totalpenyusutan = 0;
-        }
+                // Total penyusutan sampai akhir bulan ini
+                $penyusutan_bulan += $penyusutanBulanan * $bulanBerjalan;
+            } else {
+                // Jika umur 0, lewati penyusutan untuk aset ini atau set nilai ke 0
+                $aset->nilaiSekarang = 0;
+                $aset->totalpenyusutan = 0;
+            }
         }
         // dd($nilaiSekarang);
 
@@ -107,6 +108,39 @@ class DashboardController extends Controller
         $totalPenyusutanFormatted = $this->rupiah(abs($totalPenyusutan));
         $PenyusutanBulanFormatted = $this->rupiah($penyusutan_bulan);
 
-        return view('dashboard.index', compact('agendas', 'jurnals', 'histories', 'transactions', 'asets', 'count_aset', 'asets_limit', 'totalNilaiNow', 'totalHargaFormatted', 'totalPenyusutanFormatted', 'PenyusutanBulanFormatted'));
+        //nilai aset chart line
+        $nilaiPerolehan = [1,2,3,1,3,10,1]; // Replace with actual data
+        $nilaiPenyusutan = [3,2,1,2,1,3,1]; // Replace with actual data
+
+        // Retrieve the earliest and latest 'tanggal_beli' dates from the Aset table
+        $startDate = Aset::min('tanggalbeli');
+        $endDate = Aset::max('tanggalbeli');
+
+        // Convert to Carbon instances and set to the end of each month
+        $start = Carbon::createFromTimestamp($startDate)->endOfMonth();
+        $end = Carbon::createFromTimestamp($endDate)->endOfMonth();
+
+        // Generate end-of-month dates for each month in the range
+        $categories = [];
+        while ($start->lessThanOrEqualTo($end)) {
+            $categories[] = $start->format('F Y'); // Format as 'DD Month YYYY'
+            $start->addMonth()->endOfMonth();
+        }
+        return view('dashboard.index', compact(
+            'agendas',
+            'jurnals',
+            'histories',
+            'transactions',
+            'asets',
+            'count_aset',
+            'asets_limit',
+            'totalNilaiNow',
+            'totalHargaFormatted',
+            'totalPenyusutanFormatted',
+            'PenyusutanBulanFormatted',
+            'nilaiPerolehan',
+            'nilaiPenyusutan',
+            'categories'
+        ));
     }
 }
