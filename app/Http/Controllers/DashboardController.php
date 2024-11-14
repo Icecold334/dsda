@@ -77,8 +77,8 @@ class DashboardController extends Controller
          // Cek jika umur aset tidak nol
         if ($aset->umur > 0) {
             // Hitung nilai sekarang untuk setiap aset
-            $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, strtotime($aset->tanggalbeli), $aset->umur);
-            
+            $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, $aset->tanggalbeli, $aset->umur);
+            $tanggalBeli = strtotime($aset->tanggalbeli);
             // Akumulasi total untuk nilai sekarang, harga total, dan penyusutan
             $totalNilaiSekarang += $nilaiSekarang;
             $totalHarga += $aset->hargatotal;
@@ -99,12 +99,12 @@ class DashboardController extends Controller
             $aset->totalpenyusutan = 0;
         }
         }
-        // dd($umur);
+        // dd($nilaiSekarang);
 
         // Format total dalam Rupiah
-        $totalNilaiNow = $this->rupiah($totalNilaiSekarang);
+        $totalNilaiNow = $this->rupiah(abs($totalNilaiSekarang));
         $totalHargaFormatted = $this->rupiah($totalHarga);
-        $totalPenyusutanFormatted = $this->rupiah($totalPenyusutan);
+        $totalPenyusutanFormatted = $this->rupiah(abs($totalPenyusutan));
         $PenyusutanBulanFormatted = $this->rupiah($penyusutan_bulan);
 
         return view('dashboard.index', compact('agendas', 'jurnals', 'histories', 'transactions', 'asets', 'count_aset', 'asets_limit', 'totalNilaiNow', 'totalHargaFormatted', 'totalPenyusutanFormatted', 'PenyusutanBulanFormatted'));
