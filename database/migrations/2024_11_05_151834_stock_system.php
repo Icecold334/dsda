@@ -65,14 +65,14 @@ return new class extends Migration
         Schema::create('bagian_stok', function (Blueprint $table) {
             $table->timestamps();
             $table->id();
-            $table->foreignId('lokasi_id')->constrained('lokasi_stok');
+            $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('cascade');
             $table->string('nama');
         });
 
         Schema::create('posisi_stok', function (Blueprint $table) {
             $table->timestamps();
             $table->id();
-            $table->foreignId('bagian_id')->constrained('bagian_stok');
+            $table->foreignId('bagian_id')->constrained('bagian_stok')->onDelete('cascade');
             $table->string('nama');
         });
 
@@ -98,9 +98,9 @@ return new class extends Migration
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->date('tanggal_pengiriman');
             $table->integer('jumlah');
-            $table->foreignId('lokasi_id')->constrained('lokasi_stok');
-            $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok');
-            $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok');
+            $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('cascade');
+            $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade');
+            $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -145,7 +145,7 @@ return new class extends Migration
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->foreignId('vendor_id')->nullable()->constrained('vendor_stok');
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok');
+            $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('cascade');
             $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
             $table->integer('tanggal');
             $table->integer('jumlah');
@@ -184,9 +184,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->integer('jumlah');
-            $table->foreignId('lokasi_id')->constrained('lokasi_stok');
-            $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok');
-            $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok');
+            $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('cascade');
+            $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade');
+            $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade');
         });
 
 

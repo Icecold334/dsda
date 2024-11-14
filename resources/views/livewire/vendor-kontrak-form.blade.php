@@ -6,20 +6,30 @@
                     Nama Vendor *</label>
             </td>
             <td>
-                <div class="relative">
-                    <input type="text" wire:model.live="query" @disabled($listCount) placeholder="Cari Vendor"
-                        wire:blur="hideSuggestions"
+                <div class="">
+                    <input type="text" wire:model.live="query" wire:focus="focus" @disabled($listCount)
+                        placeholder="Cari Vendor" wire:blur="hideSuggestions"
                         class="bg-gray-50 border border-gray-300 {{ $listCount ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
 
-                    @if (!empty($suggestions))
+                    {{-- @if (!empty($suggestions)) --}}
+                    @if ($showSuggestions)
                         <ul
-                            class="absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                            class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                            @if ($show)
+                                <li wire:click="toggleAddVendorForm"
+                                    class="px-4 py-2 hover:bg-blue-500 transition duration-200 hover:text-white cursor-pointer group">
+                                    <span class="text-primary-500 group-hover:text-white"><i
+                                            class="fa-solid fa-circle-plus"></i></span> Tambah
+                                    Vendor
+                                </li>
+                            @endif
                             @foreach ($suggestions as $suggestion)
                                 <li wire:click="selectSuggestion({{ $suggestion['id'] }}, '{{ $suggestion['nama'] }}')"
-                                    class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
+                                    class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
                                     {{ $suggestion['nama'] }}
                                 </li>
                             @endforeach
+
                         </ul>
                     @endif
                 </div>
@@ -90,12 +100,12 @@
 
     </table>
     <!-- Button to toggle Add New Vendor form -->
-    @if ($show)
+    {{-- @if ($show && $showAddVendorForm)
         <div class="mt-3">
             <button wire:click="toggleAddVendorForm"
                 class="text-sm text-white bg-primary-600 px-2 rounded-lg  hover:shadow-lg hover:bg-primary-400 transition duration-200">{{ $showAddVendorForm ? 'Batal' : '+ Tambah Vendor Baru' }}</button>
         </div>
-    @endif
+    @endif --}}
 
     <!-- Add New Vendor Form -->
     @if ($showAddVendorForm)
@@ -125,6 +135,11 @@
             <button wire:click="addNewVendor"
                 class="bg-primary-500 text-white text-sm px-2 py-1 rounded hover:bg-primary-600 transition duration-200">Simpan
                 Vendor Baru</button>
+            <button wire:click="toggleAddVendorForm"
+                class="bg-primary-500 text-white text-sm px-2 py-1 rounded hover:bg-primary-600 transition duration-200">
+                Batal</button>
+
+
         </div>
     @endif
 </div>

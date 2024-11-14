@@ -26,17 +26,26 @@ class VendorKontrakForm extends Component
     public $show;
     public $showNomor;
     public $showAddVendorForm = false;
+    public $showSuggestions;
     public $query = ''; // Untuk query input saran vendor
     public $suggestions = []; // Untuk menyimpan hasil saran
+
+    public function focus()
+    {
+        $this->updatedQuery();
+    }
 
     public function updatedQuery()
     {
         // dd('aa');
+        $this->showSuggestions = true;
+
         // Ambil data dari database berdasarkan query
         $this->suggestions = VendorStok::where('nama', 'like', '%' . $this->query . '%')
             // ->limit(5)
             ->get()
             ->toArray();
+        $this->nama = $this->query;
 
         $exactMatch = VendorStok::where('nama', $this->query)->first();
 
@@ -68,6 +77,10 @@ class VendorKontrakForm extends Component
         $this->showNomor = !(request()->is('transaksi-darurat-stok/create') || request()->is('pengiriman-stok/create'));
         $this->barangs = JenisStok::all();
         $this->vendors = VendorStok::all();
+        if ($this->vendor_id) {
+            $vendor = VendorStok::find($this->vendor_id);
+            $this->query = $vendor->nama;
+        }
         // if (Request::routeIs('kontrak-vendor-stok.create') || Request::routeIs('transaksi-darurat-stok.create')) {
         //     $vendorIdsWithKontrak = TransaksiStok::whereNull('kontrak_id')->pluck('vendor_id')->unique();
         //     $this->vendors = $this->vendors->whereNotIn('id', $vendorIdsWithKontrak);
@@ -125,7 +138,8 @@ class VendorKontrakForm extends Component
 
     public function hideSuggestions()
     {
-        $this->suggestions = [];
+        // $this->suggestions = [];
+        $this->showSuggestions = false;
     }
 
 

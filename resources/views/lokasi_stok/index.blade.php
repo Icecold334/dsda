@@ -31,12 +31,23 @@
         <tbody>
             @foreach ($lokasiStok as $lokasi)
                 <tr
-                    class="bg-gray-300 hover:bg-gray-200 hover:shadow-lg font-semibold transition duration-200 rounded-2xl">
+                    class="bg-gray-300 hover:bg-gray-200 hover:shadow-lg font-semibold transition duration-200 rounded-2xl ">
                     <td class="px-6 py-3"></td>
                     <td class="px-6 py-3">{{ $lokasi->nama }}</td>
                     <td class="px-6 py-3"></td>
                     <td class="px-6 py-3"></td>
-                    <td class="px-6 py-3"></td>
+                    <td class="py-3 px-6 text-center">
+                        <a href="/lokasi-stok/lokasi/{{ $lokasi->id }}"
+                            class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
+                            data-tooltip-target="tooltip-aset-{{ $lokasi->id }}">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <div id="tooltip-aset-{{ $lokasi->id }}" role="tooltip"
+                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                            Ubah Lokasi
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                    </td>
                 </tr>
                 @forelse ($lokasi->bagianStok as $bagian)
                     <tr
@@ -45,7 +56,18 @@
                         <td class="px-6 py-3"></td>
                         <td class="px-6 py-3">{{ $bagian->nama }}</td>
                         <td class="px-6 py-3"></td>
-                        <td class="px-6 py-3"></td>
+                        <td class="py-3 px-6 text-center">
+                            <a href="/lokasi-stok/bagian/{{ $bagian->id }}"
+                                class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
+                                data-tooltip-target="tooltip-aset-{{ $bagian->id }}">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <div id="tooltip-aset-{{ $bagian->id }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                Ubah Bagian
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                        </td>
 
                     </tr>
                     @forelse ($bagian->posisiStok as $posisi)
@@ -55,7 +77,18 @@
                             <td class="px-6 py-3"></td>
                             <td class="px-6 py-3"></td>
                             <td class="px-6 py-3">{{ $posisi->nama }}</td>
-                            <td class="px-6 py-3"></td>
+                            <td class="py-3 px-6 text-center">
+                                <a href="/lokasi-stok/posisi/{{ $posisi->id }}"
+                                    class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
+                                    data-tooltip-target="tooltip-aset-{{ $posisi->id }}">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <div id="tooltip-aset-{{ $posisi->id }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Ubah Posisi
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </td>
                         </tr>
 
                     @empty

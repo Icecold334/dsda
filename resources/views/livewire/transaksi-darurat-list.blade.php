@@ -4,7 +4,7 @@
             <thead>
                 <tr class="text-white">
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold  rounded-l-lg">BARANG</th>
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold">MERK</th>
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI (MERK/UKURAN/DLL)</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12 ">JUMLAH</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">KETERANGAN</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">LOKASI PENERIMAAN</th>
@@ -202,11 +202,10 @@
                     </td>
                     <td class="py-3 px-6">
                         <div>
-                            <!-- Merk Input with Suggestions and Add Button -->
                             <div class="">
                                 <div class="flex">
                                     <input type="text" wire:model.live="newMerk" wire:blur="blurMerk"
-                                        placeholder="Cari atau Tambah Merk"
+                                        placeholder="Cari atau Tambah Spesifikasi"
                                         class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-l-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                     @if ($newMerkId == null && $newMerk)
                                         <button wire:click="createNewMerk"
@@ -324,7 +323,7 @@
             <button wire:click='saveKontrak'
                 class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
         @endif
-        @if ($dokumenCount)
+        @if ($dokumenCount && $nomor_kontrak)
             <button wire:click='finishKontrak'
                 class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Selesaikan
                 Kontrak</button>

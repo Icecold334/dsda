@@ -8,7 +8,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BAGIAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">POSISI</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH *</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BUKTI</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
@@ -77,10 +77,12 @@
                                 {{ $item['merk_id'] ? optional(App\Models\MerkStok::find($item['merk_id'])->barangStok->satuanBesar)->nama : 'Satuan' }}
                             </span>
                         </div>
-                        @if (isset($errorsList[$index]))
-                            <p class="text-red-600 text-xs mt-1">{{ $errorsList[$index] }}</p>
-                        @else
-                            <p class="text-black text-xs mt-1">Jumlah maksimal : {{ $item['max_jumlah'] }}</p>
+                        @if (!$item['id'])
+                            @if (isset($errorsList[$index]))
+                                <p class="text-red-600 text-xs mt-1">{{ $errorsList[$index] }}</p>
+                            @else
+                                <p class="text-black text-xs mt-1">Jumlah maksimal : {{ $item['max_jumlah'] }}</p>
+                            @endif
                         @endif
                     </td>
 

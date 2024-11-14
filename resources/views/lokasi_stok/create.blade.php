@@ -14,7 +14,7 @@
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2">
         <div class="border p-4 rounded-lg shadow-md">
-            <livewire:add-lokasi :tipe="$tipe" />
+            <livewire:add-lokasi :tipe="$tipe" :id="$id" />
         </div>
     </div>
 

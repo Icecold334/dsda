@@ -3,7 +3,7 @@
         <thead>
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-2/5 rounded-l-lg">BARANG</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">MERK</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI (MERK/UKURAN/DLL)</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
@@ -158,8 +158,8 @@
                             <div class="">
                                 <div class="flex">
                                     <input type="text" wire:model.live="newMerk" wire:blur="blurMerk"
-                                        placeholder="Cari atau Tambah Merk"
-                                        class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-l-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                        placeholder="Cari atau Tambah Spesifikasi" @disabled(!$barang_id)
+                                        class="block w-full px-4 py-2 text-gray-900 border {{ !$barang_id ? 'cursor-not-allowed' : '' }} border-gray-300 rounded-l-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                     @if ($merk_id == null && $newMerk)
                                         <button wire:click="createNewMerk"
                                             class="px-4 py-1 text-sm font-medium text-white bg-blue-500 rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tambah</button>
@@ -207,38 +207,39 @@
         @endif
 
     </table>
+    @if ($vendor_id && $jenis_id)
+        <div class="flex w-full justify-evenly">
+            <!-- Penulis -->
+            <div class="flex items-center space-x-2">
+                <label for="penulis" class="block text-sm font-medium text-gray-900">Penulis</label>
+                <input type="text" id="penulis" wire:model.live="penulis"
+                    class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
+                <button type="button" class="bg-gray-200 rounded-full p-2">
+                    <i class="fa-solid fa-check text-primary-600"></i>
+                </button>
+            </div>
 
-    <div class="flex w-full justify-evenly">
-        <!-- Penulis -->
-        <div class="flex items-center space-x-2">
-            <label for="penulis" class="block text-sm font-medium text-gray-900">Penulis</label>
-            <input type="text" id="penulis" wire:model.live="penulis"
-                class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-            <button type="button" class="bg-gray-200 rounded-full p-2">
-                <i class="fa-solid fa-check text-primary-600"></i>
-            </button>
-        </div>
+            <!-- PJ1 -->
+            <div class="flex items-center space-x-2">
+                <label for="pj1" class="block text-sm font-medium text-gray-900">Persetujuan 1</label>
+                <input type="text" id="pj1" wire:model.live="pj1"
+                    class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
+                <button type="button" class="bg-gray-200 rounded-full p-2">
+                    <i class="fa-solid fa-check text-primary-600"></i>
+                </button>
+            </div>
 
-        <!-- PJ1 -->
-        <div class="flex items-center space-x-2">
-            <label for="pj1" class="block text-sm font-medium text-gray-900">Persetujuan 1</label>
-            <input type="text" id="pj1" wire:model.live="pj1"
-                class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-            <button type="button" class="bg-gray-200 rounded-full p-2">
-                <i class="fa-solid fa-check text-primary-600"></i>
-            </button>
+            <!-- PJ2 -->
+            <div class="flex items-center space-x-2">
+                <label for="pj2" class="block text-sm font-medium text-gray-900">Persetujuan 2</label>
+                <input type="text" id="pj2" wire:model.live="pj2"
+                    class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
+                <button type="button" class="bg-gray-200 rounded-full p-2">
+                    <i class="fa-solid fa-check text-primary-600"></i>
+                </button>
+            </div>
         </div>
-
-        <!-- PJ2 -->
-        <div class="flex items-center space-x-2">
-            <label for="pj2" class="block text-sm font-medium text-gray-900">Persetujuan 2</label>
-            <input type="text" id="pj2" wire:model.live="pj2"
-                class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-            <button type="button" class="bg-gray-200 rounded-full p-2">
-                <i class="fa-solid fa-check text-primary-600"></i>
-            </button>
-        </div>
-    </div>
+    @endif
     @if ($vendor_id != null && count($list) > 0 && $dokumenCount > 0 && $nomor_kontrak && $tanggal_kontrak)
         <button wire:click='saveKontrak'
             class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>

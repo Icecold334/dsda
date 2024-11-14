@@ -11,7 +11,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-3">
         <div>
             <x-card title="Data Umum">
-                <table class="w-full font-semibold">
+                <livewire:vendor-kontrak-form :vendor_id="$transaksi->first()->vendorStok->id" :barang_id="$transaksi->first()->merkStok->barangStok->jenisStok->id">
+                    {{-- <table class="w-full font-semibold">
                     <tr>
                         <td>Nama Vendor</td>
                         <td>{{ $transaksi->first()->vendorStok->nama }}</td>
@@ -25,12 +26,7 @@
                         <td>{{ $transaksi->first()->tanggal_kontrak ? date('j F Y', $transaksi->first()->tanggal_kontrak) : '---' }}
                         </td>
                     </tr>
-                    {{-- <tr>
-                        <td>Penulis</td>
-                        <td>{{ $transaksi->first()->user->name }}</td>
-                    </tr> --}}
-
-                </table>
+                </table> --}}
             </x-card>
         </div>
         <div>
