@@ -20,11 +20,12 @@ class AsetController extends Controller
 
 
         $asets = Aset::where('status', true)->get()->map(function ($aset) {
-            $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, strtotime($aset->tanggalbeli), $aset->umur);
+            $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, $aset->tanggalbeli, $aset->umur);
             $aset->nilaiSekarang = $this->rupiah($nilaiSekarang);
             $hargaTotal = $aset->hargatotal;
             $aset->hargatotal = $this->rupiah($hargaTotal);
-            $aset->totalpenyusutan = $this->rupiah($hargaTotal - $nilaiSekarang);
+            $totalPenyusutan = $hargaTotal - $nilaiSekarang;
+            $aset->totalpenyusutan = $this->rupiah(abs($totalPenyusutan));
             return $aset;
         });
         return view('aset.index', compact('asets'));
