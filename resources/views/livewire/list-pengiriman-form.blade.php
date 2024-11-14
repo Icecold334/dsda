@@ -2,8 +2,7 @@
     <table class="w-full border-separate border-spacing-y-4">
         <thead>
             <tr class="text-white">
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">NAMA BARANG</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg">NAMA BARANG</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">LOKASI *</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BAGIAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">POSISI</th>
@@ -15,7 +14,6 @@
         <tbody>
             @foreach ($list as $index => $item)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
-                    <td class="px-6 py-3 font-semibold"></td>
                     <td class="px-6 py-3 font-semibold">{{ $item['merk'] }}</td>
 
                     <!-- Lokasi Dropdown -->

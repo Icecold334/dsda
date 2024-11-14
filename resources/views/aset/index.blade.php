@@ -54,7 +54,7 @@
                         <p class="font-semibold text-gray-800">{{ $aset->kode }}</p>
                         <p class="font-normal text-gray-500 text-sm">Kode Sistem : {{ $aset->systemcode }}</p>
                         <p class="font-normal text-gray-500 text-sm">Tanggal Pembelian :
-                            {{ date('j F Y', $aset->tanggalbeli) }}
+                            {{ $aset->tanggalbeli }}
                         </p>
                     </td>
                     <td class="py-3 px-6 ">
@@ -77,7 +77,8 @@
                         <td class="py-3 px-6 ">
                             @if ($aset->histories->last())
                                 <p class="font-semibold text-gray-800">
-                                    {{ date('j F Y', $aset->histories->last()->tanggal) }}</p>
+                                    {{ \Carbon\Carbon::parse($aset->histories->last()->tanggal)->translatedFormat('j F Y') }}
+                                </p>
                                 <p class="text-sm text-gray-500">{{ $aset->histories->last()->person->nama }}</p>
                                 <p class="text-sm text-gray-500">{{ $aset->histories->last()->lokasi->nama }}</p>
                             @else
