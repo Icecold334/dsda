@@ -6,7 +6,7 @@
                     Nama Vendor *</label>
             </td>
             <td>
-                <div class="relative">
+                <div class="">
                     <input type="text" wire:model.live="query" wire:focus="focus" @disabled($listCount)
                         placeholder="Cari Vendor" wire:blur="hideSuggestions"
                         class="bg-gray-50 border border-gray-300 {{ $listCount ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
@@ -14,13 +14,15 @@
                     {{-- @if (!empty($suggestions)) --}}
                     @if ($showSuggestions)
                         <ul
-                            class="absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
-                            <li wire:click="toggleAddVendorForm"
-                                class="px-4 py-2 hover:bg-blue-500 transition duration-200 hover:text-white cursor-pointer group">
-                                <span class="text-primary-500 group-hover:text-white"><i
-                                        class="fa-solid fa-circle-plus"></i></span> Tambah
-                                Vendor
-                            </li>
+                            class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                            @if ($show)
+                                <li wire:click="toggleAddVendorForm"
+                                    class="px-4 py-2 hover:bg-blue-500 transition duration-200 hover:text-white cursor-pointer group">
+                                    <span class="text-primary-500 group-hover:text-white"><i
+                                            class="fa-solid fa-circle-plus"></i></span> Tambah
+                                    Vendor
+                                </li>
+                            @endif
                             @foreach ($suggestions as $suggestion)
                                 <li wire:click="selectSuggestion({{ $suggestion['id'] }}, '{{ $suggestion['nama'] }}')"
                                     class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">

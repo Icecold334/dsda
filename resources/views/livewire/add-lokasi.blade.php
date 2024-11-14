@@ -36,10 +36,10 @@
         @if ($tipe == 'bagian')
             <tr>
                 <td>
-                    <label for="bagian_id">Lokasi</label>
+                    <label for="lokasi_id">Lokasi</label>
                 </td>
                 <td>
-                    <select id="bagian_id" wire:model.live="bagian_id"
+                    <select id="lokasi_id" wire:model.live="lokasi_id"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="">Pilih Lokasi</option>
                         @foreach ($lokasis as $lokasi)
@@ -48,7 +48,7 @@
                             </option>
                         @endforeach
                     </select>
-                    @error('bagian_id')
+                    @error('lokasi_id')
                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                     @enderror
                 </td>
@@ -109,6 +109,10 @@
         @endif
     </table>
     <div class="flex justify-end">
+        @if ($id)
+            <button type="button" wire:click="removeLokasi"
+                class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Hapus</button>
+        @endif
         <button type="button" wire:click="saveLokasi"
             class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
 

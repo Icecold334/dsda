@@ -31,6 +31,9 @@ class ListKontrakBarang extends Component
             return $maxJumlah > 0;
         })->filter(function ($merk) {
             return $merk->barangStok->jenis_id == $this->jenis_id;
+        })->map(function ($merk) {
+            $merk->max_jumlah = $this->calculateMaxJumlah($merk->id);
+            return $merk;
         });
     }
     #[On('vendor_id')]
@@ -43,12 +46,17 @@ class ListKontrakBarang extends Component
                 $kontrakQuery->where('vendor_id', $this->vendor_id)
                     ->where('type', true); // Assuming 'type' is a boolean field
             });
+        })->whereHas('barangStok', function ($query) {
+            $query->where('jenis_id', $this->jenis_id); // Assuming 'jenis_id' is a foreign key in 'barang_stok' table
         })->get();
 
         // Filter merks to only include those with max jumlah > 0
         $this->merkList = $merks->filter(function ($merk) {
             $maxJumlah = $this->calculateMaxJumlah($merk->id);
             return $maxJumlah > 0;
+        })->map(function ($merk) {
+            $merk->max_jumlah = $this->calculateMaxJumlah($merk->id);
+            return $merk;
         });
     }
 
@@ -90,7 +98,10 @@ class ListKontrakBarang extends Component
         // Ambil merk berdasarkan ID dan tambahkan ke merkList
         $merk = MerkStok::find($merkId);
         if ($merk) {
-            $this->merkList->push($merk);
+            $this->merkList->push($merk)->map(function ($merk) {
+                $merk->max_jumlah = $this->calculateMaxJumlah($merk->id);
+                return $merk;
+            });
         }
     }
 
@@ -103,6 +114,9 @@ class ListKontrakBarang extends Component
         // Remove merk from the current list
         $this->merkList = $this->merkList->filter(function ($merk) use ($id) {
             return $merk->id !== $id;
+        })->map(function ($merk) {
+            $merk->max_jumlah = $this->calculateMaxJumlah($merk->id);
+            return $merk;
         });
     }
     public function render()
