@@ -8,11 +8,12 @@ use App\Models\User;
 use App\Models\Agenda;
 use App\Models\Jurnal;
 use App\Models\History;
+use App\Models\Kategori;
 use App\Models\Keuangan;
 use App\Models\TransaksiStok;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\DB;
 
 
 class DashboardController extends Controller
@@ -109,23 +110,93 @@ class DashboardController extends Controller
         $PenyusutanBulanFormatted = $this->rupiah($penyusutan_bulan);
 
         //nilai aset chart line
-        $nilaiPerolehan = [1,2,3,1,3,10,1]; // Replace with actual data
-        $nilaiPenyusutan = [3,2,1,2,1,3,1]; // Replace with actual data
+        $nilaiPerolehan = [1, 2, 3, 1, 3, 10, 1]; // Replace with actual data
+        $nilaiPenyusutan = [3, 2, 1, 2, 1, 3, 1]; // Replace with actual data
 
-        // Retrieve the earliest and latest 'tanggal_beli' dates from the Aset table
-        $startDate = Aset::min('tanggalbeli');
-        $endDate = Aset::max('tanggalbeli');
+        // Dapatkan bulan dan tahun saat ini
+        $bulan_sekarang = date("n");
+        $tahun_sekarang = date("Y");
 
-        // Convert to Carbon instances and set to the end of each month
-        $start = Carbon::createFromTimestamp($startDate)->endOfMonth();
-        $end = Carbon::createFromTimestamp($endDate)->endOfMonth();
+        $label_arr = $nilai_awal_arr = $nilai_susut_arr = [];
 
-        // Generate end-of-month dates for each month in the range
-        $categories = [];
-        while ($start->lessThanOrEqualTo($end)) {
-            $categories[] = $start->format('F Y'); // Format as 'DD Month YYYY'
-            $start->addMonth()->endOfMonth();
+        // Loop dari -12 hingga 0 untuk mendapatkan 12 bulan terakhir
+        for ($x = -12; $x <= 0; $x++) {
+            // Mengubah bulan sesuai iterasi
+            $rubah_bulan = $bulan_sekarang + $x;
+
+            // Mendapatkan timestamp awal bulan
+            $unix = mktime(0, 1, 0, $rubah_bulan, 1, $tahun_sekarang);
+            $unix_awal = mktime(0, 1, 0, $rubah_bulan + 1, 1, $tahun_sekarang);
+            $unix_susut = mktime(0, 1, 0, $rubah_bulan + 1, 1, $tahun_sekarang);
+
+            // Format tanggal untuk label
+            $label_arr[] = "'" . date("t M Y", $unix) . "'";
+
+            // Mendapatkan nilai awal dan nilai susut
+            $nilai_awal = $this->nilaiAwalBulan($unix_awal);
+            $nilai_awal_arr[] = $nilai_awal;
+
+            $nilai_susut = $this->nilaiSusutBulan($unix_susut);
+
+            // Jika nilai susut kurang dari 1, gunakan nilai awal
+            $nilai_susut_arr[] = $nilai_susut < 1 ? $nilai_awal : $nilai_susut;
         }
+
+        // Menggabungkan array menjadi string untuk dikirim ke view
+        $categories = implode(",", $label_arr);
+        $nilaiPerolehan = implode(",", $nilai_awal_arr);
+        $nilaiPenyusutan = implode(",", $nilai_susut_arr);
+
+        //grafik jumlah aset perkategori
+        $label_jumlahArr = [];
+        $data_jumlahArr = [];
+
+        // Count assets without a category (assuming 'kategori_id' is the foreign key)
+        $jmlAsetNoKat = $this->jumlahAset('kategori_id', 0);
+        if ($jmlAsetNoKat > 0) {
+            $label_jumlahArr[] = 'Tak Berkategori';
+            $data_jumlahArr[] = $jmlAsetNoKat;
+        }
+
+        $kategoris = Kategori::where('status', '1')->get();
+
+
+        foreach ($kategoris as $category) {
+            $jmlAset = $this->jumlahAset('kategori_id', $category->id);
+            if ($jmlAset > 0) {
+                $label_jumlahArr[] = $category->nama;
+                $data_jumlahArr[] = $jmlAset;
+            }
+        }
+
+        // Prepare data for the chart
+        $label_jumlah = json_encode($label_jumlahArr);
+        $data_jumlah = json_encode($data_jumlahArr);
+
+        // nilai aset grafik
+        $label_nilaiArr = [];
+        $data_nilaiArr = [];
+
+        // Calculate total asset value without a category (assuming 'kategori_id' is the foreign key in the Aset model)
+        $nilaiAsetNoKat = $this->nilaiAset('kategori_id', 0);
+        if ($nilaiAsetNoKat > 0) {
+            $label_nilaiArr[] = 'Tak Berkategori';
+            $data_nilaiArr[] = $nilaiAsetNoKat;
+        }   
+
+        foreach ($kategoris as $category) {
+            $jmlAset = $this->nilaiAset('kategori_id', $category->id);
+            if ($jmlAset > 0) {
+                $label_nilaiArr[] = $category->nama;
+                $data_nilaiArr[] = $jmlAset;
+            }
+        }
+
+        // Prepare data for the chart
+        $label_nilai = json_encode($label_nilaiArr); // Convert labels to JSON format
+        $data_nilai = json_encode($data_nilaiArr);   // Convert data to JSON format
+        // dd($data_nilai);
+
         return view('dashboard.index', compact(
             'agendas',
             'jurnals',
@@ -140,7 +211,11 @@ class DashboardController extends Controller
             'PenyusutanBulanFormatted',
             'nilaiPerolehan',
             'nilaiPenyusutan',
-            'categories'
+            'categories',
+            'label_jumlah',
+            'data_jumlah',
+            'label_nilai',
+            'data_nilai',
         ));
     }
 }

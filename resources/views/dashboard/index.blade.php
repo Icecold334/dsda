@@ -20,8 +20,8 @@
                                 <script type="module">
                                     const getChartOptions = () => {
                                         return {
-                                            series: [35.1, 23.5, 2.4, 5.4],
-                                            colors: ["#1C64F2", "#16BDCA", "#FDBA8C", "#E74694"],
+                                            series: {!! $data_jumlah !!},
+                                            // colors: ["#1C64F2", "#16BDCA", "#FDBA8C", "#E74694"],
                                             chart: {
                                                 height: 320,
                                                 width: "100%",
@@ -71,7 +71,7 @@
                                                     top: -2,
                                                 },
                                             },
-                                            labels: ["Direct", "Sponsor", "Affiliate", "Email marketing"],
+                                            labels: {!! $label_jumlah !!},
                                             dataLabels: {
                                                 enabled: false,
                                             },
@@ -112,8 +112,7 @@
                         </div>
                         <div class="w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
                             <div class="flex justify-center items-center mb-3">
-                                <h5 class="text-lg font-bold leading-none text-gray-900 dark:text-white pe-1">Nilai
-                                    Aset
+                                <h5 class="text-lg font-bold leading-none text-gray-900 dark:text-white pe-1">Nilai Aset
                                 </h5>
                             </div>
                             <!-- Donut Chart -->
@@ -122,8 +121,8 @@
                                 <script type="module">
                                     const getChartOptions = () => {
                                         return {
-                                            series: [35.1, 23.5, 2.4, 5.4],
-                                            colors: ["#1C64F2", "#16BDCA", "#FDBA8C", "#E74694"],
+                                            series: {!! $data_nilai !!},
+                                            // colors: ["#1C64F2", "#16BDCA", "#FDBA8C", "#E74694"],
                                             chart: {
                                                 height: 320,
                                                 width: "100%",
@@ -173,7 +172,7 @@
                                                     top: -2,
                                                 },
                                             },
-                                            labels: ["Direct", "Sponsor", "Affiliate", "Email marketing"],
+                                            labels: {!! $label_nilai !!},
                                             dataLabels: {
                                                 enabled: false,
                                             },
@@ -222,10 +221,31 @@
                     </div>
                     @push('scripts')
                         <script type="module">
+                            // Ambil data yang dikirim dari controller
+                            const label = [{!! $categories !!}]; // Data label, bulan-tahun
+                            const nilaiAwal = [{!! $nilaiPerolehan !!}];
+                            const nilaiSusut = [{!! $nilaiPenyusutan !!}];
+
+                            // Contoh: Cetak data di console untuk melihat isinya
+                            // console.log("Label (Bulan):", label);
+                            // console.log("Nilai Awal:", nilaiAwal);
+                            // console.log("Nilai Susut:", nilaiSusut);
                             const options = {
                                 // enable and customize data labels using the following example, learn more from here: https://apexcharts.com/docs/datalabels/
-                                dataLabels: {
+                                tooltip: {
                                     enabled: true,
+                                    x: {
+                                        show: true,
+                                    },
+                                    y: {
+                                        show: true,
+                                        formatter: function(value) {
+                                            return rupiah(value);
+                                        }
+                                    },
+                                },
+                                dataLabels: {
+                                    enabled: false,
                                     // offsetX: 10,
                                     style: {
                                         cssClass: 'text-xs text-white font-medium'
@@ -242,13 +262,15 @@
                                 },
                                 series: [{
                                         name: "Nilai Perolehan",
-                                        data: @json($nilaiPerolehan),
-                                        color: "#1A56DB",
+                                        // data: @json($nilaiPerolehan),
+                                        data: nilaiAwal,
+                                        color: "#2a95e2",
                                     },
                                     {
                                         name: "Nilai Sesudah Penyusutan",
-                                        data: @json($nilaiPenyusutan),
-                                        color: "#7E3BF2",
+                                        // data: @json($nilaiPenyusutan),
+                                        data: nilaiSusut,
+                                        color: "#dc3545",
                                     },
                                 ],
                                 chart: {
@@ -285,7 +307,8 @@
                                     width: 6,
                                 },
                                 xaxis: {
-                                    categories: @json($categories),
+                                    // categories: @json($categories),
+                                    categories: label,
                                     labels: {
                                         show: true,
                                     },
@@ -300,7 +323,7 @@
                                     show: true,
                                     labels: {
                                         formatter: function(value) {
-                                            return value;
+                                            return rupiah(value);
                                         }
                                     }
                                 },
