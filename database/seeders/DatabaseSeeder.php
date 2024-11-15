@@ -332,7 +332,7 @@ class DatabaseSeeder extends Seeder
                 'person_id' => Person::inRandomOrder()->first()->id ?? null,
                 'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
                 'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
-                'tanggalbeli' => now(),
+                'tanggalbeli' => strtotime('now'),
                 'jumlah' => rand(1, 10),
                 'hargasatuan' => rand(1000000, 5000000),
                 'hargatotal' => rand(5000000, 25000000),
@@ -346,7 +346,7 @@ class DatabaseSeeder extends Seeder
             DB::table('history')->insert([
                 'user_id' => $userId,
                 'aset_id' => Aset::inRandomOrder()->first()->id,
-                'tanggal' => now(),
+                'tanggal' => strtotime('now'),
                 'person_id' => Person::inRandomOrder()->first()->id ?? null,
                 'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
                 'jumlah' => rand(1, 10),
@@ -362,7 +362,7 @@ class DatabaseSeeder extends Seeder
             DB::table('keuangan')->insert([
                 'user_id' => $userId,
                 'aset_id' => Aset::inRandomOrder()->first()->id,
-                'tanggal' => now(),
+                'tanggal' => strtotime('now'),
                 'tipe' => $faker->randomElement(['in', 'out']),
                 'keterangan' => $faker->sentence,
                 'nominal' => $faker->numberBetween(1000, 10000),
@@ -377,7 +377,7 @@ class DatabaseSeeder extends Seeder
                 'aset_id' => Aset::inRandomOrder()->first()->id,
                 'tipe' => $faker->randomElement(['mingguan', 'bulanan']),
                 'hari' => $faker->numberBetween(1, 7),
-                'tanggal' => now(),
+                'tanggal' => strtotime('now'),
                 'bulan' => $faker->numberBetween(1, 12),
                 'tahun' => $faker->numberBetween(2020, 2023),
                 'keterangan' => $faker->sentence,
@@ -390,7 +390,7 @@ class DatabaseSeeder extends Seeder
             DB::table('jurnal')->insert([
                 'user_id' => $userId,
                 'aset_id' => Aset::inRandomOrder()->first()->id,
-                'tanggal' => now(),
+                'tanggal' => strtotime('now'),
                 'keterangan' => $faker->sentence,
                 'status' => 1,
             ]);

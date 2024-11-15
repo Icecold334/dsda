@@ -15,7 +15,6 @@ abstract class Controller
      */
     public function nilaiSekarang($harga, $tgl_beli, $umur, $tampil = true)
     {
-        $tgl_beli = strtotime($tgl_beli);
         $sekarang = strtotime("now");
 
         // Calculate months from purchase date and current date

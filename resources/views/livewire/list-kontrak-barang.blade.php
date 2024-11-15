@@ -1,7 +1,7 @@
 <table class="w-full border-0 border-separate border-spacing-y-4">
     <thead class="uppercase text-primary-900">
         <th class="w-1/3">Jenis Barang</th>
-        <th class="w-1/3">Spesifikasi</th>
+        <th class="w-1/3">Merk</th>
         <th class="w-1/3">Sisa</th>
     </thead>
     <tbody>

@@ -22,7 +22,6 @@ class AsetController extends Controller
         $asets = Aset::where('status', true)->get()->map(function ($aset) {
             $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, $aset->tanggalbeli, $aset->umur);
             $aset->nilaiSekarang = $this->rupiah($nilaiSekarang);
-            $aset->tanggalbeli = \Carbon\Carbon::parse($aset->tanggalbeli)->translatedFormat('j F Y');
             $hargaTotal = $aset->hargatotal;
             $aset->hargatotal = $this->rupiah($hargaTotal);
             $totalPenyusutan = $hargaTotal - $nilaiSekarang;

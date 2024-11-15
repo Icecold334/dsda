@@ -28,7 +28,7 @@
                         ['href' => '/#', 'title' => 'Form peminjaman Umum'],
                         ['href' => '/#', 'title' => 'Form permintaan spare part'],
                         ['href' => '/#', 'title' => 'Form permintaan material'],
-                        ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
+                        ['href' => '/#', 'title' => 'Form barang datang'],
                     ]" />
                     <livewire:nav-item title="data" :child="[
                         ['href' => '/aset-aktif', 'title' => 'kategori'],
