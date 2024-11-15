@@ -331,7 +331,7 @@ class TransaksiDaruratList extends Component
                     'img' => $item['bukti'] != null ? str_replace('buktiTransaksi/', '', $item['bukti']->storeAs('buktiTransaksi', $item['bukti']->getClientOriginalName(), 'public')) : null,
                     'user_id' => Auth::id(),
                     'kontrak_id' => null,
-                    'tanggal' => strtotime(now()),
+                    'tanggal' => strtotime(date('Y-m-d H:i:s')),
                     'jumlah' => $item['jumlah'],
                     'deskripsi' => $item['keterangan'] ?? '',
                     'lokasi_penerimaan' => $item['lokasi_penerimaan'] ?? '',
@@ -352,7 +352,7 @@ class TransaksiDaruratList extends Component
         // Step 1: Create a new contract with type `false`
         $newKontrak = KontrakVendorStok::create([
             'vendor_id' => $this->vendor_id,
-            'tanggal_kontrak' => strtotime(now()),
+            'tanggal_kontrak' => strtotime(date('Y-m-d H:i:s')),
             'penulis' => $this->penulis,
             'pj1' => $this->pj1,
             'pj2' => $this->pj2,

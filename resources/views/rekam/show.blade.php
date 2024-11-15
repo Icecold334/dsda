@@ -110,35 +110,21 @@
             @endforeach
         </tbody>
     </table>
-    <div class="flex w-full justify-evenly">
+    <div class="flex w-full justify-evenly border-t-4 py-6 ">
         <!-- Penulis -->
-        <div class="flex items-center space-x-2">
-            <label for="penulis" class="block text-sm font-medium text-gray-900">Penulis</label>
-            <input type="text" id="penulis" value="{{ $kontrak->penulis }}" disabled
-                class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-            <button type="button" class="bg-gray-200 rounded-full p-2">
-                <i class="fa-solid fa-check text-primary-600"></i>
-            </button>
+        <div class="">
+            <label for="penulis" class="block text-sm font-medium text-center mb-2 text-gray-900">Penulis</label>
+            <div class="flex"><input type="text" id="penulis" value="{{ $kontrak->user->name }}" readonly
+                    class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500  focus:border-primary-500 w-full" />
+                {{-- <button type="button"
+                        class="bg-primary-200 rounded-r-lg hover:bg-primary-500 group transition duration-200 px-3">
+                        <i class="fa-solid fa-check text-primary-600 group-hover:text-primary-100"></i>
+                    </button> --}}
+            </div>
         </div>
+        @role('penanggungjawab')
+            <livewire:aproval-kontrak :date="$kontrak->tanggal_kontrak">
+            @endrole
 
-        <!-- PJ1 -->
-        <div class="flex items-center space-x-2">
-            <label for="pj1" class="block text-sm font-medium text-gray-900">Persetujuan 1</label>
-            <input type="text" id="pj1" value="{{ $kontrak->pj1 }}" disabled
-                class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-            <button type="button" class="bg-gray-200 rounded-full p-2">
-                <i class="fa-solid fa-check text-primary-600"></i>
-            </button>
-        </div>
-
-        <!-- PJ2 -->
-        <div class="flex items-center space-x-2">
-            <label for="pj2" class="block text-sm font-medium text-gray-900">Persetujuan 2</label>
-            <input type="text" id="pj2" value="{{ $kontrak->pj2 }}" disabled
-                class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-            <button type="button" class="bg-gray-200 rounded-full p-2">
-                <i class="fa-solid fa-check text-primary-600"></i>
-            </button>
-        </div>
     </div>
 </x-body>

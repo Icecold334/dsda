@@ -64,7 +64,7 @@ class ListPengirimanForm extends Component
             [
                 'kode_pengiriman_stok' => fake()->bothify('KP#######'),
                 'kontrak_id' => 2,
-                'tanggal' => strtotime(now()),
+                'tanggal' => strtotime(date('Y-m-d H:i:s')),
                 'user_id' => Auth::id(),
                 'penerima' => $this->penulis,
                 'pj1' => $this->pj1,
@@ -86,7 +86,7 @@ class ListPengirimanForm extends Component
                     'bagian_id' => $item['bagian_id'] ?? null,
                     'posisi_id' => $item['posisi_id'] ?? null,
                     'img' => isset($item['bukti']) && !is_string($item['bukti']) ? str_replace('buktiPengiriman/', '', $item['bukti']->storeAs('buktiPengiriman', $item['bukti']->getClientOriginalName(), 'public')) : $pengirimanStok->img,
-                    // 'tanggal_pengiriman' => strtotime(now()),
+                    // 'tanggal_pengiriman' => strtotime(date('Y-m-d H:i:s')),
                 ]);
             } else {
                 $transactions = \App\Models\TransaksiStok::where('vendor_id', $this->vendor_id)
@@ -112,7 +112,7 @@ class ListPengirimanForm extends Component
                         'kontrak_id' => $transaction->kontrak_id,
                         'merk_id' => $merkId,
                         'img' => isset($item['bukti']) && !is_string($item['bukti'])  ? str_replace('buktiPengiriman/', '', $item['bukti']->storeAs('buktiPengiriman', $item['bukti']->getClientOriginalName(), 'public')) : null,
-                        'tanggal_pengiriman' => strtotime(now()),
+                        'tanggal_pengiriman' => strtotime(date('Y-m-d H:i:s')),
                         'jumlah' => $fulfillableQty,
                         'lokasi_id' => $item['lokasi_id'],
                         'bagian_id' => $item['bagian_id'] ?? null,

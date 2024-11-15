@@ -125,6 +125,7 @@ return new class extends Migration
             $table->foreignId('super_id')->nullable()->constrained('users');
             $table->foreignId('admin_id')->nullable()->constrained('users');
             $table->boolean('type');
+            $table->boolean('status')->default(0);
             // $table->integer('jumlah_total');
         });
 
@@ -135,6 +136,12 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        Schema::create('persetujuan_kontrak_stok', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
+            $table->foreignId('user_id')->constrained('users');
+            $table->timestamps();
+        });
 
 
         Schema::create('transaksi_stok', function (Blueprint $table) {
@@ -212,6 +219,7 @@ return new class extends Migration
         Schema::dropIfExists('transaksi_stok');
         Schema::dropIfExists('detail_pengiriman_stok');
         Schema::dropIfExists('pengiriman_stok');
+        Schema::dropIfExists('persetujuan_kontrak_stok');
         Schema::dropIfExists('kontrak_vendor_stok');
         Schema::dropIfExists('posisi_stok');
         Schema::dropIfExists('bagian_stok');
