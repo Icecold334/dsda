@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Aset;
+use Illuminate\Support\Facades\DB;
+
 abstract class Controller
 {
     /**
@@ -42,6 +45,87 @@ abstract class Controller
 
         // Return formatted or raw value based on $tampil flag
         return $tampil ? number_format((float)$nilai_sekarang, 2, '.', '') : $nilai_sekarang;
+    }
+
+    public function nilaiAwalBulan($bulan)
+    {
+        // Run the query using Eloquent or Query Builder
+        $nilaiTotal = Aset::where('aktif', true)
+            ->where('tanggalbeli', '<', $bulan)
+            ->where(function ($query) use ($bulan) {
+                $query->where('tglnonaktif', 0)
+                    ->orWhere('tglnonaktif', '>', $bulan);
+            })
+            ->sum('hargatotal');
+
+        // Format the result to two decimal points
+        return number_format($nilaiTotal, 2, ".", "");
+    }
+
+    protected function nilaiSekarangBulan($harga, $tgl_beli, $umur, $unix)
+    {
+        $bulan_beli = date("n", $tgl_beli);
+        $tahun_beli = date("Y", $tgl_beli);
+        $jml_bulan_beli = ($tahun_beli * 12) + $bulan_beli;
+
+        $bulan_sekarang = date("n", $unix);
+        $tahun_sekarang = date("Y", $unix);
+        $jml_bulan_sekarang = ($tahun_sekarang * 12) + $bulan_sekarang;
+
+        $umur_bulan = $jml_bulan_sekarang - $jml_bulan_beli;
+        $umurbulan_asli = $umur * 12;
+        $invert_umurbulan = $umurbulan_asli - $umur_bulan;
+
+        if ($umurbulan_asli > 0) {
+            $nilai_sekarang = ($invert_umurbulan / $umurbulan_asli) * $harga;
+            return max($nilai_sekarang, 0); // Ensures the value doesn't go below 0
+        }
+
+        return $harga;
+    }
+
+    public function nilaiSusutBulan($bulan)
+    {
+        $assets = Aset::where('aktif', true)
+            ->where('tanggalbeli', '<', $bulan)
+            ->where(function ($query) use ($bulan) {
+                $query->where('tglnonaktif', 0)
+                    ->orWhere('tglnonaktif', '>', $bulan);
+            })
+            ->get(['hargatotal', 'tanggalbeli', 'umur']);
+
+        $nilai = 0;
+
+        foreach ($assets as $asset) {
+            $nilai_sekarang = $this->nilaiSekarangBulan(
+                $asset->hargatotal,
+                $asset->tanggalbeli,
+                $asset->umur,
+                $bulan
+            );
+            $nilai += $nilai_sekarang;
+        }
+
+        return number_format($nilai, 2, ".", "");
+    }
+
+    function jumlahAset($section, $id)
+    {
+        // Building the query with Laravel's query builder
+        $jumlahAset = Aset::where($section, $id)
+            ->where('aktif', true)
+            ->count(); // Count the results directly
+
+        return $jumlahAset;
+    }
+    function nilaiAset($section, $id)
+    {
+        // Building the query with Laravel's query builder
+        $nilaiAset = Aset::where($section, $id)
+            ->where('aktif', true)
+            ->sum('hargatotal'); // Calculate the total value directly
+
+        return $nilaiAset * 1;
     }
 
     function rupiah($angka)

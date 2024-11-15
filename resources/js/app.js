@@ -19,3 +19,16 @@ window.formatRupiah = function (value) {
     rupiah = split[1] ? rupiah + "," + split[1] : rupiah;
     return rupiah;
 };
+
+window.rupiah = function(angka) {
+    const numberString = angka.toString();
+    const sisa = numberString.length % 3;
+    let rupiah = numberString.substr(0, sisa);
+    const ribuan = numberString.substr(sisa).match(/\d{3}/g);
+
+    if (ribuan) {
+        const separator = sisa ? '.' : '';
+        rupiah += separator + ribuan.join('.');
+    }
+    return 'Rp ' + rupiah + ',00';
+}
