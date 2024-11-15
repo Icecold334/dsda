@@ -83,7 +83,7 @@
                                             yaxis: {
                                                 labels: {
                                                     formatter: function(value) {
-                                                        return value + "k"
+                                                        return value;
                                                     },
                                                 },
                                             },
@@ -184,9 +184,9 @@
                                             yaxis: {
                                                 labels: {
                                                     formatter: function(value) {
-                                                        return value + "k"
-                                                    },
-                                                },
+                                                        return rupiah(value);
+                                                    }
+                                                }
                                             },
                                             xaxis: {
                                                 labels: {
