@@ -33,7 +33,14 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
+    public function persetujuankontrak()
+    {
+        return $this->hasMany(PersetujuanKontrakStok::class, 'user_id');
+    }
+    public function persetujuanPengiriman()
+    {
+        return $this->hasMany(PersetujuanPengirimanStok::class, 'user_id');
+    }
     /**
      * Get the attributes that should be cast.
      *

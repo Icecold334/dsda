@@ -41,7 +41,10 @@
                     </td>
                     <td class="px-6 py-3 text-center">
                         <span
-                            class="bg-{{ $datang->penerima && $datang->pj1 && $datang->pj2 ? 'success' : 'warning' }}-400 text-{{ $datang->penerima && $datang->pj1 && $datang->pj2 ? 'white' : 'black' }} text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-{{ $datang->penerima && $datang->pj1 && $datang->pj2 ? 'success' : 'warning' }}-900 dark:text-{{ $datang->penerima && $datang->pj1 && $datang->pj2 ? 'success' : 'warning' }}-300">{{ $datang->penerima && $datang->pj1 && $datang->pj2 ? 'Selesai' : 'Proses' }}</span>
+                            class="bg-{{ $datang->status === null ? 'warning' : ($datang->status ? 'success' : 'danger') }}-400 text-{{ $datang->status === null ? 'black' : 'white' }} text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-{{ $datang->status === null ? 'warning' : ($datang->status === true ? 'success' : 'danger') }}-900 dark:text-{{ $datang->status === null ? 'warning' : ($datang->status === true ? 'success' : 'danger') }}-300">
+                            {{ $datang->status === null ? 'diproses' : ($datang->status ? 'disetujui' : 'ditolak') }}
+                        </span>
+
                     </td>
                     <td class="py-3 px-6 text-center">
                         <a href="{{ route('pengiriman-stok.show', ['pengiriman_stok' => $datang->id]) }}"

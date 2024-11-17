@@ -20,8 +20,18 @@
                         <td>{{ $kontrak->nomor_kontrak }}</td>
                     </tr>
                     <tr>
+                        <td>Status</td>
+                        <td><span
+                                class="bg-{{ $kontrak->status === null ? 'warning' : ($kontrak->status ? 'success' : 'danger') }}-600 text-{{ $kontrak->status === null ? 'warning' : ($kontrak->status ? 'success' : 'danger') }}-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">{{ $kontrak->status === null ? 'diproses' : ($kontrak->status ? 'disetujui' : 'ditolak') }}</span>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Jenis Barang</td>
                         <td>{{ $kontrak->transaksiStok->first()->merkStok->barangStok->jenisStok->nama }}</td>
+                    </tr>
+                    <tr>
+                        <td>Metode Pengadaan</td>
+                        <td>{{ $kontrak->metodePengadaan->nama }}</td>
                     </tr>
                     <tr>
                         <td>Tanggal Kontrak</td>
@@ -73,8 +83,8 @@
         <thead>
             <tr class="text-white">
 
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-2/5 rounded-l-lg">BARANG</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">MERK</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/3 rounded-l-lg">BARANG</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI (MERK/UKURAN/DLL)</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH</th>
                 @if ($kontrak->type)
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">SISA</th>
@@ -110,21 +120,7 @@
             @endforeach
         </tbody>
     </table>
-    <div class="flex w-full justify-evenly border-t-4 py-6 ">
-        <!-- Penulis -->
-        <div class="">
-            <label for="penulis" class="block text-sm font-medium text-center mb-2 text-gray-900">Penulis</label>
-            <div class="flex"><input type="text" id="penulis" value="{{ $kontrak->user->name }}" readonly
-                    class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500  focus:border-primary-500 w-full" />
-                {{-- <button type="button"
-                        class="bg-primary-200 rounded-r-lg hover:bg-primary-500 group transition duration-200 px-3">
-                        <i class="fa-solid fa-check text-primary-600 group-hover:text-primary-100"></i>
-                    </button> --}}
-            </div>
-        </div>
-        @role('penanggungjawab')
-            <livewire:aproval-kontrak :date="$kontrak->tanggal_kontrak">
-            @endrole
+    <!-- Penulis -->
+    <livewire:aproval-kontrak :date="$kontrak->created_at" :kontrak="$kontrak">
 
-    </div>
 </x-body>

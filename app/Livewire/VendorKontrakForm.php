@@ -3,12 +3,15 @@
 namespace App\Livewire;
 
 use Carbon\Carbon;
+use App\Models\Toko;
 use Livewire\Component;
 use App\Models\JenisStok;
 use App\Models\BarangStok;
-use App\Models\VendorStok;
+use App\Models\MetodePengadaan;
+use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Models\TransaksiStok;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 
 class VendorKontrakForm extends Component
@@ -17,6 +20,9 @@ class VendorKontrakForm extends Component
     public $nomor_kontrak;
     public $tanggal_kontrak;
     public $barangs;
+    public $metodes;
+    public $metode_id;
+    public $showMetode;
     public $vendor_id;
     public $barang_id;
     public $nama;
@@ -41,13 +47,13 @@ class VendorKontrakForm extends Component
         $this->showSuggestions = true;
 
         // Ambil data dari database berdasarkan query
-        $this->suggestions = VendorStok::where('nama', 'like', '%' . $this->query . '%')
+        $this->suggestions = Toko::where('nama', 'like', '%' . $this->query . '%')
             // ->limit(5)
             ->get()
             ->toArray();
         $this->nama = $this->query;
 
-        $exactMatch = VendorStok::where('nama', $this->query)->first();
+        $exactMatch = Toko::where('nama', $this->query)->first();
 
         if ($exactMatch) {
             // Jika ada kecocokan, isi vendor_id dan kosongkan suggestions
@@ -72,14 +78,19 @@ class VendorKontrakForm extends Component
 
     public function mount()
     {
+
         $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
         $this->show = !request()->is('pengiriman-stok/create');
         $this->showNomor = !(request()->is('transaksi-darurat-stok/create') || request()->is('pengiriman-stok/create'));
         $this->barangs = JenisStok::all();
-        $this->vendors = VendorStok::all();
+        $this->vendors = Toko::all();
         if ($this->vendor_id) {
-            $vendor = VendorStok::find($this->vendor_id);
+            $vendor = Toko::find($this->vendor_id);
             $this->query = $vendor->nama;
+        }
+        if (Request::routeIs('kontrak-vendor-stok.create')) {
+            $this->showMetode = true;
+            $this->metodes = MetodePengadaan::all();
         }
         // if (Request::routeIs('kontrak-vendor-stok.create') || Request::routeIs('transaksi-darurat-stok.create')) {
         //     $vendorIdsWithKontrak = TransaksiStok::whereNull('kontrak_id')->pluck('vendor_id')->unique();
@@ -96,6 +107,10 @@ class VendorKontrakForm extends Component
         $this->dispatch('nomor_kontrak', nomor: $this->nomor_kontrak);
     }
 
+    public function updatedMetodeId()
+    {
+        $this->dispatch('metode_id', metode_id: $this->metode_id);
+    }
     public function updatedBarangId()
     {
         $this->dispatch('jenis_id', jenis_id: $this->barang_id);
@@ -119,10 +134,13 @@ class VendorKontrakForm extends Component
             'kontak' => 'required|string|max:50',
         ]);
 
-        $newVendor = VendorStok::create([
+        $newVendor = Toko::create([
+            'user_id' => Auth::user()->id,
             'nama' => $this->nama,
+            'nama_nospace' => Str::slug($this->nama),
             'alamat' => $this->alamat,
-            'kontak' => $this->kontak,
+            'telepon' => $this->kontak,
+            'email' => null,
         ]);
 
         $this->vendors->push($newVendor);

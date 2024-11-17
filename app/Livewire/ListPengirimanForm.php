@@ -14,6 +14,8 @@ use Livewire\WithFileUploads;
 use App\Models\PengirimanStok;
 use App\Models\DetailPengirimanStok;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ListPengirimanForm extends Component
 {
@@ -26,6 +28,7 @@ class ListPengirimanForm extends Component
     public $penulis;
     public $pj1;
     public $pj2;
+    public $showRemove;
 
     #[On('merkSelected')]
     public function addMerkToList($merkId)
@@ -33,12 +36,30 @@ class ListPengirimanForm extends Component
         $this->appendList($merkId);
     }
 
+
     public function removePhoto($index)
     {
+        // dd($this->list[$index]);
         if (isset($this->list[$index]['bukti'])) {
-            unset($this->list[$index]['bukti']);  // Remove the photo from the list
+            // $filePath = 'buktiPengiriman/' . $this->list[$index]['bukti'];
+
+            // // Remove the file from storage if it exists
+            // if (Storage::disk('public')->exists($filePath)) {
+            //     $pengiriman = PengirimanStok::find($this->list[$index]['id']);
+            //     // if ($pengiriman) {
+            //     //     $pengiriman->update(['img' => null]);
+            //     // }
+            //     Storage::disk('public')->delete($filePath);
+            // }
+
+            // Remove the photo from the list
+            unset($this->list[$index]['bukti']);
+
+            // Provide feedback if needed
+            // session()->flash('success', 'File berhasil dihapus.');
         }
     }
+
 
 
     public function savePengiriman()
@@ -85,7 +106,8 @@ class ListPengirimanForm extends Component
                     // 'lokasi_id' => $item['lokasi_id'],
                     'bagian_id' => $item['bagian_id'] ?? null,
                     'posisi_id' => $item['posisi_id'] ?? null,
-                    'img' => isset($item['bukti']) && !is_string($item['bukti']) ? str_replace('buktiPengiriman/', '', $item['bukti']->storeAs('buktiPengiriman', $item['bukti']->getClientOriginalName(), 'public')) : $pengirimanStok->img,
+                    'img' => isset($item['bukti']) && !is_string($item['bukti']) ? str_replace('buktiPengiriman/', '', $item['bukti']->storeAs('buktiPengiriman', $item['bukti']->getClientOriginalName(), 'public')) : null,
+                    // 'img' => isset($item['bukti']) && !is_string($item['bukti']) ? str_replace('buktiPengiriman/', '', $item['bukti']->storeAs('buktiPengiriman', $item['bukti']->getClientOriginalName(), 'public')) : $pengirimanStok->img,
                     // 'tanggal_pengiriman' => strtotime(date('Y-m-d H:i:s')),
                 ]);
             } else {
@@ -158,6 +180,7 @@ class ListPengirimanForm extends Component
 
     public function mount()
     {
+        $this->showRemove = !Request::routeIs('pengiriman-stok.show');
         $this->lokasis = LokasiStok::all();
         if (count($this->old)) {
             foreach ($this->old as $old) {
@@ -223,7 +246,11 @@ class ListPengirimanForm extends Component
     public function calculateMaxJumlah($merkId)
     {
         // Get the total contracted quantity from `transaksi_stok` for this merk and vendor
-        $contractTotal = TransaksiStok::where('vendor_id', $this->vendor_id)
+        $contractTotal = TransaksiStok::where('vendor_id', $this->vendor_id)->whereHas('kontrakStok', function ($kontrakQuery) {
+            $kontrakQuery->where('vendor_id', $this->vendor_id)->where('status', true)
+                ->where('type', true) // Assuming 'type' is a boolean field
+            ; // Assuming 'type' is a boolean field
+        })
             ->where('merk_id', $merkId)
             ->where('tipe', 'Pemasukan') // Assuming 'Pemasukan' represents contracted quantities
             ->sum('jumlah');
@@ -281,6 +308,38 @@ class ListPengirimanForm extends Component
             unset($this->errorsList[$index]); // Clear error if value is valid
         }
     }
+    public function updated($propertyName)
+    {
+        // Check if the updated property matches the specific file input
+        // if (preg_match('/^list\.\d+\.bukti$/', $propertyName)) {
+        //     // Extract the index from the property name
+        //     preg_match('/^list\.(\d+)\.bukti$/', $propertyName, $matches);
+        //     $index = $matches[1];
+
+        //     // Validate the file
+        //     $this->validate([
+        //         "list.{$index}.bukti" => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust validation rules as needed
+        //     ]);
+
+        //     // Process the file upload
+        //     $file = $this->list[$index]['bukti'];
+        //     if ($file) {
+
+        //         $storedFilePath = str_replace('buktiPengiriman/', '', $file->storeAs(
+        //             'buktiPengiriman', // Directory
+        //             $file->getClientOriginalName(), // File name
+        //             'public' // Storage disk
+        //         ));
+
+        //         // Update the list with the stored file path
+        //         $this->list[$index]['bukti'] = $storedFilePath;
+
+        //         // Provide feedback
+        //         session()->flash('success', 'File berhasil diunggah.');
+        //     }
+        // }
+    }
+
 
 
     public function removeFromList($index)

@@ -54,7 +54,7 @@ class TransaksiDaruratList extends Component
     public function fillNomor($nomor)
     {
         $this->nomor_kontrak = $nomor;
-        $this->mount();
+        // $this->mount();
     }
 
     public function openBarangModal()

@@ -288,37 +288,6 @@
                 </tr>
             </tbody>
         </table>
-        <div class="flex w-full justify-evenly my-3">
-            <!-- Penulis -->
-            <div class="flex items-center space-x-2">
-                <label for="penulis" class="block text-sm font-medium text-gray-900">Penulis</label>
-                <input type="text" id="penulis" wire:model.live="penulis"
-                    class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-                <button type="button" class="bg-gray-200 rounded-full p-2">
-                    <i class="fa-solid fa-check text-primary-600"></i>
-                </button>
-            </div>
-
-            <!-- PJ1 -->
-            <div class="flex items-center space-x-2">
-                <label for="pj1" class="block text-sm font-medium text-gray-900">Persetujuan 1</label>
-                <input type="text" id="pj1" wire:model.live="pj1"
-                    class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-                <button type="button" class="bg-gray-200 rounded-full p-2">
-                    <i class="fa-solid fa-check text-primary-600"></i>
-                </button>
-            </div>
-
-            <!-- PJ2 -->
-            <div class="flex items-center space-x-2">
-                <label for="pj2" class="block text-sm font-medium text-gray-900">Persetujuan 2</label>
-                <input type="text" id="pj2" wire:model.live="pj2"
-                    class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-                <button type="button" class="bg-gray-200 rounded-full p-2">
-                    <i class="fa-solid fa-check text-primary-600"></i>
-                </button>
-            </div>
-        </div>
         @if (count($list) > 0)
             <button wire:click='saveKontrak'
                 class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
