@@ -69,6 +69,7 @@
         <livewire:list-pengiriman-form :vendor_id="$pengiriman->pengirimanStok->first()->kontrakVendorStok->vendorStok->id" :penulis="$pengiriman->penerima" :pj1="$pengiriman->pj1" :pj2="$pengiriman->pj2"
             :old="$pengiriman->pengirimanStok">
 
+            <livewire:approval-pengiriman :pengiriman="$pengiriman">
 
     </x-card>
 </x-body>

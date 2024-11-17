@@ -34,4 +34,9 @@ class Toko extends Model
     {
         return $this->hasMany(Aset::class);
     }
+
+    public function kontrakVendorStok()
+    {
+        return $this->hasMany(KontrakVendorStok::class, 'vendor_id');
+    }
 }

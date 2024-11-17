@@ -76,6 +76,15 @@ return new class extends Migration
             $table->string('nama');
         });
 
+        Schema::create('persetujuan_pengiriman_stok', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('detail_pengiriman_id')->constrained('detail_pengiriman_stok');
+            $table->foreignId('user_id')->constrained('users');
+            $table->boolean('status')->default(true);
+            $table->text('keterangan')->nullable();
+            $table->timestamps();
+        });
+
         Schema::create('detail_pengiriman_stok', function (Blueprint $table) {
             $table->id();
             $table->string('kode_pengiriman_stok')->nullable();
@@ -83,6 +92,7 @@ return new class extends Migration
             $table->string('penerima')->nullable();
             $table->string('pj1')->nullable();
             $table->string('pj2')->nullable();
+            $table->boolean('status')->nullable();
             $table->foreignId('kontrak_id')->constrained('kontrak_vendor_stok');
             $table->foreignId('user_id')->nullable()->constrained('users');
             $table->foreignId('super_id')->nullable()->constrained('users');
@@ -116,16 +126,25 @@ return new class extends Migration
             $table->id();
             $table->string('nomor_kontrak')->nullable();
             // $table->string('img')->nullable();
-            $table->foreignId('vendor_id')->constrained('vendor_stok');
+            $table->foreignId('vendor_id')->constrained('toko');
             $table->date('tanggal_kontrak');
             $table->string('penulis')->nullable();
             $table->string('pj1')->nullable();
             $table->string('pj2')->nullable();
+            $table->foreignId('metode_id')->nullable()->constrained('metode_pengadaan')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users');
             $table->foreignId('super_id')->nullable()->constrained('users');
             $table->foreignId('admin_id')->nullable()->constrained('users');
             $table->boolean('type');
+            $table->boolean('status')->nullable();
             // $table->integer('jumlah_total');
+        });
+
+        Schema::create('metode_pengadaan', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama', 255)->unique();
+            $table->text('deskripsi')->nullable();
+            $table->timestamps();
         });
 
         Schema::create('dokumen_kontrak_stok', function (Blueprint $table) {
@@ -135,6 +154,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        Schema::create('persetujuan_kontrak_stok', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
+            $table->foreignId('user_id')->constrained('users');
+            $table->boolean('status')->default(true);
+            $table->text('keterangan')->nullable();
+            $table->timestamps();
+        });
 
 
         Schema::create('transaksi_stok', function (Blueprint $table) {
@@ -143,7 +170,7 @@ return new class extends Migration
             $table->string('img')->nullable();
             $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']);
             $table->foreignId('merk_id')->constrained('merk_stok');
-            $table->foreignId('vendor_id')->nullable()->constrained('vendor_stok');
+            $table->foreignId('vendor_id')->nullable()->constrained('toko');
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('cascade');
             $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
@@ -207,11 +234,13 @@ return new class extends Migration
     {
         Schema::dropIfExists('permintaan_stok');
         Schema::dropIfExists('stok');
+        Schema::dropIfExists('metode_pengadaan');
         // Schema::dropIfExists('kontrak_retrospektif_stok');
         // Schema::dropIfExists('transaksi_darurat_stok');
         Schema::dropIfExists('transaksi_stok');
         Schema::dropIfExists('detail_pengiriman_stok');
         Schema::dropIfExists('pengiriman_stok');
+        Schema::dropIfExists('persetujuan_kontrak_stok');
         Schema::dropIfExists('kontrak_vendor_stok');
         Schema::dropIfExists('posisi_stok');
         Schema::dropIfExists('bagian_stok');

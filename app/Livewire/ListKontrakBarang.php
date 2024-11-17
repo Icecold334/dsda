@@ -20,7 +20,7 @@ class ListKontrakBarang extends Component
 
         $merks = MerkStok::whereHas('transaksiStok', function ($query) {
             $query->whereHas('kontrakStok', function ($kontrakQuery) {
-                $kontrakQuery->where('vendor_id', $this->vendor_id)
+                $kontrakQuery->where('vendor_id', $this->vendor_id)->where('status', true)
                     ->where('type', true); // Assuming 'type' is a boolean field
             });
         })->get();
@@ -43,8 +43,9 @@ class ListKontrakBarang extends Component
         // Fetch merks that match the vendor and contract conditions
         $merks = MerkStok::whereHas('transaksiStok', function ($query) {
             $query->whereHas('kontrakStok', function ($kontrakQuery) {
-                $kontrakQuery->where('vendor_id', $this->vendor_id)
-                    ->where('type', true); // Assuming 'type' is a boolean field
+                $kontrakQuery->where('vendor_id', $this->vendor_id)->where('status', true)
+                    ->where('type', true) // Assuming 'type' is a boolean field
+                ; // Assuming 'type' is a boolean field
             });
         })->whereHas('barangStok', function ($query) {
             $query->where('jenis_id', $this->jenis_id); // Assuming 'jenis_id' is a foreign key in 'barang_stok' table
@@ -63,8 +64,11 @@ class ListKontrakBarang extends Component
     public function calculateMaxJumlah($merkId)
     {
         // Get the total contracted quantity from `transaksi_stok` for this merk and vendor
-        $contractTotal = TransaksiStok::where('vendor_id', $this->vendor_id)
-            ->where('merk_id', $merkId)
+        $contractTotal = TransaksiStok::where('vendor_id', $this->vendor_id)->whereHas('kontrakStok', function ($kontrakQuery) {
+            $kontrakQuery->where('vendor_id', $this->vendor_id)->where('status', true)
+                ->where('type', true) // Assuming 'type' is a boolean field
+            ; // Assuming 'type' is a boolean field
+        })->where('merk_id', $merkId)
             ->where('tipe', 'Pemasukan') // Assuming 'Pemasukan' represents contracted quantities
             ->sum('jumlah');
 

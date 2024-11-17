@@ -15,7 +15,7 @@
                     @if ($showSuggestions)
                         <ul
                             class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
-                            @if ($show)
+                            @if ($show && !$showAddVendorForm)
                                 <li wire:click="toggleAddVendorForm"
                                     class="px-4 py-2 hover:bg-blue-500 transition duration-200 hover:text-white cursor-pointer group">
                                     <span class="text-primary-500 group-hover:text-white"><i
@@ -97,6 +97,27 @@
                 @enderror
             </td>
         </tr>
+        @if ($showMetode)
+            <tr>
+                <td class="w-1/3">
+                    <label for="barang_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Metode Pengadaan *</label>
+                </td>
+                <td>
+                    <select wire:model.live="metode_id" @disabled($listCount) @disabled($vendor_id == null)
+                        class="bg-gray-50 border border-gray-300 {{ $listCount || $vendor_id == null ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        <option value="">Pilih Metode Pengadaan</option>
+                        @foreach ($metodes as $metode)
+                            <option value="{{ $metode->id }}" @selected($metode->id == $metode_id)>{{ $metode->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('metode_id')
+                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </td>
+            </tr>
+        @endif
 
     </table>
     <!-- Button to toggle Add New Vendor form -->

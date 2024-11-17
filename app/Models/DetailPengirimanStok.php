@@ -34,4 +34,9 @@ class DetailPengirimanStok extends Model
     {
         return $this->belongsTo(User::class, 'admin_id');
     }
+
+    public function persetujuan()
+    {
+        return $this->hasMany(PersetujuanPengirimanStok::class, 'detail_pengiriman_id');
+    }
 }

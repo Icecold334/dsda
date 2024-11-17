@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Models\TransaksiStok;
 use App\Models\KontrakVendorStok;
+use App\Models\PersetujuanKontrakStok;
 use App\Models\SatuanBesar;
 use App\Models\SatuanKecil;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +29,7 @@ class KontrakListForm extends Component
     public $merk_id;
     public $jumlah;
     public $jenis_id;
+    public $metode_id;
     public $vendor_id;
     public $dokumenCount;
     public $barangSuggestions = [];
@@ -157,6 +159,11 @@ class KontrakListForm extends Component
 
     public function mount()
     {
+        $this->barang_id = null;
+        $this->newBarang = null;
+        $this->merk_id = null;
+        $this->newMerk = null;
+        $this->penulis = Auth::user()->name;
         $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
         $this->barangs = BarangStok::where('jenis_id', $this->jenis_id)->get()->sortBy('jenis_id');
         $this->satuanBesarOptions = SatuanBesar::all();
@@ -225,6 +232,7 @@ class KontrakListForm extends Component
         $kontrak = KontrakVendorStok::create([
             'vendor_id' => $this->vendor_id,
             'tanggal_kontrak' => strtotime($this->tanggal_kontrak),
+            'metode_id' => $this->metode_id,
             'penulis' => $this->penulis,
             'pj1' => $this->pj1,
             'pj2' => $this->pj2,
@@ -233,13 +241,18 @@ class KontrakListForm extends Component
             'type' => true
         ]);
 
+        // PersetujuanKontrakStok::create([
+        //     'kontrak_id' => $kontrak->id,
+        //     'user_id' => Auth::id(),
+        // ]);
+
         foreach ($this->list as $item) {
             TransaksiStok::create([
                 'merk_id' => $item['merk_id'],
                 'vendor_id' => $this->vendor_id,
                 'user_id' => Auth::id(),
                 'kontrak_id' => $kontrak->id,
-                'tanggal' => strtotime(now()),
+                'tanggal' => strtotime(date('Y-m-d H:i:s')),
                 'jumlah' => $item['jumlah'],
                 'tipe' => 'Pemasukan'
             ]);
@@ -269,6 +282,12 @@ class KontrakListForm extends Component
     public function fillJenis($jenis_id)
     {
         $this->jenis_id = $jenis_id;
+        $this->mount();
+    }
+    #[On('metode_id')]
+    public function fillMetode($metode_id)
+    {
+        $this->metode_id = $metode_id;
         $this->mount();
     }
     #[On('vendor_id')]

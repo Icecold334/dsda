@@ -16,7 +16,7 @@ class TransaksiStok extends Model
 
     public function vendorStok()
     {
-        return $this->belongsTo(VendorStok::class, 'vendor_id');
+        return $this->belongsTo(Toko::class, 'vendor_id');
     }
     public function kontrakStok()
     {

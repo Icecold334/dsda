@@ -26,34 +26,33 @@ use App\Models\KontrakVendor;
 use App\Models\TransaksiStok;
 use App\Models\PengirimanStok;
 use App\Models\PermintaanStok;
+use App\Models\MetodePengadaan;
 use Illuminate\Database\Seeder;
 use App\Models\KontrakVendorStok;
+// use App\Models\DetailPengirimanStok;
+// use App\Models\TransaksiDaruratStok;
 use Illuminate\Support\Facades\DB;
-use App\Models\DetailPengirimanStok;
-use App\Models\TransaksiDaruratStok;
 use Illuminate\Support\Facades\Hash;
-use App\Models\KontrakRetrospektifStok;
+// use App\Models\KontrakRetrospektifStok;
 
 class DatabaseSeeder extends Seeder
 {
     public function run()
     {
-        // Create or get roles for superadmin and admin
-        $superAdminRoleId = DB::table('roles')->insertGetId([
-            'name' => 'superadmin',
-            'guard_name' => 'web',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // Create or get roles for superadmin, admin, penanggungjawab, ppk, pptk
+        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk'];
+        $roleIds = [];
 
-        $adminRoleId = DB::table('roles')->insertGetId([
-            'name' => 'admin',
-            'guard_name' => 'web',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        foreach ($roles as $role) {
+            $roleIds[$role] = DB::table('roles')->insertGetId([
+                'name' => $role,
+                'guard_name' => 'web',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
-        // Permission list
+        // Permission list (assuming permissions from the previous example)
         $permissions = [
             'nama',
             'kategori',
@@ -114,7 +113,7 @@ class DatabaseSeeder extends Seeder
             'qr_print',
         ];
 
-        // Insert permissions if they don't exist and store their IDs
+        // Insert permissions and get their IDs
         $permissionIds = [];
         foreach ($permissions as $permission) {
             $permissionIds[] = DB::table('permissions')->insertGetId([
@@ -126,52 +125,68 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create users for superadmin and admin
-        $superAdminId = DB::table('users')->insertGetId([
-            'name' => 'Super Admin',
-            'email' => 'superadmin@example.com',
-            'password' => Hash::make('password'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $users = [
+            'superadmin' => 'superadmin@example.com',
+            'admin' => 'admin@example.com',
+        ];
 
-        $adminId = DB::table('users')->insertGetId([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        foreach ($users as $role => $email) {
+            $userId = DB::table('users')->insertGetId([
+                'name' => ucfirst($role),
+                'email' => $email,
+                'password' => Hash::make('password'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        // Assign all permissions to superadmin
-        foreach ($permissionIds as $permissionId) {
-            DB::table('role_has_permissions')->insert([
-                'role_id' => $superAdminRoleId,
-                'permission_id' => $permissionId,
+            // Assign all permissions to superadmin
+            if ($role == 'superadmin') {
+                foreach ($permissionIds as $permissionId) {
+                    DB::table('role_has_permissions')->insert([
+                        'role_id' => $roleIds[$role],
+                        'permission_id' => $permissionId,
+                    ]);
+                }
+            } elseif ($role == 'admin') {
+                // Assign only the 'nama' permission to admin
+                $permissionNamaId = DB::table('permissions')->where('name', 'nama')->value('id');
+                DB::table('role_has_permissions')->insert([
+                    'role_id' => $roleIds[$role],
+                    'permission_id' => $permissionNamaId,
+                ]);
+            }
+
+            // Attach roles to superadmin and admin
+            DB::table('model_has_roles')->insert([
+                'role_id' => $roleIds[$role],
+                'model_type' => 'App\Models\User',
+                'model_id' => $userId,
             ]);
         }
 
-        // Assign only the 'nama' permission to admin
-        $permissionNamaId = DB::table('permissions')->where('name', 'nama')->value('id');
-        DB::table('role_has_permissions')->insert([
-            'role_id' => $adminRoleId,
-            'permission_id' => $permissionNamaId,
-        ]);
+        // Create users for penanggungjawab, ppk, and pptk roles (2 users per role)
+        $extraRoles = ['penanggungjawab', 'ppk', 'pptk'];
+        foreach ($extraRoles as $role) {
+            for ($i = 1; $i <= 3; $i++) {
+                $userId = DB::table('users')->insertGetId([
+                    'name' => ucfirst($role) . " $i",
+                    'email' => "$role$i@example.com",
+                    'password' => Hash::make('password'),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
 
-        // Attach roles to users
-        DB::table('model_has_roles')->insert([
-            'role_id' => $superAdminRoleId,
-            'model_type' => 'App\Models\User',
-            'model_id' => $superAdminId,
-        ]);
-
-        DB::table('model_has_roles')->insert([
-            'role_id' => $adminRoleId,
-            'model_type' => 'App\Models\User',
-            'model_id' => $adminId,
-        ]);
+                // Attach role to user
+                DB::table('model_has_roles')->insert([
+                    'role_id' => $roleIds[$role],
+                    'model_type' => 'App\Models\User',
+                    'model_id' => $userId,
+                ]);
+            }
+        }
 
         // User ID for seeding data
-        $userId = $superAdminId;
+        $userId = User::find(1)->id;
 
         // Seeder for Kategori with 5 main categories and each having 5 children
         $kategoriUtama = [];
@@ -479,13 +494,13 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed for VendorStok
-        for ($i = 1; $i <= 5; $i++) {
-            VendorStok::create([
-                'nama' => 'Vendor ' . $i,
-                'alamat' => $faker->address,
-                'kontak' => $faker->phoneNumber,
-            ]);
-        }
+        // for ($i = 1; $i <= 5; $i++) {
+        //     VendorStok::create([
+        //         'nama' => 'Vendor ' . $i,
+        //         'alamat' => $faker->address,
+        //         'kontak' => $faker->phoneNumber,
+        //     ]);
+        // }
 
         // Seed for LokasiStok
         for ($i = 1; $i <= 5; $i++) {
@@ -511,11 +526,25 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        $methods = [
+            'Pengadaan Langsung',
+            'Penunjukan Langsung',
+            'Tender',
+            'E-Purchasing / E-Katalog',
+            'Tender Cepat',
+            'Swakelola',
+        ];
+
+        foreach ($methods as $method) {
+            MetodePengadaan::create(['nama' => $method]);
+        }
+
         // Seed for KontrakVendorStok
         for ($i = 1; $i <= 5; $i++) {
             KontrakVendorStok::create([
                 'nomor_kontrak' => $faker->unique()->bothify('KV#####'),
-                'vendor_id' => VendorStok::inRandomOrder()->first()->id,
+                'metode_id' => MetodePengadaan::inRandomOrder()->first()->id,
+                'vendor_id' => Toko::inRandomOrder()->first()->id,
                 'tanggal_kontrak' => strtotime($faker->date()),
                 // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
                 'user_id' => User::inRandomOrder()->first()->id,
@@ -530,7 +559,7 @@ class DatabaseSeeder extends Seeder
         //     DetailPengirimanStok::create([
         //         'kode_pengiriman_stok' => 'PGS' . strtoupper(Str::random(6)),
         //         'kontrak_id' => $kontrakVendorStoks->random()->id,
-        //         'tanggal' => strtotime(now()),
+        //         'tanggal' => strtotime(date('Y-m-d H:i:s')),
         //         'user_id' => $users->random()->id,
         //         'super_id' => $users->random()->id,
         //         'admin_id' => $users->random()->id,
@@ -543,7 +572,7 @@ class DatabaseSeeder extends Seeder
         // for ($i = 1; $i <= 5; $i++) {
         //     PengirimanStok::create([
         //         'detail_pengiriman_id' => DetailPengirimanStok::inRandomOrder()->first()->id, // Generating a unique code
-        //         'kontrak_id' => KontrakVendorStok::inRandomOrder()->first()->id, // Randomly picking a contract
+        //         'kontrak_id' => Toko::inRandomOrder()->first()->id, // Randomly picking a contract
         //         'merk_id' => MerkStok::inRandomOrder()->first()->id, // Randomly picking a merk
         //         'tanggal_pengiriman' => strtotime($faker->date()), // Generating a random date
         //         'jumlah' => rand(1, 50), // Random quantity between 1 and 50
@@ -559,11 +588,11 @@ class DatabaseSeeder extends Seeder
                 'kode_transaksi_stok' => $faker->unique()->numerify('TRX#####'),
                 'tipe' => $faker->randomElement(['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']),
                 'merk_id' => MerkStok::inRandomOrder()->first()->id,
-                'vendor_id' => VendorStok::inRandomOrder()->take(1)->pluck('id')->first(),
+                'vendor_id' => Toko::inRandomOrder()->take(1)->pluck('id')->first(),
                 'user_id' => User::inRandomOrder()->first()->id,
                 'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
-                'kontrak_id' => $i < 6 ? KontrakVendorStok::inRandomOrder()->take(1)->pluck('id')->first() : null,
-                'tanggal' => strtotime(now()),
+                'kontrak_id' => $i < 6 ? Toko::inRandomOrder()->take(1)->pluck('id')->first() : null,
+                'tanggal' => strtotime(date('Y-m-d H:i:s')),
                 'jumlah' => $faker->numberBetween(1, 100),
                 'deskripsi' => $faker->sentence(),
                 'lokasi_penerimaan' => $faker->address(),
@@ -574,7 +603,7 @@ class DatabaseSeeder extends Seeder
         // for ($i = 1; $i <= 5; $i++) {
         //     TransaksiDaruratStok::create([
         //         'merk_id' => MerkStok::inRandomOrder()->first()->id,
-        //         'vendor_id' => VendorStok::inRandomOrder()->first()->id,
+        //         'vendor_id' => Toko::inRandomOrder()->first()->id,
         //         'user_id' => 1, // Assuming you have a user with ID 1
         //         'tanggal' => strtotime($faker->date()),
         //         'jumlah' => rand(1, 10),
@@ -592,7 +621,7 @@ class DatabaseSeeder extends Seeder
         // ) {
         //     KontrakRetrospektifStok::create([
         //         'bukti_kontrak' => 'ini bukti.jpg',
-        //         // 'vendor_id' => VendorStok::inRandomOrder()->first()->id,
+        //         // 'vendor_id' => Toko::inRandomOrder()->first()->id,
         //         // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
         //         'tanggal_kontrak' => strtotime($faker->date()),
         //         // 'jumlah_total' => rand(100, 500),

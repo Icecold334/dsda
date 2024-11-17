@@ -14,33 +14,33 @@
                 <table class="w-full font-semibold">
                     <tr>
                         <td>Nama Vendor</td>
-                        <td>{{ $transaksi->first()->vendorStok->nama }}</td>
+                        <td>{{ $transaksis->first()->vendorStok->nama }}</td>
                     </tr>
                     <tr>
                         <td>Jenis Transaksi</td>
-                        <td>{{ $transaksi->first()->merkStok->barangStok->jenisStok->nama }}</td>
+                        <td>{{ $transaksis->first()->merkStok->barangStok->jenisStok->nama }}</td>
                     </tr>
                     {{-- <tr>
                         <td>Nomor Kontrak</td>
-                        <td>{{ $transaksi->first()->nomor_kontrak ?? '---' }}</td>
+                        <td>{{ $transaksis->first()->nomor_kontrak ?? '---' }}</td>
                     </tr>
                     <tr>
                         <td>Tanggal Kontrak</td>
-                        <td>{{ $transaksi->first()->tanggal_kontrak ? date('j F Y', $transaksi->first()->tanggal_kontrak) : '---' }}
+                        <td>{{ $transaksis->first()->tanggal_kontrak ? date('j F Y', $transaksis->first()->tanggal_kontrak) : '---' }}
                         </td>
                     </tr>
                     <tr>
                         <td>Penulis</td>
-                        <td>{{ $transaksi->first()->user->name }}</td>
+                        <td>{{ $transaksis->first()->user->name }}</td>
                     </tr> --}}
 
                 </table>
             </x-card>
         </div>
         <div>
-            @if ($transaksi->first()->kontrak_id !== null)
+            @if ($transaksis->first()->kontrak_id !== null)
                 <x-card title="Dokumen kontrak">
-                    @foreach ($transaksi->first()->kontrakStok->dokumen as $attachment)
+                    @foreach ($transaksis->first()->kontrakStok->dokumen as $attachment)
                         <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
                             <span class="flex items-center space-x-3">
                                 @php
@@ -82,12 +82,13 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/5 ">KETERANGAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold  w-1/5">LOKASI PENERIMAAN
                 </th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/5  rounded-r-lg">BUKTI</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/5  rounded-r-lg">DOKUMEN PENDUKUNG
+                </th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold "></th> --}}
             </tr>
         </thead>
         <tbody class="">
-            @foreach ($transaksi as $transaksi)
+            @foreach ($transaksis as $transaksi)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="py-3 px-6 font-semibold">
                         {{ $transaksi->merkStok->barangStok->nama }}
@@ -123,4 +124,6 @@
             @endforeach
         </tbody>
     </table>
+    <livewire:aproval-kontrak :penulis="$transaksis->unique('user_id')">
+
 </x-body>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\MetodePengadaan;
 use Illuminate\Database\Eloquent\Model;
 
 class KontrakVendorStok extends Model
@@ -12,7 +13,7 @@ class KontrakVendorStok extends Model
 
     public function vendorStok()
     {
-        return $this->belongsTo(VendorStok::class, 'vendor_id');
+        return $this->belongsTo(Toko::class, 'vendor_id');
     }
     public function super()
     {
@@ -26,7 +27,10 @@ class KontrakVendorStok extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
+    public function metodePengadaan()
+    {
+        return $this->belongsTo(MetodePengadaan::class, 'metode_id', 'id');
+    }
     public function dokumen()
     {
         return $this->hasMany(DokumenKontrakStok::class, 'kontrak_id');
@@ -41,6 +45,10 @@ class KontrakVendorStok extends Model
     // {
     //     return $this->hasMany(ListKontrakStok::class, 'kontrak_id');
     // }
+    public function persetujuan()
+    {
+        return $this->hasMany(PersetujuanKontrakStok::class, 'kontrak_id');
+    }
 
     public function detailPengirimanStok()
     {

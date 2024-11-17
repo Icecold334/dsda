@@ -8,7 +8,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
-        @if ($vendor_id && $jenis_id)
+        @if ($vendor_id && $jenis_id && $metode_id)
             <tbody class="">
                 @foreach ($list as $index => $item)
                     <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
@@ -208,40 +208,38 @@
 
     </table>
     @if ($vendor_id && $jenis_id)
-        <div class="flex w-full justify-evenly">
+        <div class="flex w-full justify-evenly border-t-4 py-6 ">
             <!-- Penulis -->
-            <div class="flex items-center space-x-2">
-                <label for="penulis" class="block text-sm font-medium text-gray-900">Penulis</label>
-                <input type="text" id="penulis" wire:model.live="penulis"
-                    class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-                <button type="button" class="bg-gray-200 rounded-full p-2">
-                    <i class="fa-solid fa-check text-primary-600"></i>
-                </button>
+            <div class="">
+                <label for="penulis" class="block text-sm font-medium text-center mb-2 text-gray-900">Penulis</label>
+                <div class="flex"><input type="text" id="penulis" wire:model.live="penulis" readonly
+                        class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500  focus:border-primary-500 w-full" />
+                    {{-- <button type="button"
+                        class="bg-primary-200 rounded-r-lg hover:bg-primary-500 group transition duration-200 px-3">
+                        <i class="fa-solid fa-check text-primary-600 group-hover:text-primary-100"></i>
+                    </button> --}}
+                </div>
             </div>
+            {{-- @role('penanggungjawab')
+                <!-- PJ1 -->
+                <div class="">
+                    <label for="pj1" class="block text-sm font-medium text-center mb-2 text-gray-900">Penanggung
+                        Jawab</label>
+                    <div class="flex"><input type="text" id="pj1" wire:model.live="pj1" readonly
+                            class="border-gray-300 rounded-l-lg p-2.5 focus:ring-primary-500  focus:border-primary-500 w-full" />
+                        <button type="button"
+                            class="bg-primary-200 rounded-r-lg hover:bg-primary-500 group transition duration-200 px-3">
+                            <i class="fa-solid fa-check text-primary-600 group-hover:text-primary-100"></i>
+                        </button>
+                    </div>
+                </div>
+            @endrole --}}
 
-            <!-- PJ1 -->
-            <div class="flex items-center space-x-2">
-                <label for="pj1" class="block text-sm font-medium text-gray-900">Persetujuan 1</label>
-                <input type="text" id="pj1" wire:model.live="pj1"
-                    class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-                <button type="button" class="bg-gray-200 rounded-full p-2">
-                    <i class="fa-solid fa-check text-primary-600"></i>
-                </button>
-            </div>
-
-            <!-- PJ2 -->
-            <div class="flex items-center space-x-2">
-                <label for="pj2" class="block text-sm font-medium text-gray-900">Persetujuan 2</label>
-                <input type="text" id="pj2" wire:model.live="pj2"
-                    class="border-gray-300 rounded-lg p-2.5 focus:ring-primary-500 focus:border-primary-500 w-full" />
-                <button type="button" class="bg-gray-200 rounded-full p-2">
-                    <i class="fa-solid fa-check text-primary-600"></i>
-                </button>
-            </div>
         </div>
     @endif
     @if ($vendor_id != null && count($list) > 0 && $dokumenCount > 0 && $nomor_kontrak && $tanggal_kontrak)
-        <button wire:click='saveKontrak'
-            class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
+        <div class="flex justify-center"><button wire:click='saveKontrak'
+                class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
+        </div>
     @endif
 </div>

@@ -48,7 +48,13 @@ class StokController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $barang = Barangstok::find($id);
+        $stok = Stok::whereHas('merkStok', function ($stok) use ($id) {
+            $stok->whereHas('barangStok', function ($barang) use ($id) {
+                $barang->where('id', $id);
+            });
+        })->get();
+        return view('stok.show', compact('barang', 'stok'));
     }
 
     /**

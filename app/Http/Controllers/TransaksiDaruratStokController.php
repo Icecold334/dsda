@@ -54,13 +54,14 @@ class TransaksiDaruratStokController extends Controller
     public function show(string $id)
     {
         // Retrieve the transaction by ID with a null kontrak_id
-        $transaksi = TransaksiStok::where('vendor_id', $id)
+        $transaksis = TransaksiStok::where('vendor_id', $id)
             ->whereNull('kontrak_id')
             ->get();
+        // dd($transaksis);
 
 
         // Pass the data to the view
-        return view('darurat.show', compact('transaksi'));
+        return view('darurat.show', compact('transaksis'));
     }
 
     /**
