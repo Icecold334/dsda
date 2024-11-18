@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kategori;
 use Illuminate\Http\Request;
 
 class KategoriController extends Controller
@@ -11,15 +12,16 @@ class KategoriController extends Controller
      */
     public function index()
     {
-        //
+        $kategoris = Kategori::all();
+        return view('kategori.index', compact('kategoris'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($tipe, $kategori = 0)
     {
-        //
+        return view('kategori.create', compact('tipe','kategori'));
     }
 
     /**

@@ -31,7 +31,7 @@
                         ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
                     ]" />
                     <livewire:nav-item title="data" :child="[
-                        ['href' => '/aset-aktif', 'title' => 'kategori'],
+                        ['href' => '/kategori', 'title' => 'kategori'],
                         ['href' => '/merk', 'title' => 'Merk'],
                         ['href' => '/toko', 'title' => 'Toko / distributor'],
                         ['href' => '/person', 'title' => 'Penanggung jawab'],

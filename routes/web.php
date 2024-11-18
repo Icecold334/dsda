@@ -65,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('aset', AsetController::class);
     Route::resource('history', HistoryController::class);
     Route::resource('jurnal', JurnalController::class);
+    Route::get('kategori/{tipe}/{kategori}', [KategoriController::class, 'create']);
     Route::resource('kategori', KategoriController::class);
     Route::resource('keuangan', KeuanganController::class);
     Route::resource('lampiran', LampiranController::class);
