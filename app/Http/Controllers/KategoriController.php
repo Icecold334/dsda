@@ -12,7 +12,7 @@ class KategoriController extends Controller
      */
     public function index()
     {
-        $kategoris = Kategori::all();
+        $kategoris = Kategori::with('children')->whereNull('parent_id')->get(); // Hanya parent categories
         return view('kategori.index', compact('kategoris'));
     }
 
@@ -21,7 +21,7 @@ class KategoriController extends Controller
      */
     public function create($tipe, $kategori = 0)
     {
-        return view('kategori.create', compact('tipe','kategori'));
+        return view('kategori.create', compact('tipe', 'kategori'));
     }
 
     /**
@@ -37,7 +37,7 @@ class KategoriController extends Controller
      */
     public function show(string $id)
     {
-        //
+         //
     }
 
     /**
