@@ -32,10 +32,10 @@
                     ]" />
                     <livewire:nav-item title="data" :child="[
                         ['href' => '/aset-aktif', 'title' => 'kategori'],
-                        ['href' => '/#', 'title' => 'Merk'],
-                        ['href' => '/#', 'title' => 'Toko / distributor'],
-                        ['href' => '/#', 'title' => 'Penanggung jawab'],
-                        ['href' => '/#', 'title' => 'lokasi'],
+                        ['href' => '/merk', 'title' => 'Merk'],
+                        ['href' => '/toko', 'title' => 'Toko / distributor'],
+                        ['href' => '/person', 'title' => 'Penanggung jawab'],
+                        ['href' => '/lokasi', 'title' => 'lokasi'],
                         ['href' => '/lokasi-stok', 'title' => 'lokasi stok'],
                     ]" />
                     <livewire:nav-item href="/home"
@@ -55,7 +55,7 @@
                     Cetak QR-Code
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                    <livewire:nav-item href="/home"
+                    <livewire:nav-item href="/option"
                         title='<button data-tooltip-target="tooltipPengaturan" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-gear"></i></button>
 
                 <div id="tooltipPengaturan" role="tooltip"
@@ -64,7 +64,7 @@
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
 
-                    <livewire:nav-item href="/home"
+                    <livewire:nav-item href="/profil"
                         title='<button data-tooltip-target="tooltipProfil" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-user"></i></button>
 
                 <div id="tooltipProfil" role="tooltip"

@@ -83,7 +83,7 @@
                                             yaxis: {
                                                 labels: {
                                                     formatter: function(value) {
-                                                        return value + "k"
+                                                        return value;
                                                     },
                                                 },
                                             },
@@ -184,9 +184,9 @@
                                             yaxis: {
                                                 labels: {
                                                     formatter: function(value) {
-                                                        return value + "k"
-                                                    },
-                                                },
+                                                        return rupiah(value);
+                                                    }
+                                                }
                                             },
                                             xaxis: {
                                                 labels: {
@@ -488,10 +488,10 @@
                     </div>
                     <hr><br>
                     <div class="text-center">
-                        <a href="#"
+                        <a href="{{ route('aset.index') }}"
                             class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Lihat
                             Aset</a>
-                        <a href="#"
+                        <a href="{{ route('aset.create') }}"
                             class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Tambah
                             Aset</a>
                     </div>

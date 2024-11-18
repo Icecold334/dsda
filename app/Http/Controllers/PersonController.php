@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Person;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PersonController extends Controller
 {
@@ -11,15 +14,16 @@ class PersonController extends Controller
      */
     public function index()
     {
-        //
+        $persons = Person::all();
+        return view('person.index', compact('persons'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($tipe, $person = 0)
     {
-        //
+        return view('person.create', compact('tipe','person'));
     }
 
     /**

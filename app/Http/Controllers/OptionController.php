@@ -11,7 +11,7 @@ class OptionController extends Controller
      */
     public function index()
     {
-        //
+      return view('option.index');  //
     }
 
     /**
