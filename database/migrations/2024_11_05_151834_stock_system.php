@@ -159,6 +159,7 @@ return new class extends Migration
             $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
             $table->foreignId('user_id')->constrained('users');
             $table->boolean('status')->default(true);
+            $table->text('file')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });

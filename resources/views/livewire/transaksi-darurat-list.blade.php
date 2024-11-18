@@ -292,7 +292,7 @@
             <button wire:click='saveKontrak'
                 class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
         @endif
-        @if ($dokumenCount && $nomor_kontrak)
+        @if ($dokumenCount && $nomor_kontrak && $metode_id)
             <button wire:click='finishKontrak'
                 class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Selesaikan
                 Kontrak</button>

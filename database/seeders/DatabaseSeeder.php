@@ -26,11 +26,12 @@ use App\Models\KontrakVendor;
 use App\Models\TransaksiStok;
 use App\Models\PengirimanStok;
 use App\Models\PermintaanStok;
+use App\Models\MetodePengadaan;
 use Illuminate\Database\Seeder;
 use App\Models\KontrakVendorStok;
-use Illuminate\Support\Facades\DB;
 // use App\Models\DetailPengirimanStok;
 // use App\Models\TransaksiDaruratStok;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 // use App\Models\KontrakRetrospektifStok;
 
@@ -127,6 +128,7 @@ class DatabaseSeeder extends Seeder
         $users = [
             'superadmin' => 'superadmin@example.com',
             'admin' => 'admin@example.com',
+
         ];
 
         foreach ($users as $role => $email) {
@@ -134,6 +136,8 @@ class DatabaseSeeder extends Seeder
                 'name' => ucfirst($role),
                 'email' => $email,
                 'password' => Hash::make('password'),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             // Assign all permissions to superadmin
@@ -169,6 +173,8 @@ class DatabaseSeeder extends Seeder
                     'name' => ucfirst($role) . " $i",
                     'email' => "$role$i@example.com",
                     'password' => Hash::make('password'),
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
 
                 // Attach role to user
@@ -489,13 +495,13 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed for VendorStok
-        for ($i = 1; $i <= 5; $i++) {
-            VendorStok::create([
-                'nama' => 'Vendor ' . $i,
-                'alamat' => $faker->address,
-                'kontak' => $faker->phoneNumber,
-            ]);
-        }
+        // for ($i = 1; $i <= 5; $i++) {
+        //     VendorStok::create([
+        //         'nama' => 'Vendor ' . $i,
+        //         'alamat' => $faker->address,
+        //         'kontak' => $faker->phoneNumber,
+        //     ]);
+        // }
 
         // Seed for LokasiStok
         for ($i = 1; $i <= 5; $i++) {
@@ -521,11 +527,24 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        $methods = [
+            'Pengadaan Langsung',
+            'Penunjukan Langsung',
+            'Tender',
+            'E-Purchasing / E-Katalog',
+            'Tender Cepat',
+            'Swakelola',
+        ];
+        foreach ($methods as $method) {
+            MetodePengadaan::create(['nama' => $method]);
+        }
+
         // Seed for KontrakVendorStok
         for ($i = 1; $i <= 5; $i++) {
             KontrakVendorStok::create([
                 'nomor_kontrak' => $faker->unique()->bothify('KV#####'),
-                'vendor_id' => VendorStok::inRandomOrder()->first()->id,
+                'metode_id' => MetodePengadaan::inRandomOrder()->first()->id,
+                'vendor_id' => Toko::inRandomOrder()->first()->id,
                 'tanggal_kontrak' => strtotime($faker->date()),
                 // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
                 'user_id' => User::inRandomOrder()->first()->id,
@@ -569,7 +588,7 @@ class DatabaseSeeder extends Seeder
                 'kode_transaksi_stok' => $faker->unique()->numerify('TRX#####'),
                 'tipe' => $faker->randomElement(['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']),
                 'merk_id' => MerkStok::inRandomOrder()->first()->id,
-                'vendor_id' => VendorStok::inRandomOrder()->take(1)->pluck('id')->first(),
+                'vendor_id' => Toko::inRandomOrder()->take(1)->pluck('id')->first(),
                 'user_id' => User::inRandomOrder()->first()->id,
                 'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
                 'kontrak_id' => $i < 6 ? KontrakVendorStok::inRandomOrder()->take(1)->pluck('id')->first() : null,
