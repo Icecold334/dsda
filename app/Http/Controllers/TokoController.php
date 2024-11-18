@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Toko;
 use Illuminate\Http\Request;
 
 class TokoController extends Controller
@@ -11,16 +12,18 @@ class TokoController extends Controller
      */
     public function index()
     {
-        //
+        $tokos = Toko::all();
+        return view('toko.index', compact('tokos'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($tipe, $toko = 0)
     {
-        //
+        return view('toko.create', compact('tipe','toko'));
     }
+
 
     /**
      * Store a newly created resource in storage.

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Merk;
 use Illuminate\Http\Request;
 
 class MerkController extends Controller
@@ -11,15 +12,16 @@ class MerkController extends Controller
      */
     public function index()
     {
-        //
+        $merks = Merk::all();
+        return view('merk.index', compact('merks'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($tipe, $merk = 0)
     {
-        //
+        return view('merk.create', compact('tipe','merk'));
     }
 
     /**

@@ -32,3 +32,4 @@ window.rupiah = function(angka) {
     }
     return 'Rp ' + rupiah + ',00';
 }
+
