@@ -18,7 +18,8 @@ class AddKategori extends Component
     public $utama;
     public $sub;
 
-    public function mount(){
+    public function mount()
+    {
         if ($this->tipe == 'sub') {
             $this->kategoris = Kategori::where('parent_id', NULL)->get();
             if ($this->id) {
@@ -40,7 +41,7 @@ class AddKategori extends Component
     {
         if ($this->tipe == 'utama') {
             Kategori::destroy($this->id);
-        } else{
+        } else {
             Kategori::destroy($this->id);
         }
         return redirect()->route('kategori.index');
@@ -56,7 +57,7 @@ class AddKategori extends Component
                     'keterangan' => $this->keterangan,
                 ]
             );
-        } else{
+        } else {
             Kategori::updateOrCreate(
                 ['id' => $this->id ?? 0], // Unique fields to check
                 [
@@ -66,7 +67,9 @@ class AddKategori extends Component
                     'keterangan' => $this->keterangan,
                 ]
             );
-        } 
+        }
+
+        return redirect()->route('kategori.index');
     }
     public function render()
     {

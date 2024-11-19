@@ -42,6 +42,8 @@ class AddMerk extends Component
                 'nama_nospace' => strtolower(str_replace(' ', '-', $this->merk)),
             ]
         );
+
+        return redirect()->route('merk.index');
     }
     public function render()
     {
