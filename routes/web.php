@@ -77,6 +77,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('merk', MerkController::class);
     Route::get('person/{tipe}/{person}', [PersonController::class, 'create']);
     Route::resource('person', PersonController::class);
+    Route::get('profil/{tipe}', [ProfileController::class, 'create']);
+    Route::get('profil/{tipe}/{profil}', [ProfileController::class, 'create']);
     Route::resource('profil', ProfileController::class);
     Route::get('toko/{tipe}/{toko}', [TokoController::class, 'create']);
     Route::resource('toko', TokoController::class);

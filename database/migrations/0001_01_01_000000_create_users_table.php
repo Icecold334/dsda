@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('perusahaan')->nullable();
             $table->integer('provinsi')->nullable();
             $table->integer('kota')->nullable();
-            $table->integer('no_wa')->nullable();
+            $table->string('no_wa')->nullable();
+            $table->string('keterangan')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

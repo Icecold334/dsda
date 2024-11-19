@@ -14,22 +14,23 @@
                         </div>
                         <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Perusahaan/Organisasi</span>
-                            <span class="text-sm text-gray-500 w-2/3">[Nama Perusahaan]</span>
+                            <span
+                                class="text-sm text-gray-500 w-2/3">{{ $user->perusahaan ?? 'Tidak Ditemukan' }}</span>
                         </div>
                         <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Alamat</span>
-                            <span class="text-sm text-gray-500 w-2/3">[Alamat Lengkap]</span>
+                            <span class="text-sm text-gray-500 w-2/3">{{ $user->alamat ?? 'Tidak Ditemukan' }}</span>
                         </div>
                         <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Provinsi</span>
-                            <span class="text-sm text-gray-500 w-2/3">[Nama Provinsi]</span>
+                            <span class="text-sm text-gray-500 w-2/3">{{ $user->provinsi ?? 'Tidak Ditemukan' }}</span>
                         </div>
                         <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Kabupaten/Kota</span>
-                            <span class="text-sm text-gray-500 w-2/3">[Nama Kabupaten/Kota]</span>
+                            <span class="text-sm text-gray-500 w-2/3">{{ $user->kota ?? 'Tidak Ditemukan' }}</span>
                         </div>
                         <div class="flex mt-4">
-                            <a href="{{ route('profil.edit', ['profil' => $user->id]) }}"
+                            <a href="/profil/profile/{{ $user->id }}"
                                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                                 Edit Profil
                             </a>
@@ -51,8 +52,8 @@
                         <div class="flex justify-between items-center border-b pb-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">No WhatsApp</span>
                             <div class="flex items-center w-2/3">
-                                <span class="text-sm text-gray-500 w-3/3">{{ $user->no_wa ?? 'Tidak tersedia'}}</span>
-                                <a href="{{ route('person.index', ['user' => $user->id]) }}"
+                                <span class="text-sm text-gray-500 w-3/3">{{ $user->no_wa ?? 'Tidak tersedia' }}</span>
+                                <a href="profile/phone/{{ $user->id }}"
                                     class="text-primary-950 px-3 py-2 rounded-md border hover:bg-slate-300 transition duration-200 ml-2"
                                     data-tooltip-target="tooltip-user-{{ $user->id }}">
                                     <i class="fa-solid fa-pencil"></i>
@@ -70,7 +71,7 @@
                             <span class="text-sm font-medium text-gray-700 w-1/3">Email</span>
                             <div class="flex items-center w-2/3">
                                 <span class="text-sm text-gray-500 w-3/3">{{ $user->email }}</span>
-                                <a href="{{ route('person.index', ['user' => $user->id]) }}"
+                                <a href="/profil/email/{{ $user->id }}"
                                     class="text-primary-950 px-3 py-2 rounded-md border hover:bg-slate-300 transition duration-200 ml-2"
                                     data-tooltip-target="tooltip-user-{{ $user->id }}">
                                     <i class="fa-solid fa-pencil"></i>
@@ -88,7 +89,7 @@
                             <span class="text-sm font-medium text-gray-700 w-1/3">Password</span>
                             <div class="flex items-center w-2/3">
                                 <span class="text-sm text-gray-500 w-3/3">********</span>
-                                <a href="{{ route('person.index', ['user' => $user->id]) }}"
+                                <a href="profile/password/{{ $user->id }}"
                                     class="text-primary-950 px-3 py-2 rounded-md border hover:bg-slate-300 transition duration-200 ml-2"
                                     data-tooltip-target="tooltip-user-{{ $user->id }}">
                                     <i class="fa-solid fa-pencil"></i>
@@ -109,10 +110,9 @@
             <div>
                 <x-card title="Pengguna Tambahan" class="mb-3">
                     <div class="flex mt-4 mb-6">
-                        <button type="button" wire:click="#"
-                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                            + Buat Pengguna Tambahan
-                        </button>
+                        <a href="/profil/user"
+                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
+                            Buat Pengguna Tambahan</a>
                     </div>
                     @forelse ($Users as $user)
                         <div class="border rounded-lg shadow-md p-4 mb-4 bg-white">
@@ -122,7 +122,7 @@
                                     <strong>Nama:</strong> <span>{{ $user->name }}</span>
                                 </p>
                                 <div class="flex space-x-2">
-                                    <a href="{{ route('person.index', ['person' => $user->id]) }}"
+                                    {{-- <a href="{{ route('person.index', ['person' => $user->id]) }}"
                                         class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
                                         data-tooltip-target="tooltip-delete-{{ $user->id }}">
                                         <i class="fa-solid fa-trash"></i>
@@ -131,8 +131,19 @@
                                         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                                         Hapus Pengguna ini
                                         <div class="tooltip-arrow" data-popper-arrow></div>
-                                    </div>
-                                    <a href="{{ route('person.index', ['person' => $user->id]) }}"
+                                    </div> --}}
+                                    @if ($user->id)
+                                        <button type="button" wire:click="removeUser"
+                                            class="text-danger-900 bg-danger-100 hover:bg-danger-600 px-3 py-3 hover:text-white rounded-md border transition duration-200"
+                                            data-tooltip-target="tooltip-delete-{{ $user->id }}"><i
+                                                class="fa-solid fa-trash"></i></button>
+                                        <div id="tooltip-delete-{{ $user->id }}" role="tooltip"
+                                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                            Hapus Pengguna ini
+                                            <div class="tooltip-arrow" data-popper-arrow></div>
+                                        </div>
+                                    @endif
+                                    <a href="profile/user/{{ $user->id }}""
                                         class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
                                         data-tooltip-target="tooltip-edit-{{ $user->id }}">
                                         <i class="fa-solid fa-pencil"></i>
