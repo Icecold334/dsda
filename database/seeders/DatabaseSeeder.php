@@ -281,29 +281,88 @@ class DatabaseSeeder extends Seeder
         // }
 
         // Seed example Toko
-        Toko::create([
-            'user_id' => 1,
-            'nama' => 'PT Elektronik Jaya',
-            'nama_nospace' => Str::slug('PT Elektronik Jaya'),
-            'alamat' => 'Jl. Jaya No. 10, Jakarta',
-            'telepon' => '02112345678',
-            'email' => 'info@elektronikjaya.com',
-            'petugas' => 'Andi',
-            'keterangan' => 'Supplier elektronik terkemuka',
-            'status' => 1
-        ]);
+        // Toko::create([
+        //     'user_id' => 1,
+        //     'nama' => 'PT Elektronik Jaya',
+        //     'nama_nospace' => Str::slug('PT Elektronik Jaya'),
+        //     'alamat' => 'Jl. Jaya No. 10, Jakarta',
+        //     'telepon' => '02112345678',
+        //     'email' => 'info@elektronikjaya.com',
+        //     'petugas' => 'Andi',
+        //     'keterangan' => 'Supplier elektronik terkemuka',
+        //     'status' => 1
+        // ]);
 
-        Toko::create([
-            'user_id' => 1,
-            'nama' => 'Toko Komputer ABC',
-            'nama_nospace' => Str::slug('Toko Komputer ABC'),
-            'alamat' => 'Jl. Komputer No. 5, Surabaya',
-            'telepon' => '03198765432',
-            'email' => 'contact@tokokomputerabc.com',
-            'petugas' => 'Budi',
-            'keterangan' => 'Distributor komputer dan aksesoris',
-            'status' => 1
-        ]);
+        // Toko::create([
+        //     'user_id' => 1,
+        //     'nama' => 'Toko Komputer ABC',
+        //     'nama_nospace' => Str::slug('Toko Komputer ABC'),
+        //     'alamat' => 'Jl. Komputer No. 5, Surabaya',
+        //     'telepon' => '03198765432',
+        //     'email' => 'contact@tokokomputerabc.com',
+        //     'petugas' => 'Budi',
+        //     'keterangan' => 'Distributor komputer dan aksesoris',
+        //     'status' => 1
+        // ]);
+
+        $faker = Faker::create();
+
+        $tokos = [
+            [
+                'nama' => 'Toko Elektronik Canggih',
+                'alamat' => 'Jl. Teknologi No. 20, Bandung',
+                'telepon' => $faker->phoneNumber,
+                'email' => $faker->email,
+                'petugas' => $faker->firstName,
+                'keterangan' => 'Pusat teknologi dan gadget terbaru',
+            ],
+            [
+                'nama' => 'Bengkel Otomotif Modern',
+                'alamat' => 'Jl. Mekanik No. 15, Semarang',
+                'telepon' => $faker->phoneNumber,
+                'email' => $faker->email,
+                'petugas' => $faker->firstName,
+                'keterangan' => 'Spesialis kendaraan roda empat dan dua',
+            ],
+            [
+                'nama' => 'Toko Fashion Hits',
+                'alamat' => 'Jl. Mode No. 7, Yogyakarta',
+                'telepon' => $faker->phoneNumber,
+                'email' => $faker->email,
+                'petugas' => $faker->firstName,
+                'keterangan' => 'Supplier pakaian trendy dan kekinian',
+            ],
+            [
+                'nama' => 'Sentra Kuliner Nusantara',
+                'alamat' => 'Jl. Rasa No. 3, Makassar',
+                'telepon' => $faker->phoneNumber,
+                'email' => $faker->email,
+                'petugas' => $faker->firstName,
+                'keterangan' => 'Distributor makanan khas nusantara',
+            ],
+            [
+                'nama' => 'Toko Buku Pintar',
+                'alamat' => 'Jl. Literasi No. 1, Malang',
+                'telepon' => $faker->phoneNumber,
+                'email' => $faker->email,
+                'petugas' => $faker->firstName,
+                'keterangan' => 'Pusat buku dan alat tulis sekolah',
+            ],
+        ];
+
+        foreach ($tokos as $toko) {
+            Toko::create([
+                'user_id' => 1,
+                'nama' => $toko['nama'],
+                'nama_nospace' => Str::slug($toko['nama']),
+                'alamat' => $toko['alamat'],
+                'telepon' => $toko['telepon'],
+                'email' => $toko['email'],
+                'petugas' => $toko['petugas'],
+                'keterangan' => $toko['keterangan'],
+                'status' => 1,
+            ]);
+        }
 
         // Seed example Persons
         Person::create([

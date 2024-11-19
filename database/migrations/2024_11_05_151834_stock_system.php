@@ -125,19 +125,14 @@ return new class extends Migration
             $table->timestamps();
             $table->id();
             $table->string('nomor_kontrak')->nullable();
-            // $table->string('img')->nullable();
-            $table->foreignId('vendor_id')->constrained('toko');
+            $table->foreignId('vendor_id')->constrained('toko', 'id'); // Explicitly set column
             $table->date('tanggal_kontrak');
-            $table->string('penulis')->nullable();
-            $table->string('pj1')->nullable();
-            $table->string('pj2')->nullable();
             $table->foreignId('metode_id')->nullable()->constrained('metode_pengadaan')->onDelete('set null');
-            $table->foreignId('user_id')->nullable()->constrained('users');
-            $table->foreignId('super_id')->nullable()->constrained('users');
-            $table->foreignId('admin_id')->nullable()->constrained('users');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('super_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->boolean('type');
             $table->boolean('status')->nullable();
-            // $table->integer('jumlah_total');
         });
 
         Schema::create('metode_pengadaan', function (Blueprint $table) {
