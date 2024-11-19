@@ -35,26 +35,26 @@ class AddToko extends Component
 
     public function removeToko()
     {
-       
-            Toko::destroy($this->id);
+
+        Toko::destroy($this->id);
         return redirect()->route('Toko.index');
     }
     public function saveToko()
     {
-            Toko::updateOrCreate(
-                ['id' => $this->id ?? 0], // Unique field to check for existing record
-                [
-                    'user_id' => Auth::user()->id,
-                    'nama' => $this->toko,
-                    'alamat' => $this->alamat,
-                    'telepon' => $this->telepon,
-                    'email' => $this->email,
-                    'petugas' => $this->petugas,
-                    'keterangan' => $this->keterangan,
-                    'nama_nospace' => strtolower(str_replace(' ', '-', $this->toko)),
-                ]
-            );
-       
+        Toko::updateOrCreate(
+            ['id' => $this->id ?? 0], // Unique field to check for existing record
+            [
+                'user_id' => Auth::user()->id,
+                'nama' => $this->toko,
+                'alamat' => $this->alamat,
+                'telepon' => $this->telepon,
+                'email' => $this->email,
+                'petugas' => $this->petugas,
+                'keterangan' => $this->keterangan,
+                'nama_nospace' => strtolower(str_replace(' ', '-', $this->toko)),
+            ]
+        );
+        return redirect()->route('toko.index');
     }
 
     public function render()

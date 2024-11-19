@@ -121,6 +121,6 @@
         </tbody>
     </table>
     <!-- Penulis -->
-    <livewire:aproval-kontrak :date="$kontrak->created_at" :kontrak="$kontrak">
+    <livewire:aproval-kontrak :date="$kontrak->created_at" :kontrak="$kontrak" :status="$kontrak->status">
 
 </x-body>

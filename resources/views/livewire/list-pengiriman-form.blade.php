@@ -9,9 +9,9 @@
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BAGIAN</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold">POSISI</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH *</th>
-                    @role('ppk')
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th>
-                    @endrole
+                    {{-- @role('ppk') --}}
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th>
+                    {{-- @endrole --}}
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
                 </tr>
             </thead>
@@ -91,8 +91,80 @@
                                 @endif
                             @endif
                         </td>
+                        @if (isset($item['bukti']))
+                            {{-- @role('ppk') --}}
+                            <!-- Bukti Upload -->
+                            <td class="px-6 py-3 flex justify-center">
+                                <input type="file" wire:model.live="list.{{ $index }}.bukti" class="hidden"
+                                    id="upload-bukti-{{ $index }}">
+                                @if (isset($item['bukti']))
+                                    <div class="relative inline-block">
+                                        <a href="{{ is_string($item['bukti']) ? asset('storage/buktiPengiriman/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
+                                            download="{{ is_string($item['bukti']) ? is_string($item['bukti']) : $item['bukti']->getClientOriginalName() }}">
+                                            <img src="{{ is_string($item['bukti']) ? asset('storage/buktiPengiriman/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
+                                                alt="Bukti"
+                                                class="w-16 h-16 rounded-md border-2 p-1 bg-white shadow-md object-cover object-center">
+                                        </a>
+                                        @role('ppk')
+                                            <button wire:click="removePhoto({{ $index }})"
+                                                class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-700 transition duration-200 text-white rounded-full p-0 text-xs leading-none h-5 w-5 flex items-center justify-center shadow">
+                                                &times;
+                                            </button>
+                                        @endrole
+                                    </div>
+                                @else
+                                    <button type="button"
+                                        onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
+                                        class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                        {{-- @disabled(!$item['editable']) --}}
+                                        Unggah Foto
+                                    </button>
+                                @endif
+                                {{-- @error("list.{$index}.bukti")
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                            @enderror --}}
+                            </td>
+                            {{-- @endrole --}}
+                        @else
+                            @role('ppk')
+                                <td class="px-6 py-3 flex justify-center">
+                                    <input type="file" wire:model.live="list.{{ $index }}.bukti" class="hidden"
+                                        id="upload-bukti-{{ $index }}">
+                                    @if (isset($item['bukti']))
+                                        <div class="relative inline-block">
+                                            <a href="{{ is_string($item['bukti']) ? asset('storage/buktiPengiriman/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
+                                                download="{{ is_string($item['bukti']) ? is_string($item['bukti']) : $item['bukti']->getClientOriginalName() }}">
+                                                <img src="{{ is_string($item['bukti']) ? asset('storage/buktiPengiriman/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
+                                                    alt="Bukti"
+                                                    class="w-16 h-16 rounded-md border-2 p-1 bg-white shadow-md object-cover object-center">
+                                            </a>
+                                            @role('ppk')
+                                                <button wire:click="removePhoto({{ $index }})"
+                                                    class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-700 transition duration-200 text-white rounded-full p-0 text-xs leading-none h-5 w-5 flex items-center justify-center shadow">
+                                                    &times;
+                                                </button>
+                                            @endrole
+                                        </div>
+                                    @else
+                                        <button type="button"
+                                            onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
+                                            class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                            {{-- @disabled(!$item['editable']) --}}
+                                            Unggah Foto
+                                        </button>
+                                    @endif
+                                    {{-- @error("list.{$index}.bukti")
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                            @enderror --}}
+                                </td>
+                            @else
+                                <td class="px-6 py-3 font-semibold text-center">
+                                    <span class="text-gray-500">Belum ada unggahan</span>
 
-                        @role('ppk')
+                                </td>
+                            @endrole
+                        @endif
+                        {{-- @role('ppk')
                             <!-- Bukti Upload -->
                             <td class="px-6 py-3 flex justify-center">
                                 <input type="file" wire:model.live="list.{{ $index }}.bukti" class="hidden"
@@ -114,15 +186,12 @@
                                     <button type="button"
                                         onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
                                         class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
-                                        {{-- @disabled(!$item['editable']) --}}
                                         Unggah Foto
                                     </button>
                                 @endif
-                                {{-- @error("list.{$index}.bukti")
-                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                            @enderror --}}
+
                             </td>
-                        @endrole
+                        @endrole --}}
                         <!-- Remove Button -->
                         <td class="text-center py-3">
                             @if ($showRemove)

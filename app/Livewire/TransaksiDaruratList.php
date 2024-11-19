@@ -30,6 +30,7 @@ class TransaksiDaruratList extends Component
     public $newLokasiPenerimaan;
     public $merk_item;
     public $vendor_id;
+    public $metode_id;
     public $jenis_id;
     public $dokumenCount;
     public $newBukti;
@@ -50,6 +51,12 @@ class TransaksiDaruratList extends Component
     public $satuanBesarOptions;
     public $satuanKecilOptions;
 
+    #[On('metode_id')]
+    public function fillMetode($metode_id)
+    {
+        $this->metode_id = $metode_id;
+        // $this->mount();
+    }
     #[On('nomor_kontrak')]
     public function fillNomor($nomor)
     {
@@ -354,6 +361,7 @@ class TransaksiDaruratList extends Component
             'vendor_id' => $this->vendor_id,
             'tanggal_kontrak' => strtotime(date('Y-m-d H:i:s')),
             'penulis' => $this->penulis,
+            'metode_id' => $this->metode_id,
             'pj1' => $this->pj1,
             'pj2' => $this->pj2,
             'type' => false,

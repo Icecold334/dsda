@@ -42,6 +42,7 @@ class AddLokasiData extends Component
                 'nama_nospace' => strtolower(str_replace(' ', '-', $this->lokasi)),
             ]
         );
+        return redirect()->route('lokasi.index');
     }
     public function render()
     {

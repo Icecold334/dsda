@@ -80,6 +80,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('detail_pengiriman_id')->constrained('detail_pengiriman_stok');
             $table->foreignId('user_id')->constrained('users');
+            $table->text('file')->nullable();
             $table->boolean('status')->default(true);
             $table->text('keterangan')->nullable();
             $table->timestamps();
@@ -154,6 +155,7 @@ return new class extends Migration
             $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
             $table->foreignId('user_id')->constrained('users');
             $table->boolean('status')->default(true);
+            $table->text('file')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });
@@ -213,20 +215,56 @@ return new class extends Migration
 
 
 
+        Schema::create('persetujuan_permintaan_stok', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('detail_permintaan_id')->constrained('detail_permintaan_stok')->onDelete('cascade');
+            $table->text('file')->nullable(); // True for approved, false for rejected
+            $table->boolean('status')->nullable(); // True for approved, false for rejected
+            $table->text('keterangan')->nullable(); // Optional remarks
+            $table->timestamps();
+        });
+
+        Schema::create('detail_permintaan_stok', function (Blueprint $table) {
+            $table->id();
+            $table->string('kode_permintaan')->unique();
+            $table->date('tanggal_permintaan');
+            // $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
+            $table->foreignId('unit_id')->constrained('unit_kerja')->onDelete('cascade'); // Link to unit_kerja table
+            $table->foreignId('sub_unit_id')->nullable()->constrained('unit_kerja')->onDelete('set null'); // Optional sub-unit link
+            $table->integer('jumlah');
+            $table->text('keterangan')->nullable();
+            $table->boolean('status')->nullable();
+
+            $table->timestamps();
+        });
         Schema::create('permintaan_stok', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('merk_id')->constrained('merk_stok'); // Changed barang_id to merk_id
+            $table->foreignId('detail_permintaan_id')->constrained('detail_permintaan_stok')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('merk_id')->constrained('merk_stok')->onDelete('cascade'); // Changed barang_id to merk_id
             $table->integer('jumlah');
-            $table->date('tanggal_permintaan');
-            $table->enum('status', ['Disetujui', 'Ditunda', 'Ditolak']);
+            $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('set null');
+            // $table->text('tanggal_permintaan');
             $table->timestamps();
-            // $table->foreignId('lokasi_id')->constrained('lokasi_stok');
+        });
+
+        Schema::create('unit_kerja', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama', 255);
+            $table->foreignId('parent_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
+            $table->string('kode', 50)->nullable();
+            $table->text('keterangan')->nullable();
+            $table->timestamps();
         });
     }
 
     public function down()
     {
+        Schema::dropIfExists('unit_kerja');
+
+        Schema::dropIfExists('persetujuan_permintaan_stok');
+        Schema::dropIfExists('detail_permintaan_stok');
         Schema::dropIfExists('permintaan_stok');
         Schema::dropIfExists('stok');
         Schema::dropIfExists('metode_pengadaan');

@@ -88,7 +88,7 @@ class VendorKontrakForm extends Component
             $vendor = Toko::find($this->vendor_id);
             $this->query = $vendor->nama;
         }
-        if (Request::routeIs('kontrak-vendor-stok.create')) {
+        if (Request::routeIs('kontrak-vendor-stok.create') || Request::routeIs('transaksi-darurat-stok.edit')) {
             $this->showMetode = true;
             $this->metodes = MetodePengadaan::all();
         }
