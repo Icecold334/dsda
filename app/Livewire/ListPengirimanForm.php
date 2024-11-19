@@ -173,7 +173,6 @@ class ListPengirimanForm extends Component
         $this->list = [];
         $this->vendor_id = null;
 
-        // Display a success message
         return redirect()->route('pengiriman-stok.index');
     }
 

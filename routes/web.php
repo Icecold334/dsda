@@ -40,6 +40,7 @@ use App\Http\Controllers\PermintaanStokController;
 use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
+use App\Models\PermintaanStok;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -94,6 +95,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('option', OptionController::class);
     Route::resource('order', OrderController::class);
     Route::resource('provinsi', ProvinsiController::class);
+    Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'create']);
+
     Route::resources([
         'jenis-stok' => JenisStokController::class,
         'barang-stok' => BarangStokController::class,

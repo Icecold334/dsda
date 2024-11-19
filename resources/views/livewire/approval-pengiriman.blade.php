@@ -167,7 +167,7 @@
 
                                 <!-- File Name with Link -->
                                 <span>
-                                    <a href="{{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->temporaryUrl() : asset('storage/dokumen-persetujuan-kontrak/' . $attachment) }}"
+                                    <a href="{{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->temporaryUrl() : asset('storage/dokumen-persetujuan-pengiriman/' . $attachment) }}"
                                         target="_blank" class="text-gray-800 hover:underline">
                                         {{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->getClientOriginalName() : basename($attachment) }}
                                     </a>
@@ -241,6 +241,73 @@
 
 @push('scripts')
     <script>
+        let fileCount = 0;
+
+        function confirmApprove() {
+            Swal.fire({
+                title: 'Konfirmasi Persetujuan',
+                text: 'Apakah Anda yakin ingin menyetujui kontrak ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Setuju',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.call('approveConfirmed');
+                }
+            });
+        }
+
+        function submitApprovalWithFile() {
+            const fileInput = document.getElementById('approvalFiles');
+
+
+            if (!fileCount) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File Tidak Ditemukan',
+                    text: 'Harap unggah file sebelum menyetujui kontrak.',
+                });
+                return;
+            }
+            confirmApprove();
+            // @this.call('approveWithFile', fileInput.files[0]);
+        }
+
+        function confirmReject() {
+            Swal.fire({
+                title: 'Keterangan',
+                input: 'textarea',
+                inputPlaceholder: 'Masukkan keterangan',
+                inputAttributes: {
+                    'aria-label': 'Masukkan alasan Anda'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Kirim',
+                cancelButtonText: 'Batal',
+                preConfirm: (inputValue) => {
+                    if (!inputValue || inputValue.trim() === '') {
+                        Swal.showValidationMessage('Keterangan tidak boleh kosong!');
+                        return false; // Prevents submission
+                    }
+                    return inputValue; // Allows submission
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.call('rejectConfirmed', result.value);
+                }
+            });
+        }
+
+        document.addEventListener('file_approval', function(event) {
+            fileCount = event.detail.count; // Get the count from the event detail
+        });
+    </script>
+@endpush
+
+
+{{-- @push('scripts')
+    <script>
         function confirmApprove() {
             Swal.fire({
                 title: 'Konfirmasi Persetujuan',
@@ -281,4 +348,4 @@
             });
         }
     </script>
-@endpush
+@endpush --}}

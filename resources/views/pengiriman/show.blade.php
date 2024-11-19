@@ -20,6 +20,15 @@
                         <td>{{ $pengiriman->kode_pengiriman_stok }}</td>
                     </tr>
                     <tr class="font-semibold">
+                        <td class="w-1/3">Status</td>
+                        <td class="">
+                            <span
+                                class="bg-{{ $pengiriman->status === null ? 'warning' : ($pengiriman->status ? 'success' : 'danger') }}-400 text-{{ $pengiriman->status === null ? 'black' : 'white' }} text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-{{ $pengiriman->status === null ? 'warning' : ($pengiriman->status === true ? 'success' : 'danger') }}-900 dark:text-{{ $pengiriman->status === null ? 'warning' : ($pengiriman->status === true ? 'success' : 'danger') }}-300">
+                                {{ $pengiriman->status === null ? 'diproses' : ($pengiriman->status ? 'disetujui' : 'ditolak') }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr class="font-semibold">
                         <td class="w-1/3">Jenis Pengiriman</td>
                         <td>{{ $pengiriman->pengirimanStok->first()->merkStok->barangStok->jenisStok->nama }}</td>
                     </tr>

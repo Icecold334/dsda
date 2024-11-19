@@ -13,6 +13,7 @@ use App\Models\Kategori;
 use App\Models\MerkStok;
 use App\Models\JenisStok;
 use App\Models\MerekStok;
+use App\Models\UnitKerja;
 use App\Models\BagianStok;
 use App\Models\BarangStok;
 use App\Models\LokasiStok;
@@ -28,11 +29,13 @@ use App\Models\PengirimanStok;
 use App\Models\PermintaanStok;
 use App\Models\MetodePengadaan;
 use Illuminate\Database\Seeder;
-use App\Models\KontrakVendorStok;
 // use App\Models\DetailPengirimanStok;
 // use App\Models\TransaksiDaruratStok;
+use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\DB;
+use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 // use App\Models\KontrakRetrospektifStok;
 
 class DatabaseSeeder extends Seeder
@@ -540,15 +543,16 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed for KontrakVendorStok
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 2; $i++) {
             KontrakVendorStok::create([
                 'nomor_kontrak' => $faker->unique()->bothify('KV#####'),
                 'metode_id' => MetodePengadaan::inRandomOrder()->first()->id,
-                'vendor_id' => Toko::inRandomOrder()->first()->id,
+                // 'vendor_id' => Toko::inRandomOrder()->first()->id,
+                'vendor_id' => $i,
                 'tanggal_kontrak' => strtotime($faker->date()),
                 // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
                 'user_id' => User::inRandomOrder()->first()->id,
-                'type' => rand(0, 1),
+                'type' => 1,
             ]);
         }
 
@@ -584,14 +588,16 @@ class DatabaseSeeder extends Seeder
 
         // Seed for TransaksiStok
         for ($i = 0; $i < 10; $i++) {
+            $vendorid = Toko::inRandomOrder()->take(1)->pluck('id')->first();
             TransaksiStok::create([
                 'kode_transaksi_stok' => $faker->unique()->numerify('TRX#####'),
-                'tipe' => $faker->randomElement(['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']),
+                // 'tipe' => $faker->randomElement(['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']),
+                'tipe' => $i < 6 ? 'Pemasukan' : 'Penggunaan Langsung',
                 'merk_id' => MerkStok::inRandomOrder()->first()->id,
-                'vendor_id' => Toko::inRandomOrder()->take(1)->pluck('id')->first(),
+                'vendor_id' => $vendorid,
                 'user_id' => User::inRandomOrder()->first()->id,
                 'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
-                'kontrak_id' => $i < 6 ? KontrakVendorStok::inRandomOrder()->take(1)->pluck('id')->first() : null,
+                'kontrak_id' => $i < 6 ? $vendorid : null,
                 'tanggal' => strtotime(date('Y-m-d H:i:s')),
                 'jumlah' => $faker->numberBetween(1, 100),
                 'deskripsi' => $faker->sentence(),
@@ -638,19 +644,169 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // Seed for PermintaanStok
-        for (
-            $i = 1;
-            $i <= 5;
-            $i++
-        ) {
+
+        // Parent Units
+        $unitProduksi = UnitKerja::create([
+            'nama' => 'Unit Produksi',
+            'kode' => 'UP',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk produksi.',
+        ]);
+
+        $unitPemasaran = UnitKerja::create([
+            'nama' => 'Unit Pemasaran',
+            'kode' => 'UM',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk pemasaran.',
+        ]);
+
+        $unitKeuangan = UnitKerja::create([
+            'nama' => 'Unit Keuangan',
+            'kode' => 'UK',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk keuangan.',
+        ]);
+
+        $unitSumberDayaManusia = UnitKerja::create([
+            'nama' => 'Unit Sumber Daya Manusia',
+            'kode' => 'HR',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk sumber daya manusia.',
+        ]);
+
+        // Sub-Units for Produksi
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Finishing',
+            'kode' => 'UP-FN',
+            'parent_id' => $unitProduksi->id,
+            'keterangan' => 'Bagian finishing dalam unit produksi.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Assembling',
+            'kode' => 'UP-AS',
+            'parent_id' => $unitProduksi->id,
+            'keterangan' => 'Bagian assembling dalam unit produksi.',
+        ]);
+
+        // Sub-Units for Pemasaran
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Digital Marketing',
+            'kode' => 'UM-DM',
+            'parent_id' => $unitPemasaran->id,
+            'keterangan' => 'Bagian pemasaran digital.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Sales',
+            'kode' => 'UM-SL',
+            'parent_id' => $unitPemasaran->id,
+            'keterangan' => 'Bagian penjualan langsung.',
+        ]);
+
+        // Sub-Units for Keuangan
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Akuntansi',
+            'kode' => 'UK-AK',
+            'parent_id' => $unitKeuangan->id,
+            'keterangan' => 'Bagian akuntansi dalam unit keuangan.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Pajak',
+            'kode' => 'UK-PJ',
+            'parent_id' => $unitKeuangan->id,
+            'keterangan' => 'Bagian pajak dalam unit keuangan.',
+        ]);
+
+        // Sub-Units for Sumber Daya Manusia
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Rekrutmen',
+            'kode' => 'HR-RK',
+            'parent_id' => $unitSumberDayaManusia->id,
+            'keterangan' => 'Bagian rekrutmen dalam unit SDM.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Pelatihan',
+            'kode' => 'HR-PL',
+            'parent_id' => $unitSumberDayaManusia->id,
+            'keterangan' => 'Bagian pelatihan dalam unit SDM.',
+        ]);
+
+
+        // Example Units and Sub-Units
+        $unitProduksi = UnitKerja::create([
+            'nama' => 'Unit Produksi',
+            'kode' => 'UP01',
+            'keterangan' => 'Bagian yang bertanggung jawab atas produksi barang.',
+        ]);
+
+        $subUnitFinishing = UnitKerja::create([
+            'nama' => 'Bagian Finishing',
+            'parent_id' => $unitProduksi->id,
+            'kode' => 'UP01-FIN',
+            'keterangan' => 'Sub-bagian yang menangani proses finishing produk.',
+        ]);
+
+        $subUnitPackaging = UnitKerja::create([
+            'nama' => 'Bagian Packaging',
+            'parent_id' => $unitProduksi->id,
+            'kode' => 'UP01-PKG',
+            'keterangan' => 'Sub-bagian yang bertanggung jawab atas pengemasan.',
+        ]);
+
+
+        $requests = [
+            [
+                'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
+                'tanggal_permintaan' => strtotime(Carbon::now()->subDays(2)),
+                'unit_id' => $unitProduksi->id,
+                'keterangan' => $faker->paragraph(),
+                'sub_unit_id' => $subUnitFinishing->id,
+                'jumlah' => 500,
+            ],
+            [
+                'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
+                'tanggal_permintaan' => strtotime(Carbon::now()->subDays(5)),
+                'unit_id' => $unitProduksi->id,
+                'keterangan' => $faker->paragraph(),
+                'sub_unit_id' => $subUnitPackaging->id,
+                'jumlah' => 300,
+            ],
+            [
+                'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
+                'tanggal_permintaan' => strtotime(Carbon::now()->subDays(10)),
+                'unit_id' => $unitProduksi->id,
+                'keterangan' => $faker->paragraph(),
+                'sub_unit_id' => null, // No specific sub-unit
+                'jumlah' => 1000,
+            ],
+        ];
+
+        foreach ($requests as $request) {
+            DetailPermintaanStok::create($request);
+        }
+
+        // Additional Example Requests with other units
+        for ($i = 1; $i <= 10; $i++) {
+            DetailPermintaanStok::create([
+                'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
+                'tanggal_permintaan' => strtotime(Carbon::now()->subDays(rand(1, 30))),
+                'unit_id' => $unitProduksi->id,
+                'keterangan' => $faker->paragraph(),
+                'sub_unit_id' => $i % 2 == 0 ? $subUnitFinishing->id : $subUnitPackaging->id,
+                'jumlah' => rand(100, 1000),
+            ]);
+        }
+        $users = User::all();
+        $merks = MerkStok::all();
+        $details = DetailPermintaanStok::all();
+        $lokasis = LokasiStok::all();
+
+        for ($i = 0; $i < 20; $i++) {
             PermintaanStok::create([
-                'user_id' => 1, // Assuming you have a user with ID 1
-                'merk_id' => MerkStok::inRandomOrder()->first()->id,
-                'jumlah' => rand(1, 10),
-                'tanggal_permintaan' => strtotime($faker->date()),
-                'status' => $faker->randomElement(['Disetujui', 'Ditunda', 'Ditolak']),
-                // 'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
+                'detail_permintaan_id' => $details->random()->id,
+                'user_id' => $users->random()->id,
+                'merk_id' => $merks->random()->id,
+                'jumlah' => rand(10, 100),
+                'lokasi_id' => $lokasis->random()->id,
             ]);
         }
     }

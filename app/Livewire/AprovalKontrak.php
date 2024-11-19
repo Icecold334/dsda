@@ -49,7 +49,7 @@ class AprovalKontrak extends Component
     public function mount()
     {
 
-        if ($this->kontrak->persetujuan->where('file')) {
+        if ($this->kontrak && $this->kontrak->persetujuan->where('file')) {
             // Fetch files where the status is true and the file exists
             $this->files = $this->kontrak->persetujuan->filter(function ($persetujuan) {
                 return $persetujuan->file !== null;
@@ -286,7 +286,7 @@ class AprovalKontrak extends Component
         if (isset($this->approvalFiles[$index])) {
             // Delete persisted file if needed
             if (!($this->approvalFiles[$index] instanceof \Illuminate\Http\UploadedFile)) {
-                Storage::delete('approvals/' . $this->approvalFiles[$index]);
+                Storage::delete('dokumen-persetujuan-kontrak/' . $this->approvalFiles[$index]);
             }
             unset($this->approvalFiles[$index]);
             $this->approvalFiles = array_values($this->approvalFiles); // Reindex array

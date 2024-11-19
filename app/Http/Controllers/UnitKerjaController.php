@@ -2,27 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DetailPermintaanStok;
-use App\Models\PermintaanStok;
+use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 
-class PermintaanStokController extends Controller
+class UnitKerjaController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $permintaans = DetailPermintaanStok::all();
-        return view('permintaan.index', compact('permintaans'));
+        //
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create($tipe)
+    public function create()
     {
-        return view('permintaan.create', compact('tipe'));
+        //
     }
 
     /**
@@ -36,16 +34,15 @@ class PermintaanStokController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(UnitKerja $unitKerja)
     {
-        $permintaan = DetailPermintaanStok::find($id);
-        return view('permintaan.show', compact('permintaan'));
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(UnitKerja $unitKerja)
     {
         //
     }
@@ -53,7 +50,7 @@ class PermintaanStokController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, UnitKerja $unitKerja)
     {
         //
     }
@@ -61,7 +58,7 @@ class PermintaanStokController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(UnitKerja $unitKerja)
     {
         //
     }

@@ -8,10 +8,13 @@ use App\Models\User;
 use Livewire\Component;
 use App\Models\PengirimanStok;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 class ApprovalPengiriman extends Component
 {
 
+    use WithFileUploads;
     public $pengiriman;
     public $penanggungjawab;
     public $penulis;
@@ -32,6 +35,8 @@ class ApprovalPengiriman extends Component
     public $approvalFiles = []; // To hold multiple uploaded files
     public $files = []; // To hold multiple uploaded files
 
+
+
     public function updatedNewApprovalFiles()
     {
         // Validate each uploaded file
@@ -50,6 +55,15 @@ class ApprovalPengiriman extends Component
 
     public function mount()
     {
+        if ($this->pengiriman->persetujuan->where('file')) {
+            // Fetch files where the status is true and the file exists
+            $this->files = $this->pengiriman->persetujuan->filter(function ($persetujuan) {
+                return $persetujuan->file !== null;
+            })->pluck('file');
+        } else {
+            $this->files = [];
+        }
+
         $this->user = Auth::user();
         $this->roles = 'penanggungjawab|ppk|pptk';
         $this->penulis = $this->pengiriman->user;
@@ -61,8 +75,16 @@ class ApprovalPengiriman extends Component
         $this->lastPj = $indexPj === $pj->count() - 1;
         $this->pjList = $pj;
         $ppk = User::role('ppk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+        $indexPpk = $ppk->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+        $this->lastPpk = $indexPpk === $ppk->count() - 1; // Check if current user is the last user
         $this->ppkList = $ppk;
         $pptk = User::role('pptk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+        $indexPptk = $pptk->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+        $this->lastPptk = $indexPptk === $pptk->count() - 1; // Check if current user is the last user
         $this->pptkList = $pptk;
         $this->listApproval = $this->pptkList->merge($this->ppkList)->merge($this->pjList)->count();
 
@@ -84,37 +106,104 @@ class ApprovalPengiriman extends Component
 
     public function approveConfirmed()
     {
-        $this->pengiriman->persetujuan()->create([
-            'detail_pengiriman_id' => $this->pengiriman->id,
-            'user_id' => Auth::id(),
-            'status' => true,
-        ]);
 
-        $list = $this->pengiriman->persetujuan;
+        if ($this->lastPj || $this->lastPpk || $this->lastPptk) {
+            foreach ($this->approvalFiles as $file) {
+                $path = str_replace('dokumen-persetujuan-pengiriman/', '', $file->storeAs('dokumen-persetujuan-pengiriman', $file->getClientOriginalName(), 'public'));
+                $this->pengiriman->persetujuan()->create([
+                    'detail_pengiriman_id' => $this->pengiriman->id,
+                    'user_id' => Auth::id(),
+                    'status' => true,
+                    'file' => $path
+                ]);
+            }
+            $list = $this->pengiriman->persetujuan;
+            $filteredList = $list->filter(function ($approval) {
+                return $approval->status;
+            })->unique('user_id');
+            if ($filteredList->count() == $this->listApproval) {
+                $this->pengiriman->status = true;
+                $this->pengiriman->save();
+                $pengirimanItems = $this->pengiriman->pengirimanStok;
+                foreach ($pengirimanItems as $pengiriman) {
+                    $stok = Stok::firstOrCreate(
+                        [
+                            'merk_id' => $pengiriman->merk_id,
+                            'lokasi_id' => $pengiriman->lokasi_id,
+                            'bagian_id' => $pengiriman->bagian_id,
+                            'posisi_id' => $pengiriman->posisi_id,
+                        ],
+                        ['jumlah' => 0]  // Atur stok awal jika belum ada
+                    );
 
-        $filteredList = $list->filter(function ($approval) {
-            return $approval->status;
-        });
-        if ($filteredList->count() == $this->listApproval) {
-            $this->pengiriman->status = true;
-            $this->pengiriman->save();
+                    $stok->jumlah += $pengiriman->jumlah;
+                    $stok->save();
+                }
+            }
+        } else {
+            $this->pengiriman->persetujuan()->create([
+                'detail_pengiriman_id' => $this->pengiriman->id,
+                'user_id' => Auth::id(),
+                'status' => true,
+            ]);
 
-            $pengirimanItems = $this->pengiriman->pengirimanStok;
-            foreach ($pengirimanItems as $pengiriman) {
-                $stok = Stok::firstOrCreate(
-                    [
-                        'merk_id' => $pengiriman->merk_id,
-                        'lokasi_id' => $pengiriman->lokasi_id,
-                        'bagian_id' => $pengiriman->bagian_id,
-                        'posisi_id' => $pengiriman->posisi_id,
-                    ],
-                    ['jumlah' => 0]  // Atur stok awal jika belum ada
-                );
+            $list = $this->pengiriman->persetujuan;
 
-                $stok->jumlah += $pengiriman->jumlah;
-                $stok->save();
+            $filteredList = $list->filter(function ($approval) {
+                return $approval->status;
+            })->unique('user_id');
+            if ($filteredList->count() == $this->listApproval) {
+                $this->pengiriman->status = true;
+                $this->pengiriman->save();
+                $pengirimanItems = $this->pengiriman->pengirimanStok;
+                foreach ($pengirimanItems as $pengiriman) {
+                    $stok = Stok::firstOrCreate(
+                        [
+                            'merk_id' => $pengiriman->merk_id,
+                            'lokasi_id' => $pengiriman->lokasi_id,
+                            'bagian_id' => $pengiriman->bagian_id,
+                            'posisi_id' => $pengiriman->posisi_id,
+                        ],
+                        ['jumlah' => 0]  // Atur stok awal jika belum ada
+                    );
+
+                    $stok->jumlah += $pengiriman->jumlah;
+                    $stok->save();
+                }
             }
         }
+
+        // $this->pengiriman->persetujuan()->create([
+        //     'detail_pengiriman_id' => $this->pengiriman->id,
+        //     'user_id' => Auth::id(),
+        //     'status' => true,
+        // ]);
+
+        // $list = $this->pengiriman->persetujuan;
+
+        // $filteredList = $list->filter(function ($approval) {
+        //     return $approval->status;
+        // });
+        // if ($filteredList->count() == $this->listApproval) {
+        //     $this->pengiriman->status = true;
+        //     $this->pengiriman->save();
+
+        //     $pengirimanItems = $this->pengiriman->pengirimanStok;
+        //     foreach ($pengirimanItems as $pengiriman) {
+        //         $stok = Stok::firstOrCreate(
+        //             [
+        //                 'merk_id' => $pengiriman->merk_id,
+        //                 'lokasi_id' => $pengiriman->lokasi_id,
+        //                 'bagian_id' => $pengiriman->bagian_id,
+        //                 'posisi_id' => $pengiriman->posisi_id,
+        //             ],
+        //             ['jumlah' => 0]  // Atur stok awal jika belum ada
+        //         );
+
+        //         $stok->jumlah += $pengiriman->jumlah;
+        //         $stok->save();
+        //     }
+        // }
 
 
         return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
@@ -137,6 +226,21 @@ class ApprovalPengiriman extends Component
 
         // $this->emit('actionSuccess', 'Kontrak berhasil disetujui.');
     }
+
+    public function removeApprovalFile($index)
+    {
+        // Remove file from the list
+        if (isset($this->approvalFiles[$index])) {
+            // Delete persisted file if needed
+            if (!($this->approvalFiles[$index] instanceof \Illuminate\Http\UploadedFile)) {
+                Storage::delete('dokumen-persetujuan-pengiriman/' . $this->approvalFiles[$index]);
+            }
+            unset($this->approvalFiles[$index]);
+            $this->approvalFiles = array_values($this->approvalFiles); // Reindex array
+            $this->dispatch('file_approval', count: count($this->approvalFiles));
+        }
+    }
+
 
     public function render()
     {
