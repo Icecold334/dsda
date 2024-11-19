@@ -49,14 +49,38 @@
 
                         <!-- No. WhatsApp -->
                         <div class="flex justify-between items-center border-b pb-2">
-                            <span class="text-sm font-medium text-gray-700 w-1/3">No. WhatsApp</span>
-                            <span class="text-sm text-gray-500 w-2/3">[Nomor WhatsApp]</span>
+                            <span class="text-sm font-medium text-gray-700 w-1/3">No WhatsApp</span>
+                            <div class="flex items-center w-2/3">
+                                <span class="text-sm text-gray-500 w-3/3">{{ $user->no_wa ?? 'Tidak tersedia'}}</span>
+                                <a href="{{ route('person.index', ['user' => $user->id]) }}"
+                                    class="text-primary-950 px-3 py-2 rounded-md border hover:bg-slate-300 transition duration-200 ml-2"
+                                    data-tooltip-target="tooltip-user-{{ $user->id }}">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </a>
+                                <div id="tooltip-user-{{ $user->id }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Ganti Email
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Email -->
                         <div class="flex justify-between items-center border-b pb-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Email</span>
-                            <span class="text-sm text-gray-500 w-2/3">{{ $user->email }}</span>
+                            <div class="flex items-center w-2/3">
+                                <span class="text-sm text-gray-500 w-3/3">{{ $user->email }}</span>
+                                <a href="{{ route('person.index', ['user' => $user->id]) }}"
+                                    class="text-primary-950 px-3 py-2 rounded-md border hover:bg-slate-300 transition duration-200 ml-2"
+                                    data-tooltip-target="tooltip-user-{{ $user->id }}">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </a>
+                                <div id="tooltip-user-{{ $user->id }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Ganti Email
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Password -->
