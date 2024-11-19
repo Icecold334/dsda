@@ -281,6 +281,66 @@
                                     disabled placeholder="Harga total akan dihitung otomatis">
                             </td>
                         </tr>
+
+                        <!-- Lama Garansi Field -->
+                        <tr>
+                            <td>
+                                <label for="lama_garansi"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lama Garansi
+                                </label>
+                            </td>
+                            <td>
+                                <div class="flex items-center">
+                                    <input type="number" id="lama_garansi" wire:model.live="lama_garansi"
+                                        value="" min="1"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                        required placeholder="Masukkan Lama Garansi">
+                                    <label for="lama_garansi"
+                                        class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">Tahun</label>
+                                </div>
+                                @error('lama_garansi')
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
+                            </td>
+                        </tr>
+                        <!--Kartu Garansi Field -->
+                        <tr>
+                            <td style="width: 40%"><label for="kartu_garansi"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kartu
+                                    Garansi</label></td>
+                            <td>
+                                <input type="file" wire:model="newGaransiAttachments" multiple class="hidden"
+                                    id="fileGaransi">
+                                <label for="fileGaransi"
+                                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">
+                                    + Unggah File
+                                </label>
+                                @error('newGaransiAttachments.*')
+                                    <span class="text-sm text-red-500">{{ $message }}</span>
+                                @enderror
+                                <div class="mt-3">
+                                    @foreach ($garansiattachments as $index => $attachment)
+                                        <div class="flex  items-center justify-between border-b-4 p-2 rounded my-1">
+                                            <span><span class="text-primary-600 me-3"> @php
+                                                $fileType = $attachment->getClientOriginalExtension();
+                                            @endphp
+                                                    @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                                        <i class="fa-solid fa-image text-green-500"></i>
+                                                    @elseif($fileType == 'pdf')
+                                                        <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                                    @elseif($fileType == 'doc' || $fileType == 'docx')
+                                                        <i class="fa-solid fa-file-word text-blue-500"></i>
+                                                    @else
+                                                        <i class="fa-solid fa-file text-gray-500"></i>
+                                                    @endif
+                                                </span><span>{{ $attachment->getClientOriginalName() }}</span></span>
+                                            <button wire:click="removeGaransiAttachment({{ $index }})"
+                                                class="text-red-500 hover:text-red-700">&times;</button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </td>
+                        </tr>
                     </table>
                     @push('scripts')
                         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">

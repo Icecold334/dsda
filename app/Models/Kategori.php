@@ -17,7 +17,7 @@ class Kategori extends Model
         'user_id',
         'nama',
         'keterangan',
-        'parent',
+        'parent_id',
         'status'
     ];
 

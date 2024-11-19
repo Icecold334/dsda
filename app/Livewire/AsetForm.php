@@ -48,9 +48,12 @@ class AsetForm extends Component
     public $hargaTotal;
     public $attachments = [];
     public $newAttachments = [];
+    public $garansiattachments = [];
+    public $newGaransiAttachments = [];
     public $keterangan;
     #[Validate]
     public $umur;
+    public $lama_garansi;
     public $penyusutan;
 
 
@@ -134,6 +137,7 @@ class AsetForm extends Component
             $this->hargaSatuan = $this->aset->hargaSatuan;
             $this->hargaTotal = $this->aset->hargaTotal;
             $this->umur = $this->aset->umur;
+            $this->lama_garansi = $this->aset->lama_garansi;
             // $this->attachments = $this->aset->attachments;  // Assuming attachments are stored as an array or similar structure
             $this->keterangan = $this->aset->keterangan;
         } else {
@@ -233,6 +237,31 @@ class AsetForm extends Component
             $this->attachments = array_values($this->attachments);
         }
     }
+    public function updatedNewGaransiAttachments()
+    {
+        $this->validate([
+            'newAttachments.*' => 'max:5024', // Validation for each new attachment
+        ]);
+
+        foreach ($this->newGaransiAttachments as $file) {
+            // $this->attachments[] = $file->store('attachments', 'public');
+            $this->garansiattachments[] = $file;
+        }
+
+        // Clear the newAttachments to make ready for next files
+        $this->reset('newAttachments');
+    }
+    public function removeGaransiAttachment($index)
+    {
+        if (isset($this->garansiattachments[$index])) {
+            // If it's a file path, delete the file
+            // Storage::disk('public')->delete($this->attachments[$index]);
+            // Remove from the array
+            unset($this->garansiattachments[$index]);
+            // Reindex array
+            $this->garansiattachments = array_values($this->garansiattachments);
+        }
+    }
 
     public function saveAset()
     {
@@ -260,8 +289,10 @@ class AsetForm extends Component
             'hargasatuan' => $this->cleanCurrency($this->hargaSatuan),
             'hargatotal' => $this->cleanCurrency($this->hargaTotal),
             'umur' => $this->umur,
+            'lama_garansi' => $this->lama_garansi,
             'penyusutan' => $this->cleanCurrency($this->penyusutan),
         ];
+        dd($data);
 
         // Insert or update aset based on $this->aset
         Aset::updateOrCreate(['id' => $this->aset->id], $data);

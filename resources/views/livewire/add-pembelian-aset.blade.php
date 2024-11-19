@@ -43,7 +43,7 @@
         <!-- Jumlah Field -->
         <tr>
             <td><label for="jumlah" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jumlah
-                    *</label></td>
+                *</label></td>
             <td>
                 <div class="flex items-center ">
                     <input type="number" id="jumlah" wire:model.live="jumlah" value="1" min="1"
@@ -56,9 +56,9 @@
                 </div>
                 @error('jumlah')
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                @enderror
-            </td>
-
+                    @enderror
+                </td>
+                
         </tr>
         <!-- Harga Satuan Field -->
         <tr>
@@ -83,7 +83,6 @@
                     disabled>
             </td>
         </tr>
-
     </table>
     @push('scripts')
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">

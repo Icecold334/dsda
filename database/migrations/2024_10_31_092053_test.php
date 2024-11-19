@@ -55,6 +55,8 @@ return new class extends Migration
             $table->integer('tglnonaktif')->default(0);
             $table->string('alasannonaktif', 16)->nullable();
             $table->text('ketnonaktif')->nullable();
+            $table->integer('lama_garansi')->nullable();
+            $table->string('kartu_garansi')->nullable();
             $table->boolean('status')->default(1);
             $table->timestamps();
         });
