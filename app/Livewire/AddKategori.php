@@ -12,7 +12,7 @@ class AddKategori extends Component
     public $kategori;
     public $tipe;
     public $kategoris;
-    public $alamat;
+    public $keterangan;
     public $kategori_id;
     public $parent_id;
     public $utama;
@@ -26,12 +26,13 @@ class AddKategori extends Component
                 $this->sub = $sub->nama;
                 $this->kategori_id = $sub->kategori_id;
                 $this->parent_id = $sub->parent_id;
+                $this->keterangan = $sub->keterangan;
             }
         } else {
             if ($this->id) {
                 $utama = Kategori::find($this->id);
                 $this->utama = $utama->nama;
-                $this->alamat = $utama->alamat;
+                $this->keterangan = $utama->keterangan;
             }
         }
     }
@@ -48,20 +49,21 @@ class AddKategori extends Component
     {
         if ($this->tipe == 'utama') {
             Kategori::updateOrCreate(
-                ['id' => $this->kategori_id ?? 0], // Unique field to check for existing record
+                ['id' => $this->id ?? 0], // Unique field to check for existing record
                 [
                     'user_id' => Auth::user()->id,
                     'nama' => $this->utama,
-                    'alamat' => $this->alamat,
+                    'keterangan' => $this->keterangan,
                 ]
             );
         } else{
             Kategori::updateOrCreate(
-                ['id' => $this->kategori_id ?? 0], // Unique fields to check
+                ['id' => $this->id ?? 0], // Unique fields to check
                 [
                     'user_id' => Auth::user()->id,
                     'parent_id' => $this->parent_id,
                     'nama' => $this->sub,
+                    'keterangan' => $this->keterangan,
                 ]
             );
         } 
