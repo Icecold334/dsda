@@ -602,7 +602,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed for KontrakVendorStok
-        for ($i = 1; $i <= 2; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             KontrakVendorStok::create([
                 'nomor_kontrak' => $faker->unique()->bothify('KV#####'),
                 'metode_id' => MetodePengadaan::inRandomOrder()->first()->id,
@@ -647,7 +647,7 @@ class DatabaseSeeder extends Seeder
 
         // Seed for TransaksiStok
         for ($i = 0; $i < 10; $i++) {
-            $vendorid = Toko::inRandomOrder()->take(1)->pluck('id')->first();
+            $vendorid = Toko::inRandomOrder()->first()->id;
             TransaksiStok::create([
                 'kode_transaksi_stok' => $faker->unique()->numerify('TRX#####'),
                 // 'tipe' => $faker->randomElement(['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']),

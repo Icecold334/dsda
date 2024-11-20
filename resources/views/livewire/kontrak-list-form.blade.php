@@ -3,12 +3,13 @@
         <thead>
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-2/5 rounded-l-lg">BARANG</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI (MERK/UKURAN/DLL)</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
-        @if ($vendor_id && $jenis_id && $metode_id)
+        {{-- @if ($vendor_id && $jenis_id && $metode_id) --}}
+        @if (true)
             <tbody class="">
                 @foreach ($list as $index => $item)
                     <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
@@ -154,33 +155,47 @@
                     </td>
                     <td class="py-3 px-6">
                         <div>
-                            <!-- Merk Input with Suggestions and Add Button -->
-                            <div class="">
-                                <div class="flex">
-                                    <input type="text" wire:model.live="newMerk" wire:blur="blurMerk"
-                                        placeholder="Cari atau Tambah Spesifikasi" @disabled(!$barang_id)
-                                        class="block w-full px-4 py-2 text-gray-900 border {{ !$barang_id ? 'cursor-not-allowed' : '' }} border-gray-300 rounded-l-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    @if ($merk_id == null && $newMerk)
-                                        <button wire:click="createNewMerk"
-                                            class="px-4 py-1 text-sm font-medium text-white bg-blue-500 rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tambah</button>
-                                    @endif
-                                </div>
+                            <div class="flex space-x-2">
+                                @foreach (['merek' => 'Merek', 'tipe' => 'Tipe', 'ukuran' => 'Ukuran'] as $key => $label)
+                                    <input type="text"
+                                        wire:input="updateSpecification('{{ $key }}', $event.target.value)"
+                                        value="{{ $specifications[$key] }}" placeholder="Masukkan {{ $label }}"
+                                        class=" w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
 
-                                <!-- Suggestions List -->
-                            </div>
-                        </div>
-                        @if ($merkSuggestions)
-                            <ul
-                                class="absolute z-10 w-72 bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-auto shadow-lg">
-                                @foreach ($merkSuggestions as $suggestion)
-                                    <li wire:click="selectMerk({{ $suggestion->id }}, '{{ $suggestion->nama }}')"
-                                        class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
-                                        {{ $suggestion->nama }}
-                                    </li>
+                                    @if (!empty($suggestions[$key]))
+                                        <ul
+                                            class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-auto shadow-lg">
+                                            @foreach ($suggestions[$key] as $suggestion)
+                                                <li wire:click="selectSpecification('{{ $key }}', '{{ $suggestion }}')"
+                                                    class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
+                                                    {{ $suggestion }}
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
                                 @endforeach
-                            </ul>
-                        @endif
+
+                                <button wire:click="createNewMerk"
+                                    class="px-4 py-1 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Tambah
+                                </button>
+
+
+                                {{-- <!-- Merk Suggestions -->
+                                @if ($merkSuggestions)
+                                    <ul
+                                        class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-auto">
+                                        @foreach ($merkSuggestions as $suggestion)
+                                            <li wire:click="selectMerk({{ $suggestion->id }}, '{{ $suggestion->nama }}')"
+                                                class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
+                                                {{ $suggestion->nama }}
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif --}}
+                            </div>
                     </td>
+
 
                     <td class="py-3 px-6">
                         <div class="flex items-center">

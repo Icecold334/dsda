@@ -41,10 +41,12 @@ return new class extends Migration
 
 
         Schema::create('merk_stok', function (Blueprint $table) {
-            $table->timestamps();
             $table->id();
             $table->foreignId('barang_id')->constrained('barang_stok');
-            $table->string('nama');
+            $table->string('nama')->nullable();
+            $table->string('tipe')->nullable();
+            $table->string('ukuran')->nullable();
+            $table->timestamps();
         });
 
         Schema::create('vendor_stok', function (Blueprint $table) {
