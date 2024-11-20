@@ -157,14 +157,14 @@
                         <div>
                             <div class="flex space-x-2">
                                 @foreach (['merek' => 'Merek', 'tipe' => 'Tipe', 'ukuran' => 'Ukuran'] as $key => $label)
-                                    <input type="text"
+                                    <input type="text" wire:model.live="specifications.{{ $key }}"
                                         wire:input="updateSpecification('{{ $key }}', $event.target.value)"
-                                        value="{{ $specifications[$key] }}" placeholder="Masukkan {{ $label }}"
-                                        class=" w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
-
-                                    @if (!empty($suggestions[$key]))
+                                        wire:blur="blurSpecification('{{ $key }}')"
+                                        placeholder="Masukkan {{ $label }}"
+                                        class="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                    @if (!$merk_id && isset($suggestions[$key]))
                                         <ul
-                                            class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-auto shadow-lg">
+                                            class="absolute z-10 w-96 bg-white border border-gray-300 rounded-lg mt-12 max-h-60 overflow-auto shadow-lg">
                                             @foreach ($suggestions[$key] as $suggestion)
                                                 <li wire:click="selectSpecification('{{ $key }}', '{{ $suggestion }}')"
                                                     class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
@@ -175,10 +175,12 @@
                                     @endif
                                 @endforeach
 
-                                <button wire:click="createNewMerk"
-                                    class="px-4 py-1 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    Tambah
-                                </button>
+                                @if (is_null($merk_id))
+                                    <button wire:click="createNewMerk"
+                                        class="px-4 py-1 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        Tambah
+                                    </button>
+                                @endif
 
 
                                 {{-- <!-- Merk Suggestions -->

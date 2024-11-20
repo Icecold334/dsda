@@ -52,21 +52,55 @@ class KontrakListForm extends Component
     public function updateSpecification($key, $value)
     {
         if ($this->barang_id) {
-            dump($key);
-            $this->specifications[$key] = $value;
-            $this->suggestions[$key] = MerkStok::where('barang_id', $this->barang_id)
-                ->where($key, 'like', '%' . $value . '%')
-                ->pluck($key)
-                ->unique()
-                ->values()
-                ->all();
+            $this->merk_id = null;
+
+            // foreach ($this->specifications as $specKey => $specValue) {
+            //     $this->specifications[$specKey] = $specKey === $key ? $value : null;
+            // }
+            if ($value != null) {
+                # code...
+                $match = MerkStok::where('barang_id', $this->barang_id)
+                    ->where(function ($query) use ($key, $value) {
+                        foreach ($this->specifications as $specKey => $specValue) {
+                            if (!empty($specValue)) {
+                                $query->where($specKey === 'merek' ? 'nama' : $specKey, $specValue);
+                            }
+                        }
+                    })->first();
+            } else {
+                $match = false;
+            }
+            if ($match) {
+                // Set merk_id and autofill specifications
+                $this->merk_id = $match->id;
+                $this->specifications = [
+                    'merek' => $match->nama,
+                    'tipe' => $match->tipe,
+                    'ukuran' => $match->ukuran,
+                ];
+            } else {
+                // Reset merk_id if no match is found
+                $this->merk_id = null;
+
+                // Generate suggestions for the current key
+                $this->suggestions[$key] = MerkStok::where('barang_id', $this->barang_id)
+                    ->where($key === 'merek' ? 'nama' : $key, 'like', '%' . $value . '%')
+                    ->pluck($key === 'merek' ? 'nama' : $key)
+                    ->unique()
+                    ->values()
+                    ->all();
+            }
         }
     }
 
     public function selectSpecification($key, $value)
     {
+        // dump($value);
         $this->specifications[$key] = $value;
         $this->suggestions[$key] = [];
+
+        // Check for autofill after selection
+        $this->updateSpecification($key, $value);
     }
 
     // For new Barang Modal
@@ -169,9 +203,22 @@ class KontrakListForm extends Component
     public function selectBarang($barangId, $barangName)
     {
         $this->barang_id = $barangId;
+        $this->merk_id = null;
+        $this->specifications = [
+            'merek' => null,
+            'tipe' => null,
+            'ukuran' => null,
+        ];
         $this->barang_item = BarangStok::find($barangId);
         $this->newBarang = $barangName;
         $this->barangSuggestions = [];
+    }
+
+    public function blurSpecification($key)
+    {
+        // if ($this->specifications[$key]) {
+        $this->suggestions[$key] = [];
+        // }
     }
 
     public function blurBarang()
