@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Person;
 use Livewire\Component;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 class AddPerson extends Component
@@ -50,7 +51,7 @@ class AddPerson extends Component
                 'email' => $this->email,
                 'jabatan' => $this->jabatan,
                 'keterangan' => $this->keterangan,
-                'nama_nospace' => strtolower(str_replace(' ', '-', $this->person)),
+                'nama_nospace' => Str::slug($this->person),
             ]
         );
     }

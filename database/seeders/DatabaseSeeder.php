@@ -557,13 +557,13 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed for VendorStok
-        // for ($i = 1; $i <= 5; $i++) {
-        //     VendorStok::create([
-        //         'nama' => 'Vendor ' . $i,
-        //         'alamat' => $faker->address,
-        //         'kontak' => $faker->phoneNumber,
-        //     ]);
-        // }
+        for ($i = 1; $i <= 5; $i++) {
+            VendorStok::create([
+                'nama' => 'Vendor ' . $i,
+                'alamat' => $faker->address,
+                'kontak' => $faker->phoneNumber,
+            ]);
+        }
 
         // Seed for LokasiStok
         for ($i = 1; $i <= 5; $i++) {
@@ -646,7 +646,7 @@ class DatabaseSeeder extends Seeder
         // }
 
         // Seed for TransaksiStok
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             $vendorid = Toko::inRandomOrder()->take(1)->pluck('id')->first();
             TransaksiStok::create([
                 'kode_transaksi_stok' => $faker->unique()->numerify('TRX#####'),
