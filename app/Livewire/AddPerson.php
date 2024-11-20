@@ -54,6 +54,7 @@ class AddPerson extends Component
                 'nama_nospace' => Str::slug($this->person),
             ]
         );
+        return redirect()->route('person.index');
     }
     public function render()
     {

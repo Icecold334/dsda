@@ -312,7 +312,9 @@
     <div class="flex justify-end">
         @if ($tipe == 'user')
             @if ($id)
-                <button type="button" wire:click="removeProfil"
+                <button type="button"
+                    onclick="confirmRemove('Apakah Anda yakin ingin menghapus user ini?', () => @this.call('removeProfil'))"
+                    {{-- wire:click="removeProfil" --}}
                     class="text-danger-900 bg-danger-100 hover:bg-danger-600 px-5 py-2.5 me-2 mb-2 hover:text-white rounded-md border transition duration-200"
                     data-tooltip-target="tooltip-delete-{{ $id }}"><i
                         class="fa-solid fa-trash"></i></button>

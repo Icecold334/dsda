@@ -15,7 +15,7 @@
                     @if ($showSuggestions)
                         <ul
                             class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
-                            @if ($show && !$showAddVendorForm)
+                            @if ($show)
                                 <li wire:click="toggleAddVendorForm"
                                     class="px-4 py-2 hover:bg-blue-500 transition duration-200 hover:text-white cursor-pointer group">
                                     <span class="text-primary-500 group-hover:text-white"><i
@@ -91,6 +91,7 @@
                     @foreach ($barangs as $barang)
                         <option value="{{ $barang->id }}" @selected($barang->id == $barang_id)>{{ $barang->nama }}</option>
                     @endforeach
+
                 </select>
                 @error('barang_id')
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>

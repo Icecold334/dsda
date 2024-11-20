@@ -33,6 +33,7 @@ class AsetForm extends Component
     #[Validate]
     public $img;
     #[Validate]
+    public $merk_id;
     public $merk;
     public $tipe;
     public $produsen;
@@ -55,7 +56,48 @@ class AsetForm extends Component
     public $umur;
     public $lama_garansi;
     public $penyusutan;
+    public $showSuggestions;
+    public $suggestions;
 
+    public function focus()
+    {
+        $this->searchQuery();
+    }
+
+    public function searchQuery()
+    {
+        // dd('aa');
+        $this->showSuggestions = true;
+
+        // Ambil data dari database berdasarkan query
+        $this->suggestions = Merk::where('nama', 'like', '%' . $this->merk . '%')
+            // ->limit(5)
+            ->get()
+            ->toArray();
+        $this->nama = $this->merk;
+
+        $exactMatch = Merk::where('nama', $this->merk)->first();
+
+        if ($exactMatch) {
+            // Jika ada kecocokan, isi vendor_id dan kosongkan suggestions
+            $this->selectSuggestion($exactMatch->id, $exactMatch->nama);
+        }
+    }
+
+    public function selectSuggestion($merkId, $merkName)
+    {
+        // Ketika saran dipilih, isi input dengan nilai tersebut
+        $this->merk_id = $merkId;
+        $this->merk = $merkName;
+        $this->suggestions = [];
+        $this->hideSuggestions();
+    }
+
+    public function hideSuggestions()
+    {
+        // $this->suggestions = [];
+        $this->showSuggestions = false;
+    }
 
 
     public function rules()
@@ -321,7 +363,7 @@ class AsetForm extends Component
      */
     private function getOrCreateMerk($name)
     {
-        $merk = Merk::firstOrCreate(['nama' => $name], ['user_id' => Auth::id()]);
+        $merk = Merk::firstOrCreate(['nama' => $name]);
         return $merk->id;
     }
 
@@ -333,7 +375,7 @@ class AsetForm extends Component
      */
     private function getOrCreateToko($name)
     {
-        $toko = Toko::firstOrCreate(['nama' => $name], ['user_id' => Auth::id()]);
+        $toko = Toko::firstOrCreate(['nama' => $name]);
         return $toko->id;
     }
 

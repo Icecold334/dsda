@@ -38,7 +38,7 @@ class AddToko extends Component
     {
 
         Toko::destroy($this->id);
-        return redirect()->route('Toko.index');
+        return redirect()->route('toko.index');
     }
     public function saveToko()
     {

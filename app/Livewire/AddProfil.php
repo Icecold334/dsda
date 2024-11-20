@@ -36,7 +36,6 @@ class AddProfil extends Component
         if ($this->tipe == 'user') {
             $this->users = User::all();
             $this->roles = Role::where('id', '>', '1')->get();
-            // dd($this->roles);
             if ($this->id) {
                 $user = User::find($this->id);
                 $this->user_id = $user->user_id;
@@ -44,7 +43,8 @@ class AddProfil extends Component
                 $this->keterangan = $user->keterangan;
                 $this->username = $user->username;
                 $this->email = $user->email;
-                // $this->password = $user->password;
+                // Ambil roles yang sudah dimiliki user
+                $this->selectedRoles = $user->roles->pluck('name')->toArray();
                 // $this->role = $user->hak;
             }
         } elseif ($this->tipe == 'phone') {
@@ -92,9 +92,9 @@ class AddProfil extends Component
     {
         if ($this->tipe == 'user') {
             // dd($this->selectedRoles);
-            $rules = $this->id 
-            ? ['nullable', 'min:8']
-            : ['required', 'min:8', 'confirmed'];
+            $rules = $this->id
+                ? ['nullable', 'min:8']
+                : ['required', 'min:8', 'confirmed'];
             $this->validate([
                 'password' => $rules,
             ]);
@@ -142,7 +142,7 @@ class AddProfil extends Component
             $old_password   = $user->password;
 
             // Check if the old password matches the current password
-            if (!Hash::check( $this->old_password,$old_password)) {
+            if (!Hash::check($this->old_password, $old_password)) {
                 $this->addError('old_password', 'Password lama tidak sesuai.');
                 return;
             }
