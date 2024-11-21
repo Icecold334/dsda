@@ -38,7 +38,7 @@
         @if ($kontrak)
             {{-- @role('penanggungjawab') --}}
 
-            <div class="">
+            {{-- <div class="">
                 <div class="block font-semibold text-center mb-2 text-gray-900">Penanggung Jawab</div>
                 <table class="w-full mt-3">
                     @foreach ($pjList as $pj)
@@ -60,8 +60,8 @@
                         </tr>
                     @endforeach
                 </table>
-            </div>
-            @if (!$kontrak->type)
+            </div> --}}
+            {{-- @if (!$kontrak->type)
                 <div class="">
                     <div class="block font-semibold text-center mb-2 text-gray-900">
                         Pejabat Pembuat Komitmen</div>
@@ -110,11 +110,11 @@
                         @endforeach
                     </table>
                 </div>
-            @endif
+            @endif --}}
             {{-- @endrole --}}
         @endif
     </div>
-    @hasanyrole($roles)
+    {{-- @hasanyrole($roles)
         @if ($showButton)
             <div class="flex">
                 <div class="flex space-x-2 justify-center w-full">
@@ -129,14 +129,6 @@
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                             @enderror
                         </div>
-                        {{-- <input type="file" wire:model="approvalFiles" id="approvalFiles" multiple class="hidden">
-                        <button type="button" onclick="document.getElementById('approvalFiles').click()"
-                            class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
-                            Unggah File Persetujuan
-                        </button>
-                        @error('approvalFiles.*')
-                            <span class="text-red-500 text-xs">{{ $message }}</span>
-                        @enderror --}}
                     @endif
                     <button type="button"
                         onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
@@ -151,8 +143,8 @@
 
             </div>
         @endif
-    @endhasanyrole
-    @if (count($files))
+    @endhasanyrole --}}
+    {{-- @if (count($files))
         <div class="flex justify-center">
             <div class="mt-4 gap-4 w-3/5">
                 @if ($files)
@@ -203,8 +195,8 @@
 
             </div>
         </div>
-    @endif
-    @if ($approvalFiles)
+    @endif --}}
+    {{-- @if ($approvalFiles)
         <div class="flex justify-center">
             <div class="gap-4 w-3/5">
                 @foreach ($approvalFiles as $index => $attachment)
@@ -255,7 +247,7 @@
             </div>
         </div>
     @endif
-
+ --}}
 
 
 
@@ -264,7 +256,7 @@
 
 </div>
 
-@push('scripts')
+{{-- @push('scripts')
     <script>
         let fileCount = 0;
 
@@ -328,4 +320,4 @@
             fileCount = event.detail.count; // Get the count from the event detail
         });
     </script>
-@endpush
+@endpush --}}

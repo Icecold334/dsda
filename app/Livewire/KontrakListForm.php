@@ -8,133 +8,318 @@ use App\Models\MerkStok;
 use App\Models\BarangStok;
 use App\Models\SatuanBesar;
 use App\Models\SatuanKecil;
-use Faker\Factory as Faker;
-use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Models\TransaksiStok;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\Auth;
+use Faker\Factory as Faker;
 
 class KontrakListForm extends Component
 {
-    public $list = [];
+    public $list = []; // List untuk menampung data kontrak
     public $barangs;
-    public $tanggal_kontrak;
-    public $nomor_kontrak;
-    public $barang_item;
     public $barang_id;
-    public $merks;
-    public $merk_item;
+    public $barang_item;
     public $merk_id;
     public $jumlah;
-    public $jenis_id;
-    public $metode_id;
-    public $vendor_id;
-    public $dokumenCount;
-    public $barangSuggestions = [];
-    public $newMerk, $newTipe, $newUkuran, $merkSuggestions = [];
     public $newBarang = '';
-    public $penulis;
-    public $pj1;
-    public $pj2;
-
+    public $barangSuggestions = [];
+    public $showAddBarang = false;
     public $specifications = [
         'merek' => '',
         'tipe' => '',
         'ukuran' => '',
     ];
-
     public $suggestions = [
         'merek' => [],
         'tipe' => [],
         'ukuran' => [],
+        'satuanBesar' => [],
+        'satuanKecil' => [],
     ];
-    public function updateSpecification($key, $value)
+
+    public function fetchSuggestions($field, $value)
     {
-
-        if ($this->barang_id) {
-            $this->specifications[$key] = $value;
-
-            // Fetch suggestions for the current input across all fields
-            $this->suggestions = MerkStok::where('barang_id', $this->barang_id)
-                ->when($key !== 'merek', fn($query) => $query->where('nama', 'like', '%' . $this->specifications['merek'] . '%'))
-                ->when($key !== 'tipe', fn($query) => $query->where('tipe', 'like', '%' . $this->specifications['tipe'] . '%'))
-                ->when($key !== 'ukuran', fn($query) => $query->where('ukuran', 'like', '%' . $this->specifications['ukuran'] . '%'))
-                ->get()
-                ->toArray();
-
-            // Query for matching records in the merk_stok table
-            $matchingMerk = MerkStok::where('barang_id', $this->barang_id)
-                ->when($key !== 'merek', fn($query) => $query->where('nama', $this->specifications['merek']))
-                ->when($key !== 'tipe', fn($query) => $query->where('tipe', $this->specifications['tipe']))
-                ->when($key !== 'ukuran', fn($query) => $query->where('ukuran', $this->specifications['ukuran']))
-                ->first();
-
-            if ($matchingMerk) {
-                // Only set fields if they are empty, avoid overwriting user-modified fields
-                $this->specifications['merek'] = $this->specifications['merek'] ?? $matchingMerk->nama;
-                $this->specifications['tipe'] = $this->specifications['tipe'] ?? $matchingMerk->tipe;
-                $this->specifications['ukuran'] = $this->specifications['ukuran'] ?? $matchingMerk->ukuran;
-
-                // Set merk_id if all specifications match the row
-                if (
-                    $this->specifications['merek'] === $matchingMerk->nama &&
-                    $this->specifications['tipe'] === $matchingMerk->tipe &&
-                    $this->specifications['ukuran'] === $matchingMerk->ukuran
-                ) {
-                    $this->merk_id = $matchingMerk->id;
-                } else {
-                    $this->merk_id = null; // Clear merk_id if not all fields match
-                }
-            } else {
-                $this->merk_id = null; // Clear merk_id if no match
+        $this->suggestions[$field] = [];
+        if ($value) {
+            if ($field === 'satuanBesar') {
+                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $value . '%')
+                    ->pluck('nama')->toArray();
+            } elseif ($field === 'satuanKecil') {
+                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $value . '%')
+                    ->pluck('nama')->toArray();
             }
         }
     }
 
-    public function selectSpecification($merek, $tipe, $ukuran)
-    {
-        // Update the fields based on the selected suggestion
-        $this->specifications['merek'] = $merek ?? $this->specifications['merek'];
-        $this->specifications['tipe'] = $tipe ?? $this->specifications['tipe'];
-        $this->specifications['ukuran'] = $ukuran ?? $this->specifications['ukuran'];
+    public $tanggal_kontrak;
+    public $nomor_kontrak;
+    public $jenis_id;
+    public $metode_id;
+    public $vendor_id;
+    public $dokumenCount;
+    public $penulis;
 
-        // Find the matching row to set the merk_id
-        $matchingMerk = MerkStok::where('barang_id', $this->barang_id)
-            ->where('nama', $merek)
-            ->where('tipe', $tipe)
-            ->where('ukuran', $ukuran)
-            ->first();
-
-        // Set merk_id if an exact match is found
-        $this->merk_id = $matchingMerk ? $matchingMerk->id : null;
-
-        // Clear suggestions after selection
-        $this->suggestions = [];
-    }
-
-    // For new Barang Modal
-    public $showBarangModal = false;
+    public $showBarangModal;
     public $newBarangName = '';
     public $newBarangSatuanBesar = '';
     public $newBarangSatuanKecil = '';
     public $satuanBesarOptions;
     public $satuanKecilOptions;
+    public $jumlahKecilDalamBesar;
 
     public function mount()
-    {
 
+
+    {
         $this->barang_id = null;
         $this->newBarang = null;
-        $this->merk_id = null;
-        $this->newMerk = null;
         $this->penulis = Auth::user()->name;
         $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
-        $this->barangs = BarangStok::where('jenis_id', $this->jenis_id)->get()->sortBy('jenis_id');
+        $this->barangs = BarangStok::all();
         $this->satuanBesarOptions = SatuanBesar::all();
-        $this->satuanKecilOptions = SatuanKecil::all();
+        $this->satuanKecilOptions = SatuanBesar::all();
     }
 
+    // Update barang suggestions saat mengetik
+    public function updatedNewBarang()
+    {
+        $this->barang_id = null;
+        $this->newBarangName = $this->newBarang;
+        $this->barangSuggestions = BarangStok::where('nama', 'like', '%' . $this->newBarang . '%')->where('jenis_id', $this->jenis_id)
+            ->limit(10)
+            ->get()
+            ->toArray();
+        $exactMatch = BarangStok::where('nama', $this->newBarang)->where('jenis_id', $this->jenis_id)->first();
+
+        if ($exactMatch) {
+            // Jika ada kecocokan, isi vendor_id dan kosongkan suggestions
+            $this->selectBarang($exactMatch->id, $exactMatch->nama);
+        }
+    }
+    public function blurBarang()
+    {
+
+        $this->barangSuggestions = [];
+    }
+    public function blurSpecification($key)
+    {
+        $this->suggestions[$key] = [];
+    }
+
+    // Pilih barang dari suggestions
+    public function selectBarang($barangId, $barangName)
+    {
+        $this->barang_id = $barangId;
+        $this->newBarang = $barangName;
+        $this->barangSuggestions = [];
+        $this->resetSpecifications();
+    }
+
+    // Update spesifikasi (merek, tipe, ukuran)
+    public function updateSpecification($key, $value)
+    {
+        if ($this->barang_id) {
+            $this->specifications[$key] = $value;
+            $this->merk_id = null;
+            // Ambil suggestions untuk spesifikasi yang dimasukkan
+            $this->suggestions[$key] = MerkStok::where('barang_id', $this->barang_id)
+                ->where($key === 'merek' ? 'nama' : $key, 'like', '%' . $value . '%')
+                ->pluck($key === 'merek' ? 'nama' : $key)
+                ->unique()
+                ->toArray();
+        }
+    }
+
+    public function selectSuggestion($field, $value)
+    {
+        if ($field === 'satuanBesar') {
+            $this->newBarangSatuanBesar = $value;
+        } elseif ($field === 'satuanKecil') {
+            $this->newBarangSatuanKecil = $value;
+        }
+        $this->suggestions[$field] = [];
+    }
+
+
+
+    // Pilih spesifikasi berdasarkan saran
+    public function selectSpecification($key, $value)
+    {
+        // Hanya update spesifikasi tertentu, tanpa menimpa yang lain
+        $this->specifications[$key] = $value;
+        $this->suggestions = [
+            'merek' => [],
+            'tipe' => [],
+            'ukuran' => [],
+            'satuanBesar' => [],
+            'satuanKecil' => [],
+        ];
+    }
+
+    // Reset spesifikasi
+    private function resetSpecifications()
+    {
+        $this->specifications = [
+            'merek' => '',
+            'tipe' => '',
+            'ukuran' => '',
+        ];
+        $this->merk_id = null;
+        $this->suggestions = [
+            'merek' => [],
+            'tipe' => [],
+            'ukuran' => [],
+            'satuanBesar' => [],
+            'satuanKecil' => [],
+        ];
+    }
+
+    // Cek atau buat merk_id
+    private function checkOrCreateMerkId()
+    {
+        $existingMerk = MerkStok::where('barang_id', $this->barang_id)
+            ->where('nama', $this->specifications['merek'])
+            ->where('tipe', $this->specifications['tipe'])
+            ->where('ukuran', $this->specifications['ukuran'])
+            ->first();
+
+        if ($existingMerk) {
+            $this->merk_id = $existingMerk->id;
+        } else {
+            $newMerk = MerkStok::create([
+                'barang_id' => $this->barang_id,
+                'nama' => $this->specifications['merek'] ?? null,
+                'tipe' => $this->specifications['tipe'] ?? null,
+                'ukuran' => $this->specifications['ukuran'] ?? null,
+            ]);
+            $this->merk_id = $newMerk->id;
+        }
+    }
+
+    // Tambahkan ke list kontrak
+    public function addToList()
+    {
+        $this->validate([
+            'barang_id' => 'required',
+            // 'merk_id' => 'required',
+            'jumlah' => 'required|integer|min:1',
+        ]);
+
+        $this->list[] = [
+            'barang_id' => $this->barang_id,
+            'barang' => BarangStok::find($this->barang_id)->nama,
+            // 'merk_id' => $this->merk_id,
+            'specifications' => $this->specifications,
+            'jumlah' => $this->jumlah,
+            'satuan' => BarangStok::find($this->barang_id)->satuanBesar->nama,
+        ];
+
+        // $this->reset(['barang_id', 'merk_id', 'jumlah', 'newBarang']);
+        $this->reset(['barang_id',  'jumlah', 'newBarang']);
+        $this->resetSpecifications();
+    }
+
+    // Hapus item dari list
+    public function removeFromList($index)
+    {
+        unset($this->list[$index]);
+        $this->list = array_values($this->list);
+    }
+
+    public function saveNewBarang()
+    {
+        $this->validate([
+            'newBarangName' => 'required|string|max:255',
+            'newBarangSatuanBesar' => 'required|string',
+            'newBarangSatuanKecil' => 'nullable|string',
+            // 'jumlahKecilDalamBesar' => 'required_with:newBarangSatuanKecil|integer|min:1',
+        ]);
+
+        // Handle satuan besar
+        $satuanBesar = SatuanBesar::updateOrCreate(
+            ['nama' => $this->newBarangSatuanBesar],
+            ['nama' => $this->newBarangSatuanBesar]
+        );
+
+        // Handle satuan kecil
+        $satuanKecil = null;
+        if ($this->newBarangSatuanKecil) {
+            $satuanKecil = SatuanBesar::updateOrCreate(
+                ['nama' => $this->newBarangSatuanKecil],
+                ['nama' => $this->newBarangSatuanKecil]
+            );
+        }
+        $faker = Faker::create();
+        // Simpan barang
+        $barang = BarangStok::create([
+            'nama' => $this->newBarangName,
+            'jenis_id' => $this->jenis_id,
+            'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
+            'satuan_besar_id' => $satuanBesar->id,
+            'satuan_kecil_id' => $satuanKecil ? $satuanKecil->id ?? null : null,
+            'konversi' => $satuanKecil ? $this->jumlahKecilDalamBesar ?? null : null,
+        ]);
+
+        // Reset input fields
+        $this->reset(['newBarangName', 'newBarangSatuanBesar', 'newBarangSatuanKecil', 'jumlahKecilDalamBesar']);
+        $this->closeBarangModal();
+        $this->selectBarang($barang->id, $barang->nama); // Select newly created barang
+        // session()->flash('message', 'Barang berhasil ditambahkan!');
+    }
+
+
+    public function saveKontrak()
+    {
+        $this->validate([
+            'vendor_id' => 'required',
+            'list' => 'required|array|min:1',
+            'list.*.barang_id' => 'required|integer',
+            'list.*.jumlah' => 'required|integer|min:1',
+        ]);
+
+        $kontrak = KontrakVendorStok::create([
+            'vendor_id' => $this->vendor_id,
+            'tanggal_kontrak' => strtotime($this->tanggal_kontrak),
+            'metode_id' => $this->metode_id,
+            'user_id' => Auth::user()->id,
+            'nomor_kontrak' => $this->nomor_kontrak,
+            'type' => 1,
+            'status' => 1,
+        ]);
+
+        foreach ($this->list as $item) {
+            $merk = MerkStok::updateOrCreate(
+                [
+                    'barang_id' => $item['barang_id'],
+                    'nama' => empty($item['specifications']['merek']) ? null : $item['specifications']['merek'],
+                    'tipe' => empty($item['specifications']['tipe']) ? null : $item['specifications']['tipe'],
+                    'ukuran' => empty($item['specifications']['ukuran']) ? null : $item['specifications']['ukuran'],
+                ],
+                [] // Tidak ada kolom tambahan untuk diperbarui
+            );
+            TransaksiStok::create([
+                'merk_id' => $merk->id,
+                'vendor_id' => $this->vendor_id,
+                'user_id' => Auth::user()->id,
+                'jumlah' => $item['jumlah'],
+                'kontrak_id' => $kontrak->id,
+                'tanggal' => strtotime(now()),
+                'tipe' => 'Pemasukan',
+            ]);
+        }
+        return $this->dispatch('saveDokumen', kontrak_id: $kontrak->id);
+    }
+    public function closeBarangModal()
+    {
+        $this->reset(['newBarangName', 'newBarangSatuanBesar', 'newBarangSatuanKecil']);
+        $this->showBarangModal = false;
+    }
+
+    public function openBarangModal()
+    {
+        $this->showBarangModal = true;
+    }
     #[On('nomor_kontrak')]
     public function fillNomor($nomor)
     {
@@ -170,212 +355,6 @@ class KontrakListForm extends Component
     {
         $this->dokumenCount = $count;
     }
-
-    public function openBarangModal()
-    {
-        $this->showBarangModal = true;
-    }
-
-    public function closeBarangModal()
-    {
-        $this->reset(['newBarangName', 'newBarangSatuanBesar', 'newBarangSatuanKecil']);
-        $this->showBarangModal = false;
-    }
-
-    public function saveNewBarang()
-    {
-        $this->validate([
-            'newBarangName' => 'required|string|max:255',
-            'newBarangSatuanBesar' => 'required',
-            'newBarangSatuanKecil' => 'required',
-        ]);
-        $faker = Faker::create();
-
-        $barang = BarangStok::create([
-            'nama' => $this->newBarangName,
-            'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
-            'jenis_id' => $this->jenis_id,
-            'satuan_besar_id' => $this->newBarangSatuanBesar,
-            'satuan_kecil_id' => $this->newBarangSatuanKecil,
-        ]);
-
-        $this->selectBarang($barang->id, $barang->nama); // Select newly created barang
-        $this->closeBarangModal();
-    }
-
-    public function updatedNewBarang()
-    {
-        $this->barangSuggestions = BarangStok::where('jenis_id', $this->jenis_id)
-            ->where('nama', 'like', '%' . $this->newBarang . '%')
-            ->get();
-        $this->newBarangName = $this->newBarang;
-    }
-
-    public function selectBarang($barangId, $barangName)
-    {
-        $this->barang_id = $barangId;
-        $this->merk_id = null;
-        $this->specifications = [
-            'merek' => null,
-            'tipe' => null,
-            'ukuran' => null,
-        ];
-        $this->barang_item = BarangStok::find($barangId);
-        $this->newBarang = $barangName;
-        $this->barangSuggestions = [];
-    }
-
-    public function blurSpecification($key)
-    {
-        // if ($this->specifications[$key]) {
-        $this->suggestions[$key] = [];
-        // }
-    }
-
-    public function blurBarang()
-    {
-        $barang = BarangStok::where('jenis_id', $this->jenis_id)->where('nama', $this->newBarang)->get();
-        if ($barang->count() == 0) {
-            $this->barang_id = null;
-        } else {
-            $this->barang_id = $barang->first()->id;
-            $this->barang_item = $barang->first();
-            $this->jumlah = 1;
-        }
-        $this->barangSuggestions = [];
-    }
-
-    public function blurMerk()
-    {
-        $merk = MerkStok::where('barang_id', $this->barang_id)->where('nama', $this->newMerk)->get();
-        if ($merk->count() == 0) {
-            $this->merk_id = null;
-        } else {
-            $this->merk_id = $merk->first()->id;
-        }
-        $this->merkSuggestions = [];
-    }
-
-    public function blurTipe()
-    {
-        if ($this->newTipe) {
-            $this->dispatch('fieldBlurred', field: 'tipe', value: $this->newTipe);
-        }
-    }
-
-    public function blurUkuran()
-    {
-        if ($this->newUkuran) {
-            $this->dispatch('fieldBlurred', field: 'ukuran', value: $this->newUkuran);
-        }
-    }
-
-    public function selectMerk($merkId, $merkName)
-    {
-        $this->merk_id = $merkId;
-        $this->jumlah = 1;
-        $this->newMerk = $merkName;
-        $this->merkSuggestions = [];
-    }
-
-    public function updatedNewMerk()
-    {
-        if ($this->barang_id) {
-            $this->merkSuggestions = MerkStok::where('barang_id', $this->barang_id)
-                ->where('nama', 'like', '%' . $this->newMerk . '%')
-                ->get();
-        }
-    }
-
-    public function createNewMerk()
-    {
-        // Validate that at least one of the fields is filled
-        $this->validate([
-            'specifications.merek' => 'nullable|string|max:255|required_without_all:specifications.tipe,specifications.ukuran',
-            'specifications.tipe' => 'nullable|string|max:255|required_without_all:specifications.merek,specifications.ukuran',
-            'specifications.ukuran' => 'nullable|string|max:255|required_without_all:specifications.merek,specifications.tipe',
-        ]);
-
-        // Create the new merk record
-        $merk = MerkStok::create([
-            'barang_id' => $this->barang_id,
-            'nama' => $this->specifications['merek'],
-            'tipe' => $this->specifications['tipe'],
-            'ukuran' => $this->specifications['ukuran'],
-        ]);
-
-        // Select the newly created merk
-        $this->selectMerk($merk->id, $merk->nama);
-    }
-
-
-    public function addToList()
-    {
-        $this->validate([
-            'barang_id' => 'required',
-            'merk_id' => 'required',
-            'jumlah' => 'required|integer|min:1'
-        ]);
-
-        $this->list[] = [
-            'barang_id' => $this->barang_id,
-            'merk_id' => $this->merk_id,
-            'merks' => MerkStok::where('barang_id', $this->barang_id)->get(),
-            'jumlah' => $this->jumlah,
-        ];
-        $this->reset(['barang_id', 'merk_id', 'jumlah', 'newBarang', 'newMerk']);
-        $this->dispatch('listCount', count: count($this->list));
-    }
-
-    public function removeFromList($index)
-    {
-        unset($this->list[$index]);
-        $this->list = array_values($this->list);
-        $this->dispatch('listCount', count: count($this->list));
-    }
-
-    public function saveKontrak()
-    {
-        $this->validate([
-            'vendor_id' => 'required',
-            'list' => 'required|array|min:1',
-            'list.*.barang_id' => 'required|integer',
-            'list.*.merk_id' => 'required|integer',
-            'list.*.jumlah' => 'required|integer|min:1',
-        ]);
-
-        $kontrak = KontrakVendorStok::create([
-            'vendor_id' => $this->vendor_id,
-            'tanggal_kontrak' => strtotime($this->tanggal_kontrak),
-            'metode_id' => $this->metode_id,
-            'penulis' => $this->penulis,
-            'pj1' => $this->pj1,
-            'pj2' => $this->pj2,
-            'nomor_kontrak' => $this->nomor_kontrak ?? $this->generateContractNumber(),
-            'user_id' => Auth::id(),
-            'type' => true
-        ]);
-
-        foreach ($this->list as $item) {
-            TransaksiStok::create([
-                'merk_id' => $item['merk_id'],
-                'vendor_id' => $this->vendor_id,
-                'user_id' => Auth::id(),
-                'kontrak_id' => $kontrak->id,
-                'tanggal' => strtotime(now()),
-                'jumlah' => $item['jumlah'],
-                'tipe' => 'Pemasukan'
-            ]);
-        }
-
-        return $this->dispatch('saveDokumen', kontrak_id: $kontrak->id);
-    }
-
-    protected function generateContractNumber()
-    {
-        return 'CN-' . strtoupper(Str::random(6));
-    }
-
     public function render()
     {
         return view('livewire.kontrak-list-form');

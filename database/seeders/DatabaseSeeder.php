@@ -519,22 +519,22 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed Satuan Kecil with Indonesian names
-        $satuanKecilData = [
-            ['nama' => 'Lembar'],     // Sheet
-            ['nama' => 'Unit'],       // Unit
-            ['nama' => 'Gram'],       // Gram
-            ['nama' => 'Kilogram'],   // Kilogram
-            ['nama' => 'Liter'],      // Liter
-            ['nama' => 'Mililiter'],  // Milliliter
-            ['nama' => 'Pcs'],        // Pieces
-            ['nama' => 'Set'],        // Set
-            ['nama' => 'Botol'],      // Bottle
-            ['nama' => 'Kemasan'],    // Packaging
-        ];
+        // $satuanKecilData = [
+        //     ['nama' => 'Lembar'],     // Sheet
+        //     ['nama' => 'Unit'],       // Unit
+        //     ['nama' => 'Gram'],       // Gram
+        //     ['nama' => 'Kilogram'],   // Kilogram
+        //     ['nama' => 'Liter'],      // Liter
+        //     ['nama' => 'Mililiter'],  // Milliliter
+        //     ['nama' => 'Pcs'],        // Pieces
+        //     ['nama' => 'Set'],        // Set
+        //     ['nama' => 'Botol'],      // Bottle
+        //     ['nama' => 'Kemasan'],    // Packaging
+        // ];
 
-        foreach ($satuanKecilData as $data) {
-            SatuanKecil::create($data);
-        }
+        // foreach ($satuanKecilData as $data) {
+        //     SatuanKecil::create($data);
+        // }
 
         // Seed for BarangStok
         for ($i = 1; $i <= 5; $i++) {
@@ -543,7 +543,8 @@ class DatabaseSeeder extends Seeder
                 'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
                 'nama' => 'Barang ' . $i,
                 'satuan_besar_id' => SatuanBesar::inRandomOrder()->first()->id,
-                'satuan_kecil_id' => SatuanKecil::inRandomOrder()->first()->id,
+                'konversi' => $faker->randomElement([5, 10, 15, 20, 25, 30, 35, 40, 45, 50]),
+                'satuan_kecil_id' => SatuanBesar::inRandomOrder()->first()->id,
                 'deskripsi' => 'Deskripsi untuk Barang ' . $i,
             ]);
         }

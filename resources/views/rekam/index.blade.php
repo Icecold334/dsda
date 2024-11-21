@@ -18,9 +18,8 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KATEGORI BARANG</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL KONTRAK</th>
                 <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">DETAIL TRANSAKSI</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS PENGADAAN</th>
-                {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">METODE PENGADAAN</th> --}}
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">METODE PENGADAAN</th>
+                {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th> --}}
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
@@ -72,7 +71,8 @@
 
                         <td class="py-3 px-6">
                             <p class="font-semibold text-gray-800 text-center">
-                                {{ $transactions->first()[0]->kontrakStok->type ? 'Pengadaan' : 'Penggunaan Langsung' }}
+                                {{-- {{ $transactions->first()[0]->kontrakStok->type ? 'Pengadaan' : 'Penggunaan Langsung' }} --}}
+                                {{ $transactions->first()[0]->kontrakStok->metodePengadaan->nama }}
                             </p>
                         </td>
                         {{-- <td class="py-3 px-6">
@@ -81,12 +81,12 @@
 
                             </p>
                         </td> --}}
-                        <td class="py-3 px-6">
+                        {{-- <td class="py-3 px-6">
                             <p class="font-semibold text-gray-800 text-center">
                                 <span
                                     class="bg-{{ $transactions->first()[0]->kontrakStok->status === null ? 'warning' : ($transactions->first()[0]->kontrakStok->status ? 'success' : 'danger') }}-600 text-{{ $transactions->first()[0]->kontrakStok->status === null ? 'warning' : ($transactions->first()[0]->kontrakStok->status ? 'success' : 'danger') }}-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">{{ $transactions->first()[0]->kontrakStok->status === null ? 'diproses' : ($transactions->first()[0]->kontrakStok->status ? 'disetujui' : 'ditolak') }}</span>
                             </p>
-                        </td>
+                        </td> --}}
 
                         <td class="py-3 px-6 text-center">
                             <a href="{{ route('kontrak-vendor-stok.show', ['kontrak_vendor_stok' => $kontrakId]) }}"

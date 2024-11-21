@@ -20,24 +20,25 @@ return new class extends Migration
             $table->timestamps();
             $table->id();
             $table->string('kode_barang');
+            $table->integer('konversi')->nullable();
             $table->foreignId('jenis_id')->constrained('jenis_stok');
-            $table->foreignId('satuan_besar_id')->constrained('satuan_besar'); // Foreign key to satuan_besar
-            $table->foreignId('satuan_kecil_id')->constrained('satuan_kecil'); // Foreign key to satuan_kecil
+            $table->foreignId('satuan_besar_id')->constrained('satuan'); // Foreign key to satuan
+            $table->foreignId('satuan_kecil_id')->nullable()->constrained('satuan'); // Foreign key to satuan_kecil
             $table->string('nama');
             $table->text('deskripsi')->nullable();
         });
 
-        Schema::create('satuan_besar', function (Blueprint $table) {
+        Schema::create('satuan', function (Blueprint $table) {
             $table->id();
             $table->string('nama'); // e.g., "Box"
             $table->timestamps();
         });
 
-        Schema::create('satuan_kecil', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama'); // e.g., "Rim"
-            $table->timestamps();
-        });
+        // Schema::create('satuan_kecil', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('nama'); // e.g., "Rim"
+        //     $table->timestamps();
+        // });
 
 
         Schema::create('merk_stok', function (Blueprint $table) {
