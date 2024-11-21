@@ -51,56 +51,66 @@ class KontrakListForm extends Component
     ];
     public function updateSpecification($key, $value)
     {
+
         if ($this->barang_id) {
-            $this->merk_id = null;
+            $this->specifications[$key] = $value;
 
-            // foreach ($this->specifications as $specKey => $specValue) {
-            //     $this->specifications[$specKey] = $specKey === $key ? $value : null;
-            // }
-            if ($value != null) {
-                # code...
-                $match = MerkStok::where('barang_id', $this->barang_id)
-                    ->where(function ($query) use ($key, $value) {
-                        foreach ($this->specifications as $specKey => $specValue) {
-                            if (!empty($specValue)) {
-                                $query->where($specKey === 'merek' ? 'nama' : $specKey, $specValue);
-                            }
-                        }
-                    })->first();
-            } else {
-                $match = false;
-            }
-            if ($match) {
-                // Set merk_id and autofill specifications
-                $this->merk_id = $match->id;
-                $this->specifications = [
-                    'merek' => $match->nama,
-                    'tipe' => $match->tipe,
-                    'ukuran' => $match->ukuran,
-                ];
-            } else {
-                // Reset merk_id if no match is found
-                $this->merk_id = null;
+            // Fetch suggestions for the current input across all fields
+            $this->suggestions = MerkStok::where('barang_id', $this->barang_id)
+                ->when($key !== 'merek', fn($query) => $query->where('nama', 'like', '%' . $this->specifications['merek'] . '%'))
+                ->when($key !== 'tipe', fn($query) => $query->where('tipe', 'like', '%' . $this->specifications['tipe'] . '%'))
+                ->when($key !== 'ukuran', fn($query) => $query->where('ukuran', 'like', '%' . $this->specifications['ukuran'] . '%'))
+                ->get()
+                ->toArray();
 
-                // Generate suggestions for the current key
-                $this->suggestions[$key] = MerkStok::where('barang_id', $this->barang_id)
-                    ->where($key === 'merek' ? 'nama' : $key, 'like', '%' . $value . '%')
-                    ->pluck($key === 'merek' ? 'nama' : $key)
-                    ->unique()
-                    ->values()
-                    ->all();
+            // Query for matching records in the merk_stok table
+            $matchingMerk = MerkStok::where('barang_id', $this->barang_id)
+                ->when($key !== 'merek', fn($query) => $query->where('nama', $this->specifications['merek']))
+                ->when($key !== 'tipe', fn($query) => $query->where('tipe', $this->specifications['tipe']))
+                ->when($key !== 'ukuran', fn($query) => $query->where('ukuran', $this->specifications['ukuran']))
+                ->first();
+
+            if ($matchingMerk) {
+                // Only set fields if they are empty, avoid overwriting user-modified fields
+                $this->specifications['merek'] = $this->specifications['merek'] ?? $matchingMerk->nama;
+                $this->specifications['tipe'] = $this->specifications['tipe'] ?? $matchingMerk->tipe;
+                $this->specifications['ukuran'] = $this->specifications['ukuran'] ?? $matchingMerk->ukuran;
+
+                // Set merk_id if all specifications match the row
+                if (
+                    $this->specifications['merek'] === $matchingMerk->nama &&
+                    $this->specifications['tipe'] === $matchingMerk->tipe &&
+                    $this->specifications['ukuran'] === $matchingMerk->ukuran
+                ) {
+                    $this->merk_id = $matchingMerk->id;
+                } else {
+                    $this->merk_id = null; // Clear merk_id if not all fields match
+                }
+            } else {
+                $this->merk_id = null; // Clear merk_id if no match
             }
         }
     }
 
-    public function selectSpecification($key, $value)
+    public function selectSpecification($merek, $tipe, $ukuran)
     {
-        // dump($value);
-        $this->specifications[$key] = $value;
-        $this->suggestions[$key] = [];
+        // Update the fields based on the selected suggestion
+        $this->specifications['merek'] = $merek ?? $this->specifications['merek'];
+        $this->specifications['tipe'] = $tipe ?? $this->specifications['tipe'];
+        $this->specifications['ukuran'] = $ukuran ?? $this->specifications['ukuran'];
 
-        // Check for autofill after selection
-        $this->updateSpecification($key, $value);
+        // Find the matching row to set the merk_id
+        $matchingMerk = MerkStok::where('barang_id', $this->barang_id)
+            ->where('nama', $merek)
+            ->where('tipe', $tipe)
+            ->where('ukuran', $ukuran)
+            ->first();
+
+        // Set merk_id if an exact match is found
+        $this->merk_id = $matchingMerk ? $matchingMerk->id : null;
+
+        // Clear suggestions after selection
+        $this->suggestions = [];
     }
 
     // For new Barang Modal
@@ -113,6 +123,7 @@ class KontrakListForm extends Component
 
     public function mount()
     {
+
         $this->barang_id = null;
         $this->newBarang = null;
         $this->merk_id = null;
