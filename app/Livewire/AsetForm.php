@@ -42,6 +42,7 @@ class AsetForm extends Component
     public $deskripsi;
     #[Validate]
     public $tanggalPembelian;
+    public $toko_id;
     public $toko;
     public $invoice;
     public $jumlah;
@@ -56,47 +57,87 @@ class AsetForm extends Component
     public $umur;
     public $lama_garansi;
     public $penyusutan;
-    public $showSuggestions;
-    public $suggestions;
+    public $showSuggestionsMerk;
+    public $suggestionsMerk;
+    public $showSuggestionsToko;
+    public $suggestionsToko;
 
-    public function focus()
+    public function focusMerk()
     {
-        $this->searchQuery();
+        $this->searchQueryMerk();
     }
 
-    public function searchQuery()
+    public function searchQueryMerk()
     {
         // dd('aa');
-        $this->showSuggestions = true;
+        $this->showSuggestionsMerk = true;
 
         // Ambil data dari database berdasarkan query
-        $this->suggestions = Merk::where('nama', 'like', '%' . $this->merk . '%')
+        $this->suggestionsMerk = Merk::where('nama', 'like', '%' . $this->merk . '%')
             // ->limit(5)
             ->get()
             ->toArray();
         $this->nama = $this->merk;
 
-        $exactMatch = Merk::where('nama', $this->merk)->first();
+        $exactMatchMerk = Merk::where('nama', $this->merk)->first();
 
-        if ($exactMatch) {
+        if ($exactMatchMerk) {
             // Jika ada kecocokan, isi vendor_id dan kosongkan suggestions
-            $this->selectSuggestion($exactMatch->id, $exactMatch->nama);
+            $this->selectSuggestionMerk($exactMatchMerk->id, $exactMatchMerk->nama);
         }
     }
 
-    public function selectSuggestion($merkId, $merkName)
+    public function selectSuggestionMerk($merkId, $merkName)
     {
         // Ketika saran dipilih, isi input dengan nilai tersebut
         $this->merk_id = $merkId;
         $this->merk = $merkName;
-        $this->suggestions = [];
-        $this->hideSuggestions();
+        $this->suggestionsMerk = [];
+        $this->hideSuggestionsMerk();
     }
 
-    public function hideSuggestions()
+    public function hideSuggestionsMerk()
     {
         // $this->suggestions = [];
-        $this->showSuggestions = false;
+        $this->showSuggestionsMerk = false;
+    }
+    public function focusToko()
+    {
+        $this->searchQueryToko();
+    }
+
+    public function searchQueryToko()
+    {
+        $this->showSuggestionsToko = true;
+
+        // Ambil data dari database berdasarkan query
+        $this->suggestionsToko = Toko::where('nama', 'like', '%' . $this->toko . '%')
+            // ->limit(5)
+            ->get()
+            ->toArray();
+        $this->nama = $this->toko;
+
+        $exactMatchToko = Toko::where('nama', $this->toko)->first();
+
+        if ($exactMatchToko) {
+            // Jika ada kecocokan, isi vendor_id dan kosongkan suggestions
+            $this->selectSuggestionToko($exactMatchToko->id, $exactMatchToko->nama);
+        }
+    }
+
+    public function selectSuggestionToko($TokoId, $TokoName)
+    {
+        // Ketika saran dipilih, isi input dengan nilai tersebut
+        $this->toko_id = $TokoId;
+        $this->toko = $TokoName;
+        $this->suggestionsToko = [];
+        $this->hideSuggestionsToko();
+    }
+
+    public function hideSuggestionsToko()
+    {
+        // $this->suggestions = [];
+        $this->showSuggestionsToko = false;
     }
 
 
