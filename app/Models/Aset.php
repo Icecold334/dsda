@@ -88,6 +88,11 @@ class Aset extends Model
         return $this->hasMany(History::class);
     }
 
+    public function keuangans()
+    {
+        return $this->hasMany(Keuangan::class);
+    }
+
     public function lampirans()
     {
         return $this->hasMany(Lampiran::class);

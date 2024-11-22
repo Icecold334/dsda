@@ -53,7 +53,7 @@
                             <span class="text-sm font-medium text-gray-700 w-1/3">No WhatsApp</span>
                             <div class="flex items-center w-2/3">
                                 <span class="text-sm text-gray-500 w-3/3">{{ $user->no_wa ?? 'Tidak tersedia' }}</span>
-                                <a href="profile/phone/{{ $user->id }}"
+                                <a href="profil/phone/{{ $user->id }}"
                                     class="text-primary-950 px-3 py-2 rounded-md border hover:bg-slate-300 transition duration-200 ml-2"
                                     data-tooltip-target="tooltip-user-{{ $user->id }}">
                                     <i class="fa-solid fa-pencil"></i>
@@ -89,7 +89,7 @@
                             <span class="text-sm font-medium text-gray-700 w-1/3">Password</span>
                             <div class="flex items-center w-2/3">
                                 <span class="text-sm text-gray-500 w-3/3">********</span>
-                                <a href="profile/password/{{ $user->id }}"
+                                <a href="profil/password/{{ $user->id }}"
                                     class="text-primary-950 px-3 py-2 rounded-md border hover:bg-slate-300 transition duration-200 ml-2"
                                     data-tooltip-target="tooltip-user-{{ $user->id }}">
                                     <i class="fa-solid fa-pencil"></i>
@@ -110,7 +110,7 @@
             <div>
                 <x-card title="Pengguna Tambahan" class="mb-3">
                     <div class="flex mt-4 mb-6">
-                        <a href="/profil/user"
+                        <a href="/profil/user" 
                             class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                             Buat Pengguna Tambahan</a>
                     </div>
@@ -132,18 +132,8 @@
                                         Hapus Pengguna ini
                                         <div class="tooltip-arrow" data-popper-arrow></div>
                                     </div> --}}
-                                    @if ($user->id)
-                                        <button type="button" wire:click="removeUser"
-                                            class="text-danger-900 bg-danger-100 hover:bg-danger-600 px-3 py-3 hover:text-white rounded-md border transition duration-200"
-                                            data-tooltip-target="tooltip-delete-{{ $user->id }}"><i
-                                                class="fa-solid fa-trash"></i></button>
-                                        <div id="tooltip-delete-{{ $user->id }}" role="tooltip"
-                                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                            Hapus Pengguna ini
-                                            <div class="tooltip-arrow" data-popper-arrow></div>
-                                        </div>
-                                    @endif
-                                    <a href="profile/user/{{ $user->id }}""
+                                   
+                                    <a href="profil/user/{{ $user->id }}""
                                         class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
                                         data-tooltip-target="tooltip-edit-{{ $user->id }}">
                                         <i class="fa-solid fa-pencil"></i>
@@ -158,9 +148,10 @@
                             <!-- Details Section -->
                             <div class="text-sm text-gray-500 space-y-2">
                                 <p><strong>Email:</strong> {{ $user->email }}</p>
-                                <p><strong>Jabatan:</strong> {{ $user->formatted_role ?? 'Tidak tersedia' }}</p>
-                                <p><strong>Username:</strong> {{ $user->username ?? 'Tidak tersedia' }}</p>
-                                <p><strong>Password:</strong> '*************'</p>
+                                <p><strong>Keterangan:</strong> {{ $user->keterangan ?? '-' }}</p>
+                                <p><strong>Jabatan:</strong> {{ $user->formatted_roles ?? '-' }}</p>
+                                <p><strong>Username:</strong> {{ $user->username ?? '-' }}</p>
+                                {{-- <p><strong>Password:</strong> '*************'</p> --}}
                             </div>
                         </div>
                     @empty

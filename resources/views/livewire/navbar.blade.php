@@ -1,15 +1,26 @@
     <header class="">
         <nav
             class="bg-[#d9faff] border-gray-200 shadow-2xl dark:bg-gray-800 flex flex-wrap justify-between items-center overflow-y-hidden">
-            <div class="flex justify-start  items-center"
+            <div class="flex justify-start items-center"
                 style="background:#003569 url({{ asset('img/header-bg.jpg') }}) no-repeat right center;float:left;width:420px;height:64px">
                 <a href="https://flowbite.com" class="flex mx-8">
                     <span class="self-center  text-white font-semibold whitespace-nowrap dark:text-white"><img
                             src="{{ asset('img/inventa-logo.png') }}" class=" w-[250px] h-auto" alt=""></span>
                 </a>
             </div>
-            <div class="hidden xl:flex items-center mx-8 lg:order-2 text-[#003569]">
-                <ul class="grid grid-flow-col gap-0 -my-4 ">
+
+            <!-- Hamburger Icon -->
+            <button class="p-4 lg:hidden" id="menuButton">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                    </path>
+                </svg>
+            </button>
+
+            <div class="hidden lg:flex justify-between items-center overflow-y-hidden" id="menu">
+                <ul class="flex flex-col md:flex-row md:space-x-4">
+                    {{-- <ul class="grid grid-flow-col gap-0 -my-4 "> --}}
                     <livewire:nav-item href="/dashboard" title="home" />
                     <livewire:nav-item title="aset" :child="[
                         ['href' => '/aset', 'title' => 'aset aktif'],
@@ -84,4 +95,14 @@
 
             </div>
         </nav>
+        @push('scripts')
+            <script>
+                const menuButton = document.getElementById('menuButton');
+                const menu = document.getElementById('menu');
+
+                menuButton.addEventListener('click', () => {
+                    menu.classList.toggle('hidden');
+                });
+            </script>
+        @endpush
     </header>

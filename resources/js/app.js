@@ -31,5 +31,24 @@ window.rupiah = function(angka) {
         rupiah += separator + ribuan.join('.');
     }
     return 'Rp ' + rupiah + ',00';
-}
+};
 
+window.confirmRemove = function(message, callback) {
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: message || "Data akan dihapus secara permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Callback function to execute after confirmation
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }
+    });
+};

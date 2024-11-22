@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Toko;
 use Livewire\Component;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 class AddToko extends Component
@@ -37,7 +38,7 @@ class AddToko extends Component
     {
 
         Toko::destroy($this->id);
-        return redirect()->route('Toko.index');
+        return redirect()->route('toko.index');
     }
     public function saveToko()
     {
@@ -51,7 +52,7 @@ class AddToko extends Component
                 'email' => $this->email,
                 'petugas' => $this->petugas,
                 'keterangan' => $this->keterangan,
-                'nama_nospace' => strtolower(str_replace(' ', '-', $this->toko)),
+                'nama_nospace' => Str::slug($this->toko),
             ]
         );
         return redirect()->route('toko.index');

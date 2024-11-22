@@ -29,7 +29,7 @@ class AddLokasiData extends Component
     {
 
         Lokasi::destroy($this->id);
-        return redirect()->route('Lokasi.index');
+        return redirect()->route('lokasi.index');
     }
     public function saveLokasi()
     {

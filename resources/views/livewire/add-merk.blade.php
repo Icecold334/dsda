@@ -32,7 +32,7 @@
     </table>
     <div class="flex justify-end">
         @if ($id)
-            <button type="button" wire:click="removeMerk"
+            <button type="button" onclick="confirmRemove('Apakah Anda yakin ingin menghapus Merk ini?', () => @this.call('removeMerk'))" 
                 class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Hapus</button>
         @endif
         <button type="button" wire:click="saveMerk"

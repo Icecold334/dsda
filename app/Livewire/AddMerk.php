@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Merk;
 use Livewire\Component;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 class AddMerk extends Component
@@ -39,7 +40,7 @@ class AddMerk extends Component
                 'user_id' => Auth::user()->id,
                 'nama' => $this->merk,
                 'keterangan' => $this->keterangan,
-                'nama_nospace' => strtolower(str_replace(' ', '-', $this->merk)),
+                'nama_nospace' => Str::slug($this->merk),
             ]
         );
 
