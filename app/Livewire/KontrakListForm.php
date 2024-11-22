@@ -97,6 +97,7 @@ class KontrakListForm extends Component
             $this->selectBarang($exactMatch->id, $exactMatch->nama);
         }
     }
+
     public function blurBarang()
     {
 
