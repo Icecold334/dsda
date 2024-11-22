@@ -33,7 +33,24 @@ class ListPengirimanForm extends Component
     #[On('merkSelected')]
     public function addMerkToList($merkId)
     {
-        $this->appendList($merkId);
+        $merk = MerkStok::find($merkId);
+
+        if ($merk) {
+            $this->list[] = [
+                'merk_id' => $merk->id,
+                'merk' => $merk->nama,
+                'lokasi_id' => null,
+                'bagian_id' => null,
+                'posisi_id' => null,
+                'bagians' => [],
+                'posisis' => [],
+                'jumlah' => 1,
+                'max_jumlah' => $this->calculateMaxJumlah($merk->id),
+                'editable' => true,
+            ];
+        }
+
+        $this->dispatch('pengirimanUpdated', merkId: $merkId, usedJumlah: 1);
     }
 
 
@@ -216,29 +233,29 @@ class ListPengirimanForm extends Component
     // #[On('merkId')]
     public function appendList($merkId)
     {
-        if (!collect($this->list)->contains('merk_id', $merkId)) {
-            $transaksi = MerkStok::findOrFail($merkId);
-            $isEditable = is_null($transaksi->bagian_id) && is_null($transaksi->posisi_id);
+        // if (!collect($this->list)->contains('merk_id', $merkId)) {
+        $transaksi = MerkStok::findOrFail($merkId);
+        $isEditable = is_null($transaksi->bagian_id) && is_null($transaksi->posisi_id);
 
-            $this->list[] = [
-                'id' => null,
-                'merk_id' => $transaksi->id,
-                'merk' => $transaksi->nama,
-                'lokasi_id' => null,
-                'detail' => null,
-                'bagian_id' => null,
-                'posisi_id' => null,
-                'bagians' => collect(),
-                'posisis' => collect(),
-                'jumlah' => 1,
-                'max_jumlah' => $this->calculateMaxJumlah($merkId),
-                'editable' => $isEditable,
-            ];
+        $this->list[] = [
+            'id' => null,
+            'merk_id' => $transaksi->id,
+            'merk' => $transaksi->nama,
+            'lokasi_id' => null,
+            'detail' => null,
+            'bagian_id' => null,
+            'posisi_id' => null,
+            'bagians' => collect(),
+            'posisis' => collect(),
+            'jumlah' => 1,
+            'max_jumlah' => $this->calculateMaxJumlah($merkId),
+            'editable' => $isEditable,
+        ];
 
-            $this->dispatch('listCount', count: count($this->list));
-        } else {
-            $this->dispatch('merkExist');
-        }
+        $this->dispatch('listCount', count: count($this->list));
+        // } else {
+        //     $this->dispatch('merkExist');
+        // }
     }
 
 
@@ -295,16 +312,15 @@ class ListPengirimanForm extends Component
 
     public function updateJumlah($index, $value)
     {
-        // Ensure the quantity does not exceed the maximum allowed quantity
-        $maxAllowed = $this->list[$index]['max_jumlah'];
+        $merkId = $this->list[$index]['merk_id'];
+        $previousJumlah = $this->list[$index]['jumlah'];
 
-        // If the input value is greater than the allowed maximum, set it to the maximum value
-        if ($value > $maxAllowed) {
-            $this->list[$index]['jumlah'] = $maxAllowed;
-            $this->errorsList[$index] = 'Jumlah maksimal : ' . $maxAllowed;
-        } else {
+        if ($value <= $this->list[$index]['max_jumlah']) {
             $this->list[$index]['jumlah'] = $value;
-            unset($this->errorsList[$index]); // Clear error if value is valid
+            $diff = $value - $previousJumlah;
+            $this->dispatch('pengirimanUpdated', merkId: $merkId, usedJumlah: $diff);
+        } else {
+            $this->list[$index]['jumlah'] = $this->list[$index]['max_jumlah'];
         }
     }
     public function updated($propertyName)
@@ -343,17 +359,15 @@ class ListPengirimanForm extends Component
 
     public function removeFromList($index)
     {
-
         $merkId = $this->list[$index]['merk_id'];
-        // Use unset to remove the item at the given index from the list
-        unset($this->list[$index]);
+        $jumlah = $this->list[$index]['jumlah'];
 
-        // Reindex the array to ensure continuous indices
+        unset($this->list[$index]);
         $this->list = array_values($this->list);
-        $this->dispatch('listCount', count: count($this->list));
-        // Emit event ke ListKontrakBarang untuk mengembalikan merk yang dihapus
-        $this->dispatch('merkRemoved', merkId: $merkId);
+
+        $this->dispatch('pengirimanUpdated', merkId: $merkId, usedJumlah: -$jumlah);
     }
+
 
 
     public function render()

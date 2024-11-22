@@ -19,12 +19,12 @@
                         <td>Nomor Kontrak</td>
                         <td>{{ $kontrak->nomor_kontrak }}</td>
                     </tr>
-                    <tr>
+                    {{-- <tr>
                         <td>Status</td>
                         <td><span
                                 class="bg-{{ $kontrak->status === null ? 'warning' : ($kontrak->status ? 'success' : 'danger') }}-600 text-{{ $kontrak->status === null ? 'warning' : ($kontrak->status ? 'success' : 'danger') }}-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">{{ $kontrak->status === null ? 'diproses' : ($kontrak->status ? 'disetujui' : 'ditolak') }}</span>
                         </td>
-                    </tr>
+                    </tr> --}}
                     <tr>
                         <td>Jenis Barang</td>
                         <td>{{ $kontrak->transaksiStok->first()->merkStok->barangStok->jenisStok->nama }}</td>
@@ -84,7 +84,7 @@
             <tr class="text-white">
 
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/3 rounded-l-lg">BARANG</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI (MERK/UKURAN/DLL)</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI (MERK/TIPE/UKURAN)</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH</th>
                 @if ($kontrak->type)
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">SISA</th>
@@ -99,7 +99,17 @@
                         {{ $transaksi->merkStok->barangStok->nama }}
                     </td>
                     <td class="py-3 px-6 font-semibold">
-                        {{ $transaksi->merkStok->nama }}
+                        <table class="w-full">
+                            <tr>
+                                <td class="w-1/3 px-3  {{ $transaksi->merkStok->nama ?? 'text-center' }}">
+                                    {{ $transaksi->merkStok->nama ?? '-' }}</td>
+                                <td
+                                    class="w-1/3 px-3 border-x-2 border-primary-500 {{ $transaksi->merkStok->tipe ?? 'text-center' }}">
+                                    {{ $transaksi->merkStok->tipe ?? '-' }}</td>
+                                <td class="w-1/3 px-3 {{ $transaksi->merkStok->ukuran ?? 'text-center' }}">
+                                    {{ $transaksi->merkStok->ukuran ?? '-' }}</td>
+                            </tr>
+                        </table>
                     </td>
                     <td class="py-3 px-6 font-semibold">
                         {{ $transaksi->jumlah }}

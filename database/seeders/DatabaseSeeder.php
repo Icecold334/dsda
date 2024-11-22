@@ -519,22 +519,22 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed Satuan Kecil with Indonesian names
-        $satuanKecilData = [
-            ['nama' => 'Lembar'],     // Sheet
-            ['nama' => 'Unit'],       // Unit
-            ['nama' => 'Gram'],       // Gram
-            ['nama' => 'Kilogram'],   // Kilogram
-            ['nama' => 'Liter'],      // Liter
-            ['nama' => 'Mililiter'],  // Milliliter
-            ['nama' => 'Pcs'],        // Pieces
-            ['nama' => 'Set'],        // Set
-            ['nama' => 'Botol'],      // Bottle
-            ['nama' => 'Kemasan'],    // Packaging
-        ];
+        // $satuanKecilData = [
+        //     ['nama' => 'Lembar'],     // Sheet
+        //     ['nama' => 'Unit'],       // Unit
+        //     ['nama' => 'Gram'],       // Gram
+        //     ['nama' => 'Kilogram'],   // Kilogram
+        //     ['nama' => 'Liter'],      // Liter
+        //     ['nama' => 'Mililiter'],  // Milliliter
+        //     ['nama' => 'Pcs'],        // Pieces
+        //     ['nama' => 'Set'],        // Set
+        //     ['nama' => 'Botol'],      // Bottle
+        //     ['nama' => 'Kemasan'],    // Packaging
+        // ];
 
-        foreach ($satuanKecilData as $data) {
-            SatuanKecil::create($data);
-        }
+        // foreach ($satuanKecilData as $data) {
+        //     SatuanKecil::create($data);
+        // }
 
         // Seed for BarangStok
         for ($i = 1; $i <= 5; $i++) {
@@ -543,7 +543,8 @@ class DatabaseSeeder extends Seeder
                 'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
                 'nama' => 'Barang ' . $i,
                 'satuan_besar_id' => SatuanBesar::inRandomOrder()->first()->id,
-                'satuan_kecil_id' => SatuanKecil::inRandomOrder()->first()->id,
+                'konversi' => $faker->randomElement([5, 10, 15, 20, 25, 30, 35, 40, 45, 50]),
+                'satuan_kecil_id' => SatuanBesar::inRandomOrder()->first()->id,
                 'deskripsi' => 'Deskripsi untuk Barang ' . $i,
             ]);
         }
@@ -602,7 +603,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed for KontrakVendorStok
-        for ($i = 1; $i <= 2; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             KontrakVendorStok::create([
                 'nomor_kontrak' => $faker->unique()->bothify('KV#####'),
                 'metode_id' => MetodePengadaan::inRandomOrder()->first()->id,
@@ -612,6 +613,7 @@ class DatabaseSeeder extends Seeder
                 // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
                 'user_id' => User::inRandomOrder()->first()->id,
                 'type' => 1,
+                'status' => 1,
             ]);
         }
 
@@ -646,8 +648,9 @@ class DatabaseSeeder extends Seeder
         // }
 
         // Seed for TransaksiStok
-        for ($i = 0; $i < 5; $i++) {
-            $vendorid = Toko::inRandomOrder()->take(1)->pluck('id')->first();
+
+        for ($i = 0; $i < 10; $i++) {
+            $vendorid = Toko::inRandomOrder()->first()->id;
             TransaksiStok::create([
                 'kode_transaksi_stok' => $faker->unique()->numerify('TRX#####'),
                 // 'tipe' => $faker->randomElement(['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']),
