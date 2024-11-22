@@ -20,45 +20,20 @@ class ListKontrakBarang extends Component
 
         $merks = MerkStok::whereHas('transaksiStok', function ($query) {
             $query->whereHas('kontrakStok', function ($kontrakQuery) {
-                $kontrakQuery->where('vendor_id', $this->vendor_id)->where('status', true)
-                    ->where('type', true); // Assuming 'type' is a boolean field
+                $kontrakQuery->where('vendor_id', $this->vendor_id)->where('status', true)->where('type', true);
             });
         })->get();
 
-        // Filter merks to only include those with max jumlah > 0
         $this->merkList = $merks->filter(function ($merk) {
-            $maxJumlah = $this->calculateMaxJumlah($merk->id);
-            return $maxJumlah > 0;
-        })->filter(function ($merk) {
-            return $merk->barangStok->jenis_id == $this->jenis_id;
-        })->map(function ($merk) {
             $merk->max_jumlah = $this->calculateMaxJumlah($merk->id);
-            return $merk;
+            return $merk->max_jumlah > 0 && $merk->barangStok->jenis_id == $this->jenis_id;
         });
     }
     #[On('vendor_id')]
     public function fillVendor($vendor_id)
     {
         $this->vendor_id = $vendor_id;
-        // Fetch merks that match the vendor and contract conditions
-        $merks = MerkStok::whereHas('transaksiStok', function ($query) {
-            $query->whereHas('kontrakStok', function ($kontrakQuery) {
-                $kontrakQuery->where('vendor_id', $this->vendor_id)->where('status', true)
-                    ->where('type', true) // Assuming 'type' is a boolean field
-                ; // Assuming 'type' is a boolean field
-            });
-        })->whereHas('barangStok', function ($query) {
-            $query->where('jenis_id', $this->jenis_id); // Assuming 'jenis_id' is a foreign key in 'barang_stok' table
-        })->get();
-
-        // Filter merks to only include those with max jumlah > 0
-        $this->merkList = $merks->filter(function ($merk) {
-            $maxJumlah = $this->calculateMaxJumlah($merk->id);
-            return $maxJumlah > 0;
-        })->map(function ($merk) {
-            $merk->max_jumlah = $this->calculateMaxJumlah($merk->id);
-            return $merk;
-        });
+        $this->fillJenis($this->jenis_id);
     }
 
     public function calculateMaxJumlah($merkId)
@@ -71,11 +46,6 @@ class ListKontrakBarang extends Component
         })->where('merk_id', $merkId)
             ->where('tipe', 'Pemasukan') // Assuming 'Pemasukan' represents contracted quantities
             ->sum('jumlah');
-
-        // dd($contractTotal);
-
-
-        // Get the total quantity already sent for this merk and vendor
         $sentTotal = PengirimanStok::where('merk_id', $merkId)
             ->whereHas('kontrakVendorStok', function ($query) {
                 $query->where('vendor_id', $this->vendor_id);
@@ -85,43 +55,44 @@ class ListKontrakBarang extends Component
         // Calculate the maximum quantity allowed for this item
         return max($contractTotal - $sentTotal, 0);
     }
+    #[On('pengirimanUpdated')]
+    public function updateJumlahSisa($merkId, $usedJumlah)
+    {
+        foreach ($this->merkList as $merk) {
+            if ($merk->id == $merkId) {
+                $merk->max_jumlah -= $usedJumlah;
+                break;
+            }
+        }
+    }
+    // public function hydrate()
+    // {
+    //     if ($this->jenis_id) {
+    //         $this->fillJenis($this->jenis_id);
+    //     }
+    // }
     public function mount()
     {
-        // $this->merkList = MerkStok::whereHas('transaksiStok', function ($query) {
-        //     $query->whereHas('kontrakStok', function ($kontrakQuery) {
-        //         $kontrakQuery->where('vendor_id', 1)
-        //             ->where('type', true); // Assuming 'type' is a boolean field
-        //     });
-        // })->get();
         $this->merkList = [];
     }
 
-    #[On('merkRemoved')]
-    public function addMerkBackToList($merkId)
-    {
-        // Ambil merk berdasarkan ID dan tambahkan ke merkList
-        $merk = MerkStok::find($merkId);
-        if ($merk) {
-            $this->merkList->push($merk)->map(function ($merk) {
-                $merk->max_jumlah = $this->calculateMaxJumlah($merk->id);
-                return $merk;
-            });
-        }
-    }
+    // #[On('merkRemoved')]
+    // public function addMerkBackToList($merkId, $jumlah)
+    // {
+    //     // Ambil merk berdasarkan ID dan tambahkan ke merkList
+    //     $merk = MerkStok::find($merkId);
+    //     if ($merk) {
+    //         $this->merkList->map(function ($merk) use ($jumlah) {
+    //             $merk->max_jumlah = $this->calculateMaxJumlah($merk->id) + $jumlah;
+    //             return $merk;
+    //         });
+    //     }
+    // }
 
     public function merkClick($id)
     {
-        $this->dispatch('merkId', merkId: $id);
-        // Emit event to ListPengirimanForm to add this merk to the list
-        $this->dispatch('merkSelected', merkId: $id);
 
-        // Remove merk from the current list
-        $this->merkList = $this->merkList->filter(function ($merk) use ($id) {
-            return $merk->id !== $id;
-        })->map(function ($merk) {
-            $merk->max_jumlah = $this->calculateMaxJumlah($merk->id);
-            return $merk;
-        });
+        $this->dispatch('merkSelected', merkId: $id);
     }
     public function render()
     {

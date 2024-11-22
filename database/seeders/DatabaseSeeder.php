@@ -613,6 +613,7 @@ class DatabaseSeeder extends Seeder
                 // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
                 'user_id' => User::inRandomOrder()->first()->id,
                 'type' => 1,
+                'status' => 1,
             ]);
         }
 
