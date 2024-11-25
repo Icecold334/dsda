@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aset;
+use App\Models\Kategori;
 use Illuminate\Http\Request;
 
 class QrPrintController extends Controller
@@ -12,8 +13,11 @@ class QrPrintController extends Controller
      */
     public function index()
     {
+        $kategoris = Kategori::whereNull('parent_id') // Hanya kategori utama
+            ->with('children') // Ambil sub-kategori
+            ->get();
         $assets = Aset::where('status', true)->get();
-       return view('qrprint.index',compact('assets'));
+        return view('qrprint.index', compact('assets', 'kategoris'));
     }
 
     /**
