@@ -74,21 +74,21 @@ class ApprovalPengiriman extends Component
         });
         $this->lastPj = $indexPj === $pj->count() - 1;
         $this->pjList = $pj;
-        $ppk = User::role('ppk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+        $ppk = User::role('ppk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPpk = $ppk->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastPpk = $indexPpk === $ppk->count() - 1; // Check if current user is the last user
         $this->ppkList = $ppk;
-        $pptk = User::role('pptk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+        $pptk = User::role('pptk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPptk = $pptk->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastPptk = $indexPptk === $pptk->count() - 1; // Check if current user is the last user
         $this->pptkList = $pptk;
-        $this->listApproval = $this->pptkList->merge($this->ppkList)->merge($this->pjList)->count();
+        $this->listApproval = $this->pptkList->merge($this->ppkList)->count();
 
-        $allApproval = $this->pjList->merge($this->ppkList)->merge($this->pptkList);
+        $allApproval = $this->pptkList->merge($this->ppkList);
         $index = $allApproval->search(function ($user) {
             return $user->id == Auth::id();
         });

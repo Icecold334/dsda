@@ -35,7 +35,7 @@
         <table class="w-full">
             <thead class="text-primary-600">
                 <tr>
-                    <th>Merk</th>
+                    <th>Spesifikasi (Merk/Tipe/Ukuran)</th>
                     <th>Stok</th>
                     <th>Lokasi</th>
                     <th>Bagian</th>
@@ -45,7 +45,19 @@
             <tbody>
                 @foreach ($stok as $item)
                     <tr class=" border-b-2 border-primary-500 ">
-                        <td>{{ $item->merkStok->nama }}</td>
+                        <td>
+                            <table class="w-full">
+                                <tr>
+                                    <td class="w-1/3 px-3  {{ $item->merkStok->nama ?? 'text-center' }}">
+                                        {{ $item->merkStok->nama ?? '-' }}</td>
+                                    <td
+                                        class="w-1/3 px-3 border-x-2 border-primary-500 {{ $item->merkStok->tipe ?? 'text-center' }}">
+                                        {{ $item->merkStok->tipe ?? '-' }}</td>
+                                    <td class="w-1/3 px-3 {{ $item->merkStok->ukuran ?? 'text-center' }}">
+                                        {{ $item->merkStok->ukuran ?? '-' }}</td>
+                                </tr>
+                            </table>
+                        </td>
                         <td class=" font-semibold">{{ $item->jumlah }}
                             {{ $item->merkStok->barangStok->satuanBesar->nama }}
                         </td>

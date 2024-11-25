@@ -166,11 +166,15 @@ return new class extends Migration
 
         Schema::create('transaksi_stok', function (Blueprint $table) {
             $table->id();
+            $table->boolean('status')->nullable();
+            $table->string('keterangan_status')->nullable();
+
             $table->string('kode_transaksi_stok')->nullable();
             $table->string('img')->nullable();
             $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']);
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->foreignId('vendor_id')->nullable()->constrained('toko');
+            $table->foreignId('pj_id')->nullable()->constrained('users');
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('cascade');
             $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
@@ -235,7 +239,7 @@ return new class extends Migration
             // $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
             $table->foreignId('unit_id')->constrained('unit_kerja')->onDelete('cascade'); // Link to unit_kerja table
             $table->foreignId('sub_unit_id')->nullable()->constrained('unit_kerja')->onDelete('set null'); // Optional sub-unit link
-            $table->integer('jumlah');
+            $table->integer('jumlah')->nullable();
             $table->text('keterangan')->nullable();
             $table->boolean('status')->nullable();
 
@@ -244,6 +248,8 @@ return new class extends Migration
         Schema::create('permintaan_stok', function (Blueprint $table) {
             $table->id();
             $table->foreignId('detail_permintaan_id')->constrained('detail_permintaan_stok')->onDelete('cascade');
+            $table->string('img')->nullable();
+
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('merk_id')->constrained('merk_stok')->onDelete('cascade'); // Changed barang_id to merk_id
             $table->integer('jumlah');

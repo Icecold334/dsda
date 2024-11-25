@@ -13,7 +13,7 @@ class PermintaanStokController extends Controller
      */
     public function index()
     {
-        $permintaans = DetailPermintaanStok::all();
+        $permintaans = DetailPermintaanStok::orderBy('id', 'desc')->get();
         return view('permintaan.index', compact('permintaans'));
     }
 
@@ -47,7 +47,8 @@ class PermintaanStokController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $permintaan = DetailPermintaanStok::find($id);
+        return view('permintaan.edit', compact('permintaan'));
     }
 
     /**
