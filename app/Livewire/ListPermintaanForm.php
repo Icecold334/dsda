@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\WithFileUploads;
 use App\Models\PermintaanStok;
+use Illuminate\Support\Facades\DB;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -39,26 +40,38 @@ class ListPermintaanForm extends Component
     }
     public function focusBarang()
     {
-        // Clear previous suggestions
         $this->barangSuggestions = [];
 
         if (!empty($this->newBarang)) {
-            // Retrieve records that match user input from related MerkStok fields
+            // Retrieve records that match user input and aggregate stock quantities
             $this->barangSuggestions = BarangStok::whereHas('merkStok', function ($query) {
                 $query->where('nama', 'like', '%' . $this->newBarang . '%')
                     ->orWhere('tipe', 'like', '%' . $this->newBarang . '%')
                     ->orWhere('ukuran', 'like', '%' . $this->newBarang . '%');
             })
-                ->with('merkStok') // Assuming you might want to display some details from MerkStok
-                ->limit(10)
+                ->whereHas('merkStok.stok', function ($query) {
+                    $query->where('jumlah', '>', 0);
+                })
+                ->with(['merkStok.stok' => function ($query) {
+                    $query->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah'))
+                        ->groupBy('merk_id');
+                }])
                 ->get();
         } else {
-            // Show top 10 records by default if no input is provided
-            $this->barangSuggestions = BarangStok::with('merkStok')
-                ->limit(10)
+            // Show top 10 records by default if no input is provided, also ensuring positive stock
+            $this->barangSuggestions = BarangStok::whereHas('merkStok.stok', function ($query) {
+                $query->where('jumlah', '>', 0);
+            })
+                ->with(['merkStok.stok' => function ($query) {
+                    $query->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah'))
+                        ->groupBy('merk_id');
+                }])
                 ->get();
         }
     }
+
+
+
 
     #[On('unit_id')]
     public function fillUnitId($unit_id)
@@ -90,6 +103,7 @@ class ListPermintaanForm extends Component
             'kode_permintaan' => $kodePermintaan,
             'tanggal_permintaan' => strtotime($this->tanggal_permintaan),
             'unit_id' => $this->unit_id,
+            'user_id' => Auth::id(),
             'sub_unit_id' => $this->sub_unit_id ?? null,
             'keterangan' => $this->keterangan,
             'status' => null
@@ -98,12 +112,13 @@ class ListPermintaanForm extends Component
             // Assuming $item['barang_name'] is a string like "Merk|Tipe|Ukuran"
             list($merk, $tipe, $ukuran) = array_pad(explode('|', $item['barang_name']), 3, null);
 
-            $merkStok = MerkStok::updateOrCreate(
+            $merkStok = MerkStok::firstOrCreate(
                 [
                     'barang_id' => $item['barang_id'],
-                    'nama' => $merk == '-' ? null : $merk,
-                    'tipe' => $tipe == '-' ? null : $tipe,
-                    'ukuran' => $ukuran == '-' ? null : $ukuran
+                    'nama' => trim($merk) === '-' ? null : trim($merk),
+                    'tipe' => trim($tipe) === '-' ? null : trim($tipe),
+                    'ukuran' => trim($ukuran) === '-' ? null : trim($ukuran)
+
                 ],
                 []
             );
@@ -163,6 +178,8 @@ class ListPermintaanForm extends Component
             'newDokumen' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,txt',
         ]);
         $this->list[] = [
+            'jumlah_approve' => $this->newJumlah,
+            'status' => null,
             'id' => null,
             'barang_id' => $this->newBarangId, // Assuming a dropdown for selecting existing barang
             'barang_name' => $this->newBarang,
@@ -184,6 +201,9 @@ class ListPermintaanForm extends Component
     {
         if ($this->permintaan) {
             foreach ($this->permintaan->permintaanStok as $key => $value) {
+                $this->unit_id = $this->permintaan->unit_id;
+                $this->keterangan = $this->permintaan->keterangan;
+                $this->tanggal_permintaan = $this->permintaan->tanggal_permintaan;
                 $merk = MerkStok::find($value->merk_id);
                 if ($merk) {
                     // Concatenate merk, tipe, and ukuran into one string, use '-' for any null values
@@ -194,6 +214,8 @@ class ListPermintaanForm extends Component
                         ->join(' | ');
                 }
                 $this->list[] = [
+                    'jumlah_approve' => $value->jumlah_approve ?? $value->jumlah,
+                    'status' => $value->status,
                     'id' => $value->id,
                     'barang_id' => $value->merkStok->barangStok->id, // Assuming a dropdown for selecting existing barang
                     'barang_name' => $merkCollect,
@@ -229,6 +251,29 @@ class ListPermintaanForm extends Component
 
         $this->newBarang = $barangName;
         $this->barangSuggestions = [];
+    }
+    public function approveItem($index)
+    {
+        $item = $this->list[$index];
+        $permintaan = PermintaanStok::find($item['id']);
+        $this->list[$index]['status'] = true;
+        $permintaan->update(['status' => true, 'jumlah_approve' => $this->list[$index]['jumlah_approve']]);
+        // Optionally, remove the item from the list or mark it as approved
+        // $this->list[$index]['jumlah_approve'] = true;
+
+        // Provide feedback
+        session()->flash('message', 'Item approved successfully!');
+    }
+
+    public function removeDocument($index)
+    {
+        $item = $this->list[$index];
+
+        // Optional: Delete the file from storage if necessary
+        Storage::delete($item['dokumen']);
+
+        // Remove the document path from the item in the list
+        $this->list[$index]['dokumen'] = null;
     }
 
     public function render()

@@ -238,6 +238,7 @@ return new class extends Migration
             $table->date('tanggal_permintaan');
             // $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
             $table->foreignId('unit_id')->constrained('unit_kerja')->onDelete('cascade'); // Link to unit_kerja table
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('sub_unit_id')->nullable()->constrained('unit_kerja')->onDelete('set null'); // Optional sub-unit link
             $table->integer('jumlah')->nullable();
             $table->text('keterangan')->nullable();
@@ -253,6 +254,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('merk_id')->constrained('merk_stok')->onDelete('cascade'); // Changed barang_id to merk_id
             $table->integer('jumlah');
+            $table->integer('jumlah_approve')->nullable();
+            $table->boolean('status')->nullable();
             $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('set null');
             // $table->text('tanggal_permintaan');
             $table->timestamps();
