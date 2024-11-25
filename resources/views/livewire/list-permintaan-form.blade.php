@@ -43,8 +43,8 @@
                             <td class="py-3 px-6">
                                 <div class="flex items-center">
                                     <input type="number" wire:model.live="list.{{ $index }}.jumlah_approve"
-                                        min="1" @disabled(!auth()->user()->hasRole('penanggungjawab') || $item['status'])
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !auth()->user()->hasRole('penanggungjawab') || $item['status'] ? 'cursor-not-allowed' : '' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        min="1" @disabled(!auth()->user()->hasRole('penanggungjawab') && !$item['status'])
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !auth()->user()->hasRole('penanggungjawab') && !$item['status'] ? 'cursor-not-allowed' : '' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                         placeholder="Jumlah Disetujui">
                                     <span
                                         class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
