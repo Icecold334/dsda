@@ -367,7 +367,7 @@ class AssetDetails extends Component
         if ($this->type === 'agenda') {
             switch ($this->modalData['tipe'] ?? '') {
                 case 'mingguan':
-                    $rules['modalData.hari'] = 'required|interger|in:1,2,3,4,5,6,7';
+                    $rules['modalData.hari'] = 'required|integer|in:1,2,3,4,5,6,7';
                     break;
                 case 'bulanan':
                     $rules['modalData.bulan'] = 'required|integer|between:1,12';

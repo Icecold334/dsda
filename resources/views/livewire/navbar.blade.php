@@ -49,7 +49,7 @@
                         ['href' => '/lokasi', 'title' => 'lokasi'],
                         ['href' => '/lokasi-stok', 'title' => 'lokasi stok'],
                     ]" />
-                    <livewire:nav-item href="/home"
+                    <livewire:nav-item href="/kalender"
                         title='                <button data-tooltip-target="tooltipKalender" data-tooltip-placement="bottom" type="button"><i
                         class="fa-solid fa-calendar-days"></i></button>
 
