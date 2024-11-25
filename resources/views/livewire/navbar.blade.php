@@ -24,7 +24,7 @@
                     <livewire:nav-item href="/dashboard" title="home" />
                     <livewire:nav-item title="aset" :child="[
                         ['href' => '/aset', 'title' => 'aset aktif'],
-                        ['href' => '/#', 'title' => 'aset non aktif'],
+                        ['href' => '/nonaktifaset', 'title' => 'aset non aktif'],
                     ]" />
                     <livewire:nav-item title="inventaris" :child="[
                         ['href' => '/pengiriman-stok', 'title' => 'inventaris'],

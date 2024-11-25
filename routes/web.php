@@ -22,6 +22,7 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\KalenderController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\LampiranController;
@@ -32,11 +33,11 @@ use App\Http\Controllers\JenisStokController;
 use App\Http\Controllers\MerekStokController;
 use App\Http\Controllers\BagianStokController;
 use App\Http\Controllers\BarangStokController;
-use App\Http\Controllers\KalenderController;
 use App\Http\Controllers\KonfirmasiController;
 use App\Http\Controllers\LokasiStokController;
 use App\Http\Controllers\PosisiStokController;
 use App\Http\Controllers\VendorStokController;
+use App\Http\Controllers\AsetNonAktifController;
 use App\Http\Controllers\KontrakVendorController;
 use App\Http\Controllers\TransaksiStokController;
 use App\Http\Controllers\PengirimanStokController;
@@ -66,7 +67,10 @@ Route::get('dashboard', [DashboardController::class, 'index'])
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('agenda', AgendaController::class);
+    Route::resource('nonaktifaset', AsetNonAktifController::class);
+    // Route::patch('/nonaktifaset/{nonaktifaset}/activate', [AsetNonAktifController::class, 'activate'])->name('nonaktifaset.activate');
     Route::resource('aset', AsetController::class);
+    Route::put('/aset/{id}/nonaktif', [AsetController::class, 'nonaktif'])->name('show.nonaktif');
     Route::resource('history', HistoryController::class);
     Route::resource('jurnal', JurnalController::class);
     Route::get('kategori/{tipe}', [KategoriController::class, 'create']);
