@@ -12,6 +12,11 @@ class DetailPermintaanStok extends Model
     protected $table = 'detail_permintaan_stok';
 
     protected $guarded = ['id'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     public function unit()
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id');

@@ -13,5 +13,6 @@
     </div>
 
     <livewire:form-permintaan :permintaan="$permintaan" :tanggal_permintaan="Carbon\Carbon::now()->format('Y-m-d')" :keterangan="$permintaan->keterangan" :unit_id="$permintaan->unit_id" :sub_unit_id="$permintaan->sub_unit_id">
+        <livewire:approval-permintaan :permintaan="$permintaan">
 
 </x-body>

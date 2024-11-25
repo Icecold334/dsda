@@ -77,6 +77,8 @@
             </x-card>
         </div>
     </div>
-    <livewire:list-permintaan-form tanggal_permintaan="Carbon\Carbon::now()->format('Y-m-d')" :permintaan="$permintaan"
-        :keterangan="$permintaan->keterangan" :unit_id="$permintaan->unit_id" :sub_unit_id="$permintaan->sub_unit_id">
+    @if ($tipe == 'peminjaman')
+        <livewire:list-peminjaman-form>
+    @endif
+    <livewire:list-permintaan-form :permintaan="$permintaan">
 </div>

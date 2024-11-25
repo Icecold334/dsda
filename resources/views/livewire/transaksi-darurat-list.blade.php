@@ -117,6 +117,7 @@
                                     showCancelButton: true,
                                     confirmButtonColor: '#d33',
                                     cancelButtonColor: '#3085d6',
+                                    showConfirmButton: false,
                                     confirmButtonText: 'Tolak',
                                     cancelButtonText: 'Setujui'
                                 }).then((result) => {
