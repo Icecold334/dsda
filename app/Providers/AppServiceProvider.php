@@ -24,5 +24,6 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(3);
         // Auth::loginUsingId(6);
         // Auth::loginUsingId(9);
+
     }
 }

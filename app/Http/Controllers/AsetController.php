@@ -16,9 +16,6 @@ class AsetController extends Controller
      */
     public function index()
     {
-
-
-
         $asets = Aset::where('status', true)->get()->map(function ($aset) {
             $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, $aset->tanggalbeli, $aset->umur);
             $aset->nilaiSekarang = $this->rupiah($nilaiSekarang);
@@ -88,5 +85,26 @@ class AsetController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function nonaktif(Request $request, $id)
+    {
+        $request->validate([
+            'tanggal_nonaktif' => 'required|date',
+            'sebab_nonaktif' => 'required|string',
+            'keterangan' => 'nullable|string|max:255',
+        ]);
+
+        $aset = Aset::findOrFail($id);
+
+        // Update status aset
+        $aset->update([
+            'status' => 0,
+            'tglnonaktif' => strtotime($request->tanggal_nonaktif),
+            'alasannonaktif' => $request->sebab_nonaktif,
+            'ketnonaktif' => $request->keterangan,
+        ]);
+
+        return redirect()->route('aset.index')->with('success', 'Aset berhasil dinonaktifkan.');
     }
 }

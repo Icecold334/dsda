@@ -24,7 +24,7 @@
                     <livewire:nav-item href="/dashboard" title="home" />
                     <livewire:nav-item title="aset" :child="[
                         ['href' => '/aset', 'title' => 'aset aktif'],
-                        ['href' => '/#', 'title' => 'aset non aktif'],
+                        ['href' => '/nonaktifaset', 'title' => 'aset non aktif'],
                     ]" />
                     <livewire:nav-item title="inventaris" :child="[
                         ['href' => '/pengiriman-stok', 'title' => 'inventaris'],
@@ -58,7 +58,7 @@
                     Kalender Aset
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                    <livewire:nav-item href="/home"
+                    <livewire:nav-item href="/qrprint"
                         title='                <button data-tooltip-target="tooltipQR" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-print"></i></button>
 
                 <div id="tooltipQR" role="tooltip"
