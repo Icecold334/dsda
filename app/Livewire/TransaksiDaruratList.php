@@ -220,7 +220,7 @@ class TransaksiDaruratList extends Component
                     ],
                     [] // Tidak ada kolom tambahan untuk diperbarui
                 );
-                TransaksiStok::create([
+                $transaksi = TransaksiStok::create([
                     'tipe' => 'Penggunaan Langsung', // Assuming 'Pemasukan' represents a stock addition
                     'merk_id' => $merk->id,
                     'vendor_id' => $this->vendor_id,
@@ -234,10 +234,11 @@ class TransaksiDaruratList extends Component
                 ]);
             }
         }
+        $vendor_id = $this->vendor_id;
         // Clear the list and reset input fields
         $this->reset(['list', 'vendor_id', 'newBarangId', 'newJumlah',  'newBukti']);
         //  $this->dispatch('success');
-        return redirect()->route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->transaksi->first()->vendor_id]);
+        return redirect()->route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $vendor_id]);
         // $this->dispatchBrowserEvent('kontrakSaved'); // Trigger any frontend success indication if needed
         // session()->flash('message', 'Kontrak dan transaksi berhasil disimpan.');
         // $this->nomor_kontrak = $nomor;
