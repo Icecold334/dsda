@@ -16,9 +16,6 @@ class AsetController extends Controller
      */
     public function index()
     {
-
-
-
         $asets = Aset::where('status', true)->get()->map(function ($aset) {
             $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, $aset->tanggalbeli, $aset->umur);
             $aset->nilaiSekarang = $this->rupiah($nilaiSekarang);

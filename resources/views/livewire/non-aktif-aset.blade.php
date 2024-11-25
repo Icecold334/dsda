@@ -28,8 +28,11 @@
                             class="w-full border rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring focus:ring-primary-300">
                             <option value="">Pilih Sebab</option>
                             <option value="Dijual">Dijual</option>
+                            <option value="Dihibahkan">Dihibahkan</option>
                             <option value="Dibuang">Dibuang</option>
-                            <option value="Hibah">Hibah</option>
+                            <option value="Hilang">Hilang</option>
+                            <option value="Rusak Total">Rusak Total</option>
+                            <option value="Lainnya">Lainnya</option>
                         </select>
                         @error('alasannonaktif')
                             <span class="text-red-500 text-sm">{{ $message }}</span>

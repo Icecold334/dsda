@@ -22,6 +22,7 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QrPrintController;
 use App\Http\Controllers\KalenderController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\KeuanganController;
@@ -104,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('konfirmasi', KonfirmasiController::class);
     Route::resource('kota', KotaController::class);
     Route::resource('option', OptionController::class);
+    Route::resource('qrprint', QrPrintController::class);
     Route::resource('order', OrderController::class);
     Route::resource('provinsi', ProvinsiController::class);
     Route::resource('kalender', KalenderController::class);
