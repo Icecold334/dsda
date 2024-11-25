@@ -49,6 +49,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(PersetujuanPengirimanStok::class, 'user_id');
     }
+    public function persetujuanPermintaan()
+    {
+        return $this->hasMany(PersetujuanPermintaanStok::class, 'user_id');
+    }
     /**
      * Get the attributes that should be cast.
      *

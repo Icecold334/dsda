@@ -12,6 +12,7 @@ class FormPermintaan extends Component
     public $units;
     public $unit_id;
     public $subUnits;
+    public $tipe;
     public $sub_unit_id;
     public $tanggal_permintaan;
     public $keterangan;

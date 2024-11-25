@@ -818,7 +818,8 @@ class DatabaseSeeder extends Seeder
         $requests = [
             [
                 'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
-                'tanggal_permintaan' => strtotime(Carbon::now()->subDays(2)),
+                'tanggal_permintaan' => strtotime(Carbon::now()),
+                'user_id' => User::inRandomOrder()->first()->id,
                 'unit_id' => $unitProduksi->id,
                 'keterangan' => $faker->paragraph(),
                 'sub_unit_id' => $subUnitFinishing->id,
@@ -826,7 +827,8 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
-                'tanggal_permintaan' => strtotime(Carbon::now()->subDays(5)),
+                'tanggal_permintaan' => strtotime(Carbon::now()),
+                'user_id' => User::inRandomOrder()->first()->id,
                 'unit_id' => $unitProduksi->id,
                 'keterangan' => $faker->paragraph(),
                 'sub_unit_id' => $subUnitPackaging->id,
@@ -834,7 +836,8 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
-                'tanggal_permintaan' => strtotime(Carbon::now()->subDays(10)),
+                'tanggal_permintaan' => strtotime(Carbon::now()),
+                'user_id' => User::inRandomOrder()->first()->id,
                 'unit_id' => $unitProduksi->id,
                 'keterangan' => $faker->paragraph(),
                 'sub_unit_id' => null, // No specific sub-unit
@@ -850,7 +853,8 @@ class DatabaseSeeder extends Seeder
         for ($i = 1; $i <= 10; $i++) {
             DetailPermintaanStok::create([
                 'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
-                'tanggal_permintaan' => strtotime(Carbon::now()->subDays(rand(1, 30))),
+                'tanggal_permintaan' => strtotime(Carbon::now()),
+                'user_id' => User::inRandomOrder()->first()->id,
                 'unit_id' => $unitProduksi->id,
                 'keterangan' => $faker->paragraph(),
                 'sub_unit_id' => $i % 2 == 0 ? $subUnitFinishing->id : $subUnitPackaging->id,

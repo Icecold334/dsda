@@ -34,6 +34,9 @@
                     {{ $permintaan->keterangan }}
                 </div>
             </x-card>
+
+        </div>
+        <div>
             <x-card title="daftar permintaan">
                 <table class="w-full">
                     <thead>
@@ -51,7 +54,8 @@
                                         {{ $item->merkStok->BarangStok->nama }}
                                     </div>
                                     <div>
-                                        {{ $item->merkStok->nama }}
+                                        {{ $item->merkStok->nama }} | {{ $item->merkStok->tipe ?? '---' }}|
+                                        {{ $item->merkStok->ukuran ?? '---' }}
                                     </div>
                                 </td>
                                 {{-- <td class="px-8">
@@ -70,9 +74,7 @@
                     </tbody>
                 </table>
             </x-card>
-        </div>
-        <div>
-            <x-card title="Status persetujuan"></x-card>
+            {{-- <x-card title="Status persetujuan"></x-card> --}}
         </div>
     </div>
 </x-body>
