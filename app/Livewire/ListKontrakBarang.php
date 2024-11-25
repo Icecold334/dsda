@@ -24,10 +24,17 @@ class ListKontrakBarang extends Component
             });
         })->get();
 
-        $this->merkList = $merks->filter(function ($merk) {
-            $merk->max_jumlah = $this->calculateMaxJumlah($merk->id);
-            return $merk->max_jumlah > 0 && $merk->barangStok->jenis_id == $this->jenis_id;
-        });
+        $this->merkList = $merks->map(function ($merk) {
+            return [
+                'id' => $merk->id,
+                'barang_stok' => $merk->barangStok,
+                'merk' => $merk,
+                'max_jumlah' => $this->calculateMaxJumlah($merk->id), // Hitung sekali
+                'satuan' => optional($merk->barangStok->satuanBesar)->nama,
+            ];
+        })->filter(function ($merk) {
+            return $merk['max_jumlah'] > 0 && $merk['barang_stok']->jenis_id == $this->jenis_id;
+        })->values(); // Reset key array agar tetap rapi
     }
     #[On('vendor_id')]
     public function fillVendor($vendor_id)
@@ -58,11 +65,17 @@ class ListKontrakBarang extends Component
     #[On('pengirimanUpdated')]
     public function updateJumlahSisa($merkId, $usedJumlah)
     {
-        foreach ($this->merkList as $merk) {
-            if ($merk->id == $merkId) {
-                $merk->max_jumlah -= $usedJumlah;
-                break;
+        $this->merkList = $this->merkList->map(function ($merk) use ($merkId, $usedJumlah) {
+            if ($merk['id'] == $merkId) {
+                $merk['max_jumlah'] -= $usedJumlah; // Kurangi jumlah
             }
+            return $merk;
+        });
+
+        // Dispatch update max_jumlah ke komponen List Pengiriman
+        $merk = $this->merkList->firstWhere('id', $merkId);
+        if ($merk) {
+            $this->dispatch('maxJumlahUpdated', merkId: $merkId, maxJumlah: $merk['max_jumlah']);
         }
     }
     // public function hydrate()

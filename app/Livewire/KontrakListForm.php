@@ -81,6 +81,8 @@ class KontrakListForm extends Component
         $this->satuanKecilOptions = SatuanBesar::all();
     }
 
+
+
     // Update barang suggestions saat mengetik
     public function updatedNewBarang()
     {
@@ -219,6 +221,7 @@ class KontrakListForm extends Component
         // $this->reset(['barang_id', 'merk_id', 'jumlah', 'newBarang']);
         $this->reset(['barang_id',  'jumlah', 'newBarang']);
         $this->resetSpecifications();
+        $this->dispatch('listCount', count: count($this->list));
     }
 
     // Hapus item dari list
@@ -255,8 +258,8 @@ class KontrakListForm extends Component
         // Simpan barang
         $barang = BarangStok::create([
             'nama' => $this->newBarangName,
-            'jenis_id' => $this->jenis_id,
             'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
+            'jenis_id' => $this->jenis_id,
             'satuan_besar_id' => $satuanBesar->id,
             'satuan_kecil_id' => $satuanKecil ? $satuanKecil->id ?? null : null,
             'konversi' => $satuanKecil ? $this->jumlahKecilDalamBesar ?? null : null,

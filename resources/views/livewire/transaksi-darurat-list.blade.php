@@ -1,45 +1,188 @@
 <div>
-    <table class="w-full border border-spacing-y-4">
+    <table class="w-full border-3 border-separate border-spacing-y-4">
         <thead>
-            <tr class="text-white bg-primary-950">
-                <th class="py-3 px-6 text-center font-semibold rounded-l-lg">Barang</th>
-                <th class="py-3 px-6 text-center font-semibold">Spesifikasi</th>
-                <th class="py-3 px-6 text-center font-semibold">Jumlah</th>
+            <tr class="text-white bg-primary-950 uppercase">
+                <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
+                <th class="py-3 px-6 text-center font-semibold w-[20%]">Spesifikasi</th>
+                <th class="py-3 px-6 text-center font-semibold w-[13%]">Jumlah</th>
                 <th class="py-3 px-6 text-center font-semibold">Lokasi Penerimaan</th>
                 <th class="py-3 px-6 text-center font-semibold">Keterangan</th>
-                <th class="py-3 px-6 text-center font-semibold">Bukti</th>
-                <th class="py-3 px-6 text-center font-semibold rounded-r-lg">Aksi</th>
+                <th class="py-3 px-6 text-center font-semibold w-[15%]">dokumen pendukung</th>
+                <th class="py-3 px-6 text-center font-semibold w-[10%]">status</th>
+                <th class="py-3 px-6 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
         <tbody>
             @foreach ($list as $index => $item)
                 <tr class="bg-gray-50 hover:bg-gray-200">
-                    <td>{{ $item['barang'] }}</td>
-                    <td>{{ implode(', ', $item['specifications']) }}</td>
-                    <td>{{ $item['jumlah'] }} {{ $item['satuan'] }}</td>
-                    <td>{{ $item['lokasi_penerimaan'] }}</td>
-                    <td>{{ $item['keterangan'] }}</td>
-                    <td>
-                        @if ($item['bukti'])
-                            <a href="{{ asset('storage/' . $item['bukti']) }}" target="_blank"
-                                class="text-blue-500">Lihat</a>
-                        @endif
+                    <td class="px-2 py-3">
+                        <input
+                            class="bg-gray-50 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                            type="text" value="{{ $item['barang'] }}" placeholder="Barang" disabled>
                     </td>
-                    <td>
-                        <button wire:click="removeFromList({{ $index }})"
-                            class="bg-red-500 text-white px-2 py-1 rounded">Hapus</button>
+                    <td class="px-6 py-3">
+                        <div class="flex space-x-2">
+                            @foreach ($item['specifications'] as $key => $value)
+                                <input
+                                    class="bg-gray-50 cursor-not-allowed border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                    type="text" value="{{ $value }}" placeholder="{{ ucfirst($key) }}"
+                                    disabled>
+                            @endforeach
+                        </div>
+                    </td>
+                    <td class="px-6 py-3">
+                        <div class="flex">
+                            <input
+                                class="bg-gray-50 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                type="number" value="{{ $item['jumlah'] }}" placeholder="Jumlah" disabled>
+                            <div
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
+                                {{ $item['satuan'] }}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-6">
+                        <textarea class="bg-gray-50 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
+                            placeholder="Lokasi Penerimaan" disabled>{{ $item['lokasi_penerimaan'] }}</textarea>
+                    </td>
+                    <td class="py-3 px-6">
+                        <textarea class="bg-gray-50 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
+                            placeholder="Keterangan" disabled>{{ $item['keterangan'] }}</textarea>
+                    </td>
+                    <td class="text-center py-3 px-6">
+                        <input type="file" wire:model.live="list.{{ $index }}.bukti" class="hidden"
+                            id="upload-bukti-{{ $index }}">
+
+                        @if (isset($item['bukti']))
+                            <!-- Display uploaded proof preview with remove icon -->
+                            <div class="relative inline-block">
+                                <a href="{{ is_string($item['bukti']) ? asset('storage/buktiTransaksi/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
+                                    download="{{ is_string($item['bukti']) ? pathinfo($item['bukti'], PATHINFO_BASENAME) : $item['bukti']->getClientOriginalName() }}">
+                                    <img src="{{ is_string($item['bukti']) ? asset('storage/buktiTransaksi/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
+                                        alt="Bukti" class="w-16 h-16 rounded-md">
+                                </a>
+                                <button wire:click="removePhoto({{ $index }})"
+                                    class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600  text-white rounded-full w-5 h-5 text-xs">
+                                    &times;
+                                </button>
+                            </div>
+                        @else
+                            <!-- Show upload button if no file is selected -->
+                            <button type="button"
+                                onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
+                                class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                <i class="fa-solid fa-file-arrow-up"></i> Upload
+                            </button>
+                        @endif
+
+                        @error("list.{$index}.bukti")
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                    </td>
+                    <td class="text-center py-3 px-6">
+                        @role('penanggungjawab')
+                            {{-- Cek apakah pengguna adalah penanggungjawab --}}
+                            @if (is_null($item['status']))
+                                {{-- Cek jika status masih kosong/null --}}
+                                <!-- Tombol Approval hanya ditampilkan jika status kosong dan pengguna adalah penanggungjawab -->
+
+                                @if ($item['bukti'])
+                                    <button onclick="confirmApproval({{ $index }})"
+                                        class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
+                                        Approve
+                                    </button>
+                                @endif
+                            @else
+                                <!-- Tampilkan status jika sudah terisi -->
+                                <span class="{{ $item['status'] ? 'text-green-600' : 'text-red-600' }}">
+                                    {{ $item['status'] ? 'Disetujui' : 'Ditolak' }}
+                                </span>
+                            @endif
+                        @else
+                            <!-- Untuk pengguna yang bukan penanggungjawab, hanya tampilkan status -->
+                            <span
+                                class="{{ $item['status'] ? 'text-green-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
+                                {{ is_null($item['status']) ? 'Menunggu' : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
+                            </span>
+                        @endrole
+                    </td>
+
+                    @push('scripts')
+                        <script>
+                            function confirmApproval(index) {
+                                Swal.fire({
+                                    title: 'Apakah anda yakin?',
+                                    text: "Anda akan melakukan tindakan pada transaksi ini.",
+                                    icon: 'question',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#d33',
+                                    cancelButtonColor: '#3085d6',
+                                    confirmButtonText: 'Tolak',
+                                    cancelButtonText: 'Setujui'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Jika transaksi ditolak, minta alasan
+                                        Swal.fire({
+                                            title: 'Alasan Penolakan',
+                                            input: 'textarea',
+                                            inputPlaceholder: 'Masukkan alasan penolakan...',
+                                            inputAttributes: {
+                                                'aria-label': 'Masukkan alasan penolakan'
+                                            },
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Kirim Alasan',
+                                            cancelButtonText: 'Batal',
+                                            inputValidator: (value) => {
+                                                if (!value) {
+                                                    return 'Anda harus memasukkan alasan!'
+                                                }
+                                            }
+                                        }).then((reasonResult) => {
+                                            if (reasonResult.isConfirmed) {
+                                                // Kirim alasan penolakan ke server menggunakan @this
+                                                @this.call('disapproveTransaction', index, reasonResult.value);
+                                                Swal.fire(
+                                                    'Ditolak!',
+                                                    'Alasan Anda telah dicatat.',
+                                                    'success'
+                                                );
+                                            }
+                                        });
+                                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                        // Jika transaksi disetujui
+                                        @this.call('approveTransaction', index);
+                                        Swal.fire(
+                                            'Disetujui!',
+                                            'Transaksi telah disetujui.',
+                                            'success'
+                                        );
+                                    }
+                                });
+                            }
+                        </script>
+                    @endpush
+
+                    <td class="text-center py-3">
+                        @if (!$item['id'])
+                            <button wire:click="removeFromList({{ $index }})"
+                                class="text-danger-900 border-danger-600 text-xl border bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            </button>
+                        @endif
                     </td>
                 </tr>
             @endforeach
+
             <tr>
-                <td class="px-6 py-3">
+                <td class="px-2 py-3">
                     <div class="flex space-x-2">
                         <input
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                             type="text" wire:model.live="newBarang" wire:blur="blurBarang" placeholder="Cari Barang">
-                        @if (!$barang_id)
+                        @if (!$newBarangId)
                             <button wire:click="openBarangModal"
-                                class="px-4 py-1 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tambah</button>
+                                class="px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"><i
+                                    class="fa-solid fa-circle-plus"></i></button>
                         @endif
                     </div>
                     @if ($barangSuggestions)
@@ -54,37 +197,102 @@
                         </ul>
                     @endif
                 </td>
-                <td>
-                    @foreach (['merek' => 'Merek', 'tipe' => 'Tipe', 'ukuran' => 'Ukuran'] as $key => $label)
-                        <input type="text" wire:model.live="specifications.{{ $key }}"
-                            placeholder="{{ $label }}" class="w-full px-3 py-2 border rounded">
-                    @endforeach
+                <td class="px-6 py-3">
+                    <div class="flex space-x-2 ">
+                        @foreach (['merek' => 'Merek', 'tipe' => 'Tipe', 'ukuran' => 'Ukuran'] as $key => $label)
+                            <input
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                type="text" wire:model.live="specifications.{{ $key }}"
+                                wire:input="updateSpecification('{{ $key }}', $event.target.value)"
+                                wire:blur="blurSpecification('{{ $key }}')"
+                                placeholder="{{ $label }}">
+                            @if (count($suggestions[$key]) > 0)
+                                <ul
+                                    class="absolute z-10 w-96 bg-white border border-gray-300 rounded-lg mt-12 max-h-60 overflow-auto shadow-lg">
+                                    @foreach ($suggestions[$key] as $suggestion)
+                                        <li class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
+                                            wire:click="selectSpecification('{{ $key }}', '{{ $suggestion }}')">
+                                            {{ $suggestion }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        @endforeach
+                    </div>
                 </td>
-                <td>
-                    <input type="number" wire:model.live="newJumlah" placeholder="Jumlah"
-                        class="w-full px-3 py-2 border rounded">
+                <td class="px-6 py-3">
+                    <div class="flex">
+                        <input
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                            type="number" wire:model.live="newJumlah" placeholder="Jumlah">
+                        <div
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
+                            {{ !$newBarangId ? 'Satuan' : App\Models\BarangStok::find($newBarangId)->satuanBesar->nama }}
+                        </div>
+                    </div>
                 </td>
-                <td>
-                    <input type="text" wire:model.live="newLokasiPenerimaan" placeholder="Lokasi Penerimaan"
-                        class="w-full px-3 py-2 border rounded">
+                <td class="py-3 px-6">
+                    <textarea wire:model.live="newLokasiPenerimaan"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
+                        placeholder="Lokasi Penerimaan"></textarea>
                 </td>
-                <td>
-                    <textarea wire:model.live="newKeterangan" placeholder="Keterangan" class="w-full px-3 py-2 border rounded"></textarea>
+                <td class="py-3 px-6">
+                    <textarea wire:model.live="newKeterangan"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full" placeholder="Keterangan"></textarea>
                 </td>
-                <td>
-                    <input type="file" wire:model.live="newBukti" class="w-full">
+                <td class="py-3 px-6 text-center">
+                    <input type="file" wire:model="newBukti" class="hidden" id="upload-new-bukti">
+                    @if ($newBukti)
+                        <!-- Display uploaded proof preview with remove icon -->
+                        <div class="relative inline-block">
+                            <a href="{{ $newBukti->temporaryUrl() }}"
+                                download="{{ $newBukti->getClientOriginalName() }}">
+                                <img src="{{ $newBukti->temporaryUrl() }}" alt="Bukti"
+                                    class="w-16 h-16 rounded-md">
+                            </a>
+                            <button wire:click="removeNewPhoto"
+                                class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600  text-white rounded-full w-5 h-5 text-xs">
+                                &times;
+                            </button>
+                        </div>
+                    @else
+                        <!-- Show upload button if no file is selected -->
+                        <button type="button" onclick="document.getElementById('upload-new-bukti').click()"
+                            class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                            <i class="fa-solid fa-file-arrow-up"></i> Upload
+                        </button>
+                    @endif
+                    @error('newBukti')
+                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                    @enderror
                 </td>
-                <td>
-                    <button wire:click="addToList" class="bg-blue-500 text-white px-2 py-1 rounded">Tambah</button>
+                <td class="text-center py-3">
+                    <button wire:click="addToList"
+                        class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newKeterangan && $newLokasiPenerimaan ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </button>
                 </td>
             </tr>
         </tbody>
     </table>
 
     @if (true)
-        @if ($vendor_id != null && count($list) > 0 && $dokumenCount > 0 && $nomor_kontrak && $tanggal_kontrak)
+        {{-- @if ($vendor_id && count($list) > 0 && $dokumenCount > 0 && $nomor_kontrak && $tanggal_kontrak) --}}
+        @if (true)
             <div class="flex justify-center"><button wire:click='saveKontrak'
                     class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
+
+                @if (
+                    $dokumenCount &&
+                        $nomor_kontrak &&
+                        $metode_id &&
+                        !collect($list)->filter(function ($item) {
+                                return $item['status'] == null;
+                            })->count())
+                    <button wire:click='finishKontrak'
+                        class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Selesaikan
+                        Kontrak</button>
+                @endif
             </div>
         @endif
         @if ($showBarangModal)

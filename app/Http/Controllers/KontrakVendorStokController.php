@@ -19,9 +19,10 @@ class KontrakVendorStokController extends Controller
     public function index()
     {
         // Get transactions with a filled kontrak_id
-        $transaksi = TransaksiStok::whereNotNull('kontrak_id')->get();
-
-        // Sort transactions by date (you could sort by any other attribute relevant to your context)
+        $transaksi = TransaksiStok::whereNotNull('kontrak_id')->whereHas('kontrakStok', function ($kontrak) {
+            return $kontrak->whereNotNull('status');
+        })->get();
+        $waiting = KontrakVendorStok::where('type', false)->whereNull('status')->get();
         $sortedTransaksi = $transaksi->sortByDesc('tanggal');
 
         // Group the sorted transactions by vendor_id, then by kontrak_id
@@ -30,7 +31,7 @@ class KontrakVendorStokController extends Controller
                 return $kontrakGroup->groupBy('id'); // Group by transaction ID for distinction
             });
         });
-        return view('rekam.index', compact('groupedTransactions'));
+        return view('rekam.index', compact('groupedTransactions', 'waiting'));
     }
 
     /**

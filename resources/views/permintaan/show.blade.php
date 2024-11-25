@@ -39,7 +39,7 @@
                     <thead>
                         <tr class="text-primary-600">
                             <th>Barang</th>
-                            <th>Lokasi</th>
+                            {{-- <th>Lokasi</th> --}}
                             <th>Jumlah</th>
                         </tr>
                     </thead>
@@ -54,11 +54,11 @@
                                         {{ $item->merkStok->nama }}
                                     </div>
                                 </td>
-                                <td class="px-8">
+                                {{-- <td class="px-8">
                                     <div class="font-semibold">
                                         {{ $item->lokasiStok->nama }}
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td class="px-8">
                                     <div class="font-semibold">
                                         {{ $item->jumlah }}

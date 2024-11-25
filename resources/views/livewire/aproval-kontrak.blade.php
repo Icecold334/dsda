@@ -61,31 +61,8 @@
                     @endforeach
                 </table>
             </div> --}}
-            {{-- @if (!$kontrak->type)
-                <div class="">
-                    <div class="block font-semibold text-center mb-2 text-gray-900">
-                        Pejabat Pembuat Komitmen</div>
-                    <table class="w-full mt-3">
-                        @foreach ($ppkList as $ppk)
-                            <tr class="text-sm border-b-2 ">
-                                <td class="flex justify-between px-3">
-                                    <span class="mr-9 {{ $ppk->id == auth()->id() ? 'font-bold' : '' }}">
-                                        {{ $ppk->id == auth()->id() ? 'Anda' : $ppk->name }}
-                                    </span>
-                                    <i
-                                        class="my-1 fa-solid {{ is_null(optional($ppk->persetujuanKontrak->where('kontrak_id', $kontrak->id ?? 0)->first())->status)
-                                            ? 'fa-circle-question text-secondary-600'
-                                            : (optional($ppk->persetujuanKontrak->where('kontrak_id', $kontrak->id ?? 0)->first())->status
-                                                ? 'fa-circle-check text-success-500'
-                                                : 'fa-circle-xmark text-danger-500') }}">
-                                    </i>
+            @if (!$kontrak->type)
 
-
-                                </td>
-                            </tr>
-                        @endforeach
-                    </table>
-                </div>
                 <div class="">
                     <div class="block font-semibold text-center mb-2 text-gray-900">
                         Pejabat Pelaksana Teknis Kegiatan</div>
@@ -110,11 +87,35 @@
                         @endforeach
                     </table>
                 </div>
-            @endif --}}
+                <div class="">
+                    <div class="block font-semibold text-center mb-2 text-gray-900">
+                        Pejabat Pembuat Komitmen</div>
+                    <table class="w-full mt-3">
+                        @foreach ($ppkList as $ppk)
+                            <tr class="text-sm border-b-2 ">
+                                <td class="flex justify-between px-3">
+                                    <span class="mr-9 {{ $ppk->id == auth()->id() ? 'font-bold' : '' }}">
+                                        {{ $ppk->id == auth()->id() ? 'Anda' : $ppk->name }}
+                                    </span>
+                                    <i
+                                        class="my-1 fa-solid {{ is_null(optional($ppk->persetujuanKontrak->where('kontrak_id', $kontrak->id ?? 0)->first())->status)
+                                            ? 'fa-circle-question text-secondary-600'
+                                            : (optional($ppk->persetujuanKontrak->where('kontrak_id', $kontrak->id ?? 0)->first())->status
+                                                ? 'fa-circle-check text-success-500'
+                                                : 'fa-circle-xmark text-danger-500') }}">
+                                    </i>
+
+
+                                </td>
+                            </tr>
+                        @endforeach
+                    </table>
+                </div>
+            @endif
             {{-- @endrole --}}
         @endif
     </div>
-    {{-- @hasanyrole($roles)
+    @hasanyrole($roles)
         @if ($showButton)
             <div class="flex">
                 <div class="flex space-x-2 justify-center w-full">
@@ -143,8 +144,8 @@
 
             </div>
         @endif
-    @endhasanyrole --}}
-    {{-- @if (count($files))
+    @endhasanyrole
+    @if (count($files))
         <div class="flex justify-center">
             <div class="mt-4 gap-4 w-3/5">
                 @if ($files)
@@ -195,8 +196,8 @@
 
             </div>
         </div>
-    @endif --}}
-    {{-- @if ($approvalFiles)
+    @endif
+    @if ($approvalFiles)
         <div class="flex justify-center">
             <div class="gap-4 w-3/5">
                 @foreach ($approvalFiles as $index => $attachment)
@@ -247,7 +248,7 @@
             </div>
         </div>
     @endif
- --}}
+
 
 
 
@@ -256,7 +257,7 @@
 
 </div>
 
-{{-- @push('scripts')
+@push('scripts')
     <script>
         let fileCount = 0;
 
@@ -320,4 +321,4 @@
             fileCount = event.detail.count; // Get the count from the event detail
         });
     </script>
-@endpush --}}
+@endpush

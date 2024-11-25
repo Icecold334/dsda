@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
 class ListPengirimanForm extends Component
 {
     use WithFileUploads;
+    public $pengiriman;
     public $old = [];
     public $list = [];
     public $lokasis = [];
@@ -37,6 +38,7 @@ class ListPengirimanForm extends Component
 
         if ($merk) {
             $this->list[] = [
+                'id' => null,
                 'merk_id' => $merk->id,
                 'merk' => $merk->nama,
                 'lokasi_id' => null,
@@ -51,6 +53,7 @@ class ListPengirimanForm extends Component
         }
 
         $this->dispatch('pengirimanUpdated', merkId: $merkId, usedJumlah: 1);
+        $this->dispatch('listCount', count: count($this->list));
     }
 
 
@@ -199,6 +202,7 @@ class ListPengirimanForm extends Component
         $this->showRemove = !Request::routeIs('pengiriman-stok.show');
         $this->lokasis = LokasiStok::all();
         if (count($this->old)) {
+            $this->pengiriman = collect($this->old)->first()->detailPengirimanStok;
             foreach ($this->old as $old) {
                 // if (!collect($this->list)->contains('merk_id', $merkId)) {
                 $transaksi = PengirimanStok::findOrFail($old->id);
@@ -310,19 +314,41 @@ class ListPengirimanForm extends Component
         $this->list[$index]['posisi_id'] = $posisiId;
     }
 
+    // #[On('maxJumlahUpdated')]
+    // public function updateMaxJumlah($merkId, $maxJumlah)
+    // {
+    //     $this->list = collect($this->list)->map(function ($item) use ($merkId, $maxJumlah) {
+    //         if ($item['merk_id'] == $merkId) {
+    //             $item['max_jumlah'] = $maxJumlah; // Perbarui max_jumlah
+    //         }
+    //         return $item;
+    //     })->toArray();
+    // }
+
     public function updateJumlah($index, $value)
     {
+        $maxAllowed = $this->list[$index]['max_jumlah'];
         $merkId = $this->list[$index]['merk_id'];
         $previousJumlah = $this->list[$index]['jumlah'];
 
-        if ($value <= $this->list[$index]['max_jumlah']) {
-            $this->list[$index]['jumlah'] = $value;
-            $diff = $value - $previousJumlah;
-            $this->dispatch('pengirimanUpdated', merkId: $merkId, usedJumlah: $diff);
-        } else {
-            $this->list[$index]['jumlah'] = $this->list[$index]['max_jumlah'];
+        // Validasi nilai input
+        $value = $value === '' ? 0 : (int)$value; // Default ke 0 jika kosong
+        if ($value > $maxAllowed) {
+            $value = $maxAllowed; // Set ke max jika melebihi
         }
+
+        // Hitung selisih
+        $diff = $value - $previousJumlah;
+
+        // Perbarui nilai di list
+        $this->list[$index]['jumlah'] = $value;
+
+        // Dispatch event ke komponen kontrak untuk sinkronisasi
+        // if ($diff !== 0) {
+        $this->dispatch('pengirimanUpdated', merkId: $merkId, usedJumlah: $diff);
+        // }
     }
+
     public function updated($propertyName)
     {
         // Check if the updated property matches the specific file input
@@ -361,9 +387,11 @@ class ListPengirimanForm extends Component
     {
         $merkId = $this->list[$index]['merk_id'];
         $jumlah = $this->list[$index]['jumlah'];
+        // dd($this->list);
 
         unset($this->list[$index]);
         $this->list = array_values($this->list);
+        $this->dispatch('listCount', count: count($this->list));
 
         $this->dispatch('pengirimanUpdated', merkId: $merkId, usedJumlah: -$jumlah);
     }

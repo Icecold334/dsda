@@ -8,6 +8,7 @@ use App\Models\UnitKerja;
 
 class FormPermintaan extends Component
 {
+    public $permintaan;
     public $units;
     public $unit_id;
     public $subUnits;
@@ -24,6 +25,7 @@ class FormPermintaan extends Component
     }
     public function updatedTanggalPermintaan()
     {
+
         $this->dispatch('tanggal_permintaan', tanggal_permintaan: $this->tanggal_permintaan);
     }
     public function updatedKeterangan()
@@ -33,6 +35,7 @@ class FormPermintaan extends Component
 
     public function updatedSubUnitId()
     {
+
         $this->dispatch('sub_unit_id', sub_unit_id: $this->sub_unit_id);
     }
 
@@ -43,6 +46,13 @@ class FormPermintaan extends Component
         $this->units = UnitKerja::whereNull('parent_id')->whereHas('children', function ($sub) {
             return $sub;
         })->get();
+        if ($this->permintaan) {
+            $this->updatedUnitId();
+            $this->dispatch('unit_id', unit_id: $this->unit_id);
+            $this->dispatch('tanggal_permintaan', tanggal_permintaan: $this->tanggal_permintaan);
+            $this->dispatch('keterangan', keterangan: $this->keterangan);
+            $this->dispatch('sub_unit_id', sub_unit_id: $this->sub_unit_id);
+        }
     }
     public function render()
     {

@@ -1,8 +1,74 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
+        @push('html')
+            <!-- Main modal -->
+            <div id="tipe2" tabindex="-1" aria-hidden="true"
+                class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative p-4 w-full max-w-2xl max-h-full">
+                    <!-- Modal content -->
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <!-- Modal header -->
+                        <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                                Menunggu Persetujuan
+                            </h3>
+                            <button type="button"
+                                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                data-modal-hide="tipe2">
+                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 14 14">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <div class="p-4 md:p-5 space-y-4">
+                            @forelse ($waiting as $contract)
+                                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                    <thead
+                                        class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3">Kontrak Nomor</th>
+                                            <th scope="col" class="px-6 py-3">Tanggal Kontrak</th>
+                                            <th scope="col" class="px-6 py-3">Vendor</th>
+                                            <th scope="col" class="px-6 py-3">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                            <td class="px-6 py-4">{{ $contract->nomor_kontrak }}</td>
+                                            <td class="px-6 py-4">{{ date('j F Y', $contract->tanggal_kontrak) }}</td>
+                                            <td class="px-6 py-4">
+                                                {{ $contract->vendorStok->nama ?? 'Vendor tidak dikenal' }}
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <a href="{{ route('kontrak-vendor-stok.show', $contract) }}"
+                                                    class="text-blue-600 hover:text-blue-900">Detail</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            @empty
+                                <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
+                                    Tidak ada kontrak yang sedang menunggu persetujuan.
+                                </p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endpush
+
 
         <h1 class="text-2xl font-bold text-primary-900 ">Kontrak Vendor</h1>
         <div>
+            <button data-modal-target="tipe2" data-modal-toggle="tipe2"
+                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                type="button">
+                Menunggu Persetujuan
+            </button>
             <a href="{{ route('kontrak-vendor-stok.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Rekam Kontrak Baru</a>
