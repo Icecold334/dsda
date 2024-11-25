@@ -4,9 +4,12 @@ namespace App\Livewire;
 
 use App\Models\Agenda;
 use App\Models\Jurnal;
+use App\Models\Lokasi;
+use App\Models\Person;
 use App\Models\History;
 use Livewire\Component;
 use App\Models\Keuangan;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 class AssetDetails extends Component
@@ -27,12 +30,103 @@ class AssetDetails extends Component
     public $bulan;
     public $hari;
 
+    public $nama;
+    public $person;
+    public $person_id;
+    public $lokasi;
+    public $lokasi_id;
+
+    public $showSuggestionsPerson;
+    public $suggestionsPerson;
+    public $showSuggestionsLokasi;
+    public $suggestionsLokasi;
+
+    public $maxDays = 31; // Default jumlah hari untuk semua bulan
+
     public function mount($type, $aset)
     {
         $this->type = $type;
         $this->asetId = $aset->id;
 
         $this->loadData();
+    }
+
+    public function focusPerson()
+    {
+        $this->searchQueryPerson();
+    }
+
+    public function searchQueryPerson()
+    {
+        // dd('aa');
+        $this->showSuggestionsPerson = true;
+
+        // Ambil data dari database berdasarkan query
+        $this->suggestionsPerson = Person::where('nama', 'like', '%' . $this->person . '%')
+            // ->limit(5)
+            ->get()
+            ->toArray();
+        $this->nama = $this->person;
+
+        $exactMatchPerson = Person::where('nama', $this->person)->first();
+
+        if ($exactMatchPerson) {
+            // Jika ada kecocokan, isi vendor_id dan kosongkan suggestions
+            $this->selectSuggestionPerson($exactMatchPerson->id, $exactMatchPerson->nama);
+        }
+    }
+
+    public function selectSuggestionPerson($PersonId, $PersonName)
+    {
+        // Ketika saran dipilih, isi input dengan nilai tersebut
+        $this->person_id = $PersonId;
+        $this->person = $PersonName;
+        $this->suggestionsPerson = [];
+        $this->hideSuggestionsPerson();
+    }
+
+    public function hideSuggestionsPerson()
+    {
+        $this->showSuggestionsPerson = false;
+    }
+
+    public function focusLokasi()
+    {
+        $this->searchQueryLokasi();
+    }
+
+    public function searchQueryLokasi()
+    {
+        // dd('aa');
+        $this->showSuggestionsLokasi = true;
+
+        // Ambil data dari database berdasarkan query
+        $this->suggestionsLokasi = Lokasi::where('nama', 'like', '%' . $this->lokasi . '%')
+            // ->limit(5)
+            ->get()
+            ->toArray();
+        $this->nama = $this->lokasi;
+
+        $exactMatchLokasi = Lokasi::where('nama', $this->lokasi)->first();
+
+        if ($exactMatchLokasi) {
+            // Jika ada kecocokan, isi vendor_id dan kosongkan suggestions
+            $this->selectSuggestionLokasi($exactMatchLokasi->id, $exactMatchLokasi->nama);
+        }
+    }
+
+    public function selectSuggestionLokasi($lokasiId, $lokasiName)
+    {
+        // Ketika saran dipilih, isi input dengan nilai tersebut
+        $this->lokasi_id = $lokasiId;
+        $this->lokasi = $lokasiName;
+        $this->suggestionsLokasi = [];
+        $this->hideSuggestionsLokasi();
+    }
+
+    public function hideSuggestionsLokasi()
+    {
+        $this->showSuggestionsLokasi = false;
     }
 
     public function loadData()
@@ -76,6 +170,26 @@ class AssetDetails extends Component
         if ($key === 'tipe') {
             // Atur visibilitas berdasarkan tipe agenda
             $this->setAgendaType($value);
+        }
+
+        // Perbarui jumlah hari jika bulan dipilih
+        if ($key === 'bulan' && $this->isTahunan = true) {
+            $this->updateMaxDays((int)$value);
+        }
+    }
+
+    private function updateMaxDays($bulan)
+    {
+        $year = date('Y'); // Tahun default
+        if ($bulan >= 1 && $bulan <= 12) {
+            $this->maxDays = cal_days_in_month(CAL_GREGORIAN, $bulan, $year);
+        } else {
+            $this->maxDays = 31; // Default jika bulan tidak valid
+        }
+
+        // Reset hari jika melebihi jumlah maksimum hari
+        if (!empty($this->modalData['hari']) && $this->modalData['hari'] > $this->maxDays) {
+            $this->modalData['hari'] = '';
         }
     }
 
@@ -159,6 +273,14 @@ class AssetDetails extends Component
     {
         $this->validate($this->getValidationRules());
 
+        if ($this->type === 'history') {
+            $personId = $this->getOrCreatePerson($this->person);
+            $lokasiId = $this->getOrCreateLokasi($this->lokasi);
+
+            // Tambahkan ID ke dalam modalData
+            $this->modalData['person_id'] = $personId;
+            $this->modalData['lokasi_id'] = $lokasiId;
+        }
         // Konversi tanggal menjadi UNIX timestamp jika ada
         if (!empty($this->modalData['tanggal'])) {
             $this->modalData['tanggal'] = strtotime($this->modalData['tanggal']);
@@ -177,13 +299,10 @@ class AssetDetails extends Component
 
             // Jika tipe tahunan, tambahkan tahun default
             if (!empty($this->modalData['tipe']) && $this->modalData['tipe'] === 'tahunan') {
-                $currentYear = date('Y');
-                $tanggalFull = $currentYear . ' ' . $this->modalData['tanggal'];
-                $timestamp = strtotime($tanggalFull);
-
-                $this->modalData['tahun'] = (int) date('Y', $timestamp);
-                $this->modalData['bulan'] = (int) date('m', $timestamp);
-                $this->modalData['tanggal'] = $timestamp;
+                $currentYear = date('Y'); // Gunakan tahun saat ini
+                $tanggalFull = $currentYear . '-' . $this->modalData['bulan'] . '-' . $this->modalData['hari'];
+                // Konversi ke UNIX timestamp
+                $this->modalData['tanggal'] = strtotime($tanggalFull);
             }
         }
 
@@ -197,6 +316,31 @@ class AssetDetails extends Component
         $this->closeModal();
         $this->loadData();
     }
+
+    /**
+     * Get or create Person by name.
+     *
+     * @param string $name
+     * @return int
+     */
+    private function getOrCreatePerson($name)
+    {
+        $person = Person::firstOrCreate(['user_id' => Auth::user()->id, 'nama' => $name, 'nama_nospace' => Str::slug($name)]);
+        return $person->id;
+    }
+
+    /**
+     * Get or create Lokasi by name.
+     *
+     * @param string $name
+     * @return int
+     */
+    private function getOrCreateLokasi($name)
+    {
+        $lokasi = Lokasi::firstOrCreate(['user_id' => Auth::user()->id, 'nama' => $name, 'nama_nospace' => Str::slug($name)]);
+        return $lokasi->id;
+    }
+
 
     public function getModelInstance()
     {
@@ -214,8 +358,8 @@ class AssetDetails extends Component
         $rules = match ($this->type) {
             'history' => [
                 'modalData.tanggal' => 'required|date',
-                'modalData.person_id' => 'required|integer|max:255',
-                'modalData.lokasi_id' => 'required|integer|max:255',
+                'person_id' => 'required|integer|max:255',
+                'lokasi_id' => 'required|integer|max:255',
                 'modalData.jumlah' => 'required|integer|min:1',
                 'modalData.kondisi' => 'required|integer|between:0,100',
                 'modalData.kelengkapan' => 'required|integer|between:0,100',
@@ -242,13 +386,13 @@ class AssetDetails extends Component
         if ($this->type === 'agenda') {
             switch ($this->modalData['tipe'] ?? '') {
                 case 'mingguan':
-                    $rules['modalData.hari'] = 'required|interger|in:1,2,3,4,5,6,7';
+                    $rules['modalData.hari'] = 'required|integer|in:1,2,3,4,5,6,7';
                     break;
                 case 'bulanan':
                     $rules['modalData.bulan'] = 'required|integer|between:1,12';
                     break;
                 case 'tahunan':
-                    $rules['modalData.tanggal'] = 'required|integer|between:1,' . $this->maxDays;
+                    $rules['modalData.hari'] = 'required|integer|between:1,' . $this->maxDays;
                     $rules['modalData.bulan'] = 'required|integer|between:1,12';
                     break;
                 case 'tanggal_tertentu':

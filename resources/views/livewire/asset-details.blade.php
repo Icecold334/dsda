@@ -119,7 +119,7 @@
                             @elseif ($item->tipe === 'bulanan')
                                 <div class="text-sm font-semibold text-gray-500">Bulanan</div>
                                 <div class="text-lg font-bold text-primary-700">
-                                    Setiap tanggal {{ date('j', $item->tanggal) }}
+                                    Setiap Tanggal {{ date('j', $item->tanggal) }}
                                 </div>
                             @elseif ($item->tipe === 'tahunan')
                                 <div class="text-sm font-semibold text-gray-500">Tahunan</div>
@@ -300,19 +300,47 @@
 
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium mb-1">Penanggung Jawab *</label>
-                                    <input type="text" wire:model.live="modalData.person_id"
-                                        class="w-full border rounded-lg px-3 py-2">
-                                    @error('modalData.person_id')
-                                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                                    <input type="text" id="person" wire:model.live="person"
+                                        wire:focus="focusPerson"
+                                        class="w-full border rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                        placeholder="Masukkan Penanggung Jawab" required>
+                                    @if ($showSuggestionsPerson)
+                                        <ul
+                                            class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                            @foreach ($suggestionsPerson as $suggestionPerson)
+                                                <li wire:click="selectSuggestionPerson({{ $suggestionPerson['id'] }}, '{{ $suggestionPerson['nama'] }}')"
+                                                    class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
+                                                    {{ $suggestionPerson['nama'] }}
+                                                </li>
+                                            @endforeach
+
+                                        </ul>
+                                    @endif
+                                    @error('person')
+                                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                     @enderror
                                 </div>
 
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium mb-1">Lokasi *</label>
-                                    <input type="text" wire:model.live="modalData.lokasi_id"
-                                        class="w-full border rounded-lg px-3 py-2">
-                                    @error('modalData.lokasi_id')
-                                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                                    <input type="text" id="lokasi" wire:model.live="lokasi"
+                                        wire:focus="focusLokasi"
+                                        class="w-full border rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                        placeholder="Masukkan Lokasi" required>
+                                    @if ($showSuggestionsLokasi)
+                                        <ul
+                                            class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                            @foreach ($suggestionsLokasi as $suggestionLokasi)
+                                                <li wire:click="selectSuggestionLokasi({{ $suggestionLokasi['id'] }}, '{{ $suggestionLokasi['nama'] }}')"
+                                                    class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
+                                                    {{ $suggestionLokasi['nama'] }}
+                                                </li>
+                                            @endforeach
+
+                                        </ul>
+                                    @endif
+                                    @error('lokasi')
+                                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                     @enderror
                                 </div>
 
@@ -346,7 +374,7 @@
                                     </div>
                                 </div>
                                 <div class="mb-4">
-                                    <label class="block text-sm font-medium mb-1">keterangan *</label>
+                                    <label class="block text-sm font-medium mb-1">Keterangan *</label>
                                     <input type="text" wire:model.live="modalData.keterangan"
                                         class="w-full border rounded-lg px-3 py-2">
                                     @error('modalData.keterangan')
@@ -414,20 +442,22 @@
                                                 class="w-full border rounded-lg px-3 py-2">
                                                 <option value="">Pilih Bulan</option>
                                                 @for ($i = 1; $i <= 12; $i++)
-                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                    <option value="{{ $i }}">
+                                                        {{ DateTime::createFromFormat('!m', $i)->format('F') }}
+                                                    </option>
                                                 @endfor
                                             </select>
                                             @error('modalData.bulan')
                                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                                             @enderror
-                                            <select wire:model.live="modalData.bulan"
+                                            <select wire:model.live="modalData.hari"
                                                 class="w-full border rounded-lg px-3 py-2">
                                                 <option value="">Pilih Tanggal</option>
-                                                @for ($i = 1; $i <= 31; $i++)
+                                                @for ($i = 1; $i <= $maxDays; $i++)
                                                     <option value="{{ $i }}">{{ $i }}</option>
                                                 @endfor
                                             </select>
-                                            @error('modalData.bulan')
+                                            @error('modalData.hari')
                                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                                             @enderror
                                         </div>

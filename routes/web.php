@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\PermintaanStok;
+use App\Livewire\AssetCalendar;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
@@ -17,9 +19,9 @@ use App\Http\Controllers\JurnalController;
 use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\PersonController;
+use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\LampiranController;
@@ -30,6 +32,7 @@ use App\Http\Controllers\JenisStokController;
 use App\Http\Controllers\MerekStokController;
 use App\Http\Controllers\BagianStokController;
 use App\Http\Controllers\BarangStokController;
+use App\Http\Controllers\KalenderController;
 use App\Http\Controllers\KonfirmasiController;
 use App\Http\Controllers\LokasiStokController;
 use App\Http\Controllers\PosisiStokController;
@@ -41,7 +44,6 @@ use App\Http\Controllers\PermintaanStokController;
 use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
-use App\Models\PermintaanStok;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -100,6 +102,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('option', OptionController::class);
     Route::resource('order', OrderController::class);
     Route::resource('provinsi', ProvinsiController::class);
+    Route::resource('kalender', KalenderController::class);
     Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'create']);
 
     Route::resources([

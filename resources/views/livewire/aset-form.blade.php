@@ -76,7 +76,7 @@
                             <td>
                                 <input type="text" id="merk" wire:model.live="merk" wire:focus="focusMerk"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                    placeholder="Masukkan merk" required>
+                                    placeholder="Masukkan merk" required> 
                                 @if ($showSuggestionsMerk)
                                     <ul
                                         class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">

@@ -125,11 +125,11 @@ class AsetForm extends Component
         }
     }
 
-    public function selectSuggestionToko($TokoId, $TokoName)
+    public function selectSuggestionToko($tokoId, $tokoName)
     {
         // Ketika saran dipilih, isi input dengan nilai tersebut
-        $this->toko_id = $TokoId;
-        $this->toko = $TokoName;
+        $this->toko_id = $tokoId;
+        $this->toko = $tokoName;
         $this->suggestionsToko = [];
         $this->hideSuggestionsToko();
     }
