@@ -51,18 +51,16 @@ class AssetCalendar extends Component
         // Logika pemuatan data berdasarkan selectedFilter
         switch ($this->selectedFilter) {
             case 'agenda':
-                $this->agendas = Agenda::whereBetween('tanggal', [$startOfMonth, $endOfMonth])
-                    ->get()
-                    ->map(function ($agenda) {
-                        $agenda->formatted_tipe = match ($agenda->tipe) {
-                            'mingguan' => 'Mingguan',
-                            'bulanan' => 'Bulanan',
-                            'tahunan' => 'Tahunan',
-                            'tanggal_tertentu' => 'Tanggal Tertentu',
-                            default => ucfirst($agenda->tipe),
-                        };
-                        return $agenda;
-                    });
+                $this->agendas = Agenda::get()->map(function ($agenda) {
+                    $agenda->formatted_tipe = match ($agenda->tipe) {
+                        'mingguan' => 'Mingguan',
+                        'bulanan' => 'Bulanan',
+                        'tahunan' => 'Tahunan',
+                        'tanggal_tertentu' => 'Tanggal Tertentu',
+                        default => ucfirst($agenda->tipe),
+                    };
+                    return $agenda;
+                });
                 break;
 
             case 'journal':
@@ -79,18 +77,16 @@ class AssetCalendar extends Component
 
             case 'all':
             default:
-                $this->agendas = Agenda::whereBetween('tanggal', [$startOfMonth, $endOfMonth])
-                    ->get()
-                    ->map(function ($agenda) {
-                        $agenda->formatted_tipe = match ($agenda->tipe) {
-                            'mingguan' => 'Mingguan',
-                            'bulanan' => 'Bulanan',
-                            'tahunan' => 'Tahunan',
-                            'tanggal_tertentu' => 'Tanggal Tertentu',
-                            default => ucfirst($agenda->tipe),
-                        };
-                        return $agenda;
-                    });
+                $this->agendas = Agenda::get()->map(function ($agenda) {
+                    $agenda->formatted_tipe = match ($agenda->tipe) {
+                        'mingguan' => 'Mingguan',
+                        'bulanan' => 'Bulanan',
+                        'tahunan' => 'Tahunan',
+                        'tanggal_tertentu' => 'Tanggal Tertentu',
+                        default => ucfirst($agenda->tipe),
+                    };
+                    return $agenda;
+                });
 
                 $this->journals = Jurnal::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->get();
                 $this->transactions = Keuangan::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->get();
@@ -105,19 +101,36 @@ class AssetCalendar extends Component
         setlocale(LC_TIME, 'id_ID.UTF-8');
         \Carbon\Carbon::setLocale('id');
 
+        // Map nama hari ke angka
+        $dayMap = [
+            'Senin' => 1,
+            'Selasa' => 2,
+            'Rabu' => 3,
+            'Kamis' => 4,
+            'Jumat' => 5,
+            'Sabtu' => 6,
+            'Minggu' => 7,
+        ];
+
         $days = [];
         while ($start->lte($end)) {
+            $dayName = $start->translatedFormat('l'); // Nama hari (Bahasa Indonesia)
             $fullDate = $start->toDateString();
+
             $days[] = [
-                'day_name' => $start->translatedFormat('l'), // Nama hari (dalam Bahasa Indonesia)
+                'day_name' => $dayName, // Nama hari
                 'day_num' => $start->format('j'), // Tanggal
                 'full_date' => $fullDate, // Tanggal dalam format string (YYYY-MM-DD)
                 'date_strtotime' => strtotime($fullDate), // UNIX timestamp dari full_date
+                'day_index' => $dayMap[$dayName] ?? null, // Angka hari (1 untuk Senin, 7 untuk Minggu)
+                'month_index' => (int) $start->format('n'), // Angka bulan (1 untuk Januari, 12 untuk Desember)
             ];
+
             $start->addDay();
         }
         return $days;
     }
+
 
     public function render()
     {

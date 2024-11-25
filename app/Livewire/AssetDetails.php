@@ -41,6 +41,8 @@ class AssetDetails extends Component
     public $showSuggestionsLokasi;
     public $suggestionsLokasi;
 
+    public $maxDays = 31; // Default jumlah hari untuk semua bulan
+
     public function mount($type, $aset)
     {
         $this->type = $type;
@@ -169,6 +171,26 @@ class AssetDetails extends Component
             // Atur visibilitas berdasarkan tipe agenda
             $this->setAgendaType($value);
         }
+
+        // Perbarui jumlah hari jika bulan dipilih
+        if ($key === 'bulan' && $this->isTahunan = true) {
+            $this->updateMaxDays((int)$value);
+        }
+    }
+
+    private function updateMaxDays($bulan)
+    {
+        $year = date('Y'); // Tahun default
+        if ($bulan >= 1 && $bulan <= 12) {
+            $this->maxDays = cal_days_in_month(CAL_GREGORIAN, $bulan, $year);
+        } else {
+            $this->maxDays = 31; // Default jika bulan tidak valid
+        }
+
+        // Reset hari jika melebihi jumlah maksimum hari
+        if (!empty($this->modalData['hari']) && $this->modalData['hari'] > $this->maxDays) {
+            $this->modalData['hari'] = '';
+        }
     }
 
     private function setAgendaType($tipe)
@@ -277,13 +299,10 @@ class AssetDetails extends Component
 
             // Jika tipe tahunan, tambahkan tahun default
             if (!empty($this->modalData['tipe']) && $this->modalData['tipe'] === 'tahunan') {
-                $currentYear = date('Y');
-                $tanggalFull = $currentYear . ' ' . $this->modalData['tanggal'];
-                $timestamp = strtotime($tanggalFull);
-
-                $this->modalData['tahun'] = (int) date('Y', $timestamp);
-                $this->modalData['bulan'] = (int) date('m', $timestamp);
-                $this->modalData['tanggal'] = $timestamp;
+                $currentYear = date('Y'); // Gunakan tahun saat ini
+                $tanggalFull = $currentYear . '-' . $this->modalData['bulan'] . '-' . $this->modalData['hari'];
+                // Konversi ke UNIX timestamp
+                $this->modalData['tanggal'] = strtotime($tanggalFull);
             }
         }
 
@@ -373,7 +392,7 @@ class AssetDetails extends Component
                     $rules['modalData.bulan'] = 'required|integer|between:1,12';
                     break;
                 case 'tahunan':
-                    $rules['modalData.tanggal'] = 'required|integer|between:1,' . $this->maxDays;
+                    $rules['modalData.hari'] = 'required|integer|between:1,' . $this->maxDays;
                     $rules['modalData.bulan'] = 'required|integer|between:1,12';
                     break;
                 case 'tanggal_tertentu':

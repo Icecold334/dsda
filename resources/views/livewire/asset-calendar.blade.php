@@ -48,13 +48,34 @@
                     </td>
                     <td class="border border-gray-300 px-4 py-2">
                         @foreach ($agendas as $agenda)
-                            @if (
-                                ($agenda->tipe === 'mingguan' && $agenda->hari == $day['day_num']) ||
-                                    ($agenda->tipe === 'bulanan' && date('j', $agenda->tanggal) == $day['day_num']) ||
-                                    ($agenda->tipe === 'tahunan' &&
-                                        date('j', $agenda->tanggal) == $day['day_num'] &&
-                                        date('m', $agenda->tanggal) == $day['month']) ||
-                                    ($agenda->tipe === 'tanggal_tertentu' && $agenda->tanggal == $day['date_strtotime']))
+                            @php
+                                $showAgenda = false;
+
+                                if ($agenda->tipe === 'mingguan' && $agenda->hari == $day['day_index']) {
+                                    $showAgenda = true;
+                                }
+
+                                if ($agenda->tipe === 'bulanan' && date('j', $agenda->tanggal) == $day['day_num']) {
+                                    $showAgenda = true;
+                                }
+
+                                if (
+                                    $agenda->tipe === 'tahunan' &&
+                                    $agenda->hari == $day['day_num'] &&
+                                    $agenda->bulan == $day['month_index']
+                                ) {
+                                    $showAgenda = true;
+                                }
+
+                                if (
+                                    $agenda->tipe === 'tanggal_tertentu' &&
+                                    $agenda->tanggal == $day['date_strtotime']
+                                ) {
+                                    $showAgenda = true;
+                                }
+                            @endphp
+
+                            @if ($showAgenda)
                                 <div class="bg-blue-100 p-2 rounded-lg mb-1">
                                     <div class="font-bold">{{ $agenda->aset->nama }}</div>
                                     <div class="text-sm text-gray-600">

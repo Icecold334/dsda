@@ -119,7 +119,7 @@
                             @elseif ($item->tipe === 'bulanan')
                                 <div class="text-sm font-semibold text-gray-500">Bulanan</div>
                                 <div class="text-lg font-bold text-primary-700">
-                                    Setiap tanggal {{ date('j', $item->tanggal) }}
+                                    Setiap Tanggal {{ date('j', $item->tanggal) }}
                                 </div>
                             @elseif ($item->tipe === 'tahunan')
                                 <div class="text-sm font-semibold text-gray-500">Tahunan</div>
@@ -442,20 +442,22 @@
                                                 class="w-full border rounded-lg px-3 py-2">
                                                 <option value="">Pilih Bulan</option>
                                                 @for ($i = 1; $i <= 12; $i++)
-                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                    <option value="{{ $i }}">
+                                                        {{ DateTime::createFromFormat('!m', $i)->format('F') }}
+                                                    </option>
                                                 @endfor
                                             </select>
                                             @error('modalData.bulan')
                                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                                             @enderror
-                                            <select wire:model.live="modalData.bulan"
+                                            <select wire:model.live="modalData.hari"
                                                 class="w-full border rounded-lg px-3 py-2">
                                                 <option value="">Pilih Tanggal</option>
-                                                @for ($i = 1; $i <= 31; $i++)
+                                                @for ($i = 1; $i <= $maxDays; $i++)
                                                     <option value="{{ $i }}">{{ $i }}</option>
                                                 @endfor
                                             </select>
-                                            @error('modalData.bulan')
+                                            @error('modalData.hari')
                                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                                             @enderror
                                         </div>
