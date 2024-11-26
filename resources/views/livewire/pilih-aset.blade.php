@@ -19,7 +19,7 @@
     </div>
 
     <!-- Daftar Aset -->
-    <div class="overflow-y-auto max-h-[400px]">
+    <div class="overflow-y-auto max-h-96">
         @foreach ($assets as $asset)
             <div class="flex items-center justify-between border-b py-2">
                 <div class="flex items-center space-x-3">
@@ -37,3 +37,4 @@
         @endforeach
     </div>
 </div>
+    

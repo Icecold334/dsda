@@ -95,7 +95,7 @@
 
             </div>
         </nav>
-        @push('scripts')
+        {{-- @push('scripts')
             <script>
                 const menuButton = document.getElementById('menuButton');
                 const menu = document.getElementById('menu');
@@ -104,5 +104,5 @@
                     menu.classList.toggle('hidden');
                 });
             </script>
-        @endpush
+        @endpush --}}
     </header>

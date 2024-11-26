@@ -15,7 +15,7 @@ class PilihAset extends Component
 
     public function mount()
     {
-        $this->assets = Aset::with('kategori')->get(); // Ambil semua aset dengan kategori
+        $this->assets = Aset::with('kategori')->where('status', true)->get(); // Ambil semua aset dengan kategori
     }
 
     public function updatedSearch()
