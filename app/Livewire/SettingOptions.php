@@ -4,7 +4,8 @@ namespace App\Livewire;
 
 use App\Models\Option;
 use Livewire\Component;
-use Spatie\Permission\Exceptions\RoleDoesNotExist;
+use Spatie\Permission\Models\Role;
+
 
 class SettingOptions extends Component
 {
@@ -15,6 +16,7 @@ class SettingOptions extends Component
     public $qr_baris1_other;
     public $qr_baris2;
     public $qr_baris2_other;
+    public $roles;
 
     protected $rules = [
         'kode_aset' => 'required|string|max:255',
@@ -29,7 +31,6 @@ class SettingOptions extends Component
     public function mount()
     {
         $option = Option::find(1); // Ambil data berdasarkan ID 1
-        // dd('test');
         $this->kode_aset = $option->kodeaset;
         $this->qr_judul = $option->qr_judul;
         $this->qr_judul_other = $option->qr_judul_other;
@@ -37,8 +38,8 @@ class SettingOptions extends Component
         $this->qr_baris1_other = $option->qr_baris1_other;
         $this->qr_baris2 = $option->qr_baris2;
         $this->qr_baris2_other = $option->qr_baris2_other;
-        // $roles = Roles::All();
-
+        // Load all roles
+        $this->roles = Role::all();
     }
 
     public function save()

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 
 class OptionController extends Controller
 {
@@ -11,7 +12,7 @@ class OptionController extends Controller
      */
     public function index()
     {
-      return view('option.index');  //
+        return view('option.index');  //
     }
 
     /**
@@ -19,7 +20,7 @@ class OptionController extends Controller
      */
     public function create()
     {
-        //
+        return view('option.create');
     }
 
     /**
@@ -33,9 +34,11 @@ class OptionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Role $option)
     {
-        //
+        // dd($option);
+        $option = Role::all();
+        return view('option.show', compact('option'));
     }
 
     /**
