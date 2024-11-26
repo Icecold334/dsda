@@ -23,7 +23,7 @@
         @foreach ($assets as $asset)
             <div class="flex items-center justify-between border-b py-2">
                 <div class="flex items-center space-x-3">
-                    <img src="{{ $asset->qrCode }}" alt="QR Code" class="w-12 h-12">
+                    <img src="/storage/qr/{{ $asset->systemcode }}.png" alt="QR Code" class="w-12 h-12">
                     <div>
                         <div class="text-sm font-medium text-gray-700">{{ $asset->nama }}</div>
                         <div class="text-xs text-gray-500">{{ $asset->kategori->nama }}</div>

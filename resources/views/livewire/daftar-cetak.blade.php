@@ -14,7 +14,7 @@
                 <div class="flex items-center justify-between border rounded-lg p-3 bg-gray-50 shadow-sm">
                     <div class="flex items-center space-x-3">
                         {{-- {{ $asset['qrCode'] }} --}}
-                        <img src="#" alt="QR Code" class="w-12 h-12">
+                        <img src="/storage/qr/{{ $asset['systemcode'] }}.png" alt="QR Code" class="w-12 h-12">
                         <div>
                             <div class="text-sm font-medium text-gray-700">{{ $asset['nama'] }}</div>
                             <div class="text-xs text-gray-500">{{ $asset['kategori'] }}</div>
@@ -37,7 +37,7 @@
     <!-- Pilihan Ukuran dan Tombol Cetak -->
     <div class="flex items-center space-x-3">
         <select wire:model.live="selectedSize"
-            class="w-full p-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500 text-sm">
+            class="w-56 p-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500 text-sm">
             <option value="none">Pilih ukuran...</option>
             <option value="small">Ukuran Kecil (23 x 30 mm)</option>
             <option value="medium">Ukuran Sedang (39 x 51 mm)</option>

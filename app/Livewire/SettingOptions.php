@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\Option;
 use Livewire\Component;
@@ -29,8 +29,8 @@ class SettingOptions extends Component
     public function mount()
     {
         $option = Option::find(1); // Ambil data berdasarkan ID 1
+        // dd('test');
         $this->kode_aset = $option->kodeaset;
-        dd($this->kode_aset);
         $this->qr_judul = $option->qr_judul;
         $this->qr_judul_other = $option->qr_judul_other;
         $this->qr_baris1 = $option->qr_baris1;
