@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Option;
 use Livewire\Component;
-
+use Spatie\Permission\Exceptions\RoleDoesNotExist;
 
 class SettingOptions extends Component
 {
@@ -37,6 +37,8 @@ class SettingOptions extends Component
         $this->qr_baris1_other = $option->qr_baris1_other;
         $this->qr_baris2 = $option->qr_baris2;
         $this->qr_baris2_other = $option->qr_baris2_other;
+        // $roles = Roles::All();
+
     }
 
     public function save()

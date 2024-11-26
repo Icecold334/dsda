@@ -153,4 +153,58 @@
             </div>
         </div>
     </x-card>
+
+    <x-card title="Jabatan & Perizinan">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-4">
+            <p class="text-sm text-gray-600">
+                Pengaturan untuk Jabatan dan Perizinan yang dapat diakses.
+            </p>
+            <a href="/profil/user"
+                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                + Buat Jabatan
+            </a>
+        </div>
+
+        <!-- Roles List -->
+        <div class="space-y-2 mb-4 overflow-y-auto max-h-40">
+            {{-- @if ($roles->isNotEmpty()) --}}
+            {{-- @foreach ($roles as $role) --}}
+            <div class="border rounded-lg p-3 bg-gray-50 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <!-- Role Information -->
+                    <div>
+                        {{-- Replace with dynamic role name and guard name --}}
+                        {{-- <div class="text-sm font-medium text-gray-700">{{ $role->name }}</div> --}}
+                        {{-- <div class="text-xs text-gray-500">{{ $role->guard_name }}</div> --}}
+                        <div class="text-sm font-medium text-gray-700">Role Name</div>
+                        <div class="text-xs text-gray-500">Guard Name</div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-2">
+                        {{-- <button type="button"
+                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white rounded-lg px-4 py-2 transition duration-200">
+                            <i class="fa-solid fa-pen"></i>
+                        </button> --}}
+                        <button type="button"
+                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white rounded-lg px-4 py-2 transition duration-200">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        {{-- <button type="button"
+                            class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white rounded-lg px-4 py-2 transition duration-200">
+                            <i class="fa-solid fa-trash"></i>
+                        </button> --}}
+                    </div>
+                </div>
+            </div>
+            {{-- @endforeach --}}
+            {{-- @else --}}
+            <p class="text-sm text-gray-500 italic">Belum ada data jabatan & perizinan.</p>
+            {{-- @endif --}}
+        </div>
+    </x-card>
+
+
+
 </div>
