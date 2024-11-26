@@ -175,18 +175,18 @@
                             <!-- Role Information -->
                             <div>
                                 {{-- Replace with dynamic role name and guard name --}}
-                                <div class="text-sm font-medium text-gray-700">{{ $role->name }}</div>
+                                <div class="text-sm font-medium text-gray-700">{{ $role['name'] }}</div>
                                 {{-- <div class="text-xs text-gray-500">{{ $role->guard_name }}</div> --}}
                             </div>
 
                             <!-- Action Buttons -->
                             <div class="flex space-x-2">
-                                <a href="{{ route('option.show', ['option' => $role->id]) }}"
+                                <a href="{{ route('option.show', ['option' => $role['id']]) }}"
                                     class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
-                                    data-tooltip-target="tooltip-option-{{ $role->id }}">
+                                    data-tooltip-target="tooltip-option-{{ $role['id'] }}">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
-                                <div id="tooltip-option-{{ $role->id }}" role="tooltip"
+                                <div id="tooltip-option-{{ $role['id'] }}" role="tooltip"
                                     class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                                     Lihat Detail Jabatan
                                     <div class="tooltip-arrow" data-popper-arrow></div>

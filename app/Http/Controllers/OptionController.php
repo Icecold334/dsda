@@ -36,11 +36,27 @@ class OptionController extends Controller
      */
     public function show(Role $option)
     {
-        // dd($option);
-        $option = Role::all();
-        return view('option.show', compact('option'));
+        $formattedRole = $this->formatRoleName($option->name);
+        return view('option.show', compact('option', 'formattedRole'));
     }
 
+    private function formatRoleName($role)
+    {
+        switch ($role) {
+            case 'superadmin':
+                return 'Super Admin';
+            case 'admin':
+                return 'Admin';
+            case 'penanggungjawab':
+                return 'Penanggung Jawab';
+            case 'ppk':
+                return 'Pejabat Pembuat Komitmen (PPK)';
+            case 'pptk':
+                return 'Pejabat Pelaksana Teknis Kegiatan (PPTK)';
+            default:
+                return ucfirst($role); // Default to capitalize the first letter
+        }
+    }
     /**
      * Show the form for editing the specified resource.
      */

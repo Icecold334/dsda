@@ -39,7 +39,35 @@ class SettingOptions extends Component
         $this->qr_baris2 = $option->qr_baris2;
         $this->qr_baris2_other = $option->qr_baris2_other;
         // Load all roles
-        $this->roles = Role::all();
+        $roles = Role::all();
+        $this->roles = $roles->map(function ($role) {
+            return [
+                'id' => $role->id,
+                'name' => $this->formatRoleName($role->name),
+                'guard_name' => $role->guard_name,
+            ];
+        });
+    }
+
+    /**
+     * Format the role name based on predefined rules or capitalize.
+     */
+    private function formatRoleName($role)
+    {
+        switch ($role) {
+            case 'superadmin':
+                return 'Super Admin';
+            case 'admin':
+                return 'Admin';
+            case 'penanggungjawab':
+                return 'Penanggung Jawab';
+            case 'ppk':
+                return 'Pejabat Pembuat Komitmen (PPK)';
+            case 'pptk':
+                return 'Pejabat Pelaksana Teknis Kegiatan (PPTK)';
+            default:
+                return ucfirst($role); // Default to capitalize the first letter
+        }
     }
 
     public function save()
