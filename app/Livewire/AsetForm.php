@@ -7,6 +7,7 @@ use App\Models\Aset;
 use App\Models\Merk;
 use App\Models\Toko;
 use App\Models\Option;
+use BaconQrCode\Writer;
 use Livewire\Component;
 use App\Models\Kategori;
 use Illuminate\Support\Str;
@@ -14,8 +15,10 @@ use Livewire\WithFileUploads;
 use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use BaconQrCode\Renderer\GDLibRenderer;
+
 use Illuminate\Support\Facades\Storage;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 
 class AsetForm extends Component
 {
@@ -77,7 +80,7 @@ class AsetForm extends Component
             // ->limit(5)
             ->get()
             ->toArray();
-        $this->nama = $this->merk;
+        // $this->merk = $this->merk;
 
         $exactMatchMerk = Merk::where('nama', $this->merk)->first();
 
@@ -115,7 +118,7 @@ class AsetForm extends Component
             // ->limit(5)
             ->get()
             ->toArray();
-        $this->nama = $this->toko;
+        // $this->nama = $this->toko;
 
         $exactMatchToko = Toko::where('nama', $this->toko)->first();
 
@@ -375,14 +378,13 @@ class AsetForm extends Component
             'lama_garansi' => $this->lama_garansi,
             'penyusutan' => $this->cleanCurrency($this->penyusutan),
         ];
-        dd($data);
 
         // Insert or update aset based on $this->aset
-        Aset::updateOrCreate(['id' => $this->aset->id], $data);
+        $aset = Aset::updateOrCreate(['id' => $this->aset->id ?? 0], $data);
 
         // Optionally add flash message or other post-save actions
         session()->flash('message', 'Aset successfully saved.');
-        return redirect()->to('/path-to-redirect');
+        return redirect()->route('aset.show', $aset);
     }
 
     /**
@@ -428,36 +430,42 @@ class AsetForm extends Component
         return 0;
     }
 
-    private
-    function generateQRCode()
+
+    private function generateQRCode()
     {
-        $userId = Auth::id(); // Assuming you have authentication and you get the user's ID
-        $qrName = strtoupper(Str::random(16)); // Generate an uppercase random string for the QR code filename
+        $userId = Auth::id(); // Dapatkan ID pengguna yang login
+        $qrName = strtoupper(Str::random(16)); // Buat nama file acak untuk QR code
 
-        // Define the folder path
+        // Tentukan folder dan path target file
         $qrFolder = "qr";
-
-        // Full path for the QR code image
         $qrTarget = "{$qrFolder}/{$qrName}.png";
 
-        // Content to encode in the QR code, using path parameters instead of query parameters
+        // Konten QR Code (contohnya URL)
         $qrContent = url("/scan/{$userId}/{$qrName}");
 
-        // Ensure the directory exists
-        // Storage::disk('public')->makeDirectory($qrFolder);
+        // Pastikan direktori untuk QR Code tersedia
+        if (!Storage::disk('public')->exists($qrFolder)) {
+            Storage::disk('public')->makeDirectory($qrFolder);
+        }
 
+        // Konfigurasi renderer untuk menggunakan GD dengan ukuran 400x400
+        $renderer = new GDLibRenderer(500);
+        $writer = new Writer($renderer);
 
-        // Or use Laravel's Storage facade to handle file stream
-        Storage::disk('public')->put($qrTarget, QrCode::format('png')->size(300)->generate($qrContent));
+        // Path absolut untuk menyimpan file
+        $filePath = Storage::disk('public')->path($qrTarget);
 
+        // Hasilkan QR Code ke file
+        $writer->writeFile($qrContent, $filePath);
 
-        // Check if the file was created successfully
+        // Periksa apakah file berhasil dibuat
         if (Storage::disk('public')->exists($qrTarget)) {
-            return $qrName; // Return the QR code file name (random string)
+            return $qrName; // Kembalikan nama file QR
         } else {
-            return "0"; // Return "0" if the QR code wasn't created
+            return "0"; // Kembalikan "0" jika gagal
         }
     }
+
 
     public function render()
     {

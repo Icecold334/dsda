@@ -62,33 +62,33 @@ class AprovalKontrak extends Component
         if ($this->kontrak) {
             if ($this->kontrak->type) {
                 $this->roles = 'penanggungjawab';
-                $date = Carbon::parse($this->date);
-                $users = User::role('penanggungjawab')
-                    ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-                    ->get();
+                // $date = Carbon::parse($this->date);
+                // $users = User::role('penanggungjawab')
+                //     ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+                //     ->get();
 
-                $index = $users->search(function ($user) {
-                    return $user->id == Auth::id();
-                });
-                $previousUser = $index > 0 ? $users[$index - 1] : null;
-                $users = User::role('penanggungjawab')
-                    ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-                    ->get();
-                $index = $users->search(function ($user) {
-                    return $user->id == Auth::id();
-                });
-                $this->isLastUser = $index === $users->count() - 1; // Check if current user is the last user
-                if ($index === 0) {
-                    $currentUser = $users[$index];
-                    $this->showButton = !$currentUser->persetujuanKontrak()->where('kontrak_id', $this->kontrak->id ?? 0)->exists();
-                } else {
-                    $previousUser = $index > 0 ? $users[$index - 1] : null;
-                    $currentUser = $users[$index];
-                    $this->showButton = $this->kontrak &&
-                        $previousUser && !$currentUser->persetujuanKontrak()->where('kontrak_id', $this->kontrak->id ?? 0)->exists() &&
-                        $previousUser->persetujuanKontrak()->where('kontrak_id', $this->kontrak->id ?? 0)->exists();
-                }
-                $this->pjList = $users;
+                // $index = $users->search(function ($user) {
+                //     return $user->id == Auth::id();
+                // });
+                // $previousUser = $index > 0 ? $users[$index - 1] : null;
+                // $users = User::role('penanggungjawab')
+                //     ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+                //     ->get();
+                // $index = $users->search(function ($user) {
+                //     return $user->id == Auth::id();
+                // });
+                // $this->isLastUser = $index === $users->count() - 1; // Check if current user is the last user
+                // if ($index === 0) {
+                //     $currentUser = $users[$index];
+                //     $this->showButton = !$currentUser->persetujuanKontrak()->where('kontrak_id', $this->kontrak->id ?? 0)->exists();
+                // } else {
+                //     $previousUser = $index > 0 ? $users[$index - 1] : null;
+                //     $currentUser = $users[$index];
+                //     $this->showButton = $this->kontrak &&
+                //         $previousUser && !$currentUser->persetujuanKontrak()->where('kontrak_id', $this->kontrak->id ?? 0)->exists() &&
+                //         $previousUser->persetujuanKontrak()->where('kontrak_id', $this->kontrak->id ?? 0)->exists();
+                // }
+                // $this->pjList = $users;
             } else {
                 $this->roles = 'penanggungjawab|ppk|pptk';
 
