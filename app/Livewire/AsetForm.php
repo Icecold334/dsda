@@ -251,7 +251,7 @@ class AsetForm extends Component
 
         // Execute replacements
         $kodeAset = str_replace(
-            ['[nomor]', '[tanggal]', '[bulan-angka]', '[bulan-romawi]', '[tahun]'],
+            ['[nomor]', '[tanggal]', '[bulan_angka]', '[bulan_romawi]', '[tahun]'],
             [$nomor, $tanggal, $bulanAngka, $bulanRomawi, $tahun],
             $templateKodeaset
         );

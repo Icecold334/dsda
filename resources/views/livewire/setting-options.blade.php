@@ -58,7 +58,7 @@
             <!-- QR Code Image and Description -->
             <div>
                 <div class="border rounded-md p-4 flex justify-center items-center">
-                    <img src="#" alt="QR Code Preview" class="w-64 h-64">
+                    <img src="/img/qrcode-sample.jpg" alt="QR Code Preview">
                 </div>
                 <p class="text-sm text-gray-700 mt-4">
                     Isi keterangan QR-Code akan otomatis dipotong jika lebih dari 25 karakter.
@@ -85,11 +85,10 @@
                             <option value="null">[Kosong]</option>
                             <option value="other">Lainnya...</option>
                         </select>
-                        {{-- @dump($qr_judul) --}}
-                        {{-- @if ($qr_judul === 'other')
+                        @if ($qr_judul === 'other')
                             <input type="text" wire:model.live="qr_judul_other"
                                 class="mt-2 block w-full border-gray-300 rounded-md">
-                        @endif --}}
+                        @endif
                         @error('qr_judul')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
@@ -113,11 +112,11 @@
                         <option value="null">[Kosong]</option>
                         <option value="other">Lainnya...</option>
                     </select>
-                    {{-- @if ($qr_baris1 === 'other')
+                    @if ($qr_baris1 === 'other')
                         <input type="text" wire:model.live="qr_baris1_other" maxlength="25"
                             placeholder="Ketik di sini"
                             class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    @endif --}}
+                    @endif
                 </div>
 
                 <!-- Baris Kedua -->
@@ -137,11 +136,11 @@
                         <option value="null">[Kosong]</option>
                         <option value="other">Lainnya...</option>
                     </select>
-                    {{-- @if ($qr_baris2 === 'other')
+                    @if ($qr_baris2 === 'other')
                         <input type="text" wire:model.live="qr_baris2_other" maxlength="25"
                             placeholder="Ketik di sini"
                             class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    @endif --}}
+                    @endif
                 </div>
 
                 <!-- Save Button -->
