@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // Create or get roles for superadmin, admin, penanggungjawab, ppk, pptk
-        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk'];
+        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk', 'guest'];
         $roleIds = [];
 
         foreach ($roles as $role) {
@@ -56,7 +56,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // Permission list (assuming permissions from the previous example)
-        $permissions = [
+        $permissionsGuest = [
             'nama',
             'kategori',
             'kode',
@@ -87,6 +87,9 @@ class DatabaseSeeder extends Seeder
             'keuangan',
             'agenda',
             'jurnal',
+            'riwayat_terakhir',
+            'riwayat_semua',
+            'riwayat_tidak',
             'riwayat_tanggal',
             'riwayat_person',
             'riwayat_lokasi',
@@ -94,6 +97,28 @@ class DatabaseSeeder extends Seeder
             'riwayat_kondisi',
             'riwayat_kelengkapan',
             'riwayat_keterangan',
+            // 'aset_price',
+            // 'aset_new',
+            // 'aset_edit',
+            // 'aset_del',
+            // 'aset_pdf',
+            // 'aset_xls',
+            // 'aset_noaktif',
+            // 'aset_reaktif',
+            // 'history_view',
+            // 'history_newedit',
+            // 'history_del',
+            // 'trans_view',
+            // 'trans_newedit',
+            // 'trans_del',
+            // 'data_kategori',
+            // 'data_merk',
+            // 'data_toko',
+            // 'data_person',
+            // 'data_lokasi',
+            // 'qr_print',
+        ];
+        $permissionsSystem = [
             'aset_price',
             'aset_new',
             'aset_edit',
@@ -118,9 +143,18 @@ class DatabaseSeeder extends Seeder
 
         // Insert permissions and get their IDs
         $permissionIds = [];
-        foreach ($permissions as $permission) {
+        foreach ($permissionsGuest as $permission) {
             $permissionIds[] = DB::table('permissions')->insertGetId([
                 'name' => $permission,
+                'guard_name' => 'web',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+        foreach ($permissionsSystem as $permission) {
+            $permissionIds[] = DB::table('permissions')->insertGetId([
+                'name' => $permission,
+                'type' => true,
                 'guard_name' => 'web',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -131,7 +165,7 @@ class DatabaseSeeder extends Seeder
         $users = [
             'superadmin' => 'superadmin@example.com',
             'admin' => 'admin@example.com',
-
+            'guest' => 'guest@example.com',
         ];
 
         foreach ($users as $role => $email) {
@@ -153,6 +187,13 @@ class DatabaseSeeder extends Seeder
                 }
             } elseif ($role == 'admin') {
                 // Assign only the 'nama' permission to admin
+                $permissionNamaId = DB::table('permissions')->where('name', 'nama')->value('id');
+                DB::table('role_has_permissions')->insert([
+                    'role_id' => $roleIds[$role],
+                    'permission_id' => $permissionNamaId,
+                ]);
+            } elseif ($role == 'guest') {
+                // Assign only the 'nama' permission to guest
                 $permissionNamaId = DB::table('permissions')->where('name', 'nama')->value('id');
                 DB::table('role_has_permissions')->insert([
                     'role_id' => $roleIds[$role],
