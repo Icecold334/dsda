@@ -97,26 +97,6 @@ class DatabaseSeeder extends Seeder
             'riwayat_kondisi',
             'riwayat_kelengkapan',
             'riwayat_keterangan',
-            // 'aset_price',
-            // 'aset_new',
-            // 'aset_edit',
-            // 'aset_del',
-            // 'aset_pdf',
-            // 'aset_xls',
-            // 'aset_noaktif',
-            // 'aset_reaktif',
-            // 'history_view',
-            // 'history_newedit',
-            // 'history_del',
-            // 'trans_view',
-            // 'trans_newedit',
-            // 'trans_del',
-            // 'data_kategori',
-            // 'data_merk',
-            // 'data_toko',
-            // 'data_person',
-            // 'data_lokasi',
-            // 'qr_print',
         ];
         $permissionsSystem = [
             'aset_price',
@@ -139,6 +119,8 @@ class DatabaseSeeder extends Seeder
             'data_person',
             'data_lokasi',
             'qr_print',
+            'inventaris_edit_lokasi_penerimaan',
+            'inventaris_tambah_barang_datang'
         ];
 
         // Insert permissions and get their IDs
