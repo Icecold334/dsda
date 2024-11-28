@@ -20,7 +20,7 @@ class OptionController extends Controller
      */
     public function create()
     {
-        return view('option.create');
+        // return view('option.create');
     }
 
     /**
@@ -28,7 +28,13 @@ class OptionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255|unique:roles,name',
+        ]);
+
+        Role::create(['name' => $request->name]);
+
+        return redirect()->back()->with('success', 'Jabatan berhasil ditambahkan.');
     }
 
     /**
@@ -68,9 +74,22 @@ class OptionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $option)
     {
-        //
+        $role = Role::find($option);
+        // Validate the input
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
+        ]);
+
+        // Update the role name
+        $role->update([
+            'name' => $validated['name'],
+        ]);
+
+        // Redirect back with success message
+        return redirect()->route('option.index')
+            ->with('success', 'Nama jabatan berhasil diperbarui.');
     }
 
     /**

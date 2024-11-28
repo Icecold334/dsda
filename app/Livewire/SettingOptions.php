@@ -39,7 +39,7 @@ class SettingOptions extends Component
         $this->qr_baris2 = $option->qr_baris2;
         $this->qr_baris2_other = $option->qr_baris2_other;
         // Load all roles
-        $roles = Role::all();
+        $roles = Role::where('id','>','1')->get();
         $this->roles = $roles->map(function ($role) {
             return [
                 'id' => $role->id,
