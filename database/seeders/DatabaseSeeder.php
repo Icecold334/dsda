@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // Create or get roles for superadmin, admin, penanggungjawab, ppk, pptk
-        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk', 'guest'];
+        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk', 'guest', 'penerima barang'];
         $roleIds = [];
 
         foreach ($roles as $role) {
