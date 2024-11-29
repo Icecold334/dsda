@@ -3,11 +3,180 @@
 
         <h1 class="text-2xl font-bold text-primary-900 ">ASET AKTIF</h1>
         <div>
+            <!-- Toggle Button -->
+            <button type="button" id="toggleButton"
+                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm p-2 transition duration-200 relative group">
+                <!-- Icon Search -->
+                <i class="fa fa-search"></i>
+                <!-- Tooltip -->
+                <span
+                    class="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-max px-2 py-1 text-sm text-white bg-gray-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    Pencarian dan Pengurutan
+                </span>
+            </button>
+
             <a href="{{ route('aset.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Tambah Aset</a>
         </div>
     </div>
+    <div class="mb-4">
+        <!-- Form Pencarian -->
+        <form method="GET" action="{{ route('aset.index') }}" id="searchForm" class="hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-1 gap-2">
+                <!-- Filter Tampilan -->
+                <fieldset class="border p-4 rounded-lg">
+                    <legend class="text-lg font-semibold text-gray-800">Filter Tampilan</legend>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- Filter Nama -->
+                        <div>
+                            <label for="nama" class="block text-sm font-medium text-gray-700">Cari Nama Aset</label>
+                            <input type="text" name="nama" id="nama" placeholder="Cari Nama Aset"
+                                class="border border-gray-300 rounded-lg p-2 mt-1" value="{{ request('nama') }}" />
+                        </div>
+
+                        <!-- Filter Kategori -->
+                        <div>
+                            <label for="kategori_id" class="block text-sm font-medium text-gray-700">Kategori</label>
+                            <select name="kategori_id" id="kategori_id"
+                                class="border border-gray-300 rounded-lg p-2 mt-1">
+                                <option value="">Semua Kategori</option>
+                                @foreach ($kategoris as $kategori)
+                                    <option value="{{ $kategori->id }}"
+                                        {{ request('kategori_id') == $kategori->id ? 'selected' : '' }}>
+                                        {{ $kategori->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Filter Merk -->
+                        <div>
+                            <label for="merk_id" class="block text-sm font-medium text-gray-700">Merk</label>
+                            <select name="merk_id" id="merk_id" class="border border-gray-300 rounded-lg p-2 mt-1">
+                                <option value="">Semua Merk</option>
+                                @foreach ($merks as $merk)
+                                    <option value="{{ $merk->id }}"
+                                        {{ request('merk_id') == $merk->id ? 'selected' : '' }}>
+                                        {{ $merk->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Filter Toko -->
+                        <div>
+                            <label for="toko_id" class="block text-sm font-medium text-gray-700">Toko</label>
+                            <select name="toko_id" id="toko_id" class="border border-gray-300 rounded-lg p-2 mt-1">
+                                <option value="">Semua Toko</option>
+                                @foreach ($tokos as $toko)
+                                    <option value="{{ $toko->id }}"
+                                        {{ request('toko_id') == $toko->id ? 'selected' : '' }}>
+                                        {{ $toko->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Filter Penanggung Jawab -->
+                        <div>
+                            <label for="penanggung_jawab_id" class="block text-sm font-medium text-gray-700">Penanggung
+                                Jawab</label>
+                            <select name="penanggung_jawab_id" id="penanggung_jawab_id"
+                                class="border border-gray-300 rounded-lg p-2 mt-1">
+                                <option value="">Semua Penanggung</option>
+                                @foreach ($penanggungJawabs as $penanggung)
+                                    <option value="{{ $penanggung->id }}"
+                                        {{ request('penanggung_jawab_id') == $penanggung->id ? 'selected' : '' }}>
+                                        {{ $penanggung->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Filter Lokasi -->
+                        <div>
+                            <label for="lokasi_id" class="block text-sm font-medium text-gray-700">Lokasi</label>
+                            <select name="lokasi_id" id="lokasi_id" class="border border-gray-300 rounded-lg p-2 mt-1">
+                                <option value="">Semua Lokasi</option>
+                                @foreach ($lokasis as $lokasi)
+                                    <option value="{{ $lokasi->id }}"
+                                        {{ request('lokasi_id') == $lokasi->id ? 'selected' : '' }}>
+                                        {{ $lokasi->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit"
+                            class="bg-blue-500 text-white rounded-lg px-4 py-2 mt-4 w-20">GO!</button>
+                    </div>
+                </fieldset>
+
+                <!-- Filter Urutan -->
+                <fieldset class="border p-4 rounded-lg">
+                    <legend class="text-lg font-semibold text-gray-800">Filter Urutan</legend>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <!-- Dropdown untuk Kolom Urutan -->
+                        <div>
+                            <label for="order_by" class="block text-sm font-medium text-gray-700">Urutkan
+                                Berdasarkan</label>
+                            <select name="order_by" id="order_by" class="border border-gray-300 rounded-lg p-2 mt-1">
+                                <option value="nama" {{ request('order_by') == 'nama' ? 'selected' : '' }}>Nama Aset
+                                </option>
+                                <option value="tanggalbeli"
+                                    {{ request('order_by') == 'tanggalbeli' ? 'selected' : '' }}>Tanggal Pembelian
+                                </option>
+                                <option value="hargasatuan"
+                                    {{ request('order_by') == 'hargasatuan' ? 'selected' : '' }}>Harga Pembelian
+                                </option>
+                                <option value="riwayat" {{ request('order_by') == 'riwayat' ? 'selected' : '' }}>
+                                    Riwayat</option>
+                            </select>
+                        </div>
+
+                        <!-- Dropdown untuk Arah Urutan -->
+                        <div>
+                            <label for="order_direction" class="block text-sm font-medium text-gray-700">Arah
+                                Urutan</label>
+                            <select name="order_direction" id="order_direction"
+                                class="border border-gray-300 rounded-lg p-2 mt-1">
+                                <option value="asc" {{ request('order_direction') == 'asc' ? 'selected' : '' }}>
+                                    Menaik</option>
+                                <option value="desc" {{ request('order_direction') == 'desc' ? 'selected' : '' }}>
+                                    Menurun</option>
+                            </select>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <!-- Submit Button -->
+                            <button type="submit"
+                                class="bg-blue-500 text-white rounded-lg px-4 py-2 mt-4 w-20">GO!</button>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+        </form>
+    </div>
+
+    @push('scripts')
+        <script>
+            // Ambil elemen tombol dan form pencarian
+            const toggleButton = document.getElementById('toggleButton');
+            const searchForm = document.getElementById('searchForm');
+
+            // Set event listener untuk toggle
+            toggleButton.addEventListener('click', () => {
+                // Toggle kelas hidden pada form pencarian
+                searchForm.classList.toggle('hidden');
+            });
+        </script>
+    @endpush
+
 
 
 

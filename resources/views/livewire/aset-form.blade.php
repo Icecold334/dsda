@@ -76,7 +76,7 @@
                             <td>
                                 <input type="text" id="merk" wire:model.live="merk" wire:focus="focusMerk"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                    placeholder="Masukkan merk" required> 
+                                    placeholder="Masukkan merk" required>
                                 @if ($showSuggestionsMerk)
                                     <ul
                                         class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
@@ -210,14 +210,15 @@
                         <!-- Toko / Distributor Field -->
                         <tr>
                             <td style="width: 40%"><label for="toko"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Toko / Distributor  *</label>
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Toko /
+                                    Distributor *</label>
                             </td>
                             <td>
                                 <input type="text" id="toko" wire:model.live="toko" wire:focus="focusToko"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                     placeholder="Masukkan toko" required>
                                 @if ($showSuggestionsToko)
-                                    <ul 
+                                    <ul
                                         class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
                                         @foreach ($suggestionsToko as $suggestionToko)
                                             <li wire:click="selectSuggestionToko({{ $suggestionToko['id'] }}, '{{ $suggestionToko['nama'] }}')"
@@ -306,20 +307,20 @@
                         <!-- Lama Garansi Field -->
                         <tr>
                             <td>
-                                <label for="lama_garansi"
+                                <label for="lamagaransi"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lama Garansi
                                 </label>
                             </td>
                             <td>
                                 <div class="flex items-center">
-                                    <input type="number" id="lama_garansi" wire:model.live="lama_garansi"
+                                    <input type="number" id="lamagaransi" wire:model.live="lamagaransi"
                                         value="" min="1"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                                         required placeholder="Masukkan Lama Garansi">
-                                    <label for="lama_garansi"
+                                    <label for="lamagaransi"
                                         class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">Tahun</label>
                                 </div>
-                                @error('lama_garansi')
+                                @error('lamagaransi')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>

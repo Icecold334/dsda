@@ -1,12 +1,8 @@
 <x-body>
-    <div class="flex justify-between py-2 mb-3"update >
+    <div class="flex justify-between py-2 mb-3"update>
 
         <h1 class="text-2xl font-bold text-primary-900 ">ASET NON AKTIF</h1>
-        <div>
-            <a href="{{ route('aset.create') }}"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                Tambah Aset</a>
-        </div>
+        
     </div>
 
 

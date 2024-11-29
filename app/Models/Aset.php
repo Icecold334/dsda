@@ -45,6 +45,8 @@ class Aset extends Model
         'tglnonaktif',
         'alasannonaktif',
         'ketnonaktif',
+        'lama_garansi',
+        'kartu_garansi',
         'status'
     ];
 
