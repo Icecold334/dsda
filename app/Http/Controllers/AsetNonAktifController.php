@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\aset;
+use App\Models\Merk;
+use App\Models\Toko;
+use App\Models\Lokasi;
+use App\Models\Person;
+use App\Models\Kategori;
 use Illuminate\Http\Request;
 
 class AsetNonAktifController extends Controller
@@ -10,8 +15,34 @@ class AsetNonAktifController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Query awal untuk aset non-aktif
+        $query = Aset::where('status', false);
+
+        // Filter berdasarkan nama aset
+        if ($request->filled('nama')) {
+            $query->where('nama', 'like', '%' . $request->nama . '%');
+        }
+
+        // Filter berdasarkan kategori
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_id', $request->kategori_id);
+        }
+
+        // Filter berdasarkan sebab
+        if ($request->filled('sebab')) {
+            $query->where('alasannonaktif', $request->sebab);
+        }
+
+        $orderField = $request->get('order_by', 'nama'); // Default ke 'nama'
+        $orderDirection = $request->get('order_direction', 'asc'); // Default ke 'asc'
+        $query->orderBy($orderField, $orderDirection);
+
+        // Ambil data hasil query
+        $asets = $query->get();
+
+        // Ambil data aset sesuai filter yang diterapkan
         $asets = Aset::where('status', false)->get()->map(function ($aset) {
             $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, $aset->tanggalbeli, $aset->umur);
             $aset->nilaiSekarang = $this->rupiah($nilaiSekarang);
@@ -21,7 +52,12 @@ class AsetNonAktifController extends Controller
             $aset->totalpenyusutan = $this->rupiah(abs($totalPenyusutan));
             return $aset;
         });
-        return view('nonaktifaset.index', compact('asets'));
+
+        // Data tambahan untuk dropdown filter
+        $kategoris = Kategori::all();
+
+        // Return ke view dengan data filter dan hasil query
+        return view('nonaktifaset.index', compact('asets', 'kategoris'));
     }
 
     /**

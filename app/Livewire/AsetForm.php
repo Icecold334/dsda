@@ -371,7 +371,7 @@ class AsetForm extends Component
     {
         $this->validate();
         // dd(strtotime($this->tanggalPembelian)); // Debug hasil dari strtotime
-        // dd($this->lamagaransi);
+        // dd($this->merk);
         // Ensure Merk and Toko IDs are set correctly or created if they don't exist
         $merkId = $this->getOrCreateMerk($this->merk);
         $tokoId = $this->getOrCreateToko($this->toko);
@@ -426,7 +426,7 @@ class AsetForm extends Component
      */
     private function getOrCreateMerk($name)
     {
-        $merk = Merk::firstOrCreate(['nama' => $name]);
+        $merk = Merk::firstOrCreate(['user_id' => Auth::user()->id, 'nama' => $name, 'nama_nospace' => Str::slug($name)]);
         return $merk->id;
     }
 
@@ -438,7 +438,7 @@ class AsetForm extends Component
      */
     private function getOrCreateToko($name)
     {
-        $toko = Toko::firstOrCreate(['nama' => $name]);
+        $toko = Toko::firstOrCreate(['user_id' => Auth::user()->id, 'nama' => $name, 'nama_nospace' => Str::slug($name)]);
         return $toko->id;
     }
 

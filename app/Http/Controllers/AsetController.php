@@ -63,12 +63,11 @@ class AsetController extends Controller
         // Urutkan data
         $orderField = $request->get('order_field', 'riwayat');
         $orderDirection = $request->get('order_direction', 'desc');
-        $query->orderBy($orderField, $orderDirection);
-
+        
         // Tentukan kolom yang ingin diurutkan
         $orderBy = $request->get('order_by', 'nama'); // Default urutkan berdasarkan nama
         $orderDirection = $request->get('order_direction', 'asc'); // Default urutan menaik
-
+        
         // Urutkan berdasarkan riwayat terakhir berdasarkan tanggal
         if ($orderBy == 'riwayat') {
             $query->addSelect([
@@ -81,7 +80,8 @@ class AsetController extends Controller
         } else {
             $query->orderBy($orderBy, $orderDirection); // Urutkan berdasarkan kolom lain yang dipilih
         }
-
+        
+        $query->orderBy($orderBy, $orderDirection);
         // Ambil data hasil query
         $asets = $query->get();
 

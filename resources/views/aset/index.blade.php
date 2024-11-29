@@ -112,6 +112,10 @@
                         <!-- Submit Button -->
                         <button type="submit"
                             class="bg-blue-500 text-white rounded-lg px-4 py-2 mt-4 w-20">GO!</button>
+                        <a href="{{ route('aset.index') }}"
+                            class="bg-gray-500 text-white rounded-lg px-4 py-2 mt-4 w-20 text-center inline-block">
+                            Reset Filter
+                        </a>
                     </div>
                 </fieldset>
 

@@ -2,8 +2,148 @@
     <div class="flex justify-between py-2 mb-3"update>
 
         <h1 class="text-2xl font-bold text-primary-900 ">ASET NON AKTIF</h1>
-        
+        <!-- Toggle Button -->
+        <button type="button" id="toggleButton"
+            class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm p-2 transition duration-200 relative group">
+            <!-- Icon Search -->
+            <i class="fa fa-search"></i>
+            <!-- Tooltip -->
+            <span
+                class="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-max px-2 py-1 text-sm text-white bg-gray-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                Pencarian dan Pengurutan
+            </span>
+        </button>
+
     </div>
+
+    <div class="mb-4">
+        <!-- Form Pencarian -->
+        <form method="GET" action="{{ route('nonaktifaset.index') }}" id="searchForm" class="hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-1 gap-2">
+                <!-- Filter Tampilan -->
+                <fieldset class="border p-4 rounded-lg">
+                    <legend class="text-lg font-semibold text-gray-800">Filter Tampilan</legend>
+
+                    <div class="grid grid-cols-5 gap-2">
+                        <!-- Filter Nama -->
+                        <div>
+                            <label for="nama" class="block text-sm font-medium text-gray-700">Cari Nama Aset</label>
+                            <input type="text" name="nama" id="nama" placeholder="Cari Nama Aset"
+                                class="border border-gray-300 rounded-lg p-2 mt-1" value="{{ request('nama') }}" />
+                        </div>
+
+                        <!-- Filter Kategori -->
+                        <div>
+                            <label for="kategori_id" class="block text-sm font-medium text-gray-700">Kategori</label>
+                            <select name="kategori_id" id="kategori_id"
+                                class="border border-gray-300 rounded-lg p-2 mt-1">
+                                <option value="">Semua Kategori</option>
+                                @foreach ($kategoris as $kategori)
+                                    <option value="{{ $kategori->id }}"
+                                        {{ request('kategori_id') == $kategori->id ? 'selected' : '' }}>
+                                        {{ $kategori->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Filter Sebab -->
+                        <div>
+                            <label for="sebab" class="block text-sm font-medium text-gray-700">Sebab</label>
+                            <select name="sebab" id="sebab" class="border border-gray-300 rounded-lg p-2 mt-1">
+                                <option value="">Semua Sebab</option>
+                                <option value="Dihibahkan" {{ request('sebab') == 'Dihibahkan' ? 'selected' : '' }}>
+                                    Dihibahkan</option>
+                                <option value="Dijual" {{ request('sebab') == 'Dijual' ? 'selected' : '' }}>Dijual
+                                </option>
+                                <option value="Dibuang" {{ request('sebab') == 'Dibuang' ? 'selected' : '' }}>Dibuang
+                                </option>
+                                <option value="Hilang" {{ request('sebab') == 'Hilang' ? 'selected' : '' }}>Hilang
+                                </option>
+                                <option value="Rusak Total" {{ request('sebab') == 'Rusak Total' ? 'selected' : '' }}>
+                                    Rusak Total</option>
+                                <option value="Lainya" {{ request('sebab') == 'Lainya' ? 'selected' : '' }}>Lainya
+                                </option>
+                            </select>
+                        </div>
+
+
+                        {{-- <div class="flex justify-end"> --}}
+                        <!-- Submit Button -->
+                        <button type="submit"
+                            class="bg-blue-500 text-white rounded-lg px-4 py-2 mt-4 w-20">GO!</button>
+                        <div>
+                            <a href="{{ route('nonaktifaset.index') }}"
+                                class="bg-gray-500 text-white rounded-lg px-4 py-2 mt-4 w-20 text-center inline-block">
+                                Reset Filter
+                            </a>
+                        </div>
+                        <!-- Reset Button -->
+
+                        {{-- </div> --}}
+                    </div>
+                </fieldset>
+
+                <fieldset class="border p-4 rounded-lg">
+                    <legend class="text-lg font-semibold text-gray-800">Filter Urutan</legend>
+
+                    <div class="grid grid-cols-6 gap-4">
+                        <!-- Dropdown untuk Kolom Urutan -->
+                        <div>
+                            <label for="order_by" class="block text-sm font-medium text-gray-700">Urutkan
+                                Berdasarkan</label>
+                            <select name="order_by" id="order_by" class="border border-gray-300 rounded-lg p-2 mt-1">
+                                <option value="nama" {{ request('order_by') == 'nama' ? 'selected' : '' }}>Nama Aset
+                                </option>
+                                <option value="tgllnonaktif"
+                                    {{ request('order_by') == 'tgllnonaktif' ? 'selected' : '' }}>
+                                    Tanggal Non-Aktif
+                                </option>
+                                <option value="alasannonaktif"
+                                    {{ request('order_by') == 'alasannonaktif' ? 'selected' : '' }}>
+                                    Sebab Non-Aktif
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Dropdown untuk Arah Urutan -->
+                        <div>
+                            <label for="order_direction" class="block text-sm font-medium text-gray-700">Arah
+                                Urutan</label>
+                            <select name="order_direction" id="order_direction"
+                                class="border border-gray-300 rounded-lg p-2 mt-1">
+                                <option value="asc" {{ request('order_direction') == 'asc' ? 'selected' : '' }}>
+                                    Menaik</option>
+                                <option value="desc" {{ request('order_direction') == 'desc' ? 'selected' : '' }}>
+                                    Menurun</option>
+                            </select>
+                        </div>
+
+                        <!-- Tombol Submit -->
+                        {{-- <div class="flex justify-end col-span-6"> --}}
+                        <button type="submit"
+                            class="bg-blue-500 text-white rounded-lg px-4 py-2 mt-4 w-20">GO!</button>
+                        {{-- </div> --}}
+
+                    </div>
+                </fieldset>
+            </div>
+        </form>
+    </div>
+
+    @push('scripts')
+        <script>
+            // Ambil elemen tombol dan form pencarian
+            const toggleButton = document.getElementById('toggleButton');
+            const searchForm = document.getElementById('searchForm');
+
+            // Set event listener untuk toggle
+            toggleButton.addEventListener('click', () => {
+                // Toggle kelas hidden pada form pencarian
+                searchForm.classList.toggle('hidden');
+            });
+        </script>
+    @endpush
 
 
 
@@ -49,7 +189,7 @@
                         <p class="font-semibold text-gray-800">{{ $aset->kode }}</p>
                         <p class="font-normal text-gray-500 text-sm">Kode Sistem : {{ $aset->systemcode }}</p>
                         {{-- <p class="font-normal text-gray-500 text-sm">Tanggal Pembelian :
-                            {{ date('j F Y', $aset->tanggalbeli) }}
+                            {{ date('j F Y', $aset->tanggalnonaktif) }}
                         </p> --}}
                     </td>
                     <td class="py-3 px-6 ">
