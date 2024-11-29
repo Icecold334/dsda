@@ -81,7 +81,7 @@
                             @enderror
                         </td>
                         <td class="text-center py-3 px-6">
-                            @role('penanggungjawab')
+                            @role('pptk')
                                 {{-- Cek apakah pengguna adalah penanggungjawab --}}
                                 @if (is_null($item['status']))
                                     {{-- Cek jika status masih kosong/null --}}

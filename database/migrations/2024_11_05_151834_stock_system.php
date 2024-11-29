@@ -175,7 +175,9 @@ return new class extends Migration
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->foreignId('vendor_id')->nullable()->constrained('toko');
             $table->foreignId('pj_id')->nullable()->constrained('users');
+            $table->foreignId('pptk_id')->nullable()->constrained('users');
             $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('ppk_id')->nullable()->constrained('users');
             $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('cascade');
             $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
             $table->integer('tanggal');

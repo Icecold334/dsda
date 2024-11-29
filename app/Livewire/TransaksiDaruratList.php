@@ -12,11 +12,14 @@ use Livewire\Attributes\On;
 use App\Models\TransaksiStok;
 use Livewire\WithFileUploads;
 use App\Models\KontrakVendorStok;
+use App\Models\Persetujuan;
 use Illuminate\Support\Facades\Auth;
 
 class TransaksiDaruratList extends Component
 {
     use WithFileUploads;
+
+    public $cekApproval;
     public $tanggal_kontrak;
     public $nomor_kontrak;
     public $jenis_id;
@@ -35,6 +38,10 @@ class TransaksiDaruratList extends Component
         'satuanBesar' => [],
         'satuanKecil' => [],
     ];
+
+    public function __construct() {
+        // $this->roles = $this->getRoles();
+    }
     public function fetchSuggestions($field, $value)
     {
         $this->suggestions[$field] = [];
@@ -100,6 +107,12 @@ class TransaksiDaruratList extends Component
             }
             $this->dispatch('listCount', count: count($this->list));
         }
+    
+        $this->nomor_kontrak = $this->getNoKontrak($this->vendor_id)->nomor_kontrak;
+    }
+
+    public function getNoKontrak($idkontrak){
+        return KontrakVendorStok::where('vendor_id',$idkontrak)->first();
     }
 
     // public $barang_id;
