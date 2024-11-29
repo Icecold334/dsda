@@ -35,14 +35,10 @@ class AsetNonAktifController extends Controller
             $query->where('alasannonaktif', $request->sebab);
         }
 
-        $orderField = $request->get('order_by', 'nama'); // Default ke 'nama'
-        $orderDirection = $request->get('order_direction', 'asc'); // Default ke 'asc'
-        $query->orderBy($orderField, $orderDirection);
+        // Tentukan kolom yang ingin diurutkan
+        $orderBy = $request->get('order_by', 'nama'); // Default urutkan berdasarkan nama
+        $orderDirection = $request->get('order_direction', 'asc'); // Default urutan menaik
 
-        // Ambil data hasil query
-        $asets = $query->get();
-
-        // Ambil data aset sesuai filter yang diterapkan
         $asets = Aset::where('status', false)->get()->map(function ($aset) {
             $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, $aset->tanggalbeli, $aset->umur);
             $aset->nilaiSekarang = $this->rupiah($nilaiSekarang);
@@ -52,6 +48,11 @@ class AsetNonAktifController extends Controller
             $aset->totalpenyusutan = $this->rupiah(abs($totalPenyusutan));
             return $aset;
         });
+
+        $query->orderBy($orderBy, $orderDirection);
+
+        // Ambil data hasil query
+        $asets = $query->get();
 
         // Data tambahan untuk dropdown filter
         $kategoris = Kategori::all();

@@ -52,17 +52,17 @@
                             <label for="sebab" class="block text-sm font-medium text-gray-700">Sebab</label>
                             <select name="sebab" id="sebab" class="border border-gray-300 rounded-lg p-2 mt-1">
                                 <option value="">Semua Sebab</option>
-                                <option value="Dihibahkan" {{ request('sebab') == 'Dihibahkan' ? 'selected' : '' }}>
-                                    Dihibahkan</option>
                                 <option value="Dijual" {{ request('sebab') == 'Dijual' ? 'selected' : '' }}>Dijual
                                 </option>
+                                <option value="Dihibahkan" {{ request('sebab') == 'Dihibahkan' ? 'selected' : '' }}>
+                                    Dihibahkan</option>
                                 <option value="Dibuang" {{ request('sebab') == 'Dibuang' ? 'selected' : '' }}>Dibuang
                                 </option>
                                 <option value="Hilang" {{ request('sebab') == 'Hilang' ? 'selected' : '' }}>Hilang
                                 </option>
                                 <option value="Rusak Total" {{ request('sebab') == 'Rusak Total' ? 'selected' : '' }}>
                                     Rusak Total</option>
-                                <option value="Lainya" {{ request('sebab') == 'Lainya' ? 'selected' : '' }}>Lainya
+                                <option value="Lainnya" {{ request('sebab') == 'Lainnya' ? 'selected' : '' }}>Lainnya
                                 </option>
                             </select>
                         </div>
@@ -95,8 +95,8 @@
                             <select name="order_by" id="order_by" class="border border-gray-300 rounded-lg p-2 mt-1">
                                 <option value="nama" {{ request('order_by') == 'nama' ? 'selected' : '' }}>Nama Aset
                                 </option>
-                                <option value="tgllnonaktif"
-                                    {{ request('order_by') == 'tgllnonaktif' ? 'selected' : '' }}>
+                                <option value="tglnonaktif"
+                                    {{ request('order_by') == 'tglnonaktif' ? 'selected' : '' }}>
                                     Tanggal Non-Aktif
                                 </option>
                                 <option value="alasannonaktif"
@@ -161,43 +161,44 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($asets as $aset)
-                <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl ">
-                    <td class="py-3 px-6 w-[15rem]">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div
-                                class="w-20 h-20 overflow-hidden relative flex justify-center p-1  border-2 rounded-lg bg-white">
-                                <img class="w-full h-full object-cover object-center rounded-sm"
-                                    src="{{ asset($aset->systemcode ? 'storage/qr/' . $aset->systemcode . '.png' : 'img/default-pic-thumb.png') }}"
-                                    alt="">
+            @if ($asets->isNotEmpty())
+                @foreach ($asets as $aset)
+                    <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl ">
+                        <td class="py-3 px-6 w-[15rem]">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div
+                                    class="w-20 h-20 overflow-hidden relative flex justify-center p-1  border-2 rounded-lg bg-white">
+                                    <img class="w-full h-full object-cover object-center rounded-sm"
+                                        src="{{ asset($aset->systemcode ? 'storage/qr/' . $aset->systemcode . '.png' : 'img/default-pic-thumb.png') }}"
+                                        alt="">
+                                </div>
+                                <div
+                                    class="w-20 h-20 overflow-hidden relative flex justify-center p-1  border-2 rounded-lg bg-white">
+                                    <img class="w-full h-full object-cover object-center rounded-sm"
+                                        src="{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}"
+                                        alt="">
+                                </div>
                             </div>
-                            <div
-                                class="w-20 h-20 overflow-hidden relative flex justify-center p-1  border-2 rounded-lg bg-white">
-                                <img class="w-full h-full object-cover object-center rounded-sm"
-                                    src="{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}"
-                                    alt="">
+                        </td>
+                        <td class="py-3 px-6">
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ $aset->nama }}</p>
+                                <p class="text-sm text-gray-500">{{ $aset->kategori->nama ?? 'Tidak Berkategori' }}</p>
                             </div>
-                        </div>
-                    </td>
-                    <td class="py-3 px-6">
-                        <div>
-                            <p class="font-semibold text-gray-800">{{ $aset->nama }}</p>
-                            <p class="text-sm text-gray-500">{{ $aset->kategori->nama ?? 'Tidak Berkategori' }}</p>
-                        </div>
-                    </td>
-                    <td class="py-3 px-6">
-                        <p class="font-semibold text-gray-800">{{ $aset->kode }}</p>
-                        <p class="font-normal text-gray-500 text-sm">Kode Sistem : {{ $aset->systemcode }}</p>
-                        {{-- <p class="font-normal text-gray-500 text-sm">Tanggal Pembelian :
+                        </td>
+                        <td class="py-3 px-6">
+                            <p class="font-semibold text-gray-800">{{ $aset->kode }}</p>
+                            <p class="font-normal text-gray-500 text-sm">Kode Sistem : {{ $aset->systemcode }}</p>
+                            {{-- <p class="font-normal text-gray-500 text-sm">Tanggal Pembelian :
                             {{ date('j F Y', $aset->tanggalnonaktif) }}
                         </p> --}}
-                    </td>
-                    <td class="py-3 px-6 ">
-                        <p class="font-semibold text-gray-800">{{ date('j F Y', $aset->tglnonaktif) }}</p>
-                        <p class="text-sm text-gray-500">{{ $aset->alasannonaktif }}</p>
+                        </td>
+                        <td class="py-3 px-6 ">
+                            <p class="font-semibold text-gray-800">{{ date('j F Y', $aset->tglnonaktif) }}</p>
+                            <p class="text-sm text-gray-500">{{ $aset->alasannonaktif }}</p>
 
-                    </td>
-                    {{-- @can('history_view')
+                        </td>
+                        {{-- @can('history_view')
                         <td class="py-3 px-6 ">
                             @if ($aset->histories->last())
                                 <p class="font-semibold text-gray-800">
@@ -209,20 +210,23 @@
                             @endif
                         </td>
                     @endcan --}}
-                    <td class="py-3 px-6">
-                        <a href="{{ route('nonaktifaset.show', ['nonaktifaset' => $aset->id]) }}"
-                            class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
-                            data-tooltip-target="tooltip-nonaktif-aset-{{ $aset->id }}">
-                            <i class="fa-solid fa-eye"></i>
-                        </a>
-                        <div id="tooltip-nonaktif-aset-{{ $aset->id }}" role="tooltip"
-                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                            Lihat Detail Aset
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
-                    </td>
-                </tr>
-            @endforeach
+                        <td class="py-3 px-6">
+                            <a href="{{ route('nonaktifaset.show', ['nonaktifaset' => $aset->id]) }}"
+                                class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
+                                data-tooltip-target="tooltip-nonaktif-aset-{{ $aset->id }}">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            <div id="tooltip-nonaktif-aset-{{ $aset->id }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                Lihat Detail Aset
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            @else
+                <p class="text-gray-600">Tidak ada Aset Non Aktif.</p>
+            @endif
         </tbody>
     </table>
 

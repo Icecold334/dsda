@@ -22,68 +22,35 @@ class AsetController extends Controller
      */
     public function index(Request $request)
     {
+        // Mendapatkan query untuk aset aktif
+        $query = $this->getAsetQuery();
 
-
-        $query = Aset::query();
-
-        // Filter berdasarkan nama aset
-        if ($request->filled('nama')) {
-            $query->where('nama', 'like', '%' . $request->nama . '%');
+        // Terapkan filter jika ada parameter request
+        if ($request->hasAny(['nama', 'kategori_id', 'merk_id', 'toko_id', 'penanggung_jawab_id', 'lokasi_id'])) {
+            $query = $this->applyFilters($query, $request);
         }
 
-        // Filter berdasarkan kategori
-        if ($request->filled('kategori_id')) {
-            $query->where('kategori_id', $request->kategori_id);
+        // Terapkan sorting berdasarkan parameter request
+        if ($request->hasAny(['order_by', 'order_direction'])) {
+            // Gunakan query default atau query yang lebih kompleks jika sorting berdasarkan riwayat
+            $query = $this->applySorting($query, $request);
         }
 
-        // Filter berdasarkan merk
-        if ($request->filled('merk_id')) {
-            $query->where('merk_id', $request->merk_id);
-        }
-
-        // Filter berdasarkan toko
-        if ($request->filled('toko_id')) {
-            $query->where('toko_id', $request->toko_id);
-        }
-
-        // Filter berdasarkan penanggung jawab dari histori terakhir
-        if ($request->filled('penanggung_jawab_id')) {
-            $query->whereHas('histories', function ($query) use ($request) {
-                $query->where('person_id', $request->penanggung_jawab_id)
-                    ->latest() // Mengambil histori terakhir
-                    ->limit(1); // Hanya ambil histori terakhir
-            });
-        }
-
-        // Filter berdasarkan lokasi
-        if ($request->filled('lokasi_id')) {
-            $query->where('lokasi_id', $request->lokasi_id);
-        }
-
-        // Urutkan data
-        $orderField = $request->get('order_field', 'riwayat');
-        $orderDirection = $request->get('order_direction', 'desc');
-        
-        // Tentukan kolom yang ingin diurutkan
-        $orderBy = $request->get('order_by', 'nama'); // Default urutkan berdasarkan nama
-        $orderDirection = $request->get('order_direction', 'asc'); // Default urutan menaik
-        
-        // Urutkan berdasarkan riwayat terakhir berdasarkan tanggal
-        if ($orderBy == 'riwayat') {
-            $query->addSelect([
-                'last_history_aset' => History::select('aset_id')
-                    ->whereColumn('aset_id', 'aset.id')
-                    ->orderBy('aset_id', 'desc')
-                    ->limit(1)
-            ]);
-            $query->orderBy('last_history_aset', $orderDirection); // Urutkan berdasarkan tanggal riwayat terakhir
-        } else {
-            $query->orderBy($orderBy, $orderDirection); // Urutkan berdasarkan kolom lain yang dipilih
-        }
-        
-        $query->orderBy($orderBy, $orderDirection);
         // Ambil data hasil query
         $asets = $query->get();
+
+        // Proses koleksi untuk menghitung nilaiSekarang dan totalPenyusutan
+        $asets = $asets->map(function ($aset) {
+            $hargaTotal = floatval($aset->hargatotal);
+            $nilaiSekarang = $this->nilaiSekarang($hargaTotal, $aset->tanggalbeli, $aset->umur);
+            $totalPenyusutan = $hargaTotal - $nilaiSekarang;
+
+            $aset->nilaiSekarang = $this->rupiah($nilaiSekarang);
+            $aset->hargatotal = $this->rupiah($hargaTotal);
+            $aset->totalpenyusutan = $this->rupiah(abs($totalPenyusutan));
+
+            return $aset;
+        });
 
         // Data tambahan untuk dropdown filter
         $kategoris = Kategori::all();
@@ -92,17 +59,88 @@ class AsetController extends Controller
         $penanggungJawabs = Person::all();
         $lokasis = Lokasi::all();
 
-        $asets = Aset::where('status', true)->get()->map(function ($aset) {
-            $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, $aset->tanggalbeli, $aset->umur);
-            $aset->nilaiSekarang = $this->rupiah($nilaiSekarang);
-            $hargaTotal = $aset->hargatotal;
-            $aset->hargatotal = $this->rupiah($hargaTotal);
-            $totalPenyusutan = $hargaTotal - $nilaiSekarang;
-            $aset->totalpenyusutan = $this->rupiah(abs($totalPenyusutan));
-            return $aset;
-        });
         return view('aset.index', compact('asets', 'kategoris', 'merks', 'tokos', 'penanggungJawabs', 'lokasis'));
     }
+
+    /**
+     * Mendapatkan query dasar untuk aset aktif dengan nilai sekarang dan total penyusutan
+     */
+    private function getAsetQuery()
+    {
+        return Aset::where('status', true);  // Mengambil aset dengan status aktif (true)
+    }
+
+    /**
+     * Menerapkan filter berdasarkan parameter request
+     */
+    private function applyFilters($query, Request $request)
+    {
+        if ($request->filled('nama')) {
+            $query->where('nama', 'like', '%' . $request->nama . '%');
+        }
+
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_id', $request->kategori_id);
+        }
+
+        if ($request->filled('merk_id')) {
+            $query->where('merk_id', $request->merk_id);
+        }
+
+        if ($request->filled('toko_id')) {
+            $query->where('toko_id', $request->toko_id);
+        }
+
+        if ($request->filled('penanggung_jawab_id')) {
+            $query->whereHas('histories', function ($query) use ($request) {
+                $query->where('person_id', $request->penanggung_jawab_id)
+                    ->latest()  // Mengambil histori terakhir
+                    ->limit(1);  // Hanya ambil histori terakhir
+            });
+        }
+
+        if ($request->filled('lokasi_id')) {
+            $query->where('lokasi_id', $request->lokasi_id);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Menerapkan sorting berdasarkan parameter request
+     */
+    private function applySorting($query, Request $request)
+    {
+        // Tentukan kolom yang ingin diurutkan
+        $orderBy = $request->get('order_by', 'nama'); // Default urutkan berdasarkan nama
+        $orderDirection = $request->get('order_direction', 'asc'); // Default urutan menaik
+
+        // Menambahkan pengecekan untuk 'riwayat'
+        if ($orderBy === 'riwayat') {
+            // Jika pengurutan berdasarkan 'riwayat', lakukan LEFT JOIN dengan tabel history
+            $query = Aset::query(); // Menggunakan Aset::query() karena ini membutuhkan join dengan history
+            $query->leftJoin('history', 'history.aset_id', '=', 'aset.id')
+                ->selectRaw('aset.*, COUNT(history.id) as history_count')  // Hitung jumlah riwayat untuk setiap aset
+                ->where('aset.status', true)  // Menyaring berdasarkan status dari tabel 'aset'
+                ->groupBy('aset.id');  // Kelompokkan berdasarkan aset_id
+
+            // Urutkan berdasarkan jumlah history
+            if ($orderDirection === 'asc') {
+                // Urutkan dengan aset yang belum memiliki history di atas
+                $query->orderByRaw('COUNT(history.id) ASC');
+            } else {
+                // Urutkan dengan aset yang memiliki banyak history di atas
+                $query->orderByRaw('COUNT(history.id) DESC');
+            }
+        } else {
+            // Urutkan berdasarkan kolom lain jika bukan berdasarkan riwayat
+            $query->orderBy($orderBy, $orderDirection);
+        }
+
+        return $query;
+    }
+
+
 
     /**
      * Show the form for creating a new resource.
