@@ -2,8 +2,7 @@
     <table class="w-full border-separate border-spacing-y-4">
         <thead>
             <tr class="text-white">
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA BARANG</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg">NAMA BARANG</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">LOKASI *</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BAGIAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">POSISI</th>
@@ -15,12 +14,30 @@
         <tbody>
             @foreach ($list as $index => $item)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
-                    <td class="px-6 py-3 font-semibold"></td>
-                    <td class="px-6 py-3 font-semibold">{{ $item['merk'] }}</td>
+                    <td class="px-2 py-3 font-semibold">
+                        <div>{{ $item['merk']->barangStok->nama }}</div>
+                        <div class="font-normal text-sm">
+                            <table class="w-full">
+                                <tr>
+                                    <td class=" w-1/3 px-1">{{ $item['merk']->nama ?? '-' }}</td>
+                                    <td
+                                        class="border-x-2 border-primary-600 w-1/3 px-1 {{ $item['merk']->tipe ? '' : 'text-center' }}">
+                                        {{ $item['merk']->tipe ?? '-' }}</td>
+                                    <td class=" w-1/3 px-1 {{ $item['merk']->ukuran ? '' : 'text-center' }}">
+                                        {{ $item['merk']->ukuran ?? '-' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
                     <td class="px-6 py-3">
                         <select wire:change="updateLokasi({{ $index }}, $event.target.value)"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            @disabled(isset($item['detail']))>
+                            class="@cannot('inventaris_edit_lokasi_penerimaan')
+                                cursor-not-allowed
+                            @endcannot bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            @disabled(isset($item['detail']))
+                            @cannot('inventaris_edit_lokasi_penerimaan')
+                                disabled
+                            @endcannot>
                             <option value="">Pilih Lokasi</option>
                             @foreach ($lokasis as $lokasi)
                                 <option value="{{ $lokasi->id }}" @if ($item['lokasi_id'] == $lokasi->id) selected @endif>
@@ -32,7 +49,10 @@
                     <td class="px-6 py-3">
                         <select wire:change="updateBagian({{ $index }}, $event.target.value)"
                             class="bg-gray-50 border border-gray-300 {{ empty($item['lokasi_id']) ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            @disabled(!$item['editable'] || empty($item['lokasi_id']))>
+                            @disabled(!$item['editable'] || empty($item['lokasi_id']))
+                            @cannot('inventaris_edit_lokasi_penerimaan')
+                                disabled
+                            @endcannot>
                             <option value="">Pilih Bagian</option>
                             @foreach ($item['bagians'] as $bagian)
                                 <option value="{{ $bagian->id }}" @if ($item['bagian_id'] == $bagian->id) selected @endif>

@@ -40,7 +40,7 @@ class ListPengirimanForm extends Component
             $this->list[] = [
                 'id' => null,
                 'merk_id' => $merk->id,
-                'merk' => $merk->nama,
+                'merk' => $merk,
                 'lokasi_id' => null,
                 'bagian_id' => null,
                 'posisi_id' => null,
@@ -86,7 +86,7 @@ class ListPengirimanForm extends Component
     {
         // Validate that all items have required data
         foreach ($this->list as $index => $item) {
-            if (!$item['jumlah'] || !$item['lokasi_id']) {
+            if (!$item['jumlah']) {
                 $this->dispatch('error');
                 return;
             }
