@@ -6,6 +6,7 @@ use App\Models\VendorStok;
 use Illuminate\Http\Request;
 use App\Models\TransaksiStok;
 use App\Models\TransaksiDaruratStok;
+use Illuminate\Support\Facades\Auth;
 use App\Models\KontrakRetrospektifStok;
 
 class TransaksiDaruratStokController extends Controller
@@ -73,9 +74,11 @@ class TransaksiDaruratStokController extends Controller
             ->whereNull('kontrak_id')
             ->get();
 
+        $roles = Auth::user()->roles->pluck('name');
+
 
         // Pass the data to the view
-        return view('darurat.edit', compact('transaksi'));
+        return view('darurat.edit', compact('transaksi','roles'));
     }
 
     /**

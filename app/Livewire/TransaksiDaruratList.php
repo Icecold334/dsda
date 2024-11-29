@@ -80,7 +80,7 @@ class TransaksiDaruratList extends Component
     public $newBarangSatuanBesar = '';
     public $newBarangSatuanKecil = '';
     public $showBarangModal = false;
-    public $jumlahKecilDalamBesar;
+    public $jumlahKecilDalamBesar, $roles;
 
     public function mount()
     {
@@ -106,9 +106,11 @@ class TransaksiDaruratList extends Component
                 ];
             }
             $this->dispatch('listCount', count: count($this->list));
+            
         }
-    
-        $this->nomor_kontrak = $this->getNoKontrak($this->vendor_id)->nomor_kontrak;
+
+        $this->cekApproval = Persetujuan::Where('approvable_id')->first();
+        // $this->nomor_kontrak = $this->getNoKontrak($this->vendor_id)->nomor_kontrak;
     }
 
     public function getNoKontrak($idkontrak){
