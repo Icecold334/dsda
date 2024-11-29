@@ -14,12 +14,11 @@
                             <div>{{ $merk['merk']->barangStok->nama }}</div>
                             <div class="font-normal text-sm">
                                 <table class="w-full">
-                                    <tr>
-                                        <td class=" w-1/3 ">{{ $merk['merk']->nama ?? '-' }}</td>
-                                        <td
-                                            class="border-x-2 border-primary-600 w-1/3  {{ $merk['merk']->tipe ? '' : 'text-center' }}">
+                                    <tr class="">
+                                        <td class=" w-1/3 text-center">{{ $merk['merk']->nama ?? '-' }}</td>
+                                        <td class="border-x-2 border-primary-600 w-1/3  text-center">
                                             {{ $merk['merk']->tipe ?? '-' }}</td>
-                                        <td class=" w-1/3  {{ $merk['merk']->ukuran ? '' : 'text-center' }}">
+                                        <td class=" w-1/3  text-center">
                                             {{ $merk['merk']->ukuran ?? '-' }}</td>
                                     </tr>
                                 </table>

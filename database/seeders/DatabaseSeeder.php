@@ -40,8 +40,118 @@ use Carbon\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
+
     public function run()
     {
+
+
+        // Parent Units
+        $unitProduksi = UnitKerja::create([
+            'nama' => 'Unit Produksi',
+            'kode' => 'UP',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk produksi.',
+        ]);
+
+        $unitPemasaran = UnitKerja::create([
+            'nama' => 'Unit Pemasaran',
+            'kode' => 'UM',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk pemasaran.',
+        ]);
+
+        $unitKeuangan = UnitKerja::create([
+            'nama' => 'Unit Keuangan',
+            'kode' => 'UK',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk keuangan.',
+        ]);
+
+        $unitSumberDayaManusia = UnitKerja::create([
+            'nama' => 'Unit Sumber Daya Manusia',
+            'kode' => 'HR',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk sumber daya manusia.',
+        ]);
+
+        // Sub-Units for Produksi
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Finishing',
+            'kode' => 'UP-FN',
+            'parent_id' => $unitProduksi->id,
+            'keterangan' => 'Bagian finishing dalam unit produksi.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Assembling',
+            'kode' => 'UP-AS',
+            'parent_id' => $unitProduksi->id,
+            'keterangan' => 'Bagian assembling dalam unit produksi.',
+        ]);
+
+        // Sub-Units for Pemasaran
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Digital Marketing',
+            'kode' => 'UM-DM',
+            'parent_id' => $unitPemasaran->id,
+            'keterangan' => 'Bagian pemasaran digital.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Sales',
+            'kode' => 'UM-SL',
+            'parent_id' => $unitPemasaran->id,
+            'keterangan' => 'Bagian penjualan langsung.',
+        ]);
+
+        // Sub-Units for Keuangan
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Akuntansi',
+            'kode' => 'UK-AK',
+            'parent_id' => $unitKeuangan->id,
+            'keterangan' => 'Bagian akuntansi dalam unit keuangan.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Pajak',
+            'kode' => 'UK-PJ',
+            'parent_id' => $unitKeuangan->id,
+            'keterangan' => 'Bagian pajak dalam unit keuangan.',
+        ]);
+
+        // Sub-Units for Sumber Daya Manusia
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Rekrutmen',
+            'kode' => 'HR-RK',
+            'parent_id' => $unitSumberDayaManusia->id,
+            'keterangan' => 'Bagian rekrutmen dalam unit SDM.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Pelatihan',
+            'kode' => 'HR-PL',
+            'parent_id' => $unitSumberDayaManusia->id,
+            'keterangan' => 'Bagian pelatihan dalam unit SDM.',
+        ]);
+        // Example Units and Sub-Units
+        $unitProduksi = UnitKerja::create([
+            'nama' => 'Unit Produksi',
+            'kode' => 'UP01',
+            'keterangan' => 'Bagian yang bertanggung jawab atas produksi barang.',
+        ]);
+
+        $subUnitFinishing = UnitKerja::create([
+            'nama' => 'Bagian Finishing',
+            'parent_id' => $unitProduksi->id,
+            'kode' => 'UP01-FIN',
+            'keterangan' => 'Sub-bagian yang menangani proses finishing produk.',
+        ]);
+
+        $subUnitPackaging = UnitKerja::create([
+            'nama' => 'Bagian Packaging',
+            'parent_id' => $unitProduksi->id,
+            'kode' => 'UP01-PKG',
+            'keterangan' => 'Sub-bagian yang bertanggung jawab atas pengemasan.',
+        ]);
+
+
+
         // Create or get roles for superadmin, admin, penanggungjawab, ppk, pptk
         $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk', 'guest', 'penerima barang'];
         $roleIds = [];
@@ -154,6 +264,7 @@ class DatabaseSeeder extends Seeder
             $userId = DB::table('users')->insertGetId([
                 'name' => ucfirst($role),
                 'email' => $email,
+                'unit_id' => UnitKerja::inRandomOrder()->first()->id,
                 'password' => Hash::make('password'),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -198,6 +309,7 @@ class DatabaseSeeder extends Seeder
                 $userId = DB::table('users')->insertGetId([
                     'name' => ucfirst($role) . " $i",
                     'email' => "$role$i@example.com",
+                    'unit_id' => UnitKerja::inRandomOrder()->first()->id,
                     'password' => Hash::make('password'),
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -729,113 +841,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-
-        // Parent Units
-        $unitProduksi = UnitKerja::create([
-            'nama' => 'Unit Produksi',
-            'kode' => 'UP',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk produksi.',
-        ]);
-
-        $unitPemasaran = UnitKerja::create([
-            'nama' => 'Unit Pemasaran',
-            'kode' => 'UM',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk pemasaran.',
-        ]);
-
-        $unitKeuangan = UnitKerja::create([
-            'nama' => 'Unit Keuangan',
-            'kode' => 'UK',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk keuangan.',
-        ]);
-
-        $unitSumberDayaManusia = UnitKerja::create([
-            'nama' => 'Unit Sumber Daya Manusia',
-            'kode' => 'HR',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk sumber daya manusia.',
-        ]);
-
-        // Sub-Units for Produksi
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Finishing',
-            'kode' => 'UP-FN',
-            'parent_id' => $unitProduksi->id,
-            'keterangan' => 'Bagian finishing dalam unit produksi.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Assembling',
-            'kode' => 'UP-AS',
-            'parent_id' => $unitProduksi->id,
-            'keterangan' => 'Bagian assembling dalam unit produksi.',
-        ]);
-
-        // Sub-Units for Pemasaran
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Digital Marketing',
-            'kode' => 'UM-DM',
-            'parent_id' => $unitPemasaran->id,
-            'keterangan' => 'Bagian pemasaran digital.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Sales',
-            'kode' => 'UM-SL',
-            'parent_id' => $unitPemasaran->id,
-            'keterangan' => 'Bagian penjualan langsung.',
-        ]);
-
-        // Sub-Units for Keuangan
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Akuntansi',
-            'kode' => 'UK-AK',
-            'parent_id' => $unitKeuangan->id,
-            'keterangan' => 'Bagian akuntansi dalam unit keuangan.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Pajak',
-            'kode' => 'UK-PJ',
-            'parent_id' => $unitKeuangan->id,
-            'keterangan' => 'Bagian pajak dalam unit keuangan.',
-        ]);
-
-        // Sub-Units for Sumber Daya Manusia
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Rekrutmen',
-            'kode' => 'HR-RK',
-            'parent_id' => $unitSumberDayaManusia->id,
-            'keterangan' => 'Bagian rekrutmen dalam unit SDM.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Pelatihan',
-            'kode' => 'HR-PL',
-            'parent_id' => $unitSumberDayaManusia->id,
-            'keterangan' => 'Bagian pelatihan dalam unit SDM.',
-        ]);
-
-
-        // Example Units and Sub-Units
-        $unitProduksi = UnitKerja::create([
-            'nama' => 'Unit Produksi',
-            'kode' => 'UP01',
-            'keterangan' => 'Bagian yang bertanggung jawab atas produksi barang.',
-        ]);
-
-        $subUnitFinishing = UnitKerja::create([
-            'nama' => 'Bagian Finishing',
-            'parent_id' => $unitProduksi->id,
-            'kode' => 'UP01-FIN',
-            'keterangan' => 'Sub-bagian yang menangani proses finishing produk.',
-        ]);
-
-        $subUnitPackaging = UnitKerja::create([
-            'nama' => 'Bagian Packaging',
-            'parent_id' => $unitProduksi->id,
-            'kode' => 'UP01-PKG',
-            'keterangan' => 'Sub-bagian yang bertanggung jawab atas pengemasan.',
-        ]);
 
 
         $requests = [
