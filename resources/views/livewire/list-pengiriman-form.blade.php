@@ -19,11 +19,11 @@
                         <div class="font-normal text-sm">
                             <table class="w-full">
                                 <tr>
-                                    <td class=" w-1/3 px-1">{{ $item['merk']->nama ?? '-' }}</td>
+                                    <td class=" w-1/3 ">{{ $item['merk']->nama ?? '-' }}</td>
                                     <td
-                                        class="border-x-2 border-primary-600 w-1/3 px-1 {{ $item['merk']->tipe ? '' : 'text-center' }}">
+                                        class="border-x-2 border-primary-600 w-1/3  {{ $item['merk']->tipe ? '' : 'text-center' }}">
                                         {{ $item['merk']->tipe ?? '-' }}</td>
-                                    <td class=" w-1/3 px-1 {{ $item['merk']->ukuran ? '' : 'text-center' }}">
+                                    <td class=" w-1/3  {{ $item['merk']->ukuran ? '' : 'text-center' }}">
                                         {{ $item['merk']->ukuran ?? '-' }}</td>
                                 </tr>
                             </table>
@@ -92,52 +92,99 @@
                         {{-- @endif --}}
                         {{-- @endif --}}
                     </td>
-                    <td class="px-6 py-3">
+                    <td class="px-6 py-3 text-center">
                         @if ($pengiriman)
                             @if (is_null($pengiriman->status))
                                 <!-- Pengiriman ada dan statusnya null -->
-                                @role('penanggungjawab')
+                                @can('inventaris_unggah_foto_barang_datang')
+                                    <!-- Check permission for uploading photo -->
                                     <!-- Input dan tombol untuk upload hanya untuk penanggungjawab -->
                                     <input type="file" wire:model.live="list.{{ $index }}.bukti" class="hidden"
                                         id="upload-bukti-{{ $index }}">
+
                                     @if (isset($item['bukti']))
                                         <!-- Tampilkan dan berikan opsi untuk menghapus jika sudah ada gambar -->
                                         <div class="relative inline-block">
-                                            <a href="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
-                                                target="_blank">
-                                                <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
-                                                    alt="Bukti" class="w-16 h-16 rounded-md">
-                                            </a>
-                                            <button wire:click="removeDocument({{ $index }})"
-                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs p-1 hover:bg-red-700">&times;</button>
+                                            @if (is_string($item['bukti']))
+                                                <!-- If 'bukti' is a string (e.g., file path), display it as an image -->
+                                                <a href="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
+                                                    target="_blank">
+                                                    <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
+                                                        alt="Bukti" class="w-16 h-16 rounded-md">
+                                                </a>
+                                            @elseif (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl'))
+                                                <!-- If 'bukti' is an object (e.g., uploaded file object), display the temporary URL -->
+                                                <a href="{{ $item['bukti']->temporaryUrl() }}" target="_blank">
+                                                    <img src="{{ $item['bukti']->temporaryUrl() }}" alt="Bukti"
+                                                        class="w-16 h-16 rounded-md">
+                                                </a>
+                                            @else
+                                                <!-- Handle other cases (e.g., invalid data) -->
+                                                <span class="text-gray-500">Bukti tidak valid</span>
+                                            @endif
+
+                                            <!-- Option to remove the image -->
+                                            <button wire:click="removePhoto({{ $index }})"
+                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs p-1 hover:bg-red-700">
+                                                &times;
+                                            </button>
                                         </div>
                                     @else
+                                        <!-- If no file exists, show the upload button -->
                                         <button type="button"
                                             onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
-                                            class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">Unggah
-                                            Foto</button>
+                                            class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                            Unggah Foto
+                                        </button>
                                     @endif
                                 @else
                                     <!-- Non-penanggungjawab hanya melihat -->
                                     @if (isset($item['bukti']))
-                                        <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}" alt="Bukti"
-                                            class="w-16 h-16 rounded-md">
+                                        <!-- Display image if bukti exists -->
+                                        @if (is_string($item['bukti']))
+                                            <!-- If 'bukti' is a string (e.g., file path), display it as an image -->
+                                            <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
+                                                alt="Bukti" class="w-16 h-16 rounded-md">
+                                        @elseif (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl'))
+                                            <!-- If 'bukti' is an object (e.g., uploaded file object), display the temporary URL -->
+                                            <a href="{{ $item['bukti']->temporaryUrl() }}" target="_blank">
+                                                <img src="{{ $item['bukti']->temporaryUrl() }}" alt="Bukti"
+                                                    class="w-16 h-16 rounded-md">
+                                            </a>
+                                        @else
+                                            <!-- Handle invalid data case -->
+                                            <span class="text-gray-500">Bukti tidak valid</span>
+                                        @endif
                                     @else
                                         <span class="text-gray-500">Belum ada unggahan</span>
                                     @endif
-                                @endrole
+                                @endcan
                             @else
                                 <!-- Pengiriman ada tapi status bukan null, semua pengguna hanya melihat -->
                                 @if (isset($item['bukti']))
-                                    <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}" alt="Bukti"
-                                        class="w-16 h-16 rounded-md">
+                                    <!-- Check the type of bukti to display accordingly -->
+                                    @if (is_string($item['bukti']))
+                                        <!-- If 'bukti' is a string (e.g., file path), display it as an image -->
+                                        <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
+                                            alt="Bukti" class="w-16 h-16 rounded-md">
+                                    @elseif (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl'))
+                                        <!-- If 'bukti' is an object (e.g., uploaded file object), display the temporary URL -->
+                                        <a href="{{ $item['bukti']->temporaryUrl() }}" target="_blank">
+                                            <img src="{{ $item['bukti']->temporaryUrl() }}" alt="Bukti"
+                                                class="w-16 h-16 rounded-md">
+                                        </a>
+                                    @else
+                                        <!-- Handle other cases (e.g., invalid data) -->
+                                        <span class="text-gray-500">Bukti tidak valid</span>
+                                    @endif
                                 @else
                                     <span class="text-gray-500">Belum ada unggahan</span>
                                 @endif
                             @endif
                         @else
                             <!-- Tidak ada pengiriman, hanya penanggungjawab yang bisa upload/edit -->
-                            @role('penanggungjawab')
+                            @can('inventaris_unggah_foto_barang_datang')
+                                <!-- Check permission -->
                                 <input type="file" wire:model.live="list.{{ $index }}.bukti" class="hidden"
                                     id="upload-bukti-{{ $index }}">
                                 <button type="button"
@@ -146,11 +193,10 @@
                                     Foto</button>
                             @else
                                 <span class="text-gray-500">Belum ada unggahan</span>
-                            @endrole
+                            @endcan
                         @endif
-
-
                     </td>
+
                     <td class="text-center">
                         @if ($item['id'] === null)
                             <button wire:click="removeFromList({{ $index }})"

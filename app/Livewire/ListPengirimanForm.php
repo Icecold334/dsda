@@ -210,7 +210,7 @@ class ListPengirimanForm extends Component
                 $this->list[] = [
                     'id' => $transaksi->id,
                     'merk_id' => $transaksi->merkStok->id,
-                    'merk' => $transaksi->merkStok->nama,
+                    'merk' => $transaksi->merkStok,
                     'detail' => $transaksi->detail_pengiriman_id ?? null,
                     'bukti' => $transaksi->img,
                     'lokasi_id' => $transaksi->lokasi_id,
@@ -349,7 +349,7 @@ class ListPengirimanForm extends Component
         // }
     }
 
-    public function updated($propertyName)
+    public function updated($propertyName, $value)
     {
         // Check if the updated property matches the specific file input
         // if (preg_match('/^list\.\d+\.bukti$/', $propertyName)) {

@@ -23,6 +23,7 @@
         </thead>
         <tbody>
             @forelse ($datangs as $datang)
+                {{-- @dd($datang) --}}
                 <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="px-6 py-3">
 
