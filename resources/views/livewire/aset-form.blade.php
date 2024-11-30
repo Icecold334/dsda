@@ -483,7 +483,7 @@
                                 <img src="{{ is_string($img) ? asset('storage/asetImg/' . $img) : ($img ? $img->temporaryUrl() : asset('img/default-pic.png')) }}"
                                     class="max-w-full max-h-full " @click.stop="">
                             </div>
-                        </div>
+                        </div>  
 
 
 

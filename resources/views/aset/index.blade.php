@@ -23,24 +23,25 @@
     <div class="mb-4">
         <!-- Form Pencarian -->
         <form method="GET" action="{{ route('aset.index') }}" id="searchForm" class="hidden">
-            <div class="grid grid-cols-1 sm:grid-cols-1 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
                 <!-- Filter Tampilan -->
                 <fieldset class="border p-4 rounded-lg">
                     <legend class="text-lg font-semibold text-gray-800">Filter Tampilan</legend>
 
-                    <div class="grid grid-cols-3 gap-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Filter Nama -->
                         <div>
                             <label for="nama" class="block text-sm font-medium text-gray-700">Cari Nama Aset</label>
                             <input type="text" name="nama" id="nama" placeholder="Cari Nama Aset"
-                                class="border border-gray-300 rounded-lg p-2 mt-1" value="{{ request('nama') }}" />
+                                class="border border-gray-300 rounded-lg p-2 mt-1 w-full"
+                                value="{{ request('nama') }}" />
                         </div>
 
                         <!-- Filter Kategori -->
                         <div>
                             <label for="kategori_id" class="block text-sm font-medium text-gray-700">Kategori</label>
                             <select name="kategori_id" id="kategori_id"
-                                class="border border-gray-300 rounded-lg p-2 mt-1">
+                                class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
                                 <option value="">Semua Kategori</option>
                                 @foreach ($kategoris as $kategori)
                                     <option value="{{ $kategori->id }}"
@@ -54,7 +55,8 @@
                         <!-- Filter Merk -->
                         <div>
                             <label for="merk_id" class="block text-sm font-medium text-gray-700">Merk</label>
-                            <select name="merk_id" id="merk_id" class="border border-gray-300 rounded-lg p-2 mt-1">
+                            <select name="merk_id" id="merk_id"
+                                class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
                                 <option value="">Semua Merk</option>
                                 @foreach ($merks as $merk)
                                     <option value="{{ $merk->id }}"
@@ -68,7 +70,8 @@
                         <!-- Filter Toko -->
                         <div>
                             <label for="toko_id" class="block text-sm font-medium text-gray-700">Toko</label>
-                            <select name="toko_id" id="toko_id" class="border border-gray-300 rounded-lg p-2 mt-1">
+                            <select name="toko_id" id="toko_id"
+                                class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
                                 <option value="">Semua Toko</option>
                                 @foreach ($tokos as $toko)
                                     <option value="{{ $toko->id }}"
@@ -84,7 +87,7 @@
                             <label for="penanggung_jawab_id" class="block text-sm font-medium text-gray-700">Penanggung
                                 Jawab</label>
                             <select name="penanggung_jawab_id" id="penanggung_jawab_id"
-                                class="border border-gray-300 rounded-lg p-2 mt-1">
+                                class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
                                 <option value="">Semua Penanggung</option>
                                 @foreach ($penanggungJawabs as $penanggung)
                                     <option value="{{ $penanggung->id }}"
@@ -98,7 +101,8 @@
                         <!-- Filter Lokasi -->
                         <div>
                             <label for="lokasi_id" class="block text-sm font-medium text-gray-700">Lokasi</label>
-                            <select name="lokasi_id" id="lokasi_id" class="border border-gray-300 rounded-lg p-2 mt-1">
+                            <select name="lokasi_id" id="lokasi_id"
+                                class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
                                 <option value="">Semua Lokasi</option>
                                 @foreach ($lokasis as $lokasi)
                                     <option value="{{ $lokasi->id }}"
@@ -109,13 +113,29 @@
                             </select>
                         </div>
 
-                        <!-- Submit Button -->
-                        <button type="submit"
-                            class="bg-blue-500 text-white rounded-lg px-4 py-2 mt-4 w-20">GO!</button>
-                        <a href="{{ route('aset.index') }}"
-                            class="bg-gray-500 text-white rounded-lg px-4 py-2 mt-4 w-20 text-center inline-block">
-                            Reset Filter
-                        </a>
+                        <!-- Submit and Reset Buttons in a Flex Container -->
+                        <div class="flex items-center justify-start mt-4 space-x-4">
+                            <!-- Submit Button -->
+                            <button type="submit"
+                                class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">GO!</button>
+
+                            <!-- Show Reset Filter Button if query parameters exist -->
+                            @if (request()->hasAny([
+                                    'nama',
+                                    'kategori_id',
+                                    'merk_id',
+                                    'toko_id',
+                                    'penanggung_jawab_id',
+                                    'lokasi_id',
+                                    'order_by',
+                                    'order_direction',
+                                ]))
+                                <a href="{{ route('aset.index') }}"
+                                    class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
+                                    <i class="fa fa-sync-alt"></i>
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 </fieldset>
 
@@ -123,12 +143,13 @@
                 <fieldset class="border p-4 rounded-lg">
                     <legend class="text-lg font-semibold text-gray-800">Filter Urutan</legend>
 
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Dropdown untuk Kolom Urutan -->
                         <div>
                             <label for="order_by" class="block text-sm font-medium text-gray-700">Urutkan
                                 Berdasarkan</label>
-                            <select name="order_by" id="order_by" class="border border-gray-300 rounded-lg p-2 mt-1">
+                            <select name="order_by" id="order_by"
+                                class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
                                 <option value="nama" {{ request('order_by') == 'nama' ? 'selected' : '' }}>Nama Aset
                                 </option>
                                 <option value="tanggalbeli"
@@ -147,7 +168,7 @@
                             <label for="order_direction" class="block text-sm font-medium text-gray-700">Arah
                                 Urutan</label>
                             <select name="order_direction" id="order_direction"
-                                class="border border-gray-300 rounded-lg p-2 mt-1">
+                                class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
                                 <option value="asc" {{ request('order_direction') == 'asc' ? 'selected' : '' }}>
                                     Menaik</option>
                                 <option value="desc" {{ request('order_direction') == 'desc' ? 'selected' : '' }}>
@@ -155,12 +176,11 @@
                             </select>
                         </div>
 
-                        <div class="flex justify-end">
+                        <div class="flex items-end justify-end">
                             <!-- Submit Button -->
                             <button type="submit"
-                                class="bg-blue-500 text-white rounded-lg px-4 py-2 mt-4 w-20">GO!</button>
+                            class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">GO!</button>
                         </div>
-
                     </div>
                 </fieldset>
             </div>
@@ -180,9 +200,6 @@
             });
         </script>
     @endpush
-
-
-
 
     <table class="w-full  border-3 border-separate border-spacing-y-4 ">
         <thead>

@@ -19,12 +19,11 @@
     <div class="mb-4">
         <!-- Form Pencarian -->
         <form method="GET" action="{{ route('nonaktifaset.index') }}" id="searchForm" class="hidden">
-            <div class="grid grid-cols-1 sm:grid-cols-1 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Filter Tampilan -->
                 <fieldset class="border p-4 rounded-lg">
                     <legend class="text-lg font-semibold text-gray-800">Filter Tampilan</legend>
-
-                    <div class="grid grid-cols-5 gap-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Filter Nama -->
                         <div>
                             <label for="nama" class="block text-sm font-medium text-gray-700">Cari Nama Aset</label>
@@ -66,28 +65,13 @@
                                 </option>
                             </select>
                         </div>
-
-
-                        {{-- <div class="flex justify-end"> --}}
-                        <!-- Submit Button -->
-                        <button type="submit"
-                            class="bg-blue-500 text-white rounded-lg px-4 py-2 mt-4 w-20">GO!</button>
-                        <div>
-                            <a href="{{ route('nonaktifaset.index') }}"
-                                class="bg-gray-500 text-white rounded-lg px-4 py-2 mt-4 w-20 text-center inline-block">
-                                Reset Filter
-                            </a>
-                        </div>
-                        <!-- Reset Button -->
-
-                        {{-- </div> --}}
                     </div>
                 </fieldset>
 
+                <!-- Filter Urutan -->
                 <fieldset class="border p-4 rounded-lg">
                     <legend class="text-lg font-semibold text-gray-800">Filter Urutan</legend>
-
-                    <div class="grid grid-cols-6 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Dropdown untuk Kolom Urutan -->
                         <div>
                             <label for="order_by" class="block text-sm font-medium text-gray-700">Urutkan
@@ -118,15 +102,23 @@
                                     Menurun</option>
                             </select>
                         </div>
-
-                        <!-- Tombol Submit -->
-                        {{-- <div class="flex justify-end col-span-6"> --}}
-                        <button type="submit"
-                            class="bg-blue-500 text-white rounded-lg px-4 py-2 mt-4 w-20">GO!</button>
-                        {{-- </div> --}}
-
                     </div>
                 </fieldset>
+
+                <!-- Submit and Reset Buttons -->
+                <div class="flex justify-start items-center space-x-4">
+                    <!-- GO Button -->
+                    <button
+                        type="submit"class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"w>GO!</button>
+
+                    <!-- Reset Button (only shown if filters are applied) -->
+                    @if (request()->hasAny(['nama', 'kategori_id', 'sebab', 'order_by', 'order_direction']))
+                        <a href="{{ route('nonaktifaset.index') }}"
+                            class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
+                            <i class="fa fa-sync-alt"></i>
+                        </a>
+                    @endif
+                </div>
             </div>
         </form>
     </div>
