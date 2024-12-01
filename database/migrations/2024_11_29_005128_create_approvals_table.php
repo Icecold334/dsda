@@ -18,6 +18,7 @@ return new class extends Migration
             $table->boolean('is_approved')->default(false); // Status persetujuan (false = belum disetujui, true = disetujui)
             $table->unsignedBigInteger('approvable_id'); // ID dari model yang disetujui
             $table->string('approvable_type'); // Nama model yang disetujui
+            $table->string('img')->nullable();
             $table->timestamps();
         });
     }

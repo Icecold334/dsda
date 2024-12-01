@@ -102,14 +102,19 @@ class TransaksiDaruratList extends Component
                     'lokasi_penerimaan' => $item->lokasi_penerimaan,
                     'keterangan' => $item->deskripsi,
                     'bukti' => $item->img,
+                    'pptk_id' =>$item->pptk_id ?? "",
+                    'ppk_id' =>$item->ppk_id ?? "",
                     'status' => $item->status,
                 ];
             }
             $this->dispatch('listCount', count: count($this->list));
             
         }
-
-        $this->cekApproval = Persetujuan::Where('approvable_id')->first();
+        $this->cekApproval =     TransaksiStok::where('vendor_id', $this->vendor_id)->where(function ($query) {
+            $query->whereNull('pptk_id')
+            ->orWhereNull('ppk_id');
+        })->get();
+    
         // $this->nomor_kontrak = $this->getNoKontrak($this->vendor_id)->nomor_kontrak;
     }
 
@@ -356,8 +361,18 @@ class TransaksiDaruratList extends Component
     public function approveTransaction($index)
     {
         $transaction = TransaksiStok::find($this->list[$index]['id']);
-        $transaction->pj_id = Auth::id();
-        $transaction->status = true;
+        if (auth::user()->hasRole('ppk')){
+            $transaction->ppk_id = Auth::id();
+            $transaction->img = $this->list[$index]['bukti'];
+        }
+        if (auth::user()->hasRole('pptk')){
+            $transaction->pptk_id = Auth::id();
+        }
+        if (auth::user()->hasRole('pj')){
+            $transaction->pj_id = Auth::id();
+            $transaction->status = true;
+        }
+        // $transaction->approvals->
         $transaction->update();
         return redirect()->route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->transaksi->first()->vendor_id]);
     }
@@ -412,6 +427,7 @@ class TransaksiDaruratList extends Component
     }
     public function render()
     {
-        return view('livewire.transaksi-darurat-list');
+        $roles = auth()->user()->hasRole('ppk');
+        return view('livewire.transaksi-darurat-list', ['isppk' => $roles]);
     }
 }

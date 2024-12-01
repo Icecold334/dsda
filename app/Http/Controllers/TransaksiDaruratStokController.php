@@ -76,6 +76,8 @@ class TransaksiDaruratStokController extends Controller
 
         $roles = Auth::user()->roles->pluck('name');
 
+        
+
 
         // Pass the data to the view
         return view('darurat.edit', compact('transaksi','roles'));

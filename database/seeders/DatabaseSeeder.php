@@ -230,7 +230,8 @@ class DatabaseSeeder extends Seeder
             'data_lokasi',
             'qr_print',
             'inventaris_edit_lokasi_penerimaan',
-            'inventaris_tambah_barang_datang'
+            'inventaris_tambah_barang_datang',
+            'persetujuan'
         ];
 
         // Insert permissions and get their IDs
