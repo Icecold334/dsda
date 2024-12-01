@@ -24,6 +24,10 @@ class ApprovalPengiriman extends Component
     public $lastPj;
     public $ppkList;
     public $lastPpk;
+    public $penerimaList;
+    public $lastPenerima;
+    public $pemeriksaList;
+    public $lastPemeriksa;
     public $pptkList;
     public $lastPptk;
     public $listApproval;
@@ -65,30 +69,58 @@ class ApprovalPengiriman extends Component
         }
 
         $this->user = Auth::user();
-        $this->roles = 'penanggungjawab|ppk|pptk';
+        $this->roles = 'penanggungjawab|ppk|pptk|';
         $this->penulis = $this->pengiriman->user;
         $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
+
         $pj = User::role('penanggungjawab')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
         $indexPj = $pj->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastPj = $indexPj === $pj->count() - 1;
         $this->pjList = $pj;
+
         $ppk = User::role('ppk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPpk = $ppk->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastPpk = $indexPpk === $ppk->count() - 1; // Check if current user is the last user
         $this->ppkList = $ppk;
+
+        $penerima = User::role('penerima_barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+        $indexPenerima = $penerima->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+        $this->lastPenerima = $indexPenerima === $penerima->count() - 1; // Check if current user is the last user
+        $this->penerimaList = $penerima;
+
+        $pemeriksa = User::role('pemeriksa_barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+        $indexPemeriksa = $pemeriksa->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+        $this->lastPemeriksa = $indexPemeriksa === $pemeriksa->count() - 1; // Check if current user is the last user
+        $this->pemeriksaList = $pemeriksa;
+
+
         $pptk = User::role('pptk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPptk = $pptk->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastPptk = $indexPptk === $pptk->count() - 1; // Check if current user is the last user
         $this->pptkList = $pptk;
-        $this->listApproval = $this->pptkList->merge($this->ppkList)->count();
 
-        $allApproval = $this->pptkList->merge($this->ppkList);
+        // Menentukan urutan approval yang benar
+        $this->listApproval = $this->penerimaList
+            ->merge($this->pemeriksaList)
+            ->merge($this->pptkList)
+            ->merge($this->ppkList)
+            ->count();
+
+        // Menggabungkan list approval sesuai urutan yang benar
+        $allApproval = $this->penerimaList
+            ->merge($this->pemeriksaList)
+            ->merge($this->pptkList)
+            ->merge($this->ppkList);
         $index = $allApproval->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -107,7 +139,7 @@ class ApprovalPengiriman extends Component
     public function approveConfirmed()
     {
 
-        if ($this->lastPj || $this->lastPpk || $this->lastPptk) {
+        if ($this->lastPj || $this->lastPpk || $this->lastPptk || $this->lastPenerima || $this->lastPemeriksa) {
             foreach ($this->approvalFiles as $file) {
                 $path = str_replace('dokumen-persetujuan-pengiriman/', '', $file->storeAs('dokumen-persetujuan-pengiriman', $file->getClientOriginalName(), 'public'));
                 $this->pengiriman->persetujuan()->create([
@@ -172,38 +204,6 @@ class ApprovalPengiriman extends Component
                 }
             }
         }
-
-        // $this->pengiriman->persetujuan()->create([
-        //     'detail_pengiriman_id' => $this->pengiriman->id,
-        //     'user_id' => Auth::id(),
-        //     'status' => true,
-        // ]);
-
-        // $list = $this->pengiriman->persetujuan;
-
-        // $filteredList = $list->filter(function ($approval) {
-        //     return $approval->status;
-        // });
-        // if ($filteredList->count() == $this->listApproval) {
-        //     $this->pengiriman->status = true;
-        //     $this->pengiriman->save();
-
-        //     $pengirimanItems = $this->pengiriman->pengirimanStok;
-        //     foreach ($pengirimanItems as $pengiriman) {
-        //         $stok = Stok::firstOrCreate(
-        //             [
-        //                 'merk_id' => $pengiriman->merk_id,
-        //                 'lokasi_id' => $pengiriman->lokasi_id,
-        //                 'bagian_id' => $pengiriman->bagian_id,
-        //                 'posisi_id' => $pengiriman->posisi_id,
-        //             ],
-        //             ['jumlah' => 0]  // Atur stok awal jika belum ada
-        //         );
-
-        //         $stok->jumlah += $pengiriman->jumlah;
-        //         $stok->save();
-        //     }
-        // }
 
 
         return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);

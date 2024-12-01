@@ -46,7 +46,7 @@
                         </p>
                     </td>
                     <td class="py-3 px-6 text-center">
-                        <a href="{{ route('permintaan-stok.show', ['permintaan_stok' => $permintaan->id]) }}"
+                        {{-- <a href="{{ route('permintaan-stok.show', ['permintaan_stok' => $permintaan->id]) }}"
                             class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
                             data-tooltip-target="tooltip-permintaan-{{ $permintaan->id }}">
                             <i class="fa-solid fa-eye"></i>
@@ -55,7 +55,7 @@
                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                             Lihat Detail Permintaan
                             <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
+                        </div> --}}
                         <a href="{{ route('permintaan-stok.edit', ['permintaan_stok' => $permintaan->id]) }}"
                             class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300"
                             data-tooltip-target="tooltip-edit-kontrak-{{ $permintaan->id }}">

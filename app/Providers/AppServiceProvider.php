@@ -22,7 +22,10 @@ class AppServiceProvider extends ServiceProvider
     {
         // Auth::loginUsingId(1);
         Auth::loginUsingId(7);
-        // Auth::loginUsingId(10);
+        // Auth::loginUsingId(25);
+        // Auth::loginUsingId(22);
+        Auth::loginUsingId(11);
+        // Auth::loginUsingId(1);
         // Auth::loginUsingId(9);
 
     }

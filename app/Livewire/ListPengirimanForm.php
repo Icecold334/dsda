@@ -30,6 +30,8 @@ class ListPengirimanForm extends Component
     public $pj1;
     public $pj2;
     public $showRemove;
+    public $showDokumen;
+
 
     #[On('merkSelected')]
     public function addMerkToList($merkId)
@@ -61,16 +63,16 @@ class ListPengirimanForm extends Component
     {
         // dd($this->list[$index]);
         if (isset($this->list[$index]['bukti'])) {
-            // $filePath = 'buktiPengiriman/' . $this->list[$index]['bukti'];
+            $filePath = 'buktiPengiriman/' . $this->list[$index]['bukti'];
 
-            // // Remove the file from storage if it exists
-            // if (Storage::disk('public')->exists($filePath)) {
-            //     $pengiriman = PengirimanStok::find($this->list[$index]['id']);
-            //     // if ($pengiriman) {
-            //     //     $pengiriman->update(['img' => null]);
-            //     // }
-            //     Storage::disk('public')->delete($filePath);
-            // }
+            // Remove the file from storage if it exists
+            if (Storage::disk('public')->exists($filePath)) {
+                $pengiriman = PengirimanStok::find($this->list[$index]['id']);
+                if ($pengiriman) {
+                    $pengiriman->update(['img' => null]);
+                }
+                Storage::disk('public')->delete($filePath);
+            }
 
             // Remove the photo from the list
             unset($this->list[$index]['bukti']);
@@ -86,11 +88,35 @@ class ListPengirimanForm extends Component
     {
         // Validate that all items have required data
         foreach ($this->list as $index => $item) {
-            if (!$item['jumlah']) {
-                $this->dispatch('error');
+            if (!$item['jumlah'] || !$item['lokasi_id']) {
+                $this->dispatch('error', pesan: 'Lengkapi data pengiriman!');
                 return;
             }
         }
+
+        $merkTotals = [];
+        foreach ($this->list as $item) {
+            $merkId = $item['merk_id'];
+            $maxAllowed = $item['max_jumlah'];
+
+            // Hitung akumulasi jumlah untuk merk yang sama
+            if (!isset($merkTotals[$merkId])) {
+                $merkTotals[$merkId] = 0;
+            }
+            $merkTotals[$merkId] += $item['jumlah'];
+
+            // Periksa apakah akumulasi melebihi batas
+            if ($merkTotals[$merkId] > $maxAllowed) {
+                $nama = $item['merk']->nama ?? 'Tidak diketahui';
+                $tipe = $item['merk']->tipe ?? 'Tidak diketahui';
+                $ukuran = $item['merk']->ukuran ?? 'Tidak diketahui';
+
+                $this->dispatch('error', pesan: "Jumlah untuk barang {$nama}, {$tipe}, {$ukuran} melebihi batas maksimal {$maxAllowed}!");
+                return;
+            }
+        }
+
+
 
         // Create a new detail_pengiriman_stok record if needed
         $this->validate([
@@ -131,7 +157,7 @@ class ListPengirimanForm extends Component
                     // 'tanggal_pengiriman' => strtotime(date('Y-m-d H:i:s')),
                 ]);
             } else {
-                $transactions = \App\Models\TransaksiStok::where('vendor_id', $this->vendor_id)
+                $transactions = TransaksiStok::where('vendor_id', $this->vendor_id)
                     ->where('merk_id', $merkId)
                     ->where('tipe', 'Pemasukan')
                     ->whereNotNull('kontrak_id')
@@ -190,15 +216,17 @@ class ListPengirimanForm extends Component
             }
         }
         // Clear the list and reset the vendor selection
-        $this->list = [];
-        $this->vendor_id = null;
-
-        return redirect()->route('pengiriman-stok.index');
+        // $this->list = [];
+        // $this->vendor_id = null;
+        // $this->mount();
+        if (!$this->showDokumen) {
+            return redirect()->route('pengiriman-stok.index');
+        }
     }
-
 
     public function mount()
     {
+        $this->showDokumen = !Request::routeIs('pengiriman-stok.create');
         $this->showRemove = !Request::routeIs('pengiriman-stok.show');
         $this->lokasis = LokasiStok::all();
         if (count($this->old)) {
@@ -217,7 +245,7 @@ class ListPengirimanForm extends Component
                     'bagian_id' => $transaksi->bagian_id,
                     'posisi_id' => $transaksi->posisi_id,
                     'bagians' => BagianStok::where('lokasi_id', $transaksi->lokasi_id)->get(),
-                    'posisis' => collect(),
+                    'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
                     'jumlah' => $transaksi->jumlah ?? 1,
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
                     'editable' => $isEditable,
@@ -298,6 +326,9 @@ class ListPengirimanForm extends Component
         // Load bagians and reset posisis
         $this->list[$index]['bagians'] = BagianStok::where('lokasi_id', $lokasiId)->get();
         $this->list[$index]['posisis'] = collect();
+        if ($this->showDokumen) {
+            $this->savePengiriman();
+        }
     }
 
     public function updateBagian($index, $bagianId)
@@ -306,12 +337,18 @@ class ListPengirimanForm extends Component
         $this->list[$index]['bagian_id'] = $bagianId;
         $this->list[$index]['posisi_id'] = null;
         $this->list[$index]['posisis'] = PosisiStok::where('bagian_id', $bagianId)->get();
+        if ($this->showDokumen) {
+            $this->savePengiriman();
+        }
     }
 
     public function updatePosisi($index, $posisiId)
     {
         // Update selected posisi
         $this->list[$index]['posisi_id'] = $posisiId;
+        if ($this->showDokumen) {
+            $this->savePengiriman();
+        }
     }
 
     // #[On('maxJumlahUpdated')]
@@ -327,58 +364,58 @@ class ListPengirimanForm extends Component
 
     public function updateJumlah($index, $value)
     {
+
+
+
         $maxAllowed = $this->list[$index]['max_jumlah'];
         $merkId = $this->list[$index]['merk_id'];
         $previousJumlah = $this->list[$index]['jumlah'];
 
         // Validasi nilai input
         $value = $value === '' ? 0 : (int)$value; // Default ke 0 jika kosong
-        if ($value > $maxAllowed) {
-            $value = $maxAllowed; // Set ke max jika melebihi
-        }
+        // if ($value > $maxAllowed) {
+        //     $value = $maxAllowed; // Set ke max jika melebihi
+        // }
 
         // Hitung selisih
         $diff = $value - $previousJumlah;
 
         // Perbarui nilai di list
         $this->list[$index]['jumlah'] = $value;
-
-        // Dispatch event ke komponen kontrak untuk sinkronisasi
-        // if ($diff !== 0) {
         $this->dispatch('pengirimanUpdated', merkId: $merkId, usedJumlah: $diff);
         // }
     }
 
     public function updated($propertyName, $value)
     {
-        // Check if the updated property matches the specific file input
-        // if (preg_match('/^list\.\d+\.bukti$/', $propertyName)) {
-        //     // Extract the index from the property name
-        //     preg_match('/^list\.(\d+)\.bukti$/', $propertyName, $matches);
-        //     $index = $matches[1];
+        if (preg_match('/^list\.\d+\.bukti$/', $propertyName)) {
+            // Extract the index from the property name
+            preg_match('/^list\.(\d+)\.bukti$/', $propertyName, $matches);
+            $index = $matches[1];
 
-        //     // Validate the file
-        //     $this->validate([
-        //         "list.{$index}.bukti" => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust validation rules as needed
-        //     ]);
+            // Validate the file
+            // $this->validate([
+            //     "list.{$index}.bukti" => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust validation rules as needed
+            // ]);
 
-        //     // Process the file upload
-        //     $file = $this->list[$index]['bukti'];
-        //     if ($file) {
+            // Process the file upload
+            $file = $this->list[$index]['bukti'];
+            $pengiriman = $this->pengiriman->pengirimanStok->find($this->list[$index]['id']);
+            if ($file) {
 
-        //         $storedFilePath = str_replace('buktiPengiriman/', '', $file->storeAs(
-        //             'buktiPengiriman', // Directory
-        //             $file->getClientOriginalName(), // File name
-        //             'public' // Storage disk
-        //         ));
+                $storedFilePath = str_replace('buktiPengiriman/', '', $file->storeAs(
+                    'buktiPengiriman', // Directory
+                    $file->getClientOriginalName(), // File name
+                    'public' // Storage disk
+                ));
+                $pengiriman->update(['img' => $storedFilePath]);
+                // Update the list with the stored file path
+                $this->list[$index]['bukti'] = $storedFilePath;
 
-        //         // Update the list with the stored file path
-        //         $this->list[$index]['bukti'] = $storedFilePath;
-
-        //         // Provide feedback
-        //         session()->flash('success', 'File berhasil diunggah.');
-        //     }
-        // }
+                // Provide feedback
+                session()->flash('success', 'File berhasil diunggah.');
+            }
+        }
     }
 
 

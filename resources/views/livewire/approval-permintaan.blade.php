@@ -42,20 +42,20 @@
         </div> --}}
         <div class="">
             <div class="block font-semibold text-center mb-2 text-gray-900">
-                Pejabat Pelaksana Teknis Kegiatan</div>
+                Kepala Seksi</div>
             <table class="w-full mt-3">
-                @foreach ($pptkList as $pptk)
+                @foreach ($kepalaseksiList as $kepalaseksi)
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
-                            <span class="mr-9 {{ $pptk->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $pptk->id == auth()->id() ? 'Anda' : $pptk->name }}
+                            <span class="mr-9 {{ $kepalaseksi->id == auth()->id() ? 'font-bold' : '' }}">
+                                {{ $kepalaseksi->id == auth()->id() ? 'Anda' : $kepalaseksi->name }}
                             </span>
                             <i
                                 class="my-1 fa-solid {{ is_null(
-                                    optional($pptk->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                    optional($kepalaseksi->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
                                 )
                                     ? 'fa-circle-question text-secondary-600'
-                                    : (optional($pptk->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                    : (optional($kepalaseksi->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
                                         ? 'fa-circle-check text-success-500'
                                         : 'fa-circle-xmark text-danger-500') }}">
                             </i>
@@ -68,20 +68,20 @@
         </div>
         <div class="">
             <div class="block font-semibold text-center mb-2 text-gray-900">
-                Pejabat Pembuat Komitmen</div>
+                Kepala Sub Bagian</div>
             <table class="w-full mt-3">
-                @foreach ($ppkList as $ppk)
+                @foreach ($kasubagList as $kasubag)
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
-                            <span class="mr-9 {{ $ppk->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $ppk->id == auth()->id() ? 'Anda' : $ppk->name }}
+                            <span class="mr-9 {{ $kasubag->id == auth()->id() ? 'font-bold' : '' }}">
+                                {{ $kasubag->id == auth()->id() ? 'Anda' : $kasubag->name }}
                             </span>
                             <i
                                 class="my-1 fa-solid {{ is_null(
-                                    optional($ppk->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                    optional($kasubag->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
                                 )
                                     ? 'fa-circle-question text-secondary-600'
-                                    : (optional($ppk->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                    : (optional($kasubag->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
                                         ? 'fa-circle-check text-success-500'
                                         : 'fa-circle-xmark text-danger-500') }}">
                             </i>
@@ -95,44 +95,48 @@
 
         {{-- @endrole --}}
     </div>
-    @hasanyrole($roles)
-        @if ($showButton)
-            <div class="flex">
-                <div class="flex space-x-2 justify-center w-full">
-                    @if ($isLastUser || $lastPj || $lastPpk || $lastPptk)
-                        <div class="flex flex-col items-center">
-                            <input type="file" wire:model="newApprovalFiles" id="approvalFiles" multiple class="hidden">
-                            <button type="button" onclick="document.getElementById('approvalFiles').click()"
-                                class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
-                                Unggah File Persetujuan
-                            </button>
-                            @error('approvalFiles.*')
-                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        {{-- <input type="file" wire:model="approvalFiles" id="approvalFiles" multiple class="hidden">
+    @if ($showButton)
+        <div class="flex">
+            <div class="flex space-x-2 justify-center w-full">
+                @if ($isLastUser || $lastPj || $lastPpk || $lastPptk || $lastKepalaseksi || $lastKasubag)
+                    <div class="flex flex-col items-center">
+                        <input type="file" wire:model="newApprovalFiles" id="approvalFiles" multiple class="hidden">
                         <button type="button" onclick="document.getElementById('approvalFiles').click()"
                             class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
                             Unggah File Persetujuan
                         </button>
                         @error('approvalFiles.*')
                             <span class="text-red-500 text-xs">{{ $message }}</span>
-                        @enderror --}}
-                    @endif
-                    <button type="button"
-                        onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
-                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                        Setuju
-                    </button>
-                    <button type="button" onclick="confirmReject()"
-                        class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                        Tidak Setuju
-                    </button>
-                </div>
+                        @enderror
+                    </div>
+                @endif
+                <button type="button"
+                    onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk || $lastKepalaseksi || $lastKasubag ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    Setuju
+                </button>
+                <button type="button" onclick="confirmReject()"
+                    class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    Tidak Setuju
+                </button>
+                {{-- Tombol Selesai atau Batalkan --}}
 
             </div>
-        @endif
-    @endhasanyrole
+        </div>
+    @endif
+    @if ($isPenulis && $lastKasubagDone && is_null($permintaan->cancel))
+        <div class="flex justify-center">
+            <button type="button" onclick="confirmCompletion()"
+                class="text-green-900 bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                Selesai
+            </button>
+            <button type="button" onclick="confirmCancellation()"
+                class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                Batalkan
+            </button>
+        </div>
+    @endif
+
     @if (count($files))
         <div class="flex justify-center">
             <div class="mt-4 gap-4 w-3/5">
@@ -305,48 +309,50 @@
         });
     </script>
 @endpush
-
-
-{{-- @push('scripts')
+@push('scripts')
     <script>
-        function confirmApprove() {
+        function confirmCompletion() {
             Swal.fire({
-                title: 'Konfirmasi Persetujuan',
-                text: 'Apakah Anda yakin ingin menyetujui kontrak ini?',
+                title: 'Konfirmasi',
+                text: "Apakah Anda yakin ingin menyelesaikan permintaan ini?",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Setuju',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Selesaikan!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    @this.call('approveConfirmed');
+                    @this.markAsCompleted();
+                    Swal.fire(
+                        'Berhasil!',
+                        'Permintaan telah ditandai sebagai selesai.',
+                        'success'
+                    );
                 }
             });
         }
 
-        function confirmReject() {
+        function confirmCancellation() {
             Swal.fire({
-                title: 'Keterangan',
-                input: 'textarea',
-                inputPlaceholder: 'Masukkan keterangan',
-                inputAttributes: {
-                    'aria-label': 'Masukkan alasan Anda'
-                },
+                title: 'Konfirmasi',
+                text: "Apakah Anda yakin ingin membatalkan permintaan ini?",
+                icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Kirim',
-                cancelButtonText: 'Batal',
-                preConfirm: (inputValue) => {
-                    if (!inputValue || inputValue.trim() === '') {
-                        Swal.showValidationMessage('Keterangan tidak boleh kosong!');
-                        return false; // Prevents submission
-                    }
-                    return inputValue; // Allows submission
-                }
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Batalkan!',
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    @this.call('rejectConfirmed', result.value);
+                    @this.cancelRequest();
+                    Swal.fire(
+                        'Berhasil!',
+                        'Permintaan telah dibatalkan.',
+                        'success'
+                    );
                 }
             });
         }
     </script>
-@endpush --}}
+@endpush

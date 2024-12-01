@@ -42,6 +42,59 @@
         </div> --}}
         <div class="">
             <div class="block font-semibold text-center mb-2 text-gray-900">
+                Penerima Barang</div>
+            <table class="w-full mt-3">
+                @foreach ($penerimaList as $penerima)
+                    <tr class="text-sm border-b-2 ">
+                        <td class="flex justify-between px-3">
+                            <span class="mr-9 {{ $penerima->id == auth()->id() ? 'font-bold' : '' }}">
+                                {{ $penerima->id == auth()->id() ? 'Anda' : $penerima->name }}
+                            </span>
+                            <i
+                                class="my-1 fa-solid {{ is_null(
+                                    optional($penerima->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status,
+                                )
+                                    ? 'fa-circle-question text-secondary-600'
+                                    : (optional($penerima->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
+                                        ? 'fa-circle-check text-success-500'
+                                        : 'fa-circle-xmark text-danger-500') }}">
+                            </i>
+
+
+                        </td>
+                    </tr>
+                @endforeach
+            </table>
+        </div>
+        <div class="">
+            <div class="block font-semibold text-center mb-2 text-gray-900">
+                Pemeriksa Barang</div>
+            <table class="w-full mt-3">
+                @foreach ($pemeriksaList as $pemeriksa)
+                    <tr class="text-sm border-b-2 ">
+                        <td class="flex justify-between px-3">
+                            <span class="mr-9 {{ $pemeriksa->id == auth()->id() ? 'font-bold' : '' }}">
+                                {{ $pemeriksa->id == auth()->id() ? 'Anda' : $pemeriksa->name }}
+                            </span>
+                            <i
+                                class="my-1 fa-solid {{ is_null(
+                                    optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status,
+                                )
+                                    ? 'fa-circle-question text-secondary-600'
+                                    : (optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
+                                        ? 'fa-circle-check text-success-500'
+                                        : 'fa-circle-xmark text-danger-500') }}">
+                            </i>
+
+
+                        </td>
+                    </tr>
+                @endforeach
+            </table>
+        </div>
+
+        <div class="">
+            <div class="block font-semibold text-center mb-2 text-gray-900">
                 Pejabat Pelaksana Teknis Kegiatan</div>
             <table class="w-full mt-3">
                 @foreach ($pptkList as $pptk)
@@ -95,22 +148,22 @@
 
         {{-- @endrole --}}
     </div>
-    @hasanyrole($roles)
-        @if ($showButton)
-            <div class="flex">
-                <div class="flex space-x-2 justify-center w-full">
-                    @if ($isLastUser || $lastPj || $lastPpk || $lastPptk)
-                        <div class="flex flex-col items-center">
-                            <input type="file" wire:model="newApprovalFiles" id="approvalFiles" multiple class="hidden">
-                            <button type="button" onclick="document.getElementById('approvalFiles').click()"
-                                class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
-                                Unggah File Persetujuan
-                            </button>
-                            @error('approvalFiles.*')
-                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        {{-- <input type="file" wire:model="approvalFiles" id="approvalFiles" multiple class="hidden">
+    {{-- @hasanyrole($roles) --}}
+    @if ($showButton)
+        <div class="flex">
+            <div class="flex space-x-2 justify-center w-full">
+                @if ($isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa)
+                    <div class="flex flex-col items-center">
+                        <input type="file" wire:model="newApprovalFiles" id="approvalFiles" multiple class="hidden">
+                        <button type="button" onclick="document.getElementById('approvalFiles').click()"
+                            class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                            Unggah File Persetujuan
+                        </button>
+                        @error('approvalFiles.*')
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    {{-- <input type="file" wire:model="approvalFiles" id="approvalFiles" multiple class="hidden">
                         <button type="button" onclick="document.getElementById('approvalFiles').click()"
                             class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
                             Unggah File Persetujuan
@@ -118,21 +171,21 @@
                         @error('approvalFiles.*')
                             <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror --}}
-                    @endif
-                    <button type="button"
-                        onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
-                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                        Setuju
-                    </button>
-                    <button type="button" onclick="confirmReject()"
-                        class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                        Tidak Setuju
-                    </button>
-                </div>
-
+                @endif
+                <button type="button"
+                    onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    Setuju
+                </button>
+                <button type="button" onclick="confirmReject()"
+                    class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    Tidak Setuju
+                </button>
             </div>
-        @endif
-    @endhasanyrole
+
+        </div>
+    @endif
+    {{-- @endhasanyrole --}}
     @if (count($files))
         <div class="flex justify-center">
             <div class="mt-4 gap-4 w-3/5">
@@ -258,6 +311,7 @@
                 }
             });
         }
+
 
         function submitApprovalWithFile() {
             const fileInput = document.getElementById('approvalFiles');

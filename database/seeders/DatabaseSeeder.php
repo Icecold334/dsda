@@ -160,7 +160,7 @@ class DatabaseSeeder extends Seeder
 
 
         // Create or get roles for superadmin, admin, penanggungjawab, ppk, pptk
-        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk', 'guest', 'penerima barang'];
+        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk', 'guest', 'penerima_barang', 'pemeriksa_barang', 'pengurus_barang', 'kepala_sub_bagian', 'kepala_seksi'];
         $roleIds = [];
 
         foreach ($roles as $role) {
@@ -239,6 +239,7 @@ class DatabaseSeeder extends Seeder
             'inventaris_edit_lokasi_penerimaan',
             'inventaris_tambah_barang_datang',
             'inventaris_unggah_foto_barang_datang',
+            'permintaan_persetujuan_jumlah_barang',
         ];
 
         // Insert permissions and get their IDs
@@ -313,7 +314,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create users for penanggungjawab, ppk, and pptk roles (2 users per role)
-        $extraRoles = ['penanggungjawab', 'ppk', 'pptk'];
+        $extraRoles = ['penanggungjawab', 'ppk', 'pptk', 'penerima_barang',  'pemeriksa_barang', 'pengurus_barang', 'kepala_sub_bagian', 'kepala_seksi'];
         foreach ($extraRoles as $role) {
             for ($i = 1; $i <= 3; $i++) {
                 $userId = DB::table('users')->insertGetId([
@@ -632,11 +633,24 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // Seed for MerkStok
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 25; $i++) {
+            $tipe = $faker->boolean ? $faker->word : null;
+            $ukuran = $faker->boolean ? $faker->randomNumber(2) . ' ' . $faker->randomElement(['cm', 'm', 'kg', 'liter', 'pcs']) : null;
+
+            // Pastikan salah satu tidak null
+            if (is_null($tipe) && is_null($ukuran)) {
+                if ($faker->boolean) {
+                    $tipe = $faker->word;
+                } else {
+                    $ukuran = $faker->randomNumber(2) . ' ' . $faker->randomElement(['cm', 'm', 'kg', 'liter', 'pcs']);
+                }
+            }
+
             MerkStok::create([
                 'barang_id' => BarangStok::inRandomOrder()->first()->id,
-                'nama' => 'Merek ' . $i,
+                'nama' => $faker->word,
+                'tipe' => $tipe,
+                'ukuran' => $ukuran,
             ]);
         }
 

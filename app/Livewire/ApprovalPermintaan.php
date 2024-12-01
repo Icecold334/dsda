@@ -6,10 +6,12 @@ use Carbon\Carbon;
 use App\Models\Stok;
 use App\Models\User;
 use Livewire\Component;
+use App\Models\StokDisetujui;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\PersetujuanPermintaanStok;
 
 class ApprovalPermintaan extends Component
 {
@@ -22,6 +24,10 @@ class ApprovalPermintaan extends Component
     public $date;
     public $pjList;
     public $lastPj;
+    public $kepalaseksiList;
+    public $lastKepalaseksi;
+    public $kasubagList;
+    public $lastKasubag;
     public $ppkList;
     public $lastPpk;
     public $pptkList;
@@ -34,6 +40,9 @@ class ApprovalPermintaan extends Component
     public $newApprovalFiles = []; // To hold multiple uploaded files
     public $approvalFiles = []; // To hold multiple uploaded files
     public $files = []; // To hold multiple uploaded files
+    public $isPenulis = false; // Untuk menandai apakah pengguna adalah penulis
+
+    public $lastKasubagDone = false;
 
     public function updatedNewApprovalFiles()
     {
@@ -51,10 +60,61 @@ class ApprovalPermintaan extends Component
         $this->reset('newApprovalFiles');
     }
 
+    public function markAsCompleted()
+    {
+        $permintaan = $this->permintaan;
+        foreach ($permintaan->permintaanStok as  $value) {
+            $stokDisetujui = StokDisetujui::where('permintaan_id', $value->id)->get();
+            foreach ($stokDisetujui as $stok) {
+                // Cari stok berdasarkan lokasi, bagian, dan posisi
+                $stokModel = Stok::where('lokasi_id', $stok->lokasi_id)
+                    ->when($stok->bagian_id, function ($query) use ($stok) {
+                        return $query->where('bagian_id', $stok->bagian_id);
+                    })
+                    ->when($stok->posisi_id, function ($query) use ($stok) {
+                        return $query->where('posisi_id', $stok->posisi_id);
+                    })
+                    ->where('merk_id', $stok->permintaan->merk_id)
+                    ->first();
+
+                if ($stokModel) {
+                    // Kurangi jumlah stok
+                    if ($stokModel->jumlah >= $stok->jumlah_disetujui) {
+                        $stokModel->jumlah -= $stok->jumlah_disetujui;
+                        $stokModel->save();
+                    } else {
+                        $this->dispatch('swal:error', [
+                            'message' => "Jumlah stok di lokasi {$stok->lokasi_id} tidak mencukupi.",
+                        ]);
+                        return; // Berhenti jika stok tidak cukup
+                    }
+                } else {
+                    $this->dispatch('swal:error', [
+                        'message' => "Stok tidak ditemukan untuk lokasi {$stok->lokasi_id}.",
+                    ]);
+                    return; // Berhenti jika stok tidak ditemukan
+                }
+            }
+        }
+
+
+        // Logika untuk menandai permintaan sebagai selesai
+        $this->permintaan->update(['cancel' => false]);
+        session()->flash('message', 'Permintaan telah selesai.');
+    }
+
+    public function cancelRequest()
+    {
+        // Logika untuk membatalkan permintaan
+        $this->permintaan->update(['cancel' => true]);
+        session()->flash('message', 'Permintaan telah dibatalkan.');
+    }
+
+
     public function mount()
     {
         // $this->adjustStockForApproval(3, 40);
-
+        $this->isPenulis = $this->permintaan->user_id === Auth::id();
         if ($this->permintaan->persetujuan->where('file')) {
             // Fetch files where the status is true and the file exists
             $this->files = $this->permintaan->persetujuan->filter(function ($persetujuan) {
@@ -67,7 +127,7 @@ class ApprovalPermintaan extends Component
         $this->user = Auth::user();
         $this->roles = 'penanggungjawab|ppk|pptk';
         $this->penulis = $this->permintaan->user;
-        $date = Carbon::createFromTimestamp($this->permintaan->tanggal_permintaan);
+        $date = Carbon::parse($this->permintaan->created_at);
         $pj = User::role('penanggungjawab')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
         $indexPj = $pj->search(function ($user) {
             return $user->id == Auth::id();
@@ -80,15 +140,38 @@ class ApprovalPermintaan extends Component
         });
         $this->lastPpk = $indexPpk === $ppk->count() - 1; // Check if current user is the last user
         $this->ppkList = $ppk;
+
         $pptk = User::role('pptk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPptk = $pptk->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastPptk = $indexPptk === $pptk->count() - 1; // Check if current user is the last user
         $this->pptkList = $pptk;
-        $this->listApproval = $this->pptkList->merge($this->ppkList)->count();
 
-        $allApproval = $this->pptkList->merge($this->ppkList);
+        $kepalaseksi = User::role('kepala_seksi')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        // dd($kepalaseksi, $date->format('Y-m-d H:i:s'));
+        $indexKepalaseksi = $kepalaseksi->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+        $this->lastKepalaseksi = $indexKepalaseksi === $kepalaseksi->count() - 1; // Check if current user is the last user
+        $this->kepalaseksiList = $kepalaseksi;
+
+        $kasubag = User::role('kepala_sub_bagian')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $indexkasubag = $kasubag->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+        $this->lastKasubag = $indexkasubag === $kasubag->count() - 1; // Check if current user is the last user
+        $this->lastKasubagDone = PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
+            ->where('status', true) // Hanya persetujuan yang disetujui
+            ->whereHas('user', function ($query) {
+                $query->role('kepala_sub_bagian'); // Periksa pengguna dengan role `kasubag`
+            })
+            ->exists();
+
+        $this->kasubagList = $kasubag;
+
+        $this->listApproval = $this->kepalaseksiList->merge($this->kasubagList)->count();
+        $allApproval = $this->kepalaseksiList->merge($this->kasubagList);
         $index = $allApproval->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -107,7 +190,7 @@ class ApprovalPermintaan extends Component
     public function approveConfirmed()
     {
 
-        if ($this->lastPj || $this->lastPpk || $this->lastPptk) {
+        if ($this->lastPj || $this->lastPpk || $this->lastPptk || $this->lastKepalaseksi || $this->lastKasubag) {
             foreach ($this->approvalFiles as $file) {
                 $path = str_replace('dokumen-persetujuan-permintaan/', '', $file->storeAs('dokumen-persetujuan-permintaan', $file->getClientOriginalName(), 'public'));
                 $this->permintaan->persetujuan()->create([
@@ -153,38 +236,6 @@ class ApprovalPermintaan extends Component
             }
         }
 
-
-        // $this->permintaan->persetujuan()->create([
-        //     'detail_permintaan_id' => $this->permintaan->id,
-        //     'user_id' => Auth::id(),
-        //     'status' => true,
-        // ]);
-
-        // $list = $this->permintaan->persetujuan;
-
-        // $filteredList = $list->filter(function ($approval) {
-        //     return $approval->status;
-        // });
-        // if ($filteredList->count() == $this->listApproval) {
-        //     $this->permintaan->status = true;
-        //     $this->permintaan->save();
-
-        //     $permintaanItems = $this->permintaan->permintaanStok;
-        //     foreach ($permintaanItems as $permintaan) {
-        //         $stok = Stok::firstOrCreate(
-        //             [
-        //                 'merk_id' => $permintaan->merk_id,
-        //                 'lokasi_id' => $permintaan->lokasi_id,
-        //                 'bagian_id' => $permintaan->bagian_id,
-        //                 'posisi_id' => $permintaan->posisi_id,
-        //             ],
-        //             ['jumlah' => 0]  // Atur stok awal jika belum ada
-        //         );
-
-        //         $stok->jumlah += $permintaan->jumlah;
-        //         $stok->save();
-        //     }
-        // }
 
 
         return redirect()->route('permintaan-stok.edit', ['permintaan_stok' => $this->permintaan->id]);
