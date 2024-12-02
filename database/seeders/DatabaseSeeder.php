@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use App\Models\Aset;
 use App\Models\Merk;
 use App\Models\Stok;
@@ -28,22 +29,138 @@ use App\Models\TransaksiStok;
 use App\Models\PengirimanStok;
 use App\Models\PermintaanStok;
 use App\Models\MetodePengadaan;
-use Illuminate\Database\Seeder;
 // use App\Models\DetailPengirimanStok;
 // use App\Models\TransaksiDaruratStok;
+use Illuminate\Database\Seeder;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\DB;
+use App\Models\DetailPengirimanStok;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
 // use App\Models\KontrakRetrospektifStok;
 
 class DatabaseSeeder extends Seeder
 {
+
     public function run()
     {
+        $faker = Faker::create('id_ID');
+        for ($i = 1; $i <= 5; $i++) {
+            LokasiStok::create([
+                'nama' => $faker->city,
+                'alamat' => $faker->address,
+            ]);
+        }
+
+        // Parent Units
+        $unitProduksi = UnitKerja::create([
+            'nama' => 'Unit Produksi',
+            'kode' => 'UP',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk produksi.',
+        ]);
+
+        $unitPemasaran = UnitKerja::create([
+            'nama' => 'Unit Pemasaran',
+            'kode' => 'UM',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk pemasaran.',
+        ]);
+
+        $unitKeuangan = UnitKerja::create([
+            'nama' => 'Unit Keuangan',
+            'kode' => 'UK',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk keuangan.',
+        ]);
+
+        $unitSumberDayaManusia = UnitKerja::create([
+            'nama' => 'Unit Sumber Daya Manusia',
+            'kode' => 'HR',
+            'keterangan' => 'Unit kerja yang bertanggung jawab untuk sumber daya manusia.',
+        ]);
+
+        // Sub-Units for Produksi
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Finishing',
+            'kode' => 'UP-FN',
+            'parent_id' => $unitProduksi->id,
+            'keterangan' => 'Bagian finishing dalam unit produksi.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Assembling',
+            'kode' => 'UP-AS',
+            'parent_id' => $unitProduksi->id,
+            'keterangan' => 'Bagian assembling dalam unit produksi.',
+        ]);
+
+        // Sub-Units for Pemasaran
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Digital Marketing',
+            'kode' => 'UM-DM',
+            'parent_id' => $unitPemasaran->id,
+            'keterangan' => 'Bagian pemasaran digital.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Sales',
+            'kode' => 'UM-SL',
+            'parent_id' => $unitPemasaran->id,
+            'keterangan' => 'Bagian penjualan langsung.',
+        ]);
+
+        // Sub-Units for Keuangan
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Akuntansi',
+            'kode' => 'UK-AK',
+            'parent_id' => $unitKeuangan->id,
+            'keterangan' => 'Bagian akuntansi dalam unit keuangan.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Pajak',
+            'kode' => 'UK-PJ',
+            'parent_id' => $unitKeuangan->id,
+            'keterangan' => 'Bagian pajak dalam unit keuangan.',
+        ]);
+
+        // Sub-Units for Sumber Daya Manusia
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Rekrutmen',
+            'kode' => 'HR-RK',
+            'parent_id' => $unitSumberDayaManusia->id,
+            'keterangan' => 'Bagian rekrutmen dalam unit SDM.',
+        ]);
+
+        UnitKerja::create([
+            'nama' => 'Sub-Unit Pelatihan',
+            'kode' => 'HR-PL',
+            'parent_id' => $unitSumberDayaManusia->id,
+            'keterangan' => 'Bagian pelatihan dalam unit SDM.',
+        ]);
+        // Example Units and Sub-Units
+        $unitProduksi = UnitKerja::create([
+            'nama' => 'Unit Produksi',
+            'kode' => 'UP01',
+            'keterangan' => 'Bagian yang bertanggung jawab atas produksi barang.',
+        ]);
+
+        $subUnitFinishing = UnitKerja::create([
+            'nama' => 'Bagian Finishing',
+            'parent_id' => $unitProduksi->id,
+            'kode' => 'UP01-FIN',
+            'keterangan' => 'Sub-bagian yang menangani proses finishing produk.',
+        ]);
+
+        $subUnitPackaging = UnitKerja::create([
+            'nama' => 'Bagian Packaging',
+            'parent_id' => $unitProduksi->id,
+            'kode' => 'UP01-PKG',
+            'keterangan' => 'Sub-bagian yang bertanggung jawab atas pengemasan.',
+        ]);
+
+
+
         // Create or get roles for superadmin, admin, penanggungjawab, ppk, pptk
-        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk', 'guest'];
+        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk', 'guest', 'penerima_barang', 'pemeriksa_barang', 'pengurus_barang', 'kepala_sub_bagian', 'kepala_seksi'];
         $roleIds = [];
 
         foreach ($roles as $role) {
@@ -97,26 +214,6 @@ class DatabaseSeeder extends Seeder
             'riwayat_kondisi',
             'riwayat_kelengkapan',
             'riwayat_keterangan',
-            // 'aset_price',
-            // 'aset_new',
-            // 'aset_edit',
-            // 'aset_del',
-            // 'aset_pdf',
-            // 'aset_xls',
-            // 'aset_noaktif',
-            // 'aset_reaktif',
-            // 'history_view',
-            // 'history_newedit',
-            // 'history_del',
-            // 'trans_view',
-            // 'trans_newedit',
-            // 'trans_del',
-            // 'data_kategori',
-            // 'data_merk',
-            // 'data_toko',
-            // 'data_person',
-            // 'data_lokasi',
-            // 'qr_print',
         ];
         $permissionsSystem = [
             'aset_price',
@@ -139,6 +236,10 @@ class DatabaseSeeder extends Seeder
             'data_person',
             'data_lokasi',
             'qr_print',
+            'inventaris_edit_lokasi_penerimaan',
+            'inventaris_tambah_barang_datang',
+            'inventaris_unggah_foto_barang_datang',
+            'permintaan_persetujuan_jumlah_barang',
         ];
 
         // Insert permissions and get their IDs
@@ -172,6 +273,9 @@ class DatabaseSeeder extends Seeder
             $userId = DB::table('users')->insertGetId([
                 'name' => ucfirst($role),
                 'email' => $email,
+                'unit_id' => UnitKerja::inRandomOrder()->first()->id,
+                'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
+
                 'password' => Hash::make('password'),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -210,12 +314,15 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create users for penanggungjawab, ppk, and pptk roles (2 users per role)
-        $extraRoles = ['penanggungjawab', 'ppk', 'pptk'];
+        $extraRoles = ['penanggungjawab', 'ppk', 'pptk', 'penerima_barang',  'pemeriksa_barang', 'pengurus_barang', 'kepala_sub_bagian', 'kepala_seksi'];
         foreach ($extraRoles as $role) {
             for ($i = 1; $i <= 3; $i++) {
                 $userId = DB::table('users')->insertGetId([
                     'name' => ucfirst($role) . " $i",
                     'email' => "$role$i@example.com",
+                    'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
+
+                    'unit_id' => UnitKerja::inRandomOrder()->first()->id,
                     'password' => Hash::make('password'),
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -253,12 +360,12 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
-
+        // $faker = new Faker();
         // Seeder for 5 locations
         for ($i = 1; $i <= 5; $i++) {
             Lokasi::create([
                 'user_id' => $userId,
-                'nama' => 'Lokasi ' . $i,
+                'nama' => $faker->city,
                 'nama_nospace' => Str::slug('Lokasi ' . $i),
                 'keterangan' => 'Deskripsi untuk Lokasi ' . $i,
                 'status' => 1
@@ -292,70 +399,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // // Seeder for 5 stock brands
-        // $barangList = BarangStok::all();
-        // $lokasiStokList = LokasiStok::all();
-        // foreach ($barangList as $barang) {
-        //     foreach ($lokasiStokList as $lokasiStok) {
-        //         MerekStok::create([
-        //             'barang_id' => $barang->id,
-        //             'nama' => 'Merek Stok ' . $barang->nama . ' di ' . $lokasiStok->nama,
-        //             'jumlah' => rand(10, 100),
-        //             'satuan' => 'pcs',
-        //             'lokasi_id' => $lokasiStok->id,
-        //             'stok_awal' => rand(10, 100),
-        //             'stok_sisa' => rand(5, 50)
-        //         ]);
-        //     }
-        // }
-
-        // // Seeder for 5 stock vendors
-        // for ($i = 1; $i <= 5; $i++) {
-        //     VendorStok::create([
-        //         'nama' => 'Vendor ' . $i,
-        //         'alamat' => 'Jl. Vendor ' . $i,
-        //         'telepon' => '021' . str_pad($i, 4, '0', STR_PAD_LEFT),
-        //         'email' => 'vendor' . $i . '@example.com'
-        //     ]);
-        // }
-
-        // // Seeder for 5 vendor contracts
-        // $vendorList = VendorStok::all();
-        // foreach ($vendorList as $vendor) {
-        //     KontrakVendor::create([
-        //         'vendor_id' => $vendor->id,
-        //         'tanggal_mulai' => now()->subMonths(rand(1, 12)),
-        //         'tanggal_selesai' => now()->addMonths(rand(1, 12)),
-        //         'keterangan' => 'Kontrak dengan ' . $vendor->nama
-        //     ]);
-        // }
-
-        // Seed example Toko
-        // Toko::create([
-        //     'user_id' => 1,
-        //     'nama' => 'PT Elektronik Jaya',
-        //     'nama_nospace' => Str::slug('PT Elektronik Jaya'),
-        //     'alamat' => 'Jl. Jaya No. 10, Jakarta',
-        //     'telepon' => '02112345678',
-        //     'email' => 'info@elektronikjaya.com',
-        //     'petugas' => 'Andi',
-        //     'keterangan' => 'Supplier elektronik terkemuka',
-        //     'status' => 1
-        // ]);
-
-        // Toko::create([
-        //     'user_id' => 1,
-        //     'nama' => 'Toko Komputer ABC',
-        //     'nama_nospace' => Str::slug('Toko Komputer ABC'),
-        //     'alamat' => 'Jl. Komputer No. 5, Surabaya',
-        //     'telepon' => '03198765432',
-        //     'email' => 'contact@tokokomputerabc.com',
-        //     'petugas' => 'Budi',
-        //     'keterangan' => 'Distributor komputer dan aksesoris',
-        //     'status' => 1
-        // ]);
-
-        $faker = Faker::create();
 
         $tokos = [
             [
@@ -590,11 +633,24 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // Seed for MerkStok
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 25; $i++) {
+            $tipe = $faker->boolean ? $faker->word : null;
+            $ukuran = $faker->boolean ? $faker->randomNumber(2) . ' ' . $faker->randomElement(['cm', 'm', 'kg', 'liter', 'pcs']) : null;
+
+            // Pastikan salah satu tidak null
+            if (is_null($tipe) && is_null($ukuran)) {
+                if ($faker->boolean) {
+                    $tipe = $faker->word;
+                } else {
+                    $ukuran = $faker->randomNumber(2) . ' ' . $faker->randomElement(['cm', 'm', 'kg', 'liter', 'pcs']);
+                }
+            }
+
             MerkStok::create([
                 'barang_id' => BarangStok::inRandomOrder()->first()->id,
-                'nama' => 'Merek ' . $i,
+                'nama' => $faker->word,
+                'tipe' => $tipe,
+                'ukuran' => $ukuran,
             ]);
         }
 
@@ -608,12 +664,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed for LokasiStok
-        for ($i = 1; $i <= 5; $i++) {
-            LokasiStok::create([
-                'nama' => 'Lokasi ' . $i,
-                'alamat' => $faker->address,
-            ]);
-        }
+
 
         // Seed for BagianStok
         for ($i = 1; $i <= 5; $i++) {
@@ -748,113 +799,6 @@ class DatabaseSeeder extends Seeder
         }
 
 
-        // Parent Units
-        $unitProduksi = UnitKerja::create([
-            'nama' => 'Unit Produksi',
-            'kode' => 'UP',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk produksi.',
-        ]);
-
-        $unitPemasaran = UnitKerja::create([
-            'nama' => 'Unit Pemasaran',
-            'kode' => 'UM',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk pemasaran.',
-        ]);
-
-        $unitKeuangan = UnitKerja::create([
-            'nama' => 'Unit Keuangan',
-            'kode' => 'UK',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk keuangan.',
-        ]);
-
-        $unitSumberDayaManusia = UnitKerja::create([
-            'nama' => 'Unit Sumber Daya Manusia',
-            'kode' => 'HR',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk sumber daya manusia.',
-        ]);
-
-        // Sub-Units for Produksi
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Finishing',
-            'kode' => 'UP-FN',
-            'parent_id' => $unitProduksi->id,
-            'keterangan' => 'Bagian finishing dalam unit produksi.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Assembling',
-            'kode' => 'UP-AS',
-            'parent_id' => $unitProduksi->id,
-            'keterangan' => 'Bagian assembling dalam unit produksi.',
-        ]);
-
-        // Sub-Units for Pemasaran
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Digital Marketing',
-            'kode' => 'UM-DM',
-            'parent_id' => $unitPemasaran->id,
-            'keterangan' => 'Bagian pemasaran digital.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Sales',
-            'kode' => 'UM-SL',
-            'parent_id' => $unitPemasaran->id,
-            'keterangan' => 'Bagian penjualan langsung.',
-        ]);
-
-        // Sub-Units for Keuangan
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Akuntansi',
-            'kode' => 'UK-AK',
-            'parent_id' => $unitKeuangan->id,
-            'keterangan' => 'Bagian akuntansi dalam unit keuangan.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Pajak',
-            'kode' => 'UK-PJ',
-            'parent_id' => $unitKeuangan->id,
-            'keterangan' => 'Bagian pajak dalam unit keuangan.',
-        ]);
-
-        // Sub-Units for Sumber Daya Manusia
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Rekrutmen',
-            'kode' => 'HR-RK',
-            'parent_id' => $unitSumberDayaManusia->id,
-            'keterangan' => 'Bagian rekrutmen dalam unit SDM.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Pelatihan',
-            'kode' => 'HR-PL',
-            'parent_id' => $unitSumberDayaManusia->id,
-            'keterangan' => 'Bagian pelatihan dalam unit SDM.',
-        ]);
-
-
-        // Example Units and Sub-Units
-        $unitProduksi = UnitKerja::create([
-            'nama' => 'Unit Produksi',
-            'kode' => 'UP01',
-            'keterangan' => 'Bagian yang bertanggung jawab atas produksi barang.',
-        ]);
-
-        $subUnitFinishing = UnitKerja::create([
-            'nama' => 'Bagian Finishing',
-            'parent_id' => $unitProduksi->id,
-            'kode' => 'UP01-FIN',
-            'keterangan' => 'Sub-bagian yang menangani proses finishing produk.',
-        ]);
-
-        $subUnitPackaging = UnitKerja::create([
-            'nama' => 'Bagian Packaging',
-            'parent_id' => $unitProduksi->id,
-            'kode' => 'UP01-PKG',
-            'keterangan' => 'Sub-bagian yang bertanggung jawab atas pengemasan.',
-        ]);
-
 
         $requests = [
             [
@@ -914,6 +858,48 @@ class DatabaseSeeder extends Seeder
                 'merk_id' => $merks->random()->id,
                 'jumlah' => rand(10, 100),
                 'lokasi_id' => $lokasis->random()->id,
+            ]);
+        }
+
+        // foreach (range(1, 5) as $index) {
+        DetailPengirimanStok::create([
+            'kode_pengiriman_stok' => Str::upper($faker->word),
+            'tanggal' => strtotime(now()),
+            'penerima' => $faker->name,
+            'user_id' => User::inRandomOrder()->first()->id,
+            'pj1' => $faker->name,
+            'pj2' => $faker->name,
+            'kontrak_id' => KontrakVendorStok::where('type', true)->inRandomOrder()->first()->id
+        ]);
+        // }
+
+        foreach (range(1, 3) as $index) {
+
+            // Pilih kontrak yang memiliki transaksi
+            $kontrak = KontrakVendorStok::has('transaksiStok')->where('type', true)->inRandomOrder()->first();
+
+            // Pilih transaksi yang terkait dengan kontrak yang dipilih
+            $transaksi = TransaksiStok::where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
+
+            $lokasi = LokasiStok::inRandomOrder()->first();
+
+            // Tentukan apakah lokasi memiliki bagian
+            $bagian = BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first();
+
+            // Tentukan apakah bagian memiliki posisi
+            $posisi = null;
+            if ($bagian) {
+                $posisi = PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first();
+            }
+            PengirimanStok::create([
+                'detail_pengiriman_id' => DetailPengirimanStok::find(1)->id,
+                'kontrak_id' => $kontrak->id,
+                'merk_id' => $transaksi->merk_id,
+                'tanggal_pengiriman' => strtotime(now()), // strtotime untuk konversi string ke timestamp
+                'jumlah' => $faker->numberBetween(1, 5),
+                'lokasi_id' => $lokasi->id,
+                'bagian_id' => $bagian ? $bagian->id : null,  // Bagian bisa null jika tidak ada
+                'posisi_id' => $posisi ? $posisi->id : null,
             ]);
         }
     }

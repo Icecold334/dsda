@@ -220,7 +220,16 @@ return new class extends Migration
             $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade');
         });
 
-
+        Schema::create('stok_disetujui', function (Blueprint $table) {
+            $table->id(); // Primary Key
+            $table->foreignId('permintaan_id')->constrained('permintaan_stok')->onDelete('cascade'); // Relasi ke permintaan_barang
+            $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('cascade'); // Relasi ke lokasi
+            $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade'); // Relasi ke bagian
+            $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade'); // Relasi ke posisi
+            $table->text('catatan')->nullable(); // Kolom untuk mencatat informasi tambahan
+            $table->integer('jumlah_disetujui'); // Jumlah stok yang disetujui
+            $table->timestamps(); // created_at dan updated_at
+        });
 
         Schema::create('persetujuan_permintaan_stok', function (Blueprint $table) {
             $table->id();
@@ -242,6 +251,8 @@ return new class extends Migration
             $table->foreignId('sub_unit_id')->nullable()->constrained('unit_kerja')->onDelete('set null'); // Optional sub-unit link
             $table->integer('jumlah')->nullable();
             $table->text('keterangan')->nullable();
+            $table->boolean('proses')->nullable();
+            $table->boolean('cancel')->nullable();
             $table->boolean('status')->nullable();
 
             $table->timestamps();
@@ -280,7 +291,7 @@ return new class extends Migration
         Schema::dropIfExists('permintaan_stok');
         Schema::dropIfExists('stok');
         Schema::dropIfExists('metode_pengadaan');
-        // Schema::dropIfExists('kontrak_retrospektif_stok');
+        Schema::dropIfExists('stok_disetujui');
         // Schema::dropIfExists('transaksi_darurat_stok');
         Schema::dropIfExists('transaksi_stok');
         Schema::dropIfExists('detail_pengiriman_stok');

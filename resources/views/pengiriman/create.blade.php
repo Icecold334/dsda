@@ -10,10 +10,10 @@
 
     <div class="grid grid-col-1 lg:grid-cols-2 gap-6 mb-3">
         {{-- <div> --}}
-        <x-card title="Data Umum" class="mb-3">
+        <x-card title="Data Umum" class="mb-3 ">
             <livewire:vendor-kontrak-form :vendors="$vendors" />
         </x-card>
-        <x-card title="Daftar Barang">
+        <x-card {{-- title='Daftar Barang <span class=" text-sm normal-case font-medium">(Tekan ikon "+" untuk menambahkan barang)</span>'> --}} title='Daftar Barang'>
             <livewire:list-kontrak-barang>
         </x-card>
         {{-- </div> --}}

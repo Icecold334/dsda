@@ -13,6 +13,16 @@
                             <span class="text-sm text-gray-500 w-2/3">{{ $user->name }}</span>
                         </div>
                         <div class="flex justify-between border-b py-2">
+                            <span class="text-sm font-medium text-gray-700 w-1/3">Lokasi Gudang</span>
+                            <span
+                                class="text-sm text-gray-500 w-2/3">{{ $user->lokasiStok->nama ?? 'Tidak Ditemukan' }}</span>
+                        </div>
+                        <div class="flex justify-between border-b py-2">
+                            <span class="text-sm font-medium text-gray-700 w-1/3">Unit Kerja</span>
+                            <span
+                                class="text-sm text-gray-500 w-2/3">{{ $user->unitKerja->nama ?? 'Tidak Ditemukan' }}</span>
+                        </div>
+                        <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Perusahaan/Organisasi</span>
                             <span
                                 class="text-sm text-gray-500 w-2/3">{{ $user->perusahaan ?? 'Tidak Ditemukan' }}</span>

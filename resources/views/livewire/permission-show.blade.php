@@ -21,7 +21,7 @@
                                     value="{{ $permissionKey }}"
                                     class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
                                 <label for="{{ $permissionKey }}"
-                                    class="text-sm text-gray-600">{{ ucwords(str_replace('_', ' ', $action)) }}</label>
+                                    class="text-sm text-gray-600">{{ Str::ucfirst(str_replace('_', ' ', Str::after($action, '_'))) }}</label>
                             </div>
                         @endforeach
                     </div>
@@ -30,6 +30,6 @@
         </div>
 
 
-        
+
     </x-card>
 </div>

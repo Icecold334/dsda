@@ -115,7 +115,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('toko/{tipe}/{toko}', [TokoController::class, 'create']);
     Route::resource('toko', TokoController::class);
     Route::resource('bagian-stok', BagianStokController::class);
-    Route::resource('barang-stok', BarangStokController::class);
+    Route::resource('barang', BarangStokController::class);
     // Route::resource('kontrak-vendor', KontrakVendorController::class);
     Route::get('lokasi-stok/{tipe}', [LokasiStokController::class, 'create']);
     Route::get('lokasi-stok/{tipe}/{id}', [LokasiStokController::class, 'create']);
