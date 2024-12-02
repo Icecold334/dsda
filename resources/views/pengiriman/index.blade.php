@@ -29,7 +29,7 @@
 
                     </td>
                     <td class="px-6 py-3 font-semibold">
-                        {{ $datang->kontrakVendorStok->vendorStok->nama }}
+                        {{ $datang->pengirimanStok->first()->kontrakVendorStok->vendorStok->nama }}
                     </td>
                     <td class="px-6 py-3 font-semibold">
                         {{ $datang->pengirimanStok->first()->merkStok->barangStok->jenisStok->nama }}

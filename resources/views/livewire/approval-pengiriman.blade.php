@@ -50,7 +50,7 @@
                             <span class="mr-9 {{ $penerima->id == auth()->id() ? 'font-bold' : '' }}">
                                 {{ $penerima->id == auth()->id() ? 'Anda' : $penerima->name }}
                             </span>
-                            <i
+                            {{-- <i
                                 class="my-1 fa-solid {{ is_null(
                                     optional($penerima->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status,
                                 )
@@ -58,7 +58,7 @@
                                     : (optional($penerima->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
                                         ? 'fa-circle-check text-success-500'
                                         : 'fa-circle-xmark text-danger-500') }}">
-                            </i>
+                            </i> --}}
 
 
                         </td>

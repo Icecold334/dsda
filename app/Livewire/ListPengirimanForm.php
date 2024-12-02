@@ -46,6 +46,7 @@ class ListPengirimanForm extends Component
                 'lokasi_id' => null,
                 'bagian_id' => null,
                 'posisi_id' => null,
+                'detail' => null,
                 'bagians' => [],
                 'posisis' => [],
                 'jumlah' => 1,
@@ -94,25 +95,28 @@ class ListPengirimanForm extends Component
             }
         }
 
-        $merkTotals = [];
-        foreach ($this->list as $item) {
-            $merkId = $item['merk_id'];
-            $maxAllowed = $item['max_jumlah'];
 
-            // Hitung akumulasi jumlah untuk merk yang sama
-            if (!isset($merkTotals[$merkId])) {
-                $merkTotals[$merkId] = 0;
-            }
-            $merkTotals[$merkId] += $item['jumlah'];
+        if (!$this->showDokumen) {
+            $merkTotals = [];
+            foreach ($this->list as $item) {
+                $merkId = $item['merk_id'];
+                $maxAllowed = $item['max_jumlah'];
 
-            // Periksa apakah akumulasi melebihi batas
-            if ($merkTotals[$merkId] > $maxAllowed) {
-                $nama = $item['merk']->nama ?? 'Tidak diketahui';
-                $tipe = $item['merk']->tipe ?? 'Tidak diketahui';
-                $ukuran = $item['merk']->ukuran ?? 'Tidak diketahui';
+                // Hitung akumulasi jumlah untuk merk yang sama
+                if (!isset($merkTotals[$merkId])) {
+                    $merkTotals[$merkId] = 0;
+                }
+                $merkTotals[$merkId] += $item['jumlah'];
 
-                $this->dispatch('error', pesan: "Jumlah untuk barang {$nama}, {$tipe}, {$ukuran} melebihi batas maksimal {$maxAllowed}!");
-                return;
+                // Periksa apakah akumulasi melebihi batas
+                if ($merkTotals[$merkId] > $maxAllowed) {
+                    $nama = $item['merk']->nama ?? 'Tidak diketahui';
+                    $tipe = $item['merk']->tipe ?? 'Tidak diketahui';
+                    $ukuran = $item['merk']->ukuran ?? 'Tidak diketahui';
+
+                    $this->dispatch('error', pesan: "Jumlah untuk barang {$nama}, {$tipe}, {$ukuran} melebihi batas maksimal {$maxAllowed}!");
+                    return;
+                }
             }
         }
 
@@ -337,6 +341,7 @@ class ListPengirimanForm extends Component
         $this->list[$index]['bagian_id'] = $bagianId;
         $this->list[$index]['posisi_id'] = null;
         $this->list[$index]['posisis'] = PosisiStok::where('bagian_id', $bagianId)->get();
+
         if ($this->showDokumen) {
             $this->savePengiriman();
         }

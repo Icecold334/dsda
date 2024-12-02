@@ -22,14 +22,18 @@
         </h2>
         <table class="text-sm text-left text-gray-500">
             <tbody>
-                <tr>
-                    <td class="px-4 py-2 font-bold text-gray-700">Nama Aset</td>
-                    <td class="px-4 py-2 font-bold text-gray-900">{{ $aset->nama }}</td>
-                </tr>
-                <tr>
-                    <td class="px-4 py-2 font-medium text-gray-700">Kode Aset</td>
-                    <td class="px-4 py-2 text-gray-900">{{ $aset->kode }}</td>
-                </tr>
+                @if ($user->can('nama'))
+                    <tr>
+                        <td class="px-4 py-2 font-bold text-gray-700">Nama Aset</td>
+                        <td class="px-4 py-2 font-bold text-gray-900">{{ $aset->nama }}</td>
+                    </tr>
+                @endif
+                @if ($user->can('kode'))
+                    <tr>
+                        <td class="px-4 py-2 font-medium text-gray-700">Kode Aset</td>
+                        <td class="px-4 py-2 text-gray-900">{{ $aset->kode }}</td>
+                    </tr>
+                @endif
                 <tr>
                     <td class="px-4 py-2 font-medium text-gray-700">Kode Sistem</td>
                     <td class="px-4 py-2 text-gray-900">{{ $aset->systemcode }}</td>
