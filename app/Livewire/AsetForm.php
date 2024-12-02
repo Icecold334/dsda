@@ -50,6 +50,7 @@ class AsetForm extends Component
     public $invoice;
     public $jumlah;
     public $hargaSatuan;
+    public $hargasatuan;
     public $hargaTotal;
     public $attachments = [];
     public $newAttachments = [];
@@ -58,7 +59,7 @@ class AsetForm extends Component
     public $keterangan;
     #[Validate]
     public $umur;
-    public $lama_garansi;
+    public $lamagaransi;
     public $penyusutan;
     public $showSuggestionsMerk;
     public $suggestionsMerk;
@@ -214,22 +215,39 @@ class AsetForm extends Component
             $this->tipe = $this->aset->tipe;
             $this->produsen = $this->aset->produsen;
             $this->noseri = $this->aset->noseri;
-            $this->tahunProduksi = $this->aset->tahunProduksi;
+            $this->tahunProduksi = $this->aset->thproduksi;
             $this->deskripsi = $this->aset->deskripsi;
             $this->tanggalPembelian = $this->aset->tanggalPembelian;
             $this->toko = $this->aset->toko->nama;
             $this->invoice = $this->aset->invoice;
             $this->jumlah = $this->aset->jumlah;
-            $this->hargaSatuan = $this->aset->hargaSatuan;
-            $this->hargaTotal = $this->aset->hargaTotal;
+            $this->hargasatuan = $this->aset->hargasatuan;
+            // $this->hargaTotal = $this->aset->hargatotal;
+            $this->hargaSatuan = $this->formatRupiah($this->aset->hargasatuan);
+            $this->hargaTotal = $this->formatRupiah($this->aset->hargatotal);
             $this->umur = $this->aset->umur;
-            $this->lama_garansi = $this->aset->lama_garansi;
+            $this->lamagaransi = $this->aset->lama_garansi;
             // $this->attachments = $this->aset->attachments;  // Assuming attachments are stored as an array or similar structure
             $this->keterangan = $this->aset->keterangan;
+            // Hitung penyusutan jika umur lebih besar dari 0
+            if ($this->umur > 0) {
+                $total = $this->jumlah * $this->hargasatuan; // Harga Total
+                $bulan = $this->umur * 12; // Menghitung bulan dari umur dalam tahun
+                $this->penyusutan = $total / $bulan; // Penyusutan per bulan
+                $this->penyusutan =  $this->formatRupiah($this->penyusutan); // Penyusutan per bulan
+            } else {
+                $this->penyusutan = 0; // Jika umur tidak valid, set penyusutan ke 0
+            }
         } else {
             $this->kode = $this->autoKodeaset(); // Set kode aset only if creating new
         }
     }
+    // Helper function untuk format mata uang Rupiah
+    private function formatRupiah($value)
+    {
+        return 'Rp ' . number_format($value, 0, ',', '.');
+    }
+
 
     private function autoKodeaset()
     {
@@ -352,6 +370,8 @@ class AsetForm extends Component
     public function saveAset()
     {
         $this->validate();
+        // dd(strtotime($this->tanggalPembelian)); // Debug hasil dari strtotime
+        // dd($this->merk);
         // Ensure Merk and Toko IDs are set correctly or created if they don't exist
         $merkId = $this->getOrCreateMerk($this->merk);
         $tokoId = $this->getOrCreateToko($this->toko);
@@ -368,20 +388,20 @@ class AsetForm extends Component
             'noseri' => $this->noseri,
             'thproduksi' => $this->tahunProduksi,
             'deskripsi' => $this->deskripsi,
-            'tanggalbeli' => $this->tanggalPembelian ? Carbon::createFromFormat('Y-m-d', $this->tanggalPembelian)->format('Ymd') : null,
+            // 'tanggalbeli' => $this->tanggalPembelian ? Carbon::createFromFormat('Y-m-d', $this->tanggalPembelian)->format('Ymd') : null,
+            'tanggalbeli' => $this->tanggalPembelian ? strtotime(Carbon::createFromFormat('Y-m-d', $this->tanggalPembelian)->toDateString()) : null,
             'toko_id' => $tokoId,
             'invoice' => $this->invoice,
             'jumlah' => $this->jumlah,
+            'lama_garansi' => $this->lamagaransi,
             'hargasatuan' => $this->cleanCurrency($this->hargaSatuan),
             'hargatotal' => $this->cleanCurrency($this->hargaTotal),
             'umur' => $this->umur,
-            'lama_garansi' => $this->lama_garansi,
             'penyusutan' => $this->cleanCurrency($this->penyusutan),
         ];
 
         // Insert or update aset based on $this->aset
         $aset = Aset::updateOrCreate(['id' => $this->aset->id ?? 0], $data);
-
         // Optionally add flash message or other post-save actions
         session()->flash('message', 'Aset successfully saved.');
         return redirect()->route('aset.show', $aset);
@@ -406,7 +426,7 @@ class AsetForm extends Component
      */
     private function getOrCreateMerk($name)
     {
-        $merk = Merk::firstOrCreate(['nama' => $name]);
+        $merk = Merk::firstOrCreate(['user_id' => Auth::user()->id, 'nama' => $name, 'nama_nospace' => Str::slug($name)]);
         return $merk->id;
     }
 
@@ -418,7 +438,7 @@ class AsetForm extends Component
      */
     private function getOrCreateToko($name)
     {
-        $toko = Toko::firstOrCreate(['nama' => $name]);
+        $toko = Toko::firstOrCreate(['user_id' => Auth::user()->id, 'nama' => $name, 'nama_nospace' => Str::slug($name)]);
         return $toko->id;
     }
 

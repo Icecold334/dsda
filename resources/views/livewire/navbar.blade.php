@@ -17,7 +17,7 @@
             </button> --}}
 
             <div class="flex justify-between items-center overflow-y-hidden" id="menu">
-                <ul class="flex flex-col md:flex-row md:space-x-4">
+                <ul class="flex flex-col md:flex-row md:space-x-4 {{ Request::is('scan/*') ? 'hidden' : '' }}">
                     {{-- <ul class="grid grid-flow-col gap-0 -my-4 "> --}}
                     <livewire:nav-item href="/dashboard" title="home" />
                     <livewire:nav-item title="aset" :child="[

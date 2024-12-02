@@ -20,26 +20,48 @@ class ScanQrCodePermissions extends Component
         // Find the role by ID
         $role = Role::find(6);
 
-        // Convert selected permission names to their IDs
+        // Konversi nama permission terpilih ke ID mereka
         $permissionIds = Permission::whereIn('name', $this->selectedPermissions)->pluck('id')->toArray();
 
-        // Sync the permissions to the role
+        // Ambil ID permission terkait "Riwayat" jika ada
+        $riwayatPermissionId = Permission::where('name', $this->selectedRiwayat)->value('id');
+
+        if ($riwayatPermissionId) {
+            // Pastikan permission untuk "Riwayat" tidak terhapus
+            $permissionIds[] = $riwayatPermissionId;
+        }
+
+        // Sinkronisasi izin
         $role->permissions()->sync($permissionIds);
     }
+
 
     public function updatedSelectedRiwayat()
     {
         // Find the role by ID
         $role = Role::find(6);
 
-        // dd($this->selectedRiwayat);
-        // Convert selected permission names to their IDs
-        $permissionIds = Permission::where('name', $this->selectedRiwayat)->value('id');
+        // Dapatkan ID permission yang dipilih untuk "Riwayat"
+        $permissionId = Permission::where('name', $this->selectedRiwayat)->value('id');
 
+        if ($permissionId) {
+            // Ambil semua permission ID yang saat ini ada pada role
+            $existingPermissionIds = $role->permissions->pluck('id')->toArray();
 
-        // Sync the permissions to the role
-        $role->permissions()->sync($permissionIds);
+            // Filter untuk hanya menyimpan izin yang bukan kategori "Riwayat"
+            $nonRiwayatPermissionIds = Permission::whereNotIn('name', ['riwayat_terakhir', 'riwayat_semua', 'riwayat_tidak'])
+                ->whereIn('id', $existingPermissionIds)
+                ->pluck('id')
+                ->toArray();
+
+            // Tambahkan izin yang baru untuk "Riwayat" (mengganti izin sebelumnya)
+            $updatedPermissionIds = array_merge($nonRiwayatPermissionIds, [$permissionId]);
+
+            // Sinkronisasi hanya izin yang diperbarui
+            $role->permissions()->sync($updatedPermissionIds);
+        }
     }
+
 
     public function mount()
     {
@@ -105,9 +127,16 @@ class ScanQrCodePermissions extends Component
             $this->permissions[$category] = array_intersect($permissions, $permissionNames);
         }
 
-        // Preload selected permissions for the role
-        $this->selectedPermissions = $role->permissions->pluck('name')->toArray();
-        $this->selectedRiwayat = $role->permissions->value('name');
+        // Preload permissions yang sudah dipilih untuk role ini
+        $this->selectedPermissions = $role->permissions
+            ->whereNotIn('name', ['riwayat_terakhir', 'riwayat_semua', 'riwayat_tidak'])
+            ->pluck('name')
+            ->toArray();
+
+        // Preload hanya permission terkait Riwayat
+        $this->selectedRiwayat = $role->permissions
+            ->whereIn('name', ['riwayat_terakhir', 'riwayat_semua', 'riwayat_tidak'])
+            ->value('name');
     }
 
 

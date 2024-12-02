@@ -318,6 +318,4 @@
         @endpush
     </x-card>
 
-
-
 </div>
