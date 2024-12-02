@@ -325,7 +325,7 @@ class AssetDetails extends Component
      */
     private function getOrCreatePerson($name)
     {
-        $person = Person::firstOrCreate(['user_id' => Auth::user()->id, 'nama' => $name, 'nama_nospace' => Str::slug($name)]);
+        $person = Person::firstOrCreate(['nama' => $name]);
         return $person->id;
     }
 
