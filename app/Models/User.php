@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\UnitKerja;
 use App\Models\LokasiStok;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
@@ -46,6 +47,11 @@ class User extends Authenticatable
     public function lokasiStok()
     {
         return $this->belongsTo(LokasiStok::class, 'lokasi_id');
+    }
+
+    public function unitKerja()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id');
     }
     public function persetujuankontrak()
     {
