@@ -41,6 +41,10 @@ class AssetDetails extends Component
     public $showSuggestionsLokasi;
     public $suggestionsLokasi;
 
+    public $totalPengeluaran;
+    public $totalPemasukan;
+    public $selisih;
+
     public $maxDays = 31; // Default jumlah hari untuk semua bulan
 
     public function mount($type, $aset)
@@ -131,14 +135,28 @@ class AssetDetails extends Component
 
     public function loadData()
     {
+        // Load data sesuai dengan tipe
         $this->items = match ($this->type) {
             'history' => History::where('aset_id', $this->asetId)->get(),
             'agenda' => Agenda::where('aset_id', $this->asetId)->get(),
             'keuangan' => Keuangan::where('aset_id', $this->asetId)->get(),
             'jurnal' => Jurnal::where('aset_id', $this->asetId)->get(),
-            default => [],
+            default => collect(), // Gunakan collect() untuk konsistensi
         };
+
+        // Hanya hitung total pengeluaran, pemasukan, dan selisih jika tipe adalah keuangan
+        if ($this->type === 'keuangan') {
+            $this->totalPengeluaran = collect($this->items)->where('tipe', 'out')->sum('nominal');
+            $this->totalPemasukan = collect($this->items)->where('tipe', 'in')->sum('nominal');
+            $this->selisih = $this->totalPemasukan - $this->totalPengeluaran;
+        } else {
+            // Set default value jika bukan keuangan
+            $this->totalPengeluaran = 0;
+            $this->totalPemasukan = 0;
+            $this->selisih = 0;
+        }
     }
+
 
     public function openModal($id = null)
     {

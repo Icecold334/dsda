@@ -238,7 +238,8 @@
                     </li>
                     <li class="me-2">
                         <button id="keuangan-tab" data-tabs-target="#keuangan" type="button" role="tab"
-                            aria-controls="keuangan" aria-selected="false"
+                            aria-controls="keuangan"
+                            aria-selected="{{ request('tab') === 'keuangan' ? 'true' : 'false' }}"
                             class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">Keuangan</button>
                     </li>
                     <li class="me-2">

@@ -48,15 +48,15 @@
                                     </tr>
                                     <tr>
                                         <td class="font-semibold w-40">Jumlah</td>
-                                        <td>{{ $item->jumlah ?? '---' }}</td>
+                                        <td>{{ $item->jumlah ?? '---' }} Unit</td>
                                     </tr>
                                     <tr>
                                         <td class="font-semibold w-40">Kondisi</td>
-                                        <td>{{ $item->kondisi ?? '---' }}</td>
+                                        <td>{{ $item->kondisi ?? '---' }}%</td>
                                     </tr>
                                     <tr>
                                         <td class="font-semibold w-40">Kelengkapan</td>
-                                        <td>{{ $item->kelengkapan ?? '---' }}</td>
+                                        <td>{{ $item->kelengkapan ?? '---' }}%</td>
                                     </tr>
                                     <tr>
                                         <td class="font-semibold w-40">Keterangan</td>
@@ -119,7 +119,7 @@
                             @elseif ($item->tipe === 'bulanan')
                                 <div class="text-sm font-semibold text-gray-500">Bulanan</div>
                                 <div class="text-lg font-bold text-primary-700">
-                                    Setiap Tanggal {{ date('j', $item->tanggal) }}
+                                    Setiap Tanggal {{ $item->hari }}
                                 </div>
                             @elseif ($item->tipe === 'tahunan')
                                 <div class="text-sm font-semibold text-gray-500">Tahunan</div>
@@ -228,6 +228,30 @@
                     </div>
                 </div>
             @endforelse
+
+            <!-- Summary Section -->
+            <div
+                class="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="font-semibold text-gray-800">Total Pengeluaran</td>
+                            <td class="text-right text-gray-900">Rp {{ number_format($totalPengeluaran, 2, ',', '.') }}
+                            </td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="font-semibold text-gray-800">Total Pemasukan</td>
+                            <td class="text-right text-gray-900">Rp {{ number_format($totalPemasukan, 2, ',', '.') }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold text-gray-800">Selisih</td>
+                            <td class="text-right font-bold text-gray-900">Rp
+                                {{ number_format($totalPemasukan - $totalPengeluaran, 2, ',', '.') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     @elseif ($type === 'jurnal')
         <div class="flex justify-end items-center bg-primary-200 rounded-lg mb-3">
@@ -420,11 +444,11 @@
 
                                 @if ($isBulanan)
                                     <div class="mb-4">
-                                        <label class="block text-sm font-medium">Setiap Bulan *</label>
-                                        <select wire:model.live="modalData.bulan"
+                                        <label class="block text-sm font-medium">Setiap Tanggal *</label>
+                                        <select wire:model.live="modalData.hari"
                                             class="w-full border rounded-lg px-3 py-2">
-                                            <option value="">Pilih Bulan</option>
-                                            @for ($i = 1; $i <= 12; $i++)
+                                            <option value="">Pilih Tanggal</option>
+                                            @for ($i = 1; $i <= $maxDays; $i++)
                                                 <option value="{{ $i }}">{{ $i }}</option>
                                             @endfor
                                         </select>
