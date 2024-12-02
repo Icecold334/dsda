@@ -1,6 +1,10 @@
 <div>
     <table class="w-full border-3 border-separate border-spacing-y-4">
-        {{$cekApproval}}
+        {{ $cekApproval }}
+
+        <br>
+
+        {{ $pj_isapprove }}
         <thead>
             <tr class="text-white bg-primary-950 uppercase">
                 <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
@@ -83,37 +87,42 @@
                         </td>
                         <td class="text-center py-3 px-6">
                             @can('persetujuan')
-                                {{-- Cek apakah pengguna adalah penanggungjawab --}}
-                                @if (($item['bukti']) && (auth()->user()->hasRole('ppk')))
-                                        <button onclick="confirmApproval({{ $index }})"
-                                            class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
-                                            Approve ppk
-                                        </button>
-                                    {{-- Cek jika status masih kosong/null --}}
-                                    <!-- Tombol Approval hanya ditampilkan jika status kosong dan pengguna adalah penanggungjawab -->
-                                @endif
-                                @if (($item['bukti']) && ($item['ppk_id']) && (auth()->user()->hasRole('pptk')))
-                                        <button onclick="confirmApproval({{ $index }})"
-                                            class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
-                                            Approve pptk
-                                        </button>
+                                {{-- Jika pengguna adalah PPK --}}
+                                @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $ppk_isapprove)
+                                    <button onclick="confirmApproval({{ $index }}, 'ppk')"
+                                        class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
+                                        Approve PPK
+                                    </button>
                                 @endif
 
-                                    <!-- Tampilkan status jika sudah terisi -->
+                                {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
+                                @if ($item['bukti'] && auth()->user()->hasRole('pptk') && $pptk_isapprove && !($ppk_isapprove))
+                                    <button onclick="confirmApproval({{ $index }}, 'pptk')"
+                                        class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
+                                        Approve PPTK
+                                    </button>
+                                @endif
+
+                                {{-- Jika pengguna adalah PJ dan sudah ada approval dari PPTK --}}
+                                @if ($item['bukti'] && auth()->user()->hasRole('penanggungjawab') && $pj_isapprove && !$pptk_isapprove)
+                                    <button onclick="confirmApproval({{ $index }}, 'pj')"
+                                        class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
+                                        Approve PJ
+                                    </button>
+                                @endif
+
+                                {{-- Status persetujuan hanya ditampilkan jika bukti belum diisi --}}
+                                @if (empty($item['bukti']))
                                     <span
-                                    class="{{ $item['status'] ? 'text-green-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
-                                    {{ is_null($item['status']) ? 'Menunggus' : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
-                                </span>
-                                @if($item['pptk_id'] && $item['ppk_id'])
-                                <span class="{{ $item['status'] ? 'text-green-600' : 'text-red-600' }}">
-                                    {{ $item['status'] ? 'Disetujui' : 'Ditolak' }}
-                                </span>
+                                        class="{{ $item['status'] ? 'text-green-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
+                                        {{ is_null($item['status']) ? 'Menunggu' : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
+                                    </span>
                                 @endif
                             @else
-                                <!-- Untuk pengguna yang bukan penanggungjawab, hanya tampilkan status -->
+                                {{-- Untuk pengguna yang tidak memiliki hak persetujuan --}}
                                 <span
                                     class="{{ $item['status'] ? 'text-green-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
-                                    {{ is_null($item['status']) ? 'Menunggu' : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
+                                    {{ is_null($item['status']) ? (empty($item['bukti']) ? 'Menunggu' : '') : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
                                 </span>
                             @endcan
                         </td>

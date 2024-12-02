@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Persetujuan extends Model
 {
     protected $table = 'approvals';
-    protected $fillable = ['user_id', 'role', 'is_approved', 'approvable_id', 'approvable_type'];
+    protected $fillable = ['user_id', 'role', 'is_approved', 'approvable_id', 'approvable_type','img'];
 
     // Relasi ke User (PPK atau PPTK)
     public function user()

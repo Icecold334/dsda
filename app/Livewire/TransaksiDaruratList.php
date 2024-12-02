@@ -39,7 +39,8 @@ class TransaksiDaruratList extends Component
         'satuanKecil' => [],
     ];
 
-    public function __construct() {
+    public function __construct()
+    {
         // $this->roles = $this->getRoles();
     }
     public function fetchSuggestions($field, $value)
@@ -80,13 +81,33 @@ class TransaksiDaruratList extends Component
     public $newBarangSatuanBesar = '';
     public $newBarangSatuanKecil = '';
     public $showBarangModal = false;
-    public $jumlahKecilDalamBesar, $roles;
+    public $jumlahKecilDalamBesar, $roles, $items, $id, $ppk_isapprove, $pptk_isapprove, $pj_isapprove;
+
 
     public function mount()
     {
         $this->satuanBesarOptions = SatuanBesar::all();
         if ($this->transaksi) {
+
             foreach ($this->transaksi as $key => $item) {
+                $this->id = $item->id;
+
+                // $dataapp = $item->approvals->filter(function ($appr){
+                //     return $appr->role === auth()->user()->getRoleNames()->first();
+                // });
+
+                $filteredApprovals = $item->approvals->filter(function ($approval) {
+                    return $approval->role === auth()->user()->getRoleNames()->first(); // Replace 'desired_role' with the actual role
+                });
+                
+                if ($filteredApprovals->isNotEmpty()) {
+                    foreach ($filteredApprovals as $approval) {
+                        $img = $approval->img;
+                    }
+                } else {
+                    $img = '';
+                }
+
                 $spec = [
                     'merek' => $item->merkStok->nama,
                     'tipe' => $item->merkStok->tipe,
@@ -101,25 +122,47 @@ class TransaksiDaruratList extends Component
                     'satuan' => BarangStok::find($item->merkStok->barangStok->id)->satuanBesar->nama,
                     'lokasi_penerimaan' => $item->lokasi_penerimaan,
                     'keterangan' => $item->deskripsi,
-                    'bukti' => $item->img,
-                    'pptk_id' =>$item->pptk_id ?? "",
-                    'ppk_id' =>$item->ppk_id ?? "",
+                    'bukti' => $img,
+                    'pptk_id' => $item->pptk_id ?? "",
+                    'ppk_id' => $item->ppk_id ?? "",
                     'status' => $item->status,
+                    // $item->approvals->first()->img
                 ];
             }
             $this->dispatch('listCount', count: count($this->list));
-            
         }
         $this->cekApproval =     TransaksiStok::where('vendor_id', $this->vendor_id)->where(function ($query) {
             $query->whereNull('pptk_id')
-            ->orWhereNull('ppk_id');
+                ->orWhereNull('ppk_id');
         })->get();
-    
+
+        $this->ppk_isapprove = $this->checkApprovals('ppk');
+
+        $this->pptk_isapprove = $this->checkApprovals('pptk');
+
+        $this->pj_isapprove = $this->checkApprovals('pj');
+
         // $this->nomor_kontrak = $this->getNoKontrak($this->vendor_id)->nomor_kontrak;
     }
 
-    public function getNoKontrak($idkontrak){
-        return KontrakVendorStok::where('vendor_id',$idkontrak)->first();
+    private function checkApprovals($params){
+        $data = Persetujuan::where('approvable_id', $this->id)
+            ->where('approvable_type', TransaksiStok::class)
+            ->where('role', $params)
+            ->get();
+    
+        if ($data->isEmpty()) { // Gunakan isEmpty() untuk Collection
+            $result = true;
+        } else {
+            $result = false;
+        }
+    
+        return $result;
+    }
+
+    public function getNoKontrak($idkontrak)
+    {
+        return KontrakVendorStok::where('vendor_id', $idkontrak)->first();
     }
 
     // public $barang_id;
@@ -358,24 +401,78 @@ class TransaksiDaruratList extends Component
         }
         $this->dispatch('saveDokumen', kontrak_id: $newKontrak->id);
     }
+    // public function approveTransaction($index)
+    // {
+    //     $transaction = TransaksiStok::find($this->list[$index]['id']);
+    //     if (auth::user()->hasRole('ppk')){
+    //         $transaction->ppk_id = Auth::id();
+    //         $this->updated($this->list[$index]['bukti']);
+    //         $transaction->img = $this->list[$index]['bukti'];
+    //     }
+    //     if (auth::user()->hasRole('pptk')){
+    //         $transaction->pptk_id = Auth::id();
+    //     }
+    //     if (auth::user()->hasRole('pj')){
+    //         $transaction->pj_id = Auth::id();
+    //         $transaction->status = true;
+    //     }
+
+    //     // $transaction->approvals->
+    //     $transaction->update();
+    //     return redirect()->route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->transaksi->first()->vendor_id]);
+    // }
+
     public function approveTransaction($index)
     {
-        $transaction = TransaksiStok::find($this->list[$index]['id']);
-        if (auth::user()->hasRole('ppk')){
+        // Cari transaksi berdasarkan ID yang ada di list
+        $transaction = TransaksiStok::findOrFail($this->list[$index]['id']);
+
+        // Inisialisasi data approval
+        $approvalData = [
+            'user_id' => Auth::id(),
+            'role' => auth()->user()->getRoleNames()->first(), // Ambil peran pengguna
+            'is_approved' => true, // Atur status menjadi disetujui
+            'img' => $this->list[$index]['bukti'], // Tambahkan remarks jika diperlukan
+        ];
+
+        // Periksa peran pengguna untuk menentukan level approval
+        if (auth()->user()->hasRole('ppk')) {
             $transaction->ppk_id = Auth::id();
-            $transaction->img = $this->list[$index]['bukti'];
+
+            // Simpan bukti jika tersedia
+            if (isset($this->list[$index]['bukti'])) {
+                $transaction->img = $this->list[$index]['bukti'];
+                // $transaction->approvals()->img = $this->list[$index]['bukti'];
+            }
+
+            // Tambahkan approval untuk PPK
+            $transaction->approvals()->create($approvalData);
         }
-        if (auth::user()->hasRole('pptk')){
+
+        if (auth()->user()->hasRole('pptk')) {
             $transaction->pptk_id = Auth::id();
+
+            // Tambahkan approval untuk PPTK
+            $transaction->approvals()->create($approvalData);
         }
-        if (auth::user()->hasRole('pj')){
+
+        if (auth()->user()->hasRole('penanggungjawab')) {
             $transaction->pj_id = Auth::id();
             $transaction->status = true;
+
+            // Tambahkan approval untuk PJ
+            $transaction->approvals()->create($approvalData);
         }
-        // $transaction->approvals->
-        $transaction->update();
-        return redirect()->route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->transaksi->first()->vendor_id]);
+
+        // Simpan perubahan transaksi
+        $transaction->save();
+
+        // Redirect ke halaman edit
+        return redirect()->route('transaksi-darurat-stok.edit', [
+            'transaksi_darurat_stok' => $transaction->vendor_id
+        ]);
     }
+
 
     public function disapproveTransaction($index, $reason)
     {
