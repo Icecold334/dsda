@@ -63,7 +63,7 @@ Route::get('/logout', function () {
 
 Route::get('/scan/{user_id}/{systemcode}', function ($user_id, $systemcode) {
     // Cari aset berdasarkan systemcode
-    $aset = Aset::where('systemcode', $systemcode)->first();
+    $aset = Aset::with(['histories', 'keuangans', 'jurnals'])->where('systemcode', $systemcode)->first();
 
     // Jika aset tidak ditemukan, redirect ke halaman home atau tampilkan pesan error
     if (!$aset) {
@@ -72,6 +72,7 @@ Route::get('/scan/{user_id}/{systemcode}', function ($user_id, $systemcode) {
 
     // Gunakan user_id = 3 sebagai guest, tidak tergantung pada user yang sedang login
     $user = User::find(3); // Selalu menggunakan user dengan ID 3 (guest)
+    // Auth::loginUsingId(3);
 
     // Jika user dengan ID 3 tidak ditemukan, tampilkan pesan error
     if (!$user) {
