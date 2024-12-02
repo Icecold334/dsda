@@ -109,7 +109,8 @@
                 <div class="flex justify-start items-center space-x-4">
                     <!-- GO Button -->
                     <button
-                        type="submit"class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"w>GO!</button>
+                        type="submit"class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"
+                        w>GO!</button>
 
                     <!-- Reset Button (only shown if filters are applied) -->
                     @if (request()->hasAny(['nama', 'kategori_id', 'sebab', 'order_by', 'order_direction']))
@@ -158,12 +159,55 @@
                     <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl ">
                         <td class="py-3 px-6 w-[15rem]">
                             <div class="grid grid-cols-2 gap-3">
-                                <div
-                                    class="w-20 h-20 overflow-hidden relative flex justify-center p-1  border-2 rounded-lg bg-white">
+                                <!-- Kontainer untuk QR -->
+                                <div class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white cursor-pointer"
+                                    onclick="openQrModal('{{ asset($aset->systemcode ? 'storage/qr/' . $aset->systemcode . '.png' : 'img/default-pic-thumb.png') }}')">
                                     <img class="w-full h-full object-cover object-center rounded-sm"
                                         src="{{ asset($aset->systemcode ? 'storage/qr/' . $aset->systemcode . '.png' : 'img/default-pic-thumb.png') }}"
-                                        alt="">
+                                        alt="QR Code">
                                 </div>
+                                <!-- Modal Pop-Up -->
+                                <div id="qr-modal"
+                                    class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
+                                    <div
+                                        class="bg-white p-4 rounded-lg shadow-lg relative max-w-sm text-center transform scale-90 transition-all duration-300 ease-out">
+                                        <button onclick="closeQrModal()"
+                                            class="absolute top-2 right-2 text-gray-600 hover:text-gray-900">
+                                            <i class="fa-solid fa-times"></i>
+                                        </button>
+                                        <img id="qr-modal-img" src="" alt="QR Code"
+                                            class="max-w-full h-auto mx-auto rounded-lg">
+                                    </div>
+                                </div>
+                                @push('scripts')
+                                    <script>
+                                        // Fungsi untuk membuka modal dengan animasi
+                                        function openQrModal(imageSrc) {
+                                            const modal = document.getElementById('qr-modal');
+                                            const modalImg = document.getElementById('qr-modal-img');
+                                            const modalContent = modal.querySelector('.transform');
+
+                                            modalImg.src = imageSrc;
+                                            modal.classList.remove('hidden'); // Tampilkan modal
+                                            setTimeout(() => {
+                                                modalContent.classList.remove('scale-90'); // Animasi muncul
+                                                modalContent.classList.add('scale-100');
+                                            }, 10); // Sedikit delay agar animasi terlihat
+                                        }
+
+                                        // Fungsi untuk menutup modal dengan animasi
+                                        function closeQrModal() {
+                                            const modal = document.getElementById('qr-modal');
+                                            const modalContent = modal.querySelector('.transform');
+
+                                            modalContent.classList.remove('scale-100'); // Mulai animasi menghilang
+                                            modalContent.classList.add('scale-90');
+                                            setTimeout(() => {
+                                                modal.classList.add('hidden'); // Sembunyikan modal setelah animasi selesai
+                                            }, 300); // Durasi animasi (sesuai dengan `duration-300`)
+                                        }
+                                    </script>
+                                @endpush
                                 <div
                                     class="w-20 h-20 overflow-hidden relative flex justify-center p-1  border-2 rounded-lg bg-white">
                                     <img class="w-full h-full object-cover object-center rounded-sm"

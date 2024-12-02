@@ -107,10 +107,10 @@
         </div>
         <div>
             <!-- Pengguna Tambahan -->
-            <div>
+            <div class="overflow-y-auto max-h-[42rem]">
                 <x-card title="Pengguna Tambahan" class="mb-3">
                     <div class="flex mt-4 mb-6">
-                        <a href="/profil/user" 
+                        <a href="/profil/user"
                             class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                             Buat Pengguna Tambahan</a>
                     </div>
@@ -132,7 +132,7 @@
                                         Hapus Pengguna ini
                                         <div class="tooltip-arrow" data-popper-arrow></div>
                                     </div> --}}
-                                   
+
                                     <a href="profil/user/{{ $user->id }}""
                                         class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
                                         data-tooltip-target="tooltip-edit-{{ $user->id }}">
