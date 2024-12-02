@@ -13,6 +13,7 @@ class AsetAddManager extends Component
     #[On('send-umum')]
     public function umumReceived($umum)
     {
+        
         $this->assetsData[] = $umum;
         if (count($this->assetsData) == 7) {
             dd($this->assetsData);
