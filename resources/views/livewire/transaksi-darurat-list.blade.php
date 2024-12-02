@@ -1,10 +1,6 @@
 <div>
     <table class="w-full border-3 border-separate border-spacing-y-4">
-        {{ $cekApproval }}
-
-        <br>
-
-        {{ $pj_isapprove }}
+        {{ $roles }}
         <thead>
             <tr class="text-white bg-primary-950 uppercase">
                 <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
@@ -59,7 +55,7 @@
                             <input type="file" wire:model.live="list.{{ $index }}.bukti" class="hidden"
                                 id="upload-bukti-{{ $index }}">
 
-                            @if (isset($item['bukti']))
+                            @if (!empty($item['bukti']))
                                 <!-- Display uploaded proof preview with remove icon -->
                                 <div class="relative inline-block">
                                     <a href="{{ is_string($item['bukti']) ? asset('storage/buktiTransaksi/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
@@ -88,7 +84,8 @@
                         <td class="text-center py-3 px-6">
                             @can('persetujuan')
                                 {{-- Jika pengguna adalah PPK --}}
-                                @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $ppk_isapprove)
+                                {{-- @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $item['ppk_isapprove']) --}}
+                                @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $item['ppk_isapprove'])
                                     <button onclick="confirmApproval({{ $index }}, 'ppk')"
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PPK
@@ -96,7 +93,7 @@
                                 @endif
 
                                 {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
-                                @if ($item['bukti'] && auth()->user()->hasRole('pptk') && $pptk_isapprove && !($ppk_isapprove))
+                                @if ($item['bukti'] && auth()->user()->hasRole('pptk') && $item['pptk_isapprove'] && !$item['ppk_isapprove'])
                                     <button onclick="confirmApproval({{ $index }}, 'pptk')"
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PPTK
@@ -112,10 +109,16 @@
                                 @endif
 
                                 {{-- Status persetujuan hanya ditampilkan jika bukti belum diisi --}}
-                                @if (empty($item['bukti']))
+                                {{-- @if (empty($item['bukti']))
                                     <span
                                         class="{{ $item['status'] ? 'text-green-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
                                         {{ is_null($item['status']) ? 'Menunggu' : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
+                                    </span>
+                                @endif --}}
+
+                                @if ($pj_isapprove || $ppk_isapprove || $pptk_isapprove)
+                                    <span
+                                        class="text-green-600">Menunggu
                                     </span>
                                 @endif
                             @else
