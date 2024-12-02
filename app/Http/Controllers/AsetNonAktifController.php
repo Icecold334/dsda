@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\aset;
+use App\Models\Merk;
+use App\Models\Toko;
+use App\Models\Lokasi;
+use App\Models\Person;
+use App\Models\Kategori;
 use Illuminate\Http\Request;
 
 class AsetNonAktifController extends Controller
@@ -10,18 +15,81 @@ class AsetNonAktifController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $asets = Aset::where('status', false)->get()->map(function ($aset) {
-            $nilaiSekarang = $this->nilaiSekarang($aset->hargatotal, $aset->tanggalbeli, $aset->umur);
-            $aset->nilaiSekarang = $this->rupiah($nilaiSekarang);
-            $hargaTotal = $aset->hargatotal;
-            $aset->hargatotal = $this->rupiah($hargaTotal);
-            $totalPenyusutan = $hargaTotal - $nilaiSekarang;
-            $aset->totalpenyusutan = $this->rupiah(abs($totalPenyusutan));
-            return $aset;
+        // Query awal untuk aset non-aktif
+        $query = Aset::where('status', false);
+
+        // Apply filters
+        $this->applyFilters($query, $request);
+
+        // Apply sorting
+        $this->applySorting($query, $request);
+
+        // Execute the query and format the results
+        $asets = $query->get()->map(function ($aset) {
+            return $this->formatAset($aset);
         });
-        return view('nonaktifaset.index', compact('asets'));
+
+        // Data tambahan untuk dropdown filter
+        $kategoris = Kategori::all();
+
+        // Return to view with the necessary data
+        return view('nonaktifaset.index', compact('asets', 'kategoris'));
+    }
+
+    /**
+     * Apply filters to the query based on the request parameters.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \Illuminate\Http\Request $request
+     */
+    protected function applyFilters($query, Request $request)
+    {
+        if ($request->filled('nama')) {
+            $query->where('nama', 'like', '%' . $request->nama . '%');
+        }
+
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_id', $request->kategori_id);
+        }
+
+        if ($request->filled('sebab')) {
+            $query->where('alasannonaktif', $request->sebab);
+        }
+    }
+
+    /**
+     * Apply sorting to the query based on the request parameters.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \Illuminate\Http\Request $request
+     */
+    protected function applySorting($query, Request $request)
+    {
+        $orderBy = $request->get('order_by', 'nama'); // Default to 'nama'
+        $orderDirection = $request->get('order_direction', 'asc'); // Default to ascending
+
+        $query->orderBy($orderBy, $orderDirection);
+    }
+
+    /**
+     * Format the aset data to include calculated fields such as nilaiSekarang and totalPenyusutan.
+     *
+     * @param \App\Models\Aset $aset
+     * @return \App\Models\Aset
+     */
+    protected function formatAset($aset)
+    {
+        $hargaTotal = floatval($aset->hargatotal);
+        $nilaiSekarang = $this->nilaiSekarang($hargaTotal, $aset->tanggalbeli, $aset->umur);
+        $totalPenyusutan = $hargaTotal - $nilaiSekarang;
+
+        $aset->nilaiSekarang = $this->rupiah($nilaiSekarang);
+        $aset->hargatotal = $this->rupiah($hargaTotal);
+        $aset->totalpenyusutan = $this->rupiah(abs($totalPenyusutan));
+
+        return $aset;
     }
 
     /**

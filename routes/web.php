@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Aset;
+use App\Models\User;
 use App\Models\PermintaanStok;
 use App\Livewire\AssetCalendar;
 use Illuminate\Support\Facades\Auth;
@@ -59,6 +61,27 @@ Route::get('/logout', function () {
 
     return redirect()->to('/login');
 });
+
+Route::get('/scan/{user_id}/{systemcode}', function ($user_id, $systemcode) {
+    // Cari aset berdasarkan systemcode
+    $aset = Aset::where('systemcode', $systemcode)->first();
+
+    // Jika aset tidak ditemukan, redirect ke halaman home atau tampilkan pesan error
+    if (!$aset) {
+        return redirect()->route('home')->with('error', 'Aset tidak ditemukan.');
+    }
+
+    // Gunakan user_id = 3 sebagai guest, tidak tergantung pada user yang sedang login
+    $user = User::find(3); // Selalu menggunakan user dengan ID 3 (guest)
+
+    // Jika user dengan ID 3 tidak ditemukan, tampilkan pesan error
+    if (!$user) {
+        return redirect()->route('home')->with('error', 'User Guest tidak ditemukan.');
+    }
+
+    // Kembalikan view dengan data aset dan user guest
+    return view('scan', compact('aset', 'user'));
+})->name('scan');
 
 
 Route::get('dashboard', [DashboardController::class, 'index'])
