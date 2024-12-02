@@ -2,7 +2,7 @@
         <nav
             class="bg-[#d9faff] border-gray-200 shadow-2xl dark:bg-gray-800 flex flex-wrap justify-between items-center overflow-y-hidden">
             <div class="flex items-center">
-                <a href="https://flowbite.com" class="flex">
+                <a href="/" class="flex">
                     <img src="{{ asset('img/dsda-logo.png') }}" alt="Logo" class="h-[4.5rem] w-auto">
                 </a>
             </div>
