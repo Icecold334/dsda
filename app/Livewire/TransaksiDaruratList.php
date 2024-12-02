@@ -103,7 +103,7 @@ class TransaksiDaruratList extends Component
 
                 $this->pptk_isapprove = $this->checkApprovals('pptk');
 
-                $this->pj_isapprove = $this->checkApprovals('pj');
+                $this->pj_isapprove = $this->checkApprovals('penanggungjawab');
 
                 // $dataapp = $item->approvals->filter(function ($appr){
                 //     return $appr->role === auth()->user()->getRoleNames()->first();
@@ -453,8 +453,8 @@ class TransaksiDaruratList extends Component
             $file = $this->list[$index]['bukti'];
             if ($file) {
 
-                $storedFilePath = str_replace('buktiPengiriman/', '', $file->storeAs(
-                    'buktiPengiriman', // Directory
+                $storedFilePath = str_replace('buktiTransaksi/', '', $file->storeAs(
+                    'buktiTransaksi', // Directory
                     $file->getClientOriginalName(), // File name
                     'public' // Storage disk
                 ));

@@ -90,36 +90,47 @@
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PPK
                                     </button>
-                                @endif
 
-                                {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
-                                @if ($item['bukti'] && auth()->user()->hasRole('pptk') && $item['pptk_isapprove'] && !$item['ppk_isapprove'])
+                                    {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
+                                @elseif ($item['bukti'] && auth()->user()->hasRole('pptk') && $item['pptk_isapprove'] && !$item['ppk_isapprove'])
                                     <button onclick="confirmApproval({{ $index }}, 'pptk')"
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PPTK
                                     </button>
-                                @endif
-
-                                {{-- Jika pengguna adalah PJ dan sudah ada approval dari PPTK --}}
-                                @if ($item['bukti'] && auth()->user()->hasRole('penanggungjawab') && $pj_isapprove && !$pptk_isapprove)
+                                    {{-- Jika pengguna adalah PJ dan sudah ada approval dari PPTK --}}
+                                @elseif (
+                                    $item['bukti'] &&
+                                        auth()->user()->hasRole('penanggungjawab') &&
+                                        $item['pj_isapprove'] &&
+                                        !$item['pptk_isapprove'] &&
+                                        !$item['ppk_isapprove']
+                                )
                                     <button onclick="confirmApproval({{ $index }}, 'pj')"
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PJ
                                     </button>
-                                @endif
-
-                                {{-- Status persetujuan hanya ditampilkan jika bukti belum diisi --}}
-                                {{-- @if (empty($item['bukti']))
+                                @else
+                                    {{-- Status persetujuan hanya ditampilkan jika bukti belum diisi --}}
+                                    {{-- @if (empty($item['bukti']))
                                     <span
                                         class="{{ $item['status'] ? 'text-green-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
                                         {{ is_null($item['status']) ? 'Menunggu' : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
                                     </span>
                                 @endif --}}
 
-                                @if ($pj_isapprove || $ppk_isapprove || $pptk_isapprove)
-                                    <span
-                                        class="text-green-600">Menunggu
-                                    </span>
+                                    @if ($item['ppk_isapprove'])
+                                        <span class="text-green-600">Disetujui
+                                        </span>
+                                    @elseif($item['pptk_isapprove'])
+                                        <span class="text-green-600">Disetujui {{ $item['pptk_isapprove'] }}
+                                        </span>
+                                    @elseif($item['pj_isapprove'])
+                                        <span class="text-green-600">Disetujui {{ $item['pj_isapprove'] }}
+                                        </span>
+                                    @else
+                                        <span class="text-red-600">Menunggu
+                                        </span>
+                                    @endif
                                 @endif
                             @else
                                 {{-- Untuk pengguna yang tidak memiliki hak persetujuan --}}
