@@ -126,7 +126,6 @@ class AddProfil extends Component
                 ]
             );
         }
-
         return redirect()->route('profil.index');
     }
 
