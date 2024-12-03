@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Persetujuan as Approval;
+
 
 class TransaksiStok extends Model
 {
@@ -37,4 +39,10 @@ class TransaksiStok extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function approvals()
+    {
+        return $this->morphMany(Approval::class, 'approvable');
+    }
+
 }

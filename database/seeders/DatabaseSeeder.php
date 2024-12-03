@@ -240,6 +240,7 @@ class DatabaseSeeder extends Seeder
             'inventaris_tambah_barang_datang',
             'inventaris_unggah_foto_barang_datang',
             'permintaan_persetujuan_jumlah_barang',
+            'persetujuan',
         ];
 
         // Insert permissions and get their IDs

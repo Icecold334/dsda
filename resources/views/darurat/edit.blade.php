@@ -1,7 +1,7 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">PERBARUI TRANSAKSI</h1>
+        <h1 class="text-2xl font-bold text-primary-900 ">PERBARUI TRANSAKSI {{ $roles }}</h1>
         <div>
             <a href="{{ route('transaksi-darurat-stok.index') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
@@ -36,5 +36,5 @@
         </div>
     </div>
 
-    <livewire:transaksi-darurat-list :transaksi="$transaksi" :vendor_id="$transaksi->first()->vendorStok->id" :jenis_id="$transaksi->first()->merkStok->barangStok->jenisStok->id">
+    <livewire:transaksi-darurat-list :transaksi="$transaksi" :items :vendor_id="$transaksi->first()->vendorStok->id" :jenis_id="$transaksi->first()->merkStok->barangStok->jenisStok->id">
 </x-body>
