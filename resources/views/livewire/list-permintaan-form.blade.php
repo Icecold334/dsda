@@ -354,4 +354,15 @@
         </div>
     @endif
 
+    @push('scripts')
+        <script type="module">
+            // onload
+            document.addEventListener('swal:error', (event) => {
+                console.log(event);
+
+                feedback('Gagal!', event.detail.message, 'error')
+            })
+        </script>
+    @endpush
+
 </div>
