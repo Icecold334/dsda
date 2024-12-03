@@ -1,6 +1,6 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
-        @push('html')
+        {{-- @push('html')
             <!-- Main modal -->
             <div id="tipe2" tabindex="-1" aria-hidden="true"
                 class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
@@ -59,16 +59,16 @@
                     </div>
                 </div>
             </div>
-        @endpush
+        @endpush --}}
 
 
         <h1 class="text-2xl font-bold text-primary-900 ">Kontrak Vendor</h1>
         <div>
-            <button data-modal-target="tipe2" data-modal-toggle="tipe2"
+            {{-- <button data-modal-target="tipe2" data-modal-toggle="tipe2"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
                 type="button">
                 Menunggu Persetujuan
-            </button>
+            </button> --}}
             <a href="{{ route('kontrak-vendor-stok.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Rekam Kontrak Baru</a>

@@ -90,8 +90,9 @@ class TransaksiDaruratList extends Component
     public $showBarangModal = false;
     public $jumlahKecilDalamBesar, $roles, $items, $id, $ppk_isapprove, $pptk_isapprove, $pj_isapprove, $statusapprove;
 
-    public function getStatusApprov($id){
-        $ppkCount = Persetujuan::where('approvable_id', $id)->where('approvable_type',TransaksiStok::class)->get();
+    public function getStatusApprov($id)
+    {
+        $ppkCount = Persetujuan::where('approvable_id', $id)->where('approvable_type', TransaksiStok::class)->get();
 
         return $this->statusapprove = count($ppkCount);
     }
@@ -116,9 +117,10 @@ class TransaksiDaruratList extends Component
                 //     return $appr->role === auth()->user()->getRoleNames()->first();
                 // });
 
-                $filteredApprovals = $item->approvals->filter(function ($approval) {
-                    return $approval->role === auth()->user()->getRoleNames()->first(); // Replace 'desired_role' with the actual role
-                });
+                $filteredApprovals = $item->approvals;
+                // ->filter(function ($approval) {
+                //     return $approval->role === auth()->user()->getRoleNames()->first(); // Replace 'desired_role' with the actual role
+                // });
 
                 if ($filteredApprovals->isNotEmpty()) {
                     foreach ($filteredApprovals as $approval) {
@@ -396,6 +398,7 @@ class TransaksiDaruratList extends Component
             'ppk_isapprove' => $this->ppk_isapprove ?? 1,
             'pj_isapprove' => $this->pj_isapprove ?? 1,
             'bukti' => $this->newBukti ? $this->newBukti : null,
+            'sumApprove' => [],
             'status' => null,
         ];
 
@@ -412,7 +415,7 @@ class TransaksiDaruratList extends Component
             'metode_id' => $this->metode_id,
             'user_id' => Auth::id(),
             'type' => false,
-            'status' => null,
+            'status' => true,
         ]);
 
         foreach ($this->list as $item) {
