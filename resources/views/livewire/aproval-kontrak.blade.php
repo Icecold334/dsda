@@ -61,7 +61,7 @@
                     @endforeach
                 </table>
             </div> --}}
-            @if (!$kontrak->type)
+            {{-- @if (!$kontrak->type)
 
                 <div class="">
                     <div class="block font-semibold text-center mb-2 text-gray-900">
@@ -111,7 +111,7 @@
                         @endforeach
                     </table>
                 </div>
-            @endif
+            @endif --}}
             {{-- @endrole --}}
         @endif
     </div>

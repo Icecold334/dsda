@@ -505,7 +505,7 @@ class TransaksiDaruratList extends Component
 
         // Periksa peran pengguna untuk menentukan level approval
         // Simpan perubahan transaksi
-        if ($this->role_name === 'penanggungjawab') {
+        if ($this->role_name === 'ppk') {
             $transaction->status = true;
         }
         $transaction->save();

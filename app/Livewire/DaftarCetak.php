@@ -105,7 +105,7 @@ class DaftarCetak extends Component
                 return strtoupper($asset->person->nama);
             case 'lokasi':
                 return strtoupper($asset->lokasi->nama);
-            case 'other':
+            case 'other': 
                 return strtoupper(substr($otherValue, 0, 25));
             case 'kosong':
                 return '';

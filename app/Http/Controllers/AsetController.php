@@ -52,6 +52,11 @@ class AsetController extends Controller
             return $aset;
         });
 
+        // Proses setiap aset untuk mendapatkan data QR
+        $asetqr = $asets->map(function ($aset) {
+            return getAssetWithSettings($aset->id); // Menggunakan helper
+        })->keyBy('id')->toArray(); // Gunakan keyBy untuk membuat key array berdasarkan ID aset
+
         // Data tambahan untuk dropdown filter
         $kategoris = Kategori::all();
         $merks = Merk::all();
@@ -59,7 +64,7 @@ class AsetController extends Controller
         $penanggungJawabs = Person::all();
         $lokasis = Lokasi::all();
 
-        return view('aset.index', compact('asets', 'kategoris', 'merks', 'tokos', 'penanggungJawabs', 'lokasis'));
+        return view('aset.index', compact('asets', 'kategoris', 'merks', 'tokos', 'penanggungJawabs', 'lokasis', 'asetqr'));
     }
 
     /**
@@ -140,6 +145,14 @@ class AsetController extends Controller
         return $query;
     }
 
+    // Fungsi untuk mengambil aset dengan setting
+    protected function getAssetWithSettings($asets)
+    {
+        // Proses setiap aset untuk mendapatkan setting yang diperlukan
+        return $asets->map(function ($aset) {
+            return getAssetWithSettings($aset->id); // Misal fungsi global helper yang sudah dibuat
+        });
+    }
 
 
     /**

@@ -76,7 +76,7 @@ class ListPermintaanForm extends Component
         $item = PermintaanStok::find($itemId);
 
         $this->approvalData = [
-            'merk' => $item->merkStok->nama ?? '-',
+            'merk' => $item->merkStok,
             'stok' => Stok::where('merk_id', $item->merk_id)->get()->map(function ($stok) {
                 return [
                     'lokasi' => $stok->lokasiStok->nama,

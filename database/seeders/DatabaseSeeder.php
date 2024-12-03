@@ -920,11 +920,29 @@ class DatabaseSeeder extends Seeder
         // }
 
         // Seed for Stok
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
+            // Pilih lokasi secara acak
+            $lokasi = LokasiStok::inRandomOrder()->first();
+
+            // Tentukan apakah lokasi memiliki bagian
+            $bagian = null;
+            if ($faker->boolean) { // Random pilihan untuk bagian
+                $bagian = BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first();
+            }
+
+            // Tentukan apakah bagian memiliki posisi
+            $posisi = null;
+            if ($bagian && $faker->boolean) { // Random pilihan untuk posisi
+                $posisi = PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first();
+            }
+
+            // Buat entri stok baru
             Stok::create([
-                'merk_id' => MerkStok::inRandomOrder()->first()->id,
-                'jumlah' => rand(10, 100),
-                'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
+                'merk_id' => MerkStok::inRandomOrder()->first()->id, // Pilih merk secara acak
+                'jumlah' => rand(10, 100), // Tentukan jumlah stok secara acak
+                'lokasi_id' => $lokasi->id, // Lokasi stok
+                'bagian_id' => $bagian->id ?? null, // Bagian stok (opsional)
+                'posisi_id' => $posisi->id ?? null, // Posisi stok (opsional)
             ]);
         }
 

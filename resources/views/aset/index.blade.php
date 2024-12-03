@@ -221,61 +221,138 @@
                     <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl ">
                         <td class="py-3 px-6 w-[15rem]">
                             <div class="grid grid-cols-2 gap-3">
-                                <!-- Kontainer untuk QR -->
-                                <div class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white cursor-pointer"
-                                    onclick="openQrModal('{{ asset($aset->systemcode ? 'storage/qr/' . $aset->systemcode . '.png' : 'img/default-pic-thumb.png') }}')">
-                                    <img class="w-full h-full object-cover object-center rounded-sm"
-                                        src="{{ asset($aset->systemcode ? 'storage/qr/' . $aset->systemcode . '.png' : 'img/default-pic-thumb.png') }}"
-                                        alt="QR Code">
-                                </div>
-                                <!-- Modal Pop-Up -->
+                                @if (isset($asetqr[$aset->id]))
+                                    @php
+                                        $qr = $asetqr[$aset->id]; // Ambil data QR untuk aset ini
+                                    @endphp
+                                    <div class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white cursor-pointer"
+                                        onclick="openQrModal('{{ asset($qr['qr_image']) }}', {
+                                            judul: '{{ $qr['judul'] }}',
+                                            baris1: '{{ $qr['baris1'] }}',
+                                            baris2: '{{ $qr['baris2'] }}',
+                                        })">
+                                        <img class="w-full h-full object-cover object-center rounded-sm"
+                                            src="{{ asset($qr['qr_image']) }}" alt="QR Code">
+                                    </div>
+                                @else
+                                    <div
+                                        class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white">
+                                        <p class="text-gray-500 text-sm">QR Not Found</p>
+                                    </div>
+                                @endif
+
+
+                                <!-- Modal untuk Menampilkan QR Code dengan Bingkai dan Data -->
                                 <div id="qr-modal"
                                     class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
                                     <div
-                                        class="bg-white p-4 rounded-lg shadow-lg relative max-w-sm text-center transform scale-90 transition-all duration-300 ease-out">
+                                        class="bg-white p-4 rounded-lg shadow-lg relative max-w-sm text-center transform scale-90 transition-transform duration-300 ease-out">
+                                        <!-- Tombol Tutup -->
                                         <button onclick="closeQrModal()"
-                                            class="absolute top-2 right-2 text-gray-600 hover:text-gray-900">
+                                            class="absolute -top-4 -right-4 text-gray-600 hover:text-gray-900 w-7 h-7 bg-danger-500 rounded-full z-50 text-white">
                                             <i class="fa-solid fa-times"></i>
                                         </button>
-                                        <img id="qr-modal-img" src="" alt="QR Code"
-                                            class="max-w-full h-auto mx-auto rounded-lg">
+
+                                        <!-- Konten Modal -->
+                                        <div
+                                            class="relative w-[300px] h-[400px] flex flex-col items-center justify-center">
+                                            <!-- Bingkai dan QR Code -->
+                                            <div class="relative w-full h-full">
+                                                <!-- Bingkai -->
+                                                <img src="{{ asset('img/qrbase.png') }}" id="qr-frame"
+                                                    class="absolute top-0 left-0 w-full h-full object-cover z-10">
+                                                <!-- Konten di dalam bingkai (judul, QR Code, dan deskripsi) -->
+                                                <!-- Title di atas Bingkai -->
+                                                <div class="absolute top-2 w-full flex justify-center">
+                                                    <div id="qr-title" class="text-lg font-bold text-white z-20">
+                                                        <!-- Judul akan diisi melalui JavaScript -->
+                                                    </div>
+                                                </div>
+
+                                                <!-- Konten di dalam bingkai (QR Code dan deskripsi) -->
+                                                <div
+                                                    class="absolute inset-0 flex flex-col items-center justify-center z-20">
+                                                    <!-- QR Code -->
+                                                    <img id="qr-modal-img" src="" alt="QR Code"
+                                                        class="w-72 h-72 object-cover -p-1 object-center z-20 mt-5">
+
+                                                    <!-- Baris Keterangan 1 -->
+                                                    <div id="qr-description1"
+                                                        class="text-sm text-black font-bold mt-2 text-center z-20">
+                                                        <!-- Baris 1 akan diisi melalui JavaScript -->
+                                                    </div>
+
+                                                    <!-- Baris Keterangan 2 -->
+                                                    <div id="qr-description2"
+                                                        class="text-sm text-black font-semibold text-center z-20">
+                                                        <!-- Baris 2 akan diisi melalui JavaScript -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
-                                @push('scripts')
+
+                                {{-- @push('scripts')
                                     <script>
-                                        // Fungsi untuk membuka modal dengan animasi
-                                        function openQrModal(imageSrc) {
+                                        function openQrModal(imageSrc, qrData) {
                                             const modal = document.getElementById('qr-modal');
                                             const modalImg = document.getElementById('qr-modal-img');
+                                            const modalTitle = document.getElementById('qr-title');
+                                            const modalDescription1 = document.getElementById('qr-description1');
+                                            const modalDescription2 = document.getElementById('qr-description2');
                                             const modalContent = modal.querySelector('.transform');
 
+                                            // Set gambar QR Code
                                             modalImg.src = imageSrc;
-                                            modal.classList.remove('hidden'); // Tampilkan modal
+
+                                            // Set data dinamis ke modal
+                                            modalTitle.innerText = qrData.judul || 'Judul Tidak Ditemukan';
+                                            modalDescription1.innerText = qrData.baris1 || 'Baris 1 Tidak Tersedia';
+                                            modalDescription2.innerText = qrData.baris2 || 'Baris 2 Tidak Tersedia';
+
+                                            // Tampilkan modal
+                                            modal.classList.remove('hidden');
                                             setTimeout(() => {
-                                                modalContent.classList.remove('scale-90'); // Animasi muncul
+                                                modalContent.classList.remove('scale-90');
                                                 modalContent.classList.add('scale-100');
-                                            }, 10); // Sedikit delay agar animasi terlihat
+                                            }, 10);
                                         }
 
-                                        // Fungsi untuk menutup modal dengan animasi
                                         function closeQrModal() {
                                             const modal = document.getElementById('qr-modal');
                                             const modalContent = modal.querySelector('.transform');
 
-                                            modalContent.classList.remove('scale-100'); // Mulai animasi menghilang
+                                            // Animasi menutup modal
+                                            modalContent.classList.remove('scale-100');
                                             modalContent.classList.add('scale-90');
                                             setTimeout(() => {
-                                                modal.classList.add('hidden'); // Sembunyikan modal setelah animasi selesai
-                                            }, 300); // Durasi animasi (sesuai dengan `duration-300`)
+                                                modal.classList.add('hidden');
+                                            }, 300);
                                         }
                                     </script>
-                                @endpush
-                                <div
-                                    class="w-20 h-20 overflow-hidden relative flex justify-center p-1  border-2 rounded-lg bg-white">
-                                    <img class="w-full h-full object-cover object-center rounded-sm"
-                                        src="{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}"
-                                        alt="">
+                                @endpush --}}
+                                <div x-data="{ open: false, imgSrc: '' }">
+                                    <!-- Gambar Thumbnail -->
+                                    <div class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white cursor-pointer"
+                                        @click="open = true; imgSrc = '{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}'">
+                                        <img class="w-full h-full object-cover object-center rounded-sm"
+                                            src="{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}"
+                                            alt="">
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div x-show="open" x-transition:enter="transition ease-out duration-300"
+                                        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                        x-transition:leave="transition ease-in duration-300"
+                                        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                                        class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                                        @click="open = false" @keydown.escape.window="open = false">
+                                        <img :src="imgSrc" class="w-60 h-60 object-cover object-center">
+                                    </div>
                                 </div>
+
                             </div>
                         </td>
                         <td class="py-3 px-6">
