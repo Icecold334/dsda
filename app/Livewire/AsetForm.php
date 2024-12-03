@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\Aset;
+use App\Models\Garansi;
 use App\Models\Merk;
 use App\Models\Toko;
 use App\Models\Option;
@@ -57,6 +58,7 @@ class AsetForm extends Component
     public $oldattachments = [];
     public $newAttachments = [];
     public $garansiattachments = [];
+    public $oldgaransiattachments = [];
     public $newGaransiAttachments = [];
     public $keterangan;
     #[Validate]
@@ -240,6 +242,7 @@ class AsetForm extends Component
             $this->keterangan = $this->aset->keterangan;
             // Ambil lampiran yang terkait dengan aset
             $this->oldattachments = Lampiran::where('aset_id', $this->aset->id)->get();
+            $this->oldgaransiattachments = Garansi::where('aset_id', $this->aset->id)->get();
             // dd($this->attachments);
 
             // Hitung penyusutan jika umur lebih besar dari 0
@@ -386,6 +389,7 @@ class AsetForm extends Component
         // Clear the newAttachments to make ready for next files
         $this->reset('newAttachments');
     }
+
     public function removeGaransiAttachment($index)
     {
         if (isset($this->garansiattachments[$index])) {
@@ -395,6 +399,23 @@ class AsetForm extends Component
             unset($this->garansiattachments[$index]);
             // Reindex array
             $this->garansiattachments = array_values($this->garansiattachments);
+        }
+    }
+
+    public function removeOldGaransiAttachment($id)
+    {
+        $garansi = Garansi::find($id);
+
+        if ($garansi) {
+            // Hapus file dari penyimpanan
+            Storage::disk('public')->delete('GaransiAset/' . $garansi->file);
+
+            // Hapus dari database
+            $garansi->delete();
+
+            // Refresh daftar lampiran lama
+            // $this->attachments = Lampiran::where('aset_id', $this->aset->id)->get();
+            return redirect()->route('aset.edit', $this->aset->id);
         }
     }
 
@@ -494,13 +515,22 @@ class AsetForm extends Component
 
     protected function saveAttachments($asetId)
     {
-        if ($this->attachments) {
-            foreach ($this->attachments as $file) {
-                // Store file to 'attachments' folder in public disk
-                $filePath = str_replace('LampiranAset/', '', $file->storeAs('LampiranAset', $file->getClientOriginalName(), 'public'));  // Store the file
+        // Process regular attachments
+        $this->saveAttachmentFiles($this->attachments, $asetId, 'LampiranAset', Lampiran::class);
 
-                // Save file info to the Lampiran model
-                Lampiran::create([
+        // Process garansi attachments
+        $this->saveAttachmentFiles($this->garansiattachments, $asetId, 'GaransiAset', Garansi::class);
+    }
+
+    private function saveAttachmentFiles($files, $asetId, $folder, $model)
+    {
+        if ($files) {
+            foreach ($files as $file) {
+                // Store file to specific folder in public disk
+                $filePath = $this->storeFile($file, $folder);
+
+                // Save file info to the appropriate model
+                $model::create([
                     'user_id' => Auth::user()->id,
                     'aset_id' => $asetId, // Associate with the Aset
                     'file' => $filePath,
@@ -508,9 +538,20 @@ class AsetForm extends Component
             }
 
             // Clear the attachments array after saving
-            $this->attachments = [];
+            $this->clearAttachments($files);
         }
     }
+
+    private function storeFile($file, $folder)
+    {
+        return str_replace("{$folder}/", '', $file->storeAs($folder, $file->getClientOriginalName(), 'public'));
+    }
+
+    private function clearAttachments(&$files)
+    {
+        $files = [];
+    }
+
 
 
     private function generateQRCode()
