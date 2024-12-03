@@ -249,7 +249,10 @@
 
                 <!-- Modal Body -->
                 <div class="p-4 space-y-4">
-                    <p><strong>Merk:</strong> {{ $approvalData['merk'] }}</p>
+                    <p><strong>Nama Barang:</strong> {{ $approvalData['merk']->barangStok->nama ?? '-' }}</p>
+                    <p><strong>Merk:</strong> {{ $approvalData['merk']->nama ?? '-' }}</p>
+                    <p><strong>tipe:</strong> {{ $approvalData['merk']->tipe ?? '-' }}</p>
+                    <p><strong>Ukuran:</strong> {{ $approvalData['merk']->ukuran ?? '-' }}</p>
                     <p><strong>Jumlah Permintaan:</strong> {{ $approvalData['jumlah_permintaan'] }}</p>
 
                     <!-- Daftar Lokasi, Jumlah, dan Catatan -->
