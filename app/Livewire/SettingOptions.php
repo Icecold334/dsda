@@ -39,9 +39,9 @@ class SettingOptions extends Component
         $this->qr_baris2 = $option->qr_baris2;
         $this->qr_baris2_other = $option->qr_baris2_other;
         // Load all roles
-        $roles = Role::where('id', '>', '1')->get();
+        $roles = Role::where('id', '>', 1)->get();
         $this->roles = $roles->filter(function ($role) {
-            return $role->name != 'guest'; // Exclude 'admin' role from the list of roles to be selected in the dropdown menu
+            return $role->name != 'guest';
         })->map(function ($role) {
             return [
                 'id' => $role->id,

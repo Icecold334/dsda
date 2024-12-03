@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BarangStok;
 use Illuminate\Http\Request;
 
 class BarangStokController extends Controller
@@ -11,7 +12,8 @@ class BarangStokController extends Controller
      */
     public function index()
     {
-        //
+        $barangs = BarangStok::all();
+        return view('barang.index', compact('barangs'));
     }
 
     /**

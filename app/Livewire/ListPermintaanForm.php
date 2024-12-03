@@ -3,17 +3,21 @@
 namespace App\Livewire;
 
 use Carbon\Carbon;
+use App\Models\Stok;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
+use App\Models\StokDisetujui;
 use Livewire\WithFileUploads;
 use App\Models\PermintaanStok;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\PersetujuanPermintaanStok;
 
 class ListPermintaanForm extends Component
 {
@@ -24,6 +28,7 @@ class ListPermintaanForm extends Component
     public $tanggal_permintaan;
     public $keterangan;
     public $permintaan;
+    public $showAdd;
 
     public $list = []; // List of items
     public $newBarangId; // Input for new barang
@@ -31,6 +36,101 @@ class ListPermintaanForm extends Component
     public $newJumlah; // Input for new jumlah
     public $newDokumen; // Input for new dokumen
     public $barangSuggestions = []; // Suggestions for barang
+
+    public $showApprovalModal = false;
+    public $selectedItemId; // ID dari item yang dipilih
+    public $approvalData = []; // Data untuk lokasi dan stok
+    public $catatan; // Catatan opsional
+    public $noteModalVisible = false; // Untuk mengatur visibilitas modal catatan
+    public $selectedItemNotes; // M
+
+    public $approvals = [];
+
+    public function openNoteModal($itemId)
+    {
+        $item = StokDisetujui::where('permintaan_id', $itemId)
+            ->get();
+
+        $this->selectedItemNotes = $item->map(function ($stok) {
+            return [
+                'lokasi' => $stok->lokasiStok->nama ?? '-',
+                'bagian' => $stok->bagianStok->nama ?? '-',
+                'posisi' => $stok->posisiStok->nama ?? '-',
+                'jumlah_disetujui' => $stok->jumlah_disetujui,
+                'catatan' => $stok->catatan ?? 'Tidak ada catatan',
+            ];
+        });
+
+        $this->noteModalVisible = true; // Tampilkan modal
+    }
+
+    public function openApprovalModal($itemId)
+    {
+        $this->selectedItemId = $itemId;
+        $this->loadApprovalData($itemId);
+        $this->showApprovalModal = true;
+    }
+
+    public function loadApprovalData($itemId)
+    {
+        $item = PermintaanStok::find($itemId);
+
+        $this->approvalData = [
+            'merk' => $item->merkStok->nama ?? '-',
+            'stok' => Stok::where('merk_id', $item->merk_id)->get()->map(function ($stok) {
+                return [
+                    'lokasi' => $stok->lokasiStok->nama,
+                    'bagian' => $stok->bagianStok->nama ?? null,
+                    'posisi' => $stok->posisiStok->nama ?? null,
+                    'jumlah_tersedia' => $stok->jumlah,
+                    'lokasi_id' => $stok->lokasi_id,
+                    'bagian_id' => $stok->bagian_id,
+                    'posisi_id' => $stok->posisi_id,
+                ];
+            }),
+            'jumlah_permintaan' => $item->jumlah,
+        ];
+    }
+
+
+    public function approveItems()
+    {
+        foreach ($this->approvalData['stok'] as $stok) {
+            if (isset($stok['jumlah_disetujui']) && $stok['jumlah_disetujui'] > 0) {
+                StokDisetujui::create([
+                    'permintaan_id' => $this->selectedItemId,
+                    'lokasi_id' => $stok['lokasi_id'],
+                    'jumlah_disetujui' => $stok['jumlah_disetujui'],
+                    'bagian_id' => $stok['bagian_id'] ?? null,
+                    'posisi_id' => $stok['posisi_id'] ?? null,
+                    'catatan' => $stok['catatan'] ?? null, // Simpan catatan per stok
+                ]);
+
+                // Kurangi stok sesuai dengan lokasi, bagian, dan posisi (jika ada)
+                // $stokModel = Stok::where('lokasi_id', $stok['lokasi_id'])
+                //     ->when(isset($stok['bagian_id']), function ($query) use ($stok) {
+                //         return $query->where('bagian_id', $stok['bagian_id']);
+                //     })
+                //     ->when(isset($stok['posisi_id']), function ($query) use ($stok) {
+                //         return $query->where('posisi_id', $stok['posisi_id']);
+                //     })
+                //     ->where('merk_id', $this->approvalData['merk_id'])
+                //     ->first();
+
+                // if ($stokModel) {
+                //     $stokModel->jumlah -= $stok['jumlah_disetujui'];
+                //     $stokModel->save();
+                // }
+            }
+        }
+
+        $this->showApprovalModal = false; // Tutup modal
+        $this->catatan = null; // Reset catatan
+        return redirect()->route('permintaan-stok.edit', ['permintaan_stok' => $this->permintaan->id]);
+    }
+
+
+
     public function removeNewDokumen()
     {
         if ($this->newDokumen && Storage::exists($this->newDokumen)) {
@@ -42,33 +142,32 @@ class ListPermintaanForm extends Component
     {
         $this->barangSuggestions = [];
 
-        if (!empty($this->newBarang)) {
-            // Retrieve records that match user input and aggregate stock quantities
-            $this->barangSuggestions = BarangStok::whereHas('merkStok', function ($query) {
-                $query->where('nama', 'like', '%' . $this->newBarang . '%')
-                    ->orWhere('tipe', 'like', '%' . $this->newBarang . '%')
-                    ->orWhere('ukuran', 'like', '%' . $this->newBarang . '%');
-            })
-                ->whereHas('merkStok.stok', function ($query) {
-                    $query->where('jumlah', '>', 0);
-                })
-                ->with(['merkStok.stok' => function ($query) {
-                    $query->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah'))
-                        ->groupBy('merk_id');
-                }])
-                ->get();
-        } else {
-            // Show top 10 records by default if no input is provided, also ensuring positive stock
-            $this->barangSuggestions = BarangStok::whereHas('merkStok.stok', function ($query) {
-                $query->where('jumlah', '>', 0);
-            })
-                ->with(['merkStok.stok' => function ($query) {
-                    $query->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah'))
-                        ->groupBy('merk_id');
-                }])
-                ->get();
-        }
+        $this->barangSuggestions = BarangStok::whereHas('merkStok', function ($merkQuery) {
+            $merkQuery->where('nama', 'like', '%' . $this->newBarang . '%')
+                ->orWhere('tipe', 'like', '%' . $this->newBarang . '%')
+                ->orWhere('ukuran', 'like', '%' . $this->newBarang . '%')
+                ->join('stok', 'merk_stok.id', '=', 'stok.merk_id')
+                ->groupBy('merk_stok.id')
+                ->havingRaw('SUM(stok.jumlah) > 0'); // Filter stok total > 0
+        })
+            ->with([
+                'merkStok' => function ($merkQuery) {
+                    $merkQuery->join('stok', 'merk_stok.id', '=', 'stok.merk_id')
+                        ->groupBy('merk_stok.id')
+                        ->havingRaw('SUM(stok.jumlah) > 0')
+                        ->with(['stok' => function ($stokQuery) {
+                            $stokQuery->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah'))
+                                ->groupBy('merk_id');
+                        }]);
+                }
+            ])
+            ->get();
+
+
+
+        // dd(collect($this->barangSuggestions)->toJson());
     }
+
 
 
 
@@ -199,6 +298,7 @@ class ListPermintaanForm extends Component
 
     public function mount()
     {
+        $this->showAdd = Request::is('permintaan/permintaan');
         if ($this->permintaan) {
             foreach ($this->permintaan->permintaanStok as $key => $value) {
                 $this->unit_id = $this->permintaan->unit_id;
@@ -214,7 +314,8 @@ class ListPermintaanForm extends Component
                         ->join(' | ');
                 }
                 $this->list[] = [
-                    'jumlah_approve' => $value->jumlah_approve ?? $value->jumlah,
+                    'detail_permintaan_id' => $value->detail_permintaan_id,
+                    'jumlah_approve' => $value->stokDisetujui->sum('jumlah_disetujui'),
                     'status' => $value->status,
                     'id' => $value->id,
                     'barang_id' => $value->merkStok->barangStok->id, // Assuming a dropdown for selecting existing barang
@@ -224,6 +325,12 @@ class ListPermintaanForm extends Component
                     'dokumen' => $value->img ?? null,
                 ];
             }
+            $this->approvals = PersetujuanPermintaanStok::where('status', true)->where('detail_permintaan_id', $this->permintaan->id)
+                ->whereHas('user', function ($query) {
+                    $query->role('kepala_seksi'); // Muat hanya persetujuan dari kepala_seksi
+                })
+                ->pluck('detail_permintaan_id') // Ambil hanya detail_permintaan_id yang sudah disetujui
+                ->toArray();
         }
         $this->tanggal_permintaan = Carbon::now()->format('Y-m-d');
     }

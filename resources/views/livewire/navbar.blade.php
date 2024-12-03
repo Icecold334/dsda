@@ -1,11 +1,9 @@
     <header class="">
         <nav
             class="bg-[#d9faff] border-gray-200 shadow-2xl dark:bg-gray-800 flex flex-wrap justify-between items-center overflow-y-hidden">
-            <div class="flex justify-start items-center "
-                style="background:#003569 url({{ asset('img/header-bg.jpg') }}) no-repeat right center;float:left;width:420px;height:64px">
-                <a href="https://flowbite.com" class="flex mx-8">
-                    <span class="self-center  text-white font-semibold whitespace-nowrap dark:text-white"><img
-                            src="{{ asset('img/inventa-logo.png') }}" class=" w-[250px] h-auto" alt=""></span>
+            <div class="flex items-center">
+                <a href="/" class="flex">
+                    <img src="{{ asset('img/dsda-logo.png') }}" alt="Logo" class="h-[4.5rem] w-auto">
                 </a>
             </div>
 
@@ -19,7 +17,7 @@
             </button> --}}
 
             <div class="flex justify-between items-center overflow-y-hidden" id="menu">
-                <ul class="flex flex-col md:flex-row md:space-x-4">
+                <ul class="flex flex-col md:flex-row md:space-x-4 {{ Request::is('scan/*') ? 'hidden' : '' }}">
                     {{-- <ul class="grid grid-flow-col gap-0 -my-4 "> --}}
                     <livewire:nav-item href="/dashboard" title="home" />
                     <livewire:nav-item title="aset" :child="[
@@ -44,6 +42,7 @@
                     <livewire:nav-item title="data" :child="[
                         ['href' => '/kategori', 'title' => 'kategori'],
                         ['href' => '/merk', 'title' => 'Merk'],
+                        ['href' => '/barang', 'title' => 'Barang Inventaris'],
                         ['href' => '/toko', 'title' => 'Toko / distributor'],
                         ['href' => '/person', 'title' => 'Penanggung jawab'],
                         ['href' => '/lokasi', 'title' => 'lokasi'],

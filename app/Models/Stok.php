@@ -18,4 +18,12 @@ class Stok extends Model
     {
         return $this->belongsTo(LokasiStok::class, 'lokasi_id');
     }
+    public function bagianStok()
+    {
+        return $this->belongsTo(BagianStok::class, 'bagian_id');
+    }
+    public function posisiStok()
+    {
+        return $this->belongsTo(PosisiStok::class, 'posisi_id');
+    }
 }

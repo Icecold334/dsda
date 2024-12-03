@@ -42,6 +42,13 @@ class AssetCalendar extends Component
         $this->days = $this->generateDays(Carbon::createFromTimestamp($startOfMonth), Carbon::createFromTimestamp($endOfMonth));
         // dd($this->days);
 
+        // Logika pemuatan data untuk agenda tipe bulanan
+        $this->agendas = Agenda::where('tipe', 'bulanan')->get()->filter(function ($agenda) {
+            return collect($this->days)->contains(function ($day) use ($agenda) {
+                return $agenda->hari == $day['day_num']; // Cocokkan hari agenda dengan tanggal dalam bulan
+            });
+        });
+
         // Reset semua data
         $this->agendas = collect();
         $this->journals = collect();

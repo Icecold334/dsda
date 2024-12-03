@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use App\Models\Aset;
 use App\Models\Merk;
 use App\Models\Stok;
@@ -28,14 +29,14 @@ use App\Models\TransaksiStok;
 use App\Models\PengirimanStok;
 use App\Models\PermintaanStok;
 use App\Models\MetodePengadaan;
-use Illuminate\Database\Seeder;
 // use App\Models\DetailPengirimanStok;
 // use App\Models\TransaksiDaruratStok;
+use Illuminate\Database\Seeder;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\DB;
+use App\Models\DetailPengirimanStok;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
 // use App\Models\KontrakRetrospektifStok;
 
 class DatabaseSeeder extends Seeder
@@ -43,7 +44,13 @@ class DatabaseSeeder extends Seeder
 
     public function run()
     {
-
+        $faker = Faker::create('id_ID');
+        for ($i = 1; $i <= 5; $i++) {
+            LokasiStok::create([
+                'nama' => $faker->city,
+                'alamat' => $faker->address,
+            ]);
+        }
 
         // Parent Units
         $unitProduksi = UnitKerja::create([
@@ -153,7 +160,7 @@ class DatabaseSeeder extends Seeder
 
 
         // Create or get roles for superadmin, admin, penanggungjawab, ppk, pptk
-        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk', 'guest', 'penerima barang'];
+        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk', 'guest', 'penerima_barang', 'pemeriksa_barang', 'pengurus_barang', 'kepala_sub_bagian', 'kepala_seksi'];
         $roleIds = [];
 
         foreach ($roles as $role) {
@@ -231,7 +238,9 @@ class DatabaseSeeder extends Seeder
             'qr_print',
             'inventaris_edit_lokasi_penerimaan',
             'inventaris_tambah_barang_datang',
-            'persetujuan'
+            'inventaris_unggah_foto_barang_datang',
+            'permintaan_persetujuan_jumlah_barang',
+            'persetujuan',
         ];
 
         // Insert permissions and get their IDs
@@ -266,6 +275,8 @@ class DatabaseSeeder extends Seeder
                 'name' => ucfirst($role),
                 'email' => $email,
                 'unit_id' => UnitKerja::inRandomOrder()->first()->id,
+                'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
+
                 'password' => Hash::make('password'),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -304,12 +315,14 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create users for penanggungjawab, ppk, and pptk roles (2 users per role)
-        $extraRoles = ['penanggungjawab', 'ppk', 'pptk'];
+        $extraRoles = ['penanggungjawab', 'ppk', 'pptk', 'penerima_barang',  'pemeriksa_barang', 'pengurus_barang', 'kepala_sub_bagian', 'kepala_seksi'];
         foreach ($extraRoles as $role) {
             for ($i = 1; $i <= 3; $i++) {
                 $userId = DB::table('users')->insertGetId([
                     'name' => ucfirst($role) . " $i",
                     'email' => "$role$i@example.com",
+                    'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
+
                     'unit_id' => UnitKerja::inRandomOrder()->first()->id,
                     'password' => Hash::make('password'),
                     'created_at' => now(),
@@ -348,12 +361,12 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
-
+        // $faker = new Faker();
         // Seeder for 5 locations
         for ($i = 1; $i <= 5; $i++) {
             Lokasi::create([
                 'user_id' => $userId,
-                'nama' => 'Lokasi ' . $i,
+                'nama' => $faker->city,
                 'nama_nospace' => Str::slug('Lokasi ' . $i),
                 'keterangan' => 'Deskripsi untuk Lokasi ' . $i,
                 'status' => 1
@@ -387,70 +400,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // // Seeder for 5 stock brands
-        // $barangList = BarangStok::all();
-        // $lokasiStokList = LokasiStok::all();
-        // foreach ($barangList as $barang) {
-        //     foreach ($lokasiStokList as $lokasiStok) {
-        //         MerekStok::create([
-        //             'barang_id' => $barang->id,
-        //             'nama' => 'Merek Stok ' . $barang->nama . ' di ' . $lokasiStok->nama,
-        //             'jumlah' => rand(10, 100),
-        //             'satuan' => 'pcs',
-        //             'lokasi_id' => $lokasiStok->id,
-        //             'stok_awal' => rand(10, 100),
-        //             'stok_sisa' => rand(5, 50)
-        //         ]);
-        //     }
-        // }
-
-        // // Seeder for 5 stock vendors
-        // for ($i = 1; $i <= 5; $i++) {
-        //     VendorStok::create([
-        //         'nama' => 'Vendor ' . $i,
-        //         'alamat' => 'Jl. Vendor ' . $i,
-        //         'telepon' => '021' . str_pad($i, 4, '0', STR_PAD_LEFT),
-        //         'email' => 'vendor' . $i . '@example.com'
-        //     ]);
-        // }
-
-        // // Seeder for 5 vendor contracts
-        // $vendorList = VendorStok::all();
-        // foreach ($vendorList as $vendor) {
-        //     KontrakVendor::create([
-        //         'vendor_id' => $vendor->id,
-        //         'tanggal_mulai' => now()->subMonths(rand(1, 12)),
-        //         'tanggal_selesai' => now()->addMonths(rand(1, 12)),
-        //         'keterangan' => 'Kontrak dengan ' . $vendor->nama
-        //     ]);
-        // }
-
-        // Seed example Toko
-        // Toko::create([
-        //     'user_id' => 1,
-        //     'nama' => 'PT Elektronik Jaya',
-        //     'nama_nospace' => Str::slug('PT Elektronik Jaya'),
-        //     'alamat' => 'Jl. Jaya No. 10, Jakarta',
-        //     'telepon' => '02112345678',
-        //     'email' => 'info@elektronikjaya.com',
-        //     'petugas' => 'Andi',
-        //     'keterangan' => 'Supplier elektronik terkemuka',
-        //     'status' => 1
-        // ]);
-
-        // Toko::create([
-        //     'user_id' => 1,
-        //     'nama' => 'Toko Komputer ABC',
-        //     'nama_nospace' => Str::slug('Toko Komputer ABC'),
-        //     'alamat' => 'Jl. Komputer No. 5, Surabaya',
-        //     'telepon' => '03198765432',
-        //     'email' => 'contact@tokokomputerabc.com',
-        //     'petugas' => 'Budi',
-        //     'keterangan' => 'Distributor komputer dan aksesoris',
-        //     'status' => 1
-        // ]);
-
-        $faker = Faker::create();
 
         $tokos = [
             [
@@ -673,11 +622,53 @@ class DatabaseSeeder extends Seeder
         // }
 
         // Seed for BarangStok
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             BarangStok::create([
                 'jenis_id' => JenisStok::inRandomOrder()->first()->id,
                 'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
-                'nama' => 'Barang ' . $i,
+                'nama' => $faker->randomElement([
+                    'Semen',
+                    'Kertas',
+                    'Buku',
+                    'Pulpen',
+                    'Tinta',
+                    'Spidol',
+                    'Penggaris',
+                    'Kalkulator',
+                    'Klip Kertas',
+                    'Sticky Note',
+                    'Lem',
+                    'Amplop',
+                    'Binder',
+                    'Map',
+                    'Stapler'
+                ]) . ' ' . $faker->randomElement([
+                    'Bangunan',       // Semen Bangunan
+                    'Cetak',          // Kertas Cetak, Tinta Cetak
+                    'Tulisan',        // Buku Tulisan, Pulpen Tulisan
+                    'Warna',          // Spidol Warna
+                    'Tulis',          // Buku Tulis, Pulpen Tulis
+                    'Marker',         // Spidol Marker
+                    'A4',             // Kertas A4
+                    'Isi Ulang',      // Pulpen Isi Ulang, Tinta Isi Ulang
+                    'Planner',        // Buku Planner
+                    'Proyek',         // Semen Proyek
+                    'Kantor',         // Alat-alat Kantor
+                    'Sekolah',        // Alat-alat Sekolah
+                    'Premium',        // Produk Premium
+                    'Standar',        // Produk Standar
+                    'Portabel',       // Kalkulator Portabel
+                    'Ekstra',         // Kertas Ekstra
+                    'Tahan Air',      // Amplop Tahan Air
+                    'Transparan',     // Penggaris Transparan
+                    'Refill',         // Isi Ulang
+                    'Dekoratif',      // Sticky Note Dekoratif
+                    'Kuat',           // Lem Kuat
+                    'Minimalis',      // Map Minimalis
+                    'Klasik',         // Binder Klasik
+                ]),
+
+
                 'satuan_besar_id' => SatuanBesar::inRandomOrder()->first()->id,
                 'konversi' => $faker->randomElement([5, 10, 15, 20, 25, 30, 35, 40, 45, 50]),
                 'satuan_kecil_id' => SatuanBesar::inRandomOrder()->first()->id,
@@ -685,13 +676,113 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // Seed for MerkStok
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 50; $i++) {
+            $tipe = $faker->boolean ? $faker->randomElement([
+                'Standar',
+                'Premium',
+                'Ekonomis',
+                'Heavy Duty',
+                'Ringan',
+                'Super',
+                'Profesional',
+                'Khusus',
+                'Multifungsi',
+                'Universal'
+            ]) : null;
+
+            $ukuran = $faker->boolean ? $faker->randomElement([
+                $faker->numberBetween(5, 50) . ' cm',         // Ukuran dalam cm
+                $faker->numberBetween(1, 10) . ' m',          // Ukuran dalam meter
+                $faker->numberBetween(10, 500) . ' mm',       // Ukuran dalam milimeter
+                $faker->numberBetween(50, 500) . ' ml',       // Ukuran volume cair
+                $faker->numberBetween(1, 20) . ' L',          // Ukuran volume besar
+                $faker->numberBetween(1, 1000) . ' gr',       // Ukuran berat kecil
+                $faker->numberBetween(1, 50) . ' kg',         // Ukuran berat besar
+                $faker->numberBetween(10, 200) . ' sheets',   // Jumlah lembar
+                $faker->numberBetween(1, 5) . ' packs',       // Jumlah kemasan
+                $faker->numberBetween(1, 20) . ' pcs'         // Jumlah satuan
+            ]) : null;
+
+            // Pastikan salah satu tidak null
+            if (is_null($tipe) && is_null($ukuran)) {
+                if ($faker->boolean) {
+                    $tipe = $faker->randomElement([
+                        'Standar',
+                        'Premium',
+                        'Ekonomis',
+                        'Heavy Duty',
+                        'Ringan',
+                        'Super',
+                        'Profesional',
+                        'Khusus',
+                        'Multifungsi',
+                        'Universal'
+                    ]);
+                } else {
+                    $ukuran = $faker->randomElement([
+                        $faker->numberBetween(5, 50) . ' cm',
+                        $faker->numberBetween(1, 10) . ' m',
+                        $faker->numberBetween(10, 500) . ' mm',
+                        $faker->numberBetween(50, 500) . ' ml',
+                        $faker->numberBetween(1, 20) . ' L',
+                        $faker->numberBetween(1, 1000) . ' gr',
+                        $faker->numberBetween(1, 50) . ' kg',
+                        $faker->numberBetween(10, 200) . ' sheets',
+                        $faker->numberBetween(1, 5) . ' packs',
+                        $faker->numberBetween(1, 20) . ' pcs'
+                    ]);
+                }
+            }
+
             MerkStok::create([
                 'barang_id' => BarangStok::inRandomOrder()->first()->id,
-                'nama' => 'Merek ' . $i,
+                'nama' => $faker->boolean ? $faker->randomElement([
+                    'Sinar Dunia',
+                    'Tiga Roda',
+                    'IndoPrima',
+                    'SariKarya',
+                    'MegaJaya',
+                    'BerkahMakmur',
+                    'CiptaSentosa',
+                    'MandiriUtama',
+                    'TunasHarapan',
+                    'SuryaNusantara',
+                    'BintangTerang',
+                    'MitraAbadi',
+                    'SejahteraJaya',
+                    'RajawaliKencana',
+                    'GemilangIndah',
+                    'PusakaRaya',
+                    'GarudaPerkasa',
+                    // Merek luar
+                    'Super Glue',
+                    'Sharp Note',
+                    'Quick Fix',
+                    'Rapid Print',
+                    'Bright Vision',
+                    'Next Level',
+                    'Prime Star',
+                    'Eagle Pro',
+                    'Global Edge',
+                    'True Mark',
+                    'Apex Tech',
+                    'Zenith Gear',
+                    'Eco Green',
+                    'Ultra Bond',
+                    'Future Craft',
+                    'Vista Clear',
+                    'Master Seal',
+                    'Top Choice',
+                    'Champion Paper',
+                    'King Grip',
+                    'Orbit Line'
+                ]) : null,
+
+                'tipe' => $tipe,
+                'ukuran' => $ukuran,
             ]);
         }
+
 
         // Seed for VendorStok
         for ($i = 1; $i <= 5; $i++) {
@@ -703,12 +794,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed for LokasiStok
-        for ($i = 1; $i <= 5; $i++) {
-            LokasiStok::create([
-                'nama' => 'Lokasi ' . $i,
-                'alamat' => $faker->address,
-            ]);
-        }
+
 
         // Seed for BagianStok
         for ($i = 1; $i <= 5; $i++) {
@@ -902,6 +988,48 @@ class DatabaseSeeder extends Seeder
                 'merk_id' => $merks->random()->id,
                 'jumlah' => rand(10, 100),
                 'lokasi_id' => $lokasis->random()->id,
+            ]);
+        }
+
+        // foreach (range(1, 5) as $index) {
+        DetailPengirimanStok::create([
+            'kode_pengiriman_stok' => Str::upper($faker->word),
+            'tanggal' => strtotime(now()),
+            'penerima' => $faker->name,
+            'user_id' => User::inRandomOrder()->first()->id,
+            'pj1' => $faker->name,
+            'pj2' => $faker->name,
+            'kontrak_id' => KontrakVendorStok::where('type', true)->inRandomOrder()->first()->id
+        ]);
+        // }
+
+        foreach (range(1, 3) as $index) {
+
+            // Pilih kontrak yang memiliki transaksi
+            $kontrak = KontrakVendorStok::has('transaksiStok')->where('type', true)->inRandomOrder()->first();
+
+            // Pilih transaksi yang terkait dengan kontrak yang dipilih
+            $transaksi = TransaksiStok::where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
+
+            $lokasi = LokasiStok::inRandomOrder()->first();
+
+            // Tentukan apakah lokasi memiliki bagian
+            $bagian = BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first();
+
+            // Tentukan apakah bagian memiliki posisi
+            $posisi = null;
+            if ($bagian) {
+                $posisi = PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first();
+            }
+            PengirimanStok::create([
+                'detail_pengiriman_id' => DetailPengirimanStok::find(1)->id,
+                'kontrak_id' => $kontrak->id,
+                'merk_id' => $transaksi->merk_id,
+                'tanggal_pengiriman' => strtotime(now()), // strtotime untuk konversi string ke timestamp
+                'jumlah' => $faker->numberBetween(1, 5),
+                'lokasi_id' => $lokasi->id,
+                'bagian_id' => $bagian ? $bagian->id : null,  // Bagian bisa null jika tidak ada
+                'posisi_id' => $posisi ? $posisi->id : null,
             ]);
         }
     }

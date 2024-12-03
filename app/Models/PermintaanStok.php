@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\StokDisetujui;
 use Illuminate\Database\Eloquent\Model;
 
 class PermintaanStok extends Model
@@ -13,6 +14,11 @@ class PermintaanStok extends Model
     {
         return $this->belongsTo(DetailPermintaanStok::class, 'detail_permintaan_id');
     }
+    public function stokDisetujui()
+    {
+        return $this->hasMany(StokDisetujui::class, 'permintaan_id');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

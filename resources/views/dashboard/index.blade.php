@@ -515,7 +515,7 @@
                                         </div>
                                     </div>
                                     <div class="py-3">
-                                        <a href="{{ route('aset.show', ['aset' => $histori->id]) }}"
+                                        <a href="{{ route('aset.show', ['aset' => $histori->aset->id]) }}"
                                             class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
                                             data-tooltip-target="tooltip-riwayat-{{ $histori->id }}">
                                             <i class="fa-solid fa-clock-rotate-left"></i>
@@ -558,7 +558,7 @@
                                         </div>
                                     </div>
                                     <div class="py-3">
-                                        <a href="{{ route('aset.show', ['aset' => $transaksi->id]) }}"
+                                        <a href="{{ route('aset.show', ['aset' => $transaksi->aset->id, 'tab' => 'keuangan']) }}"
                                             class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
                                             data-tooltip-target="tooltip-transaksi-{{ $transaksi->id }}">
                                             <i class="fa-solid fa-eye"></i>

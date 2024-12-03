@@ -72,7 +72,7 @@
                                 <option value="Hilang">Hilang</option>
                                 <option value="Rusak Total">Rusak Total</option>
                                 <option value="Lainnya">Lainnya</option>
-                             </select>
+                            </select>
                         </div>
                         <!-- Keterangan -->
                         <div>
@@ -208,6 +208,10 @@
                         <td class="" style="width: 30%">Harga Total</td>
                         <td class="">{{ $aset->hargatotal ?? '---' }}</td>
                     </tr>
+                    <tr>
+                        <td class="" style="width: 30%">Lama Garansi</td>
+                        <td class="">{{ $aset->lama_garansi ?? '---' }}</td>
+                    </tr>
                 </table>
             </x-card>
             <x-card title="Keterangan" class="mb-3">
@@ -234,7 +238,8 @@
                     </li>
                     <li class="me-2">
                         <button id="keuangan-tab" data-tabs-target="#keuangan" type="button" role="tab"
-                            aria-controls="keuangan" aria-selected="false"
+                            aria-controls="keuangan"
+                            aria-selected="{{ request('tab') === 'keuangan' ? 'true' : 'false' }}"
                             class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">Keuangan</button>
                     </li>
                     <li class="me-2">

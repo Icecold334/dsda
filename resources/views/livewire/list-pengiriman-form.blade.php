@@ -7,11 +7,15 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BAGIAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">POSISI</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH *</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th>
+                @if ($showDokumen)
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th>
+                @endif
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
+
         <tbody>
+
             @foreach ($list as $index => $item)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="px-2 py-3 font-semibold">
@@ -19,11 +23,11 @@
                         <div class="font-normal text-sm">
                             <table class="w-full">
                                 <tr>
-                                    <td class=" w-1/3 px-1">{{ $item['merk']->nama ?? '-' }}</td>
+                                    <td class=" w-1/3 ">{{ $item['merk']->nama ?? '-' }}</td>
                                     <td
-                                        class="border-x-2 border-primary-600 w-1/3 px-1 {{ $item['merk']->tipe ? '' : 'text-center' }}">
+                                        class="border-x-2 border-primary-600 w-1/3  {{ $item['merk']->tipe ? '' : 'text-center' }}">
                                         {{ $item['merk']->tipe ?? '-' }}</td>
-                                    <td class=" w-1/3 px-1 {{ $item['merk']->ukuran ? '' : 'text-center' }}">
+                                    <td class=" w-1/3  {{ $item['merk']->ukuran ? '' : 'text-center' }}">
                                         {{ $item['merk']->ukuran ?? '-' }}</td>
                                 </tr>
                             </table>
@@ -31,13 +35,14 @@
                     </td>
                     <td class="px-6 py-3">
                         <select wire:change="updateLokasi({{ $index }}, $event.target.value)"
-                            class="@cannot('inventaris_edit_lokasi_penerimaan')
+                            class="
+                            {{-- @cannot('inventaris_edit_lokasi_penerimaan')
                                 cursor-not-allowed
-                            @endcannot bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            @disabled(isset($item['detail']))
-                            @cannot('inventaris_edit_lokasi_penerimaan')
+                            @endcannot --}}
+                             bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            @disabled(isset($item['detail'])) {{-- @cannot('inventaris_edit_lokasi_penerimaan')
                                 disabled
-                            @endcannot>
+                            @endcannot --}}>
                             <option value="">Pilih Lokasi</option>
                             @foreach ($lokasis as $lokasi)
                                 <option value="{{ $lokasi->id }}" @if ($item['lokasi_id'] == $lokasi->id) selected @endif>
@@ -48,8 +53,8 @@
                     </td>
                     <td class="px-6 py-3">
                         <select wire:change="updateBagian({{ $index }}, $event.target.value)"
-                            class="bg-gray-50 border border-gray-300 {{ empty($item['lokasi_id']) ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            @disabled(!$item['editable'] || empty($item['lokasi_id']))
+                            class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['lokasi_id']) || Auth::user()->lokasi_id !== $item['lokasi_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            @disabled(!$item['editable'] || empty($item['lokasi_id']) || Auth::user()->lokasi_id !== $item['lokasi_id'])
                             @cannot('inventaris_edit_lokasi_penerimaan')
                                 disabled
                             @endcannot>
@@ -63,8 +68,8 @@
                     </td>
                     <td class="px-6 py-3">
                         <select wire:change="updatePosisi({{ $index }}, $event.target.value)"
-                            class="bg-gray-50 border border-gray-300 {{ empty($item['bagian_id']) ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            @disabled(!$item['editable'] || empty($item['bagian_id']))>
+                            class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['bagian_id']) || Auth::user()->lokasi_id !== $item['bagian_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            @disabled(!$item['editable'] || empty($item['bagian_id']) || Auth::user()->lokasi_id !== $item['lokasi_id'])>
                             <option value="">Pilih Posisi</option>
                             @foreach ($item['posisis'] as $posisi)
                                 <option value="{{ $posisi->id }}" @if ($item['posisi_id'] == $posisi->id) selected @endif>
@@ -77,7 +82,8 @@
                         <div class="flex items-center">
                             <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value="{{ $item['jumlah'] }}"
                                 wire:input="updateJumlah({{ $index }}, $event.target.value)"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                @disabled($showDokumen)
+                                class="bg-gray-50 border {{ $showDokumen ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 min="1" {{-- max="{{ $item['max_jumlah'] }}" --}} placeholder="Jumlah">
                             <span
                                 class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
@@ -88,69 +94,115 @@
                         {{-- @if (isset($errorsList[$index])) --}}
                         {{-- <p class="text-red-600 text-xs mt-1">{{ $errorsList[$index] }}</p> --}}
                         {{-- @else --}}
-                        <p class="text-black text-xs mt-1">Jumlah akumulasi maksimal : {{ $item['max_jumlah'] }}</p>
+                        @if (!$showDokumen)
+                            <p class="text-black text-xs mt-1">Jumlah akumulasi maksimal : {{ $item['max_jumlah'] }}
+                            </p>
+                        @endif
                         {{-- @endif --}}
                         {{-- @endif --}}
                     </td>
-                    <td class="px-6 py-3">
-                        @if ($pengiriman)
-                            @if (is_null($pengiriman->status))
-                                <!-- Pengiriman ada dan statusnya null -->
-                                @role('penanggungjawab')
-                                    <!-- Input dan tombol untuk upload hanya untuk penanggungjawab -->
-                                    <input type="file" wire:model.live="list.{{ $index }}.bukti" class="hidden"
-                                        id="upload-bukti-{{ $index }}">
-                                    @if (isset($item['bukti']))
-                                        <!-- Tampilkan dan berikan opsi untuk menghapus jika sudah ada gambar -->
-                                        <div class="relative inline-block">
-                                            <a href="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
-                                                target="_blank">
-                                                <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
-                                                    alt="Bukti" class="w-16 h-16 rounded-md">
-                                            </a>
-                                            <button wire:click="removeDocument({{ $index }})"
-                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs p-1 hover:bg-red-700">&times;</button>
-                                        </div>
+                    @if ($showDokumen)
+                        <td class="px-6 py-3 text-center">
+                            @if (isset($item['bukti']))
+                                <!-- Check if the photo exists -->
+                                @if ($pengiriman)
+                                    @if (is_null($pengiriman->status))
+                                        <!-- Pengiriman ada dan statusnya null -->
+                                        @can('inventaris_unggah_foto_barang_datang')
+                                            <!-- Check if the item location matches the user's location -->
+                                            <!-- With permission and location matching -->
+                                            <div class="relative inline-block">
+                                                @if (is_string($item['bukti']))
+                                                    <a href="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
+                                                        target="_blank">
+                                                        <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
+                                                            alt="Bukti" class="w-16 h-16 rounded-md">
+                                                    </a>
+                                                @elseif (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl'))
+                                                    <a href="{{ $item['bukti']->temporaryUrl() }}" target="_blank">
+                                                        <img src="{{ $item['bukti']->temporaryUrl() }}" alt="Bukti"
+                                                            class="w-16 h-16 rounded-md">
+                                                    </a>
+                                                @else
+                                                    <span class="text-gray-500">Bukti tidak valid</span>
+                                                @endif
+                                                @if ($item['lokasi_id'] == Auth::user()->lokasi_id)
+                                                    <button wire:click="removePhoto({{ $index }})"
+                                                        class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-xs hover:bg-red-700">
+                                                        &times;
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        @else
+                                            <!-- Non-penanggungjawab hanya melihat -->
+                                            @if (is_string($item['bukti']))
+                                                <a href="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
+                                                    target="_blank" class="flex justify-center">
+                                                    <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
+                                                        alt="Bukti" class="w-16 h-16 rounded-md text-center">
+                                                </a>
+                                            @elseif (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl'))
+                                                <a href="{{ $item['bukti']->temporaryUrl() }}" target="_blank">
+                                                    <img src="{{ $item['bukti']->temporaryUrl() }}" alt="Bukti"
+                                                        class="w-16 h-16 rounded-md">
+                                                </a>
+                                            @else
+                                                <span class="text-gray-500">Bukti tidak valid</span>
+                                            @endif
+                                        @endcan
                                     @else
-                                        <button type="button"
-                                            onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
-                                            class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">Unggah
-                                            Foto</button>
+                                        <!-- Pengiriman ada tapi status bukan null, semua pengguna hanya melihat -->
+                                        @if (is_string($item['bukti']))
+                                            <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
+                                                alt="Bukti" class="w-16 h-16 rounded-md">
+                                        @elseif (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl'))
+                                            <a href="{{ $item['bukti']->temporaryUrl() }}" target="_blank">
+                                                <img src="{{ $item['bukti']->temporaryUrl() }}" alt="Bukti"
+                                                    class="w-16 h-16 rounded-md">
+                                            </a>
+                                        @else
+                                            <span class="text-gray-500">Bukti tidak valid</span>
+                                        @endif
                                     @endif
                                 @else
-                                    <!-- Non-penanggungjawab hanya melihat -->
-                                    @if (isset($item['bukti']))
-                                        <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}" alt="Bukti"
-                                            class="w-16 h-16 rounded-md">
+                                    <!-- Pengiriman ada tapi status bukan null, semua pengguna hanya melihat -->
+                                    @if (is_string($item['bukti']))
+                                        <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
+                                            alt="Bukti" class="w-16 h-16 rounded-md">
+                                    @elseif (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl'))
+                                        <a href="{{ $item['bukti']->temporaryUrl() }}" target="_blank">
+                                            <img src="{{ $item['bukti']->temporaryUrl() }}" alt="Bukti"
+                                                class="w-16 h-16 rounded-md">
+                                        </a>
+                                    @else
+                                        <span class="text-gray-500">Bukti tidak valid</span>
+                                    @endif
+                                @endif
+                            @else
+                                <!-- No photo uploaded, check location and permission -->
+                                @can('inventaris_unggah_foto_barang_datang')
+                                    @if ($item['lokasi_id'] == Auth::user()->lokasiStok->id)
+                                        <!-- With permission and location matching -->
+                                        <input type="file" wire:model.live="list.{{ $index }}.bukti"
+                                            class="hidden" id="upload-bukti-{{ $index }}">
+                                        <button type="button"
+                                            onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
+                                            class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                            Unggah Foto
+                                        </button>
                                     @else
                                         <span class="text-gray-500">Belum ada unggahan</span>
                                     @endif
-                                @endrole
-                            @else
-                                <!-- Pengiriman ada tapi status bukan null, semua pengguna hanya melihat -->
-                                @if (isset($item['bukti']))
-                                    <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}" alt="Bukti"
-                                        class="w-16 h-16 rounded-md">
                                 @else
+                                    <!-- Without permission, show "Belum ada unggahan" -->
                                     <span class="text-gray-500">Belum ada unggahan</span>
-                                @endif
+                                @endcan
                             @endif
-                        @else
-                            <!-- Tidak ada pengiriman, hanya penanggungjawab yang bisa upload/edit -->
-                            @role('penanggungjawab')
-                                <input type="file" wire:model.live="list.{{ $index }}.bukti" class="hidden"
-                                    id="upload-bukti-{{ $index }}">
-                                <button type="button"
-                                    onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
-                                    class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">Unggah
-                                    Foto</button>
-                            @else
-                                <span class="text-gray-500">Belum ada unggahan</span>
-                            @endrole
-                        @endif
+                        </td>
+                    @endif
 
 
-                    </td>
+
                     <td class="text-center">
                         @if ($item['id'] === null)
                             <button wire:click="removeFromList({{ $index }})"
@@ -164,11 +216,21 @@
         </tbody>
     </table>
     <div class="flex justify-center mt-4">
-        @if (!$pengiriman && !optional($pengiriman)->status)
+        @if (!$showDokumen && collect($list)->count() > 0)
             <button wire:click="savePengiriman"
                 class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5">
                 Simpan
             </button>
         @endif
     </div>
+    @push('scripts')
+        <script type="module">
+            document.addEventListener('error', function(e) {
+                let pesan = e.detail.pesan;
+                feedback('Gagal!', pesan, 'error')
+
+
+            });
+        </script>
+    @endpush
 </div>

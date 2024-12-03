@@ -3,10 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\UnitKerja;
+use App\Models\LokasiStok;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -41,6 +43,16 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function lokasiStok()
+    {
+        return $this->belongsTo(LokasiStok::class, 'lokasi_id');
+    }
+
+    public function unitKerja()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id');
+    }
     public function persetujuankontrak()
     {
         return $this->hasMany(PersetujuanKontrakStok::class, 'user_id');

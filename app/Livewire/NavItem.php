@@ -15,7 +15,6 @@ class NavItem extends Component
     {
         if ($this->title == 'Form') {
             if (Auth::user()->cannot('inventaris_tambah_barang_datang')) {
-                // dd('assa');
                 $this->child =  collect($this->child)->filter(function ($child) {
                     return $child['title'] !== 'Form barang datang';
                 })->toArray();
