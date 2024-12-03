@@ -621,11 +621,53 @@ class DatabaseSeeder extends Seeder
         // }
 
         // Seed for BarangStok
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             BarangStok::create([
                 'jenis_id' => JenisStok::inRandomOrder()->first()->id,
                 'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
-                'nama' => 'Barang ' . $i,
+                'nama' => $faker->randomElement([
+                    'Semen',
+                    'Kertas',
+                    'Buku',
+                    'Pulpen',
+                    'Tinta',
+                    'Spidol',
+                    'Penggaris',
+                    'Kalkulator',
+                    'Klip Kertas',
+                    'Sticky Note',
+                    'Lem',
+                    'Amplop',
+                    'Binder',
+                    'Map',
+                    'Stapler'
+                ]) . ' ' . $faker->randomElement([
+                    'Bangunan',       // Semen Bangunan
+                    'Cetak',          // Kertas Cetak, Tinta Cetak
+                    'Tulisan',        // Buku Tulisan, Pulpen Tulisan
+                    'Warna',          // Spidol Warna
+                    'Tulis',          // Buku Tulis, Pulpen Tulis
+                    'Marker',         // Spidol Marker
+                    'A4',             // Kertas A4
+                    'Isi Ulang',      // Pulpen Isi Ulang, Tinta Isi Ulang
+                    'Planner',        // Buku Planner
+                    'Proyek',         // Semen Proyek
+                    'Kantor',         // Alat-alat Kantor
+                    'Sekolah',        // Alat-alat Sekolah
+                    'Premium',        // Produk Premium
+                    'Standar',        // Produk Standar
+                    'Portabel',       // Kalkulator Portabel
+                    'Ekstra',         // Kertas Ekstra
+                    'Tahan Air',      // Amplop Tahan Air
+                    'Transparan',     // Penggaris Transparan
+                    'Refill',         // Isi Ulang
+                    'Dekoratif',      // Sticky Note Dekoratif
+                    'Kuat',           // Lem Kuat
+                    'Minimalis',      // Map Minimalis
+                    'Klasik',         // Binder Klasik
+                ]),
+
+
                 'satuan_besar_id' => SatuanBesar::inRandomOrder()->first()->id,
                 'konversi' => $faker->randomElement([5, 10, 15, 20, 25, 30, 35, 40, 45, 50]),
                 'satuan_kecil_id' => SatuanBesar::inRandomOrder()->first()->id,
@@ -633,26 +675,113 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        for ($i = 1; $i <= 25; $i++) {
-            $tipe = $faker->boolean ? $faker->word : null;
-            $ukuran = $faker->boolean ? $faker->randomNumber(2) . ' ' . $faker->randomElement(['cm', 'm', 'kg', 'liter', 'pcs']) : null;
+        for ($i = 1; $i <= 50; $i++) {
+            $tipe = $faker->boolean ? $faker->randomElement([
+                'Standar',
+                'Premium',
+                'Ekonomis',
+                'Heavy Duty',
+                'Ringan',
+                'Super',
+                'Profesional',
+                'Khusus',
+                'Multifungsi',
+                'Universal'
+            ]) : null;
+
+            $ukuran = $faker->boolean ? $faker->randomElement([
+                $faker->numberBetween(5, 50) . ' cm',         // Ukuran dalam cm
+                $faker->numberBetween(1, 10) . ' m',          // Ukuran dalam meter
+                $faker->numberBetween(10, 500) . ' mm',       // Ukuran dalam milimeter
+                $faker->numberBetween(50, 500) . ' ml',       // Ukuran volume cair
+                $faker->numberBetween(1, 20) . ' L',          // Ukuran volume besar
+                $faker->numberBetween(1, 1000) . ' gr',       // Ukuran berat kecil
+                $faker->numberBetween(1, 50) . ' kg',         // Ukuran berat besar
+                $faker->numberBetween(10, 200) . ' sheets',   // Jumlah lembar
+                $faker->numberBetween(1, 5) . ' packs',       // Jumlah kemasan
+                $faker->numberBetween(1, 20) . ' pcs'         // Jumlah satuan
+            ]) : null;
 
             // Pastikan salah satu tidak null
             if (is_null($tipe) && is_null($ukuran)) {
                 if ($faker->boolean) {
-                    $tipe = $faker->word;
+                    $tipe = $faker->randomElement([
+                        'Standar',
+                        'Premium',
+                        'Ekonomis',
+                        'Heavy Duty',
+                        'Ringan',
+                        'Super',
+                        'Profesional',
+                        'Khusus',
+                        'Multifungsi',
+                        'Universal'
+                    ]);
                 } else {
-                    $ukuran = $faker->randomNumber(2) . ' ' . $faker->randomElement(['cm', 'm', 'kg', 'liter', 'pcs']);
+                    $ukuran = $faker->randomElement([
+                        $faker->numberBetween(5, 50) . ' cm',
+                        $faker->numberBetween(1, 10) . ' m',
+                        $faker->numberBetween(10, 500) . ' mm',
+                        $faker->numberBetween(50, 500) . ' ml',
+                        $faker->numberBetween(1, 20) . ' L',
+                        $faker->numberBetween(1, 1000) . ' gr',
+                        $faker->numberBetween(1, 50) . ' kg',
+                        $faker->numberBetween(10, 200) . ' sheets',
+                        $faker->numberBetween(1, 5) . ' packs',
+                        $faker->numberBetween(1, 20) . ' pcs'
+                    ]);
                 }
             }
 
             MerkStok::create([
                 'barang_id' => BarangStok::inRandomOrder()->first()->id,
-                'nama' => $faker->word,
+                'nama' => $faker->boolean ? $faker->randomElement([
+                    'Sinar Dunia',
+                    'Tiga Roda',
+                    'IndoPrima',
+                    'SariKarya',
+                    'MegaJaya',
+                    'BerkahMakmur',
+                    'CiptaSentosa',
+                    'MandiriUtama',
+                    'TunasHarapan',
+                    'SuryaNusantara',
+                    'BintangTerang',
+                    'MitraAbadi',
+                    'SejahteraJaya',
+                    'RajawaliKencana',
+                    'GemilangIndah',
+                    'PusakaRaya',
+                    'GarudaPerkasa',
+                    // Merek luar
+                    'Super Glue',
+                    'Sharp Note',
+                    'Quick Fix',
+                    'Rapid Print',
+                    'Bright Vision',
+                    'Next Level',
+                    'Prime Star',
+                    'Eagle Pro',
+                    'Global Edge',
+                    'True Mark',
+                    'Apex Tech',
+                    'Zenith Gear',
+                    'Eco Green',
+                    'Ultra Bond',
+                    'Future Craft',
+                    'Vista Clear',
+                    'Master Seal',
+                    'Top Choice',
+                    'Champion Paper',
+                    'King Grip',
+                    'Orbit Line'
+                ]) : null,
+
                 'tipe' => $tipe,
                 'ukuran' => $ukuran,
             ]);
         }
+
 
         // Seed for VendorStok
         for ($i = 1; $i <= 5; $i++) {
