@@ -321,13 +321,13 @@
                                         <span class="text-red-500 text-sm">{{ $message }}</span>
                                     @enderror
                                 </div>
-
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium mb-1">Penanggung Jawab *</label>
                                     <input type="text" id="person" wire:model.live="person"
                                         wire:focus="focusPerson"
                                         class="w-full border rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                        placeholder="Masukkan Penanggung Jawab" required>
+                                        placeholder="Masukkan Penanggung Jawab" wire:blur="hideSuggestionsPerson"
+                                        required>
                                     @if ($showSuggestionsPerson)
                                         <ul
                                             class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
@@ -350,7 +350,7 @@
                                     <input type="text" id="lokasi" wire:model.live="lokasi"
                                         wire:focus="focusLokasi"
                                         class="w-full border rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                        placeholder="Masukkan Lokasi" required>
+                                        placeholder="Masukkan Lokasi" wire:blur="hideSuggestionsLokasi" required>
                                     @if ($showSuggestionsLokasi)
                                         <ul
                                             class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">

@@ -163,7 +163,7 @@ class AsetForm extends Component
             'hargaSatuan' => 'required|min:0',
             'umur' => 'required|min:1',
             'img' => $imgRule,
-            // 'attachments.*' => 'file|max:5024|mimes:jpeg,png,jpg,gif,pdf,doc,docx',
+            'attachments.*' => 'file|max:5024|mimes:jpeg,png,jpg,gif,pdf,doc,docx',
             // 'attachments' => 'array|max:10',
         ];
     }
@@ -205,9 +205,9 @@ class AsetForm extends Component
             'img.image' => 'File harus berupa gambar!',
             'img.max' => 'Ukuran gambar maksimal 2MB!',
             'img.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif!',
-            // 'attachments.*.file' => 'Setiap lampiran harus berupa file.',
-            // 'attachments.*.max' => 'Setiap lampiran tidak boleh lebih dari 5 MB.',
-            // 'attachments.*.mimes' => 'Lampiran harus berupa file dengan format jpeg, png, jpg, gif, pdf, doc, atau docx.',
+            'attachments.*.file' => 'Setiap lampiran harus berupa file.',
+            'attachments.*.max' => 'Setiap lampiran tidak boleh lebih dari 5 MB.',
+            'attachments.*.mimes' => 'Lampiran harus berupa file dengan format jpeg, png, jpg, gif, pdf, doc, atau docx.',
 
         ];
     }
@@ -368,7 +368,7 @@ class AsetForm extends Component
 
             // Refresh daftar lampiran lama
             // $this->attachments = Lampiran::where('aset_id', $this->aset->id)->get();
-            return redirect()->route('aset.edit',$this->aset->id);
+            return redirect()->route('aset.edit', $this->aset->id);
         }
     }
 
