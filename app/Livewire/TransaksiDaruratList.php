@@ -88,8 +88,13 @@ class TransaksiDaruratList extends Component
     public $newBarangSatuanBesar = '';
     public $newBarangSatuanKecil = '';
     public $showBarangModal = false;
-    public $jumlahKecilDalamBesar, $roles, $items, $id, $ppk_isapprove, $pptk_isapprove, $pj_isapprove;
+    public $jumlahKecilDalamBesar, $roles, $items, $id, $ppk_isapprove, $pptk_isapprove, $pj_isapprove, $statusapprove;
 
+    public function getStatusApprov($id){
+        $ppkCount = Persetujuan::where('approvable_id', $id)->where('approvable_type',TransaksiStok::class)->get();
+
+        return $this->statusapprove = count($ppkCount);
+    }
 
     public function mount()
     {
@@ -104,6 +109,8 @@ class TransaksiDaruratList extends Component
                 $this->pptk_isapprove = $this->checkApprovals('pptk');
 
                 $this->pj_isapprove = $this->checkApprovals('penanggungjawab');
+
+                $sumapprove = $this->getStatusApprov($this->id);
 
                 // $dataapp = $item->approvals->filter(function ($appr){
                 //     return $appr->role === auth()->user()->getRoleNames()->first();
@@ -140,6 +147,7 @@ class TransaksiDaruratList extends Component
                     'ppk_isapprove' => $this->ppk_isapprove ?? 0,
                     'pj_isapprove' => $this->pj_isapprove ?? 0,
                     'status' => $item->status,
+                    'sumApprove' => $sumapprove
                     // $item->approvals->first()->img
                 ];
             }

@@ -83,6 +83,7 @@
                         </td>
                         <td class="text-center py-3 px-6">
                             @can('persetujuan')
+                            {{-- {{ $item['sumApprove'] }} --}}
                                 {{-- Jika pengguna adalah PPK --}}
                                 {{-- @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $item['ppk_isapprove']) --}}
                                 @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $item['ppk_isapprove'])
@@ -118,14 +119,14 @@
                                     </span>
                                 @endif --}}
 
-                                    @if ($item['ppk_isapprove'])
-                                        <span class="text-green-600">Disetujui
+                                    @if ($item['sumApprove'] === 1 && !$item['ppk_isapprove'])
+                                        <span class="text-green-600">Disetujui ppk
                                         </span>
-                                    @elseif($item['pptk_isapprove'])
-                                        <span class="text-green-600">Disetujui {{ $item['pptk_isapprove'] }}
+                                    @elseif($item['sumApprove'] === 2 && !$item['pptk_isapprove'])
+                                        <span class="text-green-600">Disetujui pptk
                                         </span>
-                                    @elseif($item['pj_isapprove'])
-                                        <span class="text-green-600">Disetujui {{ $item['pj_isapprove'] }}
+                                    @elseif($item['sumApprove'] === 3)
+                                        <span class="text-green-600">Disetujui pj
                                         </span>
                                     @else
                                         <span class="text-red-600">Menunggu
