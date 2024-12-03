@@ -278,13 +278,13 @@
 
                                                     <!-- Baris Keterangan 1 -->
                                                     <div id="qr-description1"
-                                                        class="text-sm text-black mt-2 text-center z-20">
+                                                        class="text-sm text-black font-bold mt-2 text-center z-20">
                                                         <!-- Baris 1 akan diisi melalui JavaScript -->
                                                     </div>
 
                                                     <!-- Baris Keterangan 2 -->
                                                     <div id="qr-description2"
-                                                        class="text-sm text-black text-center z-20">
+                                                        class="text-sm text-black font-semibold text-center z-20">
                                                         <!-- Baris 2 akan diisi melalui JavaScript -->
                                                     </div>
                                                 </div>
