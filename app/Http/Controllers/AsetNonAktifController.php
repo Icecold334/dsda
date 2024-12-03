@@ -31,11 +31,16 @@ class AsetNonAktifController extends Controller
             return $this->formatAset($aset);
         });
 
+        // Proses setiap aset untuk mendapatkan data QR
+        $asetqr = $asets->map(function ($aset) {
+            return getAssetWithSettings($aset->id); // Menggunakan helper
+        })->keyBy('id')->toArray(); // Gunakan keyBy untuk membuat key array berdasarkan ID aset
+
         // Data tambahan untuk dropdown filter
         $kategoris = Kategori::all();
 
         // Return to view with the necessary data
-        return view('nonaktifaset.index', compact('asets', 'kategoris'));
+        return view('nonaktifaset.index', compact('asets', 'kategoris', 'asetqr'));
     }
 
     /**
@@ -90,6 +95,15 @@ class AsetNonAktifController extends Controller
         $aset->totalpenyusutan = $this->rupiah(abs($totalPenyusutan));
 
         return $aset;
+    }
+
+    // Fungsi untuk mengambil aset dengan setting
+    protected function getAssetWithSettings($asets)
+    {
+        // Proses setiap aset untuk mendapatkan setting yang diperlukan
+        return $asets->map(function ($aset) {
+            return getAssetWithSettings($aset->id); // Misal fungsi global helper yang sudah dibuat
+        });
     }
 
     /**
