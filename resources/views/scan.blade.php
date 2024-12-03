@@ -10,8 +10,10 @@
             </h2>
             <div class="flex justify-center">
                 @if ($aset->foto)
-                    <img src="{{ asset('storage/' . $aset->foto) }}" alt="{{ $aset->nama }}"
-                        class="max-w-sm rounded-md shadow-md">
+                <div class="p-4 rounded-lg">
+                    <img src="{{ is_string($aset->foto) ? asset('storage/asetImg/' . $aset->foto) : ($aset->foto ? $aset->foto->temporaryUrl() : asset('img/default-pic.png')) }}"
+                        class="max-w-lg max-h-lg rounded-md shadow-xl">
+                </div>
                 @else
                     <p class="text-gray-500">Foto tidak tersedia</p>
                 @endif
@@ -211,15 +213,38 @@
             <h2 class="text-md text-center font-semibold text-primary-600 mb-4 bg-[#d9faff] p-4 rounded-md">
                 LAMPIRAN
             </h2>
-            <div class="flex justify-center">
-                @if ($aset->lampirans)
-                    {{-- <img src="{{ asset('storage/' . $aset->lampirans) }}"
-                        alt="{{ $aset->lampirans }}" class="max-w-sm rounded-md shadow-md"> --}}
-                    <p class="text-gray-500">---</p>
-                @else
-                    <p class="text-gray-500">---</p>
-                @endif
-            </div>
+            @if ($aset->lampirans->isNotEmpty())
+                @foreach ($aset->lampirans as $attachment)
+                    <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
+                        <span class="flex items-center space-x-3">
+                            @php
+                                $fileType = pathinfo($attachment->file, PATHINFO_EXTENSION);
+                            @endphp
+                            <span class="text-primary-600">
+                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                    <i class="fa-solid fa-image text-green-500"></i>
+                                @elseif($fileType == 'pdf')
+                                    <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                @elseif(in_array($fileType, ['doc', 'docx']))
+                                    <i class="fa-solid fa-file-word text-blue-500"></i>
+                                @else
+                                    <i class="fa-solid fa-file text-gray-500"></i>
+                                @endif
+                            </span>
+
+                            <!-- File name with underline on hover and a link to the saved file -->
+                            <span>
+                                <a href="{{ asset('storage/LampiranAset/' . $attachment->file) }}" target="_blank"
+                                    class="text-gray-800 hover:underline">
+                                    {{ basename($attachment->file) }}
+                                </a>
+                            </span>
+                        </span>
+                    </div>
+                @endforeach
+            @else
+                <p class="text-gray-500">---</p>
+            @endif
         @endif
 
         <!-- UMUR & PENYUSUTAN -->
@@ -263,64 +288,70 @@
             <h2 class="text-md text-center font-semibold text-primary-600 mb-4 bg-[#d9faff] p-4 rounded-md">
                 RIWAYAT TERAKHIR
             </h2>
-            <table class="text-sm text-left text-gray-500">
-                <tbody>
-                    @if ($user->can('riwayat_tanggal'))
-                        <tr>
-                            <td class="px-4 py-2 font-medium text-gray-700">Sejak Tanggal </td>
-                            <td class="px-4 py-2 text-gray-900">{{ date('d M Y', $aset->histories->last()->tanggal) }}
-                            </td>
-                        </tr>
-                    @endif
-                    @if ($user->can('riwayat_person'))
-                        <tr>
-                            <td class="px-4 py-2 font-medium text-gray-700">Penanggung Jawab</td>
-                            <td class="px-4 py-2 text-gray-900">{{ $aset->histories->last()->person->nama }} /bulan
-                            </td>
-                        </tr>
-                    @endif
-                    @if ($user->can('riwayat_lokasi'))
-                        <tr>
-                            <td class="px-4 py-2 font-medium text-gray-700">Lokasi</td>
-                            <td class="px-4 py-2 text-gray-900">{{ $aset->histories->last()->lokasi->nama }}</td>
-                        </tr>
-                    @endif
-                    @if ($user->can('riwayat_jumlah'))
-                        <tr>
-                            <td class="px-4 py-2 font-medium text-gray-700">Jumlah</td>
-                            <td class="px-4 py-2 text-gray-900">
-                                {{ $aset->histories->last()->jumlah * 1 }} Unit</td>
-                        </tr>
-                    @endif
-                    @if ($user->can('riwayat_kondisi'))
-                        <tr>
-                            <td class="px-4 py-2 font-medium text-gray-700">Kondisi</td>
-                            <td class="px-4 py-2 text-gray-900">{{ $aset->histories->last()->kondisi }} %</td>
-                        </tr>
-                    @endif
-                    @if ($user->can('riwayat_kelengkapan'))
-                        <tr>
-                            <td class="px-4 py-2 font-medium text-gray-700">Kelengkapan</td>
-                            <td class="px-4 py-2 text-gray-900">{{ $aset->histories->last()->kelengkapan }} %</td>
-                        </tr>
-                    @endif
-                    @if ($user->can('riwayat_keterangan'))
-                        <tr>
-                            <td class="px-4 py-2 font-medium text-gray-700">Keterangan</td>
-                            <td class="px-4 py-2 text-gray-900">{{ $aset->histories->last()->keterangan }}</td>
-                        </tr>
-                    @endif
-                </tbody>
-            </table>
+            @if ($aset->histories->isNotEmpty())
+
+                <table class="text-sm text-left text-gray-500">
+                    <tbody>
+                        @if ($user->can('riwayat_tanggal'))
+                            <tr>
+                                <td class="px-4 py-2 font-medium text-gray-700">Sejak Tanggal </td>
+                                <td class="px-4 py-2 text-gray-900">
+                                    {{ date('d M Y', $aset->histories->last()->tanggal) }}
+                                </td>
+                            </tr>
+                        @endif
+                        @if ($user->can('riwayat_person'))
+                            <tr>
+                                <td class="px-4 py-2 font-medium text-gray-700">Penanggung Jawab</td>
+                                <td class="px-4 py-2 text-gray-900">{{ $aset->histories->last()->person->nama }} /bulan
+                                </td>
+                            </tr>
+                        @endif
+                        @if ($user->can('riwayat_lokasi'))
+                            <tr>
+                                <td class="px-4 py-2 font-medium text-gray-700">Lokasi</td>
+                                <td class="px-4 py-2 text-gray-900">{{ $aset->histories->last()->lokasi->nama }}</td>
+                            </tr>
+                        @endif
+                        @if ($user->can('riwayat_jumlah'))
+                            <tr>
+                                <td class="px-4 py-2 font-medium text-gray-700">Jumlah</td>
+                                <td class="px-4 py-2 text-gray-900">
+                                    {{ $aset->histories->last()->jumlah * 1 }} Unit</td>
+                            </tr>
+                        @endif
+                        @if ($user->can('riwayat_kondisi'))
+                            <tr>
+                                <td class="px-4 py-2 font-medium text-gray-700">Kondisi</td>
+                                <td class="px-4 py-2 text-gray-900">{{ $aset->histories->last()->kondisi }} %</td>
+                            </tr>
+                        @endif
+                        @if ($user->can('riwayat_kelengkapan'))
+                            <tr>
+                                <td class="px-4 py-2 font-medium text-gray-700">Kelengkapan</td>
+                                <td class="px-4 py-2 text-gray-900">{{ $aset->histories->last()->kelengkapan }} %</td>
+                            </tr>
+                        @endif
+                        @if ($user->can('riwayat_keterangan'))
+                            <tr>
+                                <td class="px-4 py-2 font-medium text-gray-700">Keterangan</td>
+                                <td class="px-4 py-2 text-gray-900">{{ $aset->histories->last()->keterangan }}</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            @else
+                <p class="text-gray-500">Tidak Ada Riwayat</p>
+            @endif
         @endif
 
         @if ($user->can('riwayat_semua'))
             <!-- RIWAYAT -->
-            @if ($aset->histories && $aset->histories->count() > 0)
-                <div class="mb-6">
-                    <h2 class="text-md text-center font-semibold text-primary-600 mb-4 bg-[#d9faff] p-4 rounded-md">
-                        RIWAYAT
-                    </h2>
+            <div class="mb-6">
+                <h2 class="text-md text-center font-semibold text-primary-600 mb-4 bg-[#d9faff] p-4 rounded-md">
+                    RIWAYAT
+                </h2>
+                @if ($aset->histories && $aset->histories->count() > 0)
 
                     <div class="space-y-6">
                         @foreach ($aset->histories as $history)
@@ -376,19 +407,19 @@
                             </div>
                         @endforeach
                     </div>
-                </div>
-            @else
-                <p class="text-gray-500">Tidak ada riwayat tersedia.</p>
-            @endif
+            </div>
+        @else
+            <p class="text-gray-500">Tidak ada riwayat tersedia.</p>
+        @endif
         @endif
 
         @if ($user->can('keuangan'))
             <!-- KEUANGAN -->
-            @if ($aset->keuangans && $aset->keuangans->count() > 0)
-                <div class="mb-6">
-                    <h2 class="text-md text-center font-semibold text-primary-600 mb-4 bg-[#d9faff] p-4 rounded-md">
-                        KEUANGAN
-                    </h2>
+            <div class="mb-6">
+                <h2 class="text-md text-center font-semibold text-primary-600 mb-4 bg-[#d9faff] p-4 rounded-md">
+                    KEUANGAN
+                </h2>
+                @if ($aset->keuangans && $aset->keuangans->count() > 0)
                     <table class="table-auto w-full text-left">
                         <tbody>
                             @php
@@ -427,19 +458,19 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            @else
-                <p class="text-gray-500">Tidak ada data keuangan tersedia.</p>
-            @endif
+            </div>
+        @else
+            <p class="text-gray-500">Tidak ada data keuangan tersedia.</p>
+        @endif
         @endif
 
         @if ($user->can('agenda'))
             <!-- Agenda -->
-            @if ($aset->agendas && $aset->agendas->count() > 0)
-                <div class="mb-6">
-                    <h2 class="text-md text-center font-semibold text-primary-600 mb-4 bg-[#d9faff] p-4 rounded-md">
-                        AGENDA
-                    </h2>
+            <div class="mb-6">
+                <h2 class="text-md text-center font-semibold text-primary-600 mb-4 bg-[#d9faff] p-4 rounded-md">
+                    AGENDA
+                </h2>
+                @if ($aset->agendas && $aset->agendas->count() > 0)
                     <table class="table-auto w-full text-left">
                         @php
                             $dayMap = [
@@ -483,19 +514,19 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-            @else
-                <p class="text-gray-500">Tidak ada data jurnal tersedia.</p>
-            @endif
+            </div>
+        @else
+            <p class="text-gray-500">Tidak ada data agenda tersedia.</p>
+        @endif
         @endif
 
         @if ($user->can('jurnal'))
             <!-- JURNAL -->
-            @if ($aset->jurnals && $aset->jurnals->count() > 0)
-                <div class="mb-6">
-                    <h2 class="text-md text-center font-semibold text-primary-600 mb-4 bg-[#d9faff] p-4 rounded-md">
-                        JURNAL
-                    </h2>
+            <div class="mb-6">
+                <h2 class="text-md text-center font-semibold text-primary-600 mb-4 bg-[#d9faff] p-4 rounded-md">
+                    JURNAL
+                </h2>
+                @if ($aset->jurnals && $aset->jurnals->count() > 0)
                     <table class="table-auto w-full text-left">
                         <tbody>
                             @foreach ($aset->jurnals as $entry)
@@ -508,10 +539,10 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-            @else
-                <p class="text-gray-500">Tidak ada data jurnal tersedia.</p>
-            @endif
+            </div>
+        @else
+            <p class="text-gray-500">Tidak ada data jurnal tersedia.</p>
+        @endif
 
         @endif
 

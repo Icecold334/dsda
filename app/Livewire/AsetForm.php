@@ -10,13 +10,14 @@ use App\Models\Option;
 use BaconQrCode\Writer;
 use Livewire\Component;
 use App\Models\Kategori;
+use App\Models\Lampiran;
 use Illuminate\Support\Str;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use BaconQrCode\Renderer\GDLibRenderer;
 
+use BaconQrCode\Renderer\GDLibRenderer;
 use Illuminate\Support\Facades\Storage;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 
@@ -53,6 +54,7 @@ class AsetForm extends Component
     public $hargasatuan;
     public $hargaTotal;
     public $attachments = [];
+    public $oldattachments = [];
     public $newAttachments = [];
     public $garansiattachments = [];
     public $newGaransiAttachments = [];
@@ -148,6 +150,7 @@ class AsetForm extends Component
     public function rules()
     {
         $kodeRule = false ? 'required|string|max:100|unique:aset,kode,' . $this->aset : 'required|string|max:100';
+        $imgRule = is_string($this->img) ? '' : 'nullable|image|max:2048|mimes:jpeg,png,jpg,gif';
 
         return [
             'nama' => 'required|string|max:255',
@@ -159,7 +162,9 @@ class AsetForm extends Component
             'jumlah' => 'required|integer|min:1',
             'hargaSatuan' => 'required|min:0',
             'umur' => 'required|min:1',
-            'img' => 'nullable|image|max:2048|mimes:jpeg,png,jpg,gif'  // Assuming 'img' is the image upload field
+            'img' => $imgRule,
+            // 'attachments.*' => 'file|max:5024|mimes:jpeg,png,jpg,gif,pdf,doc,docx',
+            // 'attachments' => 'array|max:10',
         ];
     }
 
@@ -199,7 +204,11 @@ class AsetForm extends Component
             'hargaSatuan.min' => 'Harga satuan tidak boleh kurang dari 0!',
             'img.image' => 'File harus berupa gambar!',
             'img.max' => 'Ukuran gambar maksimal 2MB!',
-            'img.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif!'
+            'img.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif!',
+            // 'attachments.*.file' => 'Setiap lampiran harus berupa file.',
+            // 'attachments.*.max' => 'Setiap lampiran tidak boleh lebih dari 5 MB.',
+            // 'attachments.*.mimes' => 'Lampiran harus berupa file dengan format jpeg, png, jpg, gif, pdf, doc, atau docx.',
+
         ];
     }
     public function mount()
@@ -229,6 +238,10 @@ class AsetForm extends Component
             $this->lamagaransi = $this->aset->lama_garansi;
             // $this->attachments = $this->aset->attachments;  // Assuming attachments are stored as an array or similar structure
             $this->keterangan = $this->aset->keterangan;
+            // Ambil lampiran yang terkait dengan aset
+            $this->oldattachments = Lampiran::where('aset_id', $this->aset->id)->get();
+            // dd($this->attachments);
+
             // Hitung penyusutan jika umur lebih besar dari 0
             if ($this->umur > 0) {
                 $total = $this->jumlah * $this->hargasatuan; // Harga Total
@@ -319,7 +332,7 @@ class AsetForm extends Component
     public function updatedNewAttachments()
     {
         $this->validate([
-            'newAttachments.*' => 'max:5024', // Validation for each new attachment
+            'newAttachments.*' => 'file|max:5024|mimes:jpeg,png,jpg,gif,pdf,doc,docx', // Validation for each new attachment
         ]);
 
         foreach ($this->newAttachments as $file) {
@@ -341,6 +354,24 @@ class AsetForm extends Component
             $this->attachments = array_values($this->attachments);
         }
     }
+
+    public function removeOldAttachment($id)
+    {
+        $lampiran = Lampiran::find($id);
+
+        if ($lampiran) {
+            // Hapus file dari penyimpanan
+            Storage::disk('public')->delete('LampiranAset/' . $lampiran->file);
+
+            // Hapus dari database
+            $lampiran->delete();
+
+            // Refresh daftar lampiran lama
+            // $this->attachments = Lampiran::where('aset_id', $this->aset->id)->get();
+            return redirect()->route('aset.edit',$this->aset->id);
+        }
+    }
+
     public function updatedNewGaransiAttachments()
     {
         $this->validate([
@@ -379,7 +410,13 @@ class AsetForm extends Component
             'user_id' => Auth::id(),
             'nama' => $this->nama,
             'kode' => $this->kode,
-            'foto' => $this->img ? str_replace('asetImg/', '', $this->img->store('asetImg', 'public')) : null,
+            // 'foto' => !is_string($this->img) ? str_replace('asetImg/', '', $this->img->store('asetImg', 'public')) : $this->img ?? null,
+            'foto' => $this->img
+                ? (is_object($this->img)
+                    ? str_replace('asetImg/', '', $this->img->store('asetImg', 'public'))
+                    : $this->img)
+                : null,
+
             'systemcode' => $this->aset ?   $this->aset->systemcode : $this->generateQRCode(),
             'kategori_id' => $this->kategori,
             'merk_id' => $merkId,
@@ -394,6 +431,7 @@ class AsetForm extends Component
             'invoice' => $this->invoice,
             'jumlah' => $this->jumlah,
             'lama_garansi' => $this->lamagaransi,
+            'keterangan' => $this->keterangan,
             'hargasatuan' => $this->cleanCurrency($this->hargaSatuan),
             'hargatotal' => $this->cleanCurrency($this->hargaTotal),
             'umur' => $this->umur,
@@ -402,6 +440,10 @@ class AsetForm extends Component
 
         // Insert or update aset based on $this->aset
         $aset = Aset::updateOrCreate(['id' => $this->aset->id ?? 0], $data);
+
+        // Handle attachments
+        $this->saveAttachments($aset->id);
+
         // Optionally add flash message or other post-save actions
         session()->flash('message', 'Aset successfully saved.');
         return redirect()->route('aset.show', $aset);
@@ -448,6 +490,26 @@ class AsetForm extends Component
             return $totalValue / ($years * 12);  // monthly depreciation
         }
         return 0;
+    }
+
+    protected function saveAttachments($asetId)
+    {
+        if ($this->attachments) {
+            foreach ($this->attachments as $file) {
+                // Store file to 'attachments' folder in public disk
+                $filePath = str_replace('LampiranAset/', '', $file->storeAs('LampiranAset', $file->getClientOriginalName(), 'public'));  // Store the file
+
+                // Save file info to the Lampiran model
+                Lampiran::create([
+                    'user_id' => Auth::user()->id,
+                    'aset_id' => $asetId, // Associate with the Aset
+                    'file' => $filePath,
+                ]);
+            }
+
+            // Clear the attachments array after saving
+            $this->attachments = [];
+        }
     }
 
 

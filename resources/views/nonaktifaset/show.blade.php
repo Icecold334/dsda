@@ -46,11 +46,38 @@
             </x-card>
             <x-card title="Foto & QR Code" class="mb-5">
                 <div class="flex justify-around">
-                    <div
+                    <div x-data="{ open: false, imgSrc: '' }">
+                        <!-- Gambar Besar -->
+                        <div class="w-80 h-80 overflow-hidden relative flex justify-center p-1 hover:shadow-lg transition duration-200 hover:opacity-80 border-2 rounded-lg bg-white cursor-pointer"
+                            @click="open = true; imgSrc = '{{ asset($nonaktifaset->foto ? 'storage/asetImg/' . $nonaktifaset->foto : 'img/default-pic.png') }}'">
+                            <img src="{{ asset($nonaktifaset->foto ? 'storage/asetImg/' . $nonaktifaset->foto : 'img/default-pic.png') }}"
+                                alt="" class="w-full h-full object-cover object-center rounded-sm">
+                        </div>
+
+                        <!-- Modal -->
+                        <div x-show="open" x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                            @click="open = false" @keydown.escape.window="open = false">
+                            <!-- Kontainer Gambar Modal -->
+                            <div class="relative">
+                                <img :src="imgSrc" alt="Preview Image"
+                                    class="w-96 h-96 object-cover object-center">
+                                <!-- Tombol Tutup -->
+                                <button @click="open = false"
+                                    class="absolute top-2 right-2 bg-red-500 hover:bg-red-700 text-white rounded-full p-2 text-lg font-bold">
+                                    &times;
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {{-- <div
                         class="w-80 h-80 overflow-hidden relative flex justify-center  p-1 hover:shadow-lg transition duration-200 hover:opacity-80 border-2 rounded-lg bg-white">
                         <img src="{{ asset($nonaktifaset->foto ? 'storage/asetImg/' . $nonaktifaset->foto : 'img/default-pic.png') }}"
                             alt="" class="w-full h-full object-cover object-center rounded-sm">
-                    </div>
+                    </div> --}}
                     <div
                         class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
                         <img src="{{ asset($nonaktifaset->systemcode ? 'storage/qr/' . $nonaktifaset->systemcode . '.png' : 'img/default-pic.png') }}"

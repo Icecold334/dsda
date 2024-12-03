@@ -71,3 +71,41 @@ window.feedback = function (title, message, icon) {
         }
     });
 };
+
+// Fungsi untuk membuka modal QR
+window.openQrModal = function (imageSrc, qrData) {
+    const modal = document.getElementById("qr-modal");
+    const modalImg = document.getElementById("qr-modal-img");
+    const modalTitle = document.getElementById("qr-title");
+    const modalDescription1 = document.getElementById("qr-description1");
+    const modalDescription2 = document.getElementById("qr-description2");
+    const modalContent = modal.querySelector(".transform");
+
+    // Set gambar QR Code
+    modalImg.src = imageSrc;
+
+    // Set data dinamis ke modal
+    modalTitle.innerText = qrData.judul || "Judul Tidak Ditemukan";
+    modalDescription1.innerText = qrData.baris1 || "Baris 1 Tidak Tersedia";
+    modalDescription2.innerText = qrData.baris2 || "Baris 2 Tidak Tersedia";
+
+    // Tampilkan modal
+    modal.classList.remove("hidden");
+    setTimeout(() => {
+        modalContent.classList.remove("scale-90");
+        modalContent.classList.add("scale-100");
+    }, 10);
+};
+
+// Fungsi untuk menutup modal QR
+window.closeQrModal = function () {
+    const modal = document.getElementById("qr-modal");
+    const modalContent = modal.querySelector(".transform");
+
+    // Animasi menutup modal
+    modalContent.classList.remove("scale-100");
+    modalContent.classList.add("scale-90");
+    setTimeout(() => {
+        modal.classList.add("hidden");
+    }, 300);
+};
