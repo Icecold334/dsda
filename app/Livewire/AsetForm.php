@@ -4,20 +4,21 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\Aset;
-use App\Models\Garansi;
 use App\Models\Merk;
 use App\Models\Toko;
 use App\Models\Option;
+use App\Models\Garansi;
 use BaconQrCode\Writer;
 use Livewire\Component;
 use App\Models\Kategori;
 use App\Models\Lampiran;
+use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Auth;
 use BaconQrCode\Renderer\GDLibRenderer;
 use Illuminate\Support\Facades\Storage;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -215,7 +216,29 @@ class AsetForm extends Component
     }
     public function mount()
     {
-        $this->kategoris = Kategori::all();
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
+        // Debugging: Tampilkan parentUnitId untuk verifikasi
+        // dd($parentUnitId);
+
+        // $this->kategoris = Kategori::all();
+        $this->kategoris = Kategori::whereHas('user', function ($query) use ($parentUnitId) {
+            // Cari kategori yang terkait dengan unit parent user
+            $query->whereHas('unitKerja', function ($unitQuery) use ($parentUnitId) {
+                // Pastikan kita selalu memfilter berdasarkan unit parent
+                $unitQuery->where('parent_id', $parentUnitId)
+                    ->orWhere('id', $parentUnitId); // Menampilkan kategori yang terkait dengan parent atau child
+            });
+        })->get();
 
         if ($this->aset) {
             $this->img = $this->aset->foto;
