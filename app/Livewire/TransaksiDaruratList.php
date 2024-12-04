@@ -344,7 +344,7 @@ class TransaksiDaruratList extends Component
         $transaction->pj_id = Auth::id();
         $transaction->status = true;
         $transaction->update();
-        return redirect()->route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->transaksi->first()->vendor_id]);
+        return redirect()->route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->transaksi->first()->vendor_id])->with('success', 'Berhasil Menambah Kontrak');
     }
 
     public function disapproveTransaction($index, $reason)

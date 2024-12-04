@@ -36,13 +36,12 @@ class AddToko extends Component
 
     public function removeToko()
     {
-
         Toko::destroy($this->id);
-        return redirect()->route('toko.index');
+        return redirect()->route('toko.index')->with('success', 'Berhasil Dihapus');
     }
     public function saveToko()
     {
-        Toko::updateOrCreate(
+        $toko=Toko::updateOrCreate(
             ['id' => $this->id ?? 0], // Unique field to check for existing record
             [
                 'user_id' => Auth::user()->id,
@@ -52,10 +51,16 @@ class AddToko extends Component
                 'email' => $this->email,
                 'petugas' => $this->petugas,
                 'keterangan' => $this->keterangan,
-                'nama_nospace' => Str::slug($this->toko),
+                'nama_nospace' => strtolower(str_replace(' ', '-', $this->toko)),
             ]
         );
-        return redirect()->route('toko.index');
+        
+        if ($toko->wasRecentlyCreated && $this->toko){
+            return redirect()->route('toko.index')->with('success', 'Berhasil Menambah Toko');
+        }
+        else {
+            return redirect()->route('toko.index')->with('success', 'Berhasil Mengubah Toko');
+        }
     }
 
     public function render()

@@ -61,6 +61,18 @@
             </div>
         @endpush
 
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
+                    icon: 'success',
+                    confirmButtonText: 'Okay'
+                });
+            });
+        </script>
+    @endif
 
         <h1 class="text-2xl font-bold text-primary-900 ">Kontrak Vendor</h1>
         <div>

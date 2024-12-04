@@ -220,7 +220,7 @@ class ListPengirimanForm extends Component
         // $this->vendor_id = null;
         // $this->mount();
         if (!$this->showDokumen) {
-            return redirect()->route('pengiriman-stok.index');
+            return redirect()->route('pengiriman-stok.index')->with('success', 'Berhasil Menambah Barang');
         }
     }
 
