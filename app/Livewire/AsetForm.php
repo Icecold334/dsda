@@ -428,7 +428,7 @@ class AsetForm extends Component
         $merkId = $this->getOrCreateMerk($this->merk);
         $tokoId = $this->getOrCreateToko($this->toko);
         $data = [
-            'user_id' => Auth::id(),
+            'user_id' => !$this->aset ? Auth::id() : $this->aset->user_id,
             'nama' => $this->nama,
             'kode' => $this->kode,
             // 'foto' => !is_string($this->img) ? str_replace('asetImg/', '', $this->img->store('asetImg', 'public')) : $this->img ?? null,
