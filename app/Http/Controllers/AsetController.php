@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Aset;
 use App\Models\Merk;
 use App\Models\Toko;
+use App\Models\User;
 use App\Models\Lokasi;
 use App\Models\Person;
+use App\Models\History;
 use App\Models\Kategori;
+use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Console\View\Components\Ask;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use App\Models\History;
 
 class AsetController extends Controller
 {
@@ -70,9 +72,51 @@ class AsetController extends Controller
     /**
      * Mendapatkan query dasar untuk aset aktif dengan nilai sekarang dan total penyusutan
      */
+    // private function getAsetQuery()
+    // {
+    //     // Ambil unit_id user yang sedang login
+    //     $userUnitId = Auth::user()->unit_id;
+
+    //     // Cari parent unit, jika ada
+    //     $unit = UnitKerja::find($userUnitId);
+    //     // dd($unit);
+    //     // Jika unit ditemukan dan memiliki parent, ambil parent_id, jika tidak gunakan unit_id itu sendiri
+    //     $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+    //     // Query untuk mendapatkan aset berdasarkan unit parent
+    //     return Aset::where('status', true)
+    //         ->whereHas('user', function ($user) use ($parentUnitId) {
+    //             $user->whereHas('unitKerja', function ($unit) use ($parentUnitId) {
+    //                 return $unit->where('id', 1)->dd();
+    //             });
+    //         });
+    // }
+
     private function getAsetQuery()
     {
-        return Aset::where('status', true);  // Mengambil aset dengan status aktif (true)
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
+        // Debugging: Tampilkan parentUnitId untuk verifikasi
+        // dd($parentUnitId);
+
+        // Query untuk mendapatkan aset berdasarkan unit parent yang dimiliki oleh user
+        return Aset::where('status', true)
+            ->whereHas('user', function ($query) use ($parentUnitId) {
+                // Cari aset yang terkait dengan unit parent user
+                $query->whereHas('unitKerja', function ($unitQuery) use ($parentUnitId) {
+                    // Pastikan kita selalu memfilter berdasarkan unit parent
+                    $unitQuery->where('parent_id', $parentUnitId)
+                        ->orWhere('id', $parentUnitId); // Menampilkan aset yang terkait dengan parent atau child
+                });
+            });
     }
 
     /**

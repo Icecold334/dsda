@@ -117,8 +117,8 @@
         </div>
         <div>
             <!-- Pengguna Tambahan -->
-            <div class="overflow-y-auto max-h-[42rem]">
-                <x-card title="Pengguna Tambahan" class="mb-3">
+            <x-card title="Pengguna Tambahan" class="mb-3">
+                <div class="overflow-y-auto max-h-[42rem]">
                     <div class="flex mt-4 mb-6">
                         <a href="/profil/user"
                             class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
@@ -169,8 +169,8 @@
                             <p>Belum ada pengguna tambahan yang terdaftar.</p>
                         </div>
                     @endforelse
-                </x-card>
-            </div>
+                </div>
+            </x-card>
         </div>
     </div>
 </x-body>
