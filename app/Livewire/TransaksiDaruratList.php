@@ -481,6 +481,7 @@ class TransaksiDaruratList extends Component
 
     public function approveTransaction($index)
     {
+
         // Cari transaksi berdasarkan ID yang ada di list
         $transaction = TransaksiStok::findOrFail($this->list[$index]['id']);
 
@@ -510,10 +511,9 @@ class TransaksiDaruratList extends Component
         }
         $transaction->save();
 
-        // Redirect ke halaman edit
-        return redirect()->route('transaksi-darurat-stok.edit', [
-            'transaksi_darurat_stok' => $transaction->vendor_id
-        ]);
+
+        return redirect()->route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->transaksi->first()->vendor_id])->with('success', 'Berhasil Menambah Kontrak');
+
     }
 
 

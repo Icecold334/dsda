@@ -58,38 +58,75 @@ class AddLokasi extends Component
         } elseif ($this->tipe == 'posisi') {
             PosisiStok::destroy($this->id);
         }
-
-        return redirect()->route('lokasi-stok.index');
+        return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Dihapus');
     }
     public function saveLokasi()
     {
-        if ($this->tipe == 'lokasi') {
-            LokasiStok::updateOrCreate(
-                ['id' => $this->lokasi_id], // Unique field to check for existing record
-                [
-                    'nama' => $this->lokasi,
-                    'alamat' => $this->alamat,
-                ]
-            );
+        if ($this->tipe === 'lokasi') {
+            $exist=LokasiStok::where('id', $this->id)->first();
+            if($exist) {
+                $lokasistok=LokasiStok::updateOrCreate(
+                    ['id' => $this->id], // Unique field to check for existing record
+                    [
+                        'nama' => $this->lokasi,
+                        'alamat' => $this->alamat,
+                    ]
+                );
+                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Mengubah Lokasi');
+            } else {
+                $lokasistok=LokasiStok::updateOrCreate(
+                    ['id' => $this->lokasi_id], // Unique field to check for existing record
+                    [
+                        'nama' => $this->lokasi,
+                        'alamat' => $this->alamat,
+                    ]
+                );
+                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Menambah Lokasi');
+            }
+            
         } elseif ($this->tipe == 'bagian') {
-            BagianStok::updateOrCreate(
-                ['id' => $this->bagian_id], // Unique fields to check
-                [
-                    'lokasi_id' => $this->lokasi_id,
-                    'nama' => $this->bagian,
-                ]
-            );
+            $exist=BagianStok::where('id', $this->id)->first();
+            if($exist) {
+                $bagianstok=BagianStok::updateOrCreate(
+                    ['id' => $this->id], // Unique field to check for existing record
+                    [
+                        'lokasi_id' => $this->lokasi_id,
+                        'nama' => $this->bagian,
+                    ]
+                );
+                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Mengubah Bagian');
+            } else {
+                $bagianstok=BagianStok::updateOrCreate(
+                    ['id' => $this->lokasi_id], // Unique field to check for existing record
+                    [
+                        'lokasi_id' => $this->lokasi_id,
+                        'nama' => $this->bagian,
+                    ]
+                );
+                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Menambah Bagian');
+            }
         } elseif ($this->tipe == 'posisi') {
-            PosisiStok::updateOrCreate(
-                ['id' => $this->posisi_id], // Unique fields to check
-                [
-                    'bagian_id' => $this->bagian_id,
-                    'nama' => $this->posisi,
-                ]
-            );
+            $exist=PosisiStok::where('id', $this->id)->first();
+            if($exist) {
+                $posisistok=PosisiStok::updateOrCreate(
+                    ['id' => $this->id], // Unique field to check for existing record
+                    [
+                        'bagian_id' => $this->bagian_id,
+                        'nama' => $this->posisi,
+                    ]
+                );
+                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Mengubah Posisi');
+            } else {
+                $posisistok=PosisiStok::updateOrCreate(
+                    ['id' => $this->lokasi_id], // Unique field to check for existing record
+                    [
+                        'bagian_id' => $this->bagian_id,
+                        'nama' => $this->posisi,
+                    ]
+                );
+                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Menambah Posisi');
+            }
         }
-
-        return redirect()->route('lokasi-stok.index');
     }
     public function render()
     {

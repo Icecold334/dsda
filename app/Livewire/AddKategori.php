@@ -39,37 +39,53 @@ class AddKategori extends Component
     }
     public function removeKategori()
     {
-        if ($this->tipe == 'utama') {
+        if ($this->id) {
+            $kategori=Kategori::find($this->id);
+            if ($kategori->parent_id!=null) {
+                Kategori::destroy($this->id);
+                return redirect()->route('kategori.index')->with('success', 'Berhasil Dihapus');
+            }
             Kategori::destroy($this->id);
-        } else {
-            Kategori::destroy($this->id);
+            return redirect()->route('kategori.index')->with('success', 'Berhasil Dihapus');
         }
-        return redirect()->route('kategori.index');
+        return redirect()->route('kategori.index')->with('error', 'Kategori tidak ditemukan');
     }
     public function saveKategori()
     {
-        if ($this->tipe == 'utama') {
-            Kategori::updateOrCreate(
-                ['id' => $this->id ?? 0], // Unique field to check for existing record
-                [
-                    'user_id' => Auth::user()->id,
-                    'nama' => $this->utama,
-                    'keterangan' => $this->keterangan,
-                ]
-            );
-        } else {
-            Kategori::updateOrCreate(
-                ['id' => $this->id ?? 0], // Unique fields to check
-                [
-                    'user_id' => Auth::user()->id,
-                    'parent_id' => $this->parent_id,
-                    'nama' => $this->sub,
-                    'keterangan' => $this->keterangan,
-                ]
-            );
+        // Siapkan data kategori berdasarkan tipe
+        $data = [
+            'user_id' => Auth::id(),
+            'nama' => $this->tipe === 'utama' ? $this->utama : $this->sub,
+            'keterangan' => $this->keterangan,
+        ];
+    
+        // Tambahkan parent_id jika tipe adalah sub
+        if ($this->tipe === 'sub') {
+            $data['parent_id'] = $this->parent_id;
         }
-
-        return redirect()->route('kategori.index');
+    
+        // Simpan atau update data kategori
+        $kategori = Kategori::updateOrCreate(
+            ['id' => $this->id ?? 0], // Cek data berdasarkan ID
+            $data
+        );
+    
+        // Tentukan pesan keberhasilan
+        $message = $kategori->wasRecentlyCreated
+            ? 'Berhasil Menambah Kategori'
+            : 'Berhasil Mengubah Kategori';
+            
+            if ($kategori->parent_id===null) {
+                return redirect()->route('kategori.index')->with('success', $message);
+            }
+                
+        if ($kategori->wasRecentlyCreated && $this->tipe==='sub'){
+            return redirect()->route('kategori.index')->with('success', 'Berhasil Menambah Sub Kategori');
+        }
+        else {
+            return redirect()->route('kategori.index')->with('success', 'Berhasil Mengubah Sub Kategori');
+        }
+//        return redirect()->route('kategori.index')->with('success', $message);
     }
     public function render()
     {

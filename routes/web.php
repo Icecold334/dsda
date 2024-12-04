@@ -50,6 +50,7 @@ use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
 use App\Models\Persetujuan;
 
+
 Route::get('/', function () {
     return redirect()->to('/login');
 });

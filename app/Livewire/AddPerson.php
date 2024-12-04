@@ -37,11 +37,11 @@ class AddPerson extends Component
     public function removePerson()
     {
         Person::destroy($this->id);
-        return redirect()->route('person.index');
+        return redirect()->route('person.index')->with('success', 'Berhasil Dihapus');
     }
     public function savePerson()
     {
-        Person::updateOrCreate(
+        $person=Person::updateOrCreate(
             ['id' => $this->id ?? 0], // Unique field to check for existing record
             [
                 'user_id' => Auth::user()->id,
@@ -51,10 +51,15 @@ class AddPerson extends Component
                 'email' => $this->email,
                 'jabatan' => $this->jabatan,
                 'keterangan' => $this->keterangan,
-                'nama_nospace' => Str::slug($this->person),
+                'nama_nospace' => strtolower(str_replace(' ', '-', $this->person)),
             ]
         );
-        return redirect()->route('person.index');
+        if ($person->wasRecentlyCreated && $this->person){
+            return redirect()->route('person.index')->with('success', 'Berhasil Menambah Penangung Jawab');
+        }
+        else {
+            return redirect()->route('person.index')->with('success', 'Berhasil Mengubah Penangung Jawab');
+        }
     }
     public function render()
     {

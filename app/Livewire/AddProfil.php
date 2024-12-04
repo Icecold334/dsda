@@ -120,7 +120,7 @@ class AddProfil extends Component
             );
         } elseif ($this->tipe == 'email') {
             $user = User::find($this->id);
-            $user->update( // Unique fields to check
+            $user->update( 
                 [
                     'email' => $this->new_email,
                 ]
