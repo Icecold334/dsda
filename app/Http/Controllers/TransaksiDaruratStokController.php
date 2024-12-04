@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UnitKerja;
 use App\Models\VendorStok;
+use App\Models\Persetujuan;
 use Illuminate\Http\Request;
 use App\Models\TransaksiStok;
 use App\Models\TransaksiDaruratStok;
 use Illuminate\Support\Facades\Auth;
 use App\Models\KontrakRetrospektifStok;
-use App\Models\Persetujuan;
 
 class TransaksiDaruratStokController extends Controller
 {
@@ -17,8 +18,15 @@ class TransaksiDaruratStokController extends Controller
      */
     public function index()
     {
+        $unitId = Auth::user()->unit_id;
+        $unit = UnitKerja::find($unitId);
+        $parent_id = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
         // Get transactions with a filled kontrak_id
-        $transaksi = TransaksiStok::whereNull('kontrak_id')->get();
+        $transaksi = TransaksiStok::whereNull('kontrak_id')->whereHas('user', function ($user)  use ($parent_id) {
+            return $user->whereHas('unitKerja', function ($unit) use ($parent_id) {
+                return $unit->where('parent_id', $parent_id)->orWhere('id', $parent_id);
+            });
+        })->get();
 
         // Sort transactions by date (you could sort by any other attribute relevant to your context)
         $sortedTransaksi = $transaksi->sortByDesc('tanggal');
@@ -81,7 +89,7 @@ class TransaksiDaruratStokController extends Controller
 
 
         // Pass the data to the view
-        return view('darurat.edit', compact('transaksi','roles', 'items'));
+        return view('darurat.edit', compact('transaksi', 'roles', 'items'));
     }
 
     /**

@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\BarangStok;
+use App\Models\VendorStok;
 use Illuminate\Http\Request;
 use App\Models\TransaksiStok;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\TransaksiDaruratStok;
-use App\Models\VendorStok;
+use App\Models\UnitKerja;
+use Illuminate\Support\Facades\Auth;
 
 class KontrakVendorStokController extends Controller
 {
@@ -18,9 +20,16 @@ class KontrakVendorStokController extends Controller
      */
     public function index()
     {
+        $unitId = Auth::user()->unit_id;
+        $unit = UnitKerja::find($unitId);
+        $parent_id = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
         // Get transactions with a filled kontrak_id
-        $transaksi = TransaksiStok::whereNotNull('kontrak_id')->whereHas('kontrakStok', function ($kontrak) {
-            return $kontrak->whereNotNull('status');
+        $transaksi = TransaksiStok::whereNotNull('kontrak_id')->whereHas('kontrakStok', function ($kontrak) use ($parent_id) {
+            return $kontrak->whereNotNull('status')->whereHas('user', function ($user)  use ($parent_id) {
+                return $user->whereHas('unitKerja', function ($unit) use ($parent_id) {
+                    return $unit->where('parent_id', $parent_id)->orWhere('id', $parent_id);
+                });
+            });
         })->get();
         $waiting = KontrakVendorStok::where('type', false)->whereNull('status')->get();
         $sortedTransaksi = $transaksi->sortByDesc('tanggal');

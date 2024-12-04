@@ -368,7 +368,7 @@ class AsetForm extends Component
 
             // Refresh daftar lampiran lama
             // $this->attachments = Lampiran::where('aset_id', $this->aset->id)->get();
-            return redirect()->route('aset.edit',$this->aset->id);
+            return redirect()->route('aset.edit', $this->aset->id);
         }
     }
 
