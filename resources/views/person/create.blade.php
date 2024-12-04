@@ -14,6 +14,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2">
         <div class="border p-4 rounded-lg shadow-md">
+            @dump($tipe)
             <livewire:add-person :tipe="$tipe" :id="$person" />
         </div>
     </div>

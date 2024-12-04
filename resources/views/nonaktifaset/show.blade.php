@@ -64,12 +64,7 @@
                             <!-- Kontainer Gambar Modal -->
                             <div class="relative">
                                 <img :src="imgSrc" alt="Preview Image"
-                                    class="w-96 h-96 object-cover object-center">
-                                <!-- Tombol Tutup -->
-                                <button @click="open = false"
-                                    class="absolute top-2 right-2 bg-red-500 hover:bg-red-700 text-white rounded-full p-2 text-lg font-bold">
-                                    &times;
-                                </button>
+                                    class="max-w-full max-h-full object-cover object-center">
                             </div>
                         </div>
                     </div>
@@ -79,16 +74,18 @@
                             alt="" class="w-full h-full object-cover object-center rounded-sm">
                     </div> --}}
                     <div
-                        class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
+                    class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
+                    <a href="{{ route('aset.downloadQrImage', $nonaktifaset->id) }}" class="w-full h-full">
                         <img src="{{ asset($nonaktifaset->systemcode ? 'storage/qr/' . $nonaktifaset->systemcode . '.png' : 'img/default-pic.png') }}"
-                            data-tooltip-target="tooltip-QR" alt=""
+                            data-tooltip-target="tooltip-QR" alt="QR Code"
                             class="w-full h-full object-cover object-center rounded-sm">
-                    </div>
-                    <div id="tooltip-QR" role="tooltip"
-                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                        Klik Untuk Mengunduh QR-Code Ini
-                        <div class="tooltip-arrow" data-popper-arrow></div>
-                    </div>
+                    </a>
+                </div>
+                <div id="tooltip-QR" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Klik Untuk Mengunduh QR-Code Ini
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
                 </div>
             </x-card>
             <x-card title="Detail Aset" class="mb-3">

@@ -47,6 +47,7 @@
                         ['href' => '/person', 'title' => 'Penanggung jawab'],
                         ['href' => '/lokasi', 'title' => 'lokasi'],
                         ['href' => '/lokasi-stok', 'title' => 'lokasi stok'],
+                        ['href' => '/unit-kerja', 'title' => 'Unit Kerja'],
                     ]" />
                     <livewire:nav-item href="/kalender"
                         title='                <button data-tooltip-target="tooltipKalender" data-tooltip-placement="bottom" type="button"><i

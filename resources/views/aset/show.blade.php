@@ -160,9 +160,11 @@
                     </div>
                     <div
                         class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
-                        <img src="{{ asset($aset->systemcode ? 'storage/qr/' . $aset->systemcode . '.png' : 'img/default-pic.png') }}"
-                            data-tooltip-target="tooltip-QR" alt=""
-                            class="w-full h-full object-cover object-center rounded-sm">
+                        <a href="{{ route('aset.downloadQrImage', $aset->id) }}" class="w-full h-full">
+                            <img src="{{ asset($aset->systemcode ? 'storage/qr/' . $aset->systemcode . '.png' : 'img/default-pic.png') }}"
+                                data-tooltip-target="tooltip-QR" alt="QR Code"
+                                class="w-full h-full object-cover object-center rounded-sm">
+                        </a>
                     </div>
                     <div id="tooltip-QR" role="tooltip"
                         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">

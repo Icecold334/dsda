@@ -12,15 +12,16 @@ class UnitKerjaController extends Controller
      */
     public function index()
     {
-        //
+        $unitKerja = UnitKerja::with('children')->whereNull('parent_id')->get();
+        return view('unit-kerja.index', compact('unitKerja'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($tipe, $id = 0)
     {
-        //
+        return view('unit-kerja.create', compact('tipe', 'id'));
     }
 
     /**
