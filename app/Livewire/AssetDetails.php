@@ -41,6 +41,10 @@ class AssetDetails extends Component
     public $showSuggestionsLokasi;
     public $suggestionsLokasi;
 
+    public $totalPengeluaran;
+    public $totalPemasukan;
+    public $selisih;
+
     public $maxDays = 31; // Default jumlah hari untuk semua bulan
 
     public function mount($type, $aset)
@@ -131,14 +135,28 @@ class AssetDetails extends Component
 
     public function loadData()
     {
+        // Load data sesuai dengan tipe
         $this->items = match ($this->type) {
             'history' => History::where('aset_id', $this->asetId)->get(),
             'agenda' => Agenda::where('aset_id', $this->asetId)->get(),
             'keuangan' => Keuangan::where('aset_id', $this->asetId)->get(),
             'jurnal' => Jurnal::where('aset_id', $this->asetId)->get(),
-            default => [],
+            default => collect(), // Gunakan collect() untuk konsistensi
         };
+
+        // Hanya hitung total pengeluaran, pemasukan, dan selisih jika tipe adalah keuangan
+        if ($this->type === 'keuangan') {
+            $this->totalPengeluaran = collect($this->items)->where('tipe', 'out')->sum('nominal');
+            $this->totalPemasukan = collect($this->items)->where('tipe', 'in')->sum('nominal');
+            $this->selisih = $this->totalPemasukan - $this->totalPengeluaran;
+        } else {
+            // Set default value jika bukan keuangan
+            $this->totalPengeluaran = 0;
+            $this->totalPemasukan = 0;
+            $this->selisih = 0;
+        }
     }
+
 
     public function openModal($id = null)
     {
@@ -271,7 +289,7 @@ class AssetDetails extends Component
 
     public function save()
     {
-        $this->validate($this->getValidationRules());
+        $this->validate($this->getValidationRules(), $this->getValidationMessages());
 
         if ($this->type === 'history') {
             $personId = $this->getOrCreatePerson($this->person);
@@ -358,8 +376,8 @@ class AssetDetails extends Component
         $rules = match ($this->type) {
             'history' => [
                 'modalData.tanggal' => 'required|date',
-                'person_id' => 'required|integer|max:255',
-                'lokasi_id' => 'required|integer|max:255',
+                // 'person_id' => 'required|max:255',
+                // 'lokasi_id' => 'required|max:255',
                 'modalData.jumlah' => 'required|integer|min:1',
                 'modalData.kondisi' => 'required|integer|between:0,100',
                 'modalData.kelengkapan' => 'required|integer|between:0,100',
@@ -403,6 +421,58 @@ class AssetDetails extends Component
 
         return $rules;
     }
+
+    public function getValidationMessages()
+    {
+        return [
+            // General Messages
+            'required' => ':attribute wajib diisi.',
+            'date' => ':attribute harus berupa tanggal yang valid.',
+            'integer' => ':attribute harus berupa angka.',
+            'min' => ':attribute harus minimal :min.',
+            'max' => ':attribute tidak boleh lebih dari :max karakter.',
+            'between' => ':attribute harus antara :min dan :max.',
+            'in' => ':attribute harus salah satu dari: :values.',
+
+            // History
+            'modalData.tanggal.required' => 'Tanggal riwayat wajib diisi.',
+            'modalData.jumlah.required' => 'Jumlah aset wajib diisi.',
+            'modalData.jumlah.integer' => 'Jumlah aset harus berupa angka.',
+            'modalData.jumlah.min' => 'Jumlah aset minimal 1.',
+            'modalData.kondisi.required' => 'Kondisi wajib diisi.',
+            'modalData.kondisi.integer' => 'Kondisi harus berupa angka.',
+            'modalData.kondisi.between' => 'Kondisi harus antara 0 dan 100.',
+            'modalData.kelengkapan.required' => 'Kelengkapan wajib diisi.',
+            'modalData.kelengkapan.integer' => 'Kelengkapan harus berupa angka.',
+            'modalData.kelengkapan.between' => 'Kelengkapan harus antara 0 dan 100.',
+            'modalData.keterangan.max' => 'Keterangan tidak boleh lebih dari 500 karakter.',
+
+            // Agenda
+            'modalData.tipe.required' => 'Tipe agenda wajib diisi.',
+            'modalData.keterangan.required' => 'Keterangan agenda wajib diisi.',
+            'modalData.keterangan.max' => 'Keterangan agenda tidak boleh lebih dari 255 karakter.',
+            'modalData.hari.required' => 'Hari agenda wajib diisi.',
+            'modalData.hari.integer' => 'Hari agenda harus berupa angka.',
+            'modalData.hari.in' => 'Hari agenda harus antara 1 (Senin) hingga 7 (Minggu).',
+            'modalData.bulan.required' => 'Bulan agenda wajib diisi.',
+            'modalData.bulan.integer' => 'Bulan agenda harus berupa angka.',
+            'modalData.bulan.between' => 'Bulan agenda harus antara 1 dan 12.',
+
+            // Keuangan
+            'modalData.tanggal.required' => 'Tanggal transaksi wajib diisi.',
+            'modalData.tipe.required' => 'Tipe transaksi wajib diisi.',
+            'modalData.tipe.in' => 'Tipe transaksi harus "in" (pemasukan) atau "out" (pengeluaran).',
+            'modalData.nominal.required' => 'Nominal transaksi wajib diisi.',
+            'modalData.nominal.integer' => 'Nominal transaksi harus berupa angka.',
+            'modalData.nominal.min' => 'Nominal transaksi harus minimal 0.',
+            'modalData.keterangan.max' => 'Keterangan transaksi tidak boleh lebih dari 500 karakter.',
+
+            // Jurnal
+            'modalData.tanggal.required' => 'Tanggal jurnal wajib diisi.',
+            'modalData.keterangan.max' => 'Keterangan jurnal tidak boleh lebih dari 500 karakter.',
+        ];
+    }
+
 
     public function delete($id)
     {

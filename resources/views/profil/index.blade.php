@@ -117,7 +117,7 @@
         </div>
         <div>
             <!-- Pengguna Tambahan -->
-            <div>
+            <div class="overflow-y-auto max-h-[42rem]">
                 <x-card title="Pengguna Tambahan" class="mb-3">
                     <div class="flex mt-4 mb-6">
                         <a href="/profil/user"

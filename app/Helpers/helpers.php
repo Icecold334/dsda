@@ -1,5 +1,10 @@
 <?php
 
+use App\Models\Aset;
+use App\Models\Option;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+
 // app/Helpers/helpers.php
 if (!function_exists('nilaiSekarang')) {
   function nilaiSekarang($harga, $tgl_beli, $umur, $tampil = true)
@@ -70,5 +75,74 @@ if (!function_exists('usia_aset')) {
     } else {
       return $tahun . " Tahun " . $bulan . " Bulan";
     }
+  }
+}
+
+if (!function_exists('loadOptionSettings')) {
+  function loadOptionSettings()
+  {
+    $option = Option::find(1); // Anda bisa ganti dengan logika sesuai kebutuhan
+    return [
+      'kodeaset' => $option->kodeaset,
+      'qr_judul' => $option->qr_judul,
+      'qr_judul_other' => $option->qr_judul_other ?? null,
+      'qr_baris1' => $option->qr_baris1,
+      'qr_baris1_other' => $option->qr_baris1_other ?? null,
+      'qr_baris2' => $option->qr_baris2,
+      'qr_baris2_other' => $option->qr_baris2_other ?? null,
+    ];
+  }
+}
+
+if (!function_exists('resolveOptionValue')) {
+  function resolveOptionValue($optionKey, $asset, $otherValue = null)
+  {
+    switch ($optionKey) {
+      case 'perusahaan':
+        return strtoupper(Auth::user()->perusahaan);
+      case 'kategori':
+        return strtoupper($asset->kategori->nama);
+      case 'tanggalbeli':
+        return strtoupper(date('d M Y', strtotime($asset->tanggalbeli)));
+      case 'hargatotal':
+        return 'Rp ' . number_format($asset->hargatotal, 0, ',', '.');
+      case 'person':
+        return strtoupper($asset->person->nama);
+      case 'lokasi':
+        return strtoupper($asset->lokasi->nama);
+      case 'other':
+        return strtoupper(substr($otherValue, 0, 25));
+      case 'kosong':
+        return '';
+      default:
+        return strtoupper($asset->{$optionKey} ?? '');
+    }
+  }
+}
+
+if (!function_exists('getAssetWithSettings')) {
+  function getAssetWithSettings($assetId)
+  {
+    $settings = loadOptionSettings(); // Memanggil fungsi loadOptionSettings()
+    $asset = Aset::findOrFail($assetId);
+
+    $judul = resolveOptionValue($settings['qr_judul'], $asset, $settings['qr_judul_other']);
+    $baris1 = resolveOptionValue($settings['qr_baris1'], $asset, $settings['qr_baris1_other']);
+    $baris2 = resolveOptionValue($settings['qr_baris2'], $asset, $settings['qr_baris2_other']);
+
+    $judul = Str::limit($judul ?? 'QR Code Title', 20, '');
+    $baris1 = Str::limit($baris1 ?? 'Line 1', 25, '');
+    $baris2 = Str::limit($baris2 ?? 'Line 2', 25, '');
+
+    return [
+      'id' => $asset->id,
+      'nama' => $asset->nama,
+      'systemcode' => $asset->systemcode,
+      'kategori' => $asset->kategori->nama ?? 'Tidak Berkategori',
+      'qr_image' => "storage/qr/{$asset->systemcode}.png",
+      'judul' => $judul,
+      'baris1' => $baris1,
+      'baris2' => $baris2,
+    ];
   }
 }

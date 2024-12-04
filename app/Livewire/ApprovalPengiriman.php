@@ -86,15 +86,23 @@ class ApprovalPengiriman extends Component
         });
         $this->lastPpk = $indexPpk === $ppk->count() - 1; // Check if current user is the last user
         $this->ppkList = $ppk;
+        // dd(PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id'));
+        $penerima = User::role('penerima_barang')
+            ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+            ->whereHas('lokasiStok', function ($query) {
+                $query->whereIn('lokasi_id', PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id'));
+            })
+            ->get();
 
-        $penerima = User::role('penerima_barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
         $indexPenerima = $penerima->search(function ($user) {
             return $user->id == Auth::id();
         });
+
         $this->lastPenerima = $indexPenerima === $penerima->count() - 1; // Check if current user is the last user
         $this->penerimaList = $penerima;
 
-        $pemeriksa = User::role('pemeriksa_barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+
+        $pemeriksa = User::role('pemeriksa_barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPemeriksa = $pemeriksa->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -110,15 +118,15 @@ class ApprovalPengiriman extends Component
         $this->pptkList = $pptk;
 
         // Menentukan urutan approval yang benar
-        $this->listApproval = $this->penerimaList
-            ->merge($this->pemeriksaList)
+        $this->listApproval = $this->pemeriksaList
+            // ->merge($this->pemeriksaList)
             ->merge($this->pptkList)
             ->merge($this->ppkList)
             ->count();
 
         // Menggabungkan list approval sesuai urutan yang benar
-        $allApproval = $this->penerimaList
-            ->merge($this->pemeriksaList)
+        $allApproval = $this->pemeriksaList
+            // ->merge($this->pemeriksaList)
             ->merge($this->pptkList)
             ->merge($this->ppkList);
         $index = $allApproval->search(function ($user) {

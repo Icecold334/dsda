@@ -48,6 +48,7 @@ use App\Http\Controllers\PermintaanStokController;
 use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
+use App\Models\Persetujuan;
 
 
 Route::get('/', function () {
@@ -64,7 +65,7 @@ Route::get('/logout', function () {
 
 Route::get('/scan/{user_id}/{systemcode}', function ($user_id, $systemcode) {
     // Cari aset berdasarkan systemcode
-    $aset = Aset::where('systemcode', $systemcode)->first();
+    $aset = Aset::with(['histories', 'keuangans', 'jurnals'])->where('systemcode', $systemcode)->first();
 
     // Jika aset tidak ditemukan, redirect ke halaman home atau tampilkan pesan error
     if (!$aset) {
@@ -73,6 +74,7 @@ Route::get('/scan/{user_id}/{systemcode}', function ($user_id, $systemcode) {
 
     // Gunakan user_id = 3 sebagai guest, tidak tergantung pada user yang sedang login
     $user = User::find(3); // Selalu menggunakan user dengan ID 3 (guest)
+    // Auth::loginUsingId(3);
 
     // Jika user dengan ID 3 tidak ditemukan, tampilkan pesan error
     if (!$user) {
@@ -163,5 +165,9 @@ Route::middleware(['auth'])->group(function () {
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
+
+Route::get('/testapprove', function () {
+    return Persetujuan::all()->toArray();
+});
 
 require __DIR__ . '/auth.php';

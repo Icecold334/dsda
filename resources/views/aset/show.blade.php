@@ -136,10 +136,27 @@
             </x-card>
             <x-card title="Foto & QR Code" class="mb-5">
                 <div class="flex justify-around">
-                    <div
-                        class="w-80 h-80 overflow-hidden relative flex justify-center  p-1 hover:shadow-lg transition duration-200 hover:opacity-80 border-2 rounded-lg bg-white">
-                        <img src="{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic.png') }}"
-                            alt="" class="w-full h-full object-cover object-center rounded-sm">
+                    <div x-data="{ open: false, imgSrc: '' }"> 
+                        <!-- Gambar Besar -->
+                        <div class="w-80 h-80 overflow-hidden relative flex justify-center p-1 hover:shadow-lg transition duration-200 hover:opacity-80 border-2 rounded-lg bg-white cursor-pointer"
+                            @click="open = true; imgSrc = '{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic.png') }}'">
+                            <img src="{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic.png') }}"
+                                alt="" class="w-full h-full object-cover object-center rounded-sm">
+                        </div>
+
+                        <!-- Modal -->
+                        <div x-show="open" x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-300"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                            class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                            @click="open = false" @keydown.escape.window="open = false">
+                            <!-- Kontainer Gambar Modal -->
+                            <div class="relative">
+                                <img :src="imgSrc" alt="Preview Image"
+                                    class="max-w-full max-h-full object-cover object-center">
+                            </div>
+                        </div>
                     </div>
                     <div
                         class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
@@ -186,7 +203,7 @@
                 <table class="text-gray-600 w-full">
                     <tr>
                         <td class="" style="width: 30%">Tanggal Pembelian</td>
-                        <td class="">{{ date('d M Y', strtotime($aset->tanggalbeli)) }}</td>
+                        <td class="">{{ date('d M Y', $aset->tanggalbeli) }}</td>
                     </tr>
                     <tr>
                         <td class="" style="width: 30%">Toko / Distributor</td>
@@ -218,7 +235,34 @@
                 {{ $aset->keterangan ?? '---' }}
             </x-card>
             <x-card title="Lampiran" class="mb-3">
-                ---
+                @foreach ($aset->lampirans as $attachment)
+                    <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
+                        <span class="flex items-center space-x-3">
+                            @php
+                                $fileType = pathinfo($attachment->file, PATHINFO_EXTENSION);
+                            @endphp
+                            <span class="text-primary-600">
+                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                    <i class="fa-solid fa-image text-green-500"></i>
+                                @elseif($fileType == 'pdf')
+                                    <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                @elseif(in_array($fileType, ['doc', 'docx']))
+                                    <i class="fa-solid fa-file-word text-blue-500"></i>
+                                @else
+                                    <i class="fa-solid fa-file text-gray-500"></i>
+                                @endif
+                            </span>
+
+                            <!-- File name with underline on hover and a link to the saved file -->
+                            <span>
+                                <a href="{{ asset('storage/LampiranAset/' . $attachment->file) }}" target="_blank"
+                                    class="text-gray-800 hover:underline">
+                                    {{ basename($attachment->file) }}
+                                </a>
+                            </span>
+                        </span>
+                    </div>
+                @endforeach
             </x-card>
         </div>
         <div>
@@ -238,7 +282,8 @@
                     </li>
                     <li class="me-2">
                         <button id="keuangan-tab" data-tabs-target="#keuangan" type="button" role="tab"
-                            aria-controls="keuangan" aria-selected="false"
+                            aria-controls="keuangan"
+                            aria-selected="{{ request('tab') === 'keuangan' ? 'true' : 'false' }}"
                             class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">Keuangan</button>
                     </li>
                     <li class="me-2">

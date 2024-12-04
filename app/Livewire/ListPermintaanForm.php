@@ -76,7 +76,7 @@ class ListPermintaanForm extends Component
         $item = PermintaanStok::find($itemId);
 
         $this->approvalData = [
-            'merk' => $item->merkStok->nama ?? '-',
+            'merk' => $item->merkStok,
             'stok' => Stok::where('merk_id', $item->merk_id)->get()->map(function ($stok) {
                 return [
                     'lokasi' => $stok->lokasiStok->nama,
@@ -96,6 +96,35 @@ class ListPermintaanForm extends Component
     public function approveItems()
     {
         foreach ($this->approvalData['stok'] as $stok) {
+            $jumlahDisetujui = $stok['jumlah_disetujui'] ?? null;
+
+            if (is_null($jumlahDisetujui)) {
+                $this->dispatch(
+                    'swal:error',
+                    message: "Jumlah disetujui tidak ditemukan untuk lokasi {$stok['lokasi']}.",
+                );
+                return; // Hentikan proses jika key tidak ada
+            }
+
+            // Validasi jumlah disetujui
+            if ($jumlahDisetujui > $stok['jumlah_tersedia']) {
+                $this->dispatch(
+                    'swal:error',
+                    message: "Jumlah disetujui untuk lokasi {$stok['lokasi']} tidak boleh melebihi jumlah tersedia ({$stok['jumlah_tersedia']}).",
+                );
+                return; // Hentikan proses jika validasi gagal
+            }
+
+            if ($jumlahDisetujui <= 0) {
+                $this->dispatch(
+                    'swal:error',
+                    message: "Jumlah disetujui untuk lokasi {$stok['lokasi']} harus lebih dari 0.",
+                );
+                return; // Hentikan proses jika validasi gagal
+            }
+        }
+
+        foreach ($this->approvalData['stok'] as $stok) {
             if (isset($stok['jumlah_disetujui']) && $stok['jumlah_disetujui'] > 0) {
                 StokDisetujui::create([
                     'permintaan_id' => $this->selectedItemId,
@@ -105,22 +134,6 @@ class ListPermintaanForm extends Component
                     'posisi_id' => $stok['posisi_id'] ?? null,
                     'catatan' => $stok['catatan'] ?? null, // Simpan catatan per stok
                 ]);
-
-                // Kurangi stok sesuai dengan lokasi, bagian, dan posisi (jika ada)
-                // $stokModel = Stok::where('lokasi_id', $stok['lokasi_id'])
-                //     ->when(isset($stok['bagian_id']), function ($query) use ($stok) {
-                //         return $query->where('bagian_id', $stok['bagian_id']);
-                //     })
-                //     ->when(isset($stok['posisi_id']), function ($query) use ($stok) {
-                //         return $query->where('posisi_id', $stok['posisi_id']);
-                //     })
-                //     ->where('merk_id', $this->approvalData['merk_id'])
-                //     ->first();
-
-                // if ($stokModel) {
-                //     $stokModel->jumlah -= $stok['jumlah_disetujui'];
-                //     $stokModel->save();
-                // }
             }
         }
 

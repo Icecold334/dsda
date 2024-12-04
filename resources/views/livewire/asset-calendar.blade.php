@@ -55,7 +55,7 @@
                                     $showAgenda = true;
                                 }
 
-                                if ($agenda->tipe === 'bulanan' && date('j', $agenda->tanggal) == $day['day_num']) {
+                                if ($agenda->tipe === 'bulanan' && $agenda->hari == $day['day_num']) {
                                     $showAgenda = true;
                                 }
 

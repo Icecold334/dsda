@@ -6,7 +6,9 @@ use App\Models\VendorStok;
 use Illuminate\Http\Request;
 use App\Models\TransaksiStok;
 use App\Models\TransaksiDaruratStok;
+use Illuminate\Support\Facades\Auth;
 use App\Models\KontrakRetrospektifStok;
+use App\Models\Persetujuan;
 
 class TransaksiDaruratStokController extends Controller
 {
@@ -69,13 +71,17 @@ class TransaksiDaruratStokController extends Controller
      */
     public function edit(string $id)
     {
-        $transaksi = TransaksiStok::where('vendor_id', $id)
+        $transaksi = TransaksiStok::with('approvals')->where('vendor_id', $id)
             ->whereNull('kontrak_id')
             ->get();
 
+        $roles = Auth::user()->roles->pluck('name');
+
+        $items = Persetujuan::where('approvable_id', $id)->where('approvable_type', TransaksiStok::class)->get();
+
 
         // Pass the data to the view
-        return view('darurat.edit', compact('transaksi'));
+        return view('darurat.edit', compact('transaksi','roles', 'items'));
     }
 
     /**
