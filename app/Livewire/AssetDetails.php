@@ -322,7 +322,7 @@ class AssetDetails extends Component
     public function save()
     {
         $this->validate($this->getValidationRules(), $this->getValidationMessages());
-        
+
         if ($this->type === 'history') {
             $personId = $this->getOrCreatePerson($this->person);
             $lokasiId = $this->lokasi_id ? $this->lokasi_id : $this->getOrCreateLokasi($this->lokasi);
@@ -390,6 +390,17 @@ class AssetDetails extends Component
         $lokasi = Lokasi::firstOrCreate(['user_id' => Auth::user()->id, 'nama' => $name, 'nama_nospace' => Str::slug($name)]);
         return $lokasi->id;
     }
+    /**
+     * Convert formatted currency to integer.
+     *
+     * @param string $value
+     * @return int
+     */
+    private function cleanCurrency($value)
+    {
+        return (int) str_replace(["Rp", "\u{A0}", ",", "."], '', $value);
+    }
+
 
 
     public function getModelInstance()
@@ -500,7 +511,7 @@ class AssetDetails extends Component
             'modalData.keterangan.max' => 'Keterangan transaksi tidak boleh lebih dari 500 karakter.',
 
             // Jurnal
-            'modalData.tanggal.required' => 'Tanggal jurnal wajib diisi.',
+            'modalData.tanggal.required' => 'Tanggal wajib diisi.',
             'modalData.keterangan.max' => 'Keterangan jurnal tidak boleh lebih dari 500 karakter.',
         ];
     }
@@ -518,7 +529,6 @@ class AssetDetails extends Component
             session()->flash('error', 'Data tidak ditemukan.');
         }
     }
-
 
     public function render()
     {

@@ -228,30 +228,34 @@
                     </div>
                 </div>
             @endforelse
+            @if ($items->isNotEmpty())
+                <!-- Summary Section -->
+                <div
+                    class="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="font-semibold text-gray-800">Total Pengeluaran</td>
+                                <td class="text-right text-gray-900">Rp
+                                    {{ number_format($totalPengeluaran, 2, ',', '.') }}
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="font-semibold text-gray-800">Total Pemasukan</td>
+                                <td class="text-right text-gray-900">Rp
+                                    {{ number_format($totalPemasukan, 2, ',', '.') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-gray-800">Selisih</td>
+                                <td class="text-right font-bold text-gray-900">Rp
+                                    {{ number_format($totalPemasukan - $totalPengeluaran, 2, ',', '.') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            @endif
 
-            <!-- Summary Section -->
-            <div
-                class="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
-                <table class="w-full text-sm">
-                    <tbody>
-                        <tr class="border-b">
-                            <td class="font-semibold text-gray-800">Total Pengeluaran</td>
-                            <td class="text-right text-gray-900">Rp {{ number_format($totalPengeluaran, 2, ',', '.') }}
-                            </td>
-                        </tr>
-                        <tr class="border-b">
-                            <td class="font-semibold text-gray-800">Total Pemasukan</td>
-                            <td class="text-right text-gray-900">Rp {{ number_format($totalPemasukan, 2, ',', '.') }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="font-bold text-gray-800">Selisih</td>
-                            <td class="text-right font-bold text-gray-900">Rp
-                                {{ number_format($totalPemasukan - $totalPengeluaran, 2, ',', '.') }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
         </div>
     @elseif ($type === 'jurnal')
         <div class="flex justify-end items-center bg-primary-200 rounded-lg mb-3">
@@ -582,6 +586,3 @@
 
 
 </div>
-@push('scripts')
-    <script type="module"></script>
-@endpush
