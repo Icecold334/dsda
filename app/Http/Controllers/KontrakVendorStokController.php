@@ -20,14 +20,12 @@ class KontrakVendorStokController extends Controller
      */
     public function index()
     {
-        $unitId = Auth::user()->unit_id;
-        $unit = UnitKerja::find($unitId);
-        $parent_id = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
+
         // Get transactions with a filled kontrak_id
-        $transaksi = TransaksiStok::whereNotNull('kontrak_id')->whereHas('kontrakStok', function ($kontrak) use ($parent_id) {
-            return $kontrak->whereNotNull('status')->whereHas('user', function ($user)  use ($parent_id) {
-                return $user->whereHas('unitKerja', function ($unit) use ($parent_id) {
-                    return $unit->where('parent_id', $parent_id)->orWhere('id', $parent_id);
+        $transaksi = TransaksiStok::whereNotNull('kontrak_id')->whereHas('kontrakStok', function ($kontrak) {
+            return $kontrak->whereNotNull('status')->whereHas('user', function ($user) {
+                return $user->whereHas('unitKerja', function ($unit) {
+                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                 });
             });
         })->get();

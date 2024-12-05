@@ -3,10 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aset;
+use App\Models\UnitKerja;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 abstract class Controller
 {
+
+    public $unit_id;
+
+    public function __construct()
+    {
+        $unitId = Auth::user()->unit_id;
+        $unit = UnitKerja::find($unitId);
+        $this->unit_id = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
+    }
     /**
      * Calculate the current value of an asset based on purchase date, lifespan, and initial price.
      *
@@ -132,6 +143,4 @@ abstract class Controller
     {
         return 'Rp ' . number_format($angka, 2, ',', '.');
     }
-
-    
 }

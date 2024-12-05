@@ -18,26 +18,27 @@ class TransaksiDaruratStokController extends Controller
      */
     public function index()
     {
-        $unitId = Auth::user()->unit_id;
-        $unit = UnitKerja::find($unitId);
-        $parent_id = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
+
         // Get transactions with a filled kontrak_id
-        $transaksi = TransaksiStok::whereNull('kontrak_id')->whereHas('user', function ($user)  use ($parent_id) {
-            return $user->whereHas('unitKerja', function ($unit) use ($parent_id) {
-                return $unit->where('parent_id', $parent_id)->orWhere('id', $parent_id);
+        $transaksi = TransaksiStok::whereNull('kontrak_id')->whereHas('user', function ($user) {
+            return $user->whereHas('unitKerja', function ($unit) {
+                return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
             });
         })->get();
 
         // Sort transactions by date (you could sort by any other attribute relevant to your context)
         $sortedTransaksi = $transaksi->sortByDesc('tanggal');
 
-        // Group the sorted transactions by vendor_id, then by kontrak_id
-        $groupedTransactions = $sortedTransaksi->groupBy('vendor_id')->map(function ($vendorGroup) {
-            return $vendorGroup->groupBy('kontrak_id')->map(function ($kontrakGroup) {
-                return $kontrakGroup->groupBy('id'); // Group by transaction ID for distinction
+        // Group the sorted transactions by parent_id first, then by unit_id
+        $groupedTransactions = $sortedTransaksi->groupBy(function ($transaksi) {
+            // First group by parent_id, then unit_id to merge users with the same parent
+            return $transaksi->user->unitKerja->parent_id . '-' . $transaksi->user->unitKerja->id;
+        })->map(function ($group) {
+            // Then group by kontrak_id and finally by transaction id
+            return $group->groupBy('kontrak_id')->map(function ($kontrakGroup) {
+                return $kontrakGroup->groupBy('id');
             });
         });
-
         return view('darurat.index', compact('groupedTransactions'));
     }
 

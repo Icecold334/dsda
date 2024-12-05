@@ -61,20 +61,22 @@
             </div>
         @endpush --}}
 
-    @if (session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    title: 'Success!',
-                    text: "{{ session('success') }}",
-                    icon: 'success',
-                    confirmButtonText: 'Okay'
+        @if (session('success'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: "{{ session('success') }}",
+                        icon: 'success',
+                        confirmButtonText: 'Okay'
+                    });
                 });
-            });
-        </script>
-    @endif
+            </script>
+        @endif
 
-        <h1 class="text-2xl font-bold text-primary-900 ">Kontrak Vendor</h1>
+        <h1 class="text-2xl font-bold text-primary-900 ">Kontrak Vendor Untuk
+            {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+        </h1>
         <div>
             {{-- <button data-modal-target="tipe2" data-modal-toggle="tipe2"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
