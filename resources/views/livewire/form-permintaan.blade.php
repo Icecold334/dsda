@@ -39,8 +39,8 @@
                                 Unit Kerja *</label>
                         </td>
                         <td>
-                            <select wire:model.live="unit_id"
-                                class="bg-gray-50 border border-gray-300  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <select wire:model.live="unit_id" disabled
+                                class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 <option value="">Pilih Unit Kerja</option>
                                 @foreach ($units as $unit)
                                     <option value="{{ $unit->id }}">{{ $unit->nama }}
@@ -58,6 +58,7 @@
                                 Sub Unit *</label>
                         </td>
                         <td>
+                            {{-- @dd($unit_id) --}}
                             <select wire:model.live="sub_unit_id" @disabled(!$unit_id)
                                 class="bg-gray-50 border border-gray-300 {{ !$unit_id ? 'cursor-not-allowed ' : '' }}  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 <option value="">Pilih Sub Unit Kerja</option>

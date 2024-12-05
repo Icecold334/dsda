@@ -18,29 +18,26 @@ class TransaksiDaruratStokController extends Controller
      */
     public function index()
     {
-
         // Get transactions with a filled kontrak_id
-        $transaksi = TransaksiStok::whereNull('kontrak_id')->whereHas('user', function ($user) {
-            return $user->whereHas('unitKerja', function ($unit) {
-                return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-            });
-        })->get();
+        $transaksi = TransaksiStok::whereNull('kontrak_id')
+            ->whereHas('user', function ($user) {
+                return $user->whereHas('unitKerja', function ($unit) {
+                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                });
+            })
+            ->get();
 
-        // Sort transactions by date (you could sort by any other attribute relevant to your context)
+        // Sort transactions by date
         $sortedTransaksi = $transaksi->sortByDesc('tanggal');
 
-        // Group the sorted transactions by parent_id first, then by unit_id
-        $groupedTransactions = $sortedTransaksi->groupBy(function ($transaksi) {
-            // First group by parent_id, then unit_id to merge users with the same parent
-            return $transaksi->user->unitKerja->parent_id . '-' . $transaksi->user->unitKerja->id;
-        })->map(function ($group) {
-            // Then group by kontrak_id and finally by transaction id
-            return $group->groupBy('kontrak_id')->map(function ($kontrakGroup) {
-                return $kontrakGroup->groupBy('id');
-            });
+        // Group transactions by vendor_id first, then by unit_id
+        $groupedTransactions = $sortedTransaksi->groupBy('vendor_id')->map(function ($vendorGroup) {
+            return $vendorGroup->groupBy('user.unit_id'); // Group by user unit_id
         });
+
         return view('darurat.index', compact('groupedTransactions'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -67,8 +64,12 @@ class TransaksiDaruratStokController extends Controller
         // Retrieve the transaction by ID with a null kontrak_id
         $transaksis = TransaksiStok::where('vendor_id', $id)
             ->whereNull('kontrak_id')
+            ->whereHas('user', function ($user) {
+                return $user->whereHas('unitKerja', function ($unit) {
+                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                });
+            })
             ->get();
-        // dd($transaksis);
 
 
         // Pass the data to the view
@@ -82,6 +83,11 @@ class TransaksiDaruratStokController extends Controller
     {
         $transaksi = TransaksiStok::with('approvals')->where('vendor_id', $id)
             ->whereNull('kontrak_id')
+            ->whereHas('user', function ($user) {
+                return $user->whereHas('unitKerja', function ($unit) {
+                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                });
+            })
             ->get();
 
         $roles = Auth::user()->roles->pluck('name');

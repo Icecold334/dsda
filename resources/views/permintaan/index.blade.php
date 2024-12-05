@@ -12,18 +12,18 @@
         </div>
     </div>
 
-@if (session('success'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                title: 'Success!',
-                text: "{{ session('success') }}",
-                icon: 'success',
-                confirmButtonText: 'Okay'
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
+                    icon: 'success',
+                    confirmButtonText: 'Okay'
+                });
             });
-        });
-    </script>
-@endif
+        </script>
+    @endif
 
     <table class="w-full border-3 border-separate border-spacing-y-4">
         <thead>
@@ -45,11 +45,8 @@
                     <td class="px-6 py-3 font-semibold">{{ date('j F Y', $permintaan->tanggal_permintaan) }}</td>
                     {{-- <td class="px-6 py-3 font-semibold">{{ $permintaan->kode_permintaan }}</td> --}}
                     <td class="px-6 py-3 font-semibold">
-                        <div>
-                            {{ $permintaan->unit->nama }}
-                        </div>
                         <div class="text-gray-600 text-sm">
-                            {{ $permintaan->subUnit->nama ?? '---' }}
+                            {{ $permintaan->subUnit->nama ?? $permintaan->unit->nama }}
                         </div>
                     </td>
                     <td class="py-3 px-6">

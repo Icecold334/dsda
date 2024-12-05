@@ -13,7 +13,11 @@ class PermintaanStokController extends Controller
      */
     public function index()
     {
-        $permintaans = DetailPermintaanStok::orderBy('id', 'desc')->get();
+        $permintaans = DetailPermintaanStok::whereHas('user', function ($user) {
+            return $user->whereHas('unitKerja', function ($unit) {
+                return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+            });
+        })->orderBy('id', 'desc')->get();
         return view('permintaan.index', compact('permintaans'));
     }
 

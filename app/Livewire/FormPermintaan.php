@@ -47,6 +47,9 @@ class FormPermintaan extends Component
         $this->units = UnitKerja::whereNull('parent_id')->whereHas('children', function ($sub) {
             return $sub;
         })->get();
+        if ($this->unit_id) {
+            $this->subUnits = UnitKerja::where('parent_id', $this->unit_id)->get();
+        }
         if ($this->permintaan) {
             $this->updatedUnitId();
             $this->dispatch('unit_id', unit_id: $this->unit_id);

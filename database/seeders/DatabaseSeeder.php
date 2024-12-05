@@ -136,12 +136,6 @@ class DatabaseSeeder extends Seeder
             'parent_id' => $unitSumberDayaManusia->id,
             'keterangan' => 'Bagian pelatihan dalam unit SDM.',
         ]);
-        // Example Units and Sub-Units
-        $unitProduksi = UnitKerja::create([
-            'nama' => 'Unit Produksi',
-            'kode' => 'UP01',
-            'keterangan' => 'Bagian yang bertanggung jawab atas produksi barang.',
-        ]);
 
         $subUnitFinishing = UnitKerja::create([
             'nama' => 'Bagian Finishing',
