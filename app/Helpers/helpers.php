@@ -146,3 +146,21 @@ if (!function_exists('getAssetWithSettings')) {
     ];
   }
 }
+
+if (!function_exists('filterByParentUnit')) {
+  /**
+   * Filter query berdasarkan parent unit ID.
+   *
+   * @param \Illuminate\Database\Eloquent\Builder $query
+   * @param int $parentUnitId
+   * @return \Illuminate\Database\Eloquent\Builder
+   */
+  function filterByParentUnit($query, $parentUnitId)
+  {
+    return $query->whereHas('unitKerja', function ($unitQuery) use ($parentUnitId) {
+      // Pastikan kita selalu memfilter berdasarkan unit parent
+      $unitQuery->where('parent_id', $parentUnitId)
+        ->orWhere('id', $parentUnitId); // Menampilkan kategori yang terkait dengan parent atau child
+    });
+  }
+}

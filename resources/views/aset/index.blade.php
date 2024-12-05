@@ -416,7 +416,4 @@
             @endif
         </tbody>
     </table>
-
-
-
 </x-body>

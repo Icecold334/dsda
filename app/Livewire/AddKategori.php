@@ -46,31 +46,31 @@ class AddKategori extends Component
         }
         return redirect()->route('kategori.index');
     }
+
     public function saveKategori()
     {
-        if ($this->tipe == 'utama') {
-            Kategori::updateOrCreate(
-                ['id' => $this->id ?? 0], // Unique field to check for existing record
-                [
-                    'user_id' => Auth::user()->id,
-                    'nama' => $this->utama,
-                    'keterangan' => $this->keterangan,
-                ]
-            );
-        } else {
-            Kategori::updateOrCreate(
-                ['id' => $this->id ?? 0], // Unique fields to check
-                [
-                    'user_id' => Auth::user()->id,
-                    'parent_id' => $this->parent_id,
-                    'nama' => $this->sub,
-                    'keterangan' => $this->keterangan,
-                ]
-            );
+        // Tentukan apakah kategori ini "utama" atau "sub"
+        $data = [
+            'nama' => $this->tipe == 'utama' ? $this->utama : $this->sub,
+            'keterangan' => $this->keterangan,
+        ];
+
+        if ($this->tipe != 'utama') {
+            $data['parent_id'] = $this->parent_id;
         }
+
+        // Jika ID diberikan, cari kategori
+        $kategori = Kategori::find($this->id);
+
+        // Set user_id
+        $data['user_id'] = $kategori ? $kategori->user_id : Auth::id();
+
+        // Update atau create dengan data
+        Kategori::updateOrCreate(['id' => $this->id ?? 0], $data);
 
         return redirect()->route('kategori.index');
     }
+
     public function render()
     {
         return view('livewire.add-kategori');

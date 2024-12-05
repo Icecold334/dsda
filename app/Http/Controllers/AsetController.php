@@ -59,12 +59,38 @@ class AsetController extends Controller
             return getAssetWithSettings($aset->id); // Menggunakan helper
         })->keyBy('id')->toArray(); // Gunakan keyBy untuk membuat key array berdasarkan ID aset
 
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
         // Data tambahan untuk dropdown filter
-        $kategoris = Kategori::all();
-        $merks = Merk::all();
-        $tokos = Toko::all();
-        $penanggungJawabs = Person::all();
-        $lokasis = Lokasi::all();
+        $kategoris = Kategori::whereHas('user', function ($query) use ($parentUnitId) {
+            // Menggunakan helper untuk memfilter unit
+            filterByParentUnit($query, $parentUnitId);
+        })->get();
+        $merks = Merk::whereHas('user', function ($query) use ($parentUnitId) {
+            // Menggunakan helper untuk memfilter unit
+            filterByParentUnit($query, $parentUnitId);
+        })->get();
+        $tokos = Toko::whereHas('user', function ($query) use ($parentUnitId) {
+            // Menggunakan helper untuk memfilter unit
+            filterByParentUnit($query, $parentUnitId);
+        })->get();
+        $penanggungJawabs = Person::whereHas('user', function ($query) use ($parentUnitId) {
+            // Menggunakan helper untuk memfilter unit
+            filterByParentUnit($query, $parentUnitId);
+        })->get();
+        $lokasis = Lokasi::whereHas('user', function ($query) use ($parentUnitId) {
+            // Menggunakan helper untuk memfilter unit
+            filterByParentUnit($query, $parentUnitId);
+        })->get();
 
         return view('aset.index', compact('asets', 'kategoris', 'merks', 'tokos', 'penanggungJawabs', 'lokasis', 'asetqr'));
     }
@@ -110,12 +136,8 @@ class AsetController extends Controller
         // Query untuk mendapatkan aset berdasarkan unit parent yang dimiliki oleh user
         return Aset::where('status', true)
             ->whereHas('user', function ($query) use ($parentUnitId) {
-                // Cari aset yang terkait dengan unit parent user
-                $query->whereHas('unitKerja', function ($unitQuery) use ($parentUnitId) {
-                    // Pastikan kita selalu memfilter berdasarkan unit parent
-                    $unitQuery->where('parent_id', $parentUnitId)
-                        ->orWhere('id', $parentUnitId); // Menampilkan aset yang terkait dengan parent atau child
-                });
+                // Menggunakan helper untuk memfilter unit
+                filterByParentUnit($query, $parentUnitId);
             });
     }
 

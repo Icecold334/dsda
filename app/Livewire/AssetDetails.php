@@ -9,6 +9,7 @@ use App\Models\Person;
 use App\Models\History;
 use Livewire\Component;
 use App\Models\Keuangan;
+use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
@@ -62,12 +63,28 @@ class AssetDetails extends Component
 
     public function searchQueryPerson()
     {
+
         // dd('aa');
         $this->showSuggestionsPerson = true;
+
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         // Ambil data dari database berdasarkan query
         $this->suggestionsPerson = Person::where('nama', 'like', '%' . $this->person . '%')
             // ->limit(5)
+            ->whereHas('user', function ($query) use ($parentUnitId) {
+                // Menggunakan helper untuk memfilter unit
+                filterByParentUnit($query, $parentUnitId);
+            })
             ->get()
             ->toArray();
         $this->nama = $this->person;
@@ -104,9 +121,24 @@ class AssetDetails extends Component
         // dd('aa');
         $this->showSuggestionsLokasi = true;
 
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
         // Ambil data dari database berdasarkan query
         $this->suggestionsLokasi = Lokasi::where('nama', 'like', '%' . $this->lokasi . '%')
             // ->limit(5)
+            ->whereHas('user', function ($query) use ($parentUnitId) {
+                // Menggunakan helper untuk memfilter unit
+                filterByParentUnit($query, $parentUnitId);
+            })
             ->get()
             ->toArray();
         $this->nama = $this->lokasi;
@@ -290,11 +322,11 @@ class AssetDetails extends Component
     public function save()
     {
         $this->validate($this->getValidationRules(), $this->getValidationMessages());
-
+        
         if ($this->type === 'history') {
             $personId = $this->getOrCreatePerson($this->person);
-            $lokasiId = $this->getOrCreateLokasi($this->lokasi);
-
+            $lokasiId = $this->lokasi_id ? $this->lokasi_id : $this->getOrCreateLokasi($this->lokasi);
+            // dd($lokasiId);
             // Tambahkan ID ke dalam modalData
             $this->modalData['person_id'] = $personId;
             $this->modalData['lokasi_id'] = $lokasiId;

@@ -33,12 +33,8 @@ class AsetNonAktifController extends Controller
         // Query awal untuk aset non-aktif
         $query = Aset::where('status', false)
             ->whereHas('user', function ($query) use ($parentUnitId) {
-                // Cari aset yang terkait dengan unit parent user
-                $query->whereHas('unitKerja', function ($unitQuery) use ($parentUnitId) {
-                    // Pastikan kita selalu memfilter berdasarkan unit parent
-                    $unitQuery->where('parent_id', $parentUnitId)
-                        ->orWhere('id', $parentUnitId); // Menampilkan aset yang terkait dengan parent atau child
-                });
+                // Menggunakan helper untuk memfilter unit
+                filterByParentUnit($query, $parentUnitId);
             });
         // Apply filters
         $this->applyFilters($query, $request);
@@ -57,7 +53,10 @@ class AsetNonAktifController extends Controller
         })->keyBy('id')->toArray(); // Gunakan keyBy untuk membuat key array berdasarkan ID aset
 
         // Data tambahan untuk dropdown filter
-        $kategoris = Kategori::all();
+        $kategoris = Kategori::whereHas('user', function ($query) use ($parentUnitId) {
+            // Menggunakan helper untuk memfilter unit
+            filterByParentUnit($query, $parentUnitId);
+        })->get();
 
         // Return to view with the necessary data
         return view('nonaktifaset.index', compact('asets', 'kategoris', 'asetqr'));

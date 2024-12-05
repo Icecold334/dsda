@@ -28,21 +28,24 @@ class AddMerk extends Component
 
     public function removeMerk()
     {
-
         Merk::destroy($this->id);
         return redirect()->route('merk.index');
     }
     public function saveMerk()
     {
-        Merk::updateOrCreate(
-            ['id' => $this->id ?? 0], // Unique field to check for existing record
-            [
-                'user_id' => Auth::user()->id,
-                'nama' => $this->merk,
-                'keterangan' => $this->keterangan,
-                'nama_nospace' => Str::slug($this->merk),
-            ]
-        );
+        $data = [
+            'nama' => $this->merk,
+            'keterangan' => $this->keterangan,
+            'nama_nospace' => Str::slug($this->merk),
+        ];
+        // Jika ID diberikan, cari kategori
+        $merk = Merk::find($this->id);
+
+        // Set user_id
+        $data['user_id'] = $merk ? $merk->user_id : Auth::id();
+
+        // Update atau create dengan data
+        Merk::updateOrCreate(['id' => $this->id ?? 0], $data);
 
         return redirect()->route('merk.index');
     }

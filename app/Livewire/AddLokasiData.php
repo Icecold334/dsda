@@ -24,24 +24,26 @@ class AddLokasiData extends Component
             $this->keterangan = $lokasi->keterangan;
         }
     }
-
     public function removeLokasi()
     {
-
         Lokasi::destroy($this->id);
         return redirect()->route('lokasi.index');
     }
     public function saveLokasi()
     {
-        Lokasi::updateOrCreate(
-            ['id' => $this->id ?? 0], // Unique field to check for existing record
-            [
-                'user_id' => Auth::user()->id,
-                'nama' => $this->lokasi,
-                'keterangan' => $this->keterangan,
-                'nama_nospace' => strtolower(str_replace(' ', '-', $this->lokasi)),
-            ]
-        );
+        $data = [
+            'nama' => $this->lokasi,
+            'keterangan' => $this->keterangan,
+            'nama_nospace' => strtolower(str_replace(' ', '-', $this->lokasi)),
+        ];
+        // Jika ID diberikan, cari kategori
+        $lokasi = Lokasi::find($this->id);
+
+        // Set user_id
+        $data['user_id'] = $lokasi ? $lokasi->user_id : Auth::id();
+        // Update atau create dengan data
+        Lokasi::updateOrCreate(['id' => $this->id ?? 0], $data);
+
         return redirect()->route('lokasi.index');
     }
     public function render()
