@@ -15,7 +15,11 @@ class StokController extends Controller
     {
         $barangs = BarangStok::whereHas('merkStok', function ($merkQuery) {
             $merkQuery->whereHas('stok', function ($stokQuery) {
-                $stokQuery->where('jumlah', '>', 0);
+                $stokQuery->where('jumlah', '>', 0)->whereHas('lokasiStok', function ($stokQuery) {
+                    $stokQuery->whereHas('unitKerja', function ($unit) {
+                        return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                    });
+                });
             });
         })->get();
 

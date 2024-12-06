@@ -61,6 +61,7 @@ return new class extends Migration
         Schema::create('lokasi_stok', function (Blueprint $table) {
             $table->timestamps();
             $table->id();
+            $table->foreignId('unit_id')->constrained('unit_kerja')->onDelete('cascade'); // Link to unit_kerja table
             $table->string('nama');
             $table->text('alamat');
         });

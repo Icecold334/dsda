@@ -1,7 +1,10 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">DAFTAR STOK</h1>
+        <h1 class="text-2xl font-bold text-primary-900 ">Daftar Stok
+            {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+
+        </h1>
         <div>
             {{-- <a href="{{ route('aset.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+

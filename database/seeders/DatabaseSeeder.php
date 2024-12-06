@@ -45,12 +45,6 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $faker = Faker::create('id_ID');
-        for ($i = 1; $i <= 5; $i++) {
-            LokasiStok::create([
-                'nama' => $faker->city,
-                'alamat' => $faker->address,
-            ]);
-        }
 
         // Parent Units
         $unitProduksi = UnitKerja::create([
@@ -137,19 +131,32 @@ class DatabaseSeeder extends Seeder
             'keterangan' => 'Bagian pelatihan dalam unit SDM.',
         ]);
 
-        $subUnitFinishing = UnitKerja::create([
-            'nama' => 'Bagian Finishing',
-            'parent_id' => $unitProduksi->id,
-            'kode' => 'UP01-FIN',
-            'keterangan' => 'Sub-bagian yang menangani proses finishing produk.',
-        ]);
 
-        $subUnitPackaging = UnitKerja::create([
-            'nama' => 'Bagian Packaging',
-            'parent_id' => $unitProduksi->id,
-            'kode' => 'UP01-PKG',
-            'keterangan' => 'Sub-bagian yang bertanggung jawab atas pengemasan.',
-        ]);
+        for ($i = 1; $i <= 4; $i++) {
+            $namaWilayah = '';
+            switch ($i) {
+                case 1:
+                    $namaWilayah = 'Jakarta Utara';
+                    break;
+                case 2:
+                    $namaWilayah = 'Jakarta Selatan';
+                    break;
+                case 3:
+                    $namaWilayah = 'Jakarta Timur';
+                    break;
+                case 4:
+                    $namaWilayah = 'Jakarta Barat';
+                    break;
+            }
+
+            LokasiStok::create([
+                'unit_id' => UnitKerja::inRandomOrder()->first()->id,
+                'nama' => $namaWilayah,
+                'alamat' => $faker->address,
+            ]);
+        }
+
+
 
 
 
@@ -942,52 +949,33 @@ class DatabaseSeeder extends Seeder
 
 
 
-        $requests = [
-            [
+
+
+        $requests = [];
+        for ($i = 0; $i < 6; $i++) {
+            $parentUnit = UnitKerja::whereNull('parent_id')->inRandomOrder()->first();
+
+            // Ambil unit sub yang merupakan anak dari unit induk yang dipilih
+            $subUnit = null;
+            if ($faker->boolean) { // Misal 50% kemungkinan sub_unit_id ada
+                $subUnit = UnitKerja::where('parent_id', $parentUnit->id)->inRandomOrder()->first();
+            }
+            $requests[] = [
                 'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
                 'tanggal_permintaan' => strtotime(Carbon::now()),
-                'user_id' => User::inRandomOrder()->first()->id,
-                'unit_id' => $unitProduksi->id,
+                'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
+                'unit_id' => $parentUnit->id, // unit_id diambil dari unit induk
                 'keterangan' => $faker->paragraph(),
-                'sub_unit_id' => $subUnitFinishing->id,
-                'jumlah' => 500,
-            ],
-            [
-                'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
-                'tanggal_permintaan' => strtotime(Carbon::now()),
-                'user_id' => User::inRandomOrder()->first()->id,
-                'unit_id' => $unitProduksi->id,
-                'keterangan' => $faker->paragraph(),
-                'sub_unit_id' => $subUnitPackaging->id,
-                'jumlah' => 300,
-            ],
-            [
-                'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
-                'tanggal_permintaan' => strtotime(Carbon::now()),
-                'user_id' => User::inRandomOrder()->first()->id,
-                'unit_id' => $unitProduksi->id,
-                'keterangan' => $faker->paragraph(),
-                'sub_unit_id' => null, // No specific sub-unit
-                'jumlah' => 1000,
-            ],
-        ];
+                'sub_unit_id' => $subUnit ? $subUnit->id : null, // jika ada sub-unit, pakai id-nya, jika tidak null
+                'jumlah' => rand(1, 30), // Jumlah acak antara 1 dan 30
+            ];
+        }
 
         foreach ($requests as $request) {
             DetailPermintaanStok::create($request);
         }
 
-        // Additional Example Requests with other units
-        for ($i = 1; $i <= 10; $i++) {
-            DetailPermintaanStok::create([
-                'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
-                'tanggal_permintaan' => strtotime(Carbon::now()),
-                'user_id' => User::inRandomOrder()->first()->id,
-                'unit_id' => $unitProduksi->id,
-                'keterangan' => $faker->paragraph(),
-                'sub_unit_id' => $i % 2 == 0 ? $subUnitFinishing->id : $subUnitPackaging->id,
-                'jumlah' => rand(100, 1000),
-            ]);
-        }
+
         $users = User::all();
         $merks = MerkStok::all();
         $details = DetailPermintaanStok::all();
