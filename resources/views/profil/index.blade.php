@@ -118,7 +118,7 @@
         <div>
             <!-- Pengguna Tambahan -->
             <x-card title="Pengguna Tambahan" class="mb-3">
-                <div class="overflow-y-auto max-h-[42rem]">
+                <div class="overflow-y-auto max-h-[42.8rem]">
                     <div class="flex mt-4 mb-6">
                         <a href="/profil/user"
                             class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
@@ -132,17 +132,6 @@
                                     <strong>Nama:</strong> <span>{{ $user->name }}</span>
                                 </p>
                                 <div class="flex space-x-2">
-                                    {{-- <a href="{{ route('person.index', ['person' => $user->id]) }}"
-                                        class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
-                                        data-tooltip-target="tooltip-delete-{{ $user->id }}">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </a>
-                                    <div id="tooltip-delete-{{ $user->id }}" role="tooltip"
-                                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                        Hapus Pengguna ini
-                                        <div class="tooltip-arrow" data-popper-arrow></div>
-                                    </div> --}}
-
                                     <a href="profil/user/{{ $user->id }}""
                                         class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
                                         data-tooltip-target="tooltip-edit-{{ $user->id }}">

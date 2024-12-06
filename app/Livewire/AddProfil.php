@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Models\LokasiStok;
+use App\Models\UnitKerja;
 use App\Models\User;
 use Livewire\Component;
 use Spatie\Permission\Models\Role;
@@ -13,6 +15,8 @@ class AddProfil extends Component
     public $tipe;
     public $users;
     public $name;
+    public $unitkerjas;
+    public $lokasistoks;
     public $roles;
     public $selectedRoles = [];
     public $email;
@@ -30,12 +34,16 @@ class AddProfil extends Component
     public $keterangan;
     public $user_id;
     public $user;
+    public $lokasi_stok;
+    public $unit_kerja;
 
     public function mount()
     {
+        $this->unitkerjas = UnitKerja::all();
+        $this->lokasistoks = LokasiStok::all();
         if ($this->tipe == 'user') {
             $this->users = User::all();
-            $this->roles = Role::where('id', '>', '1')->get();
+            $this->roles = Role::whereNotIn('id', [1, 6])->get();
             if ($this->id) {
                 $user = User::find($this->id);
                 $this->user_id = $user->user_id;
@@ -43,6 +51,8 @@ class AddProfil extends Component
                 $this->keterangan = $user->keterangan;
                 $this->username = $user->username;
                 $this->email = $user->email;
+                $this->unit_kerja = $user->unit_id;
+                $this->lokasi_stok = $user->lokasi_id;
                 // Ambil roles yang sudah dimiliki user
                 $this->selectedRoles = $user->roles->pluck('name')->toArray();
                 // $this->role = $user->hak;
@@ -76,6 +86,8 @@ class AddProfil extends Component
                 $this->alamat = $profil->alamat;
                 $this->provinsi = $profil->provinsi;
                 $this->kota = $profil->kota;
+                $this->unit_kerja = $profil->unit_id;
+                $this->lokasi_stok = $profil->lokasi_id;
             }
         }
     }
@@ -91,14 +103,12 @@ class AddProfil extends Component
     public function saveProfil()
     {
         if ($this->tipe == 'user') {
-            // dd($this->selectedRoles);
             $rules = $this->id
                 ? ['nullable', 'min:8']
                 : ['required', 'min:8', 'confirmed'];
             $this->validate([
                 'password' => $rules,
             ]);
-
             $user = User::updateOrCreate(
                 ['id' => $this->id ?? 0], // Unique field to check for existing record
                 [
@@ -107,6 +117,8 @@ class AddProfil extends Component
                     'email' => $this->email,
                     'password' => $this->password,
                     'keterangan' => $this->keterangan,
+                    'unit_id' => $this->unit_kerja,
+                    'lokasi_id' => $this->lokasi_stok,
                     // 'hak' => $this->selectedRoles,
                 ]
             );
@@ -157,6 +169,8 @@ class AddProfil extends Component
             $user->update( // Unique fields to check
                 [
                     'name' => $this->name,
+                    'unit_id' => $this->unit_kerja,
+                    'lokasi_id' => $this->lokasi_stok,
                     'perusahaan' => $this->perusahaan,
                     'alamat' => $this->alamat,
                     'provinsi' => $this->provinsi,

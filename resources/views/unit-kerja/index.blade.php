@@ -34,19 +34,6 @@
                     <td class="px-6 py-3"></td>
                     <td class="px-6 py-3"></td>
                     <td class="px-6 py-3">{{ $unitKerja->keterangan }}</td>
-                    {{-- <td class="text-center px-6 py-3">
-                        <!-- Link to aset.index with tooltip -->
-                        <a href="{{ route('aset.index', ['kategori_id' => $kategori->id]) }}"
-                           class="text-primary-950 hover:underline"
-                           data-tooltip-target="tooltip-jumlah-kategori-{{ $kategori->id }}">
-                            {{ $kategori->aset->count() }}
-                        </a>
-                        <div id="tooltip-jumlah-kategori-{{ $kategori->id }}" role="tooltip"
-                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                            Lihat aset untuk "{{ $kategori->nama }}"
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
-                    </td> --}}
                     <td class="py-3 px-6 text-center">
                         <a href="/unit-kerja/utama/{{ $unitKerja->id }}"
                             class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
@@ -69,20 +56,6 @@
                         <td class="px-6 py-3">{{ $child->kode }}</td>
                         <td class="px-6 py-3">{{ $child->nama }}</td>
                         <td class="px-6 py-3">{{ $child->keterangan }}</td>
-                        {{-- <td class="px-6 py-3">{{ $child->aset->count() }}</td> --}}
-                        {{-- <td class="text-center px-6 py-3">
-                            <!-- Link to aset.index with tooltip -->
-                            <a href="{{ route('aset.index', ['kategori_id' => $child->id]) }}"
-                               class="text-primary-950 hover:underline"
-                               data-tooltip-target="tooltip-jumlah-child-{{ $child->id }}">
-                                {{ $child->aset->count() }}
-                            </a>
-                            <div id="tooltip-jumlah-child-{{ $child->id }}" role="tooltip"
-                                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                Lihat aset untuk "{{ $child->nama }}"
-                                <div class="tooltip-arrow" data-popper-arrow></div>
-                            </div>
-                        </td> --}}
                         <td class="py-3 px-6 text-center">
                             <a href="/unit-kerja/sub/{{ $child->id }}"
                                 class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "

@@ -17,6 +17,60 @@
                     @enderror
                 </td>
             </tr>
+
+            <!-- Select for LokasiStok -->
+            <tr>
+                <td>
+                    <label for="lokasi_stok">Lokasi Stok</label>
+                </td>
+                <td>
+                    @dump($lokasi_stok)
+                    @dump($errors->first())
+                    <select id="lokasi_stok" wire:model.live="lokasi_stok"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        required>
+                        <option value="">Pilih Lokasi Stok</option>
+                        @foreach ($lokasistoks as $lokasi)
+                            <option value="{{ $lokasi->id }}">
+                                {{ $lokasi->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('lokasi_stok')
+                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </td>
+            </tr>
+
+            <!-- Select for UnitKerja -->
+            <tr>
+                <td>
+                    <label for="unit_kerja">Unit Kerja</label>
+                </td>
+                <td>
+                    @dump($unit_kerja)
+                    <select id="unit_kerja" wire:model.live="unit_kerja"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        required>
+                        <option value="">Pilih Unit Kerja</option>
+                        @foreach ($unitkerjas as $unit)
+                            @if ($unit->parent_id == null)
+                                <!-- Parent Unit -->
+                                <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+
+                                <!-- Child Units -->
+                                @foreach ($unitkerjas->where('parent_id', $unit->id) as $childUnit)
+                                    <option value="{{ $childUnit->id }}">--- {{ $childUnit->nama }}</option>
+                                @endforeach
+                            @endif
+                        @endforeach
+                    </select>
+                    @error('unit_kerja')
+                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </td>
+            </tr>
+
             <tr>
                 <td>
 
@@ -210,6 +264,57 @@
                     @enderror
                 </td>
             </tr>
+
+            <!-- Select for LokasiStok -->
+            <tr>
+                <td>
+                    <label for="lokasi_stok">Lokasi Stok</label>
+                </td>
+                <td>
+                    <select id="lokasi_stok" wire:model.live="lokasi_stok"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        required>
+                        <option value="">Pilih Lokasi Stok</option>
+                        @foreach ($lokasistoks as $lokasi)
+                            <option value="{{ $lokasi->id }}">
+                                {{ $lokasi->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('lokasi_stok')
+                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </td>
+            </tr>
+
+            <!-- Select for UnitKerja -->
+            <tr>
+                <td>
+                    <label for="unit_kerja">Unit Kerja</label>
+                </td>
+                <td>
+                    <select id="unit_kerja" wire:model.live="unit_kerja"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        required>
+                        <option value="">Pilih Unit Kerja</option>
+                        @foreach ($unitkerjas as $unit)
+                            @if ($unit->parent_id == null)
+                                <!-- Parent Unit -->
+                                <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+
+                                <!-- Child Units -->
+                                @foreach ($unitkerjas->where('parent_id', $unit->id) as $childUnit)
+                                    <option value="{{ $childUnit->id }}">--- {{ $childUnit->nama }}</option>
+                                @endforeach
+                            @endif
+                        @endforeach
+                    </select>
+                    @error('unit_kerja')
+                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </td>
+            </tr>
+
             <tr>
                 <td>
 
@@ -296,7 +401,7 @@
                                     class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600">
                                 <label for="role_{{ $role->id }}"
                                     class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                                    {{ $role->name }}
+                                    {{ ucwords(str_replace('_', ' ', $role->name)) }}
                                 </label>
                             </div>
                         @endforeach
