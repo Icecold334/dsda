@@ -3,7 +3,7 @@
 
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL PERMINTAAN</h1>
         <div>
-            <a href="{{ route('permintaan-stok.index') }}"
+            <a href="/permintaan/{{ $permintaan->jenis_id == 3 ? 'umum' : ($permintaan->jenis_id == 2 ? 'spare-part' : 'material') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
         </div>
     </div>
@@ -15,6 +15,54 @@
                         <td>Kode Permintaan</td>
                         <td>{{ $permintaan->kode_permintaan }}</td>
                     </tr>
+                    <tr class="font-semibold">
+                        <td>Status</td>
+                        <td> <span
+                                class="
+        bg-{{ $permintaan->cancel === 1
+            ? 'secondary'
+            : ($permintaan->cancel === 0 && $permintaan->proses === 1
+                ? 'primary'
+                : ($permintaan->cancel === 0 && $permintaan->proses === null
+                    ? 'info'
+                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                        ? 'warning'
+                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                            ? 'success'
+                            : 'danger')))) }}-600
+        text-{{ $permintaan->cancel === 1
+            ? 'secondary'
+            : ($permintaan->cancel === 0 && $permintaan->proses === 1
+                ? 'primary'
+                : ($permintaan->cancel === 0 && $permintaan->proses === null
+                    ? 'info'
+                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                        ? 'warning'
+                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                            ? 'success'
+                            : 'danger')))) }}-100
+        text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
+                                {{ $permintaan->cancel === 1
+                                    ? 'dibatalkan'
+                                    : ($permintaan->cancel === 0 && $permintaan->proses === 1
+                                        ? 'selesai'
+                                        : ($permintaan->cancel === 0 && $permintaan->proses === null
+                                            ? 'siap diambil'
+                                            : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                                                ? 'diproses'
+                                                : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                                                    ? 'disetujui'
+                                                    : 'ditolak')))) }}
+                            </span>
+
+                        </td>
+                    </tr>
+                    @if ($permintaan->status === 0)
+                        <tr class="font-semibold">
+                            <td>Keterangan</td>
+                            <td>{{ $permintaan->persetujuan->where('status', 0)->last()->keterangan }}</td>
+                        </tr>
+                    @endif
                     <tr class="font-semibold">
                         <td>Tanggal Permintaan</td>
                         <td>{{ date('j F Y', $permintaan->tanggal_permintaan) }}</td>
@@ -29,52 +77,20 @@
                     </tr>
                 </table>
             </x-card>
+        </div>
+        <div>
             <x-card title="keterangan" class="mb-3">
                 <div class="font-normal">
                     {{ $permintaan->keterangan }}
                 </div>
             </x-card>
-
         </div>
-        <div>
+        <div class="col-span-2">
             <x-card title="daftar permintaan">
-                <table class="w-full">
-                    <thead>
-                        <tr class="text-primary-600">
-                            <th>Barang</th>
-                            {{-- <th>Lokasi</th> --}}
-                            <th>Jumlah</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($permintaan->permintaanStok as $item)
-                            <tr class=" border-b-2 border-primary-500 ">
-                                <td class="px-8">
-                                    <div class="font-semibold">
-                                        {{ $item->merkStok->BarangStok->nama }}
-                                    </div>
-                                    <div>
-                                        {{ $item->merkStok->nama }} | {{ $item->merkStok->tipe ?? '---' }}|
-                                        {{ $item->merkStok->ukuran ?? '---' }}
-                                    </div>
-                                </td>
-                                {{-- <td class="px-8">
-                                    <div class="font-semibold">
-                                        {{ $item->lokasiStok->nama }}
-                                    </div>
-                                </td> --}}
-                                <td class="px-8">
-                                    <div class="font-semibold">
-                                        {{ $item->jumlah }}
-                                        {{ $item->merkStok->barangStok->satuanBesar->nama }}
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+
+                <livewire:list-permintaan-form :permintaan="$permintaan">
+                    <livewire:approval-permintaan :permintaan="$permintaan">
             </x-card>
-            {{-- <x-card title="Status persetujuan"></x-card> --}}
         </div>
     </div>
 </x-body>

@@ -36,7 +36,8 @@
                     <livewire:nav-item title="Form" :child="[
                         ['href' => route('permintaan-stok.index'), 'title' => 'Form pelayanan Umum'],
                         // ['href' => '/#', 'title' => 'Form permintaan spare part'],
-                        ['href' => '/#', 'title' => 'Form permintaan material'],
+                        ['href' => '/permintaan/spare-part', 'title' => 'Form permintaan spare part'],
+                        ['href' => '/permintaan/material', 'title' => 'Form permintaan material'],
                         ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
                     ]" />
                     <livewire:nav-item title="data" :child="[

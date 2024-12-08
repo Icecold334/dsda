@@ -28,7 +28,8 @@
                 <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="py-3 px-6"></td>
                     <td class="py-3 px-6 font-semibold">
-                        {{ $barang->nama }}
+                        <div>{{ $barang->nama }}</div>
+                        <div class="font-normal text-sm">{{ $barang->jenisStok->nama }}</div>
                     </td>
                     <td class="py-3 px-6 font-semibold">
                         {{ $barang->kode_barang }}

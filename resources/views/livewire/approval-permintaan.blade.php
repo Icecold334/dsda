@@ -12,50 +12,182 @@
             </div>
 
         </div>
+        @if ($permintaan->jenisStok->nama == 'Umum')
+            <div class="">
+                <div class="block font-semibold text-center mb-2 text-gray-900">
+                    Kepala Seksi</div>
+                <table class="w-full mt-3">
+                    @foreach ($kepalaseksiList as $kepalaseksi)
+                        <tr class="text-sm border-b-2 ">
+                            <td class="flex justify-between px-3">
+                                <span class="mr-9 {{ $kepalaseksi->id == auth()->id() ? 'font-bold' : '' }}">
+                                    {{ $kepalaseksi->id == auth()->id() ? 'Anda' : $kepalaseksi->name }}
+                                </span>
+                                <i
+                                    class="my-1 fa-solid {{ is_null(
+                                        optional($kepalaseksi->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                    )
+                                        ? 'fa-circle-question text-secondary-600'
+                                        : (optional($kepalaseksi->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                            ? 'fa-circle-check text-success-500'
+                                            : 'fa-circle-xmark text-danger-500') }}">
+                                </i>
 
-        {{-- @role('penanggungjawab') --}}
 
-        {{-- <div class="">
-            <div class="block font-semibold text-center mb-2 text-gray-900">Penanggung Jawab</div>
-            <table class="w-full mt-3">
-                @foreach ($pjList as $pj)
-                    <tr class="text-sm border-b-2 ">
-                        <td class="flex justify-between px-3">
-                            <span class="mr-9 {{ $pj->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $pj->id == auth()->id() ? 'Anda' : $pj->name }}
-                            </span>
-                            <i
-                                class="my-1 fa-solid {{ is_null(
-                                    optional($pj->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
-                                )
-                                    ? 'fa-circle-question text-secondary-600'
-                                    : (optional($pj->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
-                                        ? 'fa-circle-check text-success-500'
-                                        : 'fa-circle-xmark text-danger-500') }}">
-                            </i>
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
+            </div>
+            <div class="">
+                <div class="block font-semibold text-center mb-2 text-gray-900">
+                    Kepala Sub Bagian</div>
+                <table class="w-full mt-3">
+                    @foreach ($kasubagList as $kasubag)
+                        <tr class="text-sm border-b-2 ">
+                            <td class="flex justify-between px-3">
+                                <span class="mr-9 {{ $kasubag->id == auth()->id() ? 'font-bold' : '' }}">
+                                    {{ $kasubag->id == auth()->id() ? 'Anda' : $kasubag->name }}
+                                </span>
+                                <i
+                                    class="my-1 fa-solid {{ is_null(
+                                        optional($kasubag->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                    )
+                                        ? 'fa-circle-question text-secondary-600'
+                                        : (optional($kasubag->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                            ? 'fa-circle-check text-success-500'
+                                            : 'fa-circle-xmark text-danger-500') }}">
+                                </i>
 
 
-                        </td>
-                    </tr>
-                @endforeach
-            </table>
-        </div> --}}
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
+            </div>
+        @elseif($permintaan->jenisStok->nama == 'Spare Part')
+            <div class="">
+                <div class="block font-semibold text-center mb-2 text-gray-900">
+                    Kepala Sub Bagian Tata Usaha</div>
+                <table class="w-full mt-3">
+                    @foreach ($tuList as $tu)
+                        <tr class="text-sm border-b-2 ">
+                            <td class="flex justify-between px-3">
+                                <span class="mr-9 {{ $tu->id == auth()->id() ? 'font-bold' : '' }}">
+                                    {{ $tu->id == auth()->id() ? 'Anda' : $tu->name }}
+                                </span>
+                                <i
+                                    class="my-1 fa-solid {{ is_null(
+                                        optional($tu->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                    )
+                                        ? 'fa-circle-question text-secondary-600'
+                                        : (optional($tu->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                            ? 'fa-circle-check text-success-500'
+                                            : 'fa-circle-xmark text-danger-500') }}">
+                                </i>
+
+
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
+            </div>
+            <div class="">
+                <div class="block font-semibold text-center mb-2 text-gray-900">
+                    Kepala Unit</div>
+                <table class="w-full mt-3">
+                    @foreach ($kaunitList as $kaunit)
+                        <tr class="text-sm border-b-2 ">
+                            <td class="flex justify-between px-3">
+                                <span class="mr-9 {{ $kaunit->id == auth()->id() ? 'font-bold' : '' }}">
+                                    {{ $kaunit->id == auth()->id() ? 'Anda' : $kaunit->name }}
+                                </span>
+                                <i
+                                    class="my-1 fa-solid {{ is_null(
+                                        optional($kaunit->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                    )
+                                        ? 'fa-circle-question text-secondary-600'
+                                        : (optional($kaunit->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                            ? 'fa-circle-check text-success-500'
+                                            : 'fa-circle-xmark text-danger-500') }}">
+                                </i>
+
+
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
+            </div>
+        @elseif($permintaan->jenisStok->nama == 'Material')
+            <div class="">
+                <div class="block font-semibold text-center mb-2 text-gray-900">
+                    Kepala Seksi Pemeliharaan</div>
+                <table class="w-full mt-3">
+                    @foreach ($pemeliharaanList as $pemeliharaan)
+                        <tr class="text-sm border-b-2 ">
+                            <td class="flex justify-between px-3">
+                                <span class="mr-9 {{ $pemeliharaan->id == auth()->id() ? 'font-bold' : '' }}">
+                                    {{ $pemeliharaan->id == auth()->id() ? 'Anda' : $pemeliharaan->name }}
+                                </span>
+                                <i
+                                    class="my-1 fa-solid {{ is_null(
+                                        optional($pemeliharaan->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                    )
+                                        ? 'fa-circle-question text-secondary-600'
+                                        : (optional($pemeliharaan->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                            ? 'fa-circle-check text-success-500'
+                                            : 'fa-circle-xmark text-danger-500') }}">
+                                </i>
+
+
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
+            </div>
+            <div class="">
+                <div class="block font-semibold text-center mb-2 text-gray-900">
+                    Kepala Suku Dinas</div>
+                <table class="w-full mt-3">
+                    @foreach ($kasudinList as $kasudin)
+                        <tr class="text-sm border-b-2 ">
+                            <td class="flex justify-between px-3">
+                                <span class="mr-9 {{ $kasudin->id == auth()->id() ? 'font-bold' : '' }}">
+                                    {{ $kasudin->id == auth()->id() ? 'Anda' : $kasudin->name }}
+                                </span>
+                                <i
+                                    class="my-1 fa-solid {{ is_null(
+                                        optional($kasudin->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                    )
+                                        ? 'fa-circle-question text-secondary-600'
+                                        : (optional($kasudin->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                            ? 'fa-circle-check text-success-500'
+                                            : 'fa-circle-xmark text-danger-500') }}">
+                                </i>
+
+
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
+            </div>
+        @endif
         <div class="">
             <div class="block font-semibold text-center mb-2 text-gray-900">
-                Kepala Seksi</div>
+                Penjaga Gudang</div>
             <table class="w-full mt-3">
-                @foreach ($kepalaseksiList as $kepalaseksi)
+                @foreach ($pjGudangList as $pjGudang)
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
-                            <span class="mr-9 {{ $kepalaseksi->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $kepalaseksi->id == auth()->id() ? 'Anda' : $kepalaseksi->name }}
+                            <span class="mr-9 {{ $pjGudang->id == auth()->id() ? 'font-bold' : '' }}">
+                                {{ $pjGudang->id == auth()->id() ? 'Anda' : $pjGudang->name }}
                             </span>
                             <i
                                 class="my-1 fa-solid {{ is_null(
-                                    optional($kepalaseksi->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                    optional($pjGudang->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
                                 )
                                     ? 'fa-circle-question text-secondary-600'
-                                    : (optional($kepalaseksi->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                    : (optional($pjGudang->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
                                         ? 'fa-circle-check text-success-500'
                                         : 'fa-circle-xmark text-danger-500') }}">
                             </i>
@@ -66,39 +198,13 @@
                 @endforeach
             </table>
         </div>
-        <div class="">
-            <div class="block font-semibold text-center mb-2 text-gray-900">
-                Kepala Sub Bagian</div>
-            <table class="w-full mt-3">
-                @foreach ($kasubagList as $kasubag)
-                    <tr class="text-sm border-b-2 ">
-                        <td class="flex justify-between px-3">
-                            <span class="mr-9 {{ $kasubag->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $kasubag->id == auth()->id() ? 'Anda' : $kasubag->name }}
-                            </span>
-                            <i
-                                class="my-1 fa-solid {{ is_null(
-                                    optional($kasubag->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
-                                )
-                                    ? 'fa-circle-question text-secondary-600'
-                                    : (optional($kasubag->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
-                                        ? 'fa-circle-check text-success-500'
-                                        : 'fa-circle-xmark text-danger-500') }}">
-                            </i>
 
-
-                        </td>
-                    </tr>
-                @endforeach
-            </table>
-        </div>
-
-        {{-- @endrole --}}
     </div>
     @if ($showButton)
         <div class="flex">
             <div class="flex space-x-2 justify-center w-full">
-                @if ($isLastUser || $lastPj || $lastPpk || $lastPptk || $lastKepalaseksi || $lastKasubag)
+                @if ($isLastUser || $lastPj || $lastPpk || $lastPptk || ($lastPjGudang && $permintaan->cancel === 0))
+                    {{-- // || $lastKepalaseksi || $lastKasubag --}}
                     <div class="flex flex-col items-center">
                         <input type="file" wire:model="newApprovalFiles" id="approvalFiles" multiple class="hidden">
                         <button type="button" onclick="document.getElementById('approvalFiles').click()"
@@ -110,25 +216,30 @@
                         @enderror
                     </div>
                 @endif
-                <button type="button"
-                    onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk || $lastKepalaseksi || $lastKasubag ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
-                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                    Setuju
-                </button>
-                <button type="button" onclick="confirmReject()"
-                    class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                    Tidak Setuju
-                </button>
+                @if ($permintaan->status !== 0 && (!$lastPjGudang || ($lastPjGudang && $permintaan->cancel === 0)))
+                    <button type="button"
+                        onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk || ($lastPjGudang && $permintaan->cancel === 0) ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
+                        {{-- // || $lastKepalaseksi|| $lastKasubag --}}
+                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                        {{ !$lastPjGudang ? 'Setuju' : 'Selesai' }}
+                    </button>
+                    @if (!$lastPjGudang)
+                        <button type="button" onclick="confirmReject()"
+                            class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                            Tidak Setuju
+                        </button>
+                    @endif
+                @endif
                 {{-- Tombol Selesai atau Batalkan --}}
 
             </div>
         </div>
     @endif
-    @if ($isPenulis && $lastKasubagDone && is_null($permintaan->cancel))
+    @if ($isPenulis && ($lastKasubagDone || $lastkasudinDone || $lastkaunitDone) && is_null($permintaan->cancel))
         <div class="flex justify-center">
             <button type="button" onclick="confirmCompletion()"
                 class="text-green-900 bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                Selesai
+                Lanjutkan
             </button>
             <button type="button" onclick="confirmCancellation()"
                 class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
