@@ -24,6 +24,8 @@ class User extends Authenticatable
         'name',
         'unit_id',
         'lokasi_id',
+        'nip',
+        'ttd',
         'email',
         'password',
         'username',

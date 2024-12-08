@@ -26,6 +26,25 @@
 </head>
 
 <body>
+    {{-- @dd(session()->get('alert')) --}}
+    {{-- @dd('alert') --}}
+    @if (session('alert') && !request()->is('profil/profile/*'))
+        <script type="module">
+            Swal.fire({
+                title: "Lengkapi Data!",
+                text: "Harap lengkapi NIP dan Tanda Tangan Anda sebelum melanjutkan.",
+                icon: "warning",
+                confirmButtonText: "Lengkapi Sekarang",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/profil/profile/{{ Auth::user()->id }}";
+                }
+            });
+        </script>
+    @endif
     <livewire:navbar />
     <div class="mx-[3%] px-1 py-10">
         {{ $slot }}

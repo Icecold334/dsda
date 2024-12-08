@@ -235,9 +235,6 @@ class AsetForm extends Component
             'hargaSatuan.required' => 'Harga satuan wajib diisi!',
             'hargaSatuan.numeric' => 'Harga satuan harus berupa angka!',
             'hargaSatuan.min' => 'Harga satuan tidak boleh kurang dari 0!',
-            'img.image' => 'File harus berupa gambar!',
-            'img.max' => 'Ukuran gambar maksimal 2MB!',
-            'img.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif!',
             'attachments.*.file' => 'Setiap lampiran harus berupa file.',
             'attachments.*.max' => 'Setiap lampiran tidak boleh lebih dari 5 MB.',
             'attachments.*.mimes' => 'Lampiran harus berupa file dengan format jpeg, png, jpg, gif, pdf, doc, atau docx.',
@@ -486,7 +483,6 @@ class AsetForm extends Component
                     ? str_replace('asetImg/', '', $this->img->store('asetImg', 'public'))
                     : $this->img)
                 : null,
-
             'systemcode' => $this->aset ?   $this->aset->systemcode : $this->generateQRCode(),
             'kategori_id' => $this->kategori,
             'merk_id' => $merkId,

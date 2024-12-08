@@ -27,11 +27,20 @@ class ProfilController extends Controller
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         // $Users = User::whereNotIn('id', [1, 3])->get();
-        $Users = User::whereNotIn('id', [1, 3, $user->id])->whereHas('unitKerja', function ($unitQuery) use ($parentUnitId) {
-            // Pastikan kita selalu memfilter berdasarkan unit parent
-            $unitQuery->where('parent_id', $parentUnitId)
-                ->orWhere('id', $parentUnitId);
-        })->get();
+        // Membuat query berdasarkan kondisi apakah yang login adalah superadmin
+        $Users = User::whereNotIn('id', [1, 3, $user->id]);
+
+        // Jika yang login bukan superadmin (id != 1), tambahkan kondisi `whereHas` untuk filter unit kerja
+        if ($user->id != 1) {
+            $Users->whereHas('unitKerja', function ($unitQuery) use ($parentUnitId) {
+                // Memfilter unit kerja berdasarkan parent_id atau id yang sama
+                $unitQuery->where('parent_id', $parentUnitId)
+                    ->orWhere('id', $parentUnitId);
+            });
+        }
+
+        // Ambil semua pengguna yang sesuai dengan kondisi
+        $Users = $Users->get();
 
         foreach ($Users as $userItem) {
             // Ambil semua role
@@ -41,7 +50,7 @@ class ProfilController extends Controller
 
             // Iterasi setiap role untuk format ulang
             foreach ($roles as $role) {
-                $formattedRoles[] = ucwords(str_replace('_', ' ', $role));
+                $formattedRoles[] = formatRole($role);
             }
             // Gabungkan semua role yang diformat ke dalam string
             $userItem->formatted_roles = implode(', ', $formattedRoles);

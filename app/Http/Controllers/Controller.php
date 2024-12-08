@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Aset;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 
 abstract class Controller
 {
@@ -133,5 +135,20 @@ abstract class Controller
         return 'Rp ' . number_format($angka, 2, ',', '.');
     }
 
-    
+    public function __construct()
+    {
+        // Pastikan user dalam keadaan login
+        if (Auth::check()) {
+            $user = Auth::user();
+
+
+            if (!Request::is('profil/profile/*')) {
+                // Periksa jika NIP atau TTD kosong
+                // dd(empty($user->nip) || empty($user->ttd));
+                if (empty($user->nip) || empty($user->ttd)) {
+                    session()->flash('alert');
+                }
+            }
+        }
+    }
 }

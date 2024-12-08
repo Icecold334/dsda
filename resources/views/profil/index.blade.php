@@ -13,6 +13,10 @@
                             <span class="text-sm text-gray-500 w-2/3">{{ $user->name }}</span>
                         </div>
                         <div class="flex justify-between border-b py-2">
+                            <span class="text-sm font-medium text-gray-700 w-1/3">NIP</span>
+                            <span class="text-sm text-gray-500 w-2/3">{{ $user->nip ?? '--  ' }}</span>
+                        </div>
+                        <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Lokasi Gudang</span>
                             <span
                                 class="text-sm text-gray-500 w-2/3">{{ $user->lokasiStok->nama ?? 'Tidak Ditemukan' }}</span>
@@ -115,51 +119,60 @@
                 </x-card>
             </div>
         </div>
-        <div>
-            <!-- Pengguna Tambahan -->
-            <x-card title="Pengguna Tambahan" class="mb-3">
-                <div class="overflow-y-auto max-h-[42.8rem]">
-                    <div class="flex mt-4 mb-6">
-                        <a href="/profil/user"
-                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                            Buat Pengguna Tambahan</a>
-                    </div>
-                    @forelse ($Users as $user)
-                        <div class="border rounded-lg shadow-md p-4 mb-4 bg-white">
-                            <!-- Header Section -->
-                            <div class="flex justify-between items-center mb-4">
-                                <p class="text-base font-medium text-gray-700">
-                                    <strong>Nama:</strong> <span>{{ $user->name }}</span>
-                                </p>
-                                <div class="flex space-x-2">
-                                    <a href="profil/user/{{ $user->id }}""
-                                        class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
-                                        data-tooltip-target="tooltip-edit-{{ $user->id }}">
-                                        <i class="fa-solid fa-pencil"></i>
-                                    </a>
-                                    <div id="tooltip-edit-{{ $user->id }}" role="tooltip"
-                                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                        Edit Pengguna ini
-                                        <div class="tooltip-arrow" data-popper-arrow></div>
+
+        @if (Auth::user()->id == 1 ||
+                (Auth::user()->unit_id &&
+                    ($user->unitKerja &&
+                        $user->unitKerja->id == Auth::user()->unit_id &&
+                        $user->unitKerja->parent_id === null)))
+            <div>
+                <!-- Pengguna Tambahan -->
+                <x-card title="Pengguna Tambahan" class="mb-3">
+                    <div class="overflow-y-auto max-h-[45.4rem]">
+                        <div class="flex mt-4 mb-6">
+                            <a href="/profil/user"
+                                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
+                                Buat Pengguna Tambahan</a>
+                        </div>
+                        @forelse ($Users as $user)
+                            <div class="border rounded-lg shadow-md p-4 mb-4 bg-white">
+                                <!-- Header Section -->
+                                <div class="flex justify-between items-center mb-4">
+                                    <p class="text-base font-medium text-gray-700">
+                                        <strong>Nama:</strong> <span>{{ $user->name }}</span>
+                                    </p>
+                                    <div class="flex space-x-2">
+                                        <a href="profil/user/{{ $user->id }}""
+                                            class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
+                                            data-tooltip-target="tooltip-edit-{{ $user->id }}">
+                                            <i class="fa-solid fa-pencil"></i>
+                                        </a>
+                                        <div id="tooltip-edit-{{ $user->id }}" role="tooltip"
+                                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                            Edit Pengguna ini
+                                            <div class="tooltip-arrow" data-popper-arrow></div>
+                                        </div>
                                     </div>
                                 </div>
+                                <!-- Details Section -->
+                                <div class="text-sm text-gray-500 space-y-2">
+                                    <p><strong>NIP:</strong> {{ $user->nip ?? '-' }}</p>
+                                    <p><strong>Email:</strong> {{ $user->email ?? '-' }}</p>
+                                    <p><strong>Jabatan:</strong> {{ $user->formatted_roles ?? '-' }}</p>
+                                    <p><strong>Username:</strong> {{ $user->username ?? '-' }}</p>
+                                    <p><strong>Unit Kerja:</strong> {{ $user->unitKerja->nama ?? '-' }} </p>
+                                    <p><strong>Lokasi Gudang:</strong> {{ $user->lokasiStok->nama ?? '-' }} </p>
+                                    {{-- <p><strong>Keterangan:</strong> {{ $user->keterangan ?? '-' }}</p> --}}
+                                </div>
                             </div>
-                            <!-- Details Section -->
-                            <div class="text-sm text-gray-500 space-y-2">
-                                <p><strong>Email:</strong> {{ $user->email }}</p>
-                                <p><strong>Keterangan:</strong> {{ $user->keterangan ?? '-' }}</p>
-                                <p><strong>Jabatan:</strong> {{ $user->formatted_roles ?? '-' }}</p>
-                                <p><strong>Username:</strong> {{ $user->username ?? '-' }}</p>
-                                {{-- <p><strong>Password:</strong> '*************'</p> --}}
+                        @empty
+                            <div class="text-gray-500 text-sm">
+                                <p>Belum ada pengguna tambahan yang terdaftar.</p>
                             </div>
-                        </div>
-                    @empty
-                        <div class="text-gray-500 text-sm">
-                            <p>Belum ada pengguna tambahan yang terdaftar.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </x-card>
-        </div>
+                        @endforelse
+                    </div>
+                </x-card>
+            </div>
+        @endif
     </div>
 </x-body>

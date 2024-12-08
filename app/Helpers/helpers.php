@@ -164,3 +164,24 @@ if (!function_exists('filterByParentUnit')) {
     });
   }
 }
+
+if (!function_exists('formatRole')) {
+  /**
+   * Helper untuk memformat role.
+   *
+   * @param string $role
+   * @return string
+   */
+  function formatRole($role)
+  {
+    if ($role === 'penanggungjawab') {
+      return 'Penanggung Jawab';
+    } elseif ($role === 'ppk') {
+      return 'Pejabat Pembuat Komitmen (PPK)';
+    } elseif ($role === 'pptk') {
+      return 'Pejabat Pelaksana Teknis Kegiatan (PPTK)';
+    } else {
+      return ucwords(str_replace('_', ' ', $role));
+    }
+  }
+}
