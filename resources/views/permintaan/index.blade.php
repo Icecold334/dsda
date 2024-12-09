@@ -10,10 +10,10 @@
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     + Tambah Permintaan
                 </a>
-                <a href="/permintaan/add/peminjaman"
+                {{-- <a href="/permintaan/add/peminjaman"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     + Tambah Peminjaman
-                </a>
+                </a> --}}
             @elseif(request()->is('permintaan/spare-part') || request()->is('permintaan/material'))
                 <a href="/permintaan/add/{{ request()->segment(2) }}"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
