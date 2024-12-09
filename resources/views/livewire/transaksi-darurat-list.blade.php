@@ -1,6 +1,6 @@
 <div>
     <table class="w-full border-3 border-separate border-spacing-y-4">
-        {{ $roles }}
+        cek
         <thead>
             <tr class="text-white bg-primary-950 uppercase">
                 <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>

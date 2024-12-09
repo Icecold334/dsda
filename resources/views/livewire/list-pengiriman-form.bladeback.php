@@ -52,7 +52,7 @@
                         </select>
                     </td>
                     <td class="px-6 py-3">
-                        <select wire:change="updateBagian({{ $index }}, $event.target.value)"
+                        <select {{-- wire:change="updateBagian({{ $index }}, $event.target.value)" --}}
                             class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['lokasi_id']) || Auth::user()->lokasi_id !== $item['lokasi_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             @disabled(!$item['editable'] || empty($item['lokasi_id']) || Auth::user()->lokasi_id !== $item['lokasi_id'])
                             @cannot('inventaris_edit_lokasi_penerimaan')
@@ -67,7 +67,7 @@
                         </select>
                     </td>
                     <td class="px-6 py-3">
-                        <select wire:change="updatePosisi({{ $index }}, $event.target.value)"
+                        <select
                             class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['bagian_id']) || Auth::user()->lokasi_id !== $item['bagian_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             @disabled(!$item['editable'] || empty($item['bagian_id']) || Auth::user()->lokasi_id !== $item['lokasi_id'])>
                             <option value="">Pilih Posisi</option>
@@ -210,12 +210,12 @@
                                 <i class="fa-solid fa-circle-xmark"></i>
                             </button>
                         @endif
-                        {{-- @if ($item['id'])
-                            <button wire:click="addToList"
+                        @if ($item['id'] && $item['bagian_id'] && $item['posisi_id'])
+                            <button wire:click=""
                                 class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                 <i class="fa-solid fa-circle-check"></i>
                             </button>
-                        @endif --}}
+                        @endif
                     </td>
                 </tr>
             @endforeach

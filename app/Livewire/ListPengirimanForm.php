@@ -230,6 +230,7 @@ class ListPengirimanForm extends Component
 
     public function mount()
     {
+        // dd($this->old);
         $this->showDokumen = !Request::routeIs('pengiriman-stok.create');
         $this->showRemove = !Request::routeIs('pengiriman-stok.show');
         $this->lokasis = LokasiStok::all();
@@ -252,12 +253,14 @@ class ListPengirimanForm extends Component
                     'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
                     'jumlah' => $transaksi->jumlah ?? 1,
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
-                    'editable' => $isEditable,
+                    'editable' => true,
                 ];
 
                 $this->dispatch('listCount', count: count($this->list));
                 // }
             }
+
+            // dd($this->list);
         }
     }
 
@@ -335,6 +338,16 @@ class ListPengirimanForm extends Component
         }
     }
 
+    public function updatePengirimanStock($index){
+        $this->list[$index]['bagian_id'] = $this->bagian_id;
+        $this->list[$index]['posisi_id'] = null;
+        $this->list[$index]['posisis'] = PosisiStok::where('bagian_id', $bagianId)->get();
+
+        if ($this->showDokumen) {
+            $this->savePengiriman();
+        }
+    }
+
     public function updateBagian($index, $bagianId)
     {
         // Update bagian, reset posisi, and load associated posisis
@@ -391,7 +404,7 @@ class ListPengirimanForm extends Component
         // }
     }
 
-    public function updated($propertyName, $value)
+    public function updated($propertyName)
     {
         if (preg_match('/^list\.\d+\.bukti$/', $propertyName)) {
             // Extract the index from the property name
