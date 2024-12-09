@@ -25,9 +25,10 @@ class MerkController extends Controller
         // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
-        $merks = Merk::whereHas('user', function ($query) use ($parentUnitId) {
-            // Menggunakan helper untuk memfilter unit
-            filterByParentUnit($query, $parentUnitId);
+        $merks = Merk::when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+            $query->whereHas('user', function ($query) use ($parentUnitId) {
+                filterByParentUnit($query, $parentUnitId);
+            });
         })->get();
         return view('merk.index', compact('merks'));
     }

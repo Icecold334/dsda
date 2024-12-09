@@ -92,15 +92,17 @@ class AsetForm extends Component
         // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
-        // Ambil data dari database berdasarkan query
         $this->suggestionsMerk = Merk::where('nama', 'like', '%' . $this->merk . '%')
-            ->whereHas('user', function ($query) use ($parentUnitId) {
-                // Menggunakan helper untuk memfilter unit
-                filterByParentUnit($query, $parentUnitId);
+            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
             })
             // ->limit(5)
             ->get()
             ->toArray();
+
+
         // $this->merk = $this->merk;
 
         $exactMatchMerk = Merk::where('nama', $this->merk)->first();
@@ -145,15 +147,16 @@ class AsetForm extends Component
         // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
-        // Ambil data dari database berdasarkan query
         $this->suggestionsToko = Toko::where('nama', 'like', '%' . $this->toko . '%')
-            ->whereHas('user', function ($query) use ($parentUnitId) {
-                // Menggunakan helper untuk memfilter unit
-                filterByParentUnit($query, $parentUnitId);
+            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
             })
             // ->limit(5)
             ->get()
             ->toArray();
+
         // $this->nama = $this->toko;
 
         $exactMatchToko = Toko::where('nama', $this->toko)->first();
@@ -257,11 +260,12 @@ class AsetForm extends Component
         // Debugging: Tampilkan parentUnitId untuk verifikasi
         // dd($parentUnitId);
 
+        $this->kategoris = Auth::user()->id == 1
+            ? Kategori::all()
+            : Kategori::whereHas('user', function ($query) use ($parentUnitId) {
+                filterByParentUnit($query, $parentUnitId);
+            })->get();
         // $this->kategoris = Kategori::all();
-        $this->kategoris = Kategori::whereHas('user', function ($query) use ($parentUnitId) {
-            // Menggunakan helper untuk memfilter unit
-            filterByParentUnit($query, $parentUnitId);
-        })->get();
 
         if ($this->aset) {
             $this->img = $this->aset->foto;

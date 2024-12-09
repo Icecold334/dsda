@@ -81,9 +81,10 @@ class AssetDetails extends Component
         // Ambil data dari database berdasarkan query
         $this->suggestionsPerson = Person::where('nama', 'like', '%' . $this->person . '%')
             // ->limit(5)
-            ->whereHas('user', function ($query) use ($parentUnitId) {
-                // Menggunakan helper untuk memfilter unit
-                filterByParentUnit($query, $parentUnitId);
+            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
             })
             ->get()
             ->toArray();
@@ -135,9 +136,10 @@ class AssetDetails extends Component
         // Ambil data dari database berdasarkan query
         $this->suggestionsLokasi = Lokasi::where('nama', 'like', '%' . $this->lokasi . '%')
             // ->limit(5)
-            ->whereHas('user', function ($query) use ($parentUnitId) {
-                // Menggunakan helper untuk memfilter unit
-                filterByParentUnit($query, $parentUnitId);
+            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
             })
             ->get()
             ->toArray();

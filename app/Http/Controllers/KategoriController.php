@@ -26,9 +26,10 @@ class KategoriController extends Controller
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         $kategoris = Kategori::with('children')->whereNull('parent_id')
-            ->whereHas('user', function ($query) use ($parentUnitId) {
-                // Menggunakan helper untuk memfilter unit
-                filterByParentUnit($query, $parentUnitId);
+            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
             })
             ->get(); // Hanya parent categories
         return view('kategori.index', compact('kategoris'));

@@ -135,9 +135,10 @@ class AsetController extends Controller
 
         // Query untuk mendapatkan aset berdasarkan unit parent yang dimiliki oleh user
         return Aset::where('status', true)
-            ->whereHas('user', function ($query) use ($parentUnitId) {
-                // Menggunakan helper untuk memfilter unit
-                filterByParentUnit($query, $parentUnitId);
+            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
             });
     }
 

@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Kategori;
+use App\Models\UnitKerja;
 use Illuminate\Support\Facades\Auth;
 
 class AddKategori extends Component
@@ -20,8 +21,23 @@ class AddKategori extends Component
 
     public function mount()
     {
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
         if ($this->tipe == 'sub') {
-            $this->kategoris = Kategori::where('parent_id', NULL)->get();
+            $this->kategoris = Kategori::whereNUll('parent_id')
+                ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                    $query->whereHas('user', function ($query) use ($parentUnitId) {
+                        filterByParentUnit($query, $parentUnitId);
+                    });
+                })->get();
             if ($this->id) {
                 $sub = Kategori::find($this->id);
                 $this->sub = $sub->nama;

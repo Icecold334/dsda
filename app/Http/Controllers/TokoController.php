@@ -25,9 +25,10 @@ class TokoController extends Controller
         // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
-        $tokos = Toko::whereHas('user', function ($query) use ($parentUnitId) {
-            // Menggunakan helper untuk memfilter unit
-            filterByParentUnit($query, $parentUnitId);
+        $tokos = Toko::when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+            $query->whereHas('user', function ($query) use ($parentUnitId) {
+                filterByParentUnit($query, $parentUnitId);
+            });
         })->get();
         return view('toko.index', compact('tokos'));
     }

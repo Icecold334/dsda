@@ -128,7 +128,7 @@
             <div>
                 <!-- Pengguna Tambahan -->
                 <x-card title="Pengguna Tambahan" class="mb-3">
-                    <div class="overflow-y-auto max-h-[45.4rem]">
+                    <div class="overflow-y-auto max-h-[45.5rem]">
                         <div class="flex mt-4 mb-6">
                             <a href="/profil/user"
                                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
