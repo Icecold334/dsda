@@ -49,6 +49,7 @@ use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
 use App\Http\Controllers\UnitKerjaController;
+use App\Models\Persetujuan;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -140,7 +141,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('order', OrderController::class);
     Route::resource('provinsi', ProvinsiController::class);
     Route::resource('kalender', KalenderController::class);
-    Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'create']);
+    Route::get('permintaan/add/{tipe}', [PermintaanStokController::class, 'create']);
+    Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'index']);
 
     Route::resources([
         'jenis-stok' => JenisStokController::class,
@@ -170,5 +172,9 @@ Route::middleware(['auth'])->group(function () {
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
+
+Route::get('/testapprove', function () {
+    return Persetujuan::all()->toArray();
+});
 
 require __DIR__ . '/auth.php';

@@ -19,8 +19,6 @@ class TransaksiDaruratList extends Component
 {
     use WithFileUploads;
 
-
-
     public $cekApproval;
     public $tanggal_kontrak;
     public $nomor_kontrak;
@@ -41,14 +39,9 @@ class TransaksiDaruratList extends Component
         'satuanKecil' => [],
     ];
 
-    public $role_name;
-
     public function __construct()
     {
-        /**
-         * mengambil array pertama untuk role name
-         */
-        $this->role_name = Auth::user()->roles->pluck('name')->first();
+        // $this->roles = $this->getRoles();
     }
     public function fetchSuggestions($field, $value)
     {
@@ -88,14 +81,8 @@ class TransaksiDaruratList extends Component
     public $newBarangSatuanBesar = '';
     public $newBarangSatuanKecil = '';
     public $showBarangModal = false;
-    public $jumlahKecilDalamBesar, $roles, $items, $id, $ppk_isapprove, $pptk_isapprove, $pj_isapprove, $statusapprove;
+    public $jumlahKecilDalamBesar, $roles, $items, $id, $ppk_isapprove, $pptk_isapprove, $pj_isapprove;
 
-    public function getStatusApprov($id)
-    {
-        $ppkCount = Persetujuan::where('approvable_id', $id)->where('approvable_type', TransaksiStok::class)->get();
-
-        return $this->statusapprove = count($ppkCount);
-    }
 
     public function mount()
     {
@@ -105,23 +92,14 @@ class TransaksiDaruratList extends Component
             foreach ($this->transaksi as $key => $item) {
                 $this->id = $item->id;
 
-                $this->ppk_isapprove = $this->checkApprovals('ppk');
-
-                $this->pptk_isapprove = $this->checkApprovals('pptk');
-
-                $this->pj_isapprove = $this->checkApprovals('penanggungjawab');
-
-                $sumapprove = $this->getStatusApprov($this->id);
-
                 // $dataapp = $item->approvals->filter(function ($appr){
                 //     return $appr->role === auth()->user()->getRoleNames()->first();
                 // });
 
-                $filteredApprovals = $item->approvals;
-                // ->filter(function ($approval) {
-                //     return $approval->role === auth()->user()->getRoleNames()->first(); // Replace 'desired_role' with the actual role
-                // });
-
+                $filteredApprovals = $item->approvals->filter(function ($approval) {
+                    return $approval->role === auth()->user()->getRoleNames()->first(); // Replace 'desired_role' with the actual role
+                });
+                
                 if ($filteredApprovals->isNotEmpty()) {
                     foreach ($filteredApprovals as $approval) {
                         $img = $approval->img;
@@ -144,12 +122,10 @@ class TransaksiDaruratList extends Component
                     'satuan' => BarangStok::find($item->merkStok->barangStok->id)->satuanBesar->nama,
                     'lokasi_penerimaan' => $item->lokasi_penerimaan,
                     'keterangan' => $item->deskripsi,
-                    'bukti' => $img,
-                    'pptk_isapprove' => $this->pptk_isapprove ?? 0,
-                    'ppk_isapprove' => $this->ppk_isapprove ?? 0,
-                    'pj_isapprove' => $this->pj_isapprove ?? 0,
+                    'bukti' => $item->img,
+                    'pptk_id' => $item->pptk_id ?? "",
+                    'ppk_id' => $item->ppk_id ?? "",
                     'status' => $item->status,
-                    'sumApprove' => $sumapprove
                     // $item->approvals->first()->img
                 ];
             }
@@ -160,24 +136,27 @@ class TransaksiDaruratList extends Component
                 ->orWhereNull('ppk_id');
         })->get();
 
+        $this->ppk_isapprove = $this->checkApprovals('ppk');
 
+        $this->pptk_isapprove = $this->checkApprovals('pptk');
+
+        $this->pj_isapprove = $this->checkApprovals('pj');
 
         // $this->nomor_kontrak = $this->getNoKontrak($this->vendor_id)->nomor_kontrak;
     }
 
-    private function checkApprovals($params)
-    {
+    private function checkApprovals($params){
         $data = Persetujuan::where('approvable_id', $this->id)
             ->where('approvable_type', TransaksiStok::class)
             ->where('role', $params)
             ->get();
-
+    
         if ($data->isEmpty()) { // Gunakan isEmpty() untuk Collection
             $result = true;
         } else {
             $result = false;
         }
-
+    
         return $result;
     }
 
@@ -394,11 +373,7 @@ class TransaksiDaruratList extends Component
             'satuan' => BarangStok::find($this->newBarangId)->satuanBesar->nama,
             'lokasi_penerimaan' => $this->newLokasiPenerimaan,
             'keterangan' => $this->newKeterangan,
-            'pptk_isapprove' => $this->pptk_isapprove ?? 1,
-            'ppk_isapprove' => $this->ppk_isapprove ?? 1,
-            'pj_isapprove' => $this->pj_isapprove ?? 1,
             'bukti' => $this->newBukti ? $this->newBukti : null,
-            'sumApprove' => [],
             'status' => null,
         ];
 
@@ -415,7 +390,7 @@ class TransaksiDaruratList extends Component
             'metode_id' => $this->metode_id,
             'user_id' => Auth::id(),
             'type' => false,
-            'status' => true,
+            'status' => null,
         ]);
 
         foreach ($this->list as $item) {
@@ -447,73 +422,57 @@ class TransaksiDaruratList extends Component
     //     return redirect()->route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->transaksi->first()->vendor_id]);
     // }
 
-    public function updated($propertyName)
-    {
-        // /Check if the updated property matches the specific file input
-        if (preg_match('/^list\.\d+\.bukti$/', $propertyName)) {
-            // Extract the index from the property name
-            preg_match('/^list\.(\d+)\.bukti$/', $propertyName, $matches);
-            $index = $matches[1];
-
-            // Validate the file
-            $this->validate([
-                "list.{$index}.bukti" => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust validation rules as needed
-            ]);
-
-            // Process the file upload
-            $file = $this->list[$index]['bukti'];
-            if ($file) {
-
-                $storedFilePath = str_replace('buktiTransaksi/', '', $file->storeAs(
-                    'buktiTransaksi', // Directory
-                    $file->getClientOriginalName(), // File name
-                    'public' // Storage disk
-                ));
-
-                // Update the list with the stored file path
-                $this->list[$index]['bukti'] = $storedFilePath;
-
-                // Provide feedback
-                session()->flash('success', 'File berhasil diunggah.');
-            }
-        }
-    }
-
     public function approveTransaction($index)
     {
-
         // Cari transaksi berdasarkan ID yang ada di list
         $transaction = TransaksiStok::findOrFail($this->list[$index]['id']);
 
-        $this->updated($this->list[$index]['bukti']);
         // Inisialisasi data approval
         $approvalData = [
             'user_id' => Auth::id(),
-            'role' => $this->role_name, // Ambil peran pengguna
+            'role' => auth()->user()->getRoleNames()->first(), // Ambil peran pengguna
             'is_approved' => true, // Atur status menjadi disetujui
             'img' => $this->list[$index]['bukti'], // Tambahkan remarks jika diperlukan
         ];
 
-        // Gunakan updateOrCreate pada relasi morph
-        $transaction->approvals()->updateOrCreate(
-            [
-                'user_id' => Auth::id(), // Kondisi pencarian
-                'role' => $this->role_name,
-            ],
-            $approvalData // Data yang akan diperbarui atau dibuat
-        );
-
+        $transaction->approvals()->create($approvalData);
 
         // Periksa peran pengguna untuk menentukan level approval
-        // Simpan perubahan transaksi
-        if ($this->role_name === 'ppk') {
-            $transaction->status = true;
+        if (auth()->user()->hasRole('ppk')) {
+            $transaction->ppk_id = Auth::id();
+
+            // Simpan bukti jika tersedia
+            if (isset($this->list[$index]['bukti'])) {
+                $transaction->img = $this->list[$index]['bukti'];
+                // $transaction->approvals()->img = $this->list[$index]['bukti'];
+            }
+
+            // Tambahkan approval untuk PPK
+            
         }
+
+        if (auth()->user()->hasRole('pptk')) {
+            $transaction->pptk_id = Auth::id();
+
+            // Tambahkan approval untuk PPTK
+            // $transaction->approvals()->create($approvalData);
+        }
+
+        if (auth()->user()->hasRole('penanggungjawab')) {
+            $transaction->pj_id = Auth::id();
+            $transaction->status = true;
+
+            // Tambahkan approval untuk PJ
+            // $transaction->approvals()->create($approvalData);
+        }
+
+        // Simpan perubahan transaksi
         $transaction->save();
 
-
-        return redirect()->route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->transaksi->first()->vendor_id])->with('success', 'Berhasil Menambah Kontrak');
-
+        // Redirect ke halaman edit
+        return redirect()->route('transaksi-darurat-stok.edit', [
+            'transaksi_darurat_stok' => $transaction->vendor_id
+        ]);
     }
 
 
@@ -567,7 +526,7 @@ class TransaksiDaruratList extends Component
     }
     public function render()
     {
-        $roles = $this->role_name;
-        return view('livewire.transaksi-darurat-list', ['roles' => $roles]);
+        $roles = auth()->user()->hasRole('ppk');
+        return view('livewire.transaksi-darurat-list', ['isppk' => $roles]);
     }
 }
