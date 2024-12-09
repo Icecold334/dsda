@@ -277,9 +277,8 @@ class DatabaseSeeder extends Seeder
             $userId = DB::table('users')->insertGetId([
                 'name' => ucfirst($role),
                 'email' => $email,
-                'unit_id' => UnitKerja::inRandomOrder()->first()->id,
-                'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
-
+                'unit_id' => $role == 'superadmin' ? null : UnitKerja::inRandomOrder()->first()->id,
+                'lokasi_id' => $role == 'superadmin' ? null : LokasiStok::inRandomOrder()->first()->id,
                 'password' => Hash::make('password'),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -502,10 +501,56 @@ class DatabaseSeeder extends Seeder
 
         // Seeder for assets
         $faker = Faker::create();
-        for ($i = 1; $i <= 5; $i++) {
+        $asetJenis = [
+            'Mobil',
+            'Laptop',
+            'Kursi',
+            'Meja',
+            'Lemari',
+            'Printer',
+            'Scanner',
+            'Komputer',
+            'Televisi',
+            'Motor',
+            'Proyektor',
+            'Kamera',
+            'Rak',
+            'Sofa',
+            'AC',
+            'Speaker',
+            'Buku',
+            'Jam Dinding',
+            'Lampu',
+            'Tangga'
+        ];
+
+        // Nama bagian kedua
+        $asetDeskripsi = [
+            'Kantor',
+            'Rumah',
+            'Kayu',
+            'Besi',
+            'Aluminium',
+            'Plastik',
+            'Kecil',
+            'Besar',
+            'Portabel',
+            'Sedan',
+            'Klasik',
+            'Modern',
+            'Digital',
+            'Listrik',
+            'Manual',
+            'Pro',
+            'Premium',
+            'Ekonomis',
+            'Gaming',
+            'Lipat'
+        ];
+        for ($i = 1; $i <= 50; $i++) {
             Aset::create([
-                'user_id' => $userId,
-                'nama' => 'Aset ' . $i,
+                'user_id' => User::inRandomOrder()->first()->id,
+                'nama' => $faker->randomElement($asetJenis) . ' ' . $faker->randomElement($asetDeskripsi),
                 'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
                 'kategori_id' => $kategoriUtama[array_rand($kategoriUtama)]->id,
                 'merk_id' => Merk::inRandomOrder()->first()->id ?? null,
