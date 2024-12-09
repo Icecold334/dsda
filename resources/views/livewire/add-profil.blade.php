@@ -19,13 +19,13 @@
                     <label for="ttd" class="block font-semibold mb-2">Tanda Tangan</label>
                     <div class="flex flex-col items-end mt-2">
                         <!-- Foto Preview Container -->
-                        <div x-data="{ open: false }" class="relative w-24 h-24 overflow-hidden border rounded-lg">
+                        <div x-data="{ open: false }" class="relative inline-block w-24 h-24 border rounded-lg">
                             <!-- Trigger untuk membuka modal -->
-                            <div class="w-full h-full flex justify-center items-center bg-gray-200 rounded-lg cursor-pointer"
+                            <div class="w-full h-full flex justify-center items-center bg-gray-200 rounded-lg cursor-pointer relative"
                                 @click="open = true; document.body.classList.add('overflow-hidden')">
                                 @if ($img)
                                     <button
-                                        class="absolute top-1 right-1 bg-red-500 hover:bg-red-700 transition duration-200 text-white rounded-full p-1 leading-none w-5 h-5 text-xs flex items-center justify-center shadow"
+                                        class="absolute -top-2 -right-3 z-30 bg-red-500 hover:bg-red-700 transition duration-200 text-white rounded-full p-1 leading-none w-5 h-5 text-xs flex items-center justify-center shadow"
                                         wire:click="removeImg"
                                         @click.stop="document.body.classList.remove('overflow-hidden'); open = false;">
                                         &times;
@@ -33,7 +33,7 @@
                                 @endif
                                 <!-- Gambar preview -->
                                 <img src="{{ is_string($img) ? asset('storage/usersTTD/' . $img) : ($img ? $img->temporaryUrl() : asset('img/default-pic.png')) }}"
-                                    alt="Preview Image" class="w-full h-full object-cover object-center">
+                                    alt="Preview Image" class="w-full h-full object-cover object-center rounded-lg">
 
                             </div>
                             <!-- Modal untuk Preview Full -->

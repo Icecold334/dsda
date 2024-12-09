@@ -427,4 +427,51 @@ class AsetController extends Controller
 
         return redirect()->route('aset.index')->with('success', 'Aset berhasil dinonaktifkan.');
     }
+
+    public function exportPdf($id)
+    {
+        // Retrieve the asset details
+        $aset = Aset::findOrFail($id);
+
+        // Create a new PDF instance
+        $pdf = new \TCPDF();
+
+        // Set document information
+        $pdf->SetCreator('Inventa');
+        $pdf->SetAuthor('Dinas Sumber Daya Air (DSDA)');
+        $pdf->SetTitle('Kartu Aset - Dinas Sumber Daya Air (DSDA)');
+        $pdf->SetSubject($aset->nama);
+
+        // Disable header and set footer
+        $pdf->SetPrintHeader(false);
+        $pdf->SetFooterData([0, 64, 0], [0, 64, 128]);
+
+        // Add a page
+        $pdf->AddPage();
+
+        // Set font
+        $pdf->SetFont('helvetica', '', 12);
+
+        // QR Code Path
+        $qrCodePath = public_path('storage/qr/' . $aset->systemcode . '.png');
+
+        // Check if the QR code exists
+        if (file_exists($qrCodePath)) {
+            // Add QR code image to the right top of the page (adjust X and Y as necessary)
+            $pdf->Image($qrCodePath, 160, 40, 40, 40, 'PNG');  // X=160, Y=40 (can be adjusted)
+        } else {
+            // Fallback if QR code doesn't exist
+            $pdf->SetXY(160, 0);  // Set position for fallback text
+            $pdf->Cell(40, 40, 'QR tidak tersedia', 0, 0, 'C');
+        }
+
+
+        // Create the content (HTML)
+        $html = view('aset.pdf', compact('aset'))->render();
+
+        // Write the HTML content
+        $pdf->writeHTML($html, true, false, true, false, '');
+        // Output PDF
+        return $pdf->Output($aset->nama . '.pdf', 'I');
+    }
 }

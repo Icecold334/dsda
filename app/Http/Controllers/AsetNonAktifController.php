@@ -32,10 +32,12 @@ class AsetNonAktifController extends Controller
 
         // Query awal untuk aset non-aktif
         $query = Aset::where('status', false)
-            ->whereHas('user', function ($query) use ($parentUnitId) {
-                // Menggunakan helper untuk memfilter unit
-                filterByParentUnit($query, $parentUnitId);
+            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
             });
+
         // Apply filters
         $this->applyFilters($query, $request);
 
