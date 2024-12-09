@@ -355,7 +355,10 @@ class ListPengirimanForm extends Component
         
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
 
-        session()->flash("message", "New row added successfully.");
+        $this->emit('showSweetAlert', [
+            'message' => 'Data berhasil diperbarui!',
+            'type' => 'success'
+        ]);
     }
 
     public function updateBagian($index, $bagianId)

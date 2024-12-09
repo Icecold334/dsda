@@ -285,5 +285,16 @@
 
             });
         </script>
+        <script>
+            window.addEventListener('showSweetAlert', event => {
+                const { message, type } = event.detail;
+                Swal.fire({
+                    title: type === 'success' ? 'Success' : 'Error',
+                    text: message,
+                    icon: type,
+                    confirmButtonText: 'OK'
+                });
+            });
+        </script>
     @endpush
 </div>
