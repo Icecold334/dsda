@@ -14,13 +14,17 @@ class AppServiceProvider extends ServiceProvider
     {
         //
     }
-
     /**
      * Bootstrap any application services.
      */
     public function boot(): void
     {
-        // Auth::loginUsingId(25);
-        Auth::loginUsingId(22);
+// <<<<<<< support
+//         Auth::loginUsingId(2);
+//         // Auth::loginUsingId(7);
+// =======
+// >>>>>>> main
+//         // Auth::loginUsingId(25);
+//         Auth::loginUsingId(22);
     }
 }

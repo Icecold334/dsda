@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kategori;
+use App\Models\UnitKerja;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class KategoriController extends Controller
 {
@@ -12,7 +14,24 @@ class KategoriController extends Controller
      */
     public function index()
     {
-        $kategoris = Kategori::with('children')->whereNull('parent_id')->get(); // Hanya parent categories
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
+        $kategoris = Kategori::with('children')->whereNull('parent_id')
+            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
+            })
+            ->get(); // Hanya parent categories
         return view('kategori.index', compact('kategoris'));
     }
 
@@ -37,7 +56,7 @@ class KategoriController extends Controller
      */
     public function show(string $id)
     {
-         //
+        //
     }
 
     /**

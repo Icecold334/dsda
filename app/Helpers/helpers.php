@@ -146,3 +146,42 @@ if (!function_exists('getAssetWithSettings')) {
     ];
   }
 }
+
+if (!function_exists('filterByParentUnit')) {
+  /**
+   * Filter query berdasarkan parent unit ID.
+   *
+   * @param \Illuminate\Database\Eloquent\Builder $query
+   * @param int $parentUnitId
+   * @return \Illuminate\Database\Eloquent\Builder
+   */
+  function filterByParentUnit($query, $parentUnitId)
+  {
+    return $query->whereHas('unitKerja', function ($unitQuery) use ($parentUnitId) {
+      // Pastikan kita selalu memfilter berdasarkan unit parent
+      $unitQuery->where('parent_id', $parentUnitId)
+        ->orWhere('id', $parentUnitId); // Menampilkan kategori yang terkait dengan parent atau child
+    });
+  }
+}
+
+if (!function_exists('formatRole')) {
+  /**
+   * Helper untuk memformat role.
+   *
+   * @param string $role
+   * @return string
+   */
+  function formatRole($role)
+  {
+    if ($role === 'penanggungjawab') {
+      return 'Penanggung Jawab';
+    } elseif ($role === 'ppk') {
+      return 'Pejabat Pembuat Komitmen (PPK)';
+    } elseif ($role === 'pptk') {
+      return 'Pejabat Pelaksana Teknis Kegiatan (PPTK)';
+    } else {
+      return ucwords(str_replace('_', ' ', $role));
+    }
+  }
+}

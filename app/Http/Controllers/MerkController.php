@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Merk;
+use App\Models\UnitKerja;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MerkController extends Controller
 {
@@ -12,7 +14,22 @@ class MerkController extends Controller
      */
     public function index()
     {
-        $merks = Merk::all();
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
+        $merks = Merk::when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+            $query->whereHas('user', function ($query) use ($parentUnitId) {
+                filterByParentUnit($query, $parentUnitId);
+            });
+        })->get();
         return view('merk.index', compact('merks'));
     }
 
@@ -21,7 +38,7 @@ class MerkController extends Controller
      */
     public function create($tipe, $merk = 0)
     {
-        return view('merk.create', compact('tipe','merk'));
+        return view('merk.create', compact('tipe', 'merk'));
     }
 
     /**

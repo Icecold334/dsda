@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Aset;
 use App\Models\Merk;
 use App\Models\Toko;
+use App\Models\User;
 use App\Models\Lokasi;
 use App\Models\Person;
+use App\Models\History;
 use App\Models\Kategori;
+use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Console\View\Components\Ask;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use App\Models\History;
 
 class AsetController extends Controller
 {
@@ -57,12 +59,38 @@ class AsetController extends Controller
             return getAssetWithSettings($aset->id); // Menggunakan helper
         })->keyBy('id')->toArray(); // Gunakan keyBy untuk membuat key array berdasarkan ID aset
 
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
         // Data tambahan untuk dropdown filter
-        $kategoris = Kategori::all();
-        $merks = Merk::all();
-        $tokos = Toko::all();
-        $penanggungJawabs = Person::all();
-        $lokasis = Lokasi::all();
+        $kategoris = Kategori::whereHas('user', function ($query) use ($parentUnitId) {
+            // Menggunakan helper untuk memfilter unit
+            filterByParentUnit($query, $parentUnitId);
+        })->get();
+        $merks = Merk::whereHas('user', function ($query) use ($parentUnitId) {
+            // Menggunakan helper untuk memfilter unit
+            filterByParentUnit($query, $parentUnitId);
+        })->get();
+        $tokos = Toko::whereHas('user', function ($query) use ($parentUnitId) {
+            // Menggunakan helper untuk memfilter unit
+            filterByParentUnit($query, $parentUnitId);
+        })->get();
+        $penanggungJawabs = Person::whereHas('user', function ($query) use ($parentUnitId) {
+            // Menggunakan helper untuk memfilter unit
+            filterByParentUnit($query, $parentUnitId);
+        })->get();
+        $lokasis = Lokasi::whereHas('user', function ($query) use ($parentUnitId) {
+            // Menggunakan helper untuk memfilter unit
+            filterByParentUnit($query, $parentUnitId);
+        })->get();
 
         return view('aset.index', compact('asets', 'kategoris', 'merks', 'tokos', 'penanggungJawabs', 'lokasis', 'asetqr'));
     }
@@ -70,9 +98,48 @@ class AsetController extends Controller
     /**
      * Mendapatkan query dasar untuk aset aktif dengan nilai sekarang dan total penyusutan
      */
+    // private function getAsetQuery()
+    // {
+    //     // Ambil unit_id user yang sedang login
+    //     $userUnitId = Auth::user()->unit_id;
+
+    //     // Cari parent unit, jika ada
+    //     $unit = UnitKerja::find($userUnitId);
+    //     // dd($unit);
+    //     // Jika unit ditemukan dan memiliki parent, ambil parent_id, jika tidak gunakan unit_id itu sendiri
+    //     $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+    //     // Query untuk mendapatkan aset berdasarkan unit parent
+    //     return Aset::where('status', true)
+    //         ->whereHas('user', function ($user) use ($parentUnitId) {
+    //             $user->whereHas('unitKerja', function ($unit) use ($parentUnitId) {
+    //                 return $unit->where('id', 1)->dd();
+    //             });
+    //         });
+    // }
+
     private function getAsetQuery()
     {
-        return Aset::where('status', true);  // Mengambil aset dengan status aktif (true)
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
+        // Debugging: Tampilkan parentUnitId untuk verifikasi
+        // dd($parentUnitId);
+
+        // Query untuk mendapatkan aset berdasarkan unit parent yang dimiliki oleh user
+        return Aset::where('status', true)
+            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
+            });
     }
 
     /**
@@ -188,6 +255,132 @@ class AsetController extends Controller
         $aset->hargasatuan = $this->rupiah($aset->hargasatuan);
         $aset->hargatotal = $this->rupiah($aset->hargatotal);
         return view('aset.show', compact('aset'));
+    }
+
+    public function downloadQrImage($assetId)
+    {
+        // Generate QR Image
+        $outputPath = $this->generateQrImage($assetId);
+
+        if (!$outputPath) {
+            // Jika gambar tidak ditemukan atau gagal generate, kembalikan error
+            return redirect()->back()->with('error', 'QR Code tidak ditemukan atau gagal dibuat.');
+        }
+
+        return $outputPath; // Return generated image directly to the browser
+    }
+
+    public function generateQrImage($assetId)
+    {
+        // Ambil aset dan data terkait dari helper
+        $asset = getAssetWithSettings($assetId);
+
+        if (!$asset) {
+            return null; // Jika aset tidak ditemukan, return null
+        }
+
+        // Path ke template qrbase dan QR Code
+        $qrBasePath = public_path('img/qrbase.png');
+        $qrImagePath = $asset['qr_image'];
+
+        // Periksa apakah file template dan QR Code ada
+        if (!file_exists($qrBasePath) || !file_exists($qrImagePath)) {
+            return null; // Jika salah satu file tidak ada, return null
+        }
+
+        // Load gambar qrbase dan QR Code
+        $qrBase = imagecreatefrompng($qrBasePath);
+        $qrImage = imagecreatefrompng($qrImagePath);
+
+        // Set DPI untuk gambar (gunakan nilai DPI untuk kualitas tinggi)
+        $dpi = 300; // Resolusi tinggi untuk kualitas yang lebih baik
+        $scalingFactor = $dpi / 96; // Faktor skala untuk mengubah ukuran DPI default
+
+        // Tentukan ukuran tetap untuk QR Code (menggunakan ukuran "medium")
+        $qrWidth = 70 * $scalingFactor;  // Lebar QR Code dalam piksel
+        $qrHeight = 75 * $scalingFactor; // Tinggi QR Code dalam piksel
+        $padding = 10 * $scalingFactor;   // Padding di sekitar QR Code
+        $fontSize = 4 * $scalingFactor;   // Ukuran font untuk teks
+
+        // Buat kanvas baru untuk gambar yang dimodifikasi
+        $baseWidth = $qrWidth + $padding * 2;
+        $baseHeight = $qrHeight + $padding * 4; // Tambahan ruang untuk teks
+        $newQrBase = imagecreatetruecolor($baseWidth, $baseHeight);
+
+        // Isi latar belakang dengan warna putih
+        $white = imagecolorallocate($newQrBase, 255, 255, 255);
+        imagefill($newQrBase, 0, 0, $white);
+
+        // Salin gambar qrbase ke dalam template baru
+        imagecopyresampled(
+            $newQrBase,
+            $qrBase,
+            0,
+            0,
+            0,
+            0,
+            $baseWidth,
+            $baseHeight,
+            imagesx($qrBase),
+            imagesy($qrBase)
+        );
+
+        // Posisi QR Code dalam template
+        $qrX = ($baseWidth - $qrWidth) / 2;
+        $qrY = $padding + 6;
+
+        // Gabungkan QR Code ke dalam template
+        imagecopyresampled(
+            $newQrBase,
+            $qrImage,
+            $qrX,
+            $qrY,
+            0,
+            0,
+            $qrWidth,
+            $qrHeight,
+            imagesx($qrImage),
+            imagesy($qrImage)
+        );
+
+        // Warna teks
+        $black = imagecolorallocate($newQrBase, 0, 0, 0);
+
+        // Path font
+        $fontPath = public_path('fonts/courbd.ttf');
+        $fontPath_line2 = public_path('fonts/cour.ttf');
+
+        // Tambahkan teks: judul dan baris 1, 2
+        $judul = $asset['judul'] ?? 'QR Code Title';
+        $judulX = ($baseWidth - imagettfbbox($fontSize, 0, $fontPath, $judul)[2]) / 2;
+        imagettftext($newQrBase, $fontSize, 0, $judulX, $qrY - 15, $white, $fontPath, $judul);
+
+        // Baris 1
+        $baris1 = $asset['baris1'] ?? 'Line 1';
+        $baris1X = ($baseWidth - imagettfbbox($fontSize, 0, $fontPath, $baris1)[2]) / 2;
+        imagettftext($newQrBase, $fontSize, 0, $baris1X, $qrY + $qrHeight + $padding, $black, $fontPath_line2, $baris1);
+
+        // Baris 2
+        $line2Padding = 55;  // Padding untuk baris 2
+        $baris2 = $asset['baris2'] ?? 'Line 2';
+        $baris2X = ($baseWidth - imagettfbbox($fontSize, 0, $fontPath, $baris2)[2]) / 2;
+        imagettftext($newQrBase, $fontSize, 0, $baris2X, $qrY + $qrHeight + $line2Padding, $black, $fontPath, $baris2);
+
+        // Output gambar ke browser langsung
+        ob_start(); // Start output buffering
+        imagepng($newQrBase); // Output gambar PNG ke buffer
+        $imageData = ob_get_contents(); // Ambil data gambar dari buffer
+        ob_end_clean(); // Bersihkan buffer
+
+        // Hapus gambar dari memori
+        imagedestroy($newQrBase);
+        imagedestroy($qrBase);
+        imagedestroy($qrImage);
+
+        // Kembalikan gambar sebagai stream untuk diunduh
+        return response($imageData)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="' . $asset['nama'] . '.png"');
     }
 
     /**

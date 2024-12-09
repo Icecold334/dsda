@@ -76,7 +76,7 @@
                             <td>
                                 <input type="text" id="merk" wire:model.live="merk" wire:focus="focusMerk"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                    placeholder="Masukkan merk" required>
+                                    placeholder="Masukkan merk" wire:blur="hideSuggestionsMerk" required>
                                 @if ($showSuggestionsMerk)
                                     <ul
                                         class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
@@ -216,7 +216,7 @@
                             <td>
                                 <input type="text" id="toko" wire:model.live="toko" wire:focus="focusToko"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                    placeholder="Masukkan toko" required>
+                                    placeholder="Masukkan toko" wire:blur="hideSuggestionsToko" required>
                                 @if ($showSuggestionsToko)
                                     <ul
                                         class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
@@ -330,7 +330,9 @@
                             <td style="width: 40%"><label for="kartu_garansi"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kartu
                                     Garansi</label></td>
-                            <td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
                                 <input type="file" wire:model="newGaransiAttachments" multiple class="hidden"
                                     id="fileGaransi">
                                 <label for="fileGaransi"
@@ -341,25 +343,65 @@
                                     <span class="text-sm text-red-500">{{ $message }}</span>
                                 @enderror
                                 <div class="mt-3">
-                                    @foreach ($garansiattachments as $index => $attachment)
-                                        <div class="flex  items-center justify-between border-b-4 p-2 rounded my-1">
-                                            <span><span class="text-primary-600 me-3"> @php
-                                                $fileType = $attachment->getClientOriginalExtension();
-                                            @endphp
-                                                    @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-                                                        <i class="fa-solid fa-image text-green-500"></i>
-                                                    @elseif($fileType == 'pdf')
-                                                        <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                                    @elseif($fileType == 'doc' || $fileType == 'docx')
-                                                        <i class="fa-solid fa-file-word text-blue-500"></i>
-                                                    @else
-                                                        <i class="fa-solid fa-file text-gray-500"></i>
-                                                    @endif
-                                                </span><span>{{ $attachment->getClientOriginalName() }}</span></span>
-                                            <button wire:click="removeGaransiAttachment({{ $index }})"
-                                                class="text-red-500 hover:text-red-700">&times;</button>
-                                        </div>
-                                    @endforeach
+                                    @if (!empty($oldgaransiattachments))
+                                        @foreach ($oldgaransiattachments as $attachment)
+                                            <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
+                                                <span class="flex items-center space-x-3">
+                                                    @php
+                                                        // Lampiran lama menggunakan properti dari model Lampiran
+                                                        $filePath = $attachment->file; // Properti `file` dari database
+                                                        $fileType = pathinfo($filePath, PATHINFO_EXTENSION);
+                                                    @endphp
+                                                    <span class="text-primary-600">
+                                                        @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                                            <i class="fa-solid fa-image text-green-500"></i>
+                                                        @elseif($fileType == 'pdf')
+                                                            <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                                        @elseif(in_array($fileType, ['doc', 'docx']))
+                                                            <i class="fa-solid fa-file-word text-blue-500"></i>
+                                                        @else
+                                                            <i class="fa-solid fa-file text-gray-500"></i>
+                                                        @endif
+                                                    </span>
+
+                                                    <!-- File name with link to the saved file -->
+                                                    <span>
+                                                        <a href="{{ asset('storage/GaransiAset/' . $filePath) }}"
+                                                            target="_blank" class="text-gray-800 hover:underline">
+                                                            {{ basename($filePath) }}
+                                                        </a>
+                                                    </span>
+                                                </span>
+                                                <button type="button" {{-- wire:click="removeOldAttachment({{ $attachment->id }})" --}}
+                                                    onclick="confirmRemove('Apakah Anda yakin ingin menghapus garansi ini? Garansi yang terhapus tidak dapat didownload dan dikembalikan lagi', () => @this.call('removeOldGaransiAttachment',{{ $attachment->id }}))"
+                                                    class="text-red-500 hover:text-red-700">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                    @if ($garansiattachments)
+                                        @foreach ($garansiattachments as $index => $attachment)
+                                            <div
+                                                class="flex  items-center justify-between border-b-4 p-2 rounded my-1">
+                                                <span><span class="text-primary-600 me-3"> @php
+                                                    $fileType = $attachment->getClientOriginalExtension();
+                                                @endphp
+                                                        @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                                            <i class="fa-solid fa-image text-green-500"></i>
+                                                        @elseif($fileType == 'pdf')
+                                                            <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                                        @elseif($fileType == 'doc' || $fileType == 'docx')
+                                                            <i class="fa-solid fa-file-word text-blue-500"></i>
+                                                        @else
+                                                            <i class="fa-solid fa-file text-gray-500"></i>
+                                                        @endif
+                                                    </span><span>{{ $attachment->getClientOriginalName() }}</span></span>
+                                                <button wire:click="removeGaransiAttachment({{ $index }})"
+                                                    class="text-red-500 hover:text-red-700">&times;</button>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -577,7 +619,7 @@
                                                     </span>
                                                 </span>
                                                 <button type="button" {{-- wire:click="removeOldAttachment({{ $attachment->id }})" --}}
-                                                    onclick="confirmRemove('Apakah Anda yakin ingin menghapus lampiran ini?', () => @this.call('removeOldAttachment',{{ $attachment->id }}))"
+                                                    onclick="confirmRemove('Apakah Anda yakin ingin menghapus lampiran ini? Lampiran yang terhapus tidak dapat didownload dan dikembalikan lagi.', () => @this.call('removeOldAttachment',{{ $attachment->id }}))"
                                                     class="text-red-500 hover:text-red-700">
                                                     &times;
                                                 </button>

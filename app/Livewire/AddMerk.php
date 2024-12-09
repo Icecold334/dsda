@@ -33,6 +33,23 @@ class AddMerk extends Component
     }
     public function saveMerk()
     {
+// <<<<<<< support
+//         $data = [
+//             'nama' => $this->merk,
+//             'keterangan' => $this->keterangan,
+//             'nama_nospace' => Str::slug($this->merk),
+//         ];
+//         // Jika ID diberikan, cari kategori
+//         $merk = Merk::find($this->id);
+
+//         // Set user_id
+//         $data['user_id'] = $merk ? $merk->user_id : Auth::id();
+
+//         // Update atau create dengan data
+//         Merk::updateOrCreate(['id' => $this->id ?? 0], $data);
+
+//         return redirect()->route('merk.index');
+// =======
         $merk=Merk::updateOrCreate(
             ['id' => $this->id ?? 0], // Unique field to check for existing record
             [
@@ -49,6 +66,7 @@ class AddMerk extends Component
             return redirect()->route('merk.index')->with('success', 'Berhasil Mengubah Merk');
         }
  //       return redirect()->route('merk.index')->with('success', 'Berhasil Menambah Merk');
+// >>>>>>> main
     }
     public function render()
     {

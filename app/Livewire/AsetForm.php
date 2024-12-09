@@ -7,16 +7,18 @@ use App\Models\Aset;
 use App\Models\Merk;
 use App\Models\Toko;
 use App\Models\Option;
+use App\Models\Garansi;
 use BaconQrCode\Writer;
 use Livewire\Component;
 use App\Models\Kategori;
 use App\Models\Lampiran;
+use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Auth;
 use BaconQrCode\Renderer\GDLibRenderer;
 use Illuminate\Support\Facades\Storage;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -57,6 +59,7 @@ class AsetForm extends Component
     public $oldattachments = [];
     public $newAttachments = [];
     public $garansiattachments = [];
+    public $oldgaransiattachments = [];
     public $newGaransiAttachments = [];
     public $keterangan;
     #[Validate]
@@ -78,11 +81,28 @@ class AsetForm extends Component
         // dd('aa');
         $this->showSuggestionsMerk = true;
 
-        // Ambil data dari database berdasarkan query
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
         $this->suggestionsMerk = Merk::where('nama', 'like', '%' . $this->merk . '%')
+            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
+            })
             // ->limit(5)
             ->get()
             ->toArray();
+
+
         // $this->merk = $this->merk;
 
         $exactMatchMerk = Merk::where('nama', $this->merk)->first();
@@ -116,11 +136,27 @@ class AsetForm extends Component
     {
         $this->showSuggestionsToko = true;
 
-        // Ambil data dari database berdasarkan query
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
         $this->suggestionsToko = Toko::where('nama', 'like', '%' . $this->toko . '%')
+            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
+            })
             // ->limit(5)
             ->get()
             ->toArray();
+
         // $this->nama = $this->toko;
 
         $exactMatchToko = Toko::where('nama', $this->toko)->first();
@@ -163,7 +199,7 @@ class AsetForm extends Component
             'hargaSatuan' => 'required|min:0',
             'umur' => 'required|min:1',
             'img' => $imgRule,
-            // 'attachments.*' => 'file|max:5024|mimes:jpeg,png,jpg,gif,pdf,doc,docx',
+            'attachments.*' => 'file|max:5024|mimes:jpeg,png,jpg,gif,pdf,doc,docx',
             // 'attachments' => 'array|max:10',
         ];
     }
@@ -202,18 +238,34 @@ class AsetForm extends Component
             'hargaSatuan.required' => 'Harga satuan wajib diisi!',
             'hargaSatuan.numeric' => 'Harga satuan harus berupa angka!',
             'hargaSatuan.min' => 'Harga satuan tidak boleh kurang dari 0!',
-            'img.image' => 'File harus berupa gambar!',
-            'img.max' => 'Ukuran gambar maksimal 2MB!',
-            'img.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif!',
-            // 'attachments.*.file' => 'Setiap lampiran harus berupa file.',
-            // 'attachments.*.max' => 'Setiap lampiran tidak boleh lebih dari 5 MB.',
-            // 'attachments.*.mimes' => 'Lampiran harus berupa file dengan format jpeg, png, jpg, gif, pdf, doc, atau docx.',
+            'attachments.*.file' => 'Setiap lampiran harus berupa file.',
+            'attachments.*.max' => 'Setiap lampiran tidak boleh lebih dari 5 MB.',
+            'attachments.*.mimes' => 'Lampiran harus berupa file dengan format jpeg, png, jpg, gif, pdf, doc, atau docx.',
 
         ];
     }
     public function mount()
     {
-        $this->kategoris = Kategori::all();
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
+        // Debugging: Tampilkan parentUnitId untuk verifikasi
+        // dd($parentUnitId);
+
+        $this->kategoris = Auth::user()->id == 1
+            ? Kategori::all()
+            : Kategori::whereHas('user', function ($query) use ($parentUnitId) {
+                filterByParentUnit($query, $parentUnitId);
+            })->get();
+        // $this->kategoris = Kategori::all();
 
         if ($this->aset) {
             $this->img = $this->aset->foto;
@@ -240,6 +292,7 @@ class AsetForm extends Component
             $this->keterangan = $this->aset->keterangan;
             // Ambil lampiran yang terkait dengan aset
             $this->oldattachments = Lampiran::where('aset_id', $this->aset->id)->get();
+            $this->oldgaransiattachments = Garansi::where('aset_id', $this->aset->id)->get();
             // dd($this->attachments);
 
             // Hitung penyusutan jika umur lebih besar dari 0
@@ -386,6 +439,7 @@ class AsetForm extends Component
         // Clear the newAttachments to make ready for next files
         $this->reset('newAttachments');
     }
+
     public function removeGaransiAttachment($index)
     {
         if (isset($this->garansiattachments[$index])) {
@@ -398,6 +452,23 @@ class AsetForm extends Component
         }
     }
 
+    public function removeOldGaransiAttachment($id)
+    {
+        $garansi = Garansi::find($id);
+
+        if ($garansi) {
+            // Hapus file dari penyimpanan
+            Storage::disk('public')->delete('GaransiAset/' . $garansi->file);
+
+            // Hapus dari database
+            $garansi->delete();
+
+            // Refresh daftar lampiran lama
+            // $this->attachments = Lampiran::where('aset_id', $this->aset->id)->get();
+            return redirect()->route('aset.edit', $this->aset->id);
+        }
+    }
+
     public function saveAset()
     {
         $this->validate();
@@ -407,7 +478,7 @@ class AsetForm extends Component
         $merkId = $this->getOrCreateMerk($this->merk);
         $tokoId = $this->getOrCreateToko($this->toko);
         $data = [
-            'user_id' => Auth::id(),
+            'user_id' => !$this->aset ? Auth::id() : $this->aset->user_id,
             'nama' => $this->nama,
             'kode' => $this->kode,
             // 'foto' => !is_string($this->img) ? str_replace('asetImg/', '', $this->img->store('asetImg', 'public')) : $this->img ?? null,
@@ -416,7 +487,6 @@ class AsetForm extends Component
                     ? str_replace('asetImg/', '', $this->img->store('asetImg', 'public'))
                     : $this->img)
                 : null,
-
             'systemcode' => $this->aset ?   $this->aset->systemcode : $this->generateQRCode(),
             'kategori_id' => $this->kategori,
             'merk_id' => $merkId,
@@ -494,13 +564,22 @@ class AsetForm extends Component
 
     protected function saveAttachments($asetId)
     {
-        if ($this->attachments) {
-            foreach ($this->attachments as $file) {
-                // Store file to 'attachments' folder in public disk
-                $filePath = str_replace('LampiranAset/', '', $file->storeAs('LampiranAset', $file->getClientOriginalName(), 'public'));  // Store the file
+        // Process regular attachments
+        $this->saveAttachmentFiles($this->attachments, $asetId, 'LampiranAset', Lampiran::class);
 
-                // Save file info to the Lampiran model
-                Lampiran::create([
+        // Process garansi attachments
+        $this->saveAttachmentFiles($this->garansiattachments, $asetId, 'GaransiAset', Garansi::class);
+    }
+
+    private function saveAttachmentFiles($files, $asetId, $folder, $model)
+    {
+        if ($files) {
+            foreach ($files as $file) {
+                // Store file to specific folder in public disk
+                $filePath = $this->storeFile($file, $folder);
+
+                // Save file info to the appropriate model
+                $model::create([
                     'user_id' => Auth::user()->id,
                     'aset_id' => $asetId, // Associate with the Aset
                     'file' => $filePath,
@@ -508,9 +587,20 @@ class AsetForm extends Component
             }
 
             // Clear the attachments array after saving
-            $this->attachments = [];
+            $this->clearAttachments($files);
         }
     }
+
+    private function storeFile($file, $folder)
+    {
+        return str_replace("{$folder}/", '', $file->storeAs($folder, $file->getClientOriginalName(), 'public'));
+    }
+
+    private function clearAttachments(&$files)
+    {
+        $files = [];
+    }
+
 
 
     private function generateQRCode()

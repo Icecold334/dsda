@@ -136,7 +136,7 @@
             </x-card>
             <x-card title="Foto & QR Code" class="mb-5">
                 <div class="flex justify-around">
-                    <div x-data="{ open: false, imgSrc: '' }"> 
+                    <div x-data="{ open: false, imgSrc: '' }">
                         <!-- Gambar Besar -->
                         <div class="w-80 h-80 overflow-hidden relative flex justify-center p-1 hover:shadow-lg transition duration-200 hover:opacity-80 border-2 rounded-lg bg-white cursor-pointer"
                             @click="open = true; imgSrc = '{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic.png') }}'">
@@ -160,9 +160,11 @@
                     </div>
                     <div
                         class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
-                        <img src="{{ asset($aset->systemcode ? 'storage/qr/' . $aset->systemcode . '.png' : 'img/default-pic.png') }}"
-                            data-tooltip-target="tooltip-QR" alt=""
-                            class="w-full h-full object-cover object-center rounded-sm">
+                        <a href="{{ route('aset.downloadQrImage', $aset->id) }}" class="w-full h-full">
+                            <img src="{{ asset($aset->systemcode ? 'storage/qr/' . $aset->systemcode . '.png' : 'img/default-pic.png') }}"
+                                data-tooltip-target="tooltip-QR" alt="QR Code"
+                                class="w-full h-full object-cover object-center rounded-sm">
+                        </a>
                     </div>
                     <div id="tooltip-QR" role="tooltip"
                         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
@@ -229,40 +231,84 @@
                         <td class="" style="width: 30%">Lama Garansi</td>
                         <td class="">{{ $aset->lama_garansi ?? '---' }}</td>
                     </tr>
+                    <tr>
+                        <td class="" style="width: 30%">Kartu Garansi</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            @if ($aset->garansis->isNotEmpty())
+                                @foreach ($aset->garansis as $attachment)
+                                    <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
+                                        <span class="flex items-center space-x-3">
+                                            @php
+                                                $fileType = pathinfo($attachment->file, PATHINFO_EXTENSION);
+                                            @endphp
+                                            <span class="text-primary-600">
+                                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                                    <i class="fa-solid fa-image text-green-500"></i>
+                                                @elseif($fileType == 'pdf')
+                                                    <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                                @elseif(in_array($fileType, ['doc', 'docx']))
+                                                    <i class="fa-solid fa-file-word text-blue-500"></i>
+                                                @else
+                                                    <i class="fa-solid fa-file text-gray-500"></i>
+                                                @endif
+                                            </span>
+
+                                            <!-- File name with underline on hover and a link to the saved file -->
+                                            <span>
+                                                <a href="{{ asset('storage/LampiranAset/' . $attachment->file) }}"
+                                                    target="_blank" class="text-gray-800 hover:underline">
+                                                    {{ basename($attachment->file) }}
+                                                </a>
+                                            </span>
+                                        </span>
+                                    </div>
+                                @endforeach
+                            @else
+                                <p class="text-gray-500">Tidak ada Kartu Garansi yang diunggah</p>
+                            @endif
+                        </td>
+                    </tr>
                 </table>
             </x-card>
             <x-card title="Keterangan" class="mb-3">
                 {{ $aset->keterangan ?? '---' }}
             </x-card>
             <x-card title="Lampiran" class="mb-3">
-                @foreach ($aset->lampirans as $attachment)
-                    <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
-                        <span class="flex items-center space-x-3">
-                            @php
-                                $fileType = pathinfo($attachment->file, PATHINFO_EXTENSION);
-                            @endphp
-                            <span class="text-primary-600">
-                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-                                    <i class="fa-solid fa-image text-green-500"></i>
-                                @elseif($fileType == 'pdf')
-                                    <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                @elseif(in_array($fileType, ['doc', 'docx']))
-                                    <i class="fa-solid fa-file-word text-blue-500"></i>
-                                @else
-                                    <i class="fa-solid fa-file text-gray-500"></i>
-                                @endif
-                            </span>
+                @if ($aset->lampirans->isNotEmpty())
+                    @foreach ($aset->lampirans as $attachment)
+                        <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
+                            <span class="flex items-center space-x-3">
+                                @php
+                                    $fileType = pathinfo($attachment->file, PATHINFO_EXTENSION);
+                                @endphp
+                                <span class="text-primary-600">
+                                    @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                        <i class="fa-solid fa-image text-green-500"></i>
+                                    @elseif($fileType == 'pdf')
+                                        <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                    @elseif(in_array($fileType, ['doc', 'docx']))
+                                        <i class="fa-solid fa-file-word text-blue-500"></i>
+                                    @else
+                                        <i class="fa-solid fa-file text-gray-500"></i>
+                                    @endif
+                                </span>
 
-                            <!-- File name with underline on hover and a link to the saved file -->
-                            <span>
-                                <a href="{{ asset('storage/LampiranAset/' . $attachment->file) }}" target="_blank"
-                                    class="text-gray-800 hover:underline">
-                                    {{ basename($attachment->file) }}
-                                </a>
+                                <!-- File name with underline on hover and a link to the saved file -->
+                                <span>
+                                    <a href="{{ asset('storage/LampiranAset/' . $attachment->file) }}"
+                                        target="_blank" class="text-gray-800 hover:underline">
+                                        {{ basename($attachment->file) }}
+                                    </a>
+                                </span>
                             </span>
-                        </span>
-                    </div>
-                @endforeach
+                        </div>
+                    @endforeach
+                @else
+                    <p class="text-gray-500">Tidak ada lampiran</p>
+                @endif
+
             </x-card>
         </div>
         <div>
