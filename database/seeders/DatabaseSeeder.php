@@ -240,6 +240,8 @@ class DatabaseSeeder extends Seeder
             'inventaris_tambah_barang_datang',
             'inventaris_unggah_foto_barang_datang',
             'permintaan_persetujuan_jumlah_barang',
+            'inventaris_edit_jumlah_diterima',
+            'inventaris_upload_foto_bukti',
             'persetujuan',
         ];
 

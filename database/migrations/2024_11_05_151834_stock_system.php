@@ -112,6 +112,7 @@ return new class extends Migration
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->date('tanggal_pengiriman');
             $table->integer('jumlah');
+            $table->integer('jumlah_diterima')->nullable();
             $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('cascade');
             $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade');
             $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade');

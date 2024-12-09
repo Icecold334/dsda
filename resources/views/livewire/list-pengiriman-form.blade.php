@@ -1,4 +1,5 @@
 <div>
+    <h1 class="text-2xl font-bold text-primary-900 ">{{ $roles }}</h1>
     <table class="w-full border-separate border-spacing-y-4">
         <thead>
             <tr class="text-white">
@@ -6,16 +7,33 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">LOKASI *</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BAGIAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">POSISI</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH *</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/5" colspan="2">JUMLAH *</th>
                 @if ($showDokumen)
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th>
+                    @can('inventaris_upload_foto_bukti')
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">&nbsp;</th>
+                    @endcan
                 @endif
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
 
         <tbody>
-
+            <tr>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>Diajukan *</th>
+                <th>Diterima </th>
+                @if ($showDokumen)
+                    <th>&nbsp;</th>
+                    @can('inventaris_upload_foto_bukti')
+                        <th>&nbsp;</th>
+                    @endcan
+                @endif
+                <th></th>
+            </tr>
             @foreach ($list as $index => $item)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="px-2 py-3 font-semibold">
@@ -52,7 +70,7 @@
                         </select>
                     </td>
                     <td class="px-6 py-3">
-                        <select wire:change="updateBagian({{ $index }}, $event.target.value)"
+                        <select wire:model="list.{{ $index }}.bagian_id"
                             class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['lokasi_id']) || Auth::user()->lokasi_id !== $item['lokasi_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             @disabled(!$item['editable'] || empty($item['lokasi_id']) || Auth::user()->lokasi_id !== $item['lokasi_id'])
                             @cannot('inventaris_edit_lokasi_penerimaan')
@@ -67,7 +85,7 @@
                         </select>
                     </td>
                     <td class="px-6 py-3">
-                        <select wire:change="updatePosisi({{ $index }}, $event.target.value)"
+                        <select wire:model="list.{{ $index }}.posisi_id"
                             class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['bagian_id']) || Auth::user()->lokasi_id !== $item['bagian_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             @disabled(!$item['editable'] || empty($item['bagian_id']) || Auth::user()->lokasi_id !== $item['lokasi_id'])>
                             <option value="">Pilih Posisi</option>
@@ -89,6 +107,8 @@
                                 class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
                                 {{ $item['merk_id'] ? optional(App\Models\MerkStok::find($item['merk_id'])->barangStok->satuanBesar)->nama : 'Satuan' }}
                             </span>
+                            &nbsp;
+
                         </div>
                         {{-- @if (!$item['merk_id']) --}}
                         {{-- @if (isset($errorsList[$index])) --}}
@@ -100,6 +120,23 @@
                         @endif
                         {{-- @endif --}}
                         {{-- @endif --}}
+                    </td>
+                    <td class="px-6 py-3">
+                        <div class="flex items-center">
+                            @if ($showDokumen)
+                                <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value="{{ $item['jumlah_diterima'] }}"
+                                    wire:model="list.{{ $index }}.jumlah_diterima"
+                                    @cannot('inventaris_edit_jumlah_diterima')
+                            disabled
+                            @endcannot
+                                    class="bg-gray-50 border {{ $showDokumen === 1 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    min="1" {{-- max="{{ $item['max_jumlah'] }}" --}} placeholder="Jumlah">
+                                <span
+                                    class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
+                                    {{ $item['merk_id'] ? optional(App\Models\MerkStok::find($item['merk_id'])->barangStok->satuanBesar)->nama : 'Satuan' }}
+                                </span>
+                            @endif
+                        </div>
                     </td>
                     @if ($showDokumen)
                         <td class="px-6 py-3 text-center">
@@ -216,6 +253,16 @@
                                 <i class="fa-solid fa-circle-check"></i>
                             </button>
                         @endif --}}
+                        @can('inventaris_unggah_foto_barang_datang')
+                            @if (@$showDokumen)
+                                <button wire:click="updatePengirimanStok({{ $index }})"
+                                    class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </button>
+                                <!-- Without permission, show "Belum ada unggahan" -->
+                                {{-- <span class="text-gray-500">Belum ada unggahan</span> --}}
+                            @endif
+                        @endcan
                     </td>
                 </tr>
             @endforeach

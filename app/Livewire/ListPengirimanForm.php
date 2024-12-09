@@ -228,6 +228,8 @@ class ListPengirimanForm extends Component
         }
     }
 
+    public $roles;
+
     public function mount()
     {
         // dd($this->old);
@@ -252,6 +254,7 @@ class ListPengirimanForm extends Component
                     'bagians' => BagianStok::where('lokasi_id', $transaksi->lokasi_id)->get(),
                     'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
                     'jumlah' => $transaksi->jumlah ?? 1,
+                    'jumlah_diterima' => $transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
                     'editable' => true,
                 ];
@@ -260,6 +263,7 @@ class ListPengirimanForm extends Component
                 // }
             }
 
+            $this->roles = Auth::user()->roles->pluck('name')->first();
             // dd($this->list);
         }
     }
@@ -338,14 +342,20 @@ class ListPengirimanForm extends Component
         }
     }
 
-    public function updatePengirimanStock($index){
-        $this->list[$index]['bagian_id'] = $this->bagian_id;
-        $this->list[$index]['posisi_id'] = null;
-        $this->list[$index]['posisis'] = PosisiStok::where('bagian_id', $bagianId)->get();
+    public function updatePengirimanStok($index){
+        $data = $this->list[$index];
 
-        if ($this->showDokumen) {
-            $this->savePengiriman();
-        }
+        $id_pengiriman = $data['id'];
+
+        $attr = [
+            'jumlah_diterima' => $data['jumlah_diterima'],
+            'bagian_id' => $data['bagian_id'],
+            'posisi_id' => $data['posisi_id']
+        ];
+        
+        PengirimanStok::where('id', $id_pengiriman)->update($attr);
+
+        session()->flash("message", "New row added successfully.");
     }
 
     public function updateBagian($index, $bagianId)
