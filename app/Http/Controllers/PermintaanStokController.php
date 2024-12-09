@@ -11,9 +11,15 @@ class PermintaanStokController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($tipe = null)
     {
-        $permintaans = DetailPermintaanStok::orderBy('id', 'desc')->get();
+        $jenis_id = is_null($tipe) || $tipe === 'umum' ? 3 : ($tipe === 'spare-part' ? 2 : 1);
+
+
+        $permintaans = DetailPermintaanStok::where('jenis_id', $jenis_id)->whereHas('unit', function ($unit) {
+            return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        })->orderBy('id', 'desc')->get();
+
         return view('permintaan.index', compact('permintaans'));
     }
 

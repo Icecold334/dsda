@@ -2,7 +2,7 @@
         <nav
             class="bg-[#d9faff] border-gray-200 shadow-2xl dark:bg-gray-800 flex flex-wrap justify-between items-center overflow-y-hidden">
             <div class="flex items-center">
-                <a href="https://flowbite.com" class="flex">
+                <a href="/" class="flex">
                     <img src="{{ asset('img/dsda-logo.png') }}" alt="Logo" class="h-[4.5rem] w-auto">
                 </a>
             </div>
@@ -36,7 +36,8 @@
                     <livewire:nav-item title="Form" :child="[
                         ['href' => route('permintaan-stok.index'), 'title' => 'Form pelayanan Umum'],
                         // ['href' => '/#', 'title' => 'Form permintaan spare part'],
-                        ['href' => '/#', 'title' => 'Form permintaan material'],
+                        ['href' => '/permintaan/spare-part', 'title' => 'Form permintaan spare part'],
+                        ['href' => '/permintaan/material', 'title' => 'Form permintaan material'],
                         ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
                     ]" />
                     <livewire:nav-item title="data" :child="[

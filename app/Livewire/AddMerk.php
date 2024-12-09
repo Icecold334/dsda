@@ -29,25 +29,44 @@ class AddMerk extends Component
     public function removeMerk()
     {
         Merk::destroy($this->id);
-        return redirect()->route('merk.index');
+        return redirect()->route('merk.index')->with('success', 'Berhasil Dihapus');
     }
     public function saveMerk()
     {
-        $data = [
-            'nama' => $this->merk,
-            'keterangan' => $this->keterangan,
-            'nama_nospace' => Str::slug($this->merk),
-        ];
-        // Jika ID diberikan, cari kategori
-        $merk = Merk::find($this->id);
+// <<<<<<< support
+//         $data = [
+//             'nama' => $this->merk,
+//             'keterangan' => $this->keterangan,
+//             'nama_nospace' => Str::slug($this->merk),
+//         ];
+//         // Jika ID diberikan, cari kategori
+//         $merk = Merk::find($this->id);
 
-        // Set user_id
-        $data['user_id'] = $merk ? $merk->user_id : Auth::id();
+//         // Set user_id
+//         $data['user_id'] = $merk ? $merk->user_id : Auth::id();
 
-        // Update atau create dengan data
-        Merk::updateOrCreate(['id' => $this->id ?? 0], $data);
+//         // Update atau create dengan data
+//         Merk::updateOrCreate(['id' => $this->id ?? 0], $data);
 
-        return redirect()->route('merk.index');
+//         return redirect()->route('merk.index');
+// =======
+        $merk=Merk::updateOrCreate(
+            ['id' => $this->id ?? 0], // Unique field to check for existing record
+            [
+                'user_id' => Auth::user()->id,
+                'nama' => $this->merk,
+                'keterangan' => $this->keterangan,
+                'nama_nospace' => strtolower(str_replace(' ', '-', $this->merk)),
+            ]
+        );
+        if ($merk->wasRecentlyCreated && $this->merk){
+            return redirect()->route('merk.index')->with('success', 'Berhasil Menambah Merk');
+        }
+        else {
+            return redirect()->route('merk.index')->with('success', 'Berhasil Mengubah Merk');
+        }
+ //       return redirect()->route('merk.index')->with('success', 'Berhasil Menambah Merk');
+// >>>>>>> main
     }
     public function render()
     {

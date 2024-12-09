@@ -13,6 +13,10 @@ class LokasiStok extends Model
     {
         return $this->hasMany(BagianStok::class, 'lokasi_id');
     }
+    public function unitKerja()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id');
+    }
 
     public function stok()
     {

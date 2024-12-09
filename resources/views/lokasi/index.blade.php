@@ -11,6 +11,19 @@
         </div>
     </div>
 
+@if (session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Success!',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                confirmButtonText: 'Okay'
+            });
+        });
+    </script>
+@endif
+
     <table class="w-full border-3 border-separate border-spacing-y-4">
         <thead>
             <tr class="text-white">

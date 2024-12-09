@@ -36,31 +36,53 @@ class AddToko extends Component
 
     public function removeToko()
     {
-
         Toko::destroy($this->id);
-        return redirect()->route('toko.index');
+        return redirect()->route('toko.index')->with('success', 'Berhasil Dihapus');
     }
     public function saveToko()
     {
-        $data = [
-            'nama' => $this->toko,
-            'alamat' => $this->alamat,
-            'telepon' => $this->telepon,
-            'email' => $this->email,
-            'petugas' => $this->petugas,
-            'keterangan' => $this->keterangan,
-            'nama_nospace' => Str::slug($this->toko),
-        ];
-        // Jika ID diberikan, cari kategori
-        $toko = Toko::find($this->id);
+// <<<<<<< support
+//         $data = [
+//             'nama' => $this->toko,
+//             'alamat' => $this->alamat,
+//             'telepon' => $this->telepon,
+//             'email' => $this->email,
+//             'petugas' => $this->petugas,
+//             'keterangan' => $this->keterangan,
+//             'nama_nospace' => Str::slug($this->toko),
+//         ];
+//         // Jika ID diberikan, cari kategori
+//         $toko = Toko::find($this->id);
 
-        // Set user_id
-        $data['user_id'] = $toko ? $toko->user_id : Auth::id();
+//         // Set user_id
+//         $data['user_id'] = $toko ? $toko->user_id : Auth::id();
 
-        // Update atau create dengan data
-        Toko::updateOrCreate(['id' => $this->id ?? 0], $data);
+//         // Update atau create dengan data
+//         Toko::updateOrCreate(['id' => $this->id ?? 0], $data);
 
-        return redirect()->route('toko.index');
+//         return redirect()->route('toko.index');
+// =======
+        $toko=Toko::updateOrCreate(
+            ['id' => $this->id ?? 0], // Unique field to check for existing record
+            [
+                'user_id' => Auth::user()->id,
+                'nama' => $this->toko,
+                'alamat' => $this->alamat,
+                'telepon' => $this->telepon,
+                'email' => $this->email,
+                'petugas' => $this->petugas,
+                'keterangan' => $this->keterangan,
+                'nama_nospace' => Str::slug($this->toko),
+            ]
+        );
+        
+        if ($toko->wasRecentlyCreated && $this->toko){
+            return redirect()->route('toko.index')->with('success', 'Berhasil Menambah Toko');
+        }
+        else {
+            return redirect()->route('toko.index')->with('success', 'Berhasil Mengubah Toko');
+        }
+// >>>>>>> main
     }
 
     public function render()

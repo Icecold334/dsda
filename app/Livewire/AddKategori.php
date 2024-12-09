@@ -55,36 +55,77 @@ class AddKategori extends Component
     }
     public function removeKategori()
     {
-        if ($this->tipe == 'utama') {
+        if ($this->id) {
+            $kategori=Kategori::find($this->id);
+            if ($kategori->parent_id!=null) {
+                Kategori::destroy($this->id);
+                return redirect()->route('kategori.index')->with('success', 'Berhasil Dihapus');
+            }
             Kategori::destroy($this->id);
-        } else {
-            Kategori::destroy($this->id);
+            return redirect()->route('kategori.index')->with('success', 'Berhasil Dihapus');
         }
-        return redirect()->route('kategori.index');
+        return redirect()->route('kategori.index')->with('error', 'Kategori tidak ditemukan');
     }
 
     public function saveKategori()
     {
-        // Tentukan apakah kategori ini "utama" atau "sub"
+// <<<<<<< support
+//         // Tentukan apakah kategori ini "utama" atau "sub"
+//         $data = [
+//             'nama' => $this->tipe == 'utama' ? $this->utama : $this->sub,
+//             'keterangan' => $this->keterangan,
+//         ];
+
+//         if ($this->tipe != 'utama') {
+//             $data['parent_id'] = $this->parent_id;
+//         }
+
+//         // Jika ID diberikan, cari kategori
+//         $kategori = Kategori::find($this->id);
+
+//         // Set user_id
+//         $data['user_id'] = $kategori ? $kategori->user_id : Auth::id();
+
+//         // Update atau create dengan data
+//         Kategori::updateOrCreate(['id' => $this->id ?? 0], $data);
+
+//         return redirect()->route('kategori.index');
+// =======
+        // Siapkan data kategori berdasarkan tipe
         $data = [
-            'nama' => $this->tipe == 'utama' ? $this->utama : $this->sub,
+            'user_id' => Auth::id(),
+            'nama' => $this->tipe === 'utama' ? $this->utama : $this->sub,
             'keterangan' => $this->keterangan,
         ];
-
-        if ($this->tipe != 'utama') {
+    
+        // Tambahkan parent_id jika tipe adalah sub
+        if ($this->tipe === 'sub') {
             $data['parent_id'] = $this->parent_id;
         }
-
-        // Jika ID diberikan, cari kategori
-        $kategori = Kategori::find($this->id);
-
-        // Set user_id
-        $data['user_id'] = $kategori ? $kategori->user_id : Auth::id();
-
-        // Update atau create dengan data
-        Kategori::updateOrCreate(['id' => $this->id ?? 0], $data);
-
-        return redirect()->route('kategori.index');
+    
+        // Simpan atau update data kategori
+        $kategori = Kategori::updateOrCreate(
+            ['id' => $this->id ?? 0], // Cek data berdasarkan ID
+            $data
+        );
+    
+        // Tentukan pesan keberhasilan
+        $message = $kategori->wasRecentlyCreated
+            ? 'Berhasil Menambah Kategori'
+            : 'Berhasil Mengubah Kategori';
+            
+            if ($kategori->parent_id===null) {
+                return redirect()->route('kategori.index')->with('success', $message);
+            }
+                
+        if ($kategori->wasRecentlyCreated && $this->tipe==='sub'){
+            return redirect()->route('kategori.index')->with('success', 'Berhasil Menambah Sub Kategori');
+        }
+        else {
+            return redirect()->route('kategori.index')->with('success', 'Berhasil Mengubah Sub Kategori');
+        }
+//        return redirect()->route('kategori.index')->with('success', $message);
+// >>>>>>> main
     }
 
     public function render()

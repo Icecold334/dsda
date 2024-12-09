@@ -27,24 +27,43 @@ class AddLokasiData extends Component
     public function removeLokasi()
     {
         Lokasi::destroy($this->id);
-        return redirect()->route('lokasi.index');
+        return redirect()->route('lokasi.index')->with('success', 'Berhasil Dihapus');
     }
     public function saveLokasi()
     {
-        $data = [
-            'nama' => $this->lokasi,
-            'keterangan' => $this->keterangan,
-            'nama_nospace' => strtolower(str_replace(' ', '-', $this->lokasi)),
-        ];
-        // Jika ID diberikan, cari kategori
-        $lokasi = Lokasi::find($this->id);
+// <<<<<<< support
+//         $data = [
+//             'nama' => $this->lokasi,
+//             'keterangan' => $this->keterangan,
+//             'nama_nospace' => strtolower(str_replace(' ', '-', $this->lokasi)),
+//         ];
+//         // Jika ID diberikan, cari kategori
+//         $lokasi = Lokasi::find($this->id);
 
-        // Set user_id
-        $data['user_id'] = $lokasi ? $lokasi->user_id : Auth::id();
-        // Update atau create dengan data
-        Lokasi::updateOrCreate(['id' => $this->id ?? 0], $data);
+//         // Set user_id
+//         $data['user_id'] = $lokasi ? $lokasi->user_id : Auth::id();
+//         // Update atau create dengan data
+//         Lokasi::updateOrCreate(['id' => $this->id ?? 0], $data);
 
-        return redirect()->route('lokasi.index');
+//         return redirect()->route('lokasi.index');
+=======
+        $lokasi=Lokasi::updateOrCreate(
+            ['id' => $this->id ?? 0], // Unique field to check for existing record
+            [
+                'user_id' => Auth::user()->id,
+                'nama' => $this->lokasi,
+                'keterangan' => $this->keterangan,
+                'nama_nospace' => strtolower(str_replace(' ', '-', $this->lokasi)),
+            ]
+        );
+        if ($lokasi->wasRecentlyCreated && $this->lokasi){
+            return redirect()->route('lokasi.index')->with('success', 'Berhasil Menambah Lokasi');
+        }
+        else {
+            return redirect()->route('lokasi.index')->with('success', 'Berhasil Mengubah Lokasi');
+        }
+//        return redirect()->route('lokasi.index');
+// >>>>>>> main
     }
     public function render()
     {

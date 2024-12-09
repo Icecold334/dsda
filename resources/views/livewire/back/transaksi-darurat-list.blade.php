@@ -1,6 +1,5 @@
 <div>
     <table class="w-full border-3 border-separate border-spacing-y-4">
-        {{ $roles }}
         <thead>
             <tr class="text-white bg-primary-950 uppercase">
                 <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
@@ -55,7 +54,7 @@
                             <input type="file" wire:model.live="list.{{ $index }}.bukti" class="hidden"
                                 id="upload-bukti-{{ $index }}">
 
-                            @if (!empty($item['bukti']))
+                            @if (isset($item['bukti']))
                                 <!-- Display uploaded proof preview with remove icon -->
                                 <div class="relative inline-block">
                                     <a href="{{ is_string($item['bukti']) ? asset('storage/buktiTransaksi/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
@@ -63,24 +62,18 @@
                                         <img src="{{ is_string($item['bukti']) ? asset('storage/buktiTransaksi/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
                                             alt="Bukti" class="w-16 h-16 rounded-md">
                                     </a>
-                                    @role('penanggungjawab')
-                                        <button wire:click="removePhoto({{ $index }})"
-                                            class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600  text-white rounded-full w-5 h-5 text-xs">
-                                            &times;
-                                        </button>
-                                    @endrole
+                                    <button wire:click="removePhoto({{ $index }})"
+                                        class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600  text-white rounded-full w-5 h-5 text-xs">
+                                        &times;
+                                    </button>
                                 </div>
                             @else
                                 <!-- Show upload button if no file is selected -->
-                                @role('penanggungjawab')
-                                    <button type="button"
-                                        onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
-                                        class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
-                                        <i class="fa-solid fa-file-arrow-up"></i> Upload
-                                    </button>
-                                @else
-                                    <div class="font-semibold text-gray-400">Menunggu PJ</div>
-                                @endrole
+                                <button type="button"
+                                    onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
+                                    class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                    <i class="fa-solid fa-file-arrow-up"></i> Upload
+                                </button>
                             @endif
 
                             @error("list.{$index}.bukti")
@@ -89,61 +82,28 @@
                         </td>
                         <td class="text-center py-3 px-6">
                             @can('persetujuan')
-                                {{-- {{ $item['sumApprove'] }} --}}
-                                {{-- Jika pengguna adalah PPK --}}
-                                {{-- @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $item['ppk_isapprove']) --}}
-                                @if ($item['bukti'] && auth()->user()->hasRole('penanggungjawab') && $item['pj_isapprove'])
-                                    <button onclick="confirmApproval({{ $index }}, 'pj')"
-                                        class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
-                                        Approve PJ
-                                    </button>
+                                {{-- Cek apakah pengguna adalah penanggungjawab --}}
+                                @if (is_null($item['status']))
+                                    {{-- Cek jika status masih kosong/null --}}
+                                    <!-- Tombol Approval hanya ditampilkan jika status kosong dan pengguna adalah penanggungjawab -->
 
-                                    {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
-                                @elseif ($item['bukti'] && auth()->user()->hasRole('pptk') && $item['pptk_isapprove'] && !$item['pj_isapprove'])
-                                    <button onclick="confirmApproval({{ $index }}, 'pptk')"
-                                        class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
-                                        Approve PPTK
-                                    </button>
-                                    {{-- Jika pengguna adalah PJ dan sudah ada approval dari PPTK --}}
-                                @elseif (
-                                    $item['bukti'] &&
-                                        auth()->user()->hasRole('ppk') &&
-                                        $item['ppk_isapprove'] &&
-                                        !$item['pptk_isapprove'] &&
-                                        !$item['pj_isapprove']
-                                )
-                                    <button onclick="confirmApproval({{ $index }}, 'pj')"
-                                        class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
-                                        Approve PPK
-                                    </button>
-                                @else
-                                    {{-- Status persetujuan hanya ditampilkan jika bukti belum diisi --}}
-                                    {{-- @if (empty($item['bukti']))
-                                    <span
-                                        class="{{ $item['status'] ? 'text-green-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
-                                        {{ is_null($item['status']) ? 'Menunggu' : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
-                                    </span>
-                                @endif --}}
-
-                                    @if ($item['sumApprove'] === 3 && !$item['ppk_isapprove'])
-                                        <span class="text-green-600">Disetujui ppk
-                                        </span>
-                                    @elseif($item['sumApprove'] === 2 && !$item['pptk_isapprove'])
-                                        <span class="text-green-600">Disetujui pptk
-                                        </span>
-                                    @elseif($item['sumApprove'] === 1)
-                                        <span class="text-green-600">Disetujui pj
-                                        </span>
-                                    @else
-                                        <span class="text-red-600">Menunggu
-                                        </span>
+                                    @if ($item['bukti'])
+                                        <button onclick="confirmApproval({{ $index }})"
+                                            class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
+                                            Approve
+                                        </button>
                                     @endif
+                                @else
+                                    <!-- Tampilkan status jika sudah terisi -->
+                                    <span class="{{ $item['status'] ? 'text-green-600' : 'text-red-600' }}">
+                                        {{ $item['status'] ? 'Disetujui' : 'Ditolak' }}
+                                    </span>
                                 @endif
                             @else
-                                {{-- Untuk pengguna yang tidak memiliki hak persetujuan --}}
+                                <!-- Untuk pengguna yang bukan penanggungjawab, hanya tampilkan status -->
                                 <span
                                     class="{{ $item['status'] ? 'text-green-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
-                                    {{ is_null($item['status']) ? (empty($item['bukti']) ? 'Menunggu' : '') : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
+                                    {{ is_null($item['status']) ? 'Menunggu' : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
                                 </span>
                             @endcan
                         </td>
