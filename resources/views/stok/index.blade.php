@@ -1,7 +1,10 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">DAFTAR STOK</h1>
+        <h1 class="text-2xl font-bold text-primary-900 ">Daftar Stok
+            {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+
+        </h1>
         <div>
             {{-- <a href="{{ route('aset.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
@@ -25,7 +28,8 @@
                 <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="py-3 px-6"></td>
                     <td class="py-3 px-6 font-semibold">
-                        {{ $barang->nama }}
+                        <div>{{ $barang->nama }}</div>
+                        <div class="font-normal text-sm">{{ $barang->jenisStok->nama }}</div>
                     </td>
                     <td class="py-3 px-6 font-semibold">
                         {{ $barang->kode_barang }}

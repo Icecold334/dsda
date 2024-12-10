@@ -28,20 +28,32 @@
                         <div>
                             <label for="nama" class="block text-sm font-medium text-gray-700">Cari Nama Aset</label>
                             <input type="text" name="nama" id="nama" placeholder="Cari Nama Aset"
-                                class="border border-gray-300 rounded-lg p-2 mt-1" value="{{ request('nama') }}" />
+                                class="w-full border border-gray-300 rounded-lg p-2 mt-1"
+                                value="{{ request('nama') }}" />
                         </div>
 
                         <!-- Filter Kategori -->
                         <div>
                             <label for="kategori_id" class="block text-sm font-medium text-gray-700">Kategori</label>
                             <select name="kategori_id" id="kategori_id"
-                                class="border border-gray-300 rounded-lg p-2 mt-1">
+                                class="w-full border border-gray-300 rounded-lg p-2 mt-1">
                                 <option value="">Semua Kategori</option>
-                                @foreach ($kategoris as $kategori)
-                                    <option value="{{ $kategori->id }}"
-                                        {{ request('kategori_id') == $kategori->id ? 'selected' : '' }}>
-                                        {{ $kategori->nama }}
-                                    </option>
+                                @foreach ($kategoris as $kategoriItem)
+                                    @if ($kategoriItem->parent_id == null)
+                                        <!-- Parent Kategori -->
+                                        <option value="{{ $kategoriItem->id }}"
+                                            {{ request('kategori_id') == $kategoriItem->id ? 'selected' : '' }}>
+                                            {{ $kategoriItem->nama }}
+                                        </option>
+
+                                        <!-- Child Kategori -->
+                                        @foreach ($kategoris->where('parent_id', $kategoriItem->id) as $childkategoriItem)
+                                            <option value="{{ $childkategoriItem->id }}"
+                                                {{ request('kategori_id') == $childkategoriItem->id ? 'selected' : '' }}>
+                                                --- {{ $childkategoriItem->nama }}
+                                            </option>
+                                        @endforeach
+                                    @endif
                                 @endforeach
                             </select>
                         </div>
@@ -49,7 +61,8 @@
                         <!-- Filter Sebab -->
                         <div>
                             <label for="sebab" class="block text-sm font-medium text-gray-700">Sebab</label>
-                            <select name="sebab" id="sebab" class="border border-gray-300 rounded-lg p-2 mt-1">
+                            <select name="sebab" id="sebab"
+                                class="w-full border border-gray-300 rounded-lg p-2 mt-1">
                                 <option value="">Semua Sebab</option>
                                 <option value="Dijual" {{ request('sebab') == 'Dijual' ? 'selected' : '' }}>Dijual
                                 </option>
@@ -76,7 +89,8 @@
                         <div>
                             <label for="order_by" class="block text-sm font-medium text-gray-700">Urutkan
                                 Berdasarkan</label>
-                            <select name="order_by" id="order_by" class="border border-gray-300 rounded-lg p-2 mt-1">
+                            <select name="order_by" id="order_by"
+                                class="w-full border border-gray-300 rounded-lg p-2 mt-1">
                                 <option value="nama" {{ request('order_by') == 'nama' ? 'selected' : '' }}>Nama Aset
                                 </option>
                                 <option value="tglnonaktif"
@@ -92,7 +106,7 @@
 
                         <!-- Dropdown untuk Arah Urutan -->
                         <div>
-                            <label for="order_direction" class="block text-sm font-medium text-gray-700">Arah
+                            <label for="order_direction" class="w-full block text-sm font-medium text-gray-700">Arah
                                 Urutan</label>
                             <select name="order_direction" id="order_direction"
                                 class="border border-gray-300 rounded-lg p-2 mt-1">
@@ -102,24 +116,25 @@
                                     Menurun</option>
                             </select>
                         </div>
+
+                        <!-- Submit and Reset Buttons -->
+                        <div class="flex justify-end items-center space-x-4">
+                            <!-- GO Button -->
+                            <button
+                                type="submit"class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"
+                                w>GO!</button>
+
+                            <!-- Reset Button (only shown if filters are applied) -->
+                            @if (request()->hasAny(['nama', 'kategori_id', 'sebab', 'order_by', 'order_direction']))
+                                <a href="{{ route('nonaktifaset.index') }}"
+                                    class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
+                                    <i class="fa fa-sync-alt"></i>
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 </fieldset>
 
-                <!-- Submit and Reset Buttons -->
-                <div class="flex justify-start items-center space-x-4">
-                    <!-- GO Button -->
-                    <button
-                        type="submit"class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"
-                        w>GO!</button>
-
-                    <!-- Reset Button (only shown if filters are applied) -->
-                    @if (request()->hasAny(['nama', 'kategori_id', 'sebab', 'order_by', 'order_direction']))
-                        <a href="{{ route('nonaktifaset.index') }}"
-                            class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
-                            <i class="fa fa-sync-alt"></i>
-                        </a>
-                    @endif
-                </div>
             </div>
         </form>
     </div>
@@ -248,7 +263,7 @@
                                         class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
                                         @click="open = false" @keydown.escape.window="open = false">
                                         <img :src="imgSrc" class="w-60 h-60 object-cover object-center">
-                                </div>
+                                    </div>
                                 </div>
 
                             </div>

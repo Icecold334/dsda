@@ -4,21 +4,67 @@
             <thead>
                 <tr class="text-white uppercase">
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
+                    @if ($requestIs == 'spare-part' || optional($permintaan?->jenisStok)->nama == 'Spare Part')
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS KDO</th>
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DESKRIPSI KERUSAKAN</th>
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">CATATAN</th>
+                    @endif
+                    @if ($requestIs == 'material' || optional($permintaan?->jenisStok)->nama == 'Material')
+                        {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">LOKASI PENGGUNAAN</th> --}}
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KEPERLUAN</th>
+                    @endif
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA BARANG</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH *</th>
                     @if (!$showAdd)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH disetujui</th>
                     @endif
+                    @if (
+                        $requestIs == 'spare-part' ||
+                            optional($permintaan?->jenisStok)->nama == 'Spare Part' ||
+                            $requestIs == 'material' ||
+                            optional($permintaan?->jenisStok)->nama == 'Material')
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[10%]"></th>
+                    @endif
                     {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th> --}}
-                    <th class="py-3 px-6 bg-primary-950 w-1/6 text-center font-semibold rounded-r-lg"></th>
+                    <th class="py-3 px-6 bg-primary-950 w-1/12 text-center font-semibold rounded-r-lg"></th>
                 </tr>
             </thead>
             <tbody>
-                @if ($tanggal_permintaan && $keterangan && $unit_id)
+                {{-- @if ($ruleShow) --}}
+                @if (true)
                     @foreach ($list as $index => $item)
                         <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                             <!-- Empty Column -->
                             <td class="py-3 px-6"></td>
+                            @if ($requestIs == 'spare-part' || optional($permintaan?->jenisStok)->nama == 'Spare Part')
+                                <!-- Jenis KDO -->
+                                <td class="py-3 px-6">
+                                    <input type="text" disabled wire:model.live="list.{{ $index }}.aset_name"
+                                        wire:focus="focusAset" wire:blur="blurAset" placeholder="Cari atau Tambah KDO"
+                                        class="block cursor-not-allowed w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                </td>
+
+                                <!-- Deskripsi Kerusakan -->
+                                <td class="px-6 py-3">
+                                    <textarea id="deskripsiKerusakan" disabled wire:model.live="list.{{ $index }}.deskripsi" rows="2"
+                                        class="w-full border cursor-not-allowed border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Deskripsikan kerusakan secara detail"></textarea>
+                                </td>
+
+                                <!-- Catatan -->
+                                <td class="px-6 py-3">
+                                    <textarea id="catatan" disabled wire:model.live="list.{{ $index }}.catatan" rows="2"
+                                        class="w-full border cursor-not-allowed border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Tambahkan catatan jika diperlukan"></textarea>
+                                </td>
+                            @endif
+                            @if ($requestIs == 'material' || optional($permintaan?->jenisStok)->nama == 'Material')
+                                <td class="px-6 py-3">
+                                    <textarea id="deskripsiKerusakan" disabled wire:model.live="list.{{ $index }}.deskripsi" rows="2"
+                                        class="w-full border cursor-not-allowed border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Deskripsikan keperluan"></textarea>
+                                </td>
+                            @endif
 
                             <!-- NAMA BARANG Column -->
                             <td class="py-3 px-6">
@@ -55,7 +101,37 @@
                                     </div>
                                 </td>
                             @endif
+                            @if (
+                                $requestIs == 'spare-part' ||
+                                    optional($permintaan?->jenisStok)->nama == 'Spare Part' ||
+                                    $requestIs == 'material' ||
+                                    optional($permintaan?->jenisStok)->nama == 'Material')
+                                <td class="px-6 py-3 text-center">
+                                    <div class="relative inline-block">
+                                        @if (is_string($item['img']))
+                                            <!-- Jika newBukti adalah string (path file) -->
+                                            <a href="{{ asset('storage/kondisiKdo/' . $item['img']) }}"
+                                                target="_blank">
+                                                <img src="{{ asset('storage/kondisiKdo/' . $item['img']) }}"
+                                                    alt="Preview Bukti" class="w-16 h-16 rounded-md">
+                                            </a>
+                                        @elseif (is_object($item['img']) && method_exists($item['img'], 'temporaryUrl'))
+                                            <!-- Jika newBukti adalah file Livewire upload -->
+                                            <a href="{{ $item['img']->temporaryUrl() }}" target="_blank">
+                                                <img src="{{ $item['img']->temporaryUrl() }}" alt="Preview Bukti"
+                                                    class="w-16 h-16 rounded-md">
+                                            </a>
+                                        @else
+                                            <span class="text-gray-500">Bukti tidak valid</span>
+                                        @endif
+                                        {{-- <button wire:click="removePhoto"
+                                                class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-xs hover:bg-red-700">
+                                                &times;
+                                            </button> --}}
+                                    </div>
 
+                                </td>
+                            @endif
 
                             <td class="py-3 px-6 text-center">
                                 @if (!$item['id'])
@@ -92,7 +168,59 @@
                     @if ($showAdd)
                         <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                             <td class="py-3 px-6"></td>
+                            @if ($requestIs == 'spare-part')
+                                <!-- Jenis KDO -->
+                                <td class="py-3 px-6 relative">
+                                    <input type="text" wire:model.live="newAset" wire:focus="focusAset"
+                                        wire:blur="blurAset" placeholder="Cari atau Tambah KDO"
+                                        class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                    <ul
+                                        class="absolute z-10 w-96 bg-white border border-gray-300 rounded-lg mt-2 max-h-60 overflow-auto shadow-lg">
+                                        @foreach ($asetSuggestions as $aset)
+                                            {{-- <li class="px-4 py-2 font-bold text-gray-900 bg-gray-100 cursor-default"> --}}
+                                            <li wire:click="selectAset({{ $aset->id }})"
+                                                class="px-6 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
+                                                {{ $aset->nama }}</li>
+                                        @endforeach
+                                    </ul>
+                                </td>
 
+                                <!-- Deskripsi Kerusakan -->
+                                <td class="px-6 py-3">
+                                    <textarea id="deskripsiKerusakan" wire:model.live="newDeskripsi" rows="2"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Deskripsikan kerusakan secara detail"></textarea>
+                                </td>
+                                <!-- Catatan -->
+                                <td class="px-6 py-3">
+                                    <textarea id="catatan" wire:model.live="newCatatan" rows="2"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Tambahkan catatan jika diperlukan"></textarea>
+                                </td>
+                            @endif
+                            @if ($requestIs == 'material')
+                                <!-- Jenis KDO -->
+                                {{-- <td class="py-3 px-6 relative">
+                                    <input type="text" wire:model.live="newLokasi" wire:focus="focusLokasi"
+                                        wire:blur="blurLokasi" placeholder="Cari Lokasi"
+                                        class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                    <ul
+                                        class="absolute z-10 w-96 bg-white border border-gray-300 rounded-lg mt-2 max-h-60 overflow-auto shadow-lg">
+                                        @foreach ($lokasiSuggestions as $lokasi)
+                                            <li wire:click="selectLokasi({{ $lokasi->id }})"
+                                                class="px-6 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
+                                                {{ $lokasi->nama }}</li>
+                                        @endforeach
+                                    </ul>
+                                </td> --}}
+
+                                <!-- Deskripsi Kerusakan -->
+                                <td class="px-6 py-3">
+                                    <textarea id="deskripsiKerusakan" wire:model.live="newDeskripsi" rows="2"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Deskripsikan keperluan"></textarea>
+                                </td>
+                            @endif
                             <td class="py-3 px-6 relative">
                                 <input type="text" wire:model.live="newBarang" wire:focus="focusBarang"
                                     wire:blur="blurBarang" placeholder="Cari atau Tambah Barang"
@@ -100,20 +228,20 @@
                                 <ul
                                     class="absolute z-10 w-96 bg-white border border-gray-300 rounded-lg mt-2 max-h-60 overflow-auto shadow-lg">
                                     @foreach ($barangSuggestions as $barang)
-                                        <li class="px-4 py-2 font-bold text-gray-900 bg-gray-100 cursor-default">
+                                        {{-- <li class="px-4 py-2 font-bold text-gray-900 bg-gray-100 cursor-default"> --}}
+                                        <li wire:click="selectMerk({{ $barang->id }})"
+                                            class="px-6 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
                                             {{ $barang->nama }}</li>
-                                        @foreach ($barang->merkStok as $merk)
+                                        {{-- @foreach ($barang->merkStok as $merk)
                                             <li wire:click="selectMerk({{ $merk->merk_id }})"
                                                 class="px-6 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
                                                 Merk: {{ $merk->nama ?? '-' }} | Tipe: {{ $merk->tipe ?? '-' }} |
                                                 Ukuran:
                                                 {{ $merk->ukuran ?? '-' }}
                                             </li>
-                                        @endforeach
+                                        @endforeach --}}
                                     @endforeach
                                 </ul>
-
-
                             </td>
 
 
@@ -139,6 +267,32 @@
                                             {{ $newUnit }}
                                         </span>
                                     </div>
+                                </td>
+                            @endif
+
+                            @if ($requestIs == 'spare-part' || $requestIs == 'material')
+                                <td class="px-6 py-3 text-center">
+                                    @if ($newBukti)
+                                        <div class="relative inline-block">
+                                            <a href="{{ $newBukti->temporaryUrl() }}" target="_blank">
+                                                <img src="{{ $newBukti->temporaryUrl() }}" alt="Preview Bukti"
+                                                    class="w-16 h-16 rounded-md">
+                                            </a>
+                                            <button wire:click="removePhoto"
+                                                class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-xs hover:bg-red-700">
+                                                &times;
+                                            </button>
+                                        </div>
+                                    @else
+                                        <input type="file" wire:model.live="newBukti" class="hidden"
+                                            id="upload-newBukti">
+                                        <button type="button"
+                                            onclick="document.getElementById('upload-newBukti').click()"
+                                            class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                            Unggah Foto
+                                        </button>
+                                    @endif
+
                                 </td>
                             @endif
 
@@ -204,7 +358,7 @@
 
 
                             <td class="py-3 px-6 text-center">
-                                @if ($newBarang && $newJumlah)
+                                @if ($ruleAdd)
                                     <button wire:click="addToList"
                                         class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                         <i class="fa-solid fa-circle-check"></i>
@@ -246,19 +400,17 @@
                         &times;
                     </button>
                 </div>
-
+                {{-- @dd($approvalData) --}}
                 <!-- Modal Body -->
                 <div class="p-4 space-y-4">
-                    <p><strong>Nama Barang:</strong> {{ $approvalData['merk']->barangStok->nama ?? '-' }}</p>
-                    <p><strong>Merk:</strong> {{ $approvalData['merk']->nama ?? '-' }}</p>
-                    <p><strong>tipe:</strong> {{ $approvalData['merk']->tipe ?? '-' }}</p>
-                    <p><strong>Ukuran:</strong> {{ $approvalData['merk']->ukuran ?? '-' }}</p>
+                    <p><strong>Nama Barang:</strong> {{ $approvalData['barang']->nama ?? '-' }}</p>
                     <p><strong>Jumlah Permintaan:</strong> {{ $approvalData['jumlah_permintaan'] }}</p>
 
                     <!-- Daftar Lokasi, Jumlah, dan Catatan -->
                     <table class="w-full border-collapse border border-gray-300">
                         <thead>
                             <tr class="bg-gray-200 text-left">
+                                <th class="border px-4 py-2">Spesifikasi</th>
                                 <th class="border px-4 py-2">Lokasi</th>
                                 <th class="border px-4 py-2">Bagian</th>
                                 <th class="border px-4 py-2">Posisi</th>
@@ -268,8 +420,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($approvalData['stok'] as $index => $stok)
+                            @forelse ($approvalData['stok'] as $index => $stok)
                                 <tr>
+                                    <td class="border px-4 py-2">
+                                        <div>Merk : {{ $stok['nama'] ?? '-' }}</div>
+                                        <div>Tipe : {{ $stok['tipe'] ?? '-' }}</div>
+                                        <div>Ukuran : {{ $stok['ukuran'] ?? '-' }}</div>
+                                    </td>
                                     <td class="border px-4 py-2">{{ $stok['lokasi'] }}</td>
                                     <td class="border px-4 py-2">{{ $stok['bagian'] ?? '-' }}</td>
                                     <td class="border px-4 py-2">{{ $stok['posisi'] ?? '-' }}</td>
@@ -285,7 +442,12 @@
                                             rows="1" placeholder="Tambahkan catatan"></textarea>
                                     </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td class="font-semibold py-4 text-center" colspan="7">Barang Tidak Tersedia
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -322,6 +484,8 @@
                     <table class="w-full border-collapse border border-gray-300">
                         <thead>
                             <tr class="bg-gray-200 text-left">
+                                <th class="border px-4 py-2">Spesifikasi</th>
+
                                 <th class="border px-4 py-2">Lokasi</th>
                                 <th class="border px-4 py-2">Bagian</th>
                                 <th class="border px-4 py-2">Posisi</th>
@@ -332,6 +496,11 @@
                         <tbody>
                             @foreach ($selectedItemNotes as $note)
                                 <tr>
+                                    <td class="border px-4 py-2">
+                                        <div>Merk : {{ $note['merk']->nama ?? '-' }}</div>
+                                        <div>Tipe : {{ $note['merk']->ukuran ?? '-' }}</div>
+                                        <div>Ukuran : {{ $note['merk']->tipe ?? '-' }}</div>
+                                    </td>
                                     <td class="border px-4 py-2">{{ $note['lokasi'] }}</td>
                                     <td class="border px-4 py-2">{{ $note['bagian'] }}</td>
                                     <td class="border px-4 py-2">{{ $note['posisi'] }}</td>

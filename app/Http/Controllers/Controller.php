@@ -3,10 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aset;
+use App\Models\UnitKerja;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 
 abstract class Controller
 {
+
+    public $unit_id;
+
+    public function __construct()
+    {
+        $unitId = Auth::user()->unit_id;
+        $unit = UnitKerja::find($unitId);
+        $this->unit_id = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
+
+        // Pastikan user dalam keadaan login
+        if (Auth::check()) {
+            $user = Auth::user();
+
+            if (!Request::is('profil/profile/*')) {
+                // Periksa jika NIP atau TTD kosong
+                // dd(empty($user->nip) || empty($user->ttd));
+                if (empty($user->nip) || empty($user->ttd)) {
+                    session()->flash('alert');
+                }
+            }
+        }
+    }
     /**
      * Calculate the current value of an asset based on purchase date, lifespan, and initial price.
      *
@@ -132,6 +157,8 @@ abstract class Controller
     {
         return 'Rp ' . number_format($angka, 2, ',', '.');
     }
+    // public function __construct()
+    // {
 
-    
+    // }
 }

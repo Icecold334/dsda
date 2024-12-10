@@ -9,6 +9,7 @@ use App\Models\Person;
 use App\Models\History;
 use Livewire\Component;
 use App\Models\Keuangan;
+use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
@@ -62,12 +63,31 @@ class AssetDetails extends Component
 
     public function searchQueryPerson()
     {
+
         // dd('aa');
         $this->showSuggestionsPerson = true;
+
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         // Ambil data dari database berdasarkan query
         $this->suggestionsPerson = Person::where('nama', 'like', '%' . $this->person . '%')
             // ->limit(5)
+            ->when($unit, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
+            })
+            ->selectRaw('MIN(id) as id, nama') // Pilih ID terkecil dan nama unik
+            ->groupBy('nama') // Group berdasarkan nama saja
             ->get()
             ->toArray();
         $this->nama = $this->person;
@@ -104,9 +124,27 @@ class AssetDetails extends Component
         // dd('aa');
         $this->showSuggestionsLokasi = true;
 
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
         // Ambil data dari database berdasarkan query
         $this->suggestionsLokasi = Lokasi::where('nama', 'like', '%' . $this->lokasi . '%')
             // ->limit(5)
+            ->when($unit, function ($query) use ($parentUnitId) {
+                $query->whereHas('user', function ($query) use ($parentUnitId) {
+                    filterByParentUnit($query, $parentUnitId);
+                });
+            })
+            ->selectRaw('MIN(id) as id, nama') // Pilih ID terkecil dan nama unik
+            ->groupBy('nama') // Group berdasarkan nama saja
             ->get()
             ->toArray();
         $this->nama = $this->lokasi;
@@ -293,8 +331,8 @@ class AssetDetails extends Component
 
         if ($this->type === 'history') {
             $personId = $this->getOrCreatePerson($this->person);
-            $lokasiId = $this->getOrCreateLokasi($this->lokasi);
-
+            $lokasiId = $this->lokasi_id ? $this->lokasi_id : $this->getOrCreateLokasi($this->lokasi);
+            // dd($lokasiId);
             // Tambahkan ID ke dalam modalData
             $this->modalData['person_id'] = $personId;
             $this->modalData['lokasi_id'] = $lokasiId;
@@ -343,7 +381,7 @@ class AssetDetails extends Component
      */
     private function getOrCreatePerson($name)
     {
-        $person = Person::firstOrCreate(['nama' => $name]);
+        $person = Person::firstOrCreate(['user_id' => Auth::user()->id, 'nama' => $name, 'nama_nospace' => Str::slug($name)]);
         return $person->id;
     }
 
@@ -358,6 +396,17 @@ class AssetDetails extends Component
         $lokasi = Lokasi::firstOrCreate(['user_id' => Auth::user()->id, 'nama' => $name, 'nama_nospace' => Str::slug($name)]);
         return $lokasi->id;
     }
+    /**
+     * Convert formatted currency to integer.
+     *
+     * @param string $value
+     * @return int
+     */
+    private function cleanCurrency($value)
+    {
+        return (int) str_replace(["Rp", "\u{A0}", ",", "."], '', $value);
+    }
+
 
 
     public function getModelInstance()
@@ -407,7 +456,7 @@ class AssetDetails extends Component
                     $rules['modalData.hari'] = 'required|integer|in:1,2,3,4,5,6,7';
                     break;
                 case 'bulanan':
-                    $rules['modalData.bulan'] = 'required|integer|between:1,12';
+                    $rules['modalData.hari'] = 'required|integer|between:1,12';
                     break;
                 case 'tahunan':
                     $rules['modalData.hari'] = 'required|integer|between:1,' . $this->maxDays;
@@ -468,7 +517,7 @@ class AssetDetails extends Component
             'modalData.keterangan.max' => 'Keterangan transaksi tidak boleh lebih dari 500 karakter.',
 
             // Jurnal
-            'modalData.tanggal.required' => 'Tanggal jurnal wajib diisi.',
+            'modalData.tanggal.required' => 'Tanggal wajib diisi.',
             'modalData.keterangan.max' => 'Keterangan jurnal tidak boleh lebih dari 500 karakter.',
         ];
     }
@@ -486,7 +535,6 @@ class AssetDetails extends Component
             session()->flash('error', 'Data tidak ditemukan.');
         }
     }
-
 
     public function render()
     {

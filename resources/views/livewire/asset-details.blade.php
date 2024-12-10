@@ -228,30 +228,34 @@
                     </div>
                 </div>
             @endforelse
+            @if ($items->isNotEmpty())
+                <!-- Summary Section -->
+                <div
+                    class="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="font-semibold text-gray-800">Total Pengeluaran</td>
+                                <td class="text-right text-gray-900">Rp
+                                    {{ number_format($totalPengeluaran, 2, ',', '.') }}
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="font-semibold text-gray-800">Total Pemasukan</td>
+                                <td class="text-right text-gray-900">Rp
+                                    {{ number_format($totalPemasukan, 2, ',', '.') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-gray-800">Selisih</td>
+                                <td class="text-right font-bold text-gray-900">Rp
+                                    {{ number_format($totalPemasukan - $totalPengeluaran, 2, ',', '.') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            @endif
 
-            <!-- Summary Section -->
-            <div
-                class="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
-                <table class="w-full text-sm">
-                    <tbody>
-                        <tr class="border-b">
-                            <td class="font-semibold text-gray-800">Total Pengeluaran</td>
-                            <td class="text-right text-gray-900">Rp {{ number_format($totalPengeluaran, 2, ',', '.') }}
-                            </td>
-                        </tr>
-                        <tr class="border-b">
-                            <td class="font-semibold text-gray-800">Total Pemasukan</td>
-                            <td class="text-right text-gray-900">Rp {{ number_format($totalPemasukan, 2, ',', '.') }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="font-bold text-gray-800">Selisih</td>
-                            <td class="text-right font-bold text-gray-900">Rp
-                                {{ number_format($totalPemasukan - $totalPengeluaran, 2, ',', '.') }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
         </div>
     @elseif ($type === 'jurnal')
         <div class="flex justify-end items-center bg-primary-200 rounded-lg mb-3">
@@ -321,13 +325,13 @@
                                         <span class="text-red-500 text-sm">{{ $message }}</span>
                                     @enderror
                                 </div>
-
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium mb-1">Penanggung Jawab *</label>
                                     <input type="text" id="person" wire:model.live="person"
                                         wire:focus="focusPerson"
                                         class="w-full border rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                        placeholder="Masukkan Penanggung Jawab" required>
+                                        placeholder="Masukkan Penanggung Jawab" wire:blur="hideSuggestionsPerson"
+                                        required>
                                     @if ($showSuggestionsPerson)
                                         <ul
                                             class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
@@ -350,7 +354,7 @@
                                     <input type="text" id="lokasi" wire:model.live="lokasi"
                                         wire:focus="focusLokasi"
                                         class="w-full border rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                        placeholder="Masukkan Lokasi" required>
+                                        placeholder="Masukkan Lokasi" wire:blur="hideSuggestionsLokasi" required>
                                     @if ($showSuggestionsLokasi)
                                         <ul
                                             class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
@@ -442,6 +446,7 @@
                                     </div>
                                 @endif
 
+                                @dump($errors->first())
                                 @if ($isBulanan)
                                     <div class="mb-4">
                                         <label class="block text-sm font-medium">Setiap Tanggal *</label>
@@ -452,7 +457,7 @@
                                                 <option value="{{ $i }}">{{ $i }}</option>
                                             @endfor
                                         </select>
-                                        @error('modalData.bulan')
+                                        @error('modalData.hari')
                                             <span class="text-red-500 text-sm">{{ $message }}</span>
                                         @enderror
                                     </div>
@@ -582,6 +587,3 @@
 
 
 </div>
-@push('scripts')
-    <script type="module"></script>
-@endpush

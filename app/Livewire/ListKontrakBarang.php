@@ -20,7 +20,11 @@ class ListKontrakBarang extends Component
 
         $merks = MerkStok::whereHas('transaksiStok', function ($query) {
             $query->whereHas('kontrakStok', function ($kontrakQuery) {
-                $kontrakQuery->where('vendor_id', $this->vendor_id)->where('status', true)->where('type', true);
+                $kontrakQuery->where('vendor_id', $this->vendor_id)->where('status', true)->where('type', true)->whereHas('user', function ($user) {
+                    return $user->whereHas('unitKerja', function ($unit) {
+                        return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                    });
+                });
             });
         })->get();
 

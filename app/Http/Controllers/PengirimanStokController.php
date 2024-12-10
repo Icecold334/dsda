@@ -15,7 +15,11 @@ class PengirimanStokController extends Controller
     public function index()
     {
         // $datangs = PengirimanStok::orderBy('id', 'desc')->get()->groupBy('kode_pengiriman_stok');
-        $datangs = DetailPengirimanStok::orderBy('id', 'desc')->get();
+        $datangs = DetailPengirimanStok::whereHas('user', function ($user) {
+            return $user->whereHas('unitKerja', function ($unit) {
+                return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+            });
+        })->orderBy('id', 'desc')->get();
         return view('pengiriman.index', compact('datangs'));
     }
 

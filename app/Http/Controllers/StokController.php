@@ -15,11 +15,19 @@ class StokController extends Controller
     {
         $barangs = BarangStok::whereHas('merkStok', function ($merkQuery) {
             $merkQuery->whereHas('stok', function ($stokQuery) {
-                $stokQuery->where('jumlah', '>', 0);
+                $stokQuery->where('jumlah', '>', 0)->whereHas('lokasiStok', function ($stokQuery) {
+                    $stokQuery->whereHas('unitKerja', function ($unit) {
+                        return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                    });
+                });
             });
         })->get();
 
-        $stoks = Stok::where('jumlah', '>', 0)
+        $stoks = Stok::where('jumlah', '>', 0)->whereHas('lokasiStok', function ($stokQuery) {
+            $stokQuery->whereHas('unitKerja', function ($unit) {
+                return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+            });
+        })
             ->with('merkStok') // Ensure we load related merk information for display
             ->get()
             ->groupBy('merkStok.barang_id'); // Group stocks by barang_id
@@ -52,6 +60,10 @@ class StokController extends Controller
         $stok = Stok::whereHas('merkStok', function ($stok) use ($id) {
             $stok->whereHas('barangStok', function ($barang) use ($id) {
                 $barang->where('id', $id);
+            });
+        })->whereHas('lokasiStok', function ($stokQuery) {
+            $stokQuery->whereHas('unitKerja', function ($unit) {
+                return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
             });
         })->get();
         return view('stok.show', compact('barang', 'stok'));

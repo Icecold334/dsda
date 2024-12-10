@@ -36,7 +36,8 @@
                     <livewire:nav-item title="Form" :child="[
                         ['href' => route('permintaan-stok.index'), 'title' => 'Form pelayanan Umum'],
                         // ['href' => '/#', 'title' => 'Form permintaan spare part'],
-                        ['href' => '/#', 'title' => 'Form permintaan material'],
+                        ['href' => '/permintaan/spare-part', 'title' => 'Form permintaan spare part'],
+                        ['href' => '/permintaan/material', 'title' => 'Form permintaan material'],
                         ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
                     ]" />
                     <livewire:nav-item title="data" :child="[
@@ -47,6 +48,7 @@
                         ['href' => '/person', 'title' => 'Penanggung jawab'],
                         ['href' => '/lokasi', 'title' => 'lokasi'],
                         ['href' => '/lokasi-stok', 'title' => 'lokasi stok'],
+                        ['href' => '/unit-kerja', 'title' => 'Unit Kerja'],
                     ]" />
                     <livewire:nav-item href="/kalender"
                         title='                <button data-tooltip-target="tooltipKalender" data-tooltip-placement="bottom" type="button"><i

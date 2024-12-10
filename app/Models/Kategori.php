@@ -33,6 +33,11 @@ class Kategori extends Model
 
     public function aset()
     {
-        return $this->hasMany(Aset::class,);
+        return $this->hasMany(Aset::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
