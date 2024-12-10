@@ -96,7 +96,7 @@
                             @endforeach
                         </select>
                     </td>
-                    <td class="px-6 py-3">
+                    <td class="px-2 py-3">
                         <div class="flex items-center">
                             <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value="{{ $item['jumlah'] }}"
                                 wire:input="updateJumlah({{ $index }}, $event.target.value)"
@@ -121,7 +121,7 @@
                         {{-- @endif --}}
                         {{-- @endif --}}
                     </td>
-                    <td class="px-6 py-3">
+                    <td class="px-2 py-3">
                         <div class="flex items-center">
                             @if ($showDokumen)
                                 <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value="{{ $item['jumlah_diterima'] }}"
@@ -256,7 +256,8 @@
                         @can('inventaris_unggah_foto_barang_datang')
                             @if (@$showDokumen)
                                 <button wire:click="updatePengirimanStok({{ $index }})"
-                                    class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                    class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
+                                    ">
                                     <i class="fa-solid fa-circle-check"></i>
                                 </button>
                                 <!-- Without permission, show "Belum ada unggahan" -->
