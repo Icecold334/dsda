@@ -395,7 +395,7 @@ class ListPermintaanForm extends Component
             'satuan' => $this->newUnit,
             'dokumen' => $this->newDokumen ?? null,
         ];
-
+        $this->ruleAdd = false;
         // Reset inputs after adding to the list
         $this->reset(['newBarang', 'newJumlah', 'newDokumen', 'newAset', 'newAsetId', 'newDeskripsi', 'newCatatan', 'newBukti']);
     }
@@ -515,12 +515,16 @@ class ListPermintaanForm extends Component
         session()->flash('message', 'Item approved successfully!');
     }
 
+    public function removePhoto()
+    {
+        $this->newBukti = null;
+    }
     public function removeDocument($index)
     {
         $item = $this->list[$index];
 
         // Optional: Delete the file from storage if necessary
-        Storage::delete($item['dokumen']);
+        // Storage::delete($item['dokumen']);
 
         // Remove the document path from the item in the list
         $this->list[$index]['dokumen'] = null;

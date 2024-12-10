@@ -118,21 +118,20 @@ class ApprovalPermintaan extends Component
         });
         $this->lastPj = $indexPj === $pj->count() - 1;
         $this->pjList = $pj;
-        $ppk = User::role('ppk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $ppk = User::role('ppk')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPpk = $ppk->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastPpk = $indexPpk === $ppk->count() - 1; // Check if current user is the last user
         $this->ppkList = $ppk;
 
-        $pptk = User::role('pptk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $pptk = User::role('pptk')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPptk = $pptk->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastPptk = $indexPptk === $pptk->count() - 1; // Check if current user is the last user
         $this->pptkList = $pptk;
-
-        $pjGudang = User::role('penjaga_gudang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $pjGudang = User::role('penjaga_gudang')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPjGudang = $pjGudang->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -141,7 +140,7 @@ class ApprovalPermintaan extends Component
 
 
 
-        $tu = User::role('kepala_sub_bagian_tata_usaha')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $tu = User::role('kepala_sub_bagian_tata_usaha')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indextu = $tu->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -152,7 +151,7 @@ class ApprovalPermintaan extends Component
 
 
 
-        $kaunit = User::role('kepala_unit')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $kaunit = User::role('kepala_unit')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexkaunit = $kaunit->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -162,7 +161,7 @@ class ApprovalPermintaan extends Component
 
 
 
-        $pemeliharaan = User::role('kepala_seksi_pemeliharaan')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $pemeliharaan = User::role('kepala_seksi_pemeliharaan')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexpemeliharaan = $pemeliharaan->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -174,7 +173,7 @@ class ApprovalPermintaan extends Component
 
 
 
-        $kasudin = User::role('kepala_suku_dinas')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $kasudin = User::role('kepala_suku_dinas')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexkasudin = $kasudin->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -183,7 +182,7 @@ class ApprovalPermintaan extends Component
 
 
 
-        $kepalaseksi = User::role('kepala_seksi')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $kepalaseksi = User::role('kepala_seksi')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         // dd($kepalaseksi, $date->format('Y-m-d H:i:s'));
         $indexKepalaseksi = $kepalaseksi->search(function ($user) {
             return $user->id == Auth::id();
@@ -191,13 +190,12 @@ class ApprovalPermintaan extends Component
         $this->lastKepalaseksi = $indexKepalaseksi === $kepalaseksi->count() - 1; // Check if current user is the last user
         $this->kepalaseksiList = $kepalaseksi;
 
-        $kasubag = User::role('kepala_sub_bagian')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $kasubag = User::role('kepala_sub_bagian')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexkasubag = $kasubag->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastKasubag = $indexkasubag === $kasubag->count() - 1; // Check if current user is the last user
         $this->kasubagList = $kasubag;
-
 
 
         $this->lastKasubagDone = PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
@@ -228,7 +226,6 @@ class ApprovalPermintaan extends Component
             })
             ->exists();
 
-
         $tipe = $this->permintaan->jenisStok->nama;
         // $this->listApproval = $this->kepalaseksiList->merge($this->kasubagList)->merge($this->pjGudangList)->count();
         if ($tipe == 'Umum') {
@@ -242,10 +239,10 @@ class ApprovalPermintaan extends Component
             $allApproval = $this->pemeliharaanList->merge($this->kasudinList)->merge($this->pjGudangList);
         }
 
-
         $index = $allApproval->search(function ($user) {
             return $user->id == Auth::id();
         });
+        // dd($index);
         if ($index === 0) {
             $currentUser = $allApproval[$index];
             $this->showButton = !$currentUser->persetujuanPermintaan()->where('detail_permintaan_id', $this->permintaan->id ?? 0)->exists();
