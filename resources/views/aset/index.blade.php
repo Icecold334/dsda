@@ -1,7 +1,10 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">ASET AKTIF</h1>
+        <h1 class="text-2xl font-bold text-primary-900 ">Aset Aktif @if (auth()->user()->unitKerja)
+                {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+            @endif
+        </h1>
         <div>
             <!-- Toggle Button -->
             <button type="button" id="toggleButton"

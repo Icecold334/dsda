@@ -74,8 +74,10 @@
             </script>
         @endif
 
-        <h1 class="text-2xl font-bold text-primary-900 ">Kontrak Vendor Untuk
-            {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+        <h1 class="text-2xl font-bold text-primary-900 ">Kontrak Vendor
+            @if (auth()->user()->unitKerja)
+                {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+            @endif
         </h1>
         <div>
             {{-- <button data-modal-target="tipe2" data-modal-toggle="tipe2"
@@ -130,7 +132,7 @@
                                 <thead class="text-primary-800">
                                     <tr>
                                         <th class="w-1/3">Barang</th>
-                                        <th class="w-1/3">Spesifikasi</th>
+                                        {{-- <th class="w-1/3">Spesifikasi</th> --}}
                                         <th class="w-1/3">Jumlah</th>
                                         {{-- <th class="w-1/3">Tanggal</th> --}}
                                     </tr>
@@ -138,9 +140,11 @@
                                 <tbody>
                                     @foreach ($transactions as $transaction)
                                         <tr class="border-b-[1px] border-primary-800">
-                                            <td>{{ $transaction[0]->merkStok->barangStok->nama }}</td>
-                                            <td>{{ $transaction[0]->merkStok->nama ?? 'Unknown Merk' }}</td>
-                                            <td>{{ $transaction[0]->jumlah }}
+                                            <td class="border-r-4 px-2">
+                                                {{ $transaction[0]->merkStok->barangStok->nama }}
+                                            </td>
+                                            {{-- <td>{{ $transaction[0]->merkStok->nama ?? 'Unknown Merk' }}</td> --}}
+                                            <td class="px-2">{{ $transaction[0]->jumlah }}
                                                 {{ $transaction[0]->merkStok->barangStok->satuanBesar->nama }}</td>
                                             {{-- <td>{{ date('j F Y', $transaction[0]->tanggal) }}</td> --}}
                                         </tr>

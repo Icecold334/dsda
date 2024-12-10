@@ -1,8 +1,10 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">Transaksi Belum Berkontrak Untuk
-            {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+        <h1 class="text-2xl font-bold text-primary-900 ">Transaksi Belum Berkontrak
+            @if (auth()->user()->unitKerja)
+                {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+            @endif
         </h1>
         <div>
             <a href="{{ route('transaksi-darurat-stok.create') }}"
