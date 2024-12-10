@@ -24,7 +24,6 @@ class AddLokasiData extends Component
             $this->keterangan = $lokasi->keterangan;
         }
     }
-
     public function removeLokasi()
     {
 
@@ -33,7 +32,23 @@ class AddLokasiData extends Component
     }
     public function saveLokasi()
     {
-        Lokasi::updateOrCreate(
+// <<<<<<< support
+//         $data = [
+//             'nama' => $this->lokasi,
+//             'keterangan' => $this->keterangan,
+//             'nama_nospace' => strtolower(str_replace(' ', '-', $this->lokasi)),
+//         ];
+//         // Jika ID diberikan, cari kategori
+//         $lokasi = Lokasi::find($this->id);
+
+//         // Set user_id
+//         $data['user_id'] = $lokasi ? $lokasi->user_id : Auth::id();
+//         // Update atau create dengan data
+//         Lokasi::updateOrCreate(['id' => $this->id ?? 0], $data);
+
+//         return redirect()->route('lokasi.index');
+// =======
+        $lokasi=Lokasi::updateOrCreate(
             ['id' => $this->id ?? 0], // Unique field to check for existing record
             [
                 'user_id' => Auth::user()->id,
@@ -42,7 +57,14 @@ class AddLokasiData extends Component
                 'nama_nospace' => strtolower(str_replace(' ', '-', $this->lokasi)),
             ]
         );
-        return redirect()->route('lokasi.index');
+        if ($lokasi->wasRecentlyCreated && $this->lokasi){
+            return redirect()->route('lokasi.index')->with('success', 'Berhasil Menambah Lokasi');
+        }
+        else {
+            return redirect()->route('lokasi.index')->with('success', 'Berhasil Mengubah Lokasi');
+        }
+//        return redirect()->route('lokasi.index');
+// >>>>>>> main
     }
     public function render()
     {

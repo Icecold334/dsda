@@ -48,6 +48,7 @@ use App\Http\Controllers\PermintaanStokController;
 use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
+use App\Http\Controllers\UnitKerjaController;
 use App\Models\Persetujuan;
 
 Route::get('/', function () {
@@ -93,8 +94,11 @@ Route::get('dashboard', [DashboardController::class, 'index'])
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('agenda', AgendaController::class);
+    Route::get('/nonaktifaset/downlaod-qr/{assetId}', [AsetNonAktifController::class, 'downloadQrImage'])->name('nonaktifaset.downloadQrImage');
     Route::resource('nonaktifaset', AsetNonAktifController::class);
     // Route::patch('/nonaktifaset/{nonaktifaset}/activate', [AsetNonAktifController::class, 'activate'])->name('nonaktifaset.activate');
+    Route::get('/aset/{id}/export-pdf', [AsetController::class, 'exportPdf'])->name('aset.export-pdf');
+    Route::get('/aset/downlaod-qr/{assetId}', [AsetController::class, 'downloadQrImage'])->name('aset.downloadQrImage');
     Route::resource('aset', AsetController::class);
     Route::put('/aset/{id}/nonaktif', [AsetController::class, 'nonaktif'])->name('show.nonaktif');
     Route::resource('history', HistoryController::class);
@@ -110,6 +114,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('merk', MerkController::class);
     Route::get('person/{tipe}/{person}', [PersonController::class, 'create']);
     Route::resource('person', PersonController::class);
+    Route::get('unit-kerja/{tipe}', [UnitKerjaController::class, 'create']);
+    Route::get('unit-kerja/{tipe}/{id}', [UnitKerjaController::class, 'create']);
+    Route::resource('unit-kerja', UnitKerjaController::class);
     Route::get('profil/{tipe}', [ProfilController::class, 'create']);
     Route::get('profil/{tipe}/{profil}', [ProfilController::class, 'create']);
     Route::resource('profil', ProfilController::class);
@@ -134,7 +141,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('order', OrderController::class);
     Route::resource('provinsi', ProvinsiController::class);
     Route::resource('kalender', KalenderController::class);
-    Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'create']);
+    Route::get('permintaan/add/{tipe}', [PermintaanStokController::class, 'create']);
+    Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'index']);
 
     Route::resources([
         'jenis-stok' => JenisStokController::class,

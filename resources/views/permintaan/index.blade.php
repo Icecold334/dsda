@@ -1,16 +1,41 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">Pelayanan Umum</h1>
+        <h1 class="text-2xl font-bold text-primary-900 ">
+            {{ request()->routeIs('permintaan-stok.index') || request()->is('permintaan/umum') ? 'Pelayanan Umum' : (request()->is('permintaan/spare-part') ? 'Permintaan Spare Part' : 'Permintaan Material') }}
+        </h1>
         <div>
-            <a href="/permintaan/permintaan"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                Tambah Permintaan</a>
-            <a href="/permintaan/peminjaman"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                Tambah Peminjaman</a>
+            @if (request()->routeIs('permintaan-stok.index') || request()->is('permintaan/umum'))
+                <a href="/permintaan/add/permintaan"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    + Tambah Permintaan
+                </a>
+                <a href="/permintaan/add/peminjaman"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    + Tambah Peminjaman
+                </a>
+            @elseif(request()->is('permintaan/spare-part') || request()->is('permintaan/material'))
+                <a href="/permintaan/add/{{ request()->segment(2) }}"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    + Tambah Permintaan
+                </a>
+            @endif
         </div>
+
     </div>
+
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
+                    icon: 'success',
+                    confirmButtonText: 'Okay'
+                });
+            });
+        </script>
+    @endif
 
     <table class="w-full border-3 border-separate border-spacing-y-4">
         <thead>
@@ -32,21 +57,55 @@
                     <td class="px-6 py-3 font-semibold">{{ date('j F Y', $permintaan->tanggal_permintaan) }}</td>
                     {{-- <td class="px-6 py-3 font-semibold">{{ $permintaan->kode_permintaan }}</td> --}}
                     <td class="px-6 py-3 font-semibold">
-                        <div>
-                            {{ $permintaan->unit->nama }}
-                        </div>
                         <div class="text-gray-600 text-sm">
-                            {{ $permintaan->subUnit->nama ?? '---' }}
+                            {{ $permintaan->subUnit->nama ?? $permintaan->unit->nama }}
                         </div>
                     </td>
                     <td class="py-3 px-6">
                         <p class="font-semibold text-gray-800 text-center">
                             <span
-                                class="bg-{{ $permintaan->status === null ? 'warning' : ($permintaan->status ? 'success' : 'danger') }}-600 text-{{ $permintaan->status === null ? 'warning' : ($permintaan->status ? 'success' : 'danger') }}-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">{{ $permintaan->status === null ? 'diproses' : ($permintaan->status ? 'disetujui' : 'ditolak') }}</span>
+                                class="
+        bg-{{ $permintaan->cancel === 1
+            ? 'secondary'
+            : ($permintaan->cancel === 0 && $permintaan->proses === 1
+                ? 'primary'
+                : ($permintaan->cancel === 0 && $permintaan->proses === null
+                    ? 'info'
+                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                        ? 'warning'
+                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                            ? 'success'
+                            : 'danger')))) }}-600
+        text-{{ $permintaan->cancel === 1
+            ? 'secondary'
+            : ($permintaan->cancel === 0 && $permintaan->proses === 1
+                ? 'primary'
+                : ($permintaan->cancel === 0 && $permintaan->proses === null
+                    ? 'info'
+                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                        ? 'warning'
+                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                            ? 'success'
+                            : 'danger')))) }}-100
+        text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
+                                {{ $permintaan->cancel === 1
+                                    ? 'dibatalkan'
+                                    : ($permintaan->cancel === 0 && $permintaan->proses === 1
+                                        ? 'selesai'
+                                        : ($permintaan->cancel === 0 && $permintaan->proses === null
+                                            ? 'siap diambil'
+                                            : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                                                ? 'diproses'
+                                                : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                                                    ? 'disetujui'
+                                                    : 'ditolak')))) }}
+                            </span>
+
+
                         </p>
                     </td>
                     <td class="py-3 px-6 text-center">
-                        {{-- <a href="{{ route('permintaan-stok.show', ['permintaan_stok' => $permintaan->id]) }}"
+                        <a href="{{ route('permintaan-stok.show', ['permintaan_stok' => $permintaan->id]) }}"
                             class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
                             data-tooltip-target="tooltip-permintaan-{{ $permintaan->id }}">
                             <i class="fa-solid fa-eye"></i>
@@ -55,8 +114,8 @@
                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                             Lihat Detail Permintaan
                             <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div> --}}
-                        <a href="{{ route('permintaan-stok.edit', ['permintaan_stok' => $permintaan->id]) }}"
+                        </div>
+                        {{-- <a href="{{ route('permintaan-stok.edit', ['permintaan_stok' => $permintaan->id]) }}"
                             class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300"
                             data-tooltip-target="tooltip-edit-kontrak-{{ $permintaan->id }}">
                             <i class="fa-solid fa-pen"></i>
@@ -65,7 +124,7 @@
                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                             Perbarui Permintaan
                             <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
+                        </div> --}}
                     </td>
                 </tr>
             @endforeach

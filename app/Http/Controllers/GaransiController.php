@@ -2,26 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UnitKerja;
+use App\Models\Garansi;
 use Illuminate\Http\Request;
 
-class UnitKerjaController extends Controller
+class GaransiController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $unitKerja = UnitKerja::with('children')->whereNull('parent_id')->get();
-        return view('unit-kerja.index', compact('unitKerja'));
+        //
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create($tipe, $id = 0)
+    public function create()
     {
-        return view('unit-kerja.create', compact('tipe', 'id'));
+        //
     }
 
     /**
@@ -35,7 +34,7 @@ class UnitKerjaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(UnitKerja $unitKerja)
+    public function show(Garansi $garansi)
     {
         //
     }
@@ -43,7 +42,7 @@ class UnitKerjaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(UnitKerja $unitKerja)
+    public function edit(Garansi $garansi)
     {
         //
     }
@@ -51,7 +50,7 @@ class UnitKerjaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, UnitKerja $unitKerja)
+    public function update(Request $request, Garansi $garansi)
     {
         //
     }
@@ -59,7 +58,7 @@ class UnitKerjaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(UnitKerja $unitKerja)
+    public function destroy(Garansi $garansi)
     {
         //
     }

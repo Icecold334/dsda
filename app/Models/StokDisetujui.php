@@ -14,6 +14,10 @@ class StokDisetujui extends Model
     {
         return $this->belongsTo(LokasiStok::class, 'lokasi_id');
     }
+    public function merkStok()
+    {
+        return $this->belongsTo(MerkStok::class, 'merk_id');
+    }
     public function permintaan()
     {
         return $this->belongsTo(PermintaanStok::class, 'permintaan_id');

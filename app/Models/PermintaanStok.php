@@ -28,6 +28,14 @@ class PermintaanStok extends Model
     {
         return $this->belongsTo(MerkStok::class, 'merk_id');
     }
+    public function aset()
+    {
+        return $this->belongsTo(Aset::class, 'aset_id');
+    }
+    public function barangStok()
+    {
+        return $this->belongsTo(BarangStok::class, 'barang_id');
+    }
 
     public function lokasiStok()
     {

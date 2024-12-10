@@ -117,6 +117,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        Schema::create('garansi', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('aset_id')->constrained('aset')->onDelete('cascade');
+            $table->string('file', 256)->nullable();
+            $table->timestamps();
+        });
+
         Schema::create('lokasi', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');

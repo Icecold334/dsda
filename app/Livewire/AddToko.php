@@ -42,7 +42,28 @@ class AddToko extends Component
     }
     public function saveToko()
     {
-        Toko::updateOrCreate(
+// <<<<<<< support
+//         $data = [
+//             'nama' => $this->toko,
+//             'alamat' => $this->alamat,
+//             'telepon' => $this->telepon,
+//             'email' => $this->email,
+//             'petugas' => $this->petugas,
+//             'keterangan' => $this->keterangan,
+//             'nama_nospace' => Str::slug($this->toko),
+//         ];
+//         // Jika ID diberikan, cari kategori
+//         $toko = Toko::find($this->id);
+
+//         // Set user_id
+//         $data['user_id'] = $toko ? $toko->user_id : Auth::id();
+
+//         // Update atau create dengan data
+//         Toko::updateOrCreate(['id' => $this->id ?? 0], $data);
+
+//         return redirect()->route('toko.index');
+// =======
+        $toko=Toko::updateOrCreate(
             ['id' => $this->id ?? 0], // Unique field to check for existing record
             [
                 'user_id' => Auth::user()->id,
@@ -55,7 +76,14 @@ class AddToko extends Component
                 'nama_nospace' => Str::slug($this->toko),
             ]
         );
-        return redirect()->route('toko.index');
+        
+        if ($toko->wasRecentlyCreated && $this->toko){
+            return redirect()->route('toko.index')->with('success', 'Berhasil Menambah Toko');
+        }
+        else {
+            return redirect()->route('toko.index')->with('success', 'Berhasil Mengubah Toko');
+        }
+// >>>>>>> main
     }
 
     public function render()

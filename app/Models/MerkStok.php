@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\KategoriStok;
 use Illuminate\Database\Eloquent\Model;
 
 class MerkStok extends Model
@@ -14,6 +15,10 @@ class MerkStok extends Model
         return $this->belongsTo(BarangStok::class, 'barang_id');
     }
 
+    public function kategoriStok()
+    {
+        return $this->belongsTo(KategoriStok::class, 'kategori_id');  // Optional relationship
+    }
     public function stok()
     {
         return $this->hasMany(Stok::class, 'merk_id');

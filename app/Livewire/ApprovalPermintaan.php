@@ -22,8 +22,25 @@ class ApprovalPermintaan extends Component
     public $penulis;
     public $user;
     public $date;
+
     public $pjList;
     public $lastPj;
+    public $pjGudangList;
+    public $lastPjGudang;
+
+
+    public $tuList;
+    public $lasttu;
+
+    public $kaunitList;
+    public $lastkaunit;
+
+    public $pemeliharaanList;
+    public $lastpemeliharaan;
+
+    public $kasudinList;
+    public $lastkasudin;
+
     public $kepalaseksiList;
     public $lastKepalaseksi;
     public $kasubagList;
@@ -43,6 +60,9 @@ class ApprovalPermintaan extends Component
     public $isPenulis = false; // Untuk menandai apakah pengguna adalah penulis
 
     public $lastKasubagDone = false;
+    public $lasttuDone = false;
+    public $lastkaunitDone = false;
+    public $lastkasudinDone = false;
 
     public function updatedNewApprovalFiles()
     {
@@ -62,46 +82,10 @@ class ApprovalPermintaan extends Component
 
     public function markAsCompleted()
     {
-        $permintaan = $this->permintaan;
-        foreach ($permintaan->permintaanStok as  $value) {
-            $stokDisetujui = StokDisetujui::where('permintaan_id', $value->id)->get();
-            foreach ($stokDisetujui as $stok) {
-                // Cari stok berdasarkan lokasi, bagian, dan posisi
-                $stokModel = Stok::where('lokasi_id', $stok->lokasi_id)
-                    ->when($stok->bagian_id, function ($query) use ($stok) {
-                        return $query->where('bagian_id', $stok->bagian_id);
-                    })
-                    ->when($stok->posisi_id, function ($query) use ($stok) {
-                        return $query->where('posisi_id', $stok->posisi_id);
-                    })
-                    ->where('merk_id', $stok->permintaan->merk_id)
-                    ->first();
-
-                if ($stokModel) {
-                    // Kurangi jumlah stok
-                    if ($stokModel->jumlah >= $stok->jumlah_disetujui) {
-                        $stokModel->jumlah -= $stok->jumlah_disetujui;
-                        $stokModel->save();
-                    } else {
-                        $this->dispatch('swal:error', [
-                            'message' => "Jumlah stok di lokasi {$stok->lokasi_id} tidak mencukupi.",
-                        ]);
-                        return; // Berhenti jika stok tidak cukup
-                    }
-                } else {
-                    $this->dispatch('swal:error', [
-                        'message' => "Stok tidak ditemukan untuk lokasi {$stok->lokasi_id}.",
-                    ]);
-                    return; // Berhenti jika stok tidak ditemukan
-                }
-            }
-        }
-
-
-        // Logika untuk menandai permintaan sebagai selesai
         $this->permintaan->update(['cancel' => false]);
         session()->flash('message', 'Permintaan telah selesai.');
     }
+
 
     public function cancelRequest()
     {
@@ -148,6 +132,57 @@ class ApprovalPermintaan extends Component
         $this->lastPptk = $indexPptk === $pptk->count() - 1; // Check if current user is the last user
         $this->pptkList = $pptk;
 
+        $pjGudang = User::role('penjaga_gudang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $indexPjGudang = $pjGudang->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+        $this->lastPjGudang = $indexPjGudang === $pjGudang->count() - 1; // Check if current user is the last user
+        $this->pjGudangList = $pjGudang;
+
+
+
+        $tu = User::role('kepala_sub_bagian_tata_usaha')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $indextu = $tu->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+        $this->lasttu = $indextu === $tu->count() - 1; // Check if current user is the last user
+        $this->tuList = $tu;
+
+
+
+
+
+        $kaunit = User::role('kepala_unit')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $indexkaunit = $kaunit->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+        $this->lastkaunit = $indexkaunit === $kaunit->count() - 1; // Check if current user is the last user
+        $this->kaunitList = $kaunit;
+
+
+
+
+        $pemeliharaan = User::role('kepala_seksi_pemeliharaan')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $indexpemeliharaan = $pemeliharaan->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+        $this->lastpemeliharaan = $indexpemeliharaan === $pemeliharaan->count() - 1; // Check if current user is the last user
+        $this->pemeliharaanList = $pemeliharaan;
+
+
+
+
+
+
+        $kasudin = User::role('kepala_suku_dinas')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $indexkasudin = $kasudin->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+        $this->lastkasudin = $indexkasudin === $kasudin->count() - 1; // Check if current user is the last user
+        $this->kasudinList = $kasudin;
+
+
+
         $kepalaseksi = User::role('kepala_seksi')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         // dd($kepalaseksi, $date->format('Y-m-d H:i:s'));
         $indexKepalaseksi = $kepalaseksi->search(function ($user) {
@@ -161,17 +196,53 @@ class ApprovalPermintaan extends Component
             return $user->id == Auth::id();
         });
         $this->lastKasubag = $indexkasubag === $kasubag->count() - 1; // Check if current user is the last user
+        $this->kasubagList = $kasubag;
+
+
+
         $this->lastKasubagDone = PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
             ->where('status', true) // Hanya persetujuan yang disetujui
             ->whereHas('user', function ($query) {
-                $query->role('kepala_sub_bagian'); // Periksa pengguna dengan role `kasubag`
+                $query->role('kepala_sub_bagian');
             })
             ->exists();
 
-        $this->kasubagList = $kasubag;
+        $this->lasttuDone = PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
+            ->where('status', true) // Hanya persetujuan yang disetujui
+            ->whereHas('user', function ($query) {
+                $query->role('kepala_sub_bagian_tata_usaha');
+            })
+            ->exists();
 
-        $this->listApproval = $this->kepalaseksiList->merge($this->kasubagList)->count();
-        $allApproval = $this->kepalaseksiList->merge($this->kasubagList);
+        $this->lastkaunitDone = PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
+            ->where('status', true) // Hanya persetujuan yang disetujui
+            ->whereHas('user', function ($query) {
+                $query->role('kepala_unit');
+            })
+            ->exists();
+
+        $this->lastkasudinDone = PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
+            ->where('status', true) // Hanya persetujuan yang disetujui
+            ->whereHas('user', function ($query) {
+                $query->role('kepala_suku_dinas');
+            })
+            ->exists();
+
+
+        $tipe = $this->permintaan->jenisStok->nama;
+        // $this->listApproval = $this->kepalaseksiList->merge($this->kasubagList)->merge($this->pjGudangList)->count();
+        if ($tipe == 'Umum') {
+            $this->listApproval = $this->kepalaseksiList->merge($this->kasubagList)->count();
+            $allApproval = $this->kepalaseksiList->merge($this->kasubagList)->merge($this->pjGudangList);
+        } else if ($tipe == 'Spare Part') {
+            $this->listApproval = $this->tuList->merge($this->kaunitList)->count();
+            $allApproval = $this->tuList->merge($this->kaunitList)->merge($this->pjGudangList);
+        } else if ($tipe == 'Material') {
+            $this->listApproval = $this->pemeliharaanList->merge($this->kasudinList)->count();
+            $allApproval = $this->pemeliharaanList->merge($this->kasudinList)->merge($this->pjGudangList);
+        }
+
+
         $index = $allApproval->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -187,10 +258,54 @@ class ApprovalPermintaan extends Component
         }
     }
 
+    public function finishApproval()
+    {
+        $permintaan = $this->permintaan;
+        foreach ($permintaan->permintaanStok as  $value) {
+            $stokDisetujui = StokDisetujui::where('permintaan_id', $value->id)->get();
+            foreach ($stokDisetujui as $stok) {
+                // Cari stok berdasarkan lokasi, bagian, dan posisi
+                $stokModel = Stok::where('merk_id', $stok->merk_id)->where('lokasi_id', $stok->lokasi_id)
+                    ->when($stok->bagian_id, function ($query) use ($stok) {
+                        return $query->where('bagian_id', $stok->bagian_id);
+                    })
+                    ->when($stok->posisi_id, function ($query) use ($stok) {
+                        return $query->where('posisi_id', $stok->posisi_id);
+                    })
+                    ->first();
+
+                if ($stokModel) {
+                    // Kurangi jumlah stok
+                    if ($stokModel->jumlah >= $stok->jumlah_disetujui) {
+                        $stokModel->jumlah -= $stok->jumlah_disetujui;
+                        $stokModel->save();
+                        $permintaan->proses = true;
+                        $permintaan->save();
+                    } else {
+                        $this->dispatch('swal:error', [
+                            'message' => "Jumlah stok di lokasi {$stok->lokasi_id} tidak mencukupi.",
+                        ]);
+                        return; // Berhenti jika stok tidak cukup
+                    }
+                } else {
+                    $this->dispatch('swal:error', [
+                        'message' => "Stok tidak ditemukan untuk lokasi {$stok->lokasi_id}.",
+                    ]);
+                    return; // Berhenti jika stok tidak ditemukan
+                }
+            }
+        }
+    }
+
     public function approveConfirmed()
     {
-
-        if ($this->lastPj || $this->lastPpk || $this->lastPptk || $this->lastKepalaseksi || $this->lastKasubag) {
+        if (
+            $this->lastPj || $this->lastPpk || $this->lastPptk || $this->lastPjGudang
+            // || $this->lastKasubag
+        ) {
+            if ($this->lastPjGudang) {
+                $this->finishApproval();
+            }
             foreach ($this->approvalFiles as $file) {
                 $path = str_replace('dokumen-persetujuan-permintaan/', '', $file->storeAs('dokumen-persetujuan-permintaan', $file->getClientOriginalName(), 'public'));
                 $this->permintaan->persetujuan()->create([
@@ -238,7 +353,7 @@ class ApprovalPermintaan extends Component
 
 
 
-        return redirect()->route('permintaan-stok.edit', ['permintaan_stok' => $this->permintaan->id]);
+        return redirect()->route('permintaan-stok.show', ['permintaan_stok' => $this->permintaan->id]);
 
         // $this->emit('actionSuccess', 'Kontrak berhasil disetujui.');
     }
@@ -291,7 +406,7 @@ class ApprovalPermintaan extends Component
         $this->permintaan->status = false;
         $this->permintaan->save();
 
-        return redirect()->route('permintaan-stok.edit', ['permintaan_stok' => $this->permintaan->id]);
+        return redirect()->route('permintaan-stok.show', ['permintaan_stok' => $this->permintaan->id]);
 
         // $this->emit('actionSuccess', 'Kontrak berhasil disetujui.');
     }

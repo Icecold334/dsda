@@ -1,7 +1,9 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">Daftar Lokasi Penyimpanan Stok</h1>
+        <h1 class="text-2xl font-bold text-primary-900 ">Daftar Lokasi Penyimpanan Stok
+            {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+        </h1>
         <div>
             {{-- <a href="{{ route('lokasi-stok.create', ['tipe' => 0]) }}" --}}
             <a href="/lokasi-stok/lokasi"
@@ -17,6 +19,19 @@
                 Tambah Posisi</a>
         </div>
     </div>
+
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
+                    icon: 'success',
+                    confirmButtonText: 'Okay'
+                });
+            });
+        </script>
+    @endif
 
     <table class="w-full border-3 border-separate border-spacing-y-4">
         <thead>
