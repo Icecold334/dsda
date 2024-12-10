@@ -100,6 +100,10 @@ class Aset extends Model
     {
         return $this->hasMany(Lampiran::class);
     }
+    public function garansis()
+    {
+        return $this->hasMany(Garansi::class);
+    }
     public function jurnals()
     {
         return $this->hasMany(Jurnal::class);

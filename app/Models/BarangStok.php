@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\MerkStok;
+use App\Models\JenisStok;
 use App\Models\SatuanBesar;
 use App\Models\SatuanKecil;
+use App\Models\KategoriStok;
 use Illuminate\Database\Eloquent\Model;
 
 class BarangStok extends Model
@@ -15,6 +18,11 @@ class BarangStok extends Model
     public function jenisStok()
     {
         return $this->belongsTo(JenisStok::class, 'jenis_id');
+    }
+
+    public function kategoriStok()
+    {
+        return $this->belongsTo(KategoriStok::class, 'kategori_id');
     }
 
     public function satuanBesar()

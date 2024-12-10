@@ -45,31 +45,10 @@ class SettingOptions extends Component
         })->map(function ($role) {
             return [
                 'id' => $role->id,
-                'name' => $this->formatRoleName($role->name),
+                'name' => formatRole($role->name),
                 'guard_name' => $role->guard_name,
             ];
         });
-    }
-
-    /**
-     * Format the role name based on predefined rules or capitalize.
-     */
-    private function formatRoleName($role)
-    {
-        switch ($role) {
-            case 'superadmin':
-                return 'Super Admin';
-            case 'admin':
-                return 'Admin';
-            case 'penanggungjawab':
-                return 'Penanggung Jawab';
-            case 'ppk':
-                return 'Pejabat Pembuat Komitmen (PPK)';
-            case 'pptk':
-                return 'Pejabat Pelaksana Teknis Kegiatan (PPTK)';
-            default:
-                return ucfirst($role); // Default to capitalize the first letter
-        }
     }
 
     public function save()

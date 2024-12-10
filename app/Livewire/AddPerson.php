@@ -41,7 +41,28 @@ class AddPerson extends Component
     }
     public function savePerson()
     {
-        Person::updateOrCreate(
+// <<<<<<< support
+//         $data = [
+//             'nama' => $this->person,
+//             'alamat' => $this->alamat,
+//             'telepon' => $this->telepon,
+//             'email' => $this->email,
+//             'jabatan' => $this->jabatan,
+//             'keterangan' => $this->keterangan,
+//             'nama_nospace' => Str::slug($this->person),
+//         ];
+//         // Jika ID diberikan, cari kategori
+//         $person = Person::find($this->id);
+
+//         // Set user_id
+//         $data['user_id'] = $person ? $person->user_id : Auth::id();
+
+//         // Update atau create dengan data
+//         Person::updateOrCreate(['id' => $this->id ?? 0], $data);
+
+//         return redirect()->route('person.index');
+// =======
+        $person=Person::updateOrCreate(
             ['id' => $this->id ?? 0], // Unique field to check for existing record
             [
                 'user_id' => Auth::user()->id,
@@ -54,7 +75,13 @@ class AddPerson extends Component
                 'nama_nospace' => Str::slug($this->person),
             ]
         );
-        return redirect()->route('person.index');
+        if ($person->wasRecentlyCreated && $this->person){
+            return redirect()->route('person.index')->with('success', 'Berhasil Menambah Penangung Jawab');
+        }
+        else {
+            return redirect()->route('person.index')->with('success', 'Berhasil Mengubah Penangung Jawab');
+        }
+// >>>>>>> main
     }
     public function render()
     {
