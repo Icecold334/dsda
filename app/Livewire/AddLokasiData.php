@@ -46,7 +46,7 @@ class AddLokasiData extends Component
 //         Lokasi::updateOrCreate(['id' => $this->id ?? 0], $data);
 
 //         return redirect()->route('lokasi.index');
-=======
+// =======
         $lokasi=Lokasi::updateOrCreate(
             ['id' => $this->id ?? 0], // Unique field to check for existing record
             [

@@ -47,9 +47,19 @@
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     <option value="0">Tidak Berkategori</option>
                                     @foreach ($kategoris as $kategoriItem)
-                                        <option value="{{ $kategoriItem->id }}">
+                                        {{-- <option value="{{ $kategoriItem->id }}">
                                             {{ $kategoriItem->parent != null ? '--- ' . $kategoriItem->nama : $kategoriItem->nama }}
-                                        </option>
+                                        </option> --}}
+                                        @if ($kategoriItem->parent_id == null)
+                                            <!-- Parent kategoriItem -->
+                                            <option value="{{ $kategoriItem->id }}">{{ $kategoriItem->nama }}</option>
+
+                                            <!-- Child kategoriItems -->
+                                            @foreach ($kategoris->where('parent_id', $kategoriItem->id) as $childkategoriItem)
+                                                <option value="{{ $childkategoriItem->id }}">---
+                                                    {{ $childkategoriItem->nama }}</option>
+                                            @endforeach
+                                        @endif
                                     @endforeach
                                 </select>
                                 @error('kategori')

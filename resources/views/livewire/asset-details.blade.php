@@ -446,6 +446,7 @@
                                     </div>
                                 @endif
 
+                                @dump($errors->first())
                                 @if ($isBulanan)
                                     <div class="mb-4">
                                         <label class="block text-sm font-medium">Setiap Tanggal *</label>
@@ -456,7 +457,7 @@
                                                 <option value="{{ $i }}">{{ $i }}</option>
                                             @endfor
                                         </select>
-                                        @error('modalData.bulan')
+                                        @error('modalData.hari')
                                             <span class="text-red-500 text-sm">{{ $message }}</span>
                                         @enderror
                                     </div>

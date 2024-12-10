@@ -93,12 +93,14 @@ class AsetForm extends Component
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         $this->suggestionsMerk = Merk::where('nama', 'like', '%' . $this->merk . '%')
-            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+            ->when($unit, function ($query) use ($parentUnitId) {
                 $query->whereHas('user', function ($query) use ($parentUnitId) {
                     filterByParentUnit($query, $parentUnitId);
                 });
             })
             // ->limit(5)
+            ->selectRaw('MIN(id) as id, nama') // Pilih ID terkecil dan nama unik
+            ->groupBy('nama') // Group berdasarkan nama saja
             ->get()
             ->toArray();
 
@@ -106,7 +108,6 @@ class AsetForm extends Component
         // $this->merk = $this->merk;
 
         $exactMatchMerk = Merk::where('nama', $this->merk)->first();
-
         if ($exactMatchMerk) {
             // Jika ada kecocokan, isi vendor_id dan kosongkan suggestions
             $this->selectSuggestionMerk($exactMatchMerk->id, $exactMatchMerk->nama);
@@ -115,6 +116,7 @@ class AsetForm extends Component
 
     public function selectSuggestionMerk($merkId, $merkName)
     {
+        dd($merkId);
         // Ketika saran dipilih, isi input dengan nilai tersebut
         $this->merk_id = $merkId;
         $this->merk = $merkName;
@@ -148,12 +150,14 @@ class AsetForm extends Component
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         $this->suggestionsToko = Toko::where('nama', 'like', '%' . $this->toko . '%')
-            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+            ->when($unit, function ($query) use ($parentUnitId) {
                 $query->whereHas('user', function ($query) use ($parentUnitId) {
                     filterByParentUnit($query, $parentUnitId);
                 });
             })
             // ->limit(5)
+            ->selectRaw('MIN(id) as id, nama') // Pilih ID terkecil dan nama unik
+            ->groupBy('nama') // Group berdasarkan nama saja
             ->get()
             ->toArray();
 
@@ -260,11 +264,11 @@ class AsetForm extends Component
         // Debugging: Tampilkan parentUnitId untuk verifikasi
         // dd($parentUnitId);
 
-        $this->kategoris = Auth::user()->id == 1
-            ? Kategori::all()
-            : Kategori::whereHas('user', function ($query) use ($parentUnitId) {
+        $this->kategoris = Kategori::when($unit, function ($query) use ($parentUnitId) {
+            $query->whereHas('user', function ($query) use ($parentUnitId) {
                 filterByParentUnit($query, $parentUnitId);
-            })->get();
+            });
+        })->get();
         // $this->kategoris = Kategori::all();
 
         if ($this->aset) {

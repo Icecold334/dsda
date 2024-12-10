@@ -185,3 +185,14 @@ if (!function_exists('formatRole')) {
     }
   }
 }
+
+if (!function_exists('canViewAdditionalUsers')) {
+  function canViewAdditionalUsers($user)
+  {
+    $authUser = Auth::user();
+    return $authUser->unit_id == null ||
+      $user->unitKerja->id == $authUser->unit_id && $user->unitKerja->parent_id === null;
+
+    dd($authUser);
+  }
+}

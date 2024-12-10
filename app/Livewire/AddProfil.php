@@ -72,7 +72,7 @@ class AddProfil extends Component
         }
         $this->lokasistoks = LokasiStok::all();
         if ($this->tipe == 'user') {
-            $this->users = User::all();
+            // $this->users = User::all();
             $this->roles = Role::whereNotIn('id', [1, 6])->get();
             if ($this->id) {
                 $user = User::find($this->id);
@@ -91,37 +91,36 @@ class AddProfil extends Component
         } elseif ($this->tipe == 'phone') {
             $this->users = User::all();
             if ($this->id) {
-                $no_wa = User::find($this->id);
-                $this->user_id = $no_wa->user_id;
-                $this->no_wa = $no_wa->no_wa;
+                // $no_wa = User::find($this->id);
+                $this->user_id = $user->user_id;
+                $this->no_wa = $user->no_wa;
             }
         } elseif ($this->tipe == 'email') {
             $this->users = User::all();
             if ($this->id) {
-                $email = User::find($this->id);
-                $this->user_id = $email->user_id;
-                $this->email = $email->email;
+                // $email = User::find($this->id);
+                $this->user_id = $user->user_id;
+                $this->email = $user->email;
             }
         } elseif ($this->tipe == 'password') {
             $this->users = User::all();
             if ($this->id) {
-                $password = User::find($this->id);
-                $this->user_id = $password->user_id;
+                // $password = User::find($this->id);
+                $this->user_id = $user->user_id;
                 // $this->old_password = $password->password;
             }
         } else {
-            if ($this->id) {
-                $profil = User::find($this->id);
-                $this->name = $profil->name;
-                $this->perusahaan = $profil->perusahaan;
-                $this->alamat = $profil->alamat;
-                $this->provinsi = $profil->provinsi;
-                $this->kota = $profil->kota;
-                $this->nip = $profil->nip;
-                $this->img = $profil->ttd;
-                // $this->unit_kerja = $profil->unit_id;
-                // $this->lokasi_stok = $profil->lokasi_id;
-            }
+            // if ($this->id) {
+            $this->name = $user->name;
+            $this->perusahaan = $user->perusahaan;
+            $this->alamat = $user->alamat;
+            $this->provinsi = $user->provinsi;
+            $this->kota = $user->kota;
+            $this->nip = $user->nip;
+            $this->img = $user->ttd;
+            // $this->unit_kerja = $user->unit_id;
+            // $this->lokasi_stok = $profil->lokasi_id;
+            // }
         }
     }
     public function removeImg()
@@ -182,7 +181,7 @@ class AddProfil extends Component
             );
         } elseif ($this->tipe == 'email') {
             $user = User::find($this->id);
-            $user->update( 
+            $user->update(
                 [
                     'email' => $this->new_email,
                 ]

@@ -26,7 +26,7 @@ class KategoriController extends Controller
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         $kategoris = Kategori::with('children')->whereNull('parent_id')
-            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+            ->when($this->unit_id, function ($query) use ($parentUnitId) {
                 $query->whereHas('user', function ($query) use ($parentUnitId) {
                     filterByParentUnit($query, $parentUnitId);
                 });

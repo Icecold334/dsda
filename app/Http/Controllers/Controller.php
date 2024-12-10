@@ -18,6 +18,19 @@ abstract class Controller
         $unitId = Auth::user()->unit_id;
         $unit = UnitKerja::find($unitId);
         $this->unit_id = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
+
+        // Pastikan user dalam keadaan login
+        if (Auth::check()) {
+            $user = Auth::user();
+
+            if (!Request::is('profil/profile/*')) {
+                // Periksa jika NIP atau TTD kosong
+                // dd(empty($user->nip) || empty($user->ttd));
+                if (empty($user->nip) || empty($user->ttd)) {
+                    session()->flash('alert');
+                }
+            }
+        }
     }
     /**
      * Calculate the current value of an asset based on purchase date, lifespan, and initial price.
@@ -144,20 +157,8 @@ abstract class Controller
     {
         return 'Rp ' . number_format($angka, 2, ',', '.');
     }
-    public function __construct()
-    {
-        // Pastikan user dalam keadaan login
-        if (Auth::check()) {
-            $user = Auth::user();
+    // public function __construct()
+    // {
 
-
-            if (!Request::is('profil/profile/*')) {
-                // Periksa jika NIP atau TTD kosong
-                // dd(empty($user->nip) || empty($user->ttd));
-                if (empty($user->nip) || empty($user->ttd)) {
-                    session()->flash('alert');
-                }
-            }
-        }
-    }
+    // }
 }

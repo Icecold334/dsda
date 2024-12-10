@@ -44,7 +44,7 @@
                             <span class="text-sm text-gray-500 w-2/3">{{ $user->kota ?? 'Tidak Ditemukan' }}</span>
                         </div>
                         <div class="flex mt-4">
-                            <a href="/profil/profile/{{ $user->id }}"
+                            <a href="/profil/profile"
                                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                                 Edit Profil
                             </a>
@@ -120,11 +120,7 @@
             </div>
         </div>
 
-        @if (Auth::user()->id == 1 ||
-                (Auth::user()->unit_id &&
-                    ($user->unitKerja &&
-                        $user->unitKerja->id == Auth::user()->unit_id &&
-                        $user->unitKerja->parent_id === null)))
+        @if (canViewAdditionalUsers($user))
             <div>
                 <!-- Pengguna Tambahan -->
                 <x-card title="Pengguna Tambahan" class="mb-3">

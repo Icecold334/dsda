@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use TCPDF;
+use Carbon\Carbon;
 use App\Models\Aset;
 use App\Models\Merk;
 use App\Models\Toko;
@@ -71,25 +73,30 @@ class AsetController extends Controller
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         // Data tambahan untuk dropdown filter
-        $kategoris = Kategori::whereHas('user', function ($query) use ($parentUnitId) {
-            // Menggunakan helper untuk memfilter unit
-            filterByParentUnit($query, $parentUnitId);
+        $kategoris = Kategori::when($this->unit_id, function ($query) use ($parentUnitId) {
+            $query->whereHas('user', function ($query) use ($parentUnitId) {
+                filterByParentUnit($query, $parentUnitId);
+            });
         })->get();
-        $merks = Merk::whereHas('user', function ($query) use ($parentUnitId) {
-            // Menggunakan helper untuk memfilter unit
-            filterByParentUnit($query, $parentUnitId);
+        $merks = Merk::when($this->unit_id, function ($query) use ($parentUnitId) {
+            $query->whereHas('user', function ($query) use ($parentUnitId) {
+                filterByParentUnit($query, $parentUnitId);
+            });
         })->get();
-        $tokos = Toko::whereHas('user', function ($query) use ($parentUnitId) {
-            // Menggunakan helper untuk memfilter unit
-            filterByParentUnit($query, $parentUnitId);
+        $tokos = Toko::when($this->unit_id, function ($query) use ($parentUnitId) {
+            $query->whereHas('user', function ($query) use ($parentUnitId) {
+                filterByParentUnit($query, $parentUnitId);
+            });
         })->get();
-        $penanggungJawabs = Person::whereHas('user', function ($query) use ($parentUnitId) {
-            // Menggunakan helper untuk memfilter unit
-            filterByParentUnit($query, $parentUnitId);
+        $penanggungJawabs = Person::when($this->unit_id, function ($query) use ($parentUnitId) {
+            $query->whereHas('user', function ($query) use ($parentUnitId) {
+                filterByParentUnit($query, $parentUnitId);
+            });
         })->get();
-        $lokasis = Lokasi::whereHas('user', function ($query) use ($parentUnitId) {
-            // Menggunakan helper untuk memfilter unit
-            filterByParentUnit($query, $parentUnitId);
+        $lokasis = Lokasi::when($this->unit_id, function ($query) use ($parentUnitId) {
+            $query->whereHas('user', function ($query) use ($parentUnitId) {
+                filterByParentUnit($query, $parentUnitId);
+            });
         })->get();
 
         return view('aset.index', compact('asets', 'kategoris', 'merks', 'tokos', 'penanggungJawabs', 'lokasis', 'asetqr'));
@@ -131,11 +138,9 @@ class AsetController extends Controller
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         // Debugging: Tampilkan parentUnitId untuk verifikasi
-        // dd($parentUnitId);
-
         // Query untuk mendapatkan aset berdasarkan unit parent yang dimiliki oleh user
         return Aset::where('status', true)
-            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+            ->when($this->unit_id, function ($query) use ($parentUnitId) {
                 $query->whereHas('user', function ($query) use ($parentUnitId) {
                     filterByParentUnit($query, $parentUnitId);
                 });
@@ -428,7 +433,7 @@ class AsetController extends Controller
         return redirect()->route('aset.index')->with('success', 'Aset berhasil dinonaktifkan.');
     }
 
-    public function exportPdf($id)
+    public function exportPdf_($id)
     {
         // Retrieve the asset details
         $aset = Aset::findOrFail($id);
@@ -473,5 +478,350 @@ class AsetController extends Controller
         $pdf->writeHTML($html, true, false, true, false, '');
         // Output PDF
         return $pdf->Output($aset->nama . '.pdf', 'I');
+    }
+
+    public function exportPdf($id)
+    {
+        // Ambil data aset
+        $aset = Aset::with(['kategori', 'merk', 'toko', 'lokasi'])->findOrFail($id);
+
+        // Dapatkan informasi tambahan seperti perusahaan
+        $perusahaan = strtoupper('Dinas Sumber Daya Air (DSDA)');
+        $tanggalCetak = date("j M Y, H:i");
+
+        // Perhitungan penyusutan
+        $umurEkonomi = $aset->umur ?? 0; // Umur ekonomi dalam tahun
+        $hargaTotal = $aset->hargatotal ?? 0; // Harga total aset
+        $tanggalBeli = Carbon::parse($aset->tanggalbeli); //Konversi timestamp menjadi Carbon
+        $usiaAset = (int) $tanggalBeli->diffInMonths(Carbon::now()); // Usia aset dalam tahun
+
+        $penyusutanPerBulan = $umurEkonomi > 0 ? ($hargaTotal / ($umurEkonomi * 12)) : 0; // Penyusutan bulanan
+        $totalPenyusutan = $umurEkonomi > 0 ? $penyusutanPerBulan * ($usiaAset * 12) : 0; // Total penyusutan
+        $nilaiSekarang = $umurEkonomi > 0 ? ($hargaTotal - $totalPenyusutan) : $hargaTotal; // Nilai sekarang
+
+        // Buat instance TCPDF
+        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        // Informasi dokumen
+        $pdf->SetCreator('www.inventa.id');
+        $pdf->SetAuthor(Auth::user()->name);
+        $pdf->SetTitle('Kartu Aset - ' . $perusahaan);
+        $pdf->SetSubject($aset->nama);
+        $pdf->SetKeywords($aset->nama . ', PDF, ' . $perusahaan);
+
+        // Atur margin, header, dan footer
+        $pdf->SetMargins(10, 20, 10); // Margin kiri, atas, kanan
+        // $pdf->SetHeaderMargin(0); // Nonaktifkan margin header
+        $pdf->SetFooterMargin(10); // Margin footer
+        // $pdf->SetAutoPageBreak(true, 20); // Tambahkan page break otomatis
+
+        // Nonaktifkan header
+        $pdf->SetPrintHeader(false);
+
+        // Posisi QR Code
+        $qrX = 160; // Posisi X (horizontal)
+        $qrY = 40;  // Posisi Y (vertical)
+
+        // Tambahkan halaman baru
+        $pdf->AddPage();
+
+        // Isi konten PDF
+        // Header Kartu Aset
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(0, 5, strtoupper('Dinas Sumber Daya Air (DSDA)'), 0, 1, 'L');
+
+        // Posisi teks "Kartu Aset" di atas QR Code
+        $pdf->SetTextColor(3, 146, 222); // Warna biru
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->SetXY($qrX, $qrY - 20); // Atur posisi teks (di atas QR code)
+        $pdf->Cell(40, 5, strtoupper('Kartu Aset'), 0, 1, 'L');
+
+        // Nama Aset
+        $pdf->SetTextColor(3, 146, 222);
+        $pdf->SetFont('helvetica', 'B', 16);
+        $pdf->Cell(0, 10, strtoupper($aset->nama), 0, 1, 'L');
+
+        // QR Code (jika ada)
+        $qrUrl =  public_path('storage/qr/' . $aset->systemcode . '.png');
+        if (file_exists($qrUrl)) {
+            $pdf->Image($qrUrl, $qrX, $qrY,  30, 30, 'PNG');
+        }
+
+        // Informasi aset
+        $pdf->Ln(5);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('helvetica', '', 10);
+
+        $pdf->Cell(40, 5, 'Kode Aset', 0, 0, 'L');
+        $pdf->Cell(0, 5, $aset->kode, 0, 1, 'L');
+
+        $pdf->Cell(40, 5, 'Kode Sistem', 0, 0, 'L');
+        $pdf->Cell(0, 5, $aset->systemcode, 0, 1, 'L');
+
+        $pdf->Cell(40, 5, 'Kategori', 0, 0, 'L');
+        $pdf->Cell(0, 5, $aset->kategori->nama ?? '-', 0, 1, 'L');
+
+        $pdf->Cell(40, 5, 'Keterangan', 0, 1, 'L');
+        $pdf->Cell(40, 5, $aset->keterangan ?? '-', 0, 'L');
+
+        // Tambahkan bagian lain seperti Detil Aset, Pembelian, Penyusutan
+        $pdf->Ln(5);
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 8, 'Detil Aset', 0, 1);
+
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(40, 5, 'Merk', 0, 0);
+        $pdf->Cell(0, 5, $aset->merk->nama ?? '-', 0, 1);
+
+        $pdf->Cell(40, 5, 'Produsen', 0, 0);
+        $pdf->Cell(0, 5, $aset->produsen ?? '-', 0, 1);
+
+        $pdf->Cell(40, 5, 'No. Seri', 0, 0);
+        $pdf->Cell(0, 5, $aset->noseri ?? '-', 0, 1);
+
+        $pdf->Cell(40, 5, 'Deskripsi', 0, 1, 'L');
+        $pdf->Cell(40, 5, $aset->description ?? '-', 0, 'L');
+
+        // Bagian Pembelian
+        $pdf->Ln(5);
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 10, 'Pembelian', 0, 1);
+
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(40, 5, 'Tanggal Pembelian', 0, 0);
+        $pdf->Cell(0, 5, $aset->tanggalbeli ? date('j F Y', $aset->tanggalbeli) : '-', 0, 1);
+
+        $pdf->Cell(40, 5, 'Toko', 0, 0);
+        $pdf->Cell(0, 5, $aset->toko->nama ?? '-', 0, 1);
+
+        $pdf->Cell(40, 5, 'No. Invoice', 0, 0);
+        $pdf->Cell(0, 5, $aset->invoice ?? '-', 0, 1);
+
+        $pdf->Cell(40, 5, 'Jumlah', 0, 0); // Label "Jumlah"
+        $pdf->Cell(20, 5, $aset->jumlah  . ' Unit' ?? '-', 0, 1, 'L'); // Jumlah aset
+
+        $pdf->Cell(40, 5, 'Harga Satuan', 0, 0);
+        $pdf->Cell(0, 5, rupiah($aset->hargasatuan), 0, 1);
+
+        $pdf->Cell(40, 5, 'Harga Total', 0, 0);
+        $pdf->Cell(0, 5, rupiah($aset->hargatotal), 0, 1);
+
+        $pdf->Ln(5);
+        // Header Penyusutan
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 10, 'PENYUSUTAN', 0, 1, 'L');
+
+        // Konten Penyusutan
+        $pdf->SetFont('helvetica', '', 10);
+
+        if ($aset->aktif && $umurEkonomi > 0) {
+            $pdf->Cell(40, 5, 'Umur Ekonomi:', 0, 0, 'L');
+            $pdf->Cell(0, 5, $umurEkonomi . ' Tahun', 0, 1, 'L');
+
+            $pdf->Cell(40, 5, 'Usia Aset:', 0, 0, 'L');
+            $pdf->Cell(0, 5, usia_aset($aset->tanggalbeli), 0, 1, 'L');
+
+            $pdf->Cell(40, 5, 'Penyusutan / Bulan:', 0, 0, 'L');
+            $pdf->Cell(0, 5, rupiah($penyusutanPerBulan), 0, 1, 'L');
+
+            $pdf->Cell(40, 5, 'Total Penyusutan:', 0, 0, 'L');
+            $pdf->Cell(0, 5, rupiah($totalPenyusutan), 0, 1, 'L');
+
+            $pdf->Cell(40, 5, 'Nilai Sekarang:', 0, 0, 'L');
+            $pdf->Cell(0, 5, rupiah($nilaiSekarang), 0, 1, 'L');
+        } else {
+            $pdf->Cell(40, 5, 'Umur Ekonomi:', 0, 0, 'L');
+            $pdf->Cell(0, 5, 'Tanpa Penyusutan', 0, 1, 'L');
+
+            $pdf->Cell(40, 5, 'Usia Aset:', 0, 0, 'L');
+            $pdf->Cell(0, 5, usia_aset($aset->tanggalbeli), 0, 1, 'L');
+        }
+
+        // STATUS
+        if (!$aset->status) { // Jika status aktif = 0 (Non-Aktif)
+            // Tambahkan spasi sebelum header
+            $pdf->Cell(0, 6, '', 0, 1, 'L');
+
+            // Header STATUS
+            $pdf->SetFont('helvetica', 'B', 12);
+            $pdf->Cell(0, 10, 'STATUS', 0, 1, 'L');
+
+            // Konten STATUS
+            $pdf->SetFont('helvetica', '', 10);
+
+            // Baris Status Aset
+            $pdf->Cell(40, 5, "Status Aset", 0, 0, 'L');
+            $pdf->Cell(0, 5, "Non-Aktif", 0, 1, 'L');
+
+            // Baris Tanggal Non-Aktif
+            $pdf->Cell(40, 5, "Tgl Non-Aktif", 0, 0, 'L');
+            $pdf->Cell(0, 5, $aset->tglnonaktif ? date("j F Y", strtotime($aset->tglnonaktif)) : '-', 0, 1, 'L');
+
+            // Baris Sebab Non-Aktif
+            $pdf->Cell(40, 5, "Sebab Non-Aktif", 0, 0, 'L');
+            $pdf->Cell(0, 5, $aset->alasannonaktif ?? '-', 0, 1, 'L');
+
+            // Baris Keterangan
+            $pdf->Cell(40, 5, "Keterangan", 0, 1, 'L');
+            $pdf->Cell(40, 5, $aset->ketnonaktif ?? '-', 0, 'L');
+
+            $pdf->Cell(0, 6, '', 0, 1, 'L');
+        }
+
+        // RIWAYAT
+        $pdf->Ln(5);
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 10, 'Riwayat', 0, 1, 'L');
+
+        $pdf->SetFont('helvetica', '', 10);
+
+        // Cek apakah aset memiliki data riwayat
+        if ($aset->histories->isNotEmpty()) {
+            foreach ($aset->histories as $history) {
+                // Tampilkan riwayat
+                $pdf->Cell(40, 5, "Sejak Tanggal", 0, 0, 'L');
+                $pdf->Cell(0, 5, date("j F Y", ($history->tanggal)), 0, 1, 'L');
+
+                $pdf->Cell(40, 5, "Penanggung Jawab", 0, 0, 'L');
+                $pdf->Cell(0, 5, $history->person->nama ?? '-', 0, 1, 'L');
+
+                $pdf->Cell(40, 5, "Lokasi", 0, 0, 'L');
+                $pdf->Cell(0, 5, $history->lokasi->nama ?? '-', 0, 1, 'L');
+
+                $pdf->Cell(40, 5, "Jumlah", 0, 0, 'L');
+                $pdf->Cell(0, 5, ($history->jumlah ?? 0) . " Unit", 0, 1, 'L');
+
+                $pdf->Cell(40, 5, "Kondisi", 0, 0, 'L');
+                $pdf->Cell(0, 5, ($history->kondisi ?? 0) . "%", 0, 1, 'L');
+
+                $pdf->Cell(40, 5, "Kelengkapan", 0, 0, 'L');
+                $pdf->Cell(0, 5, ($history->kelengkapan ?? 0) . "%", 0, 1, 'L');
+
+                $pdf->Cell(40, 5, "Keterangan", 0, 1, 'L');
+                $pdf->Cell(40, 5, $history->keterangan ?? '-', 0, 'L');
+
+                // Tambahkan space setelah setiap riwayat
+                $pdf->Cell(0, 3, '', 0, 1, 'L');
+            }
+        } else {
+            // Jika tidak ada data riwayat
+            $pdf->Cell(130, 8, "Tidak Ada Data", 0, 1, 'L');
+        }
+
+        // AGENDA
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 10, 'Agenda', 0, 1, 'L');
+
+        $pdf->SetFont('helvetica', '', 10);
+
+        $dayMap = [
+            1 => 'Senin',
+            2 => 'Selasa',
+            3 => 'Rabu',
+            4 => 'Kamis',
+            5 => 'Jumat',
+            6 => 'Sabtu',
+            7 => 'Minggu',
+        ];
+        // Cek apakah aset memiliki data agenda
+        if ($aset->agendas->isNotEmpty()) {
+            foreach ($aset->agendas as $agenda) {
+                // Tampilkan data agenda berdasarkan tipe
+                $tipeAgenda = '';
+                if ($agenda->tipe === "mingguan") {
+                    $tipeAgenda = "Mingguan: Setiap Hari " .  $dayMap[$agenda->hari];
+                } elseif ($agenda->tipe === "bulanan") {
+                    $tipeAgenda = "Bulanan: Setiap Tanggal " . $agenda->hari;
+                } elseif ($agenda->tipe === "tahunan") {
+                    $tipeAgenda = "Tahunan: Setiap " . date('j F', $agenda->tanggal);
+                } else {
+                    $tipeAgenda = "Tanggal: " . date('j F Y', $agenda->tanggal);
+                }
+
+                // Tampilkan tipe agenda
+                // $pdf->Cell(40, 5, "Tipe Agenda", 0, 0, 'L');
+                $pdf->Cell(40, 5, $tipeAgenda, 0, 1, 'L');
+
+                // Tampilkan keterangan
+                // $pdf->Cell(40, 5, "Keterangan", 0, 0, 'L');
+                $pdf->Cell(40, 5, $agenda->keterangan ?? '-', 0, 1, 'L');
+
+                // Tambahkan space setelah setiap agenda
+                $pdf->Cell(0, 3, '', 0, 1, 'L');
+            }
+        } else {
+            // Jika tidak ada data agenda
+            $pdf->Cell(130, 8, "Tidak Ada Data", 0, 1, 'L');
+        }
+
+        // KEUANGAN
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 10, 'Keuangan', 0, 1, 'L');
+
+        $pdf->SetFont('helvetica', '', 10);
+
+        if ($aset->keuangans->isNotEmpty()) {
+            $pemasukan = 0;
+            $pengeluaran = 0;
+
+            foreach ($aset->keuangans as $keuangan) {
+                // Tampilkan detail keuangan
+                $pdf->Cell(40, 5, date("d M Y", $keuangan->tanggal), 0, 0, 'L');
+                $pdf->Cell(40, 5, $keuangan->tipe === 'in' ? 'Pemasukan' : ($keuangan->tipe === 'out' ? 'Pengeluaran' : 'Tidak Diketahui'), 0, 0, 'L');
+                $pdf->Cell(40, 5, rupiah($keuangan->nominal), 0, 0, 'R');
+                $pdf->MultiCell(60, 5, $keuangan->keterangan ?? '-', 0, 'L');
+
+                // Hitung pemasukan dan pengeluaran
+                if ($keuangan->tipe === 'in') {
+                    $pemasukan += $keuangan->nominal;
+                } else {
+                    $pengeluaran += $keuangan->nominal;
+                }
+            }
+
+            // Tambahkan total pemasukan, pengeluaran, dan selisih
+            $pdf->Ln(3); // Space sebelum total
+            // if ($pengeluaran > 0) {
+            //     $pdf->Cell(40, 5, "Total Pengeluaran", 0, 0, 'L');
+            //     $pdf->Cell(0, 5, rupiah($pengeluaran), 0, 1, 'R');
+            // }
+            // if ($pemasukan > 0) {
+            //     $pdf->Cell(40, 5, "Total Pemasukan", 0, 0, 'L');
+            //     $pdf->Cell(0, 5, rupiah($pemasukan), 0, 1, 'R');
+            // }
+            // if ($pengeluaran > 0 && $pemasukan > 0) {
+            //     $selisih = $pemasukan - $pengeluaran;
+            //     $pdf->Cell(40, 5, "Selisih", 0, 0, 'L');
+            //     $pdf->Cell(0, 5, rupiah($selisih), 0, 1, 'R');
+            // }
+        } else {
+            $pdf->Cell(130, 8, "Tidak Ada Data", 0, 1, 'L');
+        }
+
+        // JURNAL
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 10, 'Jurnal', 0, 1, 'L');
+
+        $pdf->SetFont('helvetica', '', 10);
+
+        if ($aset->jurnals->isNotEmpty()) {
+            foreach ($aset->jurnals as $jurnal) {
+                // Tampilkan detail jurnal
+                $pdf->Cell(40, 5, date("d M Y", $jurnal->tanggal), 0, 1, 'L');
+                $pdf->Cell(40, 5, $jurnal->keterangan ?? '-', 0, 'L');
+                // Tambahkan space setelah setiap agenda
+                $pdf->Cell(0, 3, '', 0, 1, 'L');
+            }
+        } else {
+            $pdf->Cell(130, 8, "Tidak Ada Data", 0, 1, 'L');
+        }
+
+
+        // Output file PDF
+        return response($pdf->Output($aset->nama . '.pdf', 'I'), 200, [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 }
