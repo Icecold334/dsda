@@ -11,7 +11,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -35,5 +35,15 @@
         </main>
     </div>
 </body>
+<script>
+    window.addEventListener('showSweetAlert', event => {
+        Swal.fire({
+            title: 'Success',
+            text: event.detail, // This will be the message sent from Livewire
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    });
+</script>
 
 </html>

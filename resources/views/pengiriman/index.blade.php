@@ -12,6 +12,7 @@
         </div>
     </div>
 
+
     @if (session('success'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -24,7 +25,6 @@
             });
         </script>
     @endif
-
     <table class="w-full  border-3 border-separate border-spacing-y-4 ">
         <thead>
             <tr class="text-white">

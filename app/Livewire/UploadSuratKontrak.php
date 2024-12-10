@@ -34,8 +34,7 @@ class UploadSuratKontrak extends Component
 
         // Optionally reset the attachments after saving
         $this->reset('attachments');
-        
-        return redirect()->route('kontrak-vendor-stok.index')->with('success', 'Berhasil Menambah Kontrak');
+        return redirect()->route('kontrak-vendor-stok.index');
     }
 
 

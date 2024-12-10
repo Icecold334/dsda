@@ -98,7 +98,14 @@
                     </td>
                     <td class="border border-gray-300 px-4 py-2">
                         @foreach ($transactions->where('tanggal', $day['date_strtotime']) as $transaction)
-                            <div class="bg-green-100 p-2 rounded-lg mb-1">
+                            <div class="bg-orange-100 p-2 rounded-lg mb-1">
+                                <div
+                                    class="flex items-center justify-center w-8 h-8 rounded-full 
+                                    {{ $transaction->tipe === 'out' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600' }}">
+                                    {!! $transaction->tipe === 'out'
+                                        ? '<i class="fa-solid fa-arrow-right-from-bracket"></i>'
+                                        : '<i class="fa-solid fa-arrow-right-to-bracket"></i>' !!}
+                                </div>
                                 <div class="font-bold">{{ $transaction->aset->nama }}</div>
                                 <div class="text-sm text-gray-600">
                                     {{ $transaction->keterangan }}

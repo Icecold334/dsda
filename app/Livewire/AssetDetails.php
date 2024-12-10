@@ -81,11 +81,13 @@ class AssetDetails extends Component
         // Ambil data dari database berdasarkan query
         $this->suggestionsPerson = Person::where('nama', 'like', '%' . $this->person . '%')
             // ->limit(5)
-            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+            ->when($unit, function ($query) use ($parentUnitId) {
                 $query->whereHas('user', function ($query) use ($parentUnitId) {
                     filterByParentUnit($query, $parentUnitId);
                 });
             })
+            ->selectRaw('MIN(id) as id, nama') // Pilih ID terkecil dan nama unik
+            ->groupBy('nama') // Group berdasarkan nama saja
             ->get()
             ->toArray();
         $this->nama = $this->person;
@@ -136,11 +138,13 @@ class AssetDetails extends Component
         // Ambil data dari database berdasarkan query
         $this->suggestionsLokasi = Lokasi::where('nama', 'like', '%' . $this->lokasi . '%')
             // ->limit(5)
-            ->when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+            ->when($unit, function ($query) use ($parentUnitId) {
                 $query->whereHas('user', function ($query) use ($parentUnitId) {
                     filterByParentUnit($query, $parentUnitId);
                 });
             })
+            ->selectRaw('MIN(id) as id, nama') // Pilih ID terkecil dan nama unik
+            ->groupBy('nama') // Group berdasarkan nama saja
             ->get()
             ->toArray();
         $this->nama = $this->lokasi;
@@ -452,7 +456,7 @@ class AssetDetails extends Component
                     $rules['modalData.hari'] = 'required|integer|in:1,2,3,4,5,6,7';
                     break;
                 case 'bulanan':
-                    $rules['modalData.bulan'] = 'required|integer|between:1,12';
+                    $rules['modalData.hari'] = 'required|integer|between:1,12';
                     break;
                 case 'tahunan':
                     $rules['modalData.hari'] = 'required|integer|between:1,' . $this->maxDays;

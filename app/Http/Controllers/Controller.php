@@ -23,7 +23,6 @@ abstract class Controller
         if (Auth::check()) {
             $user = Auth::user();
 
-
             if (!Request::is('profil/profile/*')) {
                 // Periksa jika NIP atau TTD kosong
                 // dd(empty($user->nip) || empty($user->ttd));
@@ -158,4 +157,5 @@ abstract class Controller
     {
         return 'Rp ' . number_format($angka, 2, ',', '.');
     }
+
 }

@@ -51,6 +51,11 @@
     </div>
     @stack('html')
 </body>
+@if (session('success'))
+    <script type="module">
+        feedback('Berhasil', "{{ session('success') }}", 'success');
+    </script>
+@endif
 @stack('scripts')
 
 </html>

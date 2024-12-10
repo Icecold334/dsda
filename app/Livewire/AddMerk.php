@@ -28,8 +28,9 @@ class AddMerk extends Component
 
     public function removeMerk()
     {
+
         Merk::destroy($this->id);
-        return redirect()->route('merk.index')->with('success', 'Berhasil Dihapus');
+        return redirect()->route('merk.index');
     }
     public function saveMerk()
     {
@@ -56,7 +57,7 @@ class AddMerk extends Component
                 'user_id' => Auth::user()->id,
                 'nama' => $this->merk,
                 'keterangan' => $this->keterangan,
-                'nama_nospace' => strtolower(str_replace(' ', '-', $this->merk)),
+                'nama_nospace' => Str::slug($this->merk),
             ]
         );
         if ($merk->wasRecentlyCreated && $this->merk){

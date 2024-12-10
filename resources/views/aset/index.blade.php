@@ -46,11 +46,22 @@
                             <select name="kategori_id" id="kategori_id"
                                 class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
                                 <option value="">Semua Kategori</option>
-                                @foreach ($kategoris as $kategori)
-                                    <option value="{{ $kategori->id }}"
-                                        {{ request('kategori_id') == $kategori->id ? 'selected' : '' }}>
-                                        {{ $kategori->nama }}
-                                    </option>
+                                @foreach ($kategoris as $kategoriItem)
+                                    @if ($kategoriItem->parent_id == null)
+                                        <!-- Parent Kategori -->
+                                        <option value="{{ $kategoriItem->id }}"
+                                            {{ request('kategori_id') == $kategoriItem->id ? 'selected' : '' }}>
+                                            {{ $kategoriItem->nama }}
+                                        </option>
+
+                                        <!-- Child Kategori -->
+                                        @foreach ($kategoris->where('parent_id', $kategoriItem->id) as $childkategoriItem)
+                                            <option value="{{ $childkategoriItem->id }}"
+                                                {{ request('kategori_id') == $childkategoriItem->id ? 'selected' : '' }}>
+                                                --- {{ $childkategoriItem->nama }}
+                                            </option>
+                                        @endforeach
+                                    @endif
                                 @endforeach
                             </select>
                         </div>

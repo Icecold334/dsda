@@ -58,75 +58,38 @@ class AddLokasi extends Component
         } elseif ($this->tipe == 'posisi') {
             PosisiStok::destroy($this->id);
         }
-        return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Dihapus');
+
+        return redirect()->route('lokasi-stok.index');
     }
     public function saveLokasi()
     {
-        if ($this->tipe === 'lokasi') {
-            $exist=LokasiStok::where('id', $this->id)->first();
-            if($exist) {
-                $lokasistok=LokasiStok::updateOrCreate(
-                    ['id' => $this->id], // Unique field to check for existing record
-                    [
-                        'nama' => $this->lokasi,
-                        'alamat' => $this->alamat,
-                    ]
-                );
-                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Mengubah Lokasi');
-            } else {
-                $lokasistok=LokasiStok::updateOrCreate(
-                    ['id' => $this->lokasi_id], // Unique field to check for existing record
-                    [
-                        'nama' => $this->lokasi,
-                        'alamat' => $this->alamat,
-                    ]
-                );
-                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Menambah Lokasi');
-            }
-            
+        if ($this->tipe == 'lokasi') {
+            LokasiStok::updateOrCreate(
+                ['id' => $this->lokasi_id], // Unique field to check for existing record
+                [
+                    'nama' => $this->lokasi,
+                    'alamat' => $this->alamat,
+                ]
+            );
         } elseif ($this->tipe == 'bagian') {
-            $exist=BagianStok::where('id', $this->id)->first();
-            if($exist) {
-                $bagianstok=BagianStok::updateOrCreate(
-                    ['id' => $this->id], // Unique field to check for existing record
-                    [
-                        'lokasi_id' => $this->lokasi_id,
-                        'nama' => $this->bagian,
-                    ]
-                );
-                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Mengubah Bagian');
-            } else {
-                $bagianstok=BagianStok::updateOrCreate(
-                    ['id' => $this->lokasi_id], // Unique field to check for existing record
-                    [
-                        'lokasi_id' => $this->lokasi_id,
-                        'nama' => $this->bagian,
-                    ]
-                );
-                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Menambah Bagian');
-            }
+            BagianStok::updateOrCreate(
+                ['id' => $this->bagian_id], // Unique fields to check
+                [
+                    'lokasi_id' => $this->lokasi_id,
+                    'nama' => $this->bagian,
+                ]
+            );
         } elseif ($this->tipe == 'posisi') {
-            $exist=PosisiStok::where('id', $this->id)->first();
-            if($exist) {
-                $posisistok=PosisiStok::updateOrCreate(
-                    ['id' => $this->id], // Unique field to check for existing record
-                    [
-                        'bagian_id' => $this->bagian_id,
-                        'nama' => $this->posisi,
-                    ]
-                );
-                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Mengubah Posisi');
-            } else {
-                $posisistok=PosisiStok::updateOrCreate(
-                    ['id' => $this->lokasi_id], // Unique field to check for existing record
-                    [
-                        'bagian_id' => $this->bagian_id,
-                        'nama' => $this->posisi,
-                    ]
-                );
-                    return redirect()->route('lokasi-stok.index')->with('success', 'Berhasil Menambah Posisi');
-            }
+            PosisiStok::updateOrCreate(
+                ['id' => $this->posisi_id], // Unique fields to check
+                [
+                    'bagian_id' => $this->bagian_id,
+                    'nama' => $this->posisi,
+                ]
+            );
         }
+
+        return redirect()->route('lokasi-stok.index');
     }
     public function render()
     {

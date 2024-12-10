@@ -26,8 +26,9 @@ class AddLokasiData extends Component
     }
     public function removeLokasi()
     {
+
         Lokasi::destroy($this->id);
-        return redirect()->route('lokasi.index')->with('success', 'Berhasil Dihapus');
+        return redirect()->route('lokasi.index');
     }
     public function saveLokasi()
     {
@@ -46,7 +47,7 @@ class AddLokasiData extends Component
 //         Lokasi::updateOrCreate(['id' => $this->id ?? 0], $data);
 
 //         return redirect()->route('lokasi.index');
-=======
+// =======
         $lokasi=Lokasi::updateOrCreate(
             ['id' => $this->id ?? 0], // Unique field to check for existing record
             [

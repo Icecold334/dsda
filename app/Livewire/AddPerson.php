@@ -37,7 +37,7 @@ class AddPerson extends Component
     public function removePerson()
     {
         Person::destroy($this->id);
-        return redirect()->route('person.index')->with('success', 'Berhasil Dihapus');
+        return redirect()->route('person.index');
     }
     public function savePerson()
     {
@@ -72,7 +72,7 @@ class AddPerson extends Component
                 'email' => $this->email,
                 'jabatan' => $this->jabatan,
                 'keterangan' => $this->keterangan,
-                'nama_nospace' => strtolower(str_replace(' ', '-', $this->person)),
+                'nama_nospace' => Str::slug($this->person),
             ]
         );
         if ($person->wasRecentlyCreated && $this->person){

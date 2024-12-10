@@ -8,6 +8,8 @@ use App\Models\History;
 use Livewire\Component;
 use App\Models\Keuangan;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use App\Models\UnitKerja;
 
 class AssetCalendar extends Component
 {
@@ -36,6 +38,17 @@ class AssetCalendar extends Component
 
     public function loadData()
     {
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
         $startOfMonth = Carbon::create($this->year, $this->month, 1)->startOfDay()->timestamp; // Timestamp awal bulan
         $endOfMonth = Carbon::create($this->year, $this->month, 1)->endOfMonth()->endOfDay()->timestamp; // Timestamp akhir bulan
 
@@ -58,7 +71,11 @@ class AssetCalendar extends Component
         // Logika pemuatan data berdasarkan selectedFilter
         switch ($this->selectedFilter) {
             case 'agenda':
-                $this->agendas = Agenda::get()->map(function ($agenda) {
+                $this->agendas = Agenda::when($unit, function ($query) use ($parentUnitId) {
+                    $query->whereHas('aset.user', function ($query) use ($parentUnitId) {
+                        filterByParentUnit($query, $parentUnitId);
+                    });
+                })->get()->map(function ($agenda) {
                     $agenda->formatted_tipe = match ($agenda->tipe) {
                         'mingguan' => 'Mingguan',
                         'bulanan' => 'Bulanan',
@@ -71,20 +88,36 @@ class AssetCalendar extends Component
                 break;
 
             case 'journal':
-                $this->journals = Jurnal::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->get();
+                $this->journals = Jurnal::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->when($unit, function ($query) use ($parentUnitId) {
+                    $query->whereHas('aset.user', function ($query) use ($parentUnitId) {
+                        filterByParentUnit($query, $parentUnitId);
+                    });
+                })->get();
                 break;
 
             case 'transaction':
-                $this->transactions = Keuangan::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->get();
+                $this->transactions = Keuangan::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->when($unit, function ($query) use ($parentUnitId) {
+                    $query->whereHas('aset.user', function ($query) use ($parentUnitId) {
+                        filterByParentUnit($query, $parentUnitId);
+                    });
+                })->get();
                 break;
 
             case 'history':
-                $this->histories = History::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->get();
+                $this->histories = History::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->when($unit, function ($query) use ($parentUnitId) {
+                    $query->whereHas('aset.user', function ($query) use ($parentUnitId) {
+                        filterByParentUnit($query, $parentUnitId);
+                    });
+                })->get();
                 break;
 
             case 'all':
             default:
-                $this->agendas = Agenda::get()->map(function ($agenda) {
+                $this->agendas = Agenda::when($unit, function ($query) use ($parentUnitId) {
+                    $query->whereHas('aset.user', function ($query) use ($parentUnitId) {
+                        filterByParentUnit($query, $parentUnitId);
+                    });
+                })->get()->map(function ($agenda) {
                     $agenda->formatted_tipe = match ($agenda->tipe) {
                         'mingguan' => 'Mingguan',
                         'bulanan' => 'Bulanan',
@@ -95,14 +128,27 @@ class AssetCalendar extends Component
                     return $agenda;
                 });
 
-                $this->journals = Jurnal::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->get();
-                $this->transactions = Keuangan::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->get();
-                $this->histories = History::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->get();
+
+                $this->journals = Jurnal::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->when($unit, function ($query) use ($parentUnitId) {
+                    $query->whereHas('aset.user', function ($query) use ($parentUnitId) {
+                        filterByParentUnit($query, $parentUnitId);
+                    });
+                })->get();
+                $this->transactions = Keuangan::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->when($unit, function ($query) use ($parentUnitId) {
+                    $query->whereHas('aset.user', function ($query) use ($parentUnitId) {
+                        filterByParentUnit($query, $parentUnitId);
+                    });
+                })->get();
+                $this->histories = History::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->when($unit, function ($query) use ($parentUnitId) {
+                    $query->whereHas('aset.user', function ($query) use ($parentUnitId) {
+                        filterByParentUnit($query, $parentUnitId);
+                    });
+                })->get();
+                // dd($this->histories);
                 break;
         }
     }
-
-
+    
     private function generateDays($start, $end)
     {
         setlocale(LC_TIME, 'id_ID.UTF-8');

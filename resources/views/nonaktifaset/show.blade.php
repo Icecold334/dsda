@@ -9,6 +9,15 @@
                 <div>
                     <livewire:delete-asset :model="$nonaktifaset" />
                 </div>
+                <a data-tooltip-target="tooltip-PDF" href="{{ route('aset.export-pdf', ['id' => $nonaktifaset->id]) }}"
+                    target="_blank"
+                    class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"><i
+                        class="fa-solid fa-file-pdf"></i></a>
+                <div id="tooltip-PDF" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Cetak / Download Kartu Aset dalam format PDF
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
             </div>
         </div>
     </div>
@@ -74,18 +83,18 @@
                             alt="" class="w-full h-full object-cover object-center rounded-sm">
                     </div> --}}
                     <div
-                    class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
-                    <a href="{{ route('aset.downloadQrImage', $nonaktifaset->id) }}" class="w-full h-full">
-                        <img src="{{ asset($nonaktifaset->systemcode ? 'storage/qr/' . $nonaktifaset->systemcode . '.png' : 'img/default-pic.png') }}"
-                            data-tooltip-target="tooltip-QR" alt="QR Code"
-                            class="w-full h-full object-cover object-center rounded-sm">
-                    </a>
-                </div>
-                <div id="tooltip-QR" role="tooltip"
-                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                    Klik Untuk Mengunduh QR-Code Ini
-                    <div class="tooltip-arrow" data-popper-arrow></div>
-                </div>
+                        class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
+                        <a href="{{ route('aset.downloadQrImage', $nonaktifaset->id) }}" class="w-full h-full">
+                            <img src="{{ asset($nonaktifaset->systemcode ? 'storage/qr/' . $nonaktifaset->systemcode . '.png' : 'img/default-pic.png') }}"
+                                data-tooltip-target="tooltip-QR" alt="QR Code"
+                                class="w-full h-full object-cover object-center rounded-sm">
+                        </a>
+                    </div>
+                    <div id="tooltip-QR" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                        Klik Untuk Mengunduh QR-Code Ini
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
                 </div>
             </x-card>
             <x-card title="Detail Aset" class="mb-3">
@@ -152,7 +161,7 @@
             </x-card>
         </div>
         <div>
-            
+
             <livewire:nonaktif-aset :nonaktifaset="$nonaktifaset" />
 
 

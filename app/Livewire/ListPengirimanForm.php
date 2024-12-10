@@ -224,12 +224,15 @@ class ListPengirimanForm extends Component
         // $this->vendor_id = null;
         // $this->mount();
         if (!$this->showDokumen) {
-            return redirect()->route('pengiriman-stok.index')->with('success', 'Berhasil Menambah Barang');
+            return redirect()->route('pengiriman-stok.index');
         }
     }
 
+    public $roles;
+
     public function mount()
     {
+        // dd($this->old);
         $this->showDokumen = !Request::routeIs('pengiriman-stok.create');
         $this->showRemove = !Request::routeIs('pengiriman-stok.show');
         $this->lokasis = LokasiStok::all();
@@ -251,13 +254,17 @@ class ListPengirimanForm extends Component
                     'bagians' => BagianStok::where('lokasi_id', $transaksi->lokasi_id)->get(),
                     'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
                     'jumlah' => $transaksi->jumlah ?? 1,
+                    'jumlah_diterima' => $transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
-                    'editable' => $isEditable,
+                    'editable' => true,
                 ];
 
                 $this->dispatch('listCount', count: count($this->list));
                 // }
             }
+
+            $this->roles = Auth::user()->roles->pluck('name')->first();
+            // dd($this->list);
         }
     }
 
@@ -335,6 +342,25 @@ class ListPengirimanForm extends Component
         }
     }
 
+    public function updatePengirimanStok($index){
+        $data = $this->list[$index];
+
+        $id_pengiriman = $data['id'];
+
+        $attr = [
+            'jumlah_diterima' => $data['jumlah_diterima'],
+            'bagian_id' => $data['bagian_id'],
+            'posisi_id' => $data['posisi_id']
+        ];
+        
+        PengirimanStok::where('id', $id_pengiriman)->update($attr);
+
+        $this->emit('showSweetAlert', [
+            'message' => 'Data berhasil diperbarui!',
+            'type' => 'success'
+        ]);
+    }
+
     public function updateBagian($index, $bagianId)
     {
         // Update bagian, reset posisi, and load associated posisis
@@ -391,7 +417,7 @@ class ListPengirimanForm extends Component
         // }
     }
 
-    public function updated($propertyName, $value)
+    public function updated($propertyName)
     {
         if (preg_match('/^list\.\d+\.bukti$/', $propertyName)) {
             // Extract the index from the property name

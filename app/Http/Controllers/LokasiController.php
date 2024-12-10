@@ -25,7 +25,7 @@ class LokasiController extends Controller
         // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
-        $lokasis = Lokasi::when(Auth::user()->id != 1, function ($query) use ($parentUnitId) {
+        $lokasis = Lokasi::when($this->unit_id, function ($query) use ($parentUnitId) {
             $query->whereHas('user', function ($query) use ($parentUnitId) {
                 filterByParentUnit($query, $parentUnitId);
             });

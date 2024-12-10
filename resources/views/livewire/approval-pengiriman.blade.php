@@ -50,7 +50,7 @@
                             <span class="mr-9 {{ $penerima->id == auth()->id() ? 'font-bold' : '' }}">
                                 {{ $penerima->id == auth()->id() ? 'Anda' : $penerima->name }}
                             </span>
-                            {{-- <i
+                            <i
                                 class="my-1 fa-solid {{ is_null(
                                     optional($penerima->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status,
                                 )
@@ -58,7 +58,7 @@
                                     : (optional($penerima->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
                                         ? 'fa-circle-check text-success-500'
                                         : 'fa-circle-xmark text-danger-500') }}">
-                            </i> --}}
+                            </i>
 
 
                         </td>
@@ -158,6 +158,16 @@
                         <button type="button" onclick="document.getElementById('approvalFiles').click()"
                             class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
                             Unggah File Persetujuan
+                        </button>
+                        @error('approvalFiles.*')
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <input type="file" wire:model="newApprovalFiles" id="approvalFiles" multiple class="hidden">
+                        <button type="button" onclick="document.getElementById('approvalFiles').click()"
+                            class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                            Unggah Berita Acara
                         </button>
                         @error('approvalFiles.*')
                             <span class="text-red-500 text-xs">{{ $message }}</span>

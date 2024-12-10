@@ -3,25 +3,26 @@
 
         <h1 class="text-2xl font-bold text-primary-900 ">Toko/Distributor Aset</h1>
         <div>
-         
+
             <a href="{{ route('toko.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Tambah Toko</a>
         </div>
     </div>
 
-@if (session('success'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                title: 'Success!',
-                text: "{{ session('success') }}",
-                icon: 'success',
-                confirmButtonText: 'Okay'
-            });
-        });
-    </script>
-@endif
+    @if (session('success'))
+        <script type="module">
+            // document.addEventListener('DOMContentLoaded', function() {
+            //     Swal.fire({
+            //         title: 'Success!',
+            //         text: "{{ session('success') }}",
+            //         icon: 'success',
+            //         confirmButtonText: 'Okay'
+            //     });
+            // });
+            feedback('Berhasil', "{{ session('success') }}", 'success');
+        </script>
+    @endif
 
     <table class="w-full border-3 border-separate border-spacing-y-4">
         <thead>
@@ -52,12 +53,12 @@
                     <td class="text-center px-6 py-3">
                         <!-- Link to aset.index with tooltip -->
                         <a href="{{ route('aset.index', ['toko_id' => $toko->id]) }}"
-                           class="text-primary-950 hover:underline"
-                           data-tooltip-target="tooltip-jumlah-toko-{{ $toko->id }}">
+                            class="text-primary-950 hover:underline"
+                            data-tooltip-target="tooltip-jumlah-toko-{{ $toko->id }}">
                             {{ $toko->aset->count() }}
                         </a>
                         <div id="tooltip-jumlah-toko-{{ $toko->id }}" role="tooltip"
-                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                             Lihat aset untuk "{{ $toko->nama }}"
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>

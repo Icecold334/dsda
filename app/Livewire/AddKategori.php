@@ -55,16 +55,12 @@ class AddKategori extends Component
     }
     public function removeKategori()
     {
-        if ($this->id) {
-            $kategori=Kategori::find($this->id);
-            if ($kategori->parent_id!=null) {
-                Kategori::destroy($this->id);
-                return redirect()->route('kategori.index')->with('success', 'Berhasil Dihapus');
-            }
+        if ($this->tipe == 'utama') {
             Kategori::destroy($this->id);
-            return redirect()->route('kategori.index')->with('success', 'Berhasil Dihapus');
+        } else {
+            Kategori::destroy($this->id);
         }
-        return redirect()->route('kategori.index')->with('error', 'Kategori tidak ditemukan');
+        return redirect()->route('kategori.index');
     }
 
     public function saveKategori()

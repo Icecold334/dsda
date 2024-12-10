@@ -152,7 +152,6 @@ class VendorKontrakForm extends Component
 
         // Reset form fields
         $this->reset(['nama', 'alamat', 'kontak']);
-
     }
 
     public function hideSuggestions()
@@ -161,7 +160,7 @@ class VendorKontrakForm extends Component
         $this->showSuggestions = false;
     }
 
-    
+
     public function render()
     {
         return view('livewire.vendor-kontrak-form');
