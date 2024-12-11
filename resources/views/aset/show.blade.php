@@ -238,7 +238,7 @@
                     </tr>
                     <tr>
                         <td class="" style="width: 30%">Lama Garansi</td>
-                        <td class="">{{ $aset->lama_garansi ?? '---' }}</td>
+                        <td class="">{{ $aset->lama_garansi ?? '---' }} Tahun</td>
                     </tr>
                     <tr>
                         <td class="" style="width: 30%">Kartu Garansi</td>

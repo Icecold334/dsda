@@ -221,7 +221,7 @@ class DatabaseSeeder extends Seeder
             'aset_price',
             'aset_new',
             'aset_edit',
-            'aset_del',
+            'aset_delete',
             'aset_pdf',
             'aset_xls',
             'aset_noaktif',
@@ -237,6 +237,8 @@ class DatabaseSeeder extends Seeder
             'data_toko',
             'data_person',
             'data_lokasi',
+            'data_lokasi_stok',
+            'data_unit_kerja',
             'qr_print',
             'inventaris_edit_lokasi_penerimaan',
             'inventaris_tambah_barang_datang',
@@ -244,6 +246,13 @@ class DatabaseSeeder extends Seeder
             'permintaan_persetujuan_jumlah_barang',
             'permintaan_penyelesaian_permintaan',
             'persetujuan',
+            'profil_edit',
+            'profil_edit_no_wa',
+            'profil_edit_email',
+            'profil_edit_password',
+            'profil_new_user',
+            'profil_edit_user',
+            'profil_delete_user',
         ];
 
         // Insert permissions and get their IDs

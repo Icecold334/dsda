@@ -128,7 +128,9 @@
                         </div>
 
                         <!-- Submit and Reset Buttons in a Flex Container -->
-                        <div class="flex items-center justify-start mt-4 space-x-4">
+                    </div>
+                    <div class="flex items-center justify-between mt-4 space-x-4">
+                        <div class="flex justify-start space-x-4">
                             <!-- Submit Button -->
                             <button type="submit"
                                 class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">GO!</button>
@@ -149,6 +151,15 @@
                                     <i class="fa fa-sync-alt"></i>
                                 </a>
                             @endif
+                        </div>
+                        <a data-tooltip-target="tooltip-excel" href="{{ route('aset.export', request()->query()) }}"
+                            target="_blank"
+                            class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white font-lg rounded-lg text-sm px-4 py-2 transition duration-200"><i
+                                class="fa-solid fa-file-excel"></i></a>
+                        <div id="tooltip-excel" role="tooltip"
+                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                            Download dalam format MS Excel
+                            <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>
                     </div>
                 </fieldset>
@@ -430,4 +441,50 @@
             @endif
         </tbody>
     </table>
+    @if ($asets->hasPages())
+        <div class="mt-4 text-center">
+            <div class="flex flex-col items-center">
+                <!-- Help text -->
+                <div class="inline-flex mt-2 xs:mt-0">
+                    <!-- Tombol Sebelumnya hanya ditampilkan jika bukan halaman pertama -->
+                    @if (!$asets->onFirstPage())
+                        <a href="{{ $asets->previousPageUrl() }}"
+                            class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-primary-800 rounded-s hover:bg-primary-900 dark:bg-primary-800 dark:border-primary-700 dark:text-primary-400 dark:hover:bg-primary-700 dark:hover:text-white">
+                            <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4" />
+                            </svg>
+                            Sebelumnya
+                        </a>
+                    @endif
+
+                    <!-- Tombol Selanjutnya hanya ditampilkan jika tidak berada di halaman terakhir -->
+                    @if ($asets->hasMorePages())
+                        <a href="{{ $asets->nextPageUrl() }}"
+                            class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-primary-800 border-0 rounded-e hover:bg-primary-900 dark:bg-primary-800 dark:border-primary-700 dark:text-primary-400 dark:hover:bg-primary-700 dark:hover:text-white">
+                            Selanjutnya
+                            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+                            </svg>
+                        </a>
+                    @endif
+                </div>
+                <span class="text-sm text-gray-700 dark:text-gray-400">
+                    Menampilkan Halaman
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ $asets->currentPage() }}</span>
+                    yang berisi
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ $asets->perPage() }}</span>
+                    aset
+                    <span
+                        class="font-semibold text-gray-900 dark:text-white">({{ $asets->firstItem() }}-{{ $asets->lastItem() }})</span>
+                    dari total
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ $asets->total() }}</span>
+                    aset
+                </span>
+            </div>
+        </div>
+    @endif
 </x-body>
