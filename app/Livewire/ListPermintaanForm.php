@@ -383,6 +383,7 @@ class ListPermintaanForm extends Component
             'dokumen' => $this->newDokumen ?? null,
         ];
         $this->ruleAdd = false;
+        $this->dispatch('listCount', count: count($this->list));
         // Reset inputs after adding to the list
         $this->reset(['newBarang', 'newJumlah', 'newDokumen', 'newAset', 'newAsetId', 'newDeskripsi', 'newCatatan', 'newBukti']);
     }
@@ -456,6 +457,7 @@ class ListPermintaanForm extends Component
         }
         unset($this->list[$index]);
         $this->list = array_values($this->list); // Reindex the array
+        $this->dispatch('listCount', count: count($this->list));
     }
 
     public function blurLokasi()

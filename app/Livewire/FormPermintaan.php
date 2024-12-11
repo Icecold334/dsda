@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\UnitKerja;
 use Illuminate\Support\Facades\Request;
+use Livewire\Attributes\On;
 
 class FormPermintaan extends Component
 {
@@ -20,6 +21,13 @@ class FormPermintaan extends Component
     public $sub_unit_id;
     public $tanggal_permintaan;
     public $keterangan;
+    public $listCount;
+
+    #[On('listCount')]
+    public function updateListCount($count)
+    {
+        $this->listCount = $count;
+    }
 
     public function updatedUnitId()
     {
