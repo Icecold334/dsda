@@ -173,7 +173,7 @@ class ApprovalPermintaan extends Component
 
 
 
-        $kasudin = User::role('kepala_suku_dinas')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $kasudin = User::role('kepala_suku_dinas')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexkasudin = $kasudin->search(function ($user) {
             return $user->id == Auth::id();
         });
