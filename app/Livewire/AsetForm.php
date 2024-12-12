@@ -556,8 +556,13 @@ class AsetForm extends Component
         $this->saveAttachments($aset->id);
 
         // Optionally add flash message or other post-save actions
-        session()->flash('message', 'Aset successfully saved.');
-        return redirect()->route('aset.show', $aset);
+        // session()->flash('message', 'Aset successfully saved.');
+        // return redirect()->route('aset.show', $aset);
+        if ($aset->wasRecentlyCreated && $this->nama) {
+            return redirect()->route('aset.show', $aset)->with('success', 'Berhasil Menambah Aset');
+        } else {
+            return redirect()->route('aset.show', $aset)->with('success', 'Berhasil Mengubah Data Aset');
+        }
     }
 
     /**

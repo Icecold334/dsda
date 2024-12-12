@@ -172,6 +172,12 @@ class AddProfil extends Component
                 ]
             );
             $user->assignRole($this->selectedRoles);
+
+            if ($user->wasRecentlyCreated && $this->name) {
+                return redirect()->route('profil.index')->with('success', 'Berhasil Menambah User');
+            } else {
+                return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah Data User');
+            }
         } elseif ($this->tipe == 'phone') {
             $user = User::find($this->id);
             $user->update( // Unique fields to check
@@ -186,6 +192,7 @@ class AddProfil extends Component
                     'email' => $this->new_email,
                 ]
             );
+            return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah Email');
         } elseif ($this->tipe == 'password') {
             $this->validate([
                 'old_password' => 'required',
@@ -213,6 +220,7 @@ class AddProfil extends Component
                     'password' => Hash::make($this->password),
                 ]
             );
+            return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah Password');
         } else {
             $user = User::find($this->id);
             $imgRule = is_string($this->img) ? '' : 'nullable|image|max:2048|mimes:jpeg,png,jpg,gif';
@@ -236,9 +244,8 @@ class AddProfil extends Component
                         : null,
                 ]
             );
+            return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah Profil');
         }
-
-        return redirect()->route('profil.index');
     }
 
     public function render()
