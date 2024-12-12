@@ -166,6 +166,7 @@
                                 Barang</label>
                             <input type="text" wire:model.live="newKategori"
                                 wire:input="fetchSuggestions('kategori', $event.target.value)"
+                                wire:blur="blurSpecification('kategori')"
                                 class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Masukkan Kategori">
                             @if ($suggestions['kategori'])
@@ -190,6 +191,7 @@
                         <label class="block text-sm font-medium text-gray-900 dark:text-gray-300">Satuan Besar</label>
                         <input type="text" wire:model.live="newBarangSatuanBesar"
                             wire:input="fetchSuggestions('satuanBesar', $event.target.value)"
+                            wire:blur="blurSpecification('satuanBesar')"
                             class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                             placeholder="Masukkan Satuan Besar">
                         @if ($suggestions['satuanBesar'])
@@ -214,6 +216,7 @@
                             (Opsional)</label>
                         <input type="text" wire:model.live="newBarangSatuanKecil"
                             wire:input="fetchSuggestions('satuanKecil', $event.target.value)"
+                            wire:blur="blurSpecification('satuanKecil')"
                             class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                             placeholder="Masukkan Satuan Kecil">
                         @if ($suggestions['satuanKecil'])

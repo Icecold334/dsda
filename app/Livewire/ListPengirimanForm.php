@@ -342,7 +342,8 @@ class ListPengirimanForm extends Component
         }
     }
 
-    public function updatePengirimanStok($index){
+    public function updatePengirimanStok($index)
+    {
         $data = $this->list[$index];
 
         $id_pengiriman = $data['id'];
@@ -352,7 +353,7 @@ class ListPengirimanForm extends Component
             'bagian_id' => $data['bagian_id'],
             'posisi_id' => $data['posisi_id']
         ];
-        
+
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
 
         $this->emit('showSweetAlert', [

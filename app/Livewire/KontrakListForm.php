@@ -48,14 +48,15 @@ class KontrakListForm extends Component
     {
         $this->suggestions[$field] = [];
         if ($value) {
+            $key = Str::slug($value);
+
             if ($field === 'satuanBesar') {
-                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $value . '%')
+                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $key . '%')
                     ->pluck('nama')->toArray();
             } elseif ($field === 'satuanKecil') {
-                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $value . '%')
+                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $key . '%')
                     ->pluck('nama')->toArray();
             } elseif ($field === 'kategori') {
-                $key = Str::slug($value);
                 $this->suggestions[$field] = KategoriStok::where('slug', 'like', '%' . $key . '%')
                     ->pluck('nama')->toArray();
             }

@@ -25,6 +25,7 @@ return new class extends Migration
             $table->foreignId('satuan_besar_id')->constrained('satuan'); // Foreign key to satuan
             $table->foreignId('satuan_kecil_id')->nullable()->constrained('satuan'); // Foreign key to satuan_kecil
             $table->string('nama');
+            $table->string('slug');
             $table->text('deskripsi')->nullable();
         });
         Schema::create('merk_stok', function (Blueprint $table) {
@@ -39,6 +40,7 @@ return new class extends Migration
         Schema::create('satuan', function (Blueprint $table) {
             $table->id();
             $table->string('nama'); // e.g., "Box"
+            $table->string('slug');
             $table->timestamps();
         });
 
@@ -57,6 +59,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('unit_id')->constrained('unit_kerja')->onDelete('cascade'); // Link to unit_kerja table
             $table->string('nama');
+            $table->string('slug');
             $table->text('alamat');
         });
 

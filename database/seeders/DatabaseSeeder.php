@@ -153,6 +153,7 @@ class DatabaseSeeder extends Seeder
             LokasiStok::create([
                 'unit_id' => UnitKerja::inRandomOrder()->first()->id,
                 'nama' => $namaWilayah,
+                'slug' => Str::slug($namaWilayah),
                 'alamat' => $faker->address,
             ]);
         }
@@ -389,21 +390,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // // Seeder for 6 stock locations
-        // for ($i = 1; $i <= 6; $i++) {
-        //     LokasiStok::create([
-        //         'nama' => 'Lokasi Stok ' . $i
-        //     ]);
-        // }
-
-        // // Seeder for 5 stock items
-        // for ($i = 1; $i <= 5; $i++) {
-        //     BarangStok::create([
-        //         'nama' => 'Barang ' . $i,
-        //         'kode' => 'BRG' . str_pad($i, 3, '0', STR_PAD_LEFT),
-        //         'deskripsi' => 'Deskripsi untuk Barang ' . $i
-        //     ]);
-        // }
 
         // Seeder for 5 brands
         for ($i = 1; $i <= 5; $i++) {
@@ -548,9 +534,11 @@ class DatabaseSeeder extends Seeder
             'Lipat'
         ];
         for ($i = 1; $i <= 50; $i++) {
+            $nama = $faker->randomElement($asetJenis) . ' ' . $faker->randomElement($asetDeskripsi);
             Aset::create([
                 'user_id' => User::inRandomOrder()->first()->id,
-                'nama' => $faker->randomElement($asetJenis) . ' ' . $faker->randomElement($asetDeskripsi),
+                'nama' => $nama,
+                'slug' => Str::slug($nama),
                 'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
                 'kategori_id' => $kategoriUtama[array_rand($kategoriUtama)]->id,
                 'merk_id' => Merk::inRandomOrder()->first()->id ?? null,
@@ -664,16 +652,46 @@ class DatabaseSeeder extends Seeder
 
 
         $satuanBesarData = [
-            ['nama' => 'Kotak'],      // Box
-            ['nama' => 'Palet'],      // Pallet
-            ['nama' => 'Gulung'],     // Roll
-            ['nama' => 'Paket'],      // Packet
-            ['nama' => 'Keranjang'],  // Crate
-            ['nama' => 'Sak'],        // Sack
-            ['nama' => 'Drum'],       // Drum
-            ['nama' => 'Kardus'],     // Carton
-            ['nama' => 'Rim'],        // Rim
-            ['nama' => 'Karton'],     // Cardboard
+            [
+                'nama' => 'Kotak',
+                'slug' => Str::slug('Kotak')
+            ],      // Box
+            [
+                'nama' => 'Palet',
+                'slug' => Str::slug('Palet')
+            ],      // Pallet
+            [
+                'nama' => 'Gulung',
+                'slug' => Str::slug('Gulung')
+            ],     // Roll
+            [
+                'nama' => 'Paket',
+                'slug' => Str::slug('Paket')
+            ],      // Packet
+            [
+                'nama' => 'Keranjang',
+                'slug' => Str::slug('Keranjang')
+            ],  // Crate
+            [
+                'nama' => 'Sak',
+                'slug' => Str::slug('Sak')
+            ],        // Sack
+            [
+                'nama' => 'Drum',
+                'slug' => Str::slug('Drum')
+            ],       // Drum
+            [
+                'nama' => 'Kardus',
+                'slug' => Str::slug('Kardus')
+            ],     // Carton
+            [
+                'nama' => 'Rim',
+                'slug' => Str::slug('Rim')
+            ],        // Rim
+            [
+                'nama' => 'Karton',
+                'slug' => Str::slug('Karton')
+            ],     // Cardboard
         ];
 
         foreach ($satuanBesarData as $data) {
@@ -685,48 +703,49 @@ class DatabaseSeeder extends Seeder
         for ($i = 1; $i <= 20; $i++) {
             $kategori = KategoriStok::inRandomOrder()->first();
             $jenisBarang = JenisStok::where('nama', 'Umum')->first();
+            $nama = $faker->randomElement([
+                'Pensil',
+                'Kertas',
+                'Buku',
+                'Pulpen',
+                'Spidol',
+                'Penggaris',
+                'Kalkulator',
+                'Klip Kertas',
+                'Sticky Note',
+                'Lem',
+                'Amplop',
+                'Binder',
+                'Map',
+                'Stapler',
+            ]) . ' ' . $faker->randomElement([
+                'Cetak',          // Kertas Cetak, Tinta Cetak
+                'Tulisan',        // Buku Tulisan, Pulpen Tulisan
+                'Warna',          // Spidol Warna
+                'Tulis',          // Buku Tulis, Pulpen Tulis
+                'Marker',         // Spidol Marker
+                'A4',             // Kertas A4
+                'Isi Ulang',      // Pulpen Isi Ulang, Tinta Isi Ulang
+                'Planner',        // Buku Planner
+                'Kantor',         // Alat-alat Kantor
+                'Sekolah',        // Alat-alat Sekolah
+                'Premium',        // Produk Premium
+                'Standar',        // Produk Standar
+                'Portabel',       // Kalkulator Portabel
+                'Ekstra',         // Kertas Ekstra
+                'Tahan Air',      // Amplop Tahan Air
+                'Transparan',     // Penggaris Transparan
+                'Refill',         // Isi Ulang
+                'Dekoratif',      // Sticky Note Dekoratif
+                'Kuat',           // Lem Kuat
+                'Minimalis',      // Map Minimalis
+                'Klasik',         // Binder Klasik
+            ]);
             $barang = BarangStok::create([
                 'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
                 'jenis_id' => $jenisBarang->id,
-                'nama' =>
-                $faker->randomElement([
-                    'Pensil',
-                    'Kertas',
-                    'Buku',
-                    'Pulpen',
-                    'Spidol',
-                    'Penggaris',
-                    'Kalkulator',
-                    'Klip Kertas',
-                    'Sticky Note',
-                    'Lem',
-                    'Amplop',
-                    'Binder',
-                    'Map',
-                    'Stapler',
-                ]) . ' ' . $faker->randomElement([
-                    'Cetak',          // Kertas Cetak, Tinta Cetak
-                    'Tulisan',        // Buku Tulisan, Pulpen Tulisan
-                    'Warna',          // Spidol Warna
-                    'Tulis',          // Buku Tulis, Pulpen Tulis
-                    'Marker',         // Spidol Marker
-                    'A4',             // Kertas A4
-                    'Isi Ulang',      // Pulpen Isi Ulang, Tinta Isi Ulang
-                    'Planner',        // Buku Planner
-                    'Kantor',         // Alat-alat Kantor
-                    'Sekolah',        // Alat-alat Sekolah
-                    'Premium',        // Produk Premium
-                    'Standar',        // Produk Standar
-                    'Portabel',       // Kalkulator Portabel
-                    'Ekstra',         // Kertas Ekstra
-                    'Tahan Air',      // Amplop Tahan Air
-                    'Transparan',     // Penggaris Transparan
-                    'Refill',         // Isi Ulang
-                    'Dekoratif',      // Sticky Note Dekoratif
-                    'Kuat',           // Lem Kuat
-                    'Minimalis',      // Map Minimalis
-                    'Klasik',         // Binder Klasik
-                ]),
+                'nama' => $nama,
+                'slug' => Str::slug($nama),
                 'kategori_id' => $kategori->id,  // Assign kategori dari kategori yang acak
                 'satuan_besar_id' => SatuanBesar::inRandomOrder()->first()->id,
                 'konversi' => $faker->randomElement([5, 10, 15, 20, 25, 30, 35, 40, 45, 50]),
@@ -792,51 +811,51 @@ class DatabaseSeeder extends Seeder
                     ]);
                 }
             }
-
+            $nama = $faker->boolean ? $faker->randomElement([
+                'Sinar Dunia',
+                'Tiga Roda',
+                'IndoPrima',
+                'SariKarya',
+                'MegaJaya',
+                'BerkahMakmur',
+                'CiptaSentosa',
+                'MandiriUtama',
+                'TunasHarapan',
+                'SuryaNusantara',
+                'BintangTerang',
+                'MitraAbadi',
+                'SejahteraJaya',
+                'RajawaliKencana',
+                'GemilangIndah',
+                'PusakaRaya',
+                'GarudaPerkasa',
+                // Merek luar
+                'Super Glue',
+                'Sharp Note',
+                'Quick Fix',
+                'Rapid Print',
+                'Bright Vision',
+                'Next Level',
+                'Prime Star',
+                'Eagle Pro',
+                'Global Edge',
+                'True Mark',
+                'Apex Tech',
+                'Zenith Gear',
+                'Eco Green',
+                'Ultra Bond',
+                'Future Craft',
+                'Vista Clear',
+                'Master Seal',
+                'Top Choice',
+                'Champion Paper',
+                'King Grip',
+                'Orbit Line'
+            ]) : null;
             MerkStok::create([
                 'barang_id' => BarangStok::inRandomOrder()->first()->id,
-                'nama' => $faker->boolean ? $faker->randomElement([
-                    'Sinar Dunia',
-                    'Tiga Roda',
-                    'IndoPrima',
-                    'SariKarya',
-                    'MegaJaya',
-                    'BerkahMakmur',
-                    'CiptaSentosa',
-                    'MandiriUtama',
-                    'TunasHarapan',
-                    'SuryaNusantara',
-                    'BintangTerang',
-                    'MitraAbadi',
-                    'SejahteraJaya',
-                    'RajawaliKencana',
-                    'GemilangIndah',
-                    'PusakaRaya',
-                    'GarudaPerkasa',
-                    // Merek luar
-                    'Super Glue',
-                    'Sharp Note',
-                    'Quick Fix',
-                    'Rapid Print',
-                    'Bright Vision',
-                    'Next Level',
-                    'Prime Star',
-                    'Eagle Pro',
-                    'Global Edge',
-                    'True Mark',
-                    'Apex Tech',
-                    'Zenith Gear',
-                    'Eco Green',
-                    'Ultra Bond',
-                    'Future Craft',
-                    'Vista Clear',
-                    'Master Seal',
-                    'Top Choice',
-                    'Champion Paper',
-                    'King Grip',
-                    'Orbit Line'
-                ]) : null,
-
+                'nama' => $nama,
+                // 'slug' => Str::slug($nama),
                 'tipe' => $tipe,
                 'ukuran' => $ukuran,
             ]);
@@ -844,8 +863,8 @@ class DatabaseSeeder extends Seeder
 
 
 
-        $jenis_non_umum = ['Material', 'Spare Part'];
-        $barang_non_umum = [
+        $jenis_material = ['Material'];
+        $barang_material = [
             'Pipa PVC',
             'Kabel Listrik',
             'Semen',
@@ -857,7 +876,7 @@ class DatabaseSeeder extends Seeder
             'Gasket',
             'Klem'
         ];
-        foreach ($jenis_non_umum as $index => $jenis) {
+        foreach ($jenis_material as $index => $jenis) {
             // Ambil jenis stok berdasarkan nama
             $jenisBarang = JenisStok::where('nama', $jenis)->first();
 
@@ -866,28 +885,26 @@ class DatabaseSeeder extends Seeder
                 $barang = BarangStok::create([
                     'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
                     'jenis_id' => $jenisBarang->id,
-                    'nama' => $barang_non_umum[$i - 1],
+                    'nama' => $barang_material[$i - 1],
+                    'slug' => Str::slug($barang_material[$i - 1]),
                     'satuan_besar_id' => SatuanBesar::inRandomOrder()->first()->id,
                     'konversi' => $faker->randomElement([5, 10, 15, 20, 25, 30, 35, 40, 45, 50]),
                     'satuan_kecil_id' => SatuanBesar::inRandomOrder()->first()->id,
                     'deskripsi' => $faker->sentence(),
                 ]);
-
-                // Seed untuk MerkStok
+                $nama = $faker->randomElement([
+                    'Semen Gresik',
+                    'Swarovski',
+                    'Holcim',
+                    'Bima',
+                    'Onda',
+                    'BP',
+                    'Denso'
+                ]);
                 MerkStok::create([
                     'barang_id' => $barang->id,
-                    'nama' => $faker->randomElement([
-                        'Mitsubishi',
-                        'Semen Gresik',
-                        'Toshiba',
-                        'Honda',
-                        'Yamaha',
-                        'Swarovski',
-                        'BP',
-                        'Chevron',
-                        'Shell',
-                        'Denso'
-                    ]),
+                    'nama' => $nama,
+                    // 'slug' => Str::slug($nama),
                     'tipe' => $faker->boolean ? $faker->randomElement([
                         'Standard',
                         'Premium',
@@ -914,13 +931,13 @@ class DatabaseSeeder extends Seeder
 
 
         // Seed for VendorStok
-        for ($i = 1; $i <= 5; $i++) {
-            VendorStok::create([
-                'nama' => 'Vendor ' . $i,
-                'alamat' => $faker->address,
-                'kontak' => $faker->phoneNumber,
-            ]);
-        }
+        // for ($i = 1; $i <= 5; $i++) {
+        //     VendorStok::create([
+        //         'nama' => 'Vendor ' . $i,
+        //         'alamat' => $faker->address,
+        //         'kontak' => $faker->phoneNumber,
+        //     ]);
+        // }
 
         // Seed for LokasiStok
 
@@ -968,37 +985,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // $kontrakVendorStoks = KontrakVendorStok::all();
-        // $users = User::all();
-
-        // foreach (range(1, 10) as $index) {
-        //     DetailPengirimanStok::create([
-        //         'kode_pengiriman_stok' => 'PGS' . strtoupper(Str::random(6)),
-        //         'kontrak_id' => $kontrakVendorStoks->random()->id,
-        //         'tanggal' => strtotime(date('Y-m-d H:i:s')),
-        //         'user_id' => $users->random()->id,
-        //         'super_id' => $users->random()->id,
-        //         'admin_id' => $users->random()->id,
-        //         'created_at' => now(),
-        //         'updated_at' => now(),
-        //     ]);
-        // }
-        // // Seed for PengirimanStok
-
-        // for ($i = 1; $i <= 5; $i++) {
-        //     PengirimanStok::create([
-        //         'detail_pengiriman_id' => DetailPengirimanStok::inRandomOrder()->first()->id, // Generating a unique code
-        //         'kontrak_id' => KontrakVendorStok::inRandomOrder()->first()->id, // Randomly picking a contract
-        //         'merk_id' => MerkStok::inRandomOrder()->first()->id, // Randomly picking a merk
-        //         'tanggal_pengiriman' => strtotime($faker->date()), // Generating a random date
-        //         'jumlah' => rand(1, 50), // Random quantity between 1 and 50
-        //         'lokasi_id' => LokasiStok::inRandomOrder()->first()->id, // Randomly picking a location
-        //         'bagian_id' => BagianStok::inRandomOrder()->first()->id, // Randomly picking a department
-        //         'posisi_id' => PosisiStok::inRandomOrder()->first()->id, // Randomly picking a position
-        //     ]);
-        // }
-
-        // Seed for TransaksiStok
 
         for ($i = 0; $i < 10; $i++) {
             $vendorid = Toko::inRandomOrder()->first()->id;
@@ -1018,35 +1004,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // Seed for TransaksiDaruratStok
-        // for ($i = 1; $i <= 5; $i++) {
-        //     TransaksiDaruratStok::create([
-        //         'merk_id' => MerkStok::inRandomOrder()->first()->id,
-        //         'vendor_id' => VendorStok::inRandomOrder()->first()->id,
-        //         'user_id' => 1, // Assuming you have a user with ID 1
-        //         'tanggal' => strtotime($faker->date()),
-        //         'jumlah' => rand(1, 10),
-        //         'tipe' => 'Penggunaan Langsung',
-        //         'deskripsi' => $faker->sentence,
-        //         'lokasi_penerimaan' => $faker->address,
-        //     ]);
-        // }
-
-        // Seed for KontrakRetrospektifStok
-        // for (
-        //     $i = 1;
-        //     $i <= 5;
-        //     $i++
-        // ) {
-        //     KontrakRetrospektifStok::create([
-        //         'bukti_kontrak' => 'ini bukti.jpg',
-        //         // 'vendor_id' => VendorStok::inRandomOrder()->first()->id,
-        //         // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
-        //         'tanggal_kontrak' => strtotime($faker->date()),
-        //         // 'jumlah_total' => rand(100, 500),
-        //         'deskripsi_kontrak' => $faker->sentence,
-        //     ]);
-        // }
 
         // Seed for Stok
         for ($i = 1; $i <= 100; $i++) {
