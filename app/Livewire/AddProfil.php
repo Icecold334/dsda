@@ -185,6 +185,7 @@ class AddProfil extends Component
                     'no_wa' => $this->new_wa,
                 ]
             );
+            return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah No WhatsApp');
         } elseif ($this->tipe == 'email') {
             $user = User::find($this->id);
             $user->update(
