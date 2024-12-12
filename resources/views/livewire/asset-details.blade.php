@@ -327,7 +327,7 @@
                                 </div>
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium mb-1">Penanggung Jawab *</label>
-                                    <input type="text" id="person" wire:model.live="person"
+                                    {{-- <input type="text" id="person" wire:model.live="person"
                                         wire:focus="focusPerson"
                                         class="w-full border rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                         placeholder="Masukkan Penanggung Jawab" wire:blur="hideSuggestionsPerson"
@@ -343,6 +343,22 @@
                                             @endforeach
 
                                         </ul>
+                                    @endif --}}
+                                    <input type="text" wire:model.live="person"
+                                        wire:input="fetchSuggestions('person', $event.target.value)"
+                                        class="w-full border rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                        placeholder="Masukkan Penanggung Jawab" wire:blur="hideSuggestions('person')"
+                                        required>
+                                    @if ($suggestions['person'])
+                                        <ul
+                                            class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                            @foreach ($suggestions['person'] as $suggestion)
+                                                <li wire:click="selectSuggestion('person', '{{ $suggestion }}')"
+                                                    class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
+                                                    {{ $suggestion }}
+                                                </li>
+                                            @endforeach
+                                        </ul>
                                     @endif
                                     @error('person')
                                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -351,7 +367,7 @@
 
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium mb-1">Lokasi *</label>
-                                    <input type="text" id="lokasi" wire:model.live="lokasi"
+                                    {{-- <input type="text" id="lokasi" wire:model.live="lokasi"
                                         wire:focus="focusLokasi"
                                         class="w-full border rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                         placeholder="Masukkan Lokasi" wire:blur="hideSuggestionsLokasi" required>
@@ -365,6 +381,21 @@
                                                 </li>
                                             @endforeach
 
+                                        </ul>
+                                    @endif --}}
+                                    <input type="text" wire:model.live="lokasi"
+                                        wire:input="fetchSuggestions('lokasi', $event.target.value)"
+                                        class="w-full border rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                        placeholder="Masukkan Lokasi" wire:blur="hideSuggestions('lokasi')" required>
+                                    @if ($suggestions['lokasi'])
+                                        <ul
+                                            class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                            @foreach ($suggestions['lokasi'] as $suggestion)
+                                                <li wire:click="selectSuggestion('lokasi', '{{ $suggestion }}')"
+                                                    class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
+                                                    {{ $suggestion }}
+                                                </li>
+                                            @endforeach
                                         </ul>
                                     @endif
                                     @error('lokasi')
@@ -445,8 +476,6 @@
                                         @enderror
                                     </div>
                                 @endif
-
-                                @dump($errors->first())
                                 @if ($isBulanan)
                                     <div class="mb-4">
                                         <label class="block text-sm font-medium">Setiap Tanggal *</label>

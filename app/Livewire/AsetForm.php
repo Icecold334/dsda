@@ -71,6 +71,43 @@ class AsetForm extends Component
     public $showSuggestionsToko;
     public $suggestionsToko;
 
+    public $suggestions = [
+        'merk' => [],
+        'toko' => [],
+    ];
+
+    public function fetchSuggestions($field, $value)
+    {
+
+        $this->suggestions[$field] = [];
+        $key = Str::slug($value);
+        if ($value) {
+            if ($field === 'merk') {
+                $this->suggestions[$field] = Merk::where('nama_nospace', 'like', '%' . $key . '%')
+                    ->pluck('nama')->toArray();
+            } elseif ($field === 'toko') {
+                $this->suggestions[$field] = Toko::where('nama_nospace', 'like', '%' . $key . '%')
+                    ->pluck('nama')->toArray();
+            }
+        }
+    }
+
+    public function selectSuggestion($field, $value)
+    {
+        if ($field === 'merk') {
+            $this->merk = $value;
+        } elseif ($field === 'toko') {
+            $this->toko = $value;
+        }
+        $this->suggestions[$field] = [];
+    }
+
+    public function hideSuggestions($field)
+    {
+        $this->suggestions[$field] = [];
+        // $this->showSuggestionsMerk = false;
+    }
+
     public function focusMerk()
     {
         $this->searchQueryMerk();
@@ -92,7 +129,8 @@ class AsetForm extends Component
         // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
-        $this->suggestionsMerk = Merk::where('nama', 'like', '%' . $this->merk . '%')
+        $key = Str::slug($this->merk);
+        $this->suggestionsMerk = Merk::where('nama_nospace', 'like', '%' . $key . '%')
             ->when($unit, function ($query) use ($parentUnitId) {
                 $query->whereHas('user', function ($query) use ($parentUnitId) {
                     filterByParentUnit($query, $parentUnitId);
@@ -104,19 +142,18 @@ class AsetForm extends Component
             ->get()
             ->toArray();
 
-
-        // $this->merk = $this->merk;
+        $this->nama = $this->merk;
 
         $exactMatchMerk = Merk::where('nama', $this->merk)->first();
         if ($exactMatchMerk) {
-            // Jika ada kecocokan, isi vendor_id dan kosongkan suggestions
+            // Jika ada kecocokan, isi merk_id dan kosongkan suggestions
             $this->selectSuggestionMerk($exactMatchMerk->id, $exactMatchMerk->nama);
         }
     }
 
     public function selectSuggestionMerk($merkId, $merkName)
     {
-        dd($merkId);
+        // dd($merkId);
         // Ketika saran dipilih, isi input dengan nilai tersebut
         $this->merk_id = $merkId;
         $this->merk = $merkName;
@@ -250,26 +287,26 @@ class AsetForm extends Component
     }
     public function mount()
     {
-        // Ambil unit_id user yang sedang login
-        $userUnitId = Auth::user()->unit_id;
+        // // Ambil unit_id user yang sedang login
+        // $userUnitId = Auth::user()->unit_id;
 
-        // Cari unit berdasarkan unit_id user
-        $unit = UnitKerja::find($userUnitId);
+        // // Cari unit berdasarkan unit_id user
+        // $unit = UnitKerja::find($userUnitId);
 
-        // Tentukan parentUnitId
-        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
-        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
-        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+        // // Tentukan parentUnitId
+        // // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        // $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         // Debugging: Tampilkan parentUnitId untuk verifikasi
         // dd($parentUnitId);
 
-        $this->kategoris = Kategori::when($unit, function ($query) use ($parentUnitId) {
-            $query->whereHas('user', function ($query) use ($parentUnitId) {
-                filterByParentUnit($query, $parentUnitId);
-            });
-        })->get();
-        // $this->kategoris = Kategori::all();
+        // $this->kategoris = Kategori::when($unit, function ($query) use ($parentUnitId) {
+        //     $query->whereHas('user', function ($query) use ($parentUnitId) {
+        //         filterByParentUnit($query, $parentUnitId);
+        //     });
+        // })->get();
+        $this->kategoris = Kategori::all();
 
         if ($this->aset) {
             $this->img = $this->aset->foto;

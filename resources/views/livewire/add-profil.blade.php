@@ -139,7 +139,7 @@
                 </td>
             </tr> --}}
 
-            <tr>
+            {{-- <tr>
                 <td>
 
                     <label for="perusahaan">Perusahaan</label>
@@ -194,7 +194,7 @@
                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                     @enderror
                 </td>
-            </tr>
+            </tr> --}}
         @endif
         @if ($tipe == 'phone')
             <tr>

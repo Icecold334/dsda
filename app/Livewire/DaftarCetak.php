@@ -94,7 +94,8 @@ class DaftarCetak extends Component
     {
         switch ($optionKey) {
             case 'perusahaan':
-                return strtoupper(Auth::user()->perusahaan);
+                // return strtoupper(Auth::user()->perusahaan);
+                return strtoupper('Dinas Sumber Daya Air (DSDA)');
             case 'kategori':
                 return strtoupper($asset->kategori->nama);
             case 'tanggalbeli':

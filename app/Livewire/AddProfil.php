@@ -112,10 +112,10 @@ class AddProfil extends Component
         } else {
             // if ($this->id) {
             $this->name = $user->name;
-            $this->perusahaan = $user->perusahaan;
-            $this->alamat = $user->alamat;
-            $this->provinsi = $user->provinsi;
-            $this->kota = $user->kota;
+            // $this->perusahaan = $user->perusahaan;
+            // $this->alamat = $user->alamat;
+            // $this->provinsi = $user->provinsi;
+            // $this->kota = $user->kota;
             $this->nip = $user->nip;
             $this->img = $user->ttd;
             // $this->unit_kerja = $user->unit_id;
@@ -224,10 +224,10 @@ class AddProfil extends Component
                     'name' => $this->name,
                     // 'unit_id' => $this->unit_kerja,
                     // 'lokasi_id' => $this->lokasi_stok,
-                    'perusahaan' => $this->perusahaan,
-                    'alamat' => $this->alamat,
-                    'provinsi' => $this->provinsi,
-                    'kota' => $this->kota,
+                    // 'perusahaan' => $this->perusahaan,
+                    // 'alamat' => $this->alamat,
+                    // 'provinsi' => $this->provinsi,
+                    // 'kota' => $this->kota,
                     'nip' => $this->nip,
                     'ttd' => $this->img
                         ? (is_object($this->img)
