@@ -47,89 +47,8 @@ class DatabaseSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
-        // Parent Units
-        $unitProduksi = UnitKerja::create([
-            'nama' => 'Unit Produksi',
-            'kode' => 'UP',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk produksi.',
-        ]);
-
-        $unitPemasaran = UnitKerja::create([
-            'nama' => 'Unit Pemasaran',
-            'kode' => 'UM',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk pemasaran.',
-        ]);
-
-        $unitKeuangan = UnitKerja::create([
-            'nama' => 'Unit Keuangan',
-            'kode' => 'UK',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk keuangan.',
-        ]);
-
-        $unitSumberDayaManusia = UnitKerja::create([
-            'nama' => 'Unit Sumber Daya Manusia',
-            'kode' => 'HR',
-            'keterangan' => 'Unit kerja yang bertanggung jawab untuk sumber daya manusia.',
-        ]);
-
-        // Sub-Units for Produksi
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Finishing',
-            'kode' => 'UP-FN',
-            'parent_id' => $unitProduksi->id,
-            'keterangan' => 'Bagian finishing dalam unit produksi.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Assembling',
-            'kode' => 'UP-AS',
-            'parent_id' => $unitProduksi->id,
-            'keterangan' => 'Bagian assembling dalam unit produksi.',
-        ]);
-
-        // Sub-Units for Pemasaran
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Digital Marketing',
-            'kode' => 'UM-DM',
-            'parent_id' => $unitPemasaran->id,
-            'keterangan' => 'Bagian pemasaran digital.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Sales',
-            'kode' => 'UM-SL',
-            'parent_id' => $unitPemasaran->id,
-            'keterangan' => 'Bagian penjualan langsung.',
-        ]);
-
-        // Sub-Units for Keuangan
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Akuntansi',
-            'kode' => 'UK-AK',
-            'parent_id' => $unitKeuangan->id,
-            'keterangan' => 'Bagian akuntansi dalam unit keuangan.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Pajak',
-            'kode' => 'UK-PJ',
-            'parent_id' => $unitKeuangan->id,
-            'keterangan' => 'Bagian pajak dalam unit keuangan.',
-        ]);
-
-        // Sub-Units for Sumber Daya Manusia
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Rekrutmen',
-            'kode' => 'HR-RK',
-            'parent_id' => $unitSumberDayaManusia->id,
-            'keterangan' => 'Bagian rekrutmen dalam unit SDM.',
-        ]);
-
-        UnitKerja::create([
-            'nama' => 'Sub-Unit Pelatihan',
-            'kode' => 'HR-PL',
-            'parent_id' => $unitSumberDayaManusia->id,
-            'keterangan' => 'Bagian pelatihan dalam unit SDM.',
+        $this->call([
+            UnitSeeder::class,
         ]);
 
 
@@ -159,21 +78,6 @@ class DatabaseSeeder extends Seeder
         }
 
 
-
-
-
-        // Create or get roles for superadmin, admin, penanggungjawab, ppk, pptk
-        $roles = ['superadmin', 'admin', 'penanggungjawab', 'ppk', 'pptk', 'guest', 'penerima_barang', 'pemeriksa_barang', 'pengurus_barang', 'kepala_sub_bagian', 'kepala_seksi', 'penjaga_gudang', 'kepala_sub_bagian_tata_usaha', 'kepala_unit', 'kepala_seksi_pemeliharaan', 'kepala_suku_dinas'];
-        $roleIds = [];
-
-        foreach ($roles as $role) {
-            $roleIds[$role] = DB::table('roles')->insertGetId([
-                'name' => $role,
-                'guard_name' => 'web',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
 
         // Permission list (assuming permissions from the previous example)
         $permissionsGuest = [
@@ -266,103 +170,20 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
-
-        // Create users for superadmin and admin
-        $users = [
-            'superadmin' => 'superadmin@example.com',
-            'admin' => 'admin@example.com',
-            'guest' => 'guest@example.com',
-        ];
-
-        foreach ($users as $role => $email) {
-            $userId = DB::table('users')->insertGetId([
-                'name' => ucfirst($role),
-                'email' => $email,
-                'unit_id' => $role == 'superadmin' ? null : UnitKerja::inRandomOrder()->first()->id,
-                'lokasi_id' => $role == 'superadmin' ? null : LokasiStok::inRandomOrder()->first()->id,
-                'password' => Hash::make('password'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            // Assign all permissions to superadmin
-            if ($role == 'superadmin') {
-                foreach ($permissionIds as $permissionId) {
-                    DB::table('role_has_permissions')->insert([
-                        'role_id' => $roleIds[$role],
-                        'permission_id' => $permissionId,
-                    ]);
-                }
-            } elseif ($role == 'admin') {
-                // Assign only the 'nama' permission to admin
-                $permissionNamaId = DB::table('permissions')->where('name', 'nama')->value('id');
-                DB::table('role_has_permissions')->insert([
-                    'role_id' => $roleIds[$role],
-                    'permission_id' => $permissionNamaId,
-                ]);
-            } elseif ($role == 'guest') {
-                // Assign only the 'nama' permission to guest
-                $permissionNamaId = DB::table('permissions')->where('name', 'nama')->value('id');
-                DB::table('role_has_permissions')->insert([
-                    'role_id' => $roleIds[$role],
-                    'permission_id' => $permissionNamaId,
-                ]);
-            }
-
-            // Attach roles to superadmin and admin
-            DB::table('model_has_roles')->insert([
-                'role_id' => $roleIds[$role],
-                'model_type' => 'App\Models\User',
-                'model_id' => $userId,
+        foreach ($permissionIds as $permissionId) {
+            DB::table('role_has_permissions')->insert([
+                'role_id' => 1,
+                'permission_id' => $permissionId,
             ]);
         }
 
-        // Create users for penanggungjawab, ppk, and pptk roles (2 users per role)
-        $extraRoles = [
-            'penanggungjawab',
-            'ppk',
-            'pptk',
-            'penerima_barang',
-            'pemeriksa_barang',
-            'pengurus_barang',
-            'kepala_sub_bagian',
-            'kepala_seksi',
-            'penjaga_gudang',
-            'kepala_sub_bagian_tata_usaha',
-            'kepala_unit',
-            'kepala_seksi_pemeliharaan',
-            'kepala_suku_dinas'
-        ];
-        foreach ($extraRoles as $role) {
-            for ($i = 1; $i <= 3; $i++) {
-                $userId = DB::table('users')->insertGetId([
-                    'name' => ucfirst($role) . " $i",
-                    'email' => "$role$i@example.com",
-                    'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
 
-                    'unit_id' => UnitKerja::inRandomOrder()->first()->id,
-                    'password' => Hash::make('password'),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                // Attach role to user
-                DB::table('model_has_roles')->insert([
-                    'role_id' => $roleIds[$role],
-                    'model_type' => 'App\Models\User',
-                    'model_id' => $userId,
-                ]);
-            }
-        }
-
-        // User ID for seeding data
-        $userId = User::find(1)->id;
 
         // Seeder for Kategori with 5 main categories and each having 5 children
         $kategoriUtama = [];
         for ($i = 1; $i <= 5; $i++) {
             $kategoriUtama[$i] = Kategori::create([
-                'user_id' => $userId,
+                'user_id' => User::inRandomOrder()->first()->id,
                 'nama' => 'Kategori Utama ' . $i,
                 'keterangan' => 'Keterangan untuk Kategori Utama ' . $i,
                 'status' => 1
@@ -370,7 +191,7 @@ class DatabaseSeeder extends Seeder
 
             for ($j = 1; $j <= 5; $j++) {
                 Kategori::create([
-                    'user_id' => $userId,
+                    'user_id' => User::inRandomOrder()->first()->id,
                     'nama' => 'Kategori Anak ' . $i . '-' . $j,
                     'keterangan' => 'Keterangan untuk Kategori Anak ' . $i . '-' . $j,
                     'parent_id' => $kategoriUtama[$i]->id,
@@ -378,11 +199,10 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
-        // $faker = new Faker();
         // Seeder for 5 locations
         for ($i = 1; $i <= 5; $i++) {
             Lokasi::create([
-                'user_id' => $userId,
+                'user_id' => User::inRandomOrder()->first()->id,
                 'nama' => $faker->city,
                 'nama_nospace' => Str::slug('Lokasi ' . $i),
                 'keterangan' => 'Deskripsi untuk Lokasi ' . $i,
@@ -394,7 +214,7 @@ class DatabaseSeeder extends Seeder
         // Seeder for 5 brands
         for ($i = 1; $i <= 5; $i++) {
             Merk::create([
-                'user_id' => $userId,
+                'user_id' => User::inRandomOrder()->first()->id,
                 'nama' => 'Merek ' . $i,
                 'nama_nospace' => Str::slug('Merek ' . $i),
                 'keterangan' => 'Deskripsi untuk Merek ' . $i,
@@ -557,7 +377,7 @@ class DatabaseSeeder extends Seeder
         // Seeder for History (Riwayat)
         for ($i = 1; $i <= 10; $i++) {
             DB::table('history')->insert([
-                'user_id' => $userId,
+                'user_id' => User::inRandomOrder()->first()->id,
                 'aset_id' => Aset::inRandomOrder()->first()->id,
                 'tanggal' => strtotime('now'),
                 'person_id' => Person::inRandomOrder()->first()->id ?? null,
@@ -573,7 +393,7 @@ class DatabaseSeeder extends Seeder
         // Seeder for Financial Records (Keuangan)
         for ($i = 1; $i <= 10; $i++) {
             DB::table('keuangan')->insert([
-                'user_id' => $userId,
+                'user_id' => User::inRandomOrder()->first()->id,
                 'aset_id' => Aset::inRandomOrder()->first()->id,
                 'tanggal' => strtotime('now'),
                 'tipe' => $faker->randomElement(['in', 'out']),
@@ -586,7 +406,7 @@ class DatabaseSeeder extends Seeder
         // Seeder for Agendas
         for ($i = 1; $i <= 10; $i++) {
             DB::table('agenda')->insert([
-                'user_id' => $userId,
+                'user_id' => User::inRandomOrder()->first()->id,
                 'aset_id' => Aset::inRandomOrder()->first()->id,
                 'tipe' => $faker->randomElement(['mingguan', 'bulanan']),
                 'hari' => $faker->numberBetween(1, 7),
@@ -601,7 +421,7 @@ class DatabaseSeeder extends Seeder
         // Seeder for Journals (Jurnal)
         for ($i = 1; $i <= 10; $i++) {
             DB::table('jurnal')->insert([
-                'user_id' => $userId,
+                'user_id' => User::inRandomOrder()->first()->id,
                 'aset_id' => Aset::inRandomOrder()->first()->id,
                 'tanggal' => strtotime('now'),
                 'keterangan' => $faker->sentence,
