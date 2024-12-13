@@ -10,6 +10,8 @@ use Livewire\WithFileUploads;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\On;
 
 class AddProfil extends Component
 {
@@ -41,6 +43,7 @@ class AddProfil extends Component
     public $unit_kerja;
     public $nip;
     public $img;
+    public $ttd;
 
     public function updatedSelectedRoles()
     {
@@ -117,7 +120,8 @@ class AddProfil extends Component
             // $this->provinsi = $user->provinsi;
             // $this->kota = $user->kota;
             $this->nip = $user->nip;
-            $this->img = $user->ttd;
+            $this->img = $user->foto;
+            $this->ttd = $user->ttd;
             // $this->unit_kerja = $user->unit_id;
             // $this->lokasi_stok = $profil->lokasi_id;
             // }
@@ -223,11 +227,26 @@ class AddProfil extends Component
             );
             return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah Password');
         } else {
-            $user = User::find($this->id);
+            $user = User::find(Auth::user()->id);
             $imgRule = is_string($this->img) ? '' : 'nullable|image|max:2048|mimes:jpeg,png,jpg,gif';
             $this->validate([
                 'img' => $imgRule,
             ]);
+
+            // Proses penyimpanan tanda tangan
+            $ttd = $this->ttd;
+
+            // Decode Base64 Image
+            $image = str_replace('data:image/png;base64,', '', $ttd);
+            $image = str_replace(' ', '+', $image);
+            $imageData = base64_decode($image);
+
+            // Simpan ke storage
+            $fileName = 'usersTTD/' . uniqid() . '.png';
+            Storage::disk('public')->put($fileName, $imageData);
+
+
+            // dd($user);
             $user->update( // Unique fields to check
                 [
                     'name' => $this->name,
@@ -238,15 +257,29 @@ class AddProfil extends Component
                     // 'provinsi' => $this->provinsi,
                     // 'kota' => $this->kota,
                     'nip' => $this->nip,
-                    'ttd' => $this->img
+                    'ttd' => str_replace('usersTTD/', '', $fileName),
+                    'foto' => $this->img
                         ? (is_object($this->img)
-                            ? str_replace('usersTTD/', '', $this->img->store('usersTTD', 'public'))
+                            ? str_replace('usersFoto/', '', $this->img->store('usersFoto', 'public'))
                             : $this->img)
                         : null,
                 ]
             );
+            // dd($user);
             return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah Profil');
         }
+    }
+
+    #[On('upload')]
+    public function generateTTD($detail)
+    {
+        $this->ttd = $detail;
+        $this->saveProfil();
+    }
+
+    public function removeTTD()
+    {
+        $this->ttd = null;
     }
 
     public function render()

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->integer('nip')->nullable();
             $table->string('ttd', 256)->nullable();
+            $table->string('foto', 256)->nullable();
             $table->string('username', 256)->nullable();
             $table->text('hak')->nullable(); // Hak akses spesifik yang bisa dikelola dengan role Spatie
             $table->string('email')->unique();

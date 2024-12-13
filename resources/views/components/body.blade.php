@@ -28,7 +28,7 @@
 <body>
     {{-- @dd(session()->get('alert')) --}}
     {{-- @dd('alert') --}}
-    @if (session('alert') && !request()->is('profil/profile/*'))
+    @if (session('alert') && !request()->is('profil/profile'))
         <script type="module">
             Swal.fire({
                 title: "Lengkapi Data!",
@@ -40,7 +40,7 @@
                 allowEnterKey: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "/profil/profile/{{ Auth::user()->id }}";
+                    window.location.href = "/profil/profile";
                 }
             });
         </script>

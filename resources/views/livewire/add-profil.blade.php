@@ -1,4 +1,4 @@
-<div>
+<div x-data = "signatureHandler">
     <table class="w-full border-0 border-separate border-spacing-y-4">
 
         @if ($tipe == 'profile')
@@ -16,7 +16,7 @@
                     @enderror
                 </td>
                 <td rowspan="2" class="align-top text-right">
-                    <label for="ttd" class="block font-semibold mb-2">Tanda Tangan</label>
+                    <label for="ttd" class="block font-semibold mb-2">Foto Profil</label>
                     <div class="flex flex-col items-end mt-2">
                         <!-- Foto Preview Container -->
                         <div x-data="{ open: false }" class="relative inline-block w-24 h-24 border rounded-lg">
@@ -32,7 +32,7 @@
                                     </button>
                                 @endif
                                 <!-- Gambar preview -->
-                                <img src="{{ is_string($img) ? asset('storage/usersTTD/' . $img) : ($img ? $img->temporaryUrl() : asset('img/default-pic.png')) }}"
+                                <img src="{{ is_string($img) ? asset('storage/usersFoto/' . $img) : ($img ? $img->temporaryUrl() : asset('img/default-pic.png')) }}"
                                     alt="Preview Image" class="w-full h-full object-cover object-center rounded-lg">
 
                             </div>
@@ -47,11 +47,11 @@
 
                                 <!-- Gambar Full Preview -->
                                 @if ($img)
-                                    <img src="{{ is_string($img) ? asset('storage/usersTTD/' . $img) : ($img ? $img->temporaryUrl() : asset('img/default-pic.png')) }}"
+                                    <img src="{{ is_string($img) ? asset('storage/usersFoto/' . $img) : ($img ? $img->temporaryUrl() : asset('img/default-pic.png')) }}"
                                         alt="Preview Image" class="max-w-[70rem] max-h-[70rem] mb-4" @click.stop="">
 
                                     <!-- Tombol Unduh -->
-                                    <a href="{{ is_string($img) ? asset('storage/usersTTD/' . $img) : $img->temporaryUrl() }}"
+                                    <a href="{{ is_string($img) ? asset('storage/usersFoto/' . $img) : $img->temporaryUrl() }}"
                                         download="{{ is_string($img) ? pathinfo($img, PATHINFO_BASENAME) : $img->getClientOriginalName() }}"
                                         class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200 cursor-pointer">
                                         Unduh
@@ -85,6 +85,218 @@
                     @enderror
                 </td>
             </tr>
+
+            @if ($ttd)
+                <tr>
+                    <td colspan="3">
+                        <div class="flex flex-col items-end mt-2">
+                            <label for="ttd" class="block font-semibold mb-2">Tanda Tangan</label>
+                            <!-- Foto Preview Container -->
+                            <div x-data="{ open: false }" class="relative inline-block w-24 h-24 border rounded-lg">
+                                <!-- Trigger untuk membuka modal -->
+                                <div class="w-full h-full flex justify-center items-center bg-gray-200 rounded-lg cursor-pointer relative"
+                                    @click="open = true; document.body.classList.add('overflow-hidden')">
+                                    @if ($ttd)
+                                        <button
+                                            class="absolute -top-2 -right-3 z-30 bg-red-500 hover:bg-red-700 transition duration-200 text-white rounded-full p-1 leading-none w-5 h-5 text-xs flex items-center justify-center shadow"
+                                            wire:click="removeTTD"
+                                            @click.stop="document.body.classList.remove('overflow-hidden'); open = false;">
+                                            &times;
+                                        </button>
+                                    @endif
+                                    <!-- Gambar preview -->
+                                    <img src="{{ is_string($ttd) ? asset('storage/usersTTD/' . $ttd) : ($ttd ? $ttd->temporaryUrl() : asset('img/default-pic.png')) }}"
+                                        alt="Preview Image" class="w-full h-full object-cover object-center rounded-lg">
+
+                                </div>
+                                <!-- Modal untuk Preview Full -->
+                                <div x-show="open" x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                    x-transition:leave="transition ease-in duration-300"
+                                    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                                    class="fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center z-50"
+                                    @click="open = false; document.body.classList.remove('overflow-hidden')"
+                                    @keydown.escape.window="open = false; document.body.classList.remove('overflow-hidden')">
+
+                                    <!-- Gambar Full Preview -->
+                                    @if ($ttd)
+                                        <img src="{{ is_string($ttd) ? asset('storage/usersTTD/' . $ttd) : ($ttd ? $ttd->temporaryUrl() : asset('img/default-pic.png')) }}"
+                                            alt="Preview Image" class="max-w-[70rem] max-h-[70rem] mb-4" @click.stop="">
+
+                                        <!-- Tombol Unduh -->
+                                        <a href="{{ is_string($ttd) ? asset('storage/usersTTD/' . $ttd) : $ttd->temporaryUrl() }}"
+                                            download="{{ is_string($ttd) ? pathinfo($ttd, PATHINFO_BASENAME) : $ttd->getClientOriginalName() }}"
+                                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200 cursor-pointer">
+                                            Unduh
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                    </td>
+                </tr>
+            @else
+                <!-- Label -->
+                <tr>
+                    <td colspan="3" class="p-4 border-b border-gray-200 text-right">
+                        <label for="ttd" class="block text-lg font-medium text-gray-700 mb-4">
+                            Buat Tanda Tangan
+                        </label>
+                        <div class="flex justify-end space-x-4">
+                            <button id="clearButton"
+                                class="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700">
+                                Bersihkan
+                            </button>
+                            <div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="3" class="p-4">
+                        <div class="flex justify-end items-center">
+                            <!-- Canvas di kanan -->
+                            <div class="border border-gray-300 w-64 h-64 rounded-md">
+                                <canvas id="myCanvas" class="w-full h-full"></canvas>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            @endif
+
+
+
+
+            <!-- Toolbar -->
+            {{-- <tr>
+                <td colspan="3" class="p-4">
+                    <div class="flex items-center justify-center space-x-4">
+                        <button id="pencilTool"
+                            class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 focus:ring focus:ring-blue-500">Pencil</button>
+                        <button id="brushTool"
+                            class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 focus:ring focus:ring-blue-500">Brush</button>
+                        <button id="eraserTool"
+                            class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 focus:ring focus:ring-blue-500">Eraser</button>
+                        <input type="color" id="colorPicker"
+                            class="h-10 w-10 border rounded-md focus:ring focus:ring-blue-500" />
+                        <select id="brushSize"
+                            class="h-10 px-2 py-1 border border-gray-300 rounded-md focus:ring focus:ring-blue-500">
+                            <option value="1">1px</option>
+                            <option value="3">3px</option>
+                            <option value="5">5px</option>
+                        </select>
+                    </div>
+                </td>
+            </tr> --}}
+
+            <!-- Color Palette -->
+            {{-- <tr>
+                <td colspan="3" class="p-4">
+                    <div class="flex justify-center space-x-3">
+                        <div class="w-8 h-8 border-2 border-white rounded-full cursor-pointer bg-black"></div>
+                        <div class="w-8 h-8 border-2 border-white rounded-full cursor-pointer bg-red-500"></div>
+                        <div class="w-8 h-8 border-2 border-white rounded-full cursor-pointer bg-green-500"></div>
+                        <div class="w-8 h-8 border-2 border-white rounded-full cursor-pointer bg-blue-500"></div>
+                    </div>
+                </td>
+            </tr> --}}
+
+            <!-- Canvas -->
+
+            <!-- Buttons -->
+            {{-- <tr>
+                <td colspan="3" class="p-4">
+                    <div class="flex justify-center space-x-4">
+                        <button id="clearButton" class="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700">
+                            Clear
+                        </button>
+                    </div>
+                    <button id="saveButton" class="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                        Save
+                    </button>
+                </td>
+            </tr> --}}
+            @push('scripts')
+                <script type="module">
+                    const canvas = document.getElementById("myCanvas");
+                    canvas.width = canvas.parentElement.offsetWidth;
+                    canvas.height = 256;
+
+                    const ctx = canvas.getContext("2d");
+                    let isDrawing = false;
+
+                    // Tool Logic
+                    // let selectedTool = "pencil";
+                    // Set Default Tool to Brush
+                    let selectedTool = "brush";
+                    ctx.globalCompositeOperation = "source-over"; // Default blending mode
+                    ctx.lineWidth = 5; // Default brush size
+                    ctx.strokeStyle = "#000000"; // Default brush color
+
+                    function startDrawing(event) {
+                        isDrawing = true;
+                        ctx.beginPath();
+                        draw(event);
+                    }
+
+                    function draw(event) {
+                        if (!isDrawing) return;
+                        const rect = canvas.getBoundingClientRect();
+                        const x = event.clientX - rect.left;
+                        const y = event.clientY - rect.top;
+                        ctx.lineTo(x, y);
+                        ctx.stroke();
+                    }
+
+                    function stopDrawing() {
+                        isDrawing = false;
+                        ctx.beginPath();
+                    }
+
+                    canvas.addEventListener("mousedown", startDrawing);
+                    canvas.addEventListener("mousemove", draw);
+                    canvas.addEventListener("mouseup", stopDrawing);
+
+                    // Clear Canvas
+                    document.getElementById("clearButton").addEventListener("click", () => {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    });
+
+
+                    // Tool Handlers
+                    // document.getElementById("pencilTool").addEventListener("click", () => {
+                    //     selectedTool = "pencil";
+                    //     ctx.globalCompositeOperation = "source-over";
+                    //     ctx.lineWidth = 1;
+                    // });
+
+                    // document.getElementById("brushTool").addEventListener("click", () => {
+                    //     selectedTool = "brush";
+                    //     ctx.globalCompositeOperation = "source-over";
+                    //     ctx.lineWidth = 5;
+                    // });
+
+                    // document.getElementById("eraserTool").addEventListener("click", () => {
+                    //     selectedTool = "eraser";
+                    //     ctx.globalCompositeOperation = "destination-out";
+                    // });
+
+                    // // Color and Brush Size
+                    // document.getElementById("colorPicker").addEventListener("input", (event) => {
+                    //     ctx.strokeStyle = event.target.value;
+                    // });
+
+                    // document.getElementById("brushSize").addEventListener("change", (event) => {
+                    //     ctx.lineWidth = event.target.value;
+                    // });
+
+                    // Save Canvas
+                    // document.getElementById("saveButton").addEventListener("click", () => {
+                    //     const link = document.createElement("a");
+                    //     link.download = "signature.png";
+                    //     link.href = canvas.toDataURL();
+                    //     link.click();
+                    // });
+                </script>
+            @endpush
 
             <!-- Select for LokasiStok -->
             {{-- <tr>
@@ -499,8 +711,30 @@
                 </div>
             @endif
         @endif
-        <button type="button" wire:click="saveProfil"
+        <button type="button"
+            @if ($tipe == 'profile') @click="generateTTD"
+        @else wire:click="saveProfil" @endif
             class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
 
     </div>
+    @push('scripts')
+        <script type="module">
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('signatureHandler', () => ({
+                    generateTTD() {
+                        const canvas = document.getElementById("myCanvas");
+                        const ttd = canvas.toDataURL('image/png');
+
+                        // Dispatch event ke Livewire
+                        this.$wire.dispatch('upload', {
+                            detail: ttd
+                        });
+
+                        // Tambahkan log jika perlu
+                        // console.log('Tanda tangan dikirim ke Livewire:', ttd);
+                    }
+                }));
+            });
+        </script>
+    @endpush
 </div>
