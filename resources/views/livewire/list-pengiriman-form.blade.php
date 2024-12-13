@@ -254,7 +254,7 @@
                             </button>
                         @endif --}}
                         @can('inventaris_unggah_foto_barang_datang')
-                            @if (@$showDokumen)
+                            @if ($showDokumen && (!$item['bagian_id'] || !$item['posisi_id']))
                                 <button wire:click="updatePengirimanStok({{ $index }})"
                                     class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
                                     ">
@@ -277,25 +277,5 @@
             </button>
         @endif
     </div>
-    @push('scripts')
-        <script type="module">
-            document.addEventListener('error', function(e) {
-                let pesan = e.detail.pesan;
-                feedback('Gagal!', pesan, 'error')
 
-
-            });
-        </script>
-        <script>
-            window.addEventListener('showSweetAlert', event => {
-                const { message, type } = event.detail;
-                Swal.fire({
-                    title: type === 'success' ? 'Success' : 'Error',
-                    text: message,
-                    icon: type,
-                    confirmButtonText: 'OK'
-                });
-            });
-        </script>
-    @endpush
 </div>

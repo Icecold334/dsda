@@ -342,7 +342,8 @@ class ListPengirimanForm extends Component
         }
     }
 
-    public function updatePengirimanStok($index){
+    public function updatePengirimanStok($index)
+    {
         $data = $this->list[$index];
 
         $id_pengiriman = $data['id'];
@@ -352,13 +353,14 @@ class ListPengirimanForm extends Component
             'bagian_id' => $data['bagian_id'],
             'posisi_id' => $data['posisi_id']
         ];
-        
+
+        if ($attr['bagian_id']) {
+            $this->list[$index]['posisis'] = PosisiStok::where('bagian_id', $attr['bagian_id'])->get();
+        }
+
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
 
-        $this->emit('showSweetAlert', [
-            'message' => 'Data berhasil diperbarui!',
-            'type' => 'success'
-        ]);
+        session()->flash('success', 'Persetujuan berhasil.');
     }
 
     public function updateBagian($index, $bagianId)

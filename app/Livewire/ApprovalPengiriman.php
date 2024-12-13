@@ -35,6 +35,9 @@ class ApprovalPengiriman extends Component
     public $showButton;
     public $status;
     public $isLastUser;
+
+    public $newbapfiles = []; // To hold multiple uploaded files
+    public $bapfiles = []; // To hold multiple uploaded files
     public $newApprovalFiles = []; // To hold multiple uploaded files
     public $approvalFiles = []; // To hold multiple uploaded files
     public $files = []; // To hold multiple uploaded files
@@ -197,7 +200,7 @@ class ApprovalPengiriman extends Component
                 $this->pengiriman->save();
                 $pengirimanItems = $this->pengiriman->pengirimanStok;
                 foreach ($pengirimanItems as $pengiriman) {
-                    $stok = Stok::firstOrCreate(
+                    $stok = Stok::updateOrCreate(
                         [
                             'merk_id' => $pengiriman->merk_id,
                             'lokasi_id' => $pengiriman->lokasi_id,

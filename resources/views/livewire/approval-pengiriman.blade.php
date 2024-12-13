@@ -164,8 +164,8 @@
                         @enderror
                     </div>
                     <div class="flex flex-col items-center">
-                        <input type="file" wire:model="newApprovalFiles" id="approvalFiles" multiple class="hidden">
-                        <button type="button" onclick="document.getElementById('approvalFiles').click()"
+                        <input type="file" wire:model="newbapfiles" id="bapfiles" multiple class="hidden">
+                        <button type="button" onclick="document.getElementById('bapfiles').click()"
                             class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
                             Unggah Berita Acara
                         </button>
