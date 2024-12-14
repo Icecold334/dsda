@@ -234,16 +234,28 @@ class AddProfil extends Component
             ]);
 
             // Proses penyimpanan tanda tangan
-            $ttd = $this->ttd;
+            // dd($this->ttd);
 
-            // Decode Base64 Image
-            $image = str_replace('data:image/png;base64,', '', $ttd);
-            $image = str_replace(' ', '+', $image);
-            $imageData = base64_decode($image);
+            // Proses penyimpanan tanda tangan
+            $ttdFileName = $user->ttd; // Gunakan TTD lama sebagai default
+            if ($this->ttd && $this->ttd !== $ttdFileName) { // Jika ada TTD baru dan berbeda
+                // Decode Base64 Image
+                $image = str_replace('data:image/png;base64,', '', $this->ttd);
+                $image = str_replace(' ', '+', $image);
+                $imageData = base64_decode($image);
 
-            // Simpan ke storage
-            $fileName = 'usersTTD/' . uniqid() . '.png';
-            Storage::disk('public')->put($fileName, $imageData);
+                // Simpan ke storage
+                $fileName = 'usersTTD/' . uniqid() . '.png';
+                Storage::disk('public')->put($fileName, $imageData);
+
+                // Hapus TTD lama jika perlu
+                if ($ttdFileName && Storage::disk('public')->exists('usersTTD/' . $ttdFileName)) {
+                    Storage::disk('public')->delete('usersTTD/' . $ttdFileName);
+                }
+
+                // Simpan nama file TTD baru
+                $ttdFileName = str_replace('usersTTD/', '', $fileName);
+            }
 
 
             // dd($user);
@@ -257,7 +269,7 @@ class AddProfil extends Component
                     // 'provinsi' => $this->provinsi,
                     // 'kota' => $this->kota,
                     'nip' => $this->nip,
-                    'ttd' => str_replace('usersTTD/', '', $fileName),
+                    'ttd' => $ttdFileName,
                     'foto' => $this->img
                         ? (is_object($this->img)
                             ? str_replace('usersFoto/', '', $this->img->store('usersFoto', 'public'))
@@ -280,6 +292,7 @@ class AddProfil extends Component
     public function removeTTD()
     {
         $this->ttd = null;
+        $this->dispatch('resetCanvas');
     }
 
     public function render()

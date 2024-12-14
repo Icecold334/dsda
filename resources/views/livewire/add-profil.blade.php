@@ -150,20 +150,20 @@
                     </td>
                 </tr>
 
+                <!-- Canvas -->
                 <tr>
                     <td colspan="3" class="p-4">
                         <div class="flex justify-end items-center">
                             <!-- Canvas di kanan -->
                             <div class="border border-gray-300 w-64 h-64 rounded-md">
-                                <canvas id="myCanvas" class="w-full h-full"></canvas>
+                                <canvas id="myCanvas" wire:ignore class="w-full h-full"></canvas>
                             </div>
                         </div>
                     </td>
                 </tr>
             @endif
 
-
-
+            {{-- @dump($ttd) --}}
 
             <!-- Toolbar -->
             {{-- <tr>
@@ -199,8 +199,6 @@
                 </td>
             </tr> --}}
 
-            <!-- Canvas -->
-
             <!-- Buttons -->
             {{-- <tr>
                 <td colspan="3" class="p-4">
@@ -214,52 +212,127 @@
                     </button>
                 </td>
             </tr> --}}
+
             @push('scripts')
                 <script type="module">
-                    const canvas = document.getElementById("myCanvas");
-                    canvas.width = canvas.parentElement.offsetWidth;
-                    canvas.height = 256;
-
-                    const ctx = canvas.getContext("2d");
-                    let isDrawing = false;
-
-                    // Tool Logic
-                    // let selectedTool = "pencil";
-                    // Set Default Tool to Brush
-                    let selectedTool = "brush";
-                    ctx.globalCompositeOperation = "source-over"; // Default blending mode
-                    ctx.lineWidth = 5; // Default brush size
-                    ctx.strokeStyle = "#000000"; // Default brush color
-
-                    function startDrawing(event) {
-                        isDrawing = true;
-                        ctx.beginPath();
-                        draw(event);
-                    }
-
-                    function draw(event) {
-                        if (!isDrawing) return;
-                        const rect = canvas.getBoundingClientRect();
-                        const x = event.clientX - rect.left;
-                        const y = event.clientY - rect.top;
-                        ctx.lineTo(x, y);
-                        ctx.stroke();
-                    }
-
-                    function stopDrawing() {
-                        isDrawing = false;
-                        ctx.beginPath();
-                    }
-
-                    canvas.addEventListener("mousedown", startDrawing);
-                    canvas.addEventListener("mousemove", draw);
-                    canvas.addEventListener("mouseup", stopDrawing);
-
-                    // Clear Canvas
-                    document.getElementById("clearButton").addEventListener("click", () => {
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    document.addEventListener('livewire:init', () => {
+                        // Tangkap event dari Livewire untuk reset canvas jika ttd dihapus
+                        Livewire.on('resetCanvas', () => {
+                            // Tunggu hingga canvas benar-benar tersedia di DOM
+                            setTimeout(() => {
+                                const canvas = document.getElementById("myCanvas");
+                                if (canvas) {
+                                    initializeCanvas();
+                                    // console.log('Canvas berhasil di-reset');
+                                } else {
+                                    // console.error('Canvas tidak ditemukan!');
+                                }
+                            }, 100); // Beri jeda waktu jika perlu
+                        });
                     });
 
+                    initializeCanvas();
+
+                    function initializeCanvas() {
+                        const canvas = document.getElementById("myCanvas");
+                        const clearButton = document.getElementById("clearButton");
+
+                        if (!canvas || !clearButton) return;
+
+                        canvas.width = canvas.parentElement.offsetWidth;
+                        canvas.height = 256;
+
+                        const ctx = canvas.getContext("2d");
+                        ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan kanvas saat diinisialisasi ulang
+
+                        let isDrawing = false;
+                        let selectedTool = "brush";
+                        ctx.globalCompositeOperation = "source-over"; // Default blending mode
+                        ctx.lineWidth = 5; // Default brush size
+                        ctx.strokeStyle = "#000000"; // Default brush color
+
+                        function startDrawing(event) {
+                            isDrawing = true;
+                            ctx.beginPath();
+                            draw(event);
+                        }
+
+                        function draw(event) {
+                            if (!isDrawing) return;
+                            const rect = canvas.getBoundingClientRect();
+                            const x = event.clientX - rect.left;
+                            const y = event.clientY - rect.top;
+                            ctx.lineTo(x, y);
+                            ctx.stroke();
+                        }
+
+                        function stopDrawing() {
+                            isDrawing = false;
+                            ctx.beginPath();
+                        }
+
+                        // Pastikan event listener tidak terduplikasi
+                        canvas.removeEventListener("mousedown", startDrawing);
+                        canvas.removeEventListener("mousemove", draw);
+                        canvas.removeEventListener("mouseup", stopDrawing);
+
+                        // Tambah ulang event listener
+                        canvas.addEventListener("mousedown", startDrawing);
+                        canvas.addEventListener("mousemove", draw);
+                        canvas.addEventListener("mouseup", stopDrawing);
+
+                        // Clear Canvas Button
+                        clearButton.removeEventListener("click", clearCanvas);
+                        clearButton.addEventListener("click", clearCanvas);
+
+                        function clearCanvas() {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                    }
+
+                    // const canvas = document.getElementById("myCanvas");
+                    // canvas.width = canvas.parentElement.offsetWidth;
+                    // canvas.height = 256;
+
+                    // const ctx = canvas.getContext("2d");
+                    // let isDrawing = false;
+
+                    // // Tool Logic
+                    // // let selectedTool = "pencil";
+                    // // Set Default Tool to Brush
+                    // let selectedTool = "brush";
+                    // ctx.globalCompositeOperation = "source-over"; // Default blending mode
+                    // ctx.lineWidth = 5; // Default brush size
+                    // ctx.strokeStyle = "#000000"; // Default brush color
+
+                    // function startDrawing(event) {
+                    //     isDrawing = true;
+                    //     ctx.beginPath();
+                    //     draw(event);
+                    // }
+
+                    // function draw(event) {
+                    //     if (!isDrawing) return;
+                    //     const rect = canvas.getBoundingClientRect();
+                    //     const x = event.clientX - rect.left;
+                    //     const y = event.clientY - rect.top;
+                    //     ctx.lineTo(x, y);
+                    //     ctx.stroke();
+                    // }
+
+                    // function stopDrawing() {
+                    //     isDrawing = false;
+                    //     ctx.beginPath();
+                    // }
+
+                    // canvas.addEventListener("mousedown", startDrawing);
+                    // canvas.addEventListener("mousemove", draw);
+                    // canvas.addEventListener("mouseup", stopDrawing);
+
+                    // // Clear Canvas
+                    // document.getElementById("clearButton").addEventListener("click", () => {
+                    //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    // });
 
                     // Tool Handlers
                     // document.getElementById("pencilTool").addEventListener("click", () => {
@@ -712,8 +785,9 @@
             @endif
         @endif
         <button type="button"
-            @if ($tipe == 'profile') @click="generateTTD"
-        @else wire:click="saveProfil" @endif
+            @if ($tipe == 'profile' && empty($ttd)) @click="generateTTD"
+    @else 
+        wire:click="saveProfil" @endif
             class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
 
     </div>
@@ -725,10 +799,12 @@
                         const canvas = document.getElementById("myCanvas");
                         const ttd = canvas.toDataURL('image/png');
 
-                        // Dispatch event ke Livewire
-                        this.$wire.dispatch('upload', {
-                            detail: ttd
-                        });
+                        // Hanya kirim TTD jika ada perubahan
+                        if (ttd) {
+                            this.$wire.dispatch('upload', {
+                                detail: ttd
+                            });
+                        }
 
                         // Tambahkan log jika perlu
                         // console.log('Tanda tangan dikirim ke Livewire:', ttd);

@@ -26,7 +26,7 @@ abstract class Controller
             if (!Request::is('profil/profile/*')) {
                 // Periksa jika NIP atau TTD kosong
                 // dd(empty($user->nip) || empty($user->ttd));
-                if (empty($user->nip) || empty($user->foto)) {
+                if (empty($user->nip) || empty($user->ttd)) {
                     session()->flash('alert');
                 }
             }
