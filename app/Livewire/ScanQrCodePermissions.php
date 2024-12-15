@@ -18,7 +18,7 @@ class ScanQrCodePermissions extends Component
     public function updatedSelectedPermissions()
     {
         // Find the role by ID
-        $role = Role::find(6);
+        $role = Role::find(2);
 
         // Konversi nama permission terpilih ke ID mereka
         $permissionIds = Permission::whereIn('name', $this->selectedPermissions)->pluck('id')->toArray();
@@ -39,7 +39,7 @@ class ScanQrCodePermissions extends Component
     public function updatedSelectedRiwayat()
     {
         // Find the role by ID
-        $role = Role::find(6);
+        $role = Role::find(2);
 
         // Dapatkan ID permission yang dipilih untuk "Riwayat"
         $permissionId = Permission::where('name', $this->selectedRiwayat)->value('id');
@@ -65,7 +65,7 @@ class ScanQrCodePermissions extends Component
 
     public function mount()
     {
-        $role = Role::find(6); // Example role ID
+        $role = Role::find(2); // Example role ID
         $categories = [
             'Informasi Umum' => ['nama', 'kategori', 'kode', 'systemcode', 'aset_keterangan', 'status', 'foto', 'lampiran'],
             'Jika Status Aset adalah Non-Aktif, apa saja item yang muncul?' => ['nonaktif_tanggal', 'nonaktif_alasan', 'nonaktif_keterangan'],

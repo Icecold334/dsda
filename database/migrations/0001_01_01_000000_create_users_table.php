@@ -17,8 +17,10 @@ return new class extends Migration
             $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('cascade');
             $table->string('name');
             $table->integer('nip')->nullable();
+            // ->default('1');
             $table->string('ttd', 256)->nullable();
             $table->string('foto', 256)->nullable();
+            // ->default('1');
             $table->string('username', 256)->nullable();
             $table->text('hak')->nullable(); // Hak akses spesifik yang bisa dikelola dengan role Spatie
             $table->string('email')->unique();
