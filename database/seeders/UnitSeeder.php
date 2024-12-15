@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\BagianStok;
 use App\Models\User;
 use App\Models\UnitKerja;
+use App\Models\LokasiStok;
+use App\Models\PosisiStok;
 use Faker\Factory as Faker;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
@@ -12,14 +15,292 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class UnitSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+    public $faker;
+    public $kecamatanJakarta;
+    public $bagian;
+    public $posisi;
+
+    public function __construct()
+    {
+        $this->faker = Faker::create('id_ID');
+        $this->kecamatanJakarta = [
+            // 'Jakarta Pusat' => [
+            'Gambir',
+            'Tanah Abang',
+            'Menteng',
+            'Senen',
+            'Cempaka Putih',
+            'Johar Baru',
+            'Kemayoran',
+            'Sawah Besar',
+            // ],
+            // 'Jakarta Utara' => [
+            'Penjaringan',
+            'Pademangan',
+            'Tanjung Priok',
+            'Koja',
+            'Cilincing',
+            'Kelapa Gading',
+            // ],
+            // 'Jakarta Barat' => [
+            'Cengkareng',
+            'Grogol Petamburan',
+            'Taman Sari',
+            'Tambora',
+            'Kalideres',
+            'Kebon Jeruk',
+            'Palmerah',
+            'Kembangan',
+            // ],
+            // 'Jakarta Selatan' => [
+            'Kebayoran Baru',
+            'Kebayoran Lama',
+            'Cilandak',
+            'Pesanggrahan',
+            'Pasar Minggu',
+            'Jagakarsa',
+            'Mampang Prapatan',
+            'Pancoran',
+            'Tebet',
+            'Setiabudi',
+            // ],
+            // 'Jakarta Timur' => [
+            'Matraman',
+            'Pulogadung',
+            'Jatinegara',
+            'Duren Sawit',
+            'Kramat Jati',
+            'Makasar',
+            'Cipayung',
+            'Ciracas',
+            'Pasar Rebo',
+            'Cakung',
+            // ],
+            // 'Kepulauan Seribu' => [
+            'Kepulauan Seribu Utara',
+            'Kepulauan Seribu Selatan'
+            // ]
+        ];
+        $this->bagian = [
+            'Belakang Gudang',
+            'Bawah Tanah',
+            'Loteng',
+            'Timur Gudang',
+            'Barat Gudang',
+            'Utara Gudang',
+            'Selatan Gudang',
+            'Pintu Masuk Utama',
+            'Pintu Keluar Barang',
+            'Area Packing',
+            'Area Penerimaan Barang',
+            'Area Penyimpanan Rak Tinggi',
+            'Area Penyimpanan Rak Rendah',
+            'Zona Pendingin',
+            'Zona Bebas',
+            'Zona Kering',
+            'Zona Basah',
+            'Ruangan Penyimpanan Kecil',
+            'Ruangan Penyimpanan Besar',
+            'Lantai Dasar',
+            'Area Transit',
+            'Gudang Utama',
+            'Gudang Samping',
+            'Area Forklift',
+            'Area Inventaris',
+            'Ruang Kontainer',
+            'Ruangan Logistik',
+            'Koridor Utara',
+            'Koridor Selatan',
+            'Koridor Timur',
+            'Koridor Barat',
+            'Area Stok Pallet',
+            'Zona Pemisahan Barang',
+            'Tempat Penyimpanan Sementara',
+            'Ruangan Pengemasan',
+            'Ruang Kontrol Stok',
+            'Ruang Supervisi Gudang',
+            'Tempat Pemindaian Barang',
+            'Area Distribusi Internal',
+            'Area Inspeksi Barang',
+            'Tempat Pengecekan Barang',
+            'Zona Pallet Pendingin',
+            'Zona Pallet Normal',
+        ];
+        $this->posisi = [
+            'Rak 1',
+            'Rak 2',
+            'Rak 3',
+            'Rak 4',
+            'Rak 5',
+            'Rak 6',
+            'Rak 7',
+            'Rak 8',
+            'Rak 9',
+            'Rak 10',
+            'Rak 11',
+            'Rak 12',
+            'Rak 13',
+            'Rak 14',
+            'Rak 15',
+            'Lemari 1',
+            'Lemari 2',
+            'Lemari 3',
+            'Lemari 4',
+            'Lemari 5',
+            'Lemari 6',
+            'Lemari 7',
+            'Lemari 8',
+            'Lemari 9',
+            'Lemari 10',
+            'Laci 1',
+            'Laci 2',
+            'Laci 3',
+            'Laci 4',
+            'Laci 5',
+            'Laci 6',
+            'Laci 7',
+            'Laci 8',
+            'Laci 9',
+            'Laci 10',
+            'Zona A1',
+            'Zona A2',
+            'Zona A3',
+            'Zona A4',
+            'Zona A5',
+            'Zona B1',
+            'Zona B2',
+            'Zona B3',
+            'Zona B4',
+            'Zona B5',
+            'Pallet 1',
+            'Pallet 2',
+            'Pallet 3',
+            'Pallet 4',
+            'Pallet 5',
+            'Pallet 6',
+            'Pallet 7',
+            'Pallet 8',
+            'Pallet 9',
+            'Pallet 10',
+        ];
+        // $this->kecamatanJakarta = [
+        //     'Jakarta Pusat' => [
+        //         'Gambir',
+        //         'Tanah Abang',
+        //         'Menteng',
+        //         'Senen',
+        //         'Cempaka Putih',
+        //         'Johar Baru',
+        //         'Kemayoran',
+        //         'Sawah Besar'
+        //     ],
+        //     'Jakarta Utara' => [
+        //         'Penjaringan',
+        //         'Pademangan',
+        //         'Tanjung Priok',
+        //         'Koja',
+        //         'Cilincing',
+        //         'Kelapa Gading'
+        //     ],
+        //     'Jakarta Barat' => [
+        //         'Cengkareng',
+        //         'Grogol Petamburan',
+        //         'Taman Sari',
+        //         'Tambora',
+        //         'Kalideres',
+        //         'Kebon Jeruk',
+        //         'Palmerah',
+        //         'Kembangan'
+        //     ],
+        //     'Jakarta Selatan' => [
+        //         'Kebayoran Baru',
+        //         'Kebayoran Lama',
+        //         'Cilandak',
+        //         'Pesanggrahan',
+        //         'Pasar Minggu',
+        //         'Jagakarsa',
+        //         'Mampang Prapatan',
+        //         'Pancoran',
+        //         'Tebet',
+        //         'Setiabudi'
+        //     ],
+        //     'Jakarta Timur' => [
+        //         'Matraman',
+        //         'Pulogadung',
+        //         'Jatinegara',
+        //         'Duren Sawit',
+        //         'Kramat Jati',
+        //         'Makasar',
+        //         'Cipayung',
+        //         'Ciracas',
+        //         'Pasar Rebo',
+        //         'Cakung'
+        //     ],
+        //     'Kepulauan Seribu' => [
+        //         'Kepulauan Seribu Utara',
+        //         'Kepulauan Seribu Selatan'
+        //     ]
+        // ];
+    }
     public function run(): void
     {
+        $this->unitSeed();
+        $this->lokasiSeed();
+    }
 
-        $faker = Faker::create('id_ID');
+    private function lokasiSeed()
+    {
+        $kecamatanJakarta = collect($this->kecamatanJakarta);
+        $units = UnitKerja::whereNull('parent_id')->get();
+        foreach ($units as $unit) {
+            foreach ($kecamatanJakarta->random(8)->all() as $kecamatan) {
+                $lokasi = LokasiStok::create([
+                    'unit_id' => $unit->id,
+                    'nama' => $kecamatan,
+                    'slug' => Str::slug($kecamatan),
+                    'alamat' => $this->faker->address,
+                ]);
 
+                $roleOnce = ['Penerima Barang',];
+                foreach ($roleOnce as $item) {
+                    User::create([
+                        'name' => $this->faker->name(),
+                        'unit_id' => $unit->id,
+                        'lokasi_id' => $lokasi->id,
+                        'email' => Str::lower(str_replace(' ', '_', $item)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $item)) . "%")->count() + 1 . "@email.com",
+                        'password' => bcrypt('123'), // Password default
+                    ])->roles()->attach(Role::where('name', $item)->first()->id);
+                }
+
+                $this->bagianSeed($lokasi);
+            }
+        }
+    }
+    private function bagianSeed($lokasi)
+    {
+
+        // foreach ($lokasis as $i => $lokasi) {
+        foreach (collect($this->bagian)->random(4)->all() as $bagian) {
+            $bag = BagianStok::create([
+                'lokasi_id' => $lokasi->id,
+                'nama' => $bagian,
+            ]);
+            $this->posisiSeed($bag);
+        }
+        // }
+    }
+    private function posisiSeed($bag)
+    {
+
+        foreach (collect($this->posisi)->random(3)->all() as $posisi) { // Iterasi array posisi di setiap bagian
+            PosisiStok::create([
+                'bagian_id' => $bag->id,
+                'nama' => $posisi, // $posisi adalah string
+            ]);
+        }
+    }
+    private function unitSeed()
+    {
         $units = [
             'Sekretaris Dinas' => [
                 'kepala' => 'Hendri, ST, MT',
@@ -147,9 +428,6 @@ class UnitSeeder extends Seeder
             ],
         ];
         $roles = ['Penanggung Jawab', 'Pejabat Pembuat Komitmen', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang'];
-
-
-
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
             'guard_name' => 'web',
@@ -178,7 +456,6 @@ class UnitSeeder extends Seeder
         ]);
         $superUser->roles()->attach($superRole->id);
         $guestUser->roles()->attach($guestRole->id);
-
         foreach ($roles as $role) {
             Role::firstOrCreate([
                 'name' => $role,
@@ -193,6 +470,7 @@ class UnitSeeder extends Seeder
                 'parent_id' => null, // Unit utama
                 'keterangan' => "Unit $unitName.",
             ]);
+
             if (Str::contains($unitName, 'Suku Dinas Sumber Daya Air')) {
                 // Buat kepala unit utama
                 $unitRole = Role::firstOrCreate([
@@ -209,7 +487,7 @@ class UnitSeeder extends Seeder
             $unitUser = User::create([
                 'name' => $unitData['kepala'],
                 'unit_id' => $unit->id,
-                'email' => strtolower($faker->freeEmail()),
+                'email' => Str::lower(str_replace(' ', '_', $unitRole->name)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $unitRole->name)) . "%")->count() + 1 . "@email.com",
                 'password' => bcrypt('123'), // Password default
             ]);
             $unitUser->roles()->attach($unitRole->id);
@@ -217,19 +495,19 @@ class UnitSeeder extends Seeder
             foreach ($roleMulti as $role) {
                 for ($i = 1; $i <= 3; $i++) {
                     User::create([
-                        'name' => $faker->name(),
+                        'name' => $this->faker->name(),
                         'unit_id' => $unit->id,
-                        'email' => $faker->freeEmail(),
+                        'email' => Str::lower(str_replace(' ', '_', 'Pejabat Pelaksana Teknis Kegiatan')) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', 'Pejabat Pelaksana Teknis Kegiatan')) . "%")->count() + 1 . "@email.com",
                         'password' => bcrypt('123'), // Password default
                     ])->roles()->attach(Role::where('name', $role)->first()->id);
                 }
             }
-            $roleOnce = ['Pejabat Pembuat Komitmen', 'Penanggung Jawab', 'Pemeriksa Barang', 'Pengurus Barang'];
+            $roleOnce = ['Pejabat Pembuat Komitmen', 'Penanggung Jawab', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang'];
             foreach ($roleOnce as $item) {
                 User::create([
-                    'name' => $faker->name(),
+                    'name' => $this->faker->name(),
                     'unit_id' => $unit->id,
-                    'email' => $faker->freeEmail(),
+                    'email' => Str::lower(str_replace(' ', '_', $item)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $item)) . "%")->count() + 1 . "@email.com",
                     'password' => bcrypt('123'), // Password default
                 ])->roles()->attach(Role::where('name', $item)->first()->id);
             }
@@ -252,7 +530,7 @@ class UnitSeeder extends Seeder
                 $user = User::create([
                     'name' => $subUnit['kepala'],
                     'unit_id' => $subUnitEntry->id,
-                    'email' => strtolower($faker->freeEmail()),
+                    'email' => Str::lower(str_replace(' ', '_', $role->name)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $role->name)) . "%")->count() + 1 . "@email.com",
                     'password' => bcrypt('123'), // Password default
                 ]);
                 $user->roles()->attach($role->id);
