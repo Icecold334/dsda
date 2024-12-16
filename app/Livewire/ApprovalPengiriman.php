@@ -35,9 +35,12 @@ class ApprovalPengiriman extends Component
     public $showButton;
     public $status;
     public $isLastUser;
+
+    public $newbapfiles = []; // To hold multiple uploaded files
+    public $bapfiles = []; // To hold multiple uploaded files
     public $newApprovalFiles = []; // To hold multiple uploaded files
     public $approvalFiles = []; // To hold multiple uploaded files
-    public $files = []; // To hold multiple uploaded files
+    public $files = [], $arrayfiles; // To hold multiple uploaded files
 
 
 
@@ -57,6 +60,22 @@ class ApprovalPengiriman extends Component
         $this->reset('newApprovalFiles');
     }
 
+    public function updatedNewBapFiles()
+    {
+        // Validate each uploaded file
+        $this->validate([
+            'bapfiles.*' => 'file|max:10240|mimes:jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar',
+        ]);
+        foreach ($this->newbapfiles as $file) {
+            // $this->attachments[] = $file->store('attachments', 'public');
+            $this->bapfiles[] = $file;
+        }
+
+        $this->dispatch('bap_file', count: count($this->bapfiles));
+        // Clear the newAttachments to make ready for next files
+        $this->reset('newBapFiles');
+    }
+
     public function mount()
     {
         if ($this->pengiriman->persetujuan->where('file')) {
@@ -66,6 +85,15 @@ class ApprovalPengiriman extends Component
             })->pluck('file');
         } else {
             $this->files = [];
+        }
+
+        if ($this->pengiriman->bapfile->where('file')) {
+            // Fetch files where the status is true and the file exists
+            $this->arrayfiles = $this->pengiriman->bapfile->filter(function ($persetujuan) {
+                return $persetujuan->file !== null;
+            })->pluck('file');
+        } else {
+            $this->arrayfiles = [];
         }
 
         $this->user = Auth::user();
@@ -157,6 +185,17 @@ class ApprovalPengiriman extends Component
                     'file' => $path
                 ]);
             }
+
+            foreach ($this->bapfiles as $file) {
+                $path = str_replace('dokumen-persetujuan-pengiriman/bap/', '', $file->storeAs('dokumen-persetujuan-pengiriman', $file->getClientOriginalName(), 'public'));
+                $this->pengiriman->bapfile()->create([
+                    'detail_pengiriman_id' => $this->pengiriman->id,
+                    'user_id' => Auth::id(),
+                    'status' => true,
+                    'file' => $path,
+                    'type' => 'bap'
+                ]);
+            }
             $list = $this->pengiriman->persetujuan;
             $filteredList = $list->filter(function ($approval) {
                 return $approval->status;
@@ -197,7 +236,7 @@ class ApprovalPengiriman extends Component
                 $this->pengiriman->save();
                 $pengirimanItems = $this->pengiriman->pengirimanStok;
                 foreach ($pengirimanItems as $pengiriman) {
-                    $stok = Stok::firstOrCreate(
+                    $stok = Stok::updateOrCreate(
                         [
                             'merk_id' => $pengiriman->merk_id,
                             'lokasi_id' => $pengiriman->lokasi_id,
@@ -246,6 +285,20 @@ class ApprovalPengiriman extends Component
             unset($this->approvalFiles[$index]);
             $this->approvalFiles = array_values($this->approvalFiles); // Reindex array
             $this->dispatch('file_approval', count: count($this->approvalFiles));
+        }
+    }
+
+    public function removeBapFile($index)
+    {
+        // Remove file from the list
+        if (isset($this->bapfiles[$index])) {
+            // Delete persisted file if needed
+            if (!($this->bapfiles[$index] instanceof \Illuminate\Http\UploadedFile)) {
+                Storage::delete('dokumen-persetujuan-pengiriman/' . $this->bapfiles[$index]);
+            }
+            unset($this->bapfiles[$index]);
+            $this->bapfiles = array_values($this->bapfiles); // Reindex array
+            $this->dispatch('bap_file', count: count($this->bapfiles));
         }
     }
 
