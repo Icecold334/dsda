@@ -1,4 +1,5 @@
 <div>
+
     <div class="flex w-full justify-evenly border-t-4 py-6">
         <div class="">
             <div class="block font-semibold text-center mb-2 text-gray-900">Penulis</div>
@@ -164,12 +165,12 @@
                         @enderror
                     </div>
                     <div class="flex flex-col items-center">
-                        <input type="file" wire:model="newApprovalFiles" id="approvalFiles" multiple class="hidden">
-                        <button type="button" onclick="document.getElementById('approvalFiles').click()"
+                        <input type="file" wire:model="newbapfiles" id="bapfiles" multiple class="hidden">
+                        <button type="button" onclick="document.getElementById('bapfiles').click()"
                             class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
                             Unggah Berita Acara
                         </button>
-                        @error('approvalFiles.*')
+                        @error('bapfiles.*')
                             <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror
                     </div>
@@ -196,116 +197,235 @@
         </div>
     @endif
     {{-- @endhasanyrole --}}
-    @if (count($files))
-        <div class="flex justify-center">
-            <div class="mt-4 gap-4 w-3/5">
-                @if ($files)
-                    @foreach ($files as $index => $attachment)
-                        <div
-                            class="flex items-center justify-between border-b-2 p-3 rounded my-2 shadow-sm bg-white overflow-hidden">
-                            <span class="flex items-center space-x-4">
-                                @php
-                                    $fileType =
-                                        $attachment instanceof \Illuminate\Http\UploadedFile
-                                            ? $attachment->getClientOriginalExtension()
-                                            : pathinfo($attachment, PATHINFO_EXTENSION);
-                                @endphp
-                                <!-- Icon Based on File Type -->
-                                <span class="text-primary-600 text-2xl">
-                                    @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-                                        <i class="fa-solid fa-image text-green-500"></i>
-                                    @elseif($fileType == 'pdf')
-                                        <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                    @elseif(in_array($fileType, ['doc', 'docx']))
-                                        <i class="fa-solid fa-file-word text-blue-500"></i>
-                                    @elseif(in_array($fileType, ['xls', 'xlsx']))
-                                        <i class="fa-solid fa-file-excel text-green-700"></i>
-                                    @elseif(in_array($fileType, ['ppt', 'pptx']))
-                                        <i class="fa-solid fa-file-powerpoint text-orange-500"></i>
-                                    @elseif(in_array($fileType, ['zip', 'rar']))
-                                        <i class="fa-solid fa-file-zipper text-yellow-500"></i>
-                                    @else
-                                        <i class="fa-solid fa-file text-gray-500"></i>
-                                    @endif
-                                </span>
+    @if (count($files) >= 0)
+        <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
+            <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
+                <div class="relative pl-16">
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-900 dark:text-white">File Persetujuan
+                    </h5>
+                    <div class="mt-4 gap-4 w-3/5">
+                        @if ($files)
+                            @foreach ($files as $index => $attachment)
+                                <div
+                                    class="flex items-center justify-between border-b-2 p-3 rounded my-2 shadow-sm bg-white overflow-hidden">
+                                    <span class="flex items-center space-x-4">
+                                        @php
+                                            $fileType =
+                                                $attachment instanceof \Illuminate\Http\UploadedFile
+                                                    ? $attachment->getClientOriginalExtension()
+                                                    : pathinfo($attachment, PATHINFO_EXTENSION);
+                                        @endphp
+                                        <!-- Icon Based on File Type -->
+                                        <span class="text-primary-600 text-2xl">
+                                            @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                                <i class="fa-solid fa-image text-green-500"></i>
+                                            @elseif($fileType == 'pdf')
+                                                <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                            @elseif(in_array($fileType, ['doc', 'docx']))
+                                                <i class="fa-solid fa-file-word text-blue-500"></i>
+                                            @elseif(in_array($fileType, ['xls', 'xlsx']))
+                                                <i class="fa-solid fa-file-excel text-green-700"></i>
+                                            @elseif(in_array($fileType, ['ppt', 'pptx']))
+                                                <i class="fa-solid fa-file-powerpoint text-orange-500"></i>
+                                            @elseif(in_array($fileType, ['zip', 'rar']))
+                                                <i class="fa-solid fa-file-zipper text-yellow-500"></i>
+                                            @else
+                                                <i class="fa-solid fa-file text-gray-500"></i>
+                                            @endif
+                                        </span>
 
-                                <!-- File Name with Link -->
-                                <span>
-                                    <a href="{{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->temporaryUrl() : asset('storage/dokumen-persetujuan-pengiriman/' . $attachment) }}"
-                                        target="_blank" class="text-gray-800 hover:underline">
-                                        {{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->getClientOriginalName() : basename($attachment) }}
-                                    </a>
-                                </span>
-                            </span>
+                                        <!-- File Name with Link -->
+                                        <span>
+                                            <a href="{{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->temporaryUrl() : asset('storage/dokumen-persetujuan-pengiriman/' . $attachment) }}"
+                                                target="_blank" class="text-gray-800 hover:underline">
+                                                {{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->getClientOriginalName() : basename($attachment) }}
+                                            </a>
+                                        </span>
+                                    </span>
 
-                        </div>
-                    @endforeach
-                @else
-                    <p class="text-gray-500 text-sm">No files uploaded.</p>
-                @endif
-
-
-            </div>
-        </div>
-    @endif
-    @if ($approvalFiles)
-        <div class="flex justify-center">
-            <div class="gap-4 w-3/5">
-                @foreach ($approvalFiles as $index => $attachment)
-                    <div class="flex items-center justify-between border-b-2 p-3 rounded my-2 shadow-sm bg-white">
-                        <span class="flex items-center space-x-4">
-                            @php
-                                $fileType =
-                                    $attachment instanceof \Illuminate\Http\UploadedFile
-                                        ? $attachment->getClientOriginalExtension()
-                                        : pathinfo($attachment, PATHINFO_EXTENSION);
-                            @endphp
-                            <!-- Icon Based on File Type -->
-                            <span class="text-primary-600 text-2xl">
-                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-                                    <i class="fa-solid fa-image text-green-500"></i>
-                                @elseif($fileType == 'pdf')
-                                    <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                @elseif(in_array($fileType, ['doc', 'docx']))
-                                    <i class="fa-solid fa-file-word text-blue-500"></i>
-                                @elseif(in_array($fileType, ['xls', 'xlsx']))
-                                    <i class="fa-solid fa-file-excel text-green-700"></i>
-                                @elseif(in_array($fileType, ['ppt', 'pptx']))
-                                    <i class="fa-solid fa-file-powerpoint text-orange-500"></i>
-                                @elseif(in_array($fileType, ['zip', 'rar']))
-                                    <i class="fa-solid fa-file-zipper text-yellow-500"></i>
-                                @else
-                                    <i class="fa-solid fa-file text-gray-500"></i>
-                                @endif
-                            </span>
-
-                            <!-- File Name with Link -->
-                            <span>
-                                <a href="{{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->temporaryUrl() : asset('storage/uploads/' . $attachment) }}"
-                                    target="_blank" class="text-gray-800 hover:underline">
-                                    {{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->getClientOriginalName() : basename($attachment) }}
-                                </a>
-                            </span>
-                        </span>
-
-                        <!-- Remove Button -->
-                        <button wire:click="removeApprovalFile({{ $index }})"
-                            class="text-red-500 hover:text-red-700 text-lg font-bold px-2">
-                            &times;
-                        </button>
+                                </div>
+                            @endforeach
+                        @else
+                            <p class="text-gray-500 text-sm">No files uploaded.</p>
+                        @endif
                     </div>
-                @endforeach
+                </div>
+                <div class="relative pl-16">
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-900 dark:text-white">File BAP</h5>
+                    <div class="mt-4 gap-4 w-3/5">
+                        @if ($arrayfiles)
+                            @foreach ($arrayfiles as $index => $attachment)
+                                <div
+                                    class="flex items-center justify-between border-b-2 p-3 rounded my-2 shadow-sm bg-white overflow-hidden">
+                                    <span class="flex items-center space-x-4">
+                                        @php
+                                            $fileType =
+                                                $attachment instanceof \Illuminate\Http\UploadedFile
+                                                    ? $attachment->getClientOriginalExtension()
+                                                    : pathinfo($attachment, PATHINFO_EXTENSION);
+                                        @endphp
+                                        <!-- Icon Based on File Type -->
+                                        <span class="text-primary-600 text-2xl">
+                                            @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                                <i class="fa-solid fa-image text-green-500"></i>
+                                            @elseif($fileType == 'pdf')
+                                                <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                            @elseif(in_array($fileType, ['doc', 'docx']))
+                                                <i class="fa-solid fa-file-word text-blue-500"></i>
+                                            @elseif(in_array($fileType, ['xls', 'xlsx']))
+                                                <i class="fa-solid fa-file-excel text-green-700"></i>
+                                            @elseif(in_array($fileType, ['ppt', 'pptx']))
+                                                <i class="fa-solid fa-file-powerpoint text-orange-500"></i>
+                                            @elseif(in_array($fileType, ['zip', 'rar']))
+                                                <i class="fa-solid fa-file-zipper text-yellow-500"></i>
+                                            @else
+                                                <i class="fa-solid fa-file text-gray-500"></i>
+                                            @endif
+                                        </span>
 
-            </div>
+                                        <!-- File Name with Link -->
+                                        <span>
+                                            <a href="{{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->temporaryUrl() : asset('storage/dokumen-persetujuan-pengiriman/bap/' . $attachment) }}"
+                                                target="_blank" class="text-gray-800 hover:underline">
+                                                {{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->getClientOriginalName() : basename($attachment) }}
+                                            </a>
+                                        </span>
+                                    </span>
+
+                                </div>
+                            @endforeach
+                        @else
+                            <p class="text-gray-500 text-sm">No files uploaded.</p>
+                        @endif
+                    </div>
+                </div>
+            </dl>
         </div>
     @endif
+
+    {{-- <div class="flex justify-center">
+
+        </div> --}}
+    <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
+        <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
+            @if ($approvalFiles)
+                <div class="relative pl-16">
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-900 dark:text-white">File Persetujuan
+                    </h5>
+
+                    <div class="gap-4 w-3/5">
+                        @foreach ($approvalFiles as $index => $attachment)
+                            <div
+                                class="flex items-center justify-between border-b-2 p-3 rounded my-2 shadow-sm bg-white">
+                                <span class="flex items-center space-x-4">
+                                    @php
+                                        $fileType =
+                                            $attachment instanceof \Illuminate\Http\UploadedFile
+                                                ? $attachment->getClientOriginalExtension()
+                                                : pathinfo($attachment, PATHINFO_EXTENSION);
+                                    @endphp
+                                    <!-- Icon Based on File Type -->
+                                    <span class="text-primary-600 text-2xl">
+                                        @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                            <i class="fa-solid fa-image text-green-500"></i>
+                                        @elseif($fileType == 'pdf')
+                                            <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                        @elseif(in_array($fileType, ['doc', 'docx']))
+                                            <i class="fa-solid fa-file-word text-blue-500"></i>
+                                        @elseif(in_array($fileType, ['xls', 'xlsx']))
+                                            <i class="fa-solid fa-file-excel text-green-700"></i>
+                                        @elseif(in_array($fileType, ['ppt', 'pptx']))
+                                            <i class="fa-solid fa-file-powerpoint text-orange-500"></i>
+                                        @elseif(in_array($fileType, ['zip', 'rar']))
+                                            <i class="fa-solid fa-file-zipper text-yellow-500"></i>
+                                        @else
+                                            <i class="fa-solid fa-file text-gray-500"></i>
+                                        @endif
+                                    </span>
+
+                                    <!-- File Name with Link -->
+                                    <span>
+                                        <a href="{{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->temporaryUrl() : asset('storage/uploads/' . $attachment) }}"
+                                            target="_blank" class="text-gray-800 hover:underline">
+                                            {{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->getClientOriginalName() : basename($attachment) }}
+                                        </a>
+                                    </span>
+                                </span>
+
+                                <!-- Remove Button -->
+                                <button wire:click="removeApprovalFile({{ $index }})"
+                                    class="text-red-500 hover:text-red-700 text-lg font-bold px-2">
+                                    &times;
+                                </button>
+                            </div>
+                        @endforeach
+
+                    </div>
+                </div>
+            @endif
+            @if ($bapfiles)
+                <div class="relative pl-16">
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-900 dark:text-white">File BAP</h5>
+                    <div class="gap-4 w-3/5">
+                        @foreach ($bapfiles as $index => $attachment)
+                            <div
+                                class="flex items-center justify-between border-b-2 p-3 rounded my-2 shadow-sm bg-white">
+                                <span class="flex items-center space-x-4">
+                                    @php
+                                        $fileType =
+                                            $attachment instanceof \Illuminate\Http\UploadedFile
+                                                ? $attachment->getClientOriginalExtension()
+                                                : pathinfo($attachment, PATHINFO_EXTENSION);
+                                    @endphp
+                                    <!-- Icon Based on File Type -->
+                                    <span class="text-primary-600 text-2xl">
+                                        @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                            <i class="fa-solid fa-image text-green-500"></i>
+                                        @elseif($fileType == 'pdf')
+                                            <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                        @elseif(in_array($fileType, ['doc', 'docx']))
+                                            <i class="fa-solid fa-file-word text-blue-500"></i>
+                                        @elseif(in_array($fileType, ['xls', 'xlsx']))
+                                            <i class="fa-solid fa-file-excel text-green-700"></i>
+                                        @elseif(in_array($fileType, ['ppt', 'pptx']))
+                                            <i class="fa-solid fa-file-powerpoint text-orange-500"></i>
+                                        @elseif(in_array($fileType, ['zip', 'rar']))
+                                            <i class="fa-solid fa-file-zipper text-yellow-500"></i>
+                                        @else
+                                            <i class="fa-solid fa-file text-gray-500"></i>
+                                        @endif
+                                    </span>
+
+                                    <!-- File Name with Link -->
+                                    <span>
+                                        <a href="{{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->temporaryUrl() : asset('storage/uploads/' . $attachment) }}"
+                                            target="_blank" class="text-gray-800 hover:underline">
+                                            {{ $attachment instanceof \Illuminate\Http\UploadedFile ? $attachment->getClientOriginalName() : basename($attachment) }}
+                                        </a>
+                                    </span>
+                                </span>
+
+                                <!-- Remove Button -->
+                                <button wire:click="removeBapFile({{ $index }})"
+                                    class="text-red-500 hover:text-red-700 text-lg font-bold px-2">
+                                    &times;
+                                </button>
+                            </div>
+                        @endforeach
+
+                    </div>
+                </div>
+            @endif
+        </dl>
+    </div>
+
 
 
 </div>
 
 @push('scripts')
     <script>
-        let fileCount = 0;
+        let fileCount = 0, BapCount = 0;
 
         function confirmApprove() {
             Swal.fire({
@@ -332,6 +452,15 @@
                     icon: 'error',
                     title: 'File Tidak Ditemukan',
                     text: 'Harap unggah file sebelum menyetujui kontrak.',
+                });
+                return;
+            }
+
+            if (!BapCount) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File Tidak Ditemukan',
+                    text: 'Harap Unggah File Bap sebelum menyetujui kontrak.',
                 });
                 return;
             }
@@ -366,6 +495,10 @@
 
         document.addEventListener('file_approval', function(event) {
             fileCount = event.detail.count; // Get the count from the event detail
+        });
+
+        document.addEventListener('bap_file', function(event) {
+            BapCount = event.detail.count; // Get the count from the event detail
         });
     </script>
 @endpush

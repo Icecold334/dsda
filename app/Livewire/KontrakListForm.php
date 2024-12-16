@@ -320,6 +320,7 @@ class KontrakListForm extends Component
             'type' => 1,
             'status' => 1,
         ]);
+        
 
         foreach ($this->list as $item) {
             $merk = MerkStok::updateOrCreate(
