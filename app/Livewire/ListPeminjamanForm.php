@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Carbon\Carbon;
 use App\Models\Aset;
 use App\Models\Kategori;
+use App\Models\WaktuPeminjaman;
 use Livewire\Component;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
@@ -14,6 +15,8 @@ class ListPeminjamanForm extends Component
 
 
     public $tipe;
+    public $newWaktu;
+    public $waktus;
     public $unit_id;
     public $sub_unit_id;
     public $tanggal_permintaan;
@@ -24,8 +27,7 @@ class ListPeminjamanForm extends Component
     public $newMerkJenis;
     public $newPeminjaman = 1;
     public $newDisetujui;
-    public $newTanggalPeminjaman;
-    public $newTanggalPengembalian;
+    public $newPeserta;
     public $newKeterangan;
     public $newBarangId; // Input for new barang
     public $newBarang; // Input for new barang
@@ -77,17 +79,20 @@ class ListPeminjamanForm extends Component
         // ]);
 
         $this->list[] = [
-            'aset_id' => Aset::where('nama', $this->newAsetId)->first()->id,
-            'aset_name' => $this->newAsetId,
-            'merk_jenis' => $this->newMerkJenis,
-            'permintaan' => $this->newPermintaan,
-            'disetujui' => $this->newDisetujui,
-            'tanggal_peminjaman' => $this->newTanggalPeminjaman,
-            'tanggal_pengembalian' => $this->newTanggalPengembalian,
+            'aset_id' => $this->newAsetId,
+            'aset_name' => Aset::find($this->newAsetId)->nama,
+            'waktu_id' => $this->newWaktu,
+            'waktu' => WaktuPeminjaman::find($this->newWaktu),
+            'jumlah' => $this->newJumlah,
+            'jumlah_peserta' => $this->newPeserta,
             'keterangan' => $this->newKeterangan,
+            'img' => $this->newDokumen,
+            // 'aset_name' => $this->newAsetId,
+            // 'merk_jenis' => $this->newMerkJenis,
+            // 'disetujui' => $this->newDisetujui,
         ];
 
-        $this->reset(['newAsetId', 'newMerkJenis', 'newPermintaan', 'newDisetujui', 'newTanggalPeminjaman', 'newTanggalPengembalian', 'newKeterangan']);
+        $this->reset(['newAsetId', 'newJumlah', 'newPeserta', 'newDokumen', 'newWaktu', 'newKeterangan']);
     }
 
     public function removeFromList($index)
@@ -140,9 +145,8 @@ class ListPeminjamanForm extends Component
 
     public function mount()
     {
+        $this->waktus = WaktuPeminjaman::all();
 
-        $this->newTanggalPeminjaman = Carbon::today()->toDateString();
-        $this->newTanggalPengembalian = Carbon::today()->addWeek(1)->toDateString(); // Default to 1 week later
         $this->tanggal_permintaan = Carbon::now()->format('Y-m-d');
     }
     public function render()

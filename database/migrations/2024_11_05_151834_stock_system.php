@@ -283,7 +283,6 @@ return new class extends Migration
             $table->boolean('proses')->nullable();
             $table->boolean('cancel')->nullable();
             $table->boolean('status')->nullable();
-
             $table->timestamps();
         });
         Schema::create('peminjaman_aset', function (Blueprint $table) {
@@ -291,21 +290,24 @@ return new class extends Migration
             $table->foreignId('detail_peminjaman_id')->constrained('detail_peminjaman_aset')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('aset_id')->nullable()->constrained('aset')->onDelete('cascade');
-            $table->foreignId('unit_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
+            // $table->foreignId('unit_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
             $table->text('deskripsi')->nullable();
             $table->text('catatan')->nullable();
             $table->string('img')->nullable();
             $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
-            $table->integer('jumlah');
+            $table->integer('jumlah_orang')->nullable();
+            $table->integer('jumlah')->nullable();
             $table->integer('jumlah_approve')->nullable();
             $table->boolean('status')->nullable();
-            $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('set null');
             $table->timestamps();
         });
-
-
-
-
+        Schema::create('waktu_peminjaman', function (Blueprint $table) {
+            $table->id();
+            $table->string('waktu');
+            $table->time('mulai');
+            $table->time('selesai');
+            $table->timestamps();
+        });
 
 
 
