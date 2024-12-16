@@ -16,9 +16,9 @@
         <thead>
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Kode</th>
+                {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Kode</th> --}}
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Unit Kerja</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Kode Sub</th>
+                {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Kode Sub</th> --}}
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Sub-Unit</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Keterangan</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
@@ -29,10 +29,10 @@
                 <tr
                     class="bg-gray-300 hover:bg-gray-200 hover:shadow-lg font-semibold transition duration-200 rounded-2xl ">
                     <td class="px-6 py-3"></td>
-                    <td class="px-6 py-3">{{ $unitKerja->kode }}</td>
+                    {{-- <td class="px-6 py-3">{{ $unitKerja->kode }}</td> --}}
                     <td class="px-6 py-3">{{ $unitKerja->nama }}</td>
                     <td class="px-6 py-3"></td>
-                    <td class="px-6 py-3"></td>
+                    {{-- <td class="px-6 py-3"></td> --}}
                     <td class="px-6 py-3">{{ $unitKerja->keterangan }}</td>
                     <td class="py-3 px-6 text-center">
                         <a href="/unit-kerja/utama/{{ $unitKerja->id }}"
@@ -51,9 +51,9 @@
                     <tr
                         class="bg-gray-200 hover:bg-gray-100 hover:shadow-lg font-semibold transition duration-200 rounded-2xl">
                         <td class="px-6 py-3"></td>
+                        {{-- <td class="px-6 py-3"></td> --}}
                         <td class="px-6 py-3"></td>
-                        <td class="px-6 py-3"></td>
-                        <td class="px-6 py-3">{{ $child->kode }}</td>
+                        {{-- <td class="px-6 py-3">{{ $child->kode }}</td> --}}
                         <td class="px-6 py-3">{{ $child->nama }}</td>
                         <td class="px-6 py-3">{{ $child->keterangan }}</td>
                         <td class="py-3 px-6 text-center">

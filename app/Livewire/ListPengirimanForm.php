@@ -354,6 +354,7 @@ class ListPengirimanForm extends Component
             'posisi_id' => $data['posisi_id']
         ];
 
+
         if ($attr['bagian_id']) {
             $this->list[$index]['posisis'] = PosisiStok::where('bagian_id', $attr['bagian_id'])->get();
         }

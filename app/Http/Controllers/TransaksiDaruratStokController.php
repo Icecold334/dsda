@@ -18,14 +18,22 @@ class TransaksiDaruratStokController extends Controller
      */
     public function index()
     {
-        // Get transactions with a filled kontrak_id
-        $transaksi = TransaksiStok::whereNull('kontrak_id')
-            ->whereHas('user', function ($user) {
-                return $user->whereHas('unitKerja', function ($unit) {
-                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-                });
-            })
-            ->get();
+        if ($this->unit_id) {
+            # code...
+            $transaksi = TransaksiStok::whereNull('kontrak_id')
+                ->whereHas('user', function ($user) {
+                    return $user->whereHas('unitKerja', function ($unit) {
+                        return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                    });
+                })
+                ->get();
+        } else {
+            $transaksi = TransaksiStok::whereNull('kontrak_id')
+                ->whereHas('user', function ($user) {
+                    return $user;
+                })
+                ->get();
+        }
 
         // Sort transactions by date
         $sortedTransaksi = $transaksi->sortByDesc('tanggal');

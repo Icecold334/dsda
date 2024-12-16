@@ -6,13 +6,16 @@ use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
+use App\Models\Kategori;
 use App\Models\SatuanBesar;
 use App\Models\SatuanKecil;
+use Faker\Factory as Faker;
+use Illuminate\Support\Str;
 use Livewire\Attributes\On;
+use App\Models\KategoriStok;
 use App\Models\TransaksiStok;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\Auth;
-use Faker\Factory as Faker;
 
 class KontrakListForm extends Component
 {
@@ -21,8 +24,10 @@ class KontrakListForm extends Component
     public $barang_id;
     public $barang_item;
     public $merk_id;
+    public $kategori_id;
     public $jumlah;
     public $newBarang = '';
+    public $newKategori;
     public $barangSuggestions = [];
     public $showAddBarang = false;
     public $specifications = [
@@ -36,17 +41,23 @@ class KontrakListForm extends Component
         'ukuran' => [],
         'satuanBesar' => [],
         'satuanKecil' => [],
+        'kategori' => [],
     ];
 
     public function fetchSuggestions($field, $value)
     {
         $this->suggestions[$field] = [];
         if ($value) {
+            $key = Str::slug($value);
+
             if ($field === 'satuanBesar') {
-                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $value . '%')
+                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $key . '%')
                     ->pluck('nama')->toArray();
             } elseif ($field === 'satuanKecil') {
-                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $value . '%')
+                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $key . '%')
+                    ->pluck('nama')->toArray();
+            } elseif ($field === 'kategori') {
+                $this->suggestions[$field] = KategoriStok::where('slug', 'like', '%' . $key . '%')
                     ->pluck('nama')->toArray();
             }
         }
@@ -140,6 +151,8 @@ class KontrakListForm extends Component
             $this->newBarangSatuanBesar = $value;
         } elseif ($field === 'satuanKecil') {
             $this->newBarangSatuanKecil = $value;
+        } elseif ($field === 'kategori') {
+            $this->newKategori = $value;
         }
         $this->suggestions[$field] = [];
     }
@@ -157,6 +170,7 @@ class KontrakListForm extends Component
             'ukuran' => [],
             'satuanBesar' => [],
             'satuanKecil' => [],
+            'kategori' => [],
         ];
     }
 
@@ -175,6 +189,7 @@ class KontrakListForm extends Component
             'ukuran' => [],
             'satuanBesar' => [],
             'satuanKecil' => [],
+            'kategori' => [],
         ];
     }
 
@@ -212,7 +227,7 @@ class KontrakListForm extends Component
         $this->list[] = [
             'barang_id' => $this->barang_id,
             'barang' => BarangStok::find($this->barang_id)->nama,
-            // 'merk_id' => $this->merk_id,
+            'kategori_id' => $this->kategori_id,
             'specifications' => $this->specifications,
             'jumlah' => $this->jumlah,
             'satuan' => BarangStok::find($this->barang_id)->satuanBesar->nama,
@@ -236,6 +251,7 @@ class KontrakListForm extends Component
         $this->validate([
             'newBarangName' => 'required|string|max:255',
             'newBarangSatuanBesar' => 'required|string',
+            'newKategori' => 'required|string',
             'newBarangSatuanKecil' => 'nullable|string',
             // 'jumlahKecilDalamBesar' => 'required_with:newBarangSatuanKecil|integer|min:1',
         ]);
@@ -255,11 +271,24 @@ class KontrakListForm extends Component
             );
         }
         $faker = Faker::create();
+        if ($this->jenis_id == 3) {
+
+            $nama = $this->newKategori;
+            $kategori = KategoriStok::firstOrCreate(
+                ['slug' => Str::slug($nama)], // Pencarian berdasarkan field slug
+                [
+                    'nama' => $nama, // Data yang diisi jika tidak ditemukan
+                    'slug' => Str::slug($nama) // Slug tetap digunakan untuk pembuatan
+                ]
+            );
+        }
+
         // Simpan barang
         $barang = BarangStok::create([
             'nama' => $this->newBarangName,
             'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
             'jenis_id' => $this->jenis_id,
+            'kategori_id' => $this->jenis_id == 3 ? $kategori->id : null,
             'satuan_besar_id' => $satuanBesar->id,
             'satuan_kecil_id' => $satuanKecil ? $satuanKecil->id ?? null : null,
             'konversi' => $satuanKecil ? $this->jumlahKecilDalamBesar ?? null : null,

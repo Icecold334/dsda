@@ -105,5 +105,11 @@ class PermissionSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
+        foreach ($permissionIds as $permissionId) {
+            DB::table('role_has_permissions')->insert([
+                'role_id' => 1,
+                'permission_id' => $permissionId,
+            ]);
+        }
     }
 }

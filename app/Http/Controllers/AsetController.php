@@ -16,8 +16,12 @@ use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Console\View\Components\Ask;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class AsetController extends Controller
 {
@@ -41,10 +45,10 @@ class AsetController extends Controller
         }
 
         // Ambil data hasil query
-        $asets = $query->get();
-
+        // $asets = $query->get();
+        $asets = $query->paginate(20); // 20 item per halaman
         // Proses koleksi untuk menghitung nilaiSekarang dan totalPenyusutan
-        $asets = $asets->map(function ($aset) {
+        $asets->getCollection()->transform(function ($aset) {
             $hargaTotal = floatval($aset->hargatotal);
             $nilaiSekarang = $this->nilaiSekarang($hargaTotal, $aset->tanggalbeli, $aset->umur);
             $totalPenyusutan = $hargaTotal - $nilaiSekarang;
@@ -56,10 +60,12 @@ class AsetController extends Controller
             return $aset;
         });
 
+        // dd($asets);
+
         // Proses setiap aset untuk mendapatkan data QR
-        $asetqr = $asets->map(function ($aset) {
-            return getAssetWithSettings($aset->id); // Menggunakan helper
-        })->keyBy('id')->toArray(); // Gunakan keyBy untuk membuat key array berdasarkan ID aset
+        $asetqr = $asets->getCollection()->map(function ($aset) {
+            return getAssetWithSettings($aset->id);
+        })->keyBy('id')->toArray();
 
         // Ambil unit_id user yang sedang login
         $userUnitId = Auth::user()->unit_id;
@@ -73,21 +79,24 @@ class AsetController extends Controller
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         // Data tambahan untuk dropdown filter
-        $kategoris = Kategori::when($this->unit_id, function ($query) use ($parentUnitId) {
-            $query->whereHas('user', function ($query) use ($parentUnitId) {
-                filterByParentUnit($query, $parentUnitId);
-            });
-        })->get();
-        $merks = Merk::when($this->unit_id, function ($query) use ($parentUnitId) {
-            $query->whereHas('user', function ($query) use ($parentUnitId) {
-                filterByParentUnit($query, $parentUnitId);
-            });
-        })->get();
-        $tokos = Toko::when($this->unit_id, function ($query) use ($parentUnitId) {
-            $query->whereHas('user', function ($query) use ($parentUnitId) {
-                filterByParentUnit($query, $parentUnitId);
-            });
-        })->get();
+        $kategoris = Kategori::all();
+        // when($this->unit_id, function ($query) use ($parentUnitId) {
+        //     $query->whereHas('user', function ($query) use ($parentUnitId) {
+        //         filterByParentUnit($query, $parentUnitId);
+        //     });
+        // })->get();
+        $merks = Merk::all();
+        // when($this->unit_id, function ($query) use ($parentUnitId) {
+        //     $query->whereHas('user', function ($query) use ($parentUnitId) {
+        //         filterByParentUnit($query, $parentUnitId);
+        //     });
+        // })->get();
+        $tokos = Toko::all();
+        // when($this->unit_id, function ($query) use ($parentUnitId) {
+        //     $query->whereHas('user', function ($query) use ($parentUnitId) {
+        //         filterByParentUnit($query, $parentUnitId);
+        //     });
+        // })->get();
         $penanggungJawabs = Person::when($this->unit_id, function ($query) use ($parentUnitId) {
             $query->whereHas('user', function ($query) use ($parentUnitId) {
                 filterByParentUnit($query, $parentUnitId);
@@ -99,6 +108,7 @@ class AsetController extends Controller
             });
         })->get();
 
+        // dd($merks);
         return view('aset.index', compact('asets', 'kategoris', 'merks', 'tokos', 'penanggungJawabs', 'lokasis', 'asetqr'));
     }
 
@@ -823,5 +833,257 @@ class AsetController extends Controller
         return response($pdf->Output($aset->nama . '.pdf', 'I'), 200, [
             'Content-Type' => 'application/pdf',
         ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        // Ambil data aset
+        // $asets = Aset::where('status', true)->get();
+
+        // Ambil query dasar untuk aset
+        $query = $this->getAsetQuery();
+
+        // Terapkan filter jika ada parameter request
+        if ($request->hasAny(['nama', 'kategori_id', 'merk_id', 'toko_id', 'penanggung_jawab_id', 'lokasi_id'])) {
+            $query = $this->applyFilters($query, $request);
+        }
+
+        // Terapkan sorting berdasarkan parameter request
+        if ($request->hasAny(['order_by', 'order_direction'])) {
+            $query = $this->applySorting($query, $request);
+        }
+
+        // Ambil data hasil query
+        $asets = $query->get();
+
+        // Ambil nilai filter dari request
+        $kategori = $request->filled('kategori_id') ? Kategori::find($request->kategori_id)->nama : 'Semua Kategori';
+        $merk = $request->filled('merk_id') ? Merk::find($request->merk_id)->nama : 'Semua Merk';
+        $toko = $request->filled('toko_id') ? Toko::find($request->toko_id)->nama : 'Semua Distributor';
+        $penanggungJawab = $request->filled('penanggung_jawab_id') ? Person::find($request->penanggung_jawab_id)->nama : 'Semua Penanggung Jawab';
+        $lokasi = $request->filled('lokasi_id') ? Lokasi::find($request->lokasi_id)->nama : 'Semua Lokasi';
+
+        // Format deskripsi filter
+        $filterInfo = "Kategori: $kategori, Merk: $merk, Distributor: $toko, Penanggung Jawab: $penanggungJawab, Lokasi: $lokasi";
+
+
+        // Buat Spreadsheet baru
+        $spreadsheet = new Spreadsheet();
+
+        // Properti dokumen
+        $spreadsheet->getProperties()
+            ->setCreator('www.inventa.id')
+            ->setLastModifiedBy('www.inventa.id')
+            ->setTitle('Aset Aktif')
+            ->setSubject('Daftar Aset Aktif - Dinas Sumber Daya Air (DSDA)')
+            ->setDescription('Laporan Aset Aktif')
+            ->setKeywords('aset, laporan, excel')
+            ->setCategory('Laporan Aset');
+
+        // Header judul
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setCellValue('A2', 'ASET AKTIF')
+            ->mergeCells('A2:AC2')
+            ->getStyle('A2')->getFont()->setBold(true)->setSize(14);
+        $sheet->setCellValue('A3', strtoupper('Dinas Sumber Daya Air (DSDA)'))
+            ->mergeCells('A3:AC3')
+            ->getStyle('A3')->getFont()->setBold(true);
+        $sheet->setCellValue('A4',  $filterInfo)
+            ->mergeCells('A4:AC4')
+            ->getStyle('A4')->getFont()->setItalic(true);
+        $sheet->setCellValue('A5', 'Periode: ' . now()->format('d F Y'))
+            ->mergeCells('A5:AC5')
+            ->getStyle('A5')->getFont()->setBold(true);
+
+        // Atur rata tengah untuk header
+        $sheet->getStyle('A2:A5')
+            ->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Header tabel
+        $sheet->setCellValue('A7', 'KODE ASET');
+        $sheet->setCellValue('B7', 'KODE SISTEM');
+        $sheet->setCellValue('C7', 'NAMA ASET');
+        $sheet->setCellValue('D7', 'KATEGORI');
+        $sheet->setCellValue('E7', 'DETAIL ASET');
+        $sheet->setCellValue('K7', 'PEMBELIAN');
+        $sheet->setCellValue('R7', 'PENYUSUTAN');
+        $sheet->setCellValue('W7', 'RIWAYAT TERAKHIR');
+        $sheet->setCellValue('AD7', 'KETERANGAN');
+
+        // Sub-header 
+        // Detail Aset
+        $sheet->setCellValue('E8', 'MERK')
+            ->setCellValue('F8', 'TIPE')
+            ->setCellValue('G8', 'PRODUSEN')
+            ->setCellValue('H8', 'KODE PRODUKSI')
+            ->setCellValue('I8', 'TAHUN PRODUKSI')
+            ->setCellValue('J8', 'DESKRIPSI');
+        // Pembelian
+        $sheet->setCellValue('K8', 'TANGGAL')
+            ->setCellValue('L8', 'DISTRIBUTOR')
+            ->setCellValue('M8', 'NO. INVOICE')
+            ->setCellValue('N8', 'JUMLAH')
+            ->setCellValue('O8', 'HARGA SATUAN (Rp)')
+            ->setCellValue('P8', 'HARGA TOTAL (Rp)')
+            ->setCellValue('Q8', 'LAMA GARANSI (TAHUN)');
+        // Penyusutan
+        $sheet->setCellValue('R8', 'UMUR EKONOMI (Tahun)')
+            ->setCellValue('S8', 'USIA SEKARANG')
+            ->setCellValue('T8', 'PENYUSUTAN PER BULAN (Rp)')
+            ->setCellValue('U8', 'TOTAL PENYUSUTAN (Rp)')
+            ->setCellValue('V8', 'NILAI SEKARANG (Rp)');
+        // Riwayat Terakhir
+        $sheet->setCellValue('W8', 'SEJAK TANGGAL')
+            ->setCellValue('X8', 'PENANGGUNG JAWAB')
+            ->setCellValue('Y8', 'LOKASI')
+            ->setCellValue('Z8', 'JUMLAH')
+            ->setCellValue('AA8', 'KONDISI (%)')
+            ->setCellValue('AB8', 'KELENGKAPAN (%)')
+            ->setCellValue('AC8', 'KETERANGAN');
+
+        // Style header tabel
+        // $sheet->getStyle('A7:AC8')->getFont()->setBold(true);
+        // $sheet->getStyle('A7:AC8')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        // $sheet->getStyle('A7:AC8')->getFill()
+        //     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+        //     ->getStartColor()->setARGB('FF806000');
+        $sheet->getStyle('A7:AD8')->getFont()->setBold(true);
+        $sheet->getStyle('A7:AD8')->getFont()->getColor()->setARGB('FFFFFFFF');
+        $sheet->getStyle('A7:AD8')
+            ->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('A7:AD8')
+            ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->mergeCells('E7:J7');
+        $sheet->mergeCells('K7:Q7');
+        $sheet->mergeCells('R7:V7');
+        $sheet->mergeCells('W7:AC7');
+        $sheet->mergeCells('A7:A8');
+        $sheet->mergeCells('B7:B8');
+        $sheet->mergeCells('C7:C8');
+        $sheet->mergeCells('D7:D8');
+        $sheet->mergeCells('AD7:AD8');
+
+        $sheet->getStyle('E8:AC8')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF000000');
+        $sheet->getStyle('A7:D7')->getFill() // E26B0A
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF806000');
+        $sheet->getStyle('E7')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FFE26B0A');
+        $sheet->getStyle('K7')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF375623');
+        $sheet->getStyle('R7')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF833C0C');
+        $sheet->getStyle('W7')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF1F4E78');
+        $sheet->getStyle('AD7')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF806000');
+
+
+
+        // Data
+        $row = 9; // Mulai baris data
+        foreach ($asets as $aset) {
+            $hargaTotal = floatval($aset->hargatotal);
+            $nilaiSekarang = $this->nilaiSekarang($hargaTotal, $aset->tanggalbeli, $aset->umur);
+            $totalPenyusutan = $hargaTotal - $nilaiSekarang;
+
+            $lastHistory = $aset->histories->last();
+            $sheet->setCellValue('A' . $row, $aset->kode)
+                ->setCellValue('B' . $row, $aset->nama)
+                ->setCellValue('C' . $row, $aset->kategori->nama)
+                ->setCellValue('D' . $row, $aset->merk->nama)
+                ->setCellValue('E' . $row, $aset->tipe)
+                ->setCellValue('F' . $row, $aset->produsen)
+                ->setCellValue('G' . $row, $aset->noseri)
+                ->setCellValue('I' . $row, $aset->thproduksi)
+                ->setCellValue('J' . $row, $aset->deskripsi)
+                ->setCellValue('K' . $row, date("d M Y", $aset->tanggalbeli))
+                ->setCellValue('L' . $row, $aset->toko->nama)
+                ->setCellValue('M' . $row, $aset->invoice)
+                ->setCellValue('N' . $row, $aset->jumlah)
+                ->setCellValue('O' . $row, rupiah($aset->hargasatuan))
+                ->setCellValue('P' . $row, rupiah($hargaTotal))
+                ->setCellValue('Q' . $row, $aset->umur)
+                ->setCellValue('R' . $row, $aset->lama_garansi)
+                ->setCellValue('S' . $row, usia_aset($aset->tanggalbeli))
+                ->setCellValue('T' . $row, rupiah($aset->penyusutan))
+                ->setCellValue('U' . $row, rupiah($totalPenyusutan))
+                ->setCellValue('V' . $row, rupiah($nilaiSekarang))
+                ->setCellValue('W' . $row, $lastHistory && $lastHistory->tanggal ? date('d M Y', $lastHistory->tanggal) : '--')
+                ->setCellValue('X' . $row, $lastHistory && $lastHistory->person ? $lastHistory->person->nama : '--')
+                ->setCellValue('Y' . $row, $lastHistory && $lastHistory->lokasi ? $lastHistory->lokasi->nama : '--')
+                ->setCellValue('Z' . $row, $lastHistory ? $lastHistory->jumlah : '--')
+                ->setCellValue('AA' . $row, $lastHistory ? $lastHistory->kondisi : '--')
+                ->setCellValue('AB' . $row, $lastHistory ? $lastHistory->kelengkapan : '--')
+                ->setCellValue('AC' . $row, $lastHistory ? $lastHistory->keterangan : '--')
+                ->setCellValue('AD' . $row, $aset->keterangan);
+
+            // Terapkan alignment ke kanan untuk kolom O dan P pada baris ini
+            $sheet->getStyle('O' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle('P' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle('T' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle('U' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle('V' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+
+            $row++; // Pindah ke baris berikutnya
+        }
+
+
+        // // Auto width untuk semua kolom
+        // foreach (range('A', 'Z') as $columnID) {
+        //     $sheet->getColumnDimension($columnID)->setAutoSize(true);
+        // }
+
+        // Auto Width
+        $sheet->getColumnDimension('A')->setAutoSize(true);
+        $sheet->getColumnDimension('B')->setAutoSize(true);
+        $sheet->getColumnDimension('C')->setAutoSize(true);
+        $sheet->getColumnDimension('D')->setAutoSize(true);
+        $sheet->getColumnDimension('E')->setAutoSize(true);
+        $sheet->getColumnDimension('F')->setAutoSize(true);
+        $sheet->getColumnDimension('G')->setAutoSize(true);
+        $sheet->getColumnDimension('H')->setAutoSize(true);
+        $sheet->getColumnDimension('I')->setAutoSize(true);
+        $sheet->getColumnDimension('J')->setAutoSize(true);
+        $sheet->getColumnDimension('K')->setAutoSize(true);
+        $sheet->getColumnDimension('L')->setAutoSize(true);
+        $sheet->getColumnDimension('M')->setAutoSize(true);
+        $sheet->getColumnDimension('N')->setAutoSize(true);
+        $sheet->getColumnDimension('O')->setAutoSize(true);
+        $sheet->getColumnDimension('P')->setAutoSize(true);
+        $sheet->getColumnDimension('Q')->setAutoSize(true);
+        $sheet->getColumnDimension('R')->setAutoSize(true);
+        $sheet->getColumnDimension('S')->setAutoSize(true);
+        $sheet->getColumnDimension('T')->setAutoSize(true);
+        $sheet->getColumnDimension('U')->setAutoSize(true);
+        $sheet->getColumnDimension('V')->setAutoSize(true);
+        $sheet->getColumnDimension('W')->setAutoSize(true);
+        $sheet->getColumnDimension('X')->setAutoSize(true);
+        $sheet->getColumnDimension('Y')->setAutoSize(true);
+        $sheet->getColumnDimension('Z')->setAutoSize(true);
+        $sheet->getColumnDimension('AA')->setAutoSize(true);
+        $sheet->getColumnDimension('AB')->setAutoSize(true);
+        $sheet->getColumnDimension('AC')->setAutoSize(true);
+        $sheet->getColumnDimension('AD')->setAutoSize(true);
+
+        $fileName = 'Daftar Aset Aktif Dinas Sumber Daya Air (DSDA).xlsx';
+
+        // Set header untuk file Excel
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Disposition: attachment; filename=\"$fileName\"");
+        header('Cache-Control: max-age=0');
+
+        // Simpan file ke output
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        exit;
     }
 }

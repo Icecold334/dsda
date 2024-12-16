@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('systemcode', 32)->nullable();
             $table->string('kode', 128)->nullable();
             $table->string('nama', 128)->nullable();
+            $table->string('slug', 128)->nullable();
             $table->foreignId('kategori_id')->nullable()->constrained('kategori')->onDelete('set null');
             $table->foreignId('merk_id')->nullable()->constrained('merk')->onDelete('set null');
             $table->string('tipe', 256)->nullable();

@@ -6,7 +6,8 @@
             <div class="text-sm border-b-2 ">
                 <div class="flex justify-between px-3">
                     <span class="mr-9 {{ $penulis->id == auth()->id() ? 'font-bold' : '' }}">
-                        {{ $penulis->id == auth()->id() ? 'Anda' : $penulis->name }}
+                        {{-- {{ $penulis->id == auth()->id() ? 'Anda' : $penulis->name }} --}}
+                        {{ false ? 'Anda' : $penulis->name }}
                     </span>
                 </div>
             </div>
@@ -21,7 +22,8 @@
                         <tr class="text-sm border-b-2 ">
                             <td class="flex justify-between px-3">
                                 <span class="mr-9 {{ $kepalaseksi->id == auth()->id() ? 'font-bold' : '' }}">
-                                    {{ $kepalaseksi->id == auth()->id() ? 'Anda' : $kepalaseksi->name }}
+                                    {{-- {{ $kepalaseksi->id == auth()->id() ? 'Anda' : $kepalaseksi->name }} --}}
+                                    {{ false ? 'Anda' : $kepalaseksi->name }}
                                 </span>
                                 <i
                                     class="my-1 fa-solid {{ is_null(
@@ -47,7 +49,8 @@
                         <tr class="text-sm border-b-2 ">
                             <td class="flex justify-between px-3">
                                 <span class="mr-9 {{ $kasubag->id == auth()->id() ? 'font-bold' : '' }}">
-                                    {{ $kasubag->id == auth()->id() ? 'Anda' : $kasubag->name }}
+                                    {{-- {{ $kasubag->id == auth()->id() ? 'Anda' : $kasubag->name }} --}}
+                                    {{ false ? 'Anda' : $kasubag->name }}
                                 </span>
                                 <i
                                     class="my-1 fa-solid {{ is_null(
@@ -74,7 +77,8 @@
                         <tr class="text-sm border-b-2 ">
                             <td class="flex justify-between px-3">
                                 <span class="mr-9 {{ $tu->id == auth()->id() ? 'font-bold' : '' }}">
-                                    {{ $tu->id == auth()->id() ? 'Anda' : $tu->name }}
+                                    {{ false ? 'Anda' : $tu->name }}
+                                    {{-- {{ $tu->id == auth()->id() ? 'Anda' : $tu->name }} --}}
                                 </span>
                                 <i
                                     class="my-1 fa-solid {{ is_null(
@@ -94,13 +98,14 @@
             </div>
             <div class="">
                 <div class="block font-semibold text-center mb-2 text-gray-900">
-                    Kepala Unit</div>
+                    Kepala Kepala Unit/Suku Dinas</div>
                 <table class="w-full mt-3">
-                    @foreach ($kaunitList as $kaunit)
+                    @foreach (Str::contains($permintaan->unit->nama, 'Suku Dinas') ? $kasudinList : $kaunitList as $kaunit)
                         <tr class="text-sm border-b-2 ">
                             <td class="flex justify-between px-3">
                                 <span class="mr-9 {{ $kaunit->id == auth()->id() ? 'font-bold' : '' }}">
-                                    {{ $kaunit->id == auth()->id() ? 'Anda' : $kaunit->name }}
+                                    {{-- {{ $kaunit->id == auth()->id() ? 'Anda' : $kaunit->name }} --}}
+                                    {{ false ? 'Anda' : $kaunit->name }}
                                 </span>
                                 <i
                                     class="my-1 fa-solid {{ is_null(
@@ -121,39 +126,14 @@
         @elseif($permintaan->jenisStok->nama == 'Material')
             <div class="">
                 <div class="block font-semibold text-center mb-2 text-gray-900">
-                    Kepala Seksi Pemeliharaan</div>
+                    Kepala Unit/Suku Dinas</div>
                 <table class="w-full mt-3">
-                    @foreach ($pemeliharaanList as $pemeliharaan)
-                        <tr class="text-sm border-b-2 ">
-                            <td class="flex justify-between px-3">
-                                <span class="mr-9 {{ $pemeliharaan->id == auth()->id() ? 'font-bold' : '' }}">
-                                    {{ $pemeliharaan->id == auth()->id() ? 'Anda' : $pemeliharaan->name }}
-                                </span>
-                                <i
-                                    class="my-1 fa-solid {{ is_null(
-                                        optional($pemeliharaan->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
-                                    )
-                                        ? 'fa-circle-question text-secondary-600'
-                                        : (optional($pemeliharaan->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
-                                            ? 'fa-circle-check text-success-500'
-                                            : 'fa-circle-xmark text-danger-500') }}">
-                                </i>
-
-
-                            </td>
-                        </tr>
-                    @endforeach
-                </table>
-            </div>
-            <div class="">
-                <div class="block font-semibold text-center mb-2 text-gray-900">
-                    Kepala Suku Dinas</div>
-                <table class="w-full mt-3">
-                    @foreach ($kasudinList as $kasudin)
+                    @foreach (Str::contains($permintaan->unit->nama, 'Suku Dinas') ? $kasudinList : $kaunitList as $kasudin)
                         <tr class="text-sm border-b-2 ">
                             <td class="flex justify-between px-3">
                                 <span class="mr-9 {{ $kasudin->id == auth()->id() ? 'font-bold' : '' }}">
-                                    {{ $kasudin->id == auth()->id() ? 'Anda' : $kasudin->name }}
+                                    {{-- {{ $kasudin->id == auth()->id() ? 'Anda' : $kasudin->name }} --}}
+                                    {{ false ? 'Anda' : $kasudin->name }}
                                 </span>
                                 <i
                                     class="my-1 fa-solid {{ is_null(
@@ -171,6 +151,34 @@
                     @endforeach
                 </table>
             </div>
+            <div class="">
+                <div class="block font-semibold text-center mb-2 text-gray-900">
+                    Kepala Seksi Pemeliharaan</div>
+                <table class="w-full mt-3">
+                    @foreach ($pemeliharaanList as $pemeliharaan)
+                        <tr class="text-sm border-b-2 ">
+                            <td class="flex justify-between px-3">
+                                <span class="mr-9 {{ $pemeliharaan->id == auth()->id() ? 'font-bold' : '' }}">
+                                    {{-- {{ $pemeliharaan->id == auth()->id() ? 'Anda' : $pemeliharaan->name }} --}}
+                                    {{ false ? 'Anda' : $pemeliharaan->name }}
+                                </span>
+                                <i
+                                    class="my-1 fa-solid {{ is_null(
+                                        optional($pemeliharaan->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                    )
+                                        ? 'fa-circle-question text-secondary-600'
+                                        : (optional($pemeliharaan->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                            ? 'fa-circle-check text-success-500'
+                                            : 'fa-circle-xmark text-danger-500') }}">
+                                </i>
+
+
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
+            </div>
+
         @endif
         <div class="">
             <div class="block font-semibold text-center mb-2 text-gray-900">
@@ -180,7 +188,8 @@
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
                             <span class="mr-9 {{ $pjGudang->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $pjGudang->id == auth()->id() ? 'Anda' : $pjGudang->name }}
+                                {{-- {{ $pjGudang->id == auth()->id() ? 'Anda' : $pjGudang->name }} --}}
+                                {{ false ? 'Anda' : $pjGudang->name }}
                             </span>
                             <i
                                 class="my-1 fa-solid {{ is_null(

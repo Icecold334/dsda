@@ -15,6 +15,18 @@ class ProfilController extends Controller
     public function index()
     {
         $user = Auth::user(); // Mendapatkan data pengguna yang login
+        // Ambil semua role pengguna yang sedang login
+        $roles = $user->getRoleNames(); // Mengembalikan koleksi nama role
+        $formattedRoles = [];
+
+        // Format setiap role
+        foreach ($roles as $role) {
+            $formattedRoles[] = formatRole($role);
+        }
+
+        // Gabungkan role yang sudah diformat menjadi string
+        $user->formatted_roles = implode(', ', $formattedRoles);
+
         // Ambil unit_id user yang sedang login
         $userUnitId = Auth::user()->unit_id;
 
@@ -28,7 +40,7 @@ class ProfilController extends Controller
 
         // $Users = User::whereNotIn('id', [1, 3])->get();
         // Membuat query berdasarkan kondisi apakah yang login adalah superadmin
-        $Users = User::whereNotIn('id', [1, 3, $user->id]);
+        $Users = User::whereNotIn('id', [1, $user->id]);
 
         // Jika yang login bukan superadmin (id != 1), tambahkan kondisi `whereHas` untuk filter unit kerja
         if ($user->id != 1) {
@@ -38,9 +50,10 @@ class ProfilController extends Controller
                     ->orWhere('id', $parentUnitId);
             });
         }
-
         // Ambil semua pengguna yang sesuai dengan kondisi
-        $Users = $Users->get();
+        $Users = $Users->get()->filter(function ($user) {
+            return !$user->hasRole('guest');
+        });
 
         foreach ($Users as $userItem) {
             // Ambil semua role

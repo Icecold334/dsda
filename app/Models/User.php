@@ -26,6 +26,7 @@ class User extends Authenticatable
         'lokasi_id',
         'nip',
         'ttd',
+        'foto',
         'email',
         'password',
         'username',

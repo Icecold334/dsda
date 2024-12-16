@@ -157,8 +157,4 @@ abstract class Controller
     {
         return 'Rp ' . number_format($angka, 2, ',', '.');
     }
-    // public function __construct()
-    // {
-
-    // }
 }

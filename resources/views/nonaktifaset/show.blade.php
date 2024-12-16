@@ -5,19 +5,23 @@
             <div class="flex space-x-2">
                 <a href="{{ route('nonaktifaset.index') }}"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
-                <!-- Tombol Hapus -->
-                <div>
-                    <livewire:delete-asset :model="$nonaktifaset" />
-                </div>
-                <a data-tooltip-target="tooltip-PDF" href="{{ route('aset.export-pdf', ['id' => $nonaktifaset->id]) }}"
-                    target="_blank"
-                    class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"><i
-                        class="fa-solid fa-file-pdf"></i></a>
-                <div id="tooltip-PDF" role="tooltip"
-                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                    Cetak / Download Kartu Aset dalam format PDF
-                    <div class="tooltip-arrow" data-popper-arrow></div>
-                </div>
+                @can('aset_del')
+                    <!-- Tombol Hapus -->
+                    <div>
+                        <livewire:delete-asset :model="$nonaktifaset" />
+                    </div>
+                @endcan
+                @can('aset_pdf')
+                    <a data-tooltip-target="tooltip-PDF" href="{{ route('aset.export-pdf', ['id' => $nonaktifaset->id]) }}"
+                        target="_blank"
+                        class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"><i
+                            class="fa-solid fa-file-pdf"></i></a>
+                    <div id="tooltip-PDF" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                        Cetak / Download Kartu Aset dalam format PDF
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
+                @endcan
             </div>
         </div>
     </div>

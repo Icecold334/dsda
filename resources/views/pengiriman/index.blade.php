@@ -1,7 +1,10 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">DAFTAR BARANG DATANG</h1>
+        <h1 class="text-2xl font-bold text-primary-900 ">Daftar Barang Datang @if (auth()->user()->unitKerja)
+                {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+            @endif
+        </h1>
         <div>
             {{-- <a href="{{ route('pengiriman-stok.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
@@ -9,6 +12,19 @@
         </div>
     </div>
 
+
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
+                    icon: 'success',
+                    confirmButtonText: 'Okay'
+                });
+            });
+        </script>
+    @endif
     <table class="w-full  border-3 border-separate border-spacing-y-4 ">
         <thead>
             <tr class="text-white">

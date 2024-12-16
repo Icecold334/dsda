@@ -48,6 +48,64 @@ class AssetDetails extends Component
 
     public $maxDays = 31; // Default jumlah hari untuk semua bulan
 
+    public $suggestions = [
+        'person' => [],
+        'lokasi' => [],
+    ];
+
+    public function fetchSuggestions($field, $value)
+    {
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+        $this->suggestions[$field] = [];
+        $key = Str::slug($value);
+        if ($value) {
+            if ($field === 'person') {
+                $this->suggestions[$field] = Person::where('nama_nospace', 'like', '%' . $key . '%')->when($unit, function ($query) use ($parentUnitId) {
+                    $query->whereHas('user', function ($query) use ($parentUnitId) {
+                        filterByParentUnit($query, $parentUnitId);
+                    });
+                })
+                    ->selectRaw('MIN(id) as id, nama') // Pilih ID terkecil dan nama unik
+                    ->groupBy('nama')
+                    ->pluck('nama')->toArray();
+            } elseif ($field === 'lokasi') {
+                $this->suggestions[$field] = Lokasi::where('nama_nospace', 'like', '%' . $key . '%')->when($unit, function ($query) use ($parentUnitId) {
+                    $query->whereHas('user', function ($query) use ($parentUnitId) {
+                        filterByParentUnit($query, $parentUnitId);
+                    });
+                })
+                    ->selectRaw('MIN(id) as id, nama') // Pilih ID terkecil dan nama unik
+                    ->groupBy('nama')
+                    ->pluck('nama')->toArray();
+            }
+        }
+    }
+
+    public function selectSuggestion($field, $value)
+    {
+        if ($field === 'person') {
+            $this->person = $value;
+        } elseif ($field === 'lokasi') {
+            $this->lokasi = $value;
+        }
+        $this->suggestions[$field] = [];
+    }
+
+    public function hideSuggestions($field)
+    {
+        $this->suggestions[$field] = [];
+        // $this->showSuggestionsMerk = false;
+    }
+
     public function mount($type, $aset)
     {
         $this->type = $type;
@@ -206,6 +264,10 @@ class AssetDetails extends Component
             if ($model) {
                 $this->modalData = $model->toArray();
 
+                if ($this->type === 'history') {
+                    $this->person = $model->person->nama ?? '';
+                    $this->lokasi = $model->lokasi->nama ?? '';
+                }
                 // Atur boolean berdasarkan tipe (untuk agenda)
                 if ($this->type === 'agenda') {
                     $this->setAgendaType($this->modalData['tipe'] ?? '');
@@ -213,6 +275,7 @@ class AssetDetails extends Component
             } else {
                 $this->modalData = [];
             }
+            // dd($this->modalData);
         } else {
             // Tambah mode: Inisialisasi data default
             $this->modalData = $this->initializeModalData();
@@ -331,7 +394,8 @@ class AssetDetails extends Component
 
         if ($this->type === 'history') {
             $personId = $this->getOrCreatePerson($this->person);
-            $lokasiId = $this->lokasi_id ? $this->lokasi_id : $this->getOrCreateLokasi($this->lokasi);
+            $lokasiId = $this->getOrCreateLokasi($this->lokasi);
+            // $lokasiId = $this->lokasi_id ? $this->lokasi_id : $this->getOrCreateLokasi($this->lokasi);
             // dd($lokasiId);
             // Tambahkan ID ke dalam modalData
             $this->modalData['person_id'] = $personId;
@@ -484,7 +548,7 @@ class AssetDetails extends Component
             'in' => ':attribute harus salah satu dari: :values.',
 
             // History
-            'modalData.tanggal.required' => 'Tanggal riwayat wajib diisi.',
+            'modalData.tanggal.required' => 'Tanggal wajib diisi.',
             'modalData.jumlah.required' => 'Jumlah aset wajib diisi.',
             'modalData.jumlah.integer' => 'Jumlah aset harus berupa angka.',
             'modalData.jumlah.min' => 'Jumlah aset minimal 1.',
@@ -498,8 +562,8 @@ class AssetDetails extends Component
 
             // Agenda
             'modalData.tipe.required' => 'Tipe agenda wajib diisi.',
-            'modalData.keterangan.required' => 'Keterangan agenda wajib diisi.',
-            'modalData.keterangan.max' => 'Keterangan agenda tidak boleh lebih dari 255 karakter.',
+            'modalData.keterangan.required' => 'Keterangan wajib diisi.',
+            // 'modalData.keterangan.max' => 'Keterangan agenda tidak boleh lebih dari 255 karakter.',
             'modalData.hari.required' => 'Hari agenda wajib diisi.',
             'modalData.hari.integer' => 'Hari agenda harus berupa angka.',
             'modalData.hari.in' => 'Hari agenda harus antara 1 (Senin) hingga 7 (Minggu).',
@@ -508,17 +572,17 @@ class AssetDetails extends Component
             'modalData.bulan.between' => 'Bulan agenda harus antara 1 dan 12.',
 
             // Keuangan
-            'modalData.tanggal.required' => 'Tanggal transaksi wajib diisi.',
-            'modalData.tipe.required' => 'Tipe transaksi wajib diisi.',
+            // 'modalData.tanggal.required' => 'Tanggal transaksi wajib diisi.',
+            // 'modalData.tipe.required' => 'Tipe transaksi wajib diisi.',
             'modalData.tipe.in' => 'Tipe transaksi harus "in" (pemasukan) atau "out" (pengeluaran).',
             'modalData.nominal.required' => 'Nominal transaksi wajib diisi.',
             'modalData.nominal.integer' => 'Nominal transaksi harus berupa angka.',
             'modalData.nominal.min' => 'Nominal transaksi harus minimal 0.',
-            'modalData.keterangan.max' => 'Keterangan transaksi tidak boleh lebih dari 500 karakter.',
+            // 'modalData.keterangan.max' => 'Keterangan transaksi tidak boleh lebih dari 500 karakter.',
 
             // Jurnal
-            'modalData.tanggal.required' => 'Tanggal wajib diisi.',
-            'modalData.keterangan.max' => 'Keterangan jurnal tidak boleh lebih dari 500 karakter.',
+            // 'modalData.tanggal.required' => 'Tanggal wajib diisi.',
+            // 'modalData.keterangan.max' => 'Keterangan jurnal tidak boleh lebih dari 500 karakter.',
         ];
     }
 

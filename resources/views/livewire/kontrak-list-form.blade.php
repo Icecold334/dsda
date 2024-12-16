@@ -49,9 +49,17 @@
                 <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl ">
                     <td class="px-6 py-3">
                         <div class="flex space-x-2">
+                            {{-- @if ($jenis_id == 3)
+                                <div
+                                    class="bg-gray-100 border border-gray-300 text-gray-900 text-center text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block max-w-72 p-2.5 dark:bg-gray-700 dark:border-gray-600">
+                                    Kategori
+                                </div>
+                            @endif --}}
                             <input
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
-                                type="text" wire:model.live="newBarang" wire:blur="blurBarang"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm 
+                                rounded-lg
+                                focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                {{-- {{ $jenis_id == 3 ? '' : 'rounded-l-lg' }} {{ $barang_id ? 'rounded-lg' : '' }} --}} type="text" wire:model.live="newBarang" wire:blur="blurBarang"
                                 placeholder="Cari Barang">
                             @if (!$barang_id)
                                 <button wire:click="openBarangModal"
@@ -151,11 +159,39 @@
                         @enderror
                     </div>
 
+                    @if ($jenis_id == 3)
+                        <!-- Kategori Untuk Barang Umum -->
+                        <div class="mb-4 relative">
+                            <label class="block text-sm font-medium text-gray-900 dark:text-gray-300">Kategori
+                                Barang</label>
+                            <input type="text" wire:model.live="newKategori"
+                                wire:input="fetchSuggestions('kategori', $event.target.value)"
+                                wire:blur="blurSpecification('kategori')"
+                                class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                placeholder="Masukkan Kategori">
+                            @if ($suggestions['kategori'])
+                                <ul
+                                    class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-auto shadow-lg">
+                                    @foreach ($suggestions['kategori'] as $suggestion)
+                                        <li wire:click="selectSuggestion('kategori', '{{ $suggestion }}')"
+                                            class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
+                                            {{ $suggestion }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                            @error('newKategori')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    @endif
+
                     <!-- Satuan Besar -->
                     <div class="mb-4 relative">
                         <label class="block text-sm font-medium text-gray-900 dark:text-gray-300">Satuan Besar</label>
                         <input type="text" wire:model.live="newBarangSatuanBesar"
                             wire:input="fetchSuggestions('satuanBesar', $event.target.value)"
+                            wire:blur="blurSpecification('satuanBesar')"
                             class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                             placeholder="Masukkan Satuan Besar">
                         @if ($suggestions['satuanBesar'])
@@ -180,6 +216,7 @@
                             (Opsional)</label>
                         <input type="text" wire:model.live="newBarangSatuanKecil"
                             wire:input="fetchSuggestions('satuanKecil', $event.target.value)"
+                            wire:blur="blurSpecification('satuanKecil')"
                             class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                             placeholder="Masukkan Satuan Kecil">
                         @if ($suggestions['satuanKecil'])

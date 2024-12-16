@@ -191,8 +191,14 @@ class ListPermintaanForm extends Component
     {
         $this->asetSuggestions = [];
 
-        $suggest = Aset::where('nama', 'like', '%' . $this->newAset . '%')->get();
-        $this->asetSuggestions = $suggest;
+
+
+        if ($this->requestIs === 'spare-part') {
+            $suggest = Aset::whereHas('kategori', function ($kategori) {
+                return $kategori->where('nama', 'KDO');
+            });
+        }
+        $this->asetSuggestions = $suggest->where('nama', 'like', '%' . $this->newAset . '%')->get();
     }
     public function focusBarang()
     {
@@ -382,7 +388,8 @@ class ListPermintaanForm extends Component
             'satuan' => $this->newUnit,
             'dokumen' => $this->newDokumen ?? null,
         ];
-
+        $this->ruleAdd = false;
+        $this->dispatch('listCount', count: count($this->list));
         // Reset inputs after adding to the list
         $this->reset(['newBarang', 'newJumlah', 'newDokumen', 'newAset', 'newAsetId', 'newDeskripsi', 'newCatatan', 'newBukti']);
     }
@@ -437,8 +444,7 @@ class ListPermintaanForm extends Component
                     'dokumen' => $value->img ?? null,
                 ];
             }
-            $role = $tipe == 'Umum' ? 'kepala_seksi' : ($tipe == 'Spare Part' ? 'kepala_sub_bagian_tata_usaha' : 'kepala_seksi_pemeliharaan');
-
+            $role = $tipe == 'Umum' ? 'Kepala Seksi' : ($tipe == 'Spare Part' ? 'Kepala Subbagian Tata Usaha' : 'Kepala Seksi Pemeliharaan');
             $this->approvals = PersetujuanPermintaanStok::where('status', true)->where('detail_permintaan_id', $this->permintaan->id)
                 ->whereHas('user', function ($query) use ($role) {
                     $query->role($role); // Muat hanya persetujuan dari kepala_seksi
@@ -456,6 +462,7 @@ class ListPermintaanForm extends Component
         }
         unset($this->list[$index]);
         $this->list = array_values($this->list); // Reindex the array
+        $this->dispatch('listCount', count: count($this->list));
     }
 
     public function blurLokasi()
@@ -502,12 +509,16 @@ class ListPermintaanForm extends Component
         session()->flash('message', 'Item approved successfully!');
     }
 
+    public function removePhoto()
+    {
+        $this->newBukti = null;
+    }
     public function removeDocument($index)
     {
         $item = $this->list[$index];
 
         // Optional: Delete the file from storage if necessary
-        Storage::delete($item['dokumen']);
+        // Storage::delete($item['dokumen']);
 
         // Remove the document path from the item in the list
         $this->list[$index]['dokumen'] = null;

@@ -1,6 +1,11 @@
 <x-body>
-    {{-- <h1>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae, voluptatum, corrupti eveniet iste, fuga
-        commodi qui minus maxime rem hic eos molestiae officia eligendi earum? Nostrum modi illo doloremque totam.</h1> --}}
+    <h1 class="text-2xl font-bold text-primary-900 mb-3">
+        @if (auth()->user()->unitKerja)
+            {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+        @endif
+
+
+    </h1>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-3">
 
         <div class="col-span-2">
