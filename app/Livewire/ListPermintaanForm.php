@@ -444,7 +444,7 @@ class ListPermintaanForm extends Component
                     'dokumen' => $value->img ?? null,
                 ];
             }
-            $role = $tipe == 'Umum' ? 'Kepala Seksi' : ($tipe == 'Spare Part' ? 'Kepala Subbagian Tata Usaha' : 'Kepala Seksi Pemeliharaan');
+            $role = $tipe == 'Umum' ? 'Kepala Seksi' : ($tipe == 'Spare Part' ? 'Kepala Subbagian' : 'Kepala Seksi Pemeliharaan');
             $this->approvals = PersetujuanPermintaanStok::where('status', true)->where('detail_permintaan_id', $this->permintaan->id)
                 ->whereHas('user', function ($query) use ($role) {
                     $query->role($role); // Muat hanya persetujuan dari kepala_seksi

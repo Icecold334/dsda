@@ -119,7 +119,7 @@ class ApprovalPermintaan extends Component
             'Pejabat Pembuat Komitmen' => 'ppkList',
             'Pejabat Pelaksana Teknis Kegiatan' => 'pptkList',
             'Penjaga Gudang' => 'pjGudangList',
-            // 'Kepala Subbagian Tata Usaha' => 'tuList',
+            // 'Kepala Subbagian' => 'tuList',
             'Kepala Unit' => 'kaunitList',
             // 'Kepala Seksi Pemeliharaan' => 'pemeliharaanList',
             'Kepala Suku Dinas' => 'kasudinList',
@@ -173,7 +173,7 @@ class ApprovalPermintaan extends Component
 
         // Check approval states dynamically
         $this->lastKasubagDone = $this->checkApprovalDone('Kepala Subbagian');
-        $this->lasttuDone = $this->checkApprovalDone('Kepala Subbagian Tata Usaha');
+        $this->lasttuDone = $this->checkApprovalDone('Kepala Subbagian');
         $this->lastkaunitDone = $this->checkApprovalDone('Kepala Unit');
         $this->lastkasudinDone = $this->checkApprovalDone('Kepala Suku Dinas');
 

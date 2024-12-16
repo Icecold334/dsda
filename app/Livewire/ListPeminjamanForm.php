@@ -4,22 +4,25 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\Aset;
+use App\Models\Kategori;
 use Livewire\Component;
+use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 
 class ListPeminjamanForm extends Component
 {
 
 
+    public $tipe;
     public $unit_id;
     public $sub_unit_id;
     public $tanggal_permintaan;
     public $keterangan;
     public $permintaan;
     public $list = [];
-    public $newAset;
+    public $newAsetId;
     public $newMerkJenis;
-    public $newPermintaan;
+    public $newPeminjaman = 1;
     public $newDisetujui;
     public $newTanggalPeminjaman;
     public $newTanggalPengembalian;
@@ -30,32 +33,52 @@ class ListPeminjamanForm extends Component
     public $newDokumen; // Input for new dokumen
     public $barangSuggestions = []; // Suggestions for barang
     public $assetSuggestions = [];
+    public $asets = [];
+    public $suggestions = [
+        'barang' => [],
+        'aset' => []
+    ];
 
-    public function updatedNewAset($value)
+    public function fetchSuggestions($field, $value = '')
     {
-        $this->assetSuggestions = Aset::where('nama', 'like', "%{$value}%")
-            ->get();
+        $this->suggestions[$field] = [];
+        // if ($value) {
+        $key = Str::slug($value);
+
+        if ($field === 'aset') {
+            $tipe = 'KDO';
+            $this->suggestions[$field] = Aset::whereHas('kategori', function ($kategori) use ($tipe) {
+                return $kategori->where('nama', $tipe);
+            })->where('slug', 'like', '%' . $key . '%')
+                ->pluck('nama')->toArray();
+        }
+        // }
+    }
+    public function selectSuggestion($field, $value)
+    {
+        // if ($field === 'aset') {
+        //     $this->newAset = $value;
+        // }
+        $this->suggestions[$field] = [];
+    }
+    public function blurSpecification($key)
+    {
+        $this->suggestions[$key] = [];
     }
 
-    public function selectAsset($asetId)
-    {
-        $aset = Aset::find($asetId);
-        $this->newAset = $aset->nama;
-        $this->assetSuggestions = [];
-    }
     public function addToList()
     {
-        $this->validate([
-            'newAset' => 'required',
-            'newPermintaan' => 'required|integer|min:1',
-            'newTanggalPeminjaman' => 'required|date',
-            'newTanggalPengembalian' => 'required|date|after:newTanggalPeminjaman',
-            'newKeterangan' => 'nullable|string',
-        ]);
+        // $this->validate([
+        //     'newAset' => 'required',
+        //     'newPermintaan' => 'required|integer|min:1',
+        //     'newTanggalPeminjaman' => 'required|date',
+        //     'newTanggalPengembalian' => 'required|date|after:newTanggalPeminjaman',
+        //     'newKeterangan' => 'nullable|string',
+        // ]);
 
         $this->list[] = [
-            'aset_id' => Aset::where('nama', $this->newAset)->first()->id,
-            'aset_name' => $this->newAset,
+            'aset_id' => Aset::where('nama', $this->newAsetId)->first()->id,
+            'aset_name' => $this->newAsetId,
             'merk_jenis' => $this->newMerkJenis,
             'permintaan' => $this->newPermintaan,
             'disetujui' => $this->newDisetujui,
@@ -64,21 +87,8 @@ class ListPeminjamanForm extends Component
             'keterangan' => $this->newKeterangan,
         ];
 
-        $this->reset(['newAset', 'newMerkJenis', 'newPermintaan', 'newDisetujui', 'newTanggalPeminjaman', 'newTanggalPengembalian', 'newKeterangan']);
+        $this->reset(['newAsetId', 'newMerkJenis', 'newPermintaan', 'newDisetujui', 'newTanggalPeminjaman', 'newTanggalPengembalian', 'newKeterangan']);
     }
-    public function blurAsset()
-    {
-        // This method can be used to perform actions when the asset input field loses focus.
-        // For example, it might validate the input or clear/hide suggestions.
-        // Below is a simple example that might just log the current state or do nothing.
-
-        // Log the current newAset value, or perform other logic as needed.
-        // \Log::info("Asset input lost focus with value: {$this->newAset}");
-
-        // Optionally, you can clear suggestions here if applicable.
-        $this->assetSuggestions = [];
-    }
-
 
     public function removeFromList($index)
     {
@@ -90,6 +100,25 @@ class ListPeminjamanForm extends Component
     public function fillUnitId($unit_id)
     {
         $this->unit_id = $unit_id;
+    }
+    #[On('peminjaman')]
+    public function fillTipe($peminjaman)
+    {
+        $this->tipe = $peminjaman;
+        $tipe = $this->tipe;
+        $kategori = Kategori::where('nama', $tipe)->first();
+        $cond = false;
+        $this->asets =
+            Aset::when($cond, function ($query) {
+                $query->whereHas('user', function ($query) {
+                    return $query->whereHas('unitKerja', function ($query) {
+                        return $query->where('parent_id', $this->unit_id)
+                            ->orWhere('id', $this->unit_id);
+                    });
+                });
+            })->whereHas('kategori', function ($query) use ($kategori) {
+                return $query->where('parent_id', $kategori->id)->orWhere('id', $kategori->id);
+            })->get();
     }
 
     #[On('sub_unit_id')]
@@ -111,6 +140,7 @@ class ListPeminjamanForm extends Component
 
     public function mount()
     {
+
         $this->newTanggalPeminjaman = Carbon::today()->toDateString();
         $this->newTanggalPengembalian = Carbon::today()->addWeek(1)->toDateString(); // Default to 1 week later
         $this->tanggal_permintaan = Carbon::now()->format('Y-m-d');
