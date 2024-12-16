@@ -12,7 +12,7 @@ class ListKontrakBarang extends Component
 {
     public $vendor_id;
     public $jenis_id;
-    public $merkList;
+    public $merkList, $unit_id;
     #[On('jenis_id')]
     public function fillJenis($jenis_id)
     {
