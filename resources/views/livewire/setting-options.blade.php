@@ -221,7 +221,46 @@
         @endpush
 
         <!-- Roles List -->
-        <div class="space-y-2 mb-4 overflow-y-auto max-h-40">
+        <div class="space-y-2 mb-4 overflow-y-auto max-h-52">
+            <div class="relative">
+                <!-- Input Pencarian -->
+                {{-- <input type="text" wire:model.live="search" wire:focus="loadSuggestions" wire:blur="hideSuggestions"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white pr-10"
+                    placeholder="Cari Jabatan">
+
+                <!-- Tombol Remove Search -->
+                @if ($search)
+                    <button type="button" wire:click="resetSearch"
+                        class="absolute top-0 right-0 mt-2 mr-2 text-gray-500 hover:text-gray-700">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                @endif --}}
+                <!-- Input Pencarian -->
+                <input type="text" wire:model.live="search"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white pr-10"
+                    placeholder="Cari Jabatan">
+
+                <!-- Tombol Reset Pencarian -->
+                @if ($search)
+                    <button type="button" wire:click="resetSearch"
+                        class="absolute top-0 right-0 mt-2 mr-2 text-gray-500 hover:text-gray-700">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                @endif
+            </div>
+
+            <!-- Daftar Suggestions -->
+            @if ($suggestions)
+                <ul class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                    @foreach ($suggestions as $suggestion)
+                        <li wire:click="selectSuggestion('{{ $suggestion }}')"
+                            class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
+                            {{ $suggestion }}
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+
             @if ($roles->isNotEmpty())
                 @foreach ($roles as $role)
                     <div class="border rounded-lg p-3 bg-gray-50 shadow-sm">
@@ -231,6 +270,7 @@
                                 {{-- Replace with dynamic role name and guard name --}}
                                 <div class="text-sm font-medium text-gray-700">{{ $role['name'] }}</div>
                                 {{-- <div class="text-xs text-gray-500">{{ $role->guard_name }}</div> --}}
+
                             </div>
                             <!-- Action Buttons -->
                             <div class="flex space-x-2">

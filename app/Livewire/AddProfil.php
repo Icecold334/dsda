@@ -76,7 +76,9 @@ class AddProfil extends Component
         $this->lokasistoks = LokasiStok::all();
         if ($this->tipe == 'user') {
             // $this->users = User::all();
-            $this->roles = Role::whereNotIn('id', [1, 2])->get();
+            $this->roles = Role::whereNotIn('id', [1, 2])
+                ->whereNotIn('id', $user->roles->pluck('id')->toArray())
+                ->get();
             if ($this->id) {
                 $user = User::find($this->id);
                 $this->user_id = $user->user_id;

@@ -237,7 +237,9 @@
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold ">NAMA ASET</th>
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold">KODE</th>
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold">MERK & TIPE</th>
-                <th class="py-3 px-6 bg-primary-950 text-left font-semibold">PENYUSUTAN</th>
+                @can('aset_price')
+                    <th class="py-3 px-6 bg-primary-950 text-left font-semibold">PENYUSUTAN</th>
+                @endcan
                 @can('history_view')
                     <th class="py-3 px-6 bg-primary-950 text-left font-semibold">RIWAYAT TERAKHIR</th>
                 @endcan
@@ -403,17 +405,19 @@
                             <p class="text-sm text-gray-500">{{ $aset->tipe ?? '---' }}</p>
 
                         </td>
-                        <td class="py-3 px-6 ">
-                            <div class="flex items-center text-gray-800">
-                                {{ $aset->hargatotal }}
-                            </div>
-                            <div class="flex items-center text-gray-800">
-                                {{ $aset->totalpenyusutan }}
-                            </div>
-                            <div class="flex items-center text-gray-800">
-                                {{ $aset->nilaiSekarang }}
-                            </div>
-                        </td>
+                        @can('aset_price')
+                            <td class="py-3 px-6 ">
+                                <div class="flex items-center text-gray-800">
+                                    {{ $aset->hargatotal }}
+                                </div>
+                                <div class="flex items-center text-gray-800">
+                                    {{ $aset->totalpenyusutan }}
+                                </div>
+                                <div class="flex items-center text-gray-800">
+                                    {{ $aset->nilaiSekarang }}
+                                </div>
+                            </td>
+                        @endcan
                         @can('history_view')
                             <td class="py-3 px-6 ">
                                 @if ($aset->histories->last())
