@@ -83,7 +83,7 @@
                             <td style="width: 40%"><label for="merk"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Merk *</label>
                             </td>
-                            <td>
+                            {{-- <td>
                                 <input type="text" id="merk" wire:model.live="merk" wire:focus="focusMerk"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                     placeholder="Masukkan merk" wire:blur="hideSuggestionsMerk" required>
@@ -93,7 +93,7 @@
                                         @foreach ($suggestionsMerk as $suggestionMerk)
                                             <li wire:click="selectSuggestionMerk({{ $suggestionMerk['id'] }}, '{{ $suggestionMerk['nama'] }}')"
                                                 class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
-                                                {{ $suggestionMerk['nama'] }}
+                                                {{ $suggestionMerk['nama'] }} 
                                             </li>
                                         @endforeach
 
@@ -102,7 +102,28 @@
                                 @error('merk')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
+                            </td> --}}
+                            <td>
+                                <input type="text" wire:model.live="merk"
+                                    wire:input="fetchSuggestions('merk', $event.target.value)"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                    placeholder="Masukkan Merk" wire:blur="hideSuggestions('merk')" required>
+                                @if ($suggestions['merk'])
+                                    <ul
+                                        class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                        @foreach ($suggestions['merk'] as $suggestion)
+                                            <li wire:click="selectSuggestion('merk', '{{ $suggestion }}')"
+                                                class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
+                                                {{ $suggestion }}
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                                @error('merk')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
                             </td>
+
                         </tr>
                         <!-- Tipe Field -->
                         <tr>
@@ -223,7 +244,7 @@
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Toko /
                                     Distributor *</label>
                             </td>
-                            <td>
+                            {{-- <td>
                                 <input type="text" id="toko" wire:model.live="toko" wire:focus="focusToko"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                     placeholder="Masukkan toko" wire:blur="hideSuggestionsToko" required>
@@ -242,7 +263,28 @@
                                 @error('toko')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
+                            </td> --}}
+                            <td>
+                                <input type="text" wire:model.live="toko"
+                                    wire:input="fetchSuggestions('toko', $event.target.value)"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                    placeholder="Masukkan toko" wire:blur="hideSuggestions('toko')" required>
+                                @if ($suggestions['toko'])
+                                    <ul
+                                        class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                        @foreach ($suggestions['toko'] as $suggestion)
+                                            <li wire:click="selectSuggestion('toko', '{{ $suggestion }}')"
+                                                class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
+                                                {{ $suggestion }}
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                                @error('toko')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
                             </td>
+
                         </tr>
                         <!-- No. Invoice Field -->
                         <tr>

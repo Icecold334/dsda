@@ -10,6 +10,8 @@ use Livewire\WithFileUploads;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\On;
 
 class AddProfil extends Component
 {
@@ -41,6 +43,7 @@ class AddProfil extends Component
     public $unit_kerja;
     public $nip;
     public $img;
+    public $ttd;
 
     public function updatedSelectedRoles()
     {
@@ -112,12 +115,13 @@ class AddProfil extends Component
         } else {
             // if ($this->id) {
             $this->name = $user->name;
-            $this->perusahaan = $user->perusahaan;
-            $this->alamat = $user->alamat;
-            $this->provinsi = $user->provinsi;
-            $this->kota = $user->kota;
+            // $this->perusahaan = $user->perusahaan;
+            // $this->alamat = $user->alamat;
+            // $this->provinsi = $user->provinsi;
+            // $this->kota = $user->kota;
             $this->nip = $user->nip;
-            $this->img = $user->ttd;
+            $this->img = $user->foto;
+            $this->ttd = $user->ttd;
             // $this->unit_kerja = $user->unit_id;
             // $this->lokasi_stok = $profil->lokasi_id;
             // }
@@ -172,6 +176,12 @@ class AddProfil extends Component
                 ]
             );
             $user->assignRole($this->selectedRoles);
+
+            if ($user->wasRecentlyCreated && $this->name) {
+                return redirect()->route('profil.index')->with('success', 'Berhasil Menambah User');
+            } else {
+                return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah Data User');
+            }
         } elseif ($this->tipe == 'phone') {
             $user = User::find($this->id);
             $user->update( // Unique fields to check
@@ -179,6 +189,7 @@ class AddProfil extends Component
                     'no_wa' => $this->new_wa,
                 ]
             );
+            return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah No WhatsApp');
         } elseif ($this->tipe == 'email') {
             $user = User::find($this->id);
             $user->update(
@@ -186,6 +197,7 @@ class AddProfil extends Component
                     'email' => $this->new_email,
                 ]
             );
+            return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah Email');
         } elseif ($this->tipe == 'password') {
             $this->validate([
                 'old_password' => 'required',
@@ -213,32 +225,74 @@ class AddProfil extends Component
                     'password' => Hash::make($this->password),
                 ]
             );
+            return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah Password');
         } else {
-            $user = User::find($this->id);
+            $user = User::find(Auth::user()->id);
             $imgRule = is_string($this->img) ? '' : 'nullable|image|max:2048|mimes:jpeg,png,jpg,gif';
             $this->validate([
                 'img' => $imgRule,
             ]);
+
+            // Proses penyimpanan tanda tangan
+            // dd($this->ttd);
+
+            // Proses penyimpanan tanda tangan
+            $ttdFileName = $user->ttd; // Gunakan TTD lama sebagai default
+            if ($this->ttd && $this->ttd !== $ttdFileName) { // Jika ada TTD baru dan berbeda
+                // Decode Base64 Image
+                $image = str_replace('data:image/png;base64,', '', $this->ttd);
+                $image = str_replace(' ', '+', $image);
+                $imageData = base64_decode($image);
+
+                // Simpan ke storage
+                $fileName = 'usersTTD/' . uniqid() . '.png';
+                Storage::disk('public')->put($fileName, $imageData);
+
+                // Hapus TTD lama jika perlu
+                if ($ttdFileName && Storage::disk('public')->exists('usersTTD/' . $ttdFileName)) {
+                    Storage::disk('public')->delete('usersTTD/' . $ttdFileName);
+                }
+
+                // Simpan nama file TTD baru
+                $ttdFileName = str_replace('usersTTD/', '', $fileName);
+            }
+
+
+            // dd($user);
             $user->update( // Unique fields to check
                 [
                     'name' => $this->name,
                     // 'unit_id' => $this->unit_kerja,
                     // 'lokasi_id' => $this->lokasi_stok,
-                    'perusahaan' => $this->perusahaan,
-                    'alamat' => $this->alamat,
-                    'provinsi' => $this->provinsi,
-                    'kota' => $this->kota,
+                    // 'perusahaan' => $this->perusahaan,
+                    // 'alamat' => $this->alamat,
+                    // 'provinsi' => $this->provinsi,
+                    // 'kota' => $this->kota,
                     'nip' => $this->nip,
-                    'ttd' => $this->img
+                    'ttd' => $ttdFileName,
+                    'foto' => $this->img
                         ? (is_object($this->img)
-                            ? str_replace('usersTTD/', '', $this->img->store('usersTTD', 'public'))
+                            ? str_replace('usersFoto/', '', $this->img->store('usersFoto', 'public'))
                             : $this->img)
                         : null,
                 ]
             );
+            // dd($user);
+            return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah Profil');
         }
+    }
 
-        return redirect()->route('profil.index');
+    #[On('upload')]
+    public function generateTTD($detail)
+    {
+        $this->ttd = $detail;
+        $this->saveProfil();
+    }
+
+    public function removeTTD()
+    {
+        $this->ttd = null;
+        $this->dispatch('resetCanvas');
     }
 
     public function render()

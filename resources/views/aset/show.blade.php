@@ -5,33 +5,39 @@
         <div>
             <a href="{{ route('aset.index') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
-            <a data-tooltip-target="tooltip-Edit" href="{{ route('aset.edit', ['aset' => $aset->id]) }}"
-                class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"><i
-                    class="fa-solid fa-pen"></i></a>
-            <div id="tooltip-Edit" role="tooltip"
-                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                Edit Aset
-                <div class="tooltip-arrow" data-popper-arrow></div>
-            </div>
-            <a data-tooltip-target="tooltip-Nonaktif"
-                class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                data-modal-target="nonaktifModal" data-modal-toggle="nonaktifModal">
-                <i class="fa-solid fa-boxes-packing"></i>
-            </a>
-            <div id="tooltip-Nonaktif" role="tooltip"
-                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                Nonaktifkan Aset ini, yaitu saat aset ini dijual atau tidak dimiliki lagi.
-                <div class="tooltip-arrow" data-popper-arrow></div>
-            </div>
-            <a data-tooltip-target="tooltip-PDF" href="{{ route('aset.export-pdf', ['id' => $aset->id]) }}"
-                target="_blank"
-                class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"><i
-                    class="fa-solid fa-file-pdf"></i></a>
-            <div id="tooltip-PDF" role="tooltip"
-                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                Cetak / Download Kartu Aset dalam format PDF
-                <div class="tooltip-arrow" data-popper-arrow></div>
-            </div>
+            @can('aset_edit')
+                <a data-tooltip-target="tooltip-Edit" href="{{ route('aset.edit', ['aset' => $aset->id]) }}"
+                    class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"><i
+                        class="fa-solid fa-pen"></i></a>
+                <div id="tooltip-Edit" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Edit Aset
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+            @endcan
+            @can('aset_noaktif')
+                <a data-tooltip-target="tooltip-Nonaktif"
+                    class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                    data-modal-target="nonaktifModal" data-modal-toggle="nonaktifModal">
+                    <i class="fa-solid fa-boxes-packing"></i>
+                </a>
+                <div id="tooltip-Nonaktif" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Nonaktifkan Aset ini, yaitu saat aset ini dijual atau tidak dimiliki lagi.
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+            @endcan
+            @can('aset_pdf')
+                <a data-tooltip-target="tooltip-PDF" href="{{ route('aset.export-pdf', ['id' => $aset->id]) }}"
+                    target="_blank"
+                    class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"><i
+                        class="fa-solid fa-file-pdf"></i></a>
+                <div id="tooltip-PDF" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Cetak / Download Kartu Aset dalam format PDF
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+            @endcan
         </div>
     </div>
 
@@ -238,7 +244,7 @@
                     </tr>
                     <tr>
                         <td class="" style="width: 30%">Lama Garansi</td>
-                        <td class="">{{ $aset->lama_garansi ?? '---' }}</td>
+                        <td class="">{{ $aset->lama_garansi ?? '---' }} Tahun</td>
                     </tr>
                     <tr>
                         <td class="" style="width: 30%">Kartu Garansi</td>
@@ -325,22 +331,26 @@
                 class="w-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
                 <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 rounded-t-lg bg-primary-100 dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800"
                     id="defaultTab" data-tabs-toggle="#defaultTabContent" role="tablist">
-                    <li class="me-2">
-                        <button id="history-tab" data-tabs-target="#history" type="button" role="tab"
-                            aria-controls="history" aria-selected="true"
-                            class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">Riwayat</button>
-                    </li>
+                    @can('history_view')
+                        <li class="me-2">
+                            <button id="history-tab" data-tabs-target="#history" type="button" role="tab"
+                                aria-controls="history" aria-selected="true"
+                                class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">Riwayat</button>
+                        </li>
+                    @endcan
                     <li class="me-2">
                         <button id="agenda-tab" data-tabs-target="#agenda" type="button" role="tab"
                             aria-controls="agenda" aria-selected="false"
                             class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">Agenda</button>
                     </li>
-                    <li class="me-2">
-                        <button id="keuangan-tab" data-tabs-target="#keuangan" type="button" role="tab"
-                            aria-controls="keuangan"
-                            aria-selected="{{ request('tab') === 'keuangan' ? 'true' : 'false' }}"
-                            class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">Keuangan</button>
-                    </li>
+                    @can('trans_view')
+                        <li class="me-2">
+                            <button id="keuangan-tab" data-tabs-target="#keuangan" type="button" role="tab"
+                                aria-controls="keuangan"
+                                aria-selected="{{ request('tab') === 'keuangan' ? 'true' : 'false' }}"
+                                class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">Keuangan</button>
+                        </li>
+                    @endcan
                     <li class="me-2">
                         <button id="jurnal-tab" data-tabs-target="#jurnal" type="button" role="tab"
                             aria-controls="jurnal" aria-selected="false"
@@ -366,10 +376,12 @@
                     </div>
                 </div> --}}
                 <div id="defaultTabContent">
+
                     <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="history"
                         role="tabpanel">
                         <livewire:asset-details type="history" :aset="$aset" />
                     </div>
+
                     <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="agenda"
                         role="tabpanel">
                         <livewire:asset-details type="agenda" :aset="$aset" />

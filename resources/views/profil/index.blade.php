@@ -9,6 +9,10 @@
                 <x-card title="Profil Saya" class="mb-3">
                     <div class="space-y-2">
                         <div class="flex justify-between border-b py-2">
+                            <span class="text-sm font-medium text-gray-700 w-1/3">User ID</span>
+                            <span class="text-sm text-gray-500 w-2/3">{{ $user->id }}</span>
+                        </div>
+                        <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Nama</span>
                             <span class="text-sm text-gray-500 w-2/3">{{ $user->name }}</span>
                         </div>
@@ -27,6 +31,11 @@
                                 class="text-sm text-gray-500 w-2/3">{{ $user->unitKerja->nama ?? 'Tidak Ditemukan' }}</span>
                         </div>
                         <div class="flex justify-between border-b py-2">
+                            <span class="text-sm font-medium text-gray-700 w-1/3">Jabatan</span>
+                            <span
+                                class="text-sm text-gray-500 w-2/3">{{ $user->formatted_roles ?? 'Tidak Ditemukan' }}</span>
+                        </div>
+                        {{-- <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Perusahaan/Organisasi</span>
                             <span
                                 class="text-sm text-gray-500 w-2/3">{{ $user->perusahaan ?? 'Tidak Ditemukan' }}</span>
@@ -42,6 +51,59 @@
                         <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Kabupaten/Kota</span>
                             <span class="text-sm text-gray-500 w-2/3">{{ $user->kota ?? 'Tidak Ditemukan' }}</span>
+                        </div> --}}
+                        <!-- No. WhatsApp -->
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="text-sm font-medium text-gray-700 w-1/3">No WhatsApp</span>
+                            <div class="flex items-center w-2/3">
+                                <span class="text-sm text-gray-500 w-3/3">{{ $user->no_wa ?? 'Tidak tersedia' }}</span>
+                                <a href="profil/phone/{{ $user->id }}"
+                                    class="text-primary-950 px-3 py-2 rounded-md border hover:bg-slate-300 transition duration-200 ml-2"
+                                    data-tooltip-target="tooltip-user-{{ $user->id }}">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </a>
+                                <div id="tooltip-user-{{ $user->id }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Ganti Email
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="text-sm font-medium text-gray-700 w-1/3">Email</span>
+                            <div class="flex items-center w-2/3">
+                                <span class="text-sm text-gray-500 w-3/3">{{ $user->email }}</span>
+                                <a href="/profil/email/{{ $user->id }}"
+                                    class="text-primary-950 px-3 py-2 rounded-md border hover:bg-slate-300 transition duration-200 ml-2"
+                                    data-tooltip-target="tooltip-user-{{ $user->id }}">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </a>
+                                <div id="tooltip-user-{{ $user->id }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Ganti Email
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="text-sm font-medium text-gray-700 w-1/3">Password</span>
+                            <div class="flex items-center w-2/3">
+                                <span class="text-sm text-gray-500 w-3/3">********</span>
+                                <a href="profil/password/{{ $user->id }}"
+                                    class="text-primary-950 px-3 py-2 rounded-md border hover:bg-slate-300 transition duration-200 ml-2"
+                                    data-tooltip-target="tooltip-user-{{ $user->id }}">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </a>
+                                <div id="tooltip-user-{{ $user->id }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Ganti Password
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </div>
                         </div>
                         <div class="flex mt-4">
                             <a href="/profil/profile"
@@ -53,7 +115,7 @@
                 </x-card>
             </div>
             <!-- Login dan Keamanan -->
-            <div>
+            {{-- <div>
                 <x-card title="Login dan Keamanan" class="mb-3">
                     <div class="space-y-4">
                         <!-- User ID -->
@@ -117,7 +179,7 @@
                         </div>
                     </div>
                 </x-card>
-            </div>
+            </div> --}}
         </div>
 
         @if (canViewAdditionalUsers($user))

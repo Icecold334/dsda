@@ -2,9 +2,11 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\Aset;
+use Livewire\Component;
 use App\Models\Kategori;
+use App\Models\UnitKerja;
+use Illuminate\Support\Facades\Auth;
 
 class PilihAset extends Component
 {
@@ -15,7 +17,21 @@ class PilihAset extends Component
 
     public function mount()
     {
-        $this->assets = Aset::with('kategori')->where('status', true)->get(); // Ambil semua aset dengan kategori
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+        $this->assets = Aset::with('kategori')->where('status', true)->when($unit, function ($query) use ($parentUnitId) {
+            $query->whereHas('user', function ($query) use ($parentUnitId) {
+                filterByParentUnit($query, $parentUnitId);
+            });
+        })->get(); // Ambil semua aset dengan kategori
     }
 
     public function updatedSearch()
