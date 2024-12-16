@@ -15,6 +15,18 @@ class ProfilController extends Controller
     public function index()
     {
         $user = Auth::user(); // Mendapatkan data pengguna yang login
+        // Ambil semua role pengguna yang sedang login
+        $roles = $user->getRoleNames(); // Mengembalikan koleksi nama role
+        $formattedRoles = [];
+
+        // Format setiap role
+        foreach ($roles as $role) {
+            $formattedRoles[] = formatRole($role);
+        }
+
+        // Gabungkan role yang sudah diformat menjadi string
+        $user->formatted_roles = implode(', ', $formattedRoles);
+
         // Ambil unit_id user yang sedang login
         $userUnitId = Auth::user()->unit_id;
 

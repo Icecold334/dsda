@@ -54,11 +54,12 @@ class AsetNonAktifController extends Controller
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         // Data tambahan untuk dropdown filter
-        $kategoris = Kategori::when($this->unit_id, function ($query) use ($parentUnitId) {
-            $query->whereHas('user', function ($query) use ($parentUnitId) {
-                filterByParentUnit($query, $parentUnitId);
-            });
-        })->get();
+        $kategoris = Kategori::all();
+        // when($this->unit_id, function ($query) use ($parentUnitId) {
+        //     $query->whereHas('user', function ($query) use ($parentUnitId) {
+        //         filterByParentUnit($query, $parentUnitId);
+        //     });
+        // })->get();
 
         // Return to view with the necessary data
         return view('nonaktifaset.index', compact('asets', 'kategoris', 'asetqr'));

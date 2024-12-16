@@ -135,15 +135,17 @@
                                 </a>
                             @endif
 
-                            <a data-tooltip-target="tooltip-excel"
-                                href="{{ route('nonaktifaset.export', request()->query()) }}" target="_blank"
-                                class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white font-lg rounded-lg text-sm px-4 py-2 transition duration-200"><i
-                                    class="fa-solid fa-file-excel"></i></a>
-                            <div id="tooltip-excel" role="tooltip"
-                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                Download dalam format MS Excel
-                                <div class="tooltip-arrow" data-popper-arrow></div>
-                            </div>
+                            @can('aset_xls')
+                                <a data-tooltip-target="tooltip-excel"
+                                    href="{{ route('nonaktifaset.export', request()->query()) }}" target="_blank"
+                                    class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white font-lg rounded-lg text-sm px-4 py-2 transition duration-200"><i
+                                        class="fa-solid fa-file-excel"></i></a>
+                                <div id="tooltip-excel" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Download dalam format MS Excel
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            @endcan
                         </div>
                     </div>
                 </fieldset>

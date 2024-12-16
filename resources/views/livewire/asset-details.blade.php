@@ -19,84 +19,92 @@
 
 <div>
     @if ($type === 'history')
-        <div class="flex justify-end items-center bg-primary-200 rounded-lg mb-3">
-            <a href="javascript:void(0)" wire:click="openModal()"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                + Tambah {{ $typeNames[$type] ?? ucfirst($type) }}
-            </a>
-        </div>
-        <div class="grid grid-cols-1 gap-4">
-            @forelse ($items as $item)
-                <div wire:key="{{ $item->id }}"
-                    class="w-full p-4 bg-white border hover:bg-gray-100 transition duration-200 border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
-                    <div class="flex justify-between items-start">
-                        <!-- Left Column: Table -->
-                        <div class="w-full">
-                            <table class="w-full text-sm border-collapse border-spacing-2">
-                                <tbody>
-                                    <tr>
-                                        <td class="font-semibold w-40">Sejak Tanggal</td>
-                                        <td>{{ date('j F Y', $item->tanggal) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-semibold w-40">Penanggung Jawab</td>
-                                        <td>{{ $item->person->nama }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-semibold w-40">Lokasi</td>
-                                        <td>{{ $item->lokasi->nama ?? '---' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-semibold w-40">Jumlah</td>
-                                        <td>{{ $item->jumlah ?? '---' }} Unit</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-semibold w-40">Kondisi</td>
-                                        <td>{{ $item->kondisi ?? '---' }}%</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-semibold w-40">Kelengkapan</td>
-                                        <td>{{ $item->kelengkapan ?? '---' }}%</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-semibold w-40">Keterangan</td>
-                                        <td>{{ $item->keterangan ?? '-' }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+        @can('history_view')
+            <div class="flex justify-end items-center bg-primary-200 rounded-lg mb-3">
+                @can('history_newedit')
+                    <a href="javascript:void(0)" wire:click="openModal()"
+                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                        + Tambah {{ $typeNames[$type] ?? ucfirst($type) }}
+                    </a>
+                @endcan
+            </div>
+            <div class="grid grid-cols-1 gap-4">
+                @forelse ($items as $item)
+                    <div wire:key="{{ $item->id }}"
+                        class="w-full p-4 bg-white border hover:bg-gray-100 transition duration-200 border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
+                        <div class="flex justify-between items-start">
+                            <!-- Left Column: Table -->
+                            <div class="w-full">
+                                <table class="w-full text-sm border-collapse border-spacing-2">
+                                    <tbody>
+                                        <tr>
+                                            <td class="font-semibold w-40">Sejak Tanggal</td>
+                                            <td>{{ date('j F Y', $item->tanggal) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold w-40">Penanggung Jawab</td>
+                                            <td>{{ $item->person->nama }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold w-40">Lokasi</td>
+                                            <td>{{ $item->lokasi->nama ?? '---' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold w-40">Jumlah</td>
+                                            <td>{{ $item->jumlah ?? '---' }} Unit</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold w-40">Kondisi</td>
+                                            <td>{{ $item->kondisi ?? '---' }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold w-40">Kelengkapan</td>
+                                            <td>{{ $item->kelengkapan ?? '---' }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold w-40">Keterangan</td>
+                                            <td>{{ $item->keterangan ?? '-' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
 
-                        <!-- Right Column: Buttons -->
-                        <div>
-                            <div class="flex">
-                                <button
-                                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                                    onclick="confirmRemove('Apakah Anda yakin ingin menghapus Riwayat ini?', () => @this.call('delete', {{ $item->id }}))">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                                <button wire:click="openModal({{ $item->id }})"
-                                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
+                            <!-- Right Column: Buttons -->
+                            <div>
+                                <div class="flex">
+                                    @can('history_del')
+                                        <button
+                                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                                            onclick="confirmRemove('Apakah Anda yakin ingin menghapus Riwayat ini?', () => @this.call('delete', {{ $item->id }}))">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    @endcan
+                                    @can('history_newedit')
+                                        <button wire:click="openModal({{ $item->id }})"
+                                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                    @endcan
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @empty
-                <div class="grid grid-cols-1 gap-3">
-                    <div>Fitur ini berfungsi untuk mencatat perjalanan riwayat (history) saat memiliki aset. Misalnya
-                        perubahan
-                        lokasi, penanggung jawab / pemegang, hingga kondisi dan kelengkapannya.</div>
+                @empty
+                    <div class="grid grid-cols-1 gap-3">
+                        <div>Fitur ini berfungsi untuk mencatat perjalanan riwayat (history) saat memiliki aset. Misalnya
+                            perubahan
+                            lokasi, penanggung jawab / pemegang, hingga kondisi dan kelengkapannya.</div>
 
-                    <div class="italic">
-                        <span class="font-bold">GOAL:</span> Jika terjadi masalah, Anda bisa melacak keberadaan dan
-                        siapa
-                        yang
-                        bertanggung jawab terhadap aset ini.
+                        <div class="italic">
+                            <span class="font-bold">GOAL:</span> Jika terjadi masalah, Anda bisa melacak keberadaan dan
+                            siapa
+                            yang
+                            bertanggung jawab terhadap aset ini.
+                        </div>
                     </div>
-                </div>
-            @endforelse
-        </div>
+                @endforelse
+            </div>
+        @endcan
     @elseif ($type === 'agenda')
         <div class="flex justify-end items-center bg-primary-200 rounded-lg mb-3">
             <a href="javascript:void(0)" wire:click="openModal()"
@@ -169,94 +177,102 @@
             @endforelse
         </div>
     @elseif ($type === 'keuangan')
-        <div class="flex justify-end items-center bg-primary-200 rounded-lg mb-3">
-            <a href="javascript:void(0)" wire:click="openModal()"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                + Tambah {{ $typeNames[$type] ?? ucfirst($type) }}</a>
-        </div>
-        <div class="grid grid-cols-1 gap-4">
-            @forelse ($items as $item)
-                <div wire:key="{{ $item->id }}"
-                    class="w-full p-4 bg-white border hover:bg-gray-100 transition duration-200 border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center space-x-3">
-                            <!-- Icon -->
-                            <div>
-                                <div
-                                    class="flex items-center justify-center w-8 h-8 rounded-full 
-                            {{ $item->tipe === 'out' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600' }}">
-                                    {!! $item->tipe === 'out'
-                                        ? '<i class="fa-solid fa-arrow-right-from-bracket"></i>'
-                                        : '<i class="fa-solid fa-arrow-right-to-bracket"></i>' !!}
+        @can('trans_view')
+            <div class="flex justify-end items-center bg-primary-200 rounded-lg mb-3">
+                @can('trans_newedit')
+                    <a href="javascript:void(0)" wire:click="openModal()"
+                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                        + Tambah {{ $typeNames[$type] ?? ucfirst($type) }}</a>
+                @endcan
+            </div>
+            <div class="grid grid-cols-1 gap-4">
+                @forelse ($items as $item)
+                    <div wire:key="{{ $item->id }}"
+                        class="w-full p-4 bg-white border hover:bg-gray-100 transition duration-200 border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-3">
+                                <!-- Icon -->
+                                <div>
+                                    <div
+                                        class="flex items-center justify-center w-8 h-8 rounded-full 
+                        {{ $item->tipe === 'out' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600' }}">
+                                        {!! $item->tipe === 'out'
+                                            ? '<i class="fa-solid fa-arrow-right-from-bracket"></i>'
+                                            : '<i class="fa-solid fa-arrow-right-to-bracket"></i>' !!}
+                                    </div>
+                                </div>
+                                <!-- Transaction Details -->
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-800">
+                                        {{ date('d M Y', $item->tanggal) }}
+                                    </div>
+                                    <div class="text-sm text-gray-600">{{ $item->keterangan }}</div>
                                 </div>
                             </div>
-                            <!-- Transaction Details -->
+
+                            <!-- Right Column: Buttons -->
                             <div>
-                                <div class="text-sm font-semibold text-gray-800">
-                                    {{ date('d M Y', $item->tanggal) }}
+                                <div class="flex">
+                                    @can('trans_del')
+                                        <button
+                                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                                            onclick="confirmRemove('Apakah Anda yakin ingin menghapus Keuangan ini?', () => @this.call('delete', {{ $item->id }}))">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    @endcan
+                                    @can('trans_newedit')
+                                        <button wire:click="openModal({{ $item->id }})"
+                                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                    @endcan
                                 </div>
-                                <div class="text-sm text-gray-600">{{ $item->keterangan }}</div>
-                            </div>
-                        </div>
-
-                        <!-- Right Column: Buttons -->
-                        <div>
-                            <div class="flex">
-                                <button
-                                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                                    onclick="confirmRemove('Apakah Anda yakin ingin menghapus Keuangan ini?', () => @this.call('delete', {{ $item->id }}))">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                                <button wire:click="openModal({{ $item->id }})"
-                                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
                             </div>
                         </div>
                     </div>
-                </div>
-            @empty
-                <div class="grid grid-cols-1 gap-3">
-                    <div>Fitur ini berfungsi untuk mencatat transaksi pengeluaran dan pemasukan yang berhubungan dengan
-                        aset
-                        ini, misalnya biaya servis, pajak, penggantian spare-part, biaya perawatan, dan sebagainya.
-                    </div>
+                @empty
+                    <div class="grid grid-cols-1 gap-3">
+                        <div>Fitur ini berfungsi untuk mencatat transaksi pengeluaran dan pemasukan yang berhubungan dengan
+                            aset
+                            ini, misalnya biaya servis, pajak, penggantian spare-part, biaya perawatan, dan sebagainya.
+                        </div>
 
-                    <div class="italic">
-                        <span class="font-bold">GOAL:</span> Anda jadi tahu berapa total biaya yang sudah Anda keluarkan
-                        atau dapatkan sebagai dampak kepemilikan aset ini.
+                        <div class="italic">
+                            <span class="font-bold">GOAL:</span> Anda jadi tahu berapa total biaya yang sudah Anda keluarkan
+                            atau dapatkan sebagai dampak kepemilikan aset ini.
+                        </div>
                     </div>
-                </div>
-            @endforelse
-            @if ($items->isNotEmpty())
-                <!-- Summary Section -->
-                <div
-                    class="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
-                    <table class="w-full text-sm">
-                        <tbody>
-                            <tr class="border-b">
-                                <td class="font-semibold text-gray-800">Total Pengeluaran</td>
-                                <td class="text-right text-gray-900">Rp
-                                    {{ number_format($totalPengeluaran, 2, ',', '.') }}
-                                </td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="font-semibold text-gray-800">Total Pemasukan</td>
-                                <td class="text-right text-gray-900">Rp
-                                    {{ number_format($totalPemasukan, 2, ',', '.') }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="font-bold text-gray-800">Selisih</td>
-                                <td class="text-right font-bold text-gray-900">Rp
-                                    {{ number_format($totalPemasukan - $totalPengeluaran, 2, ',', '.') }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            @endif
+                @endforelse
+                @if ($items->isNotEmpty())
+                    <!-- Summary Section -->
+                    <div
+                        class="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
+                        <table class="w-full text-sm">
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="font-semibold text-gray-800">Total Pengeluaran</td>
+                                    <td class="text-right text-gray-900">Rp
+                                        {{ number_format($totalPengeluaran, 2, ',', '.') }}
+                                    </td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="font-semibold text-gray-800">Total Pemasukan</td>
+                                    <td class="text-right text-gray-900">Rp
+                                        {{ number_format($totalPemasukan, 2, ',', '.') }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold text-gray-800">Selisih</td>
+                                    <td class="text-right font-bold text-gray-900">Rp
+                                        {{ number_format($totalPemasukan - $totalPengeluaran, 2, ',', '.') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
 
-        </div>
+            </div>
+        @endcan
     @elseif ($type === 'jurnal')
         <div class="flex justify-end items-center bg-primary-200 rounded-lg mb-3">
             <a href="javascript:void(0)" wire:click="openModal()"
@@ -613,6 +629,4 @@
             </div>
         @endif
     </div>
-
-
 </div>

@@ -18,9 +18,11 @@
                 </span>
             </button>
 
-            <a href="{{ route('aset.create') }}"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                Tambah Aset</a>
+            @can('aset_new')
+                <a href="{{ route('aset.create') }}"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
+                    Tambah Aset</a>
+            @endcan
         </div>
     </div>
     <div class="mb-4">
@@ -152,15 +154,17 @@
                                 </a>
                             @endif
                         </div>
-                        <a data-tooltip-target="tooltip-excel" href="{{ route('aset.export', request()->query()) }}"
-                            target="_blank"
-                            class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white font-lg rounded-lg text-sm px-4 py-2 transition duration-200"><i
-                                class="fa-solid fa-file-excel"></i></a>
-                        <div id="tooltip-excel" role="tooltip"
-                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                            Download dalam format MS Excel
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
+                        @can('aset_xls')
+                            <a data-tooltip-target="tooltip-excel" href="{{ route('aset.export', request()->query()) }}"
+                                target="_blank"
+                                class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white font-lg rounded-lg text-sm px-4 py-2 transition duration-200"><i
+                                    class="fa-solid fa-file-excel"></i></a>
+                            <div id="tooltip-excel" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                Download dalam format MS Excel
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                        @endcan
                     </div>
                 </fieldset>
 
@@ -395,7 +399,7 @@
                             </p>
                         </td>
                         <td class="py-3 px-6 ">
-                            <p class="font-semibold text-gray-800">{{ $aset->merk->nama }}</p>
+                            <p class="font-semibold text-gray-800">{{ $aset->merk->nama ?? '--' }}</p>
                             <p class="text-sm text-gray-500">{{ $aset->tipe ?? '---' }}</p>
 
                         </td>

@@ -60,6 +60,8 @@ class AsetController extends Controller
             return $aset;
         });
 
+        // dd($asets);
+
         // Proses setiap aset untuk mendapatkan data QR
         $asetqr = $asets->getCollection()->map(function ($aset) {
             return getAssetWithSettings($aset->id);
@@ -77,21 +79,24 @@ class AsetController extends Controller
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         // Data tambahan untuk dropdown filter
-        $kategoris = Kategori::when($this->unit_id, function ($query) use ($parentUnitId) {
-            $query->whereHas('user', function ($query) use ($parentUnitId) {
-                filterByParentUnit($query, $parentUnitId);
-            });
-        })->get();
-        $merks = Merk::when($this->unit_id, function ($query) use ($parentUnitId) {
-            $query->whereHas('user', function ($query) use ($parentUnitId) {
-                filterByParentUnit($query, $parentUnitId);
-            });
-        })->get();
-        $tokos = Toko::when($this->unit_id, function ($query) use ($parentUnitId) {
-            $query->whereHas('user', function ($query) use ($parentUnitId) {
-                filterByParentUnit($query, $parentUnitId);
-            });
-        })->get();
+        $kategoris = Kategori::all();
+        // when($this->unit_id, function ($query) use ($parentUnitId) {
+        //     $query->whereHas('user', function ($query) use ($parentUnitId) {
+        //         filterByParentUnit($query, $parentUnitId);
+        //     });
+        // })->get();
+        $merks = Merk::all();
+        // when($this->unit_id, function ($query) use ($parentUnitId) {
+        //     $query->whereHas('user', function ($query) use ($parentUnitId) {
+        //         filterByParentUnit($query, $parentUnitId);
+        //     });
+        // })->get();
+        $tokos = Toko::all();
+        // when($this->unit_id, function ($query) use ($parentUnitId) {
+        //     $query->whereHas('user', function ($query) use ($parentUnitId) {
+        //         filterByParentUnit($query, $parentUnitId);
+        //     });
+        // })->get();
         $penanggungJawabs = Person::when($this->unit_id, function ($query) use ($parentUnitId) {
             $query->whereHas('user', function ($query) use ($parentUnitId) {
                 filterByParentUnit($query, $parentUnitId);
@@ -103,6 +108,7 @@ class AsetController extends Controller
             });
         })->get();
 
+        // dd($merks);
         return view('aset.index', compact('asets', 'kategoris', 'merks', 'tokos', 'penanggungJawabs', 'lokasis', 'asetqr'));
     }
 

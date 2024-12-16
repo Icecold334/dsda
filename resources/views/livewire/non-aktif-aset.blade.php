@@ -86,18 +86,19 @@
             </div>
 
             <div class="flex items-center space-x-2 mt-4">
-                @if ($status == 0)
-                    <button onclick="confirmActivate()"
-                        class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-3 py-2 transition duration-200">
-                        <i class="fa-solid fa-box-open"></i>
-                    </button>
-                    @if (session('message'))
-                        <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
-                            {{ session('message') }}
-                        </div>
+                @can('aset_reaktif')
+                    @if ($status == 0)
+                        <button onclick="confirmActivate()"
+                            class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-3 py-2 transition duration-200">
+                            <i class="fa-solid fa-box-open"></i>
+                        </button>
+                        @if (session('message'))
+                            <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+                                {{ session('message') }}
+                            </div>
+                        @endif
                     @endif
-
-                @endif
+                @endcan
 
                 @push('scripts')
                     <script>
