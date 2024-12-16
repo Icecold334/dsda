@@ -302,7 +302,7 @@ class UnitSeeder extends Seeder
     private function unitSeed()
     {
         $units = [
-            'Sekretaris Dinas' => [
+            'Sekretariat' => [
                 'kepala' => 'Hendri, ST, MT',
                 'sub_units' => [
                     ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST'],
@@ -427,7 +427,7 @@ class UnitSeeder extends Seeder
                 ],
             ],
         ];
-        $roles = ['Penanggung Jawab', 'Pejabat Pembuat Komitmen', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang'];
+        $roles = ['Penanggung Jawab', 'Pejabat Pembuat Komitmen', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang', 'Kepala Seksi', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit'];
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
             'guard_name' => 'web',
@@ -474,13 +474,15 @@ class UnitSeeder extends Seeder
             if (Str::contains($unitName, 'Suku Dinas Sumber Daya Air')) {
                 // Buat kepala unit utama
                 $unitRole = Role::firstOrCreate([
-                    'name' => 'Kepala Suku Dinas Sumber Daya Air',
+                    // 'name' => 'Kepala Suku Dinas Sumber Daya Air',
+                    'name' => 'Kepala Suku Dinas',
                     'guard_name' => 'web',
                 ]);
             } else {
                 // Buat kepala unit utama
                 $unitRole = Role::firstOrCreate([
-                    'name' => 'Kepala ' . $unitName,
+                    // 'name' => 'Kepala ' . $unitName,
+                    'name' => 'Kepala Unit',
                     'guard_name' => 'web',
                 ]);
             }
@@ -502,7 +504,40 @@ class UnitSeeder extends Seeder
                     ])->roles()->attach(Role::where('name', $role)->first()->id);
                 }
             }
-            $roleOnce = ['Pejabat Pembuat Komitmen', 'Penanggung Jawab', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang'];
+            $defaultRoles = [
+                'Pejabat Pembuat Komitmen',
+                'Penanggung Jawab',
+                'Pemeriksa Barang',
+                'Pengurus Barang',
+                'Penjaga Gudang',
+            ];
+
+
+            $pemeliharaanExists = collect($unitData['sub_units'])->contains(function ($subUnit) {
+                return $subUnit['nama'] === "Seksi Pemeliharaan";
+            });
+
+            if (!$pemeliharaanExists) {
+                $unitData['sub_units'][] = [
+                    'nama' => 'Seksi Pemeliharaan',
+                    'kepala' => $this->faker->name, // Provide a default name
+                ];
+            }
+            $tataUsahaExists = collect($unitData['sub_units'])->contains(function ($subUnit) {
+                return $subUnit['nama'] === "Subbagian Tata Usaha";
+            });
+
+            if (!$tataUsahaExists) {
+                $unitData['sub_units'][] = [
+                    'nama' => 'Subbagian Tata Usaha',
+                    'kepala' => $this->faker->name, // Provide a default name
+                ];
+            }
+
+
+            $roleOnce = $defaultRoles;
+
+
             foreach ($roleOnce as $item) {
                 User::create([
                     'name' => $this->faker->name(),
@@ -519,12 +554,21 @@ class UnitSeeder extends Seeder
                     'parent_id' => $unit->id, // Sub-unit terkait dengan unit
                     'keterangan' => "Sub-unit $subUnit[nama].",
                 ]);
-
-                // Buat Jabatan
-                $role = Role::firstOrCreate([
-                    'name' => 'Kepala ' . $subUnit['nama'],
-                    'guard_name' => 'web',
-                ]);
+                if (Str::contains($subUnit['nama'], 'Seksi')) {
+                    // Buat Jabatan
+                    $role = Role::firstOrCreate([
+                        // 'name' => 'Kepala ' . $subUnit['nama'],
+                        'name' => 'Kepala Seksi',
+                        'guard_name' => 'web',
+                    ]);
+                } else {
+                    // Buat Jabatan
+                    $role = Role::firstOrCreate([
+                        // 'name' => 'Kepala' . $subUnit['nama'],
+                        'name' => 'Kepala Subbagian',
+                        'guard_name' => 'web',
+                    ]);
+                }
 
                 // Buat User
                 $user = User::create([

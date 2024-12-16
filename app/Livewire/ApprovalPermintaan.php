@@ -6,12 +6,14 @@ use Carbon\Carbon;
 use App\Models\Stok;
 use App\Models\User;
 use Livewire\Component;
+use Illuminate\Support\Str;
 use App\Models\StokDisetujui;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PersetujuanPermintaanStok;
+use App\Models\UnitKerja;
 
 class ApprovalPermintaan extends Component
 {
@@ -97,13 +99,11 @@ class ApprovalPermintaan extends Component
 
     public function mount()
     {
-        // $this->adjustStockForApproval(3, 40);
+
         $this->isPenulis = $this->permintaan->user_id === Auth::id();
+
         if ($this->permintaan->persetujuan->where('file')) {
-            // Fetch files where the status is true and the file exists
-            $this->files = $this->permintaan->persetujuan->filter(function ($persetujuan) {
-                return $persetujuan->file !== null;
-            })->pluck('file');
+            $this->files = $this->permintaan->persetujuan->filter(fn($persetujuan) => $persetujuan->file !== null)->pluck('file');
         } else {
             $this->files = [];
         }
@@ -111,138 +111,87 @@ class ApprovalPermintaan extends Component
         $this->user = Auth::user();
         $this->roles = 'penanggungjawab|ppk|pptk';
         $this->penulis = $this->permintaan->user;
+
         $date = Carbon::parse($this->permintaan->created_at);
-        $pj = User::role('penanggungjawab')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
-        $indexPj = $pj->search(function ($user) {
-            return $user->id == Auth::id();
-        });
-        $this->lastPj = $indexPj === $pj->count() - 1;
-        $this->pjList = $pj;
-        $ppk = User::role('ppk')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
-        $indexPpk = $ppk->search(function ($user) {
-            return $user->id == Auth::id();
-        });
-        $this->lastPpk = $indexPpk === $ppk->count() - 1; // Check if current user is the last user
-        $this->ppkList = $ppk;
+        $unit = UnitKerja::find($this->unit_id);
+        $roleMapping = [
+            'Penanggung Jawab' => 'pjList',
+            'Pejabat Pembuat Komitmen' => 'ppkList',
+            'Pejabat Pelaksana Teknis Kegiatan' => 'pptkList',
+            'Penjaga Gudang' => 'pjGudangList',
+            // 'Kepala Subbagian Tata Usaha' => 'tuList',
+            'Kepala Unit' => 'kaunitList',
+            // 'Kepala Seksi Pemeliharaan' => 'pemeliharaanList',
+            'Kepala Suku Dinas' => 'kasudinList',
+            'Kepala Seksi' => 'kepalaseksiList',
+            'Kepala Subbagian' => 'kasubagList',
+        ];
 
-        $pptk = User::role('pptk')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
-        $indexPptk = $pptk->search(function ($user) {
-            return $user->id == Auth::id();
-        });
-        $this->lastPptk = $indexPptk === $pptk->count() - 1; // Check if current user is the last user
-        $this->pptkList = $pptk;
-        $pjGudang = User::role('penjaga_gudang')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
-        $indexPjGudang = $pjGudang->search(function ($user) {
-            return $user->id == Auth::id();
-        });
-        $this->lastPjGudang = $indexPjGudang === $pjGudang->count() - 1; // Check if current user is the last user
-        $this->pjGudangList = $pjGudang;
+        foreach ($roleMapping as $role => $property) {
+            $users =
+                // User::role($role)
+                User::whereHas('roles', function ($query) use ($role) {
+                    $query->where('name', 'LIKE', '%' . $role . '%');
+                })
+                ->where(function ($query) use ($date) {
+                    // Prioritaskan unit anak
+                    $query->whereHas('unitKerja', function ($subQuery) {
+                        $subQuery->where('parent_id', $this->permintaan->unit_id); // Unit child
+                    })
+                        ->orWhere('unit_id', $this->permintaan->unit_id); // Unit ID yang sama
+                })
+                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+                ->limit(1)
+                ->get();
 
+            $this->{$property} = $users;
+            $this->{'last' . Str::studly($property)} = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
+        }
+        $roleSpecialMapping = [
+            'Kepala Subbagian' => 'tuList',
+            'Kepala Seksi' => 'pemeliharaanList',
+        ];
+        foreach ($roleSpecialMapping as $role => $property) {
 
+            $users =
+                User::whereHas('roles', function ($query) use ($role) {
+                    return $query->where('name', 'LIKE', '%' . $role . '%');
+                })
+                ->where(function ($query) use ($date, $property) {
+                    // Prioritaskan unit anak
+                    $query->whereHas('unitKerja', function ($subQuery) use ($date, $property) {
+                        return $subQuery->where('parent_id', $this->permintaan->unit->parent_id ? $this->permintaan->unit->parent_id : $this->permintaan->unit->id)->where('nama', 'like', '%' . ($property == 'pemeliharaanList' ? 'Seksi Pemeliharaan' : 'Subbagian Tata Usaha') . '%'); // Unit child
+                    });
+                })
+                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+                ->limit(1)
+                ->get();
 
-        $tu = User::role('kepala_sub_bagian_tata_usaha')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
-        $indextu = $tu->search(function ($user) {
-            return $user->id == Auth::id();
-        });
-        $this->lasttu = $indextu === $tu->count() - 1; // Check if current user is the last user
-        $this->tuList = $tu;
+            $this->{$property} = $users;
+            $this->{'last' . Str::studly($property)} = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
+        }
 
-
-
-
-
-        $kaunit = User::role('kepala_unit')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
-        $indexkaunit = $kaunit->search(function ($user) {
-            return $user->id == Auth::id();
-        });
-        $this->lastkaunit = $indexkaunit === $kaunit->count() - 1; // Check if current user is the last user
-        $this->kaunitList = $kaunit;
-
-
-
-
-        $pemeliharaan = User::role('kepala_seksi_pemeliharaan')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
-        $indexpemeliharaan = $pemeliharaan->search(function ($user) {
-            return $user->id == Auth::id();
-        });
-        $this->lastpemeliharaan = $indexpemeliharaan === $pemeliharaan->count() - 1; // Check if current user is the last user
-        $this->pemeliharaanList = $pemeliharaan;
-
-
-
-
-
-
-        $kasudin = User::role('kepala_suku_dinas')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
-        $indexkasudin = $kasudin->search(function ($user) {
-            return $user->id == Auth::id();
-        });
-        $this->lastkasudin = $indexkasudin === $kasudin->count() - 1; // Check if current user is the last user
-        $this->kasudinList = $kasudin;
-
-
-
-        $kepalaseksi = User::role('kepala_seksi')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
-        // dd($kepalaseksi, $date->format('Y-m-d H:i:s'));
-        $indexKepalaseksi = $kepalaseksi->search(function ($user) {
-            return $user->id == Auth::id();
-        });
-        $this->lastKepalaseksi = $indexKepalaseksi === $kepalaseksi->count() - 1; // Check if current user is the last user
-        $this->kepalaseksiList = $kepalaseksi;
-
-        $kasubag = User::role('kepala_sub_bagian')->where('unit_id', $this->permintaan->unit_id)->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
-        $indexkasubag = $kasubag->search(function ($user) {
-            return $user->id == Auth::id();
-        });
-        $this->lastKasubag = $indexkasubag === $kasubag->count() - 1; // Check if current user is the last user
-        $this->kasubagList = $kasubag;
-
-
-        $this->lastKasubagDone = PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
-            ->where('status', true) // Hanya persetujuan yang disetujui
-            ->whereHas('user', function ($query) {
-                $query->role('kepala_sub_bagian');
-            })
-            ->exists();
-
-        $this->lasttuDone = PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
-            ->where('status', true) // Hanya persetujuan yang disetujui
-            ->whereHas('user', function ($query) {
-                $query->role('kepala_sub_bagian_tata_usaha');
-            })
-            ->exists();
-
-        $this->lastkaunitDone = PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
-            ->where('status', true) // Hanya persetujuan yang disetujui
-            ->whereHas('user', function ($query) {
-                $query->role('kepala_unit');
-            })
-            ->exists();
-
-        $this->lastkasudinDone = PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
-            ->where('status', true) // Hanya persetujuan yang disetujui
-            ->whereHas('user', function ($query) {
-                $query->role('kepala_suku_dinas');
-            })
-            ->exists();
+        // Check approval states dynamically
+        $this->lastKasubagDone = $this->checkApprovalDone('Kepala Subbagian');
+        $this->lasttuDone = $this->checkApprovalDone('Kepala Subbagian Tata Usaha');
+        $this->lastkaunitDone = $this->checkApprovalDone('Kepala Unit');
+        $this->lastkasudinDone = $this->checkApprovalDone('Kepala Suku Dinas');
 
         $tipe = $this->permintaan->jenisStok->nama;
-        // $this->listApproval = $this->kepalaseksiList->merge($this->kasubagList)->merge($this->pjGudangList)->count();
+
         if ($tipe == 'Umum') {
             $this->listApproval = $this->kepalaseksiList->merge($this->kasubagList)->count();
             $allApproval = $this->kepalaseksiList->merge($this->kasubagList)->merge($this->pjGudangList);
-        } else if ($tipe == 'Spare Part') {
-            $this->listApproval = $this->tuList->merge($this->kaunitList)->count();
-            $allApproval = $this->tuList->merge($this->kaunitList)->merge($this->pjGudangList);
-        } else if ($tipe == 'Material') {
-            $this->listApproval = $this->pemeliharaanList->merge($this->kasudinList)->count();
-            $allApproval = $this->pemeliharaanList->merge($this->kasudinList)->merge($this->pjGudangList);
+        } elseif ($tipe == 'Spare Part') {
+            $this->listApproval = ($this->tuList)->merge(Str::contains($unit->nama, 'Suku Dinas') ? $this->kasudinList : $this->kaunitList)->count();
+            $allApproval = $this->tuList->merge(Str::contains($unit->nama, 'Suku Dinas') ? $this->kasudinList : $this->kaunitList)->merge($this->pjGudangList);
+        } elseif ($tipe == 'Material') {
+            $this->listApproval = (Str::contains($unit->nama, 'Suku Dinas') ? $this->kasudinList : $this->kaunitList)->merge($this->pemeliharaanList)->count();
+            $allApproval = (Str::contains($unit->nama, 'Suku Dinas') ? $this->kasudinList : $this->kaunitList)->merge($this->pemeliharaanList)->merge($this->pjGudangList);
         }
 
-        $index = $allApproval->search(function ($user) {
-            return $user->id == Auth::id();
-        });
-        // dd($index);
+        $index = $allApproval->search(fn($user) => $user->id == Auth::id());
+
         if ($index === 0) {
             $currentUser = $allApproval[$index];
             $this->showButton = !$currentUser->persetujuanPermintaan()->where('detail_permintaan_id', $this->permintaan->id ?? 0)->exists();
@@ -254,6 +203,15 @@ class ApprovalPermintaan extends Component
                 $previousUser->persetujuanPermintaan()->where('detail_permintaan_id', $this->permintaan->id ?? 0)->exists();
         }
     }
+
+    protected function checkApprovalDone($role)
+    {
+        return PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
+            ->where('status', true)
+            ->whereHas('user', fn($query) => $query->role($role))
+            ->exists();
+    }
+
 
     public function finishApproval()
     {

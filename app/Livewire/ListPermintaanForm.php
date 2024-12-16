@@ -191,8 +191,14 @@ class ListPermintaanForm extends Component
     {
         $this->asetSuggestions = [];
 
-        $suggest = Aset::where('nama', 'like', '%' . $this->newAset . '%')->get();
-        $this->asetSuggestions = $suggest;
+
+
+        if ($this->requestIs === 'spare-part') {
+            $suggest = Aset::whereHas('kategori', function ($kategori) {
+                return $kategori->where('nama', 'KDO');
+            });
+        }
+        $this->asetSuggestions = $suggest->where('nama', 'like', '%' . $this->newAset . '%')->get();
     }
     public function focusBarang()
     {
@@ -438,8 +444,7 @@ class ListPermintaanForm extends Component
                     'dokumen' => $value->img ?? null,
                 ];
             }
-            $role = $tipe == 'Umum' ? 'kepala_seksi' : ($tipe == 'Spare Part' ? 'kepala_sub_bagian_tata_usaha' : 'kepala_seksi_pemeliharaan');
-
+            $role = $tipe == 'Umum' ? 'Kepala Seksi' : ($tipe == 'Spare Part' ? 'Kepala Subbagian Tata Usaha' : 'Kepala Seksi Pemeliharaan');
             $this->approvals = PersetujuanPermintaanStok::where('status', true)->where('detail_permintaan_id', $this->permintaan->id)
                 ->whereHas('user', function ($query) use ($role) {
                     $query->role($role); // Muat hanya persetujuan dari kepala_seksi
