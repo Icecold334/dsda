@@ -71,6 +71,7 @@
                     </td>
                     <td class="px-6 py-3">
                         <select wire:model="list.{{ $index }}.bagian_id"
+                            wire:change="updateBagianId({{ $index }}, $event.target.value)"
                             class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['lokasi_id']) || Auth::user()->lokasi_id !== $item['lokasi_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             @disabled(!$item['editable'] || empty($item['lokasi_id']) || Auth::user()->lokasi_id !== $item['lokasi_id'])
                             @cannot('inventaris_edit_lokasi_penerimaan')
@@ -253,8 +254,7 @@
                                 <i class="fa-solid fa-circle-check"></i>
                             </button>
                         @endif --}}
-                        @can('inventaris_unggah_foto_barang_datang')
-                            @if ($showDokumen && (!$item['bagian_id'] || !$item['posisi_id']))
+                        @if ($showDokumen && (!$item['bagian_id'] || !$item['posisi_id'] || !$item['bukti'] || !$item['boolean_jumlah']))
                                 <button wire:click="updatePengirimanStok({{ $index }})"
                                     class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
                                     ">
@@ -263,7 +263,10 @@
                                 <!-- Without permission, show "Belum ada unggahan" -->
                                 {{-- <span class="text-gray-500">Belum ada unggahan</span> --}}
                             @endif
+                        @can('inventaris_unggah_foto_barang_datang')
+                            
                         @endcan
+
                     </td>
                 </tr>
             @endforeach
