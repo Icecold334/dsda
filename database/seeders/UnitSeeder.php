@@ -427,7 +427,7 @@ class UnitSeeder extends Seeder
                 ],
             ],
         ];
-        $roles = ['Penanggung Jawab', 'Pejabat Pembuat Komitmen', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang', 'Kepala Seksi', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit'];
+        $roles = ['Penanggung Jawab', 'Pejabat Pembuat Komitmen', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang', 'Kepala Seksi', 'Kepala Unit'];
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
             'guard_name' => 'web',
