@@ -251,7 +251,7 @@ class KontrakListForm extends Component
         $this->validate([
             'newBarangName' => 'required|string|max:255',
             'newBarangSatuanBesar' => 'required|string',
-            'newKategori' => 'required|string',
+            // 'newKategori' => 'required|string',
             'newBarangSatuanKecil' => 'nullable|string',
             // 'jumlahKecilDalamBesar' => 'required_with:newBarangSatuanKecil|integer|min:1',
         ]);
@@ -320,7 +320,7 @@ class KontrakListForm extends Component
             'type' => 1,
             'status' => 1,
         ]);
-        
+
 
         foreach ($this->list as $item) {
             $merk = MerkStok::updateOrCreate(
