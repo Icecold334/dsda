@@ -4,24 +4,30 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\Aset;
-use App\Models\Kategori;
-use App\Models\WaktuPeminjaman;
 use Livewire\Component;
+use App\Models\Kategori;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
+use Livewire\WithFileUploads;
+use App\Models\PeminjamanAset;
+use App\Models\WaktuPeminjaman;
+use App\Models\DetailPeminjamanAset;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 
 class ListPeminjamanForm extends Component
 {
 
-
+    use WithFileUploads;
+    public $showNew;
     public $tipe;
     public $newWaktu;
     public $waktus;
     public $unit_id;
     public $sub_unit_id;
-    public $tanggal_permintaan;
+    public $tanggal_peminjaman;
     public $keterangan;
-    public $permintaan;
+    public $peminjaman;
     public $list = [];
     public $newAsetId;
     public $newMerkJenis;
@@ -33,6 +39,7 @@ class ListPeminjamanForm extends Component
     public $newBarang; // Input for new barang
     public $newJumlah; // Input for new jumlah
     public $newDokumen; // Input for new dokumen
+    public $showAdd; // Input for new dokumen
     public $barangSuggestions = []; // Suggestions for barang
     public $assetSuggestions = [];
     public $asets = [];
@@ -79,6 +86,7 @@ class ListPeminjamanForm extends Component
         // ]);
 
         $this->list[] = [
+            'id' => null,
             'aset_id' => $this->newAsetId,
             'aset_name' => Aset::find($this->newAsetId)->nama,
             'waktu_id' => $this->newWaktu,
@@ -87,10 +95,8 @@ class ListPeminjamanForm extends Component
             'jumlah_peserta' => $this->newPeserta,
             'keterangan' => $this->newKeterangan,
             'img' => $this->newDokumen,
-            // 'aset_name' => $this->newAsetId,
-            // 'merk_jenis' => $this->newMerkJenis,
-            // 'disetujui' => $this->newDisetujui,
         ];
+        $this->dispatch('listCount', count: count($this->list));
 
         $this->reset(['newAsetId', 'newJumlah', 'newPeserta', 'newDokumen', 'newWaktu', 'newKeterangan']);
     }
@@ -99,6 +105,7 @@ class ListPeminjamanForm extends Component
     {
         unset($this->list[$index]);
         $this->list = array_values($this->list); // Reindex the array
+        $this->dispatch('listCount', count: count($this->list));
     }
 
     #[On('unit_id')]
@@ -112,6 +119,9 @@ class ListPeminjamanForm extends Component
         $this->tipe = $peminjaman;
         $tipe = $this->tipe;
         $kategori = Kategori::where('nama', $tipe)->first();
+        // if ($this->tipe == 'Ruangan') {
+        //     $this->showAdd = $this->newAsetId && $this->newWaktu && $this->newPeserta && $this->newKeterangan && $this->newDokumen;
+        // }
         $cond = false;
         $this->asets =
             Aset::when($cond, function ($query) {
@@ -140,14 +150,81 @@ class ListPeminjamanForm extends Component
     #[On('tanggal_permintaan')]
     public function fillTanggalPermintaan($tanggal_permintaan)
     {
-        $this->tanggal_permintaan = $tanggal_permintaan;
+        $this->tanggal_peminjaman = $tanggal_permintaan;
+    }
+
+    public function removePhoto()
+    {
+        $this->newDokumen = null;
+    }
+
+    public function saveData()
+    {
+
+
+        $kodepeminjaman = Str::random(10); // Generate a unique code
+
+        // Create Detail peminjaman Stok
+        $detailPeminjaman = DetailPeminjamanAset::create([
+            'kode_peminjaman' => $kodepeminjaman,
+            'tanggal_peminjaman' => strtotime($this->tanggal_peminjaman),
+            'unit_id' => $this->unit_id,
+            'sub_unit_id' => $this->sub_unit_id ?? null,
+            'user_id' => Auth::id(),
+            'kategori_id' => Kategori::where('nama', $this->tipe)->first()->id,
+            'keterangan' => $this->keterangan,
+            'status' => null
+        ]);
+        $this->peminjaman = $detailPeminjaman;
+        foreach ($this->list as $item) {
+            $storedFilePath = $item['img'] ? str_replace('undanganRapat/', '', $item['img']->storeAs(
+                'undanganRapat', // Directory
+                $item['img']->getClientOriginalName(), // File name
+                'public' // Storage disk
+            )) : null;
+            PeminjamanAset::create([
+                'detail_peminjaman_id' => $detailPeminjaman->id,
+                'user_id' => Auth::id(),
+                'aset_id' => $item['aset_id'] ?? null,
+                'deskripsi' => $item['keterangan'] ?? null,
+                // 'catatan' => $item['catatan'] ?? null,
+                'img' => $storedFilePath,
+                'waktu_id' => $item['waktu_id'],
+                'jumlah_orang' => $item['jumlah_peserta'],
+                'jumlah' => $item['jumlah'],
+            ]);
+        }
+        return redirect()->to('permintaan/peminjaman/' . $this->peminjaman->id);
     }
 
     public function mount()
     {
+
+        $this->showNew = Request::is('permintaan/add/peminjaman');
+
+        if ($this->peminjaman) {
+            $this->tipe = Kategori::find($this->peminjaman->kategori_id)->nama;
+            foreach ($this->peminjaman->peminjamanAset as $key => $value) {
+                // $this->unit_id = $this->permintaan->unit_id;
+                // $this->keterangan = $this->permintaan->keterangan;
+                // $this->tanggal_permintaan = $this->permintaan->tanggal_permintaan;
+
+                $this->list[] = [
+                    'id' => $value->id,
+                    'aset_id' => $value->aset_id,
+                    'aset_name' => Aset::find($value->aset_id)->nama,
+                    'waktu_id' => $value->waktu_id,
+                    'waktu' => WaktuPeminjaman::find($value->waktu_id),
+                    'jumlah' => $value->jumlah,
+                    'jumlah_peserta' => $value->jumlah_peserta,
+                    'keterangan' => $value->deskripsi,
+                    'img' => $value->img,
+                ];
+            }
+        };
         $this->waktus = WaktuPeminjaman::all();
 
-        $this->tanggal_permintaan = Carbon::now()->format('Y-m-d');
+        $this->tanggal_peminjaman = Carbon::now()->format('Y-m-d');
     }
     public function render()
     {

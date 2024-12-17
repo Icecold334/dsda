@@ -208,6 +208,51 @@ class AsetSeeder extends Seeder
 
         $asetRuangan = [
             [
+                'nama' => 'Ruang Rapat 1 (Lt. 7)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat untuk keperluan diskusi dan presentasi di lantai 7.',
+            ],
+            [
+                'nama' => 'Ruang Rapat 2 (Lt. 7)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat kedua di lantai 7 untuk meeting tambahan.',
+            ],
+            [
+                'nama' => 'Ruang Rapat ex BPK (Lt. 8)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat bekas BPK di lantai 8.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Bidang ROB (Lt. 8)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat khusus bidang ROB di lantai 8.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Unit Pengadaan Tanah (Lt. 8)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat untuk unit pengadaan tanah di lantai 8.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Bidang Geologi (Lt. 9)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat bidang geologi di lantai 9.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Bidang Banjir (Lt. 9)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat untuk bidang pengendalian banjir di lantai 9.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Bidang Limbah (Lt. 10)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat untuk bidang pengelolaan limbah di lantai 10.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Keuangan (Lt. 10)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat untuk tim keuangan di lantai 10.',
+            ],
+            [
                 'nama' => 'Ruangan Lantai 1',
                 'kategori' => 'Ruangan',
                 'deskripsi' => 'Ruangan utama di lantai 1 untuk keperluan umum.',
@@ -282,51 +327,7 @@ class AsetSeeder extends Seeder
                 'kategori' => 'Ruangan',
                 'deskripsi' => 'Ruangan untuk hiburan dan relaksasi karyawan.',
             ],
-            [
-                'nama' => 'Ruang Rapat 1 (Lt. 7)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk keperluan diskusi dan presentasi di lantai 7.',
-            ],
-            [
-                'nama' => 'Ruang Rapat 2 (Lt. 7)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat kedua di lantai 7 untuk meeting tambahan.',
-            ],
-            [
-                'nama' => 'Ruang Rapat ex BPK (Lt. 8)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat bekas BPK di lantai 8.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang ROB (Lt. 8)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat khusus bidang ROB di lantai 8.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Unit Pengadaan Tanah (Lt. 8)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk unit pengadaan tanah di lantai 8.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang Geologi (Lt. 9)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat bidang geologi di lantai 9.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang Banjir (Lt. 9)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk bidang pengendalian banjir di lantai 9.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang Limbah (Lt. 10)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk bidang pengelolaan limbah di lantai 10.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Keuangan (Lt. 10)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk tim keuangan di lantai 10.',
-            ],
+
         ];
 
         foreach ($asetRuangan as $ruangan) {

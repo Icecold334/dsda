@@ -25,6 +25,7 @@ class PeminjamanAset extends Model
         'catatan',
         'img',
         'barang_id',
+        'waktu_id',
         'jumlah',
         'jumlah_approve',
         'status',

@@ -44,7 +44,12 @@
         <thead>
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KODE PERMINTAAN</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KODE
+                    PERMINTAAN{{ request()->routeIs('permintaan-stok.index') || request()->is('permintaan/umum') ? '/PEMINJAMAN' : '' }}
+                </th>
+                @if (request()->routeIs('permintaan-stok.index') || request()->is('permintaan/umum'))
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jenis layanan</th>
+                @endif
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL PENGGUNAAN</th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BARANG</th> --}}
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">UNIT KERJA</th>
@@ -56,7 +61,13 @@
             @foreach ($permintaans as $permintaan)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="px-6 py-3"></td>
-                    <td class="px-6 py-3 font-semibold">{{ $permintaan->kode_permintaan }}</td>
+                    <td class="px-6 py-3 font-semibold">
+                        {{ $permintaan->kode_permintaan ?? $permintaan->kode_peminjaman }}</td>
+                    @if (request()->routeIs('permintaan-stok.index') || request()->is('permintaan/umum'))
+                        <td class="px-6 py-3 font-semibold">
+                            {{ $permintaan->getTable() == 'detail_permintaan_stok' ? 'Permintaan' : 'Peminjaman' }}
+                        </td>
+                    @endif
                     <td class="px-6 py-3 font-semibold">{{ date('j F Y', $permintaan->tanggal_permintaan) }}</td>
                     {{-- <td class="px-6 py-3 font-semibold">{{ $permintaan->kode_permintaan }}</td> --}}
                     <td class="px-6 py-3 font-semibold">
@@ -108,7 +119,8 @@
                         </p>
                     </td>
                     <td class="py-3 px-6 text-center">
-                        <a href="{{ route('permintaan-stok.show', ['permintaan_stok' => $permintaan->id]) }}"
+                        {{-- @dump($permintaan->getTable()) --}}
+                        <a href="/permintaan/{{ $permintaan->getTable() === 'detail_peminjaman_aset' ? 'peminjaman' : 'permintaan' }}/{{ $permintaan->id }}"
                             class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
                             data-tooltip-target="tooltip-permintaan-{{ $permintaan->id }}">
                             <i class="fa-solid fa-eye"></i>

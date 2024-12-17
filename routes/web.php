@@ -145,6 +145,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('kalender', KalenderController::class);
     Route::get('permintaan/add/{tipe}', [PermintaanStokController::class, 'create']);
     Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'index']);
+    Route::get('permintaan/{tipe}/{id}', [PermintaanStokController::class, 'show']);
 
     Route::resources([
         'jenis-stok' => JenisStokController::class,

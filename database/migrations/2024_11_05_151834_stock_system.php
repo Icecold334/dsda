@@ -290,11 +290,11 @@ return new class extends Migration
             $table->foreignId('detail_peminjaman_id')->constrained('detail_peminjaman_aset')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('aset_id')->nullable()->constrained('aset')->onDelete('cascade');
+            $table->foreignId('waktu_id')->nullable()->constrained('waktu_peminjaman')->onDelete('cascade');
             // $table->foreignId('unit_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
             $table->text('deskripsi')->nullable();
             $table->text('catatan')->nullable();
             $table->string('img')->nullable();
-            $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
             $table->integer('jumlah_orang')->nullable();
             $table->integer('jumlah')->nullable();
             $table->integer('jumlah_approve')->nullable();
