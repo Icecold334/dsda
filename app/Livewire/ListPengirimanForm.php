@@ -353,7 +353,7 @@ class ListPengirimanForm extends Component
             'posisi_id' => $data['posisi_id']
         ];
 
-        if (Gate::allows('inventaris_edit_jumlah_diterima')) {
+        if (auth()->user()->can('inventaris_edit_jumlah_diterima')) {
             $editJumlah = [
                 'jumlah_diterima' => $data['jumlah_diterima']
             ];
