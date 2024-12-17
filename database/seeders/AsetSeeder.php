@@ -12,6 +12,7 @@ use App\Models\Kategori;
 use Faker\Factory as Faker;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class AsetSeeder extends Seeder
@@ -32,18 +33,45 @@ class AsetSeeder extends Seeder
                     'Kulkas Dua Pintu',
                     'AC Split 1 PK',
                     'Monitor Komputer 24 Inch',
+                    'Smartphone Galaxy S22',
+                    'Tablet Galaxy Tab S8',
+                    'Soundbar Dolby Atmos',
                 ],
                 'Sony' => [
                     'Home Theater',
                     'Speaker Bluetooth',
                     'PlayStation 5',
                     'Kamera Digital',
+                    'Headphone Noise Cancelling',
+                    'Televisi OLED 55 Inch',
+                    'Walkman MP3 Player',
                 ],
                 'LG' => [
                     'Mesin Cuci Front Loading',
                     'Proyektor Portabel',
                     'Microwave Oven',
                     'Monitor 27 Inch',
+                    'Kulkas Side-by-Side',
+                    'AC Dual Inverter 1.5 PK',
+                    'Smart TV NanoCell 4K',
+                ],
+                'Apple' => [
+                    'MacBook Pro M1',
+                    'iPad Pro 12.9 Inch',
+                    'iPhone 14 Pro Max',
+                    'Apple Watch Series 8',
+                    'iMac 24 Inch',
+                    'AirPods Pro',
+                    'HomePod Mini',
+                ],
+                'Asus' => [
+                    'Laptop ROG Zephyrus',
+                    'Monitor Gaming 144Hz',
+                    'Motherboard ROG Strix',
+                    'Router WiFi 6',
+                    'Mini PC PN50',
+                    'Projector LED',
+                    'Chromebook Flip',
                 ],
             ],
             'Otomotif' => [
@@ -52,18 +80,45 @@ class AsetSeeder extends Seeder
                     'Mobil Rush',
                     'Mobil Innova',
                     'Forklift 3 Ton',
+                    'Mobil Corolla Cross',
+                    'SUV Fortuner',
+                    'Truk Dyna',
                 ],
                 'Honda' => [
                     'Motor Beat',
                     'Motor Vario',
                     'Motor PCX',
                     'Mobil HRV',
+                    'Mobil BRV',
+                    'Motor CBR 150R',
+                    'Scoopy Stylish',
                 ],
                 'Suzuki' => [
                     'Motor Satria FU',
                     'Motor Nex II',
                     'Mobil Ertiga',
                     'Motor GSX-R150',
+                    'APV Arena',
+                    'Mobil Carry Pick-up',
+                    'Motor Burgman Street',
+                ],
+                'Yamaha' => [
+                    'Motor NMAX',
+                    'Motor Aerox',
+                    'Motor MT-15',
+                    'Motor R15 V4',
+                    'Motor XSR 155',
+                    'Scooter Mio M3',
+                    'Motor Tracer 900',
+                ],
+                'Daihatsu' => [
+                    'Mobil Xenia',
+                    'Mobil Terios',
+                    'Mobil Gran Max',
+                    'Mobil Sigra',
+                    'Mobil Ayla',
+                    'Mobil Rocky',
+                    'Pick-up Hi-Max',
                 ],
             ],
             'Furniture' => [
@@ -72,21 +127,49 @@ class AsetSeeder extends Seeder
                     'Kursi Ergonomis',
                     'Lemari Pakaian 3 Pintu',
                     'Rak Buku Kayu',
+                    'Meja Rapat Besar',
+                    'Kursi Bar',
+                    'Kabinet Laci Modular',
                 ],
                 'Ace Hardware' => [
                     'Sofa Tamu',
                     'Lemari Besi Arsip',
                     'Meja Makan 6 Kursi',
                     'Kursi Lipat Aluminium',
+                    'Tempat Tidur King Size',
+                    'Set Rak Dapur',
+                    'Meja Lipat Portabel',
                 ],
                 'VIVERE' => [
                     'Tempat Tidur Queen Size',
                     'Meja Konsol Kayu',
                     'Buffet TV Modern',
                     'Rak Sepatu',
+                    'Meja Kopi Marmer',
+                    'Kursi Santai Rotan',
+                    'Sofa L-Shape',
+                ],
+                'Olympic' => [
+                    'Lemari Sliding Door',
+                    'Meja Belajar Anak',
+                    'Kabinet Dapur Kayu',
+                    'Kursi Kantor',
+                    'Meja Tamu Minimalis',
+                    'Rak TV Minimalis',
+                    'Tempat Tidur Double',
+                ],
+                'Informa' => [
+                    'Meja Kantor Besar',
+                    'Kursi Gaming',
+                    'Lemari Gantung',
+                    'Rak Dinding',
+                    'Meja Makan Lipat',
+                    'Kabinet Arsip',
+                    'Set Kursi Makan',
                 ],
             ],
         ];
+
         foreach ($asetData as $kategoriName => $merkData) {
             if ($kategoriName == 'Otomotif') {
                 $kategori = Kategori::find(1);
@@ -94,7 +177,9 @@ class AsetSeeder extends Seeder
                 $kategori = Kategori::whereNotIn('id', [1, 2, 3, 4, 5, 6, 7])->inRandomOrder()->first();
             }
             foreach ($merkData as $merkName => $asetList) {
-                $merk = Merk::where('nama', $merkName)->first();
+                // $merk = Merk::where('nama', $merkName)->first();
+                $merk = Merk::firstOrCreate(['nama' => $merkName, 'nama_nospace' => Str::slug($merkName)], ['user_id' => User::inRandomOrder()->first()->id]);
+
 
                 foreach ($asetList as $asetName) {
                     $hargaSatuan = rand(1000000, 5000000); // Hitung harga satuan
@@ -122,6 +207,51 @@ class AsetSeeder extends Seeder
         }
 
         $asetRuangan = [
+            [
+                'nama' => 'Ruang Rapat 1 (Lt. 7)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat untuk keperluan diskusi dan presentasi di lantai 7.',
+            ],
+            [
+                'nama' => 'Ruang Rapat 2 (Lt. 7)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat kedua di lantai 7 untuk meeting tambahan.',
+            ],
+            [
+                'nama' => 'Ruang Rapat ex BPK (Lt. 8)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat bekas BPK di lantai 8.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Bidang ROB (Lt. 8)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat khusus bidang ROB di lantai 8.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Unit Pengadaan Tanah (Lt. 8)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat untuk unit pengadaan tanah di lantai 8.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Bidang Geologi (Lt. 9)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat bidang geologi di lantai 9.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Bidang Banjir (Lt. 9)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat untuk bidang pengendalian banjir di lantai 9.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Bidang Limbah (Lt. 10)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat untuk bidang pengelolaan limbah di lantai 10.',
+            ],
+            [
+                'nama' => 'Ruang Rapat Keuangan (Lt. 10)',
+                'kategori' => 'Ruangan',
+                'deskripsi' => 'Ruangan rapat untuk tim keuangan di lantai 10.',
+            ],
             [
                 'nama' => 'Ruangan Lantai 1',
                 'kategori' => 'Ruangan',
@@ -197,7 +327,9 @@ class AsetSeeder extends Seeder
                 'kategori' => 'Ruangan',
                 'deskripsi' => 'Ruangan untuk hiburan dan relaksasi karyawan.',
             ],
+
         ];
+
         foreach ($asetRuangan as $ruangan) {
             Aset::create([
                 'user_id' => User::inRandomOrder()->first()->id,

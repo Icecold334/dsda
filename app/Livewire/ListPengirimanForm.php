@@ -354,12 +354,14 @@ class ListPengirimanForm extends Component
             'posisi_id' => $data['posisi_id']
         ];
 
+
+        if ($attr['bagian_id']) {
+            $this->list[$index]['posisis'] = PosisiStok::where('bagian_id', $attr['bagian_id'])->get();
+        }
+
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
 
-        $this->emit('showSweetAlert', [
-            'message' => 'Data berhasil diperbarui!',
-            'type' => 'success'
-        ]);
+        session()->flash('success', 'Persetujuan berhasil.');
     }
 
     public function updateBagian($index, $bagianId)

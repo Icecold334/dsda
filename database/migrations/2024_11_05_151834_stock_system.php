@@ -217,7 +217,6 @@ return new class extends Migration
             $table->text('keterangan')->nullable(); // Optional remarks
             $table->timestamps();
         });
-
         Schema::create('detail_permintaan_stok', function (Blueprint $table) {
             $table->id();
             $table->string('kode_permintaan')->unique();
@@ -253,6 +252,68 @@ return new class extends Migration
             // $table->text('tanggal_permintaan');
             $table->timestamps();
         });
+
+
+
+
+
+
+
+
+
+        Schema::create('persetujuan_peminjaman_aset', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('detail_peminjaman_id')->constrained('detail_peminjaman_aset')->onDelete('cascade');
+            $table->text('file')->nullable(); // True for approved, false for rejected
+            $table->boolean('status')->nullable(); // True for approved, false for rejected
+            $table->text('keterangan')->nullable(); // Optional remarks
+            $table->timestamps();
+        });
+        Schema::create('detail_peminjaman_aset', function (Blueprint $table) {
+            $table->id();
+            $table->string('kode_peminjaman')->unique();
+            $table->date('tanggal_peminjaman');
+            // $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
+            $table->foreignId('unit_id')->constrained('unit_kerja')->onDelete('cascade'); // Link to unit_kerja table
+            $table->foreignId('sub_unit_id')->nullable()->constrained('unit_kerja')->onDelete('set null'); // Optional sub-unit link
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('kategori_id')->nullable()->constrained('kategori');
+            $table->text('keterangan')->nullable();
+            $table->boolean('proses')->nullable();
+            $table->boolean('cancel')->nullable();
+            $table->boolean('status')->nullable();
+            $table->timestamps();
+        });
+        Schema::create('peminjaman_aset', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('detail_peminjaman_id')->constrained('detail_peminjaman_aset')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('aset_id')->nullable()->constrained('aset')->onDelete('cascade');
+            $table->foreignId('waktu_id')->nullable()->constrained('waktu_peminjaman')->onDelete('cascade');
+            // $table->foreignId('unit_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
+            $table->text('deskripsi')->nullable();
+            $table->text('catatan')->nullable();
+            $table->string('img')->nullable();
+            $table->integer('jumlah_orang')->nullable();
+            $table->integer('jumlah')->nullable();
+            $table->integer('jumlah_approve')->nullable();
+            $table->boolean('status')->nullable();
+            $table->timestamps();
+        });
+        Schema::create('waktu_peminjaman', function (Blueprint $table) {
+            $table->id();
+            $table->string('waktu');
+            $table->time('mulai');
+            $table->time('selesai');
+            $table->timestamps();
+        });
+
+
+
+
+
+
 
         Schema::create('unit_kerja', function (Blueprint $table) {
             $table->id();

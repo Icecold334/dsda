@@ -119,7 +119,7 @@ class ApprovalPermintaan extends Component
             'Pejabat Pembuat Komitmen' => 'ppkList',
             'Pejabat Pelaksana Teknis Kegiatan' => 'pptkList',
             'Penjaga Gudang' => 'pjGudangList',
-            // 'Kepala Subbagian Tata Usaha' => 'tuList',
+            // 'Kepala Subbagian' => 'tuList',
             'Kepala Unit' => 'kaunitList',
             // 'Kepala Seksi Pemeliharaan' => 'pemeliharaanList',
             'Kepala Suku Dinas' => 'kasudinList',
@@ -173,7 +173,7 @@ class ApprovalPermintaan extends Component
 
         // Check approval states dynamically
         $this->lastKasubagDone = $this->checkApprovalDone('Kepala Subbagian');
-        $this->lasttuDone = $this->checkApprovalDone('Kepala Subbagian Tata Usaha');
+        $this->lasttuDone = $this->checkApprovalDone('Kepala Subbagian', 'tu');
         $this->lastkaunitDone = $this->checkApprovalDone('Kepala Unit');
         $this->lastkasudinDone = $this->checkApprovalDone('Kepala Suku Dinas');
 
@@ -204,12 +204,27 @@ class ApprovalPermintaan extends Component
         }
     }
 
-    protected function checkApprovalDone($role)
+    protected function checkApprovalDone($role, $tu = null)
     {
-        return PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
-            ->where('status', true)
-            ->whereHas('user', fn($query) => $query->role($role))
-            ->exists();
+        if ($tu == 'tu') {
+            return PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
+                ->where('status', true)
+                ->whereHas('user', function ($query) use ($role) {
+                    $query->role($role)->where(function ($query) {
+                        // Prioritaskan unit anak
+                        $query->whereHas('unitKerja', function ($subQuery) {
+                            return $subQuery->where('parent_id', $this->permintaan->unit->parent_id ? $this->permintaan->unit->parent_id : $this->permintaan->unit->id)->where('nama', 'like', '%' . 'Subbagian Tata Usaha' . '%'); // Unit child
+                        });
+                    });
+                })
+                ->exists();
+        } else {
+
+            return PersetujuanPermintaanStok::where('detail_permintaan_id', $this->permintaan->id)
+                ->where('status', true)
+                ->whereHas('user', fn($query) => $query->role($role))
+                ->exists();
+        }
     }
 
 
