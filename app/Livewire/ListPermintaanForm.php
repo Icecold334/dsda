@@ -296,7 +296,7 @@ class ListPermintaanForm extends Component
                 // 'lokasi_id' => $this->lokasiId
             ]);
         }
-        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id);
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
     }

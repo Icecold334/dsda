@@ -194,7 +194,7 @@ class ListPeminjamanForm extends Component
                 'jumlah' => $item['jumlah'],
             ]);
         }
-        return redirect()->to('permintaan/peminjaman/' . $this->peminjaman->id);
+        return redirect()->to('permintaan/peminjaman/' . $this->peminjaman->id)->with('tanya', 'berhasil');
     }
 
     public function mount()
@@ -203,6 +203,10 @@ class ListPeminjamanForm extends Component
         $this->showNew = Request::is('permintaan/add/peminjaman');
 
         if ($this->peminjaman) {
+            $this->tanggal_peminjaman = $this->peminjaman->tanggal_peminjaman;
+            $this->keterangan = $this->peminjaman->keterangan;
+            $this->unit_id = $this->peminjaman->unit_id;
+            $this->sub_unit_id = $this->peminjaman->sub_unit_id;
             $this->tipe = Kategori::find($this->peminjaman->kategori_id)->nama;
             foreach ($this->peminjaman->peminjamanAset as $key => $value) {
                 // $this->unit_id = $this->permintaan->unit_id;

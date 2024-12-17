@@ -83,7 +83,7 @@
                                 Unit Kerja *</label>
                         </td>
                         <td>
-                            <select wire:model.live="unit_id" disabled
+                            <select wire:model.live="unit_id" @disabled(Auth::id() !== 1)
                                 class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 <option value="">Pilih Unit Kerja</option>
                                 @foreach ($units as $unit)

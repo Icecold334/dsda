@@ -1,27 +1,28 @@
 <div>
     <div>
-        <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
-            <thead>
-                <tr class="text-white uppercase">
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg">NAMA
-                        {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }}</th>
-                    @if ($tipe == 'Peralatan Kantor')
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">peminjaman</th>
-                    @endif
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold">waktu penggunaan</th>
-                    @if ($tipe == 'KDO' || $tipe == 'Ruangan')
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jumlah Orang</th>
-                    @endif
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold">keterangan</th>
-                    @if ($tipe == 'Ruangan')
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Undangan</th>
-                    @endif
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {{-- @if ($tanggal_permintaan && $keterangan && $unit_id) --}}
-                @if (true)
+        @if ($tanggal_peminjaman && $keterangan && $unit_id)
+
+            <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
+                <thead>
+                    <tr class="text-white uppercase">
+                        <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold rounded-l-lg">NAMA
+                            {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }}</th>
+                        @if ($tipe == 'Peralatan Kantor')
+                            <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">peminjaman</th>
+                        @endif
+                        <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">waktu penggunaan</th>
+                        @if ($tipe == 'KDO' || $tipe == 'Ruangan')
+                            <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jumlah Orang</th>
+                        @endif
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">keterangan</th>
+                        @if ($tipe == 'Ruangan')
+                            <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">Undangan</th>
+                        @endif
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12 rounded-r-lg"></th>
+                    </tr>
+                </thead>
+                <tbody>
+
                     @foreach ($list as $index => $item)
                         <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                             <td class="py-3 px-6">
@@ -194,15 +195,15 @@
                             </td>
                         </tr>
                     @endif
-                @else
-                    <tr>
-                        <td colspan="9" class="text-center">Lengkapi data diatas terlebih dahulu</td>
-                    </tr>
-                @endif
-            </tbody>
-        </table>
+                </tbody>
+
+            </table>
+        @else
+            <div class="text-xl font-semibold mt-8 flex w-full justify-center">Lengkapi data diatas terlebih dahulu
+            </div>
+        @endif
         <div class="flex justify-center mt-4">
-            @if (count($list) > 0)
+            @if (count($list) > 0 && $showNew)
                 <button wire:click="saveData"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Simpan

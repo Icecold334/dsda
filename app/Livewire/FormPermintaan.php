@@ -32,6 +32,7 @@ class FormPermintaan extends Component
 
     public function updatedUnitId()
     {
+
         if ($this->unit_id) {
             $this->subUnits = UnitKerja::where('parent_id', $this->unit_id)->get();
         }
