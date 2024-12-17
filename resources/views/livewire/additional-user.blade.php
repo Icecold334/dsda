@@ -10,12 +10,12 @@
                 <div class="flex space-x-2 items-center">
                     <!-- Input Pencarian -->
                     <input type="text" wire:model.live="search" placeholder="Cari pengguna..."
-                        class="px-4 py-2 border rounded-lg w-full">
+                        class="px-4 py-2 border rounded-lg w-[25rem]">
 
                     @if ($search)
                         <!-- Tombol Reset -->
                         <button wire:click="$set('search', '')"
-                            class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
+                            class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-5 py-2.5 me-2 mb-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
                             <i class="fa-solid fa-rotate-right"></i>
                         </button>
                     @endif

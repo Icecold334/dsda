@@ -11,6 +11,21 @@
             @foreach ($permissions as $category => $actions)
                 <div>
                     <h4 class="text-sm font-semibold text-gray-800 border-b pb-2">{{ $category }}</h4>
+                    @if (count($actions) > 1)
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" wire:click="selectAllForCategory('{{ $category }}')"
+                                class="text-sm text-primary-600 hover:underline focus:outline-none">
+                                Select All
+                            </button>
+
+                            @if ($this->isCategoryFullySelected($category))
+                                <button type="button" wire:click="resetAllForCategory('{{ $category }}')"
+                                    class="text-sm text-red-600 hover:underline focus:outline-none">
+                                    Reset All
+                                </button>
+                            @endif
+                        </div>
+                    @endif
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                         @foreach ($actions as $action)
                             @php

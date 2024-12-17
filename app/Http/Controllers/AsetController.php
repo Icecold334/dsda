@@ -999,7 +999,7 @@ class AsetController extends Controller
             $sheet->setCellValue('A' . $row, $aset->kode)
                 ->setCellValue('B' . $row, $aset->nama)
                 ->setCellValue('C' . $row, $aset->kategori->nama)
-                ->setCellValue('D' . $row, $aset->merk->nama)
+                ->setCellValue('D' . $row, $aset->merk->nama ?? '')
                 ->setCellValue('E' . $row, $aset->tipe)
                 ->setCellValue('F' . $row, $aset->produsen)
                 ->setCellValue('G' . $row, $aset->noseri)

@@ -25,6 +25,42 @@ class PermissionShow extends Component
         // Sync the permissions to the role
         $role->permissions()->sync($permissionIds);
     }
+
+    public function selectAllForCategory($category)
+    {
+        // Pastikan kategori ada
+        if (isset($this->permissions[$category])) {
+            // Tambahkan semua permission di kategori ke selectedPermissions jika belum ada
+            foreach ($this->permissions[$category] as $permission) {
+                if (!in_array($permission, $this->selectedPermissions)) {
+                    $this->selectedPermissions[] = $permission;
+                }
+            }
+        }
+    }
+
+    public function resetAllForCategory($category)
+    {
+        // Pastikan kategori ada
+        if (isset($this->permissions[$category])) {
+            // Hapus semua permission dalam kategori dari selectedPermissions
+            $this->selectedPermissions = array_diff(
+                $this->selectedPermissions,
+                $this->permissions[$category]
+            );
+        }
+    }
+
+    public function isCategoryFullySelected($category)
+    {
+        // Periksa jika semua izin dalam kategori ada di selectedPermissions
+        if (isset($this->permissions[$category])) {
+            return empty(array_diff($this->permissions[$category], $this->selectedPermissions));
+        }
+
+        return false;
+    }
+
     public function mount($option)
     {
         $role = Role::findOrFail($option);
