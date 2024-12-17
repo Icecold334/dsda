@@ -60,7 +60,7 @@ class ApprovalPengiriman extends Component
         $this->reset('newApprovalFiles');
     }
 
-    public function updatedNewBapFiles()
+    public function updatednewbapfiles()
     {
         // Validate each uploaded file
         $this->validate([
@@ -73,7 +73,7 @@ class ApprovalPengiriman extends Component
 
         $this->dispatch('bap_file', count: count($this->bapfiles));
         // Clear the newAttachments to make ready for next files
-        $this->reset('newBapFiles');
+        $this->reset('newbapfiles');
     }
 
     public function mount()
@@ -101,21 +101,21 @@ class ApprovalPengiriman extends Component
         $this->penulis = $this->pengiriman->user;
         $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
 
-        $pj = User::role('penanggungjawab')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+        $pj = User::role('Penanggung Jawab')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
         $indexPj = $pj->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastPj = $indexPj === $pj->count() - 1;
         $this->pjList = $pj;
 
-        $ppk = User::role('ppk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $ppk = User::role('Pejabat Pembuat Komitmen')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPpk = $ppk->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastPpk = $indexPpk === $ppk->count() - 1; // Check if current user is the last user
         $this->ppkList = $ppk;
         // dd(PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id'));
-        $penerima = User::role('penerima_barang')
+        $penerima = User::role('Penerima Barang')
             ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
             ->whereHas('lokasiStok', function ($query) {
                 $query->whereIn('lokasi_id', PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id'));
@@ -130,7 +130,7 @@ class ApprovalPengiriman extends Component
         $this->penerimaList = $penerima;
 
 
-        $pemeriksa = User::role('pemeriksa_barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $pemeriksa = User::role('Pemeriksa Barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPemeriksa = $pemeriksa->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -138,7 +138,7 @@ class ApprovalPengiriman extends Component
         $this->pemeriksaList = $pemeriksa;
 
 
-        $pptk = User::role('pptk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $pptk = User::role('Pejabat Pelaksana Teknis Kegiatan')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPptk = $pptk->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -187,9 +187,9 @@ class ApprovalPengiriman extends Component
             }
 
             foreach ($this->bapfiles as $file) {
-                $path = str_replace('dokumen-persetujuan-pengiriman/bap/', '', $file->storeAs('dokumen-persetujuan-pengiriman', $file->getClientOriginalName(), 'public'));
+                $path = str_replace('dokumen-persetujuan-pengiriman/bap/', '', $file->storeAs('dokumen-persetujuan-pengiriman/bap', $file->getClientOriginalName(), 'public'));
                 $this->pengiriman->bapfile()->create([
-                    'detail_pengiriman_id' => $this->pengiriman->id,
+                    
                     'user_id' => Auth::id(),
                     'status' => true,
                     'file' => $path,
