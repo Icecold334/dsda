@@ -1,6 +1,5 @@
 <div>
     <form wire:submit.prevent="register">
-        @dump($errors->first())
         <!-- Name -->
         <div>
             <x-input-label for="name" :value="__('Name')" />
