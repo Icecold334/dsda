@@ -185,12 +185,34 @@
         @if (canViewAdditionalUsers($user))
             <div>
                 <!-- Pengguna Tambahan -->
-                <x-card title="Pengguna Tambahan" class="mb-3">
+                {{-- <x-card title="Pengguna Tambahan" class="mb-3">
                     <div class="overflow-y-auto max-h-[45.5rem]">
-                        <div class="flex mt-4 mb-6">
+                        <div class="flex justify-between mt-4 mb-6">
                             <a href="/profil/user"
                                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                                 Buat Pengguna Tambahan</a>
+
+                            <form action="{{ route('profil.index') }}" method="GET">
+                                <div class="flex space-x-2 items-center">
+                                    <!-- Input pencarian -->
+                                    <input type="text" name="search" placeholder="Cari pengguna..."
+                                        class="px-4 py-2 border rounded-lg w-full" value="{{ request('search') }}">
+
+                                    <!-- Tombol Cari -->
+                                    <button type="submit"
+                                        class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
+                                        Cari
+                                    </button>
+
+                                    <!-- Tombol Reset -->
+                                    @if (request()->has('search') && request('search') != '')
+                                        <a href="{{ route('profil.index') }}"
+                                            class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
+                                            <i class="fa-solid fa-rotate-right"></i>
+                                        </a>
+                                    @endif
+                                </div>
+                            </form>
                         </div>
                         @forelse ($Users as $user)
                             <div class="border rounded-lg shadow-md p-4 mb-4 bg-white">
@@ -219,9 +241,9 @@
                                     <p><strong>Jabatan:</strong> {{ $user->formatted_roles ?? '-' }}</p>
                                     <p><strong>Username:</strong> {{ $user->username ?? '-' }}</p>
                                     <p><strong>Unit Kerja:</strong> {{ $user->unitKerja->nama ?? '-' }} </p>
-                                    <p><strong>Lokasi Gudang:</strong> {{ $user->lokasiStok->nama ?? '-' }} </p>
-                                    {{-- <p><strong>Keterangan:</strong> {{ $user->keterangan ?? '-' }}</p> --}}
-                                </div>
+                                    <p><strong>Lokasi Gudang:</strong> {{ $user->lokasiStok->nama ?? '-' }} </p> --}}
+                {{-- <p><strong>Keterangan:</strong> {{ $user->keterangan ?? '-' }}</p> --}}
+                {{-- </div>
                             </div>
                         @empty
                             <div class="text-gray-500 text-sm">
@@ -230,7 +252,8 @@
                         @endforelse
                     </div>
                 </x-card>
-            </div>
+            </div> --}}
+                <livewire:additional-user />
         @endif
     </div>
 </x-body>

@@ -255,6 +255,7 @@ class ListPengirimanForm extends Component
                     'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
                     'jumlah' => $transaksi->jumlah ?? 1,
                     'jumlah_diterima' => $transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
+                    'boolean_jumlah' => $transaksi->jumlah_diterima,
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
                     'editable' => true,
                 ];
@@ -354,11 +355,6 @@ class ListPengirimanForm extends Component
             'posisi_id' => $data['posisi_id']
         ];
 
-
-        if ($attr['bagian_id']) {
-            $this->list[$index]['posisis'] = PosisiStok::where('bagian_id', $attr['bagian_id'])->get();
-        }
-
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
 
         session()->flash('success', 'Persetujuan berhasil.');
@@ -374,6 +370,13 @@ class ListPengirimanForm extends Component
         if ($this->showDokumen) {
             $this->savePengiriman();
         }
+    }
+
+    public function updateBagianId($index, $bagianId)
+    {
+        $this->list[$index]['bagian_id'] = $bagianId;
+        $this->list[$index]['posisi_id'] = null;
+        $this->list[$index]['posisis'] = PosisiStok::where('bagian_id', $bagianId)->get();
     }
 
     public function updatePosisi($index, $posisiId)

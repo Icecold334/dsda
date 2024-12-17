@@ -45,15 +45,15 @@ class AddProfil extends Component
     public $img;
     public $ttd;
 
-    public function updatedSelectedRoles()
-    {
-        // Jika role admin dipilih
-        if (in_array('admin', $this->selectedRoles)) {
-            $this->unitkerjas = UnitKerja::whereNull('parent_id')->get(); // Ambil hanya unit parent
-        } else {
-            $this->unitkerjas = UnitKerja::all(); // Ambil semua unit
-        }
-    }
+    // public function updatedSelectedRoles()
+    // {
+    //     // Jika role admin dipilih
+    //     if (in_array('Kepala Suku Dinas', $this->selectedRoles)) {
+    //         $this->unitkerjas = UnitKerja::whereNull('parent_id')->get(); // Ambil hanya unit parent
+    //     } else {
+    //         $this->unitkerjas = UnitKerja::all(); // Ambil semua unit
+    //     }
+    // }
 
     public function mount()
     {
@@ -76,7 +76,13 @@ class AddProfil extends Component
         $this->lokasistoks = LokasiStok::all();
         if ($this->tipe == 'user') {
             // $this->users = User::all();
-            $this->roles = Role::whereNotIn('id', [1, 2])->get();
+            $this->roles = Role::whereNotIn('id', [1, 2])
+                ->whereNotIn('id', $user->roles->pluck('id')->toArray())
+                ->when($user->roles->contains('name', 'Kepala Unit') || $user->roles->contains('name', 'Kepala Suku Dinas'), function ($query) {
+                    // Menambahkan filter agar roles "kepala unit" dan "kepala seksi" tidak muncul
+                    $query->whereNotIn('name', ['Kepala Unit', 'Kepala Suku Dinas']);
+                })
+                ->get();
             if ($this->id) {
                 $user = User::find($this->id);
                 $this->user_id = $user->user_id;
