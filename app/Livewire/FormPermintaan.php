@@ -16,6 +16,7 @@ class FormPermintaan extends Component
     public $unit_id;
     public $kategoris;
     public $kategori_id;
+    public $tipePeminjaman;
     public $subUnits;
     public $tipe;
     public $sub_unit_id;
@@ -35,6 +36,10 @@ class FormPermintaan extends Component
             $this->subUnits = UnitKerja::where('parent_id', $this->unit_id)->get();
         }
         $this->dispatch('unit_id', unit_id: $this->unit_id);
+    }
+    public function updatedTipePeminjaman()
+    {
+        $this->dispatch('peminjaman', peminjaman: $this->tipePeminjaman);
     }
     public function updatedKategoriId()
     {

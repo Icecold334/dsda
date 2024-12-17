@@ -3,8 +3,13 @@
 
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL PERMINTAAN</h1>
         <div>
-            <a href="/permintaan/{{ $permintaan->jenis_id == 3 ? 'umum' : ($permintaan->jenis_id == 2 ? 'spare-part' : 'material') }}"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
+            @if ($permintaan->getTable() == 'detail_peminjaman_aset')
+                <a href="/permintaan/umum"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
+            @else
+                <a href="/permintaan/{{ $permintaan->jenis_id == 3 ? 'umum' : ($permintaan->jenis_id == 2 ? 'spare-part' : 'material') }}"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
+            @endif
         </div>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -12,8 +17,8 @@
             <x-card title="data umum" class="mb-3">
                 <table class="w-full">
                     <tr class="font-semibold">
-                        <td>Kode Permintaan</td>
-                        <td>{{ $permintaan->kode_permintaan }}</td>
+                        <td>Kode {{ Str::ucfirst($tipe) }}</td>
+                        <td>{{ $permintaan->kode_permintaan ?? $permintaan->kode_peminjaman }}</td>
                     </tr>
                     <tr class="font-semibold">
                         <td>Status</td>
@@ -64,7 +69,7 @@
                         </tr>
                     @endif
                     <tr class="font-semibold">
-                        <td>Tanggal Permintaan</td>
+                        <td>Tanggal {{ Str::ucfirst($tipe) }}</td>
                         <td>{{ date('j F Y', $permintaan->tanggal_permintaan) }}</td>
                     </tr>
                     <tr class="font-semibold">
@@ -87,9 +92,17 @@
         </div>
         <div class="col-span-2">
             <x-card title="daftar permintaan">
-
-                <livewire:list-permintaan-form :permintaan="$permintaan">
+                @if ($tipe == 'permintaan')
+                    <livewire:list-permintaan-form :permintaan="$permintaan">
+                    @else
+                        <livewire:list-peminjaman-form :peminjaman="$permintaan">
+                @endif
+                @if ($tipe == 'permintaan')
+                    {{-- <livewire:list-permintaan-form :permintaan="$permintaan"> --}}
                     <livewire:approval-permintaan :permintaan="$permintaan">
+                    @else
+                        {{-- <livewire:list-peminjaman-form :permintaan="$permintaan"> --}}
+                @endif
             </x-card>
         </div>
     </div>

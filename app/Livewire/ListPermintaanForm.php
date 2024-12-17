@@ -167,7 +167,7 @@ class ListPermintaanForm extends Component
 
         $this->showApprovalModal = false; // Tutup modal
         $this->catatan = null; // Reset catatan
-        return redirect()->route('permintaan-stok.show', ['permintaan_stok' => $this->permintaan->id]);
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id);
     }
 
 
@@ -277,6 +277,7 @@ class ListPermintaanForm extends Component
             'keterangan' => $this->keterangan,
             'status' => null
         ]);
+        $this->permintaan = $detailPermintaan;
         foreach ($this->list as $item) {
             $storedFilePath = $item['img'] ? str_replace('kondisiKdo/', '', $item['img']->storeAs(
                 'kondisiKdo', // Directory
@@ -295,7 +296,7 @@ class ListPermintaanForm extends Component
                 // 'lokasi_id' => $this->lokasiId
             ]);
         }
-        return redirect()->route('permintaan-stok.show', $detailPermintaan);
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id);
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
     }
@@ -444,7 +445,7 @@ class ListPermintaanForm extends Component
                     'dokumen' => $value->img ?? null,
                 ];
             }
-            $role = $tipe == 'Umum' ? 'Kepala Seksi' : ($tipe == 'Spare Part' ? 'Kepala Subbagian Tata Usaha' : 'Kepala Seksi Pemeliharaan');
+            $role = $tipe == 'Umum' ? 'Kepala Seksi' : ($tipe == 'Spare Part' ? 'Kepala Subbagian' : 'Kepala Seksi Pemeliharaan');
             $this->approvals = PersetujuanPermintaanStok::where('status', true)->where('detail_permintaan_id', $this->permintaan->id)
                 ->whereHas('user', function ($query) use ($role) {
                     $query->role($role); // Muat hanya persetujuan dari kepala_seksi

@@ -51,10 +51,10 @@ class KontrakListForm extends Component
             $key = Str::slug($value);
 
             if ($field === 'satuanBesar') {
-                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $key . '%')
+                $this->suggestions[$field] = SatuanBesar::where('slug', 'like', '%' . $key . '%')
                     ->pluck('nama')->toArray();
             } elseif ($field === 'satuanKecil') {
-                $this->suggestions[$field] = SatuanBesar::where('nama', 'like', '%' . $key . '%')
+                $this->suggestions[$field] = SatuanBesar::where('slug', 'like', '%' . $key . '%')
                     ->pluck('nama')->toArray();
             } elseif ($field === 'kategori') {
                 $this->suggestions[$field] = KategoriStok::where('slug', 'like', '%' . $key . '%')
@@ -320,6 +320,7 @@ class KontrakListForm extends Component
             'type' => 1,
             'status' => 1,
         ]);
+        
 
         foreach ($this->list as $item) {
             $merk = MerkStok::updateOrCreate(

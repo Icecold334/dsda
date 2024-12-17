@@ -55,6 +55,7 @@ class DatabaseSeeder extends Seeder
             BaseInventaSeeder::class,
             BarangStokSeeder::class,
             MerkStokSeeder::class,
+            WaktuPeminjamanSeeder::class,
         ]);
         $methods = [
             'Pengadaan Langsung',
