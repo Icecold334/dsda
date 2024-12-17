@@ -28,6 +28,7 @@ class PermissionShow extends Component
     public function mount($option)
     {
         $role = Role::findOrFail($option);
+        // dd($role);
         $this->roleId = $role->id;
 
         // $list = ['aset_new', 'aset_edit'];

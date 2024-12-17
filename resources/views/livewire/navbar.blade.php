@@ -38,7 +38,7 @@
                         // ['href' => '/#', 'title' => 'Form permintaan spare part'],
                         ['href' => '/permintaan/spare-part', 'title' => 'Form permintaan spare part'],
                         ['href' => '/permintaan/material', 'title' => 'Form permintaan material'],
-                        ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
+                        ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],   
                     ]" />
                     <livewire:nav-item title="data" :child="[
                         ['href' => '/kategori', 'title' => 'kategori'],
@@ -47,7 +47,7 @@
                         ['href' => '/toko', 'title' => 'Toko / distributor'],
                         ['href' => '/person', 'title' => 'Penanggung jawab'],
                         ['href' => '/lokasi', 'title' => 'lokasi'],
-                        ['href' => '/lokasi-stok', 'title' => 'lokasi stok'],
+                        ['href' => '/lokasi-stok', 'title' => 'lokasi gudang'],
                         ['href' => '/unit-kerja', 'title' => 'Unit Kerja'],
                     ]" />
                     <livewire:nav-item href="/kalender"
@@ -60,7 +60,7 @@
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
                     <livewire:nav-item href="/qrprint"
-                        title='                <button data-tooltip-target="tooltipQR" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-print"></i></button>
+                        title='<button data-tooltip-target="tooltipQR" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-print"></i></button>
 
                 <div id="tooltipQR" role="tooltip"
                     class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
