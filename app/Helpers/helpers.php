@@ -193,6 +193,6 @@ if (!function_exists('canViewAdditionalUsers')) {
     return $authUser->unit_id == null ||
       $user->unitKerja->id == $authUser->unit_id && $user->unitKerja->parent_id === null;
 
-    dd($authUser);
+    // dd($authUser);
   }
 }
