@@ -21,5 +21,8 @@ class AppServiceProvider extends ServiceProvider
     {
         // Auth::loginUsingId(1); //superadmin
         // Auth::loginUsingId(3); //kepala unit
+        // Auth::loginUsingId(118); //kepala suku dinas
+        // Auth::loginUsingId(8); //penanggung jawab
+
     }
 }
