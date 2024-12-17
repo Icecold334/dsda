@@ -127,9 +127,7 @@
                             @if ($showDokumen)
                                 <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value="{{ $item['jumlah_diterima'] }}"
                                     wire:model="list.{{ $index }}.jumlah_diterima"
-                                    @cannot('inventaris_edit_jumlah_diterima')
-                            disabled
-                            @endcannot
+                                    @cannot('inventaris_edit_jumlah_diterima') disabled @endcannot
                                     class="bg-gray-50 border {{ $showDokumen === 1 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                     min="1" {{-- max="{{ $item['max_jumlah'] }}" --}} placeholder="Jumlah">
                                 <span
@@ -254,19 +252,28 @@
                                 <i class="fa-solid fa-circle-check"></i>
                             </button>
                         @endif --}}
-                        @if ($showDokumen && (!$item['bagian_id'] || !$item['posisi_id'] || !$item['bukti'] || !$item['boolean_jumlah']))
-                                <button wire:click="updatePengirimanStok({{ $index }})"
-                                    class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
+                        {{ $item['boolean_jumlah'] }}
+                        @if ($showDokumen && (!$item['bagian_id'] || !$item['posisi_id'] || !$item['bukti']))
+                            <button wire:click="updatePengirimanStok({{ $index }})"
+                                class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
                                     ">
-                                    <i class="fa-solid fa-circle-check"></i>
-                                </button>
-                                <!-- Without permission, show "Belum ada unggahan" -->
-                                {{-- <span class="text-gray-500">Belum ada unggahan</span> --}}
-                            @endif
-                        @can('inventaris_unggah_foto_barang_datang')
-                            
-                        @endcan
+                                <i class="fa-solid fa-circle-check"></i>
+                            </button>
+                            <!-- Without permission, show "Belum ada unggahan" -->
+                            {{-- <span class="text-gray-500">Belum ada unggahan</span> --}}
+                        @elseif ($showDokumen && Auth::user()->can('inventaris_edit_jumlah_diterima') && !$item['boolean_jumlah'])
+                            <!-- Your content or logic here -->
 
+                            
+                            <button wire:click="updatePengirimanStok({{ $index }})"
+                                class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
+                            ">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </button>
+                        @endif
+                        @if (!$item['id'] && $showDokumen)
+                            &nbsp;
+                        @endif
                     </td>
                 </tr>
             @endforeach

@@ -14,6 +14,7 @@ use Livewire\WithFileUploads;
 use App\Models\PengirimanStok;
 use App\Models\DetailPengirimanStok;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -255,7 +256,7 @@ class ListPengirimanForm extends Component
                     'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
                     'jumlah' => $transaksi->jumlah ?? 1,
                     'jumlah_diterima' => $transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
-                    'boolean_jumlah' => $transaksi->jumlah_diterima,
+                    'boolean_jumlah' => 0,
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
                     'editable' => true,
                 ];
@@ -347,13 +348,21 @@ class ListPengirimanForm extends Component
     {
         $data = $this->list[$index];
 
-        $id_pengiriman = $data['id'];
-
         $attr = [
-            'jumlah_diterima' => $data['jumlah_diterima'],
             'bagian_id' => $data['bagian_id'],
             'posisi_id' => $data['posisi_id']
         ];
+
+        if (Gate::allows('inventaris_edit_jumlah_diterima')) {
+            $editJumlah = [
+                'jumlah_diterima' => $data['jumlah_diterima']
+            ];
+            $attr = array_merge($attr, $editJumlah);
+
+            $data['boolean_jumlah'] = 1;
+        }
+
+        $id_pengiriman = $data['id'];
 
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
 
