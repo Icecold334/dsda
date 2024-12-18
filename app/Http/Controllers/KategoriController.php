@@ -25,14 +25,14 @@ class KategoriController extends Controller
         // // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         // $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
-        $kategoris = Kategori::with('children')->whereNull('parent_id')
-            // ->when($this->unit_id, function ($query) use ($parentUnitId) {
-            //     $query->whereHas('user', function ($query) use ($parentUnitId) {
-            //         filterByParentUnit($query, $parentUnitId);
-            //     });
-            // })
-            ->get(); // Hanya parent categories
-        return view('kategori.index', compact('kategoris'));
+        // $kategoris = Kategori::with('children')->whereNull('parent_id')
+        // ->when($this->unit_id, function ($query) use ($parentUnitId) {
+        //     $query->whereHas('user', function ($query) use ($parentUnitId) {
+        //         filterByParentUnit($query, $parentUnitId);
+        //     });
+        // })
+        // ->get(); // Hanya parent categories
+        return view('kategori.index');
     }
 
     /**

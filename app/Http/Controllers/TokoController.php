@@ -25,13 +25,13 @@ class TokoController extends Controller
         // // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         // $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
-        $tokos = Toko::all();
+        // $tokos = Toko::all();
         // when($this->unit_id, function ($query) use ($parentUnitId) {
         //     $query->whereHas('user', function ($query) use ($parentUnitId) {
         //         filterByParentUnit($query, $parentUnitId);
         //     });
         // })->get();
-        return view('toko.index', compact('tokos'));
+        return view('toko.index');
     }
 
     /**

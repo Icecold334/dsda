@@ -397,7 +397,7 @@
                             <p class="font-semibold text-gray-800">{{ $aset->kode }}</p>
                             <p class="font-normal text-gray-500 text-sm">Kode Sistem : {{ $aset->systemcode }}</p>
                             <p class="font-normal text-gray-500 text-sm">Tanggal Pembelian :
-                                {{ date('j F Y', $aset->tanggalbeli) }}
+                                {{ $aset->tanggalbeli ? date('j F Y', $aset->tanggalbeli) : '---' }}
                             </p>
                         </td>
                         <td class="py-3 px-6 ">

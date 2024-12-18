@@ -15,50 +15,58 @@ class PermissionShow extends Component
 
     public function updatedSelectedPermissions()
     {
-        // Find the role by ID
-        $role = Role::findOrFail($this->roleId);
-
-        // Convert selected permission names to their IDs
-        $permissionIds = Permission::whereIn('name', $this->selectedPermissions)->pluck('id')->toArray();
-
-        // dd($permissionIds);
-        // Sync the permissions to the role
-        $role->permissions()->sync($permissionIds);
+        $this->syncPermissionsToRole();
     }
 
     public function selectAllForCategory($category)
     {
-        // Pastikan kategori ada
         if (isset($this->permissions[$category])) {
-            // Tambahkan semua permission di kategori ke selectedPermissions jika belum ada
+            $role = Role::findOrFail($this->roleId);
+
+            // Tambahkan semua permission ke selectedPermissions
             foreach ($this->permissions[$category] as $permission) {
                 if (!in_array($permission, $this->selectedPermissions)) {
                     $this->selectedPermissions[] = $permission;
                 }
             }
+
+            // Sinkronkan permissions ke role
+            $permissionIds = Permission::whereIn('name', $this->permissions[$category])->pluck('id')->toArray();
+            $role->permissions()->syncWithoutDetaching($permissionIds);
         }
     }
 
     public function resetAllForCategory($category)
     {
-        // Pastikan kategori ada
         if (isset($this->permissions[$category])) {
-            // Hapus semua permission dalam kategori dari selectedPermissions
+            $role = Role::findOrFail($this->roleId);
+
+            // Hapus permissions kategori dari selectedPermissions
             $this->selectedPermissions = array_diff(
                 $this->selectedPermissions,
                 $this->permissions[$category]
             );
+
+            // Hapus permissions dari role
+            $permissionIds = Permission::whereIn('name', $this->permissions[$category])->pluck('id')->toArray();
+            $role->permissions()->detach($permissionIds);
         }
     }
 
     public function isCategoryFullySelected($category)
     {
-        // Periksa jika semua izin dalam kategori ada di selectedPermissions
         if (isset($this->permissions[$category])) {
             return empty(array_diff($this->permissions[$category], $this->selectedPermissions));
         }
 
         return false;
+    }
+
+    public function syncPermissionsToRole()
+    {
+        $role = Role::findOrFail($this->roleId);
+        $permissionIds = Permission::whereIn('name', $this->selectedPermissions)->pluck('id')->toArray();
+        $role->permissions()->sync($permissionIds);
     }
 
     public function mount($option)
