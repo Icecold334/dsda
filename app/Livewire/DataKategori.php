@@ -30,21 +30,15 @@ class DataKategori extends Component
         // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
-        // Ambil data kategori dengan logika baru
+        // Ambil data kategori
         $this->kategoris = Kategori::with(['children' => function ($query) use ($parentUnitId, $userUnitId) {
-            $query->withCount(['aset' => function ($query) use ($parentUnitId, $userUnitId) {
-                // Jika unit_id user null, jangan filter unit_id (ambil semua aset)
-                if (!is_null($userUnitId)) {
+            $query->withCount(['aset' => function ($query) use ($parentUnitId) {
+                if (!is_null($parentUnitId)) {
                     $query->whereHas('user', function ($query) use ($parentUnitId) {
                         $query->where('unit_id', $parentUnitId);
                     });
                 }
             }]);
-
-            // Filter nama jika pencarian dilakukan
-            if ($this->search) {
-                $query->where('nama', 'like', '%' . $this->search . '%');
-            }
         }])
             ->whereNull('parent_id')
             ->when($this->search, function ($query) {
@@ -53,9 +47,8 @@ class DataKategori extends Component
                         $query->where('nama', 'like', '%' . $this->search . '%');
                     });
             })
-            ->withCount(['aset' => function ($query) use ($parentUnitId, $userUnitId) {
-                // Filter aset berdasarkan parentUnitId
-                if (!is_null($userUnitId)) {
+            ->withCount(['aset' => function ($query) use ($parentUnitId) {
+                if (!is_null($parentUnitId)) {
                     $query->whereHas('user', function ($query) use ($parentUnitId) {
                         $query->where('unit_id', $parentUnitId);
                     });

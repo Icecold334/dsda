@@ -1,6 +1,5 @@
-
 <x-body>
-    <div class="flex justify-between py-2 mb-3">
+    {{-- <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">Lokasi Aset</h1>
         <div>
@@ -27,11 +26,11 @@
                     class="bg-gray-300 hover:bg-gray-200 hover:shadow-lg font-semibold transition duration-200 rounded-2xl ">
                     <td class="px-6 py-3"></td>
                     <td class="px-6 py-3">{{ $lokasi->nama }}</td>
-                    <td class="px-6 py-3">{{ $lokasi->keterangan }}</td>
-                    {{-- <td class="text-center px-6 py-3">{{ $lokasi->aset->count() }}</td> --}}
-                    <td class="text-center px-6 py-3">
-                        <!-- Link to aset.index with tooltip -->
-                        <a href="{{ route('aset.index', ['lokasi_id' => $lokasi->id]) }}"
+                    <td class="px-6 py-3">{{ $lokasi->keterangan }}</td> --}}
+    {{-- <td class="text-center px-6 py-3">{{ $lokasi->aset->count() }}</td> --}}
+    {{-- <td class="text-center px-6 py-3"> --}}
+    <!-- Link to aset.index with tooltip -->
+    {{-- <a href="{{ route('aset.index', ['lokasi_id' => $lokasi->id]) }}"
                            class="text-primary-950 hover:underline"
                            data-tooltip-target="tooltip-jumlah-lokasi-{{ $lokasi->id }}">
                             {{ $lokasi->aset->count() }}
@@ -57,6 +56,8 @@
                 </tr>
             @endforeach
         </tbody>
-    </table>
-
+    </table> --}}
+    <div>
+        <livewire:data-lokasi />
+    </div>
 </x-body>

@@ -17,24 +17,37 @@ class DataUnitKerja extends Component
 
     public function loadData()
     {
-        // Ambil data unit kerja tanpa filter unit_id dan tanpa menghitung aset
-        $this->units = UnitKerja::with(['children' => function ($query) {
-            // Filter berdasarkan nama jika pencarian dilakukan
-            if ($this->search) {
-                $query->where('nama', 'like', '%' . $this->search . '%');
-            }
-        }])
-            ->whereNull('parent_id') // Hanya ambil parent unit kerja
+        $this->units = UnitKerja::with(['children'])
+            ->whereNull('parent_id') // Ambil hanya parent UnitKerja
             ->when($this->search, function ($query) {
-                // Filter parent unit berdasarkan pencarian
-                $query->where('nama', 'like', '%' . $this->search . '%')
+                $query->where('nama', 'like', '%' . $this->search . '%') // Filter parent berdasarkan pencarian
                     ->orWhereHas('children', function ($query) {
-                        $query->where('nama', 'like', '%' . $this->search . '%');
+                        $query->where('nama', 'like', '%' . $this->search . '%'); // Filter children berdasarkan pencarian
                     });
             })
             ->get()
+            ->map(function ($unit) {
+                // Jika parent cocok, kembalikan semua children
+                if ($this->search && stripos($unit->nama, $this->search) !== false) {
+                    return $unit;
+                }
+
+                // Jika children yang cocok, filter children dan tetap tampilkan parent
+                $unit->children = $unit->children->filter(function ($child) {
+                    return stripos($child->nama, $this->search) !== false;
+                })->values();
+
+                return $unit;
+            })
+            ->filter(function ($unit) {
+                // Jika parent dan semua children tidak cocok, hapus dari hasil
+                return $this->search
+                    ? stripos($unit->nama, $this->search) !== false || $unit->children->isNotEmpty()
+                    : true;
+            })
             ->toArray();
     }
+
 
 
     public function updateSearch($value)

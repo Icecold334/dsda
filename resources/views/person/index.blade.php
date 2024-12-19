@@ -1,5 +1,5 @@
 <x-body>
-    <div class="flex justify-between py-2 mb-3">
+    {{-- <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">Penanggung Jawab Aset</h1>
         <div>
@@ -34,11 +34,11 @@
                     <td class="px-6 py-3">{{ $person->alamat }}</td>
                     <td class="px-6 py-3">{{ $person->telepon }}</td>
                     <td class="px-6 py-3">{{ $person->email }}</td>
-                    <td class="px-6 py-3">{{ $person->keterangan }}</td>
-                    {{-- <td class="text-center px-6 py-3">{{ $person->histories->count() }}</td> --}}
-                    <td class="text-center px-6 py-3">
-                        <!-- Link to aset.index with tooltip -->
-                        <a href="{{ route('aset.index', ['person_id' => $person->id]) }}"
+                    <td class="px-6 py-3">{{ $person->keterangan }}</td> --}}
+    {{-- <td class="text-center px-6 py-3">{{ $person->histories->count() }}</td> --}}
+    {{-- <td class="text-center px-6 py-3"> --}}
+    <!-- Link to aset.index with tooltip -->
+    {{-- <a href="{{ route('aset.index', ['person_id' => $person->id]) }}"
                            class="text-primary-950 hover:underline"
                            data-tooltip-target="tooltip-jumlah-person-{{ $person->id }}">
                             {{ $person->histories->count() }}
@@ -64,6 +64,8 @@
                 </tr>
             @endforeach
         </tbody>
-    </table>
-
+    </table> --}}
+    <div>
+        <livewire:data-person />
+    </div>
 </x-body>
