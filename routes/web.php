@@ -48,6 +48,8 @@ use App\Http\Controllers\PermintaanStokController;
 use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
+use App\Http\Controllers\PengaturanPersetujuanController;
+use App\Http\Controllers\PersetujuanController;
 use App\Http\Controllers\UnitKerjaController;
 use App\Models\Persetujuan;
 
@@ -145,6 +147,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('kalender', KalenderController::class);
     Route::get('permintaan/add/{tipe}', [PermintaanStokController::class, 'create']);
     Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'index']);
+    Route::get('option-approval', [PengaturanPersetujuanController::class, 'index']);
+    Route::get('option-approval/{tipe}/{jenis}', [PengaturanPersetujuanController::class, 'edit']);
     Route::get('permintaan/{tipe}/{id}', [PermintaanStokController::class, 'show']);
 
     Route::resources([

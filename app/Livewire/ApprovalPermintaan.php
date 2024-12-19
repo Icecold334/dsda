@@ -46,7 +46,6 @@ class ApprovalPermintaan extends Component
             // 'Kepala Unit',
             'Kepala Seksi',
             'Kepala Subbagian',
-            // 'Penjaga Gudang',
             // 'Penanggung Jawab',
         ];
         $this->roleLists = [];
@@ -97,10 +96,10 @@ class ApprovalPermintaan extends Component
                 // Jika user berada di tengah atau akhir
                 $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
                 $currentUser = $allApproval[$index];
-
-                $previousApprovalStatus = optional($previousUser->persetujuanPermintaan()
-                    ->where('detail_permintaan_id', $this->permintaan->id ?? 0)
+                $previousApprovalStatus = optional(optional($previousUser)->persetujuanPermintaan()
+                    ?->where('detail_permintaan_id', $this->permintaan->id ?? 0)
                     ->first())->status;
+
 
                 $this->showButton = $previousUser &&
                     !$currentUser->persetujuanPermintaan()

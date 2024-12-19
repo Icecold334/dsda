@@ -4,6 +4,8 @@ import ApexCharts from "apexcharts";
 window.ApexCharts = ApexCharts;
 import Swal from "sweetalert2";
 window.Swal = Swal;
+import Sortable from "sortablejs";
+window.Sortable = Sortable;
 window.formatRupiah = function (value) {
     let stringValue = value.toString();
     let split = stringValue.split(",");
