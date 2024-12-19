@@ -12,6 +12,6 @@
         </div>
     </div>
 
-    <livewire:approval-option>
+    <livewire:approval-option :tipe="$tipe" :jenis="$jenis">
 
 </x-body>

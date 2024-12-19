@@ -7,14 +7,25 @@ use Livewire\Component;
 
 class ApprovalOption extends Component
 {
-    public $roles = ['Penanggung Jawab', 'Pejabat Pembuat Komitmen', 'Kepala Seksi']; // Contoh data awal
+    // public $roles = ['Penanggung Jawab', 'Pejabat Pembuat Komitmen', 'Kepala Seksi']; // Contoh data awal
+    public $roles = []; // Contoh data awal
     public $rolesAvailable;
     public $newRole = '';
     public $selectedRole;
+    public $tipe;
+    public $jenis;
+    public $pesan;
     public $approvalType = 'urut'; // Mekanisme default
+
+
 
     public function mount()
     {
+        if ($this->tipe == 'permintaan') {
+            if ($this->jenis == 'umum') {
+                $this->pesan = 'Urutkan peran sesuai alur persetujuan. Jabatan terakhir dalam daftar bertugas menyelesaikan proses persetujuan.';
+            }
+        }
         $unit_id = $this->unit_id;
         $this->rolesAvailable = User::whereHas('unitKerja', function ($user) use ($unit_id) {
             return $user->where('parent_id', $unit_id)->orWhere('unit_id', $unit_id);
@@ -25,8 +36,6 @@ class ApprovalOption extends Component
             ->unique()
             ->values()
             ->toArray();
-        $this->rolesAvailable =
-            collect($this->rolesAvailable)->diff($this->roles)->values();
     }
 
 
@@ -39,6 +48,8 @@ class ApprovalOption extends Component
         if (!in_array($this->selectedRole, $this->roles)) {
             $this->roles[] = $this->selectedRole;
         }
+        $this->rolesAvailable =
+            collect($this->rolesAvailable)->diff($this->roles)->values();
 
         $this->selectedRole = null; // Reset pilihan setelah menambahkan role
     }
@@ -51,7 +62,8 @@ class ApprovalOption extends Component
 
     public function updateRolesOrder($newOrder)
     {
-        $this->roles = $newOrder; // Update roles sesuai urutan baru
+        // Hapus elemen yang duplikat dari $newOrder
+        $this->roles = collect($newOrder)->unique()->values()->toArray();
     }
 
     public function saveApprovalConfiguration()

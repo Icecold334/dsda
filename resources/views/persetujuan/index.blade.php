@@ -114,8 +114,8 @@
         </x-card>
         <x-card title="Transaksi" class="">
 
-            <div class="flex flex-col  gap-3">
-                <a href="/option-approval/transaksi/kontrak"
+            <div class="flex flex-col gap-3">
+                {{-- <a href="/option-approval/transaksi/kontrak"
                     class="block items-center p-4 w-full shadow-lg bg-white border border-gray-200 rounded-lg hover:bg-gray-200 dark:bg-gray-800 transition duration-200 dark:border-gray-700 dark:hover:bg-gray-700 vertical-center">
                     <div class="content">
                         <div
@@ -129,7 +129,7 @@
                             </div>
                         </div>
                     </div>
-                </a>
+                </a> --}}
                 <a href="/option-approval/transaksi/langsung"
                     class="block items-center p-4 w-full shadow-lg bg-white border border-gray-200 rounded-lg hover:bg-gray-200 dark:bg-gray-800 transition duration-200 dark:border-gray-700 dark:hover:bg-gray-700 vertical-center">
                     <div class="content">
