@@ -55,7 +55,7 @@
                         </div>
                     </td>
                     <td class="py-3 px-6 text-center">
-                        <a href="{{ route('person.edit', $person['id']) }}"
+                        <a href="/person/edit/{{ $person['id'] }}"
                             class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
                             data-tooltip-target="tooltip-aset-{{ $person['id'] }}">
                             <i class="fa-solid fa-pen"></i>
