@@ -1,10 +1,13 @@
 <div>
     <div class="flex justify-between py-2 mb-3">
-        <h1 class="text-2xl font-bold text-primary-900">Daftar Lokasi Penyimpanan Stok
-            {{ optional(auth()->user()->unitKerja)->parent
-                ? optional(auth()->user()->unitKerja->parent)->nama
-                : optional(auth()->user()->unitKerja)->nama }}
-        </h1>
+        <div class="flex flex-col justify-between">
+            <h1 class="text-2xl font-bold text-primary-900">Daftar Lokasi Penyimpanan Stok</h1>
+            <span class="text-2xl font-bold text-primary-900">
+                {{ optional(auth()->user()->unitKerja)->parent
+                    ? optional(auth()->user()->unitKerja->parent)->nama
+                    : optional(auth()->user()->unitKerja)->nama }}
+            </span>
+        </div>
         <div class="flex justify-between items-center gap-4 mb-3">
             <!-- Search Input -->
             <div class="flex-1">

@@ -32,7 +32,7 @@ class DataUnitKerja extends Component
                     return $unit;
                 }
 
-                // Jika children yang cocok, filter children dan tetap tampilkan parent
+                // Jika children yang cocok, filter children dan tetap tampilkan parent 
                 $unit->children = $unit->children->filter(function ($child) {
                     return stripos($child->nama, $this->search) !== false;
                 })->values();
