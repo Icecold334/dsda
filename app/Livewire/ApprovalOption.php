@@ -15,16 +15,13 @@ class ApprovalOption extends Component
     public $jenis;
     public $pesan;
     public $approvalOrder; // Urutan yang dipilih untuk persetujuan jumlah barang
-    public $approvalType = 'urut'; // Mekanisme default
+    public $finalizerRole;
+    public $cancelApprovalOrder; // Urutan persetujuan setelahnya user dapat membatalkan
+
+    // public $approvalType = 'urut'; // Mekanisme default
 
     public function mount()
     {
-        if ($this->tipe == 'permintaan') {
-            if ($this->jenis == 'umum') {
-                $this->pesan = 'Urutkan peran sesuai alur persetujuan.';
-            }
-        }
-
         $unit_id = $this->unit_id;
         $this->rolesAvailable = User::whereHas('unitKerja', function ($user) use ($unit_id) {
             return $user->where('parent_id', $unit_id)->orWhere('unit_id', $unit_id);
@@ -34,6 +31,26 @@ class ApprovalOption extends Component
             ->flatten()
             ->unique('id')
             ->values();
+        if ($this->tipe == 'permintaan') {
+            if ($this->jenis == 'umum') {
+                $this->pesan = 'Urutkan peran sesuai alur persetujuan.';
+            }
+            $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('unit_id', $this->unit_id)
+                ->where('jenis', $this->jenis)
+                ->latest()
+                ->first();
+            $this->approvalOrder = $latestApprovalConfiguration->urutan_persetujuan;
+            $this->cancelApprovalOrder = $latestApprovalConfiguration->cancel_persetujuan;
+            $this->finalizerRole = $latestApprovalConfiguration->jabatan_penyelesai_id;
+
+            $this->roles = $latestApprovalConfiguration->jabatanPersetujuan->map(function ($jabatan) {
+                return $jabatan->jabatan; // Pastikan relasi ke model Role di JabatanPersetujuan benar
+            });
+
+            $this->rolesAvailable = collect($this->rolesAvailable)
+                ->reject(fn($role) => $role->id == $this->selectedRole)
+                ->values(); // Tetap dalam bentuk Collection
+        }
     }
 
     public function addRole()
@@ -42,56 +59,98 @@ class ApprovalOption extends Component
             'selectedRole' => 'required|integer', // Pastikan selectedRole adalah ID
         ]);
 
-        // Pastikan role yang dipilih tidak duplikat
-        if (!in_array($this->selectedRole, array_column($this->roles, 'id'))) {
+        // Pastikan role yang dipilih tidak duplikat di dalam $this->roles
+        if (!collect($this->roles)->contains(fn($role) => $role->id == $this->selectedRole)) {
             $role = collect($this->rolesAvailable)->firstWhere('id', $this->selectedRole);
             if ($role) {
-                $this->roles[] = $role; // Tambahkan data role (dengan ID) ke daftar roles
+                $this->roles[] = $role; // Tambahkan role ke daftar roles
             }
         }
 
-        // Perbarui rolesAvailable dengan menghapus role yang sudah dipilih
+        // Perbarui rolesAvailable dengan menghapus role yang memiliki ID sama
         $this->rolesAvailable = collect($this->rolesAvailable)
-            ->reject(fn($role) => $role['id'] == $this->selectedRole)
-            ->values(); // Tetap sebagai Collection, tanpa toArray()
+            ->reject(fn($role) => $role->id == $this->selectedRole)
+            ->values(); // Tetap dalam bentuk Collection
 
-        $this->selectedRole = null; // Reset pilihan setelah menambahkan role
+        // Reset pilihan setelah menambahkan role
+        $this->selectedRole = null;
     }
+
 
 
     public function removeRole($index)
     {
         // Hapus role dari daftar roles berdasarkan indeks
-        $removedRole = $this->roles[$index];
-        unset($this->roles[$index]);
-        $this->roles = array_values($this->roles); // Reindex array
+        $removedRole = collect($this->roles)->get($index); // Ambil role berdasarkan indeks
+        $this->roles = collect($this->roles)->filter(function ($item, $key) use ($index) {
+            return $key !== $index; // Hapus item dengan indeks yang sesuai
+        })->values(); // Reindex koleksi
 
-        // Tambahkan kembali role yang dihapus ke rolesAvailable
-        $this->rolesAvailable[] = $removedRole;
-        $this->rolesAvailable = collect($this->rolesAvailable)->unique('id')->values()->toArray();
+        // Ambil ulang data rolesAvailable dari model
+        $unit_id = $this->unit_id; // Pastikan $unit_id sudah didefinisikan sebelumnya
+        $this->rolesAvailable = User::whereHas('unitKerja', function ($query) use ($unit_id) {
+            $query->where('parent_id', $unit_id)->orWhere('unit_id', $unit_id);
+        })
+            ->get()
+            ->pluck('roles') // Ambil seluruh data role dari relasi
+            ->flatten()
+            ->unique('id')
+            ->reject(fn($role) => collect($this->roles)->pluck('id')->contains($role->id)) // Hilangkan role yang sudah ada di $this->roles
+            ->values();
     }
+
 
     public function updateRolesOrder($newOrder)
     {
         // Urutkan ulang daftar roles berdasarkan ID baru
         $this->roles = collect($newOrder)
             ->map(fn($id) => collect($this->roles)->firstWhere('id', $id))
-            ->filter()
-            ->values()
-            ->toArray();
+            ->filter() // Hapus nilai null jika ID tidak ditemukan
+            ->unique('id') // Hapus role dengan ID yang sama
+            ->values(); // Reset indeks array
     }
+
 
     public function saveApprovalConfiguration()
     {
-        // Simpan konfigurasi ke database atau session
-        session()->flash('message', 'Konfigurasi persetujuan berhasil disimpan.');
+        // dd($this->faker->uuid);
+        // Simpan opsi persetujuan ke database
+        $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
+            'unit_id' => $this->unit_id, // Ganti sesuai kebutuhan
+            'uuid' => $this->faker->uuid, // Ganti sesuai kebutuhan
+            'jenis' => $this->jenis, // Ganti sesuai kebutuhan
+            'tipe' => $this->tipe, // Ganti sesuai kebutuhan
+            'deskripsi' => $this->faker->text(400), // Ganti sesuai kebutuhan
+            'urutan_persetujuan' => $this->approvalOrder,
+            'cancel_persetujuan' => $this->cancelApprovalOrder,
+            'jabatan_penyelesai_id' => $this->finalizerRole, // Jabatan terakhir sebagai penyelesaian
+        ]);
+
+        // Simpan setiap role dalam konfigurasi ke tabel jabatan_persetujuan
+        foreach ($this->roles as $index => $role) {
+            \App\Models\JabatanPersetujuan::create([
+                'opsi_persetujuan_id' => $approvalConfiguration->id,
+                'jabatan_id' => $role['id'],
+                'urutan' => $index + 1,
+            ]);
+        }
+
+        // Reset data setelah berhasil disimpan
+        // $this->roles = [];
+        // $this->rolesAvailable = User::with('roles')->get()
+        //     ->pluck('roles')
+        //     ->flatten()
+        //     ->unique('id')
+        //     ->values();
+        // $this->approvalOrder = null;
+
+        session()->flash('success', 'Konfigurasi persetujuan berhasil disimpan!');
     }
 
     public function render()
     {
         return view('livewire.approval-option', [
             'previewOrder' => $this->roles,
-            'previewMechanism' => $this->approvalType === 'sequential' ? 'Urut' : 'Bersamaan',
         ]);
     }
 }

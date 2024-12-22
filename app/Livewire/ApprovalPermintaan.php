@@ -20,8 +20,10 @@ class ApprovalPermintaan extends Component
     use WithFileUploads;
 
     public $permintaan;
+    public $currentApprovalIndex;
     public $penulis;
     public $isPenulis;
+    public $showCancelOption;
     public $user;
     public $files = [];
     public $roles = [];
@@ -40,14 +42,8 @@ class ApprovalPermintaan extends Component
         } else {
             $this->files = [];
         }
-
         $this->user = Auth::user();
-        $this->roles = [
-            // 'Kepala Unit',
-            'Kepala Seksi',
-            'Kepala Subbagian',
-            // 'Penanggung Jawab',
-        ];
+        $this->roles = $this->permintaan->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
         $this->roleLists = [];
         $this->lastRoles = [];
 
@@ -82,6 +78,13 @@ class ApprovalPermintaan extends Component
 
         // Menggabungkan semua approval untuk pengecekan urutan
         $allApproval = collect($this->roleLists)->flatten(1);
+        $this->currentApprovalIndex = $allApproval->filter(function ($user) {
+            $approval = $user->persetujuanPermintaan()
+                ->where('detail_permintaan_id', $this->permintaan->id ?? 0)
+                ->first();
+            return $approval && $approval->status === 1; // Hanya hitung persetujuan yang berhasil
+        })->count();
+
 
         // Pengecekan urutan user dalam daftar persetujuan
         $index = $allApproval->search(fn($user) => $user->id == Auth::id());
@@ -108,6 +111,17 @@ class ApprovalPermintaan extends Component
                     $previousApprovalStatus === 1; // Tombol hanya muncul jika persetujuan sebelumnya berhasil (true)
             }
         }
+        $cancelAfter = $this->permintaan->opsiPersetujuan->cancel_persetujuan;
+
+        $this->showCancelOption = $this->currentApprovalIndex >= $cancelAfter;
+        // dd($this->currentApprovalIndex);
+    }
+
+    public function cancelRequest()
+    {
+        // Logika untuk membatalkan permintaan
+        $this->permintaan->update(['cancel' => true]);
+        session()->flash('message', 'Permintaan telah dibatalkan.');
     }
 
     public function approveConfirmed($status, $message = null)

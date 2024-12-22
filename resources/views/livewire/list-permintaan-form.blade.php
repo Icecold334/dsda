@@ -155,7 +155,7 @@
                                                     Setujui
                                                 </button>
                                             @else
-                                                <div>Menunggu Persetujuan Kepala Seksi</div>
+                                                <div>Menunggu {{ $approve_after }}</div>
                                             @endif
                                         @endcan
                                     @endif

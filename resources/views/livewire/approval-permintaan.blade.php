@@ -6,7 +6,7 @@
             <div class="text-sm border-b-2">
                 <div class="flex justify-between px-3">
                     <span class="mr-9 {{ $penulis->id == auth()->id() ? 'font-bold' : '' }}">
-                        {{ $penulis->id == auth()->id() ? 'Anda' : $penulis->name }}
+                        {{ false ? 'Anda' : $penulis->name }}
                     </span>
                 </div>
             </div>
@@ -62,13 +62,26 @@
                 {{-- @endif --}}
                 <button type="button" onclick="confirmApprove()"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                    Selesai
+                    Setuju
                 </button>
                 <button type="button" onclick="confirmReject()"
                     class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     Tidak Setuju
                 </button>
             </div>
+        </div>
+    @endif
+
+    @if ($isPenulis && $showCancelOption && is_null($permintaan->cancel))
+        <div class="flex justify-center">
+            <button type="button" onclick="confirmCompletion()"
+                class="text-green-900 bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                Lanjutkan
+            </button>
+            <button type="button" onclick="confirmCancellation()"
+                class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                Batalkan
+            </button>
         </div>
     @endif
 </div>

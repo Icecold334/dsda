@@ -226,6 +226,8 @@ return new class extends Migration
             $table->foreignId('unit_id')->constrained('unit_kerja')->onDelete('cascade'); // Link to unit_kerja table
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('kategori_id')->nullable()->constrained('kategori_stok');
+            $table->foreignId('approval_configuration_id')->nullable()->constrained('opsi_persetujuan')->onDelete('set null');
+
             $table->foreignId('sub_unit_id')->nullable()->constrained('unit_kerja')->onDelete('set null'); // Optional sub-unit link
             $table->integer('jumlah')->nullable();
             $table->text('keterangan')->nullable();

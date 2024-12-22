@@ -16,11 +16,11 @@ class NavItem extends Component
     public function mount()
     {
         if ($this->title == 'Form') {
-            // if (Auth::user()->cannot('inventaris_tambah_barang_datang')) {
-            //     $this->child =  collect($this->child)->filter(function ($child) {
-            //         return $child['title'] !== 'Form barang datang';
-            //     })->toArray();
-            // }
+            if (Auth::user()->cannot('inventaris_tambah_barang_datang')) {
+                $this->child =  collect($this->child)->filter(function ($child) {
+                    return $child['title'] !== 'Form barang datang';
+                })->toArray();
+            }
             $this->filterChild('inventaris_tambah_barang_datang', 'Form barang datang');
         }
 
