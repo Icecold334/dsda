@@ -1,6 +1,6 @@
 <div>
     <table class="w-full border-3 border-separate border-spacing-y-4">
-        cek
+        {{ $role_name }} 
         <thead>
             <tr class="text-white bg-primary-950 uppercase">
                 <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
@@ -93,14 +93,14 @@
                                 {{-- Jika pengguna adalah PPK --}}
                                 {{-- @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $item['ppk_isapprove']) --}}
                                 @if ($item['bukti'] && auth()->user()->hasRole('Penanggung Jawab') && $item['pj_isapprove'])
-                                    <button onclick="confirmApproval({{ $index }}, 'pj')"
+                                    <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PJ
                                     </button>
 
                                     {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
                                 @elseif ($item['bukti'] && auth()->user()->hasRole('Pejabat Pelaksana Teknis Kegiatan') && $item['pptk_isapprove'] && !$item['pj_isapprove'])
-                                    <button onclick="confirmApproval({{ $index }}, 'pptk')"
+                                    <button onclick="confirmApproval({{ $index }}, 'Pejabat Pelaksana Teknis Kegiatan')"
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PPTK
                                     </button>
@@ -112,7 +112,7 @@
                                         !$item['pptk_isapprove'] &&
                                         !$item['pj_isapprove']
                                 )
-                                    <button onclick="confirmApproval({{ $index }}, 'pj')"
+                                    <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PPK
                                     </button>
