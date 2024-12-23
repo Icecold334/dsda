@@ -281,6 +281,7 @@ return new class extends Migration
             $table->foreignId('sub_unit_id')->nullable()->constrained('unit_kerja')->onDelete('set null'); // Optional sub-unit link
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('kategori_id')->nullable()->constrained('kategori');
+            $table->foreignId('approval_configuration_id')->nullable()->constrained('opsi_persetujuan')->onDelete('set null');
             $table->text('keterangan')->nullable();
             $table->boolean('proses')->nullable();
             $table->boolean('cancel')->nullable();
@@ -292,10 +293,13 @@ return new class extends Migration
             $table->foreignId('detail_peminjaman_id')->constrained('detail_peminjaman_aset')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('aset_id')->nullable()->constrained('aset')->onDelete('cascade');
+            $table->foreignId('approved_aset_id')->nullable()->constrained('aset')->onDelete('cascade');
             $table->foreignId('waktu_id')->nullable()->constrained('waktu_peminjaman')->onDelete('cascade');
+            $table->foreignId('approved_waktu_id')->nullable()->constrained('waktu_peminjaman')->onDelete('cascade');
             // $table->foreignId('unit_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
             $table->text('deskripsi')->nullable();
             $table->text('catatan')->nullable();
+            $table->text('catatan_approved')->nullable();
             $table->string('img')->nullable();
             $table->integer('jumlah_orang')->nullable();
             $table->integer('jumlah')->nullable();

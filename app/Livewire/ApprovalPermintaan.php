@@ -69,8 +69,8 @@ class ApprovalPermintaan extends Component
         }
 
         // Calculate listApproval dynamically
-        $tipe = $this->permintaan->jenisStok->nama;
-        $unit = UnitKerja::find($this->permintaan->unit_id);
+        // $tipe = $this->permintaan->jenisStok->nama;
+        // $unit = UnitKerja::find($this->permintaan->unit_id);
         $allApproval = collect();
 
         // Hitung jumlah persetujuan yang dibutuhkan

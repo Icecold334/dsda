@@ -171,17 +171,17 @@ class AsetSeeder extends Seeder
         ];
 
         foreach ($asetData as $kategoriName => $merkData) {
-            if ($kategoriName == 'Otomotif') {
-                $kategori = Kategori::find(1);
-            } else {
-                $kategori = Kategori::whereNotIn('id', [1, 2, 3, 4, 5, 6, 7])->inRandomOrder()->first();
-            }
             foreach ($merkData as $merkName => $asetList) {
                 // $merk = Merk::where('nama', $merkName)->first();
                 $merk = Merk::firstOrCreate(['nama' => $merkName, 'nama_nospace' => Str::slug($merkName)], ['user_id' => User::inRandomOrder()->first()->id]);
 
 
                 foreach ($asetList as $asetName) {
+                    if ($kategoriName == 'Otomotif') {
+                        $kategori = Kategori::find(1);
+                    } else {
+                        $kategori = Kategori::whereNotIn('id', [1, 2, 3, 4, 5, 6, 7])->inRandomOrder()->first();
+                    }
                     $hargaSatuan = rand(1000000, 5000000); // Hitung harga satuan
                     $jumlah = rand(1, 10); // Tentukan jumlah
                     $hargatotal = $hargaSatuan * $jumlah; // Hitung harga total

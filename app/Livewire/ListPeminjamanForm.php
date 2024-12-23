@@ -119,6 +119,7 @@ class ListPeminjamanForm extends Component
         $this->tipe = $peminjaman;
         $tipe = $this->tipe;
         $kategori = Kategori::where('nama', $tipe)->first();
+        // dd($kategori->children);
         // if ($this->tipe == 'Ruangan') {
         //     $this->showAdd = $this->newAsetId && $this->newWaktu && $this->newPeserta && $this->newKeterangan && $this->newDokumen;
         // }
@@ -160,8 +161,11 @@ class ListPeminjamanForm extends Component
 
     public function saveData()
     {
-
-
+        $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('jenis', Str::lower($this->tipe == 'Peralatan Kantor' ? 'alat' : $this->tipe))
+            ->where('unit_id', $this->unit_id)
+            ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
+            ->latest()
+            ->first();
         $kodepeminjaman = Str::random(10); // Generate a unique code
 
         // Create Detail peminjaman Stok
@@ -172,6 +176,7 @@ class ListPeminjamanForm extends Component
             'sub_unit_id' => $this->sub_unit_id ?? null,
             'user_id' => Auth::id(),
             'kategori_id' => Kategori::where('nama', $this->tipe)->first()->id,
+            'approval_configuration_id' => $latestApprovalConfiguration->id,
             'keterangan' => $this->keterangan,
             'status' => null
         ]);
@@ -203,26 +208,29 @@ class ListPeminjamanForm extends Component
         $this->showNew = Request::is('permintaan/add/peminjaman');
 
         if ($this->peminjaman) {
+            $this->fillTipe($this->peminjaman->kategori->nama);
             $this->tanggal_peminjaman = $this->peminjaman->tanggal_peminjaman;
             $this->keterangan = $this->peminjaman->keterangan;
             $this->unit_id = $this->peminjaman->unit_id;
             $this->sub_unit_id = $this->peminjaman->sub_unit_id;
             $this->tipe = Kategori::find($this->peminjaman->kategori_id)->nama;
             foreach ($this->peminjaman->peminjamanAset as $key => $value) {
-                // $this->unit_id = $this->permintaan->unit_id;
-                // $this->keterangan = $this->permintaan->keterangan;
-                // $this->tanggal_permintaan = $this->permintaan->tanggal_permintaan;
-
                 $this->list[] = [
                     'id' => $value->id,
                     'aset_id' => $value->aset_id,
+                    'approved_aset_id' => $value->approved_aset_id ?? null,
                     'aset_name' => Aset::find($value->aset_id)->nama,
+                    'approved_aset_name' => Aset::find($value->approved_aset_id)->nama ?? null,
                     'waktu_id' => $value->waktu_id,
+                    'approved_waktu_id' => $value->approved_waktu_id ?? null,
                     'waktu' => WaktuPeminjaman::find($value->waktu_id),
+                    'approved_waktu' => WaktuPeminjaman::find($value->approved_waktu_id) ?? null,
                     'jumlah' => $value->jumlah,
-                    'jumlah_peserta' => $value->jumlah_peserta,
+                    'approved_jumlah' => $value->approved_jumlah ?? null,
+                    'jumlah_peserta' => $value->jumlah_orang,
                     'keterangan' => $value->deskripsi,
                     'img' => $value->img,
+                    'fix' => $this->tipe == 'Ruangan' ? $value->approved_aset_id && $value->approved_waktu_id : ($this->tipe == 'KDO' ? 1 : 0)
                 ];
             }
         };
@@ -230,6 +238,36 @@ class ListPeminjamanForm extends Component
 
         $this->tanggal_peminjaman = Carbon::now()->format('Y-m-d');
     }
+
+    public function approveItem($index, $message)
+    {
+        // // Validasi input
+        // $this->validate([
+        //     "list.$index.approved_aset_id" => 'required',
+        //     "list.$index.approved_waktu_id" => 'required',
+        // ], [
+        //     "list.$index.approved_aset_id.required" => "Layanan untuk item ke-{$index} harus dipilih.",
+        //     "list.$index.approved_waktu_id.required" => "Waktu untuk item ke-{$index} harus dipilih.",
+        // ]);
+
+        // Tandai item sebagai "fix"
+        $this->list[$index]['fix'] = true;
+
+        // Simpan perubahan ke database (misalnya, tabel PeminjamanAset)
+        $peminjamanAset = PeminjamanAset::find($this->list[$index]['id']);
+        // dd($peminjamanAset, $message);
+        if ($peminjamanAset) {
+            $peminjamanAset->update([
+                'approved_aset_id' => $this->list[$index]['approved_aset_id'],
+                'approved_waktu_id' => $this->list[$index]['approved_waktu_id'],
+                'catatan_approved' => $message,
+            ]);
+        }
+        $this->dispatch('success', "Peminjaman disetujui!");
+
+        // session()->flash('message', "Item pada baris ke-{$index} berhasil disetujui.");
+    }
+
     public function render()
     {
         return view('livewire.list-peminjaman-form');

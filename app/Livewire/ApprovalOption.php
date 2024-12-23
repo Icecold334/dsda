@@ -31,25 +31,24 @@ class ApprovalOption extends Component
             ->flatten()
             ->unique('id')
             ->values();
+        $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('unit_id', $this->unit_id)
+            ->where('jenis', $this->jenis)
+            ->latest()
+            ->first();
+        $this->roles = $latestApprovalConfiguration->jabatanPersetujuan->map(function ($jabatan) {
+            return $jabatan->jabatan; // Pastikan relasi ke model Role di JabatanPersetujuan benar
+        });
+        $this->rolesAvailable = collect($this->rolesAvailable)
+            ->reject(fn($role) => $role->id == $this->selectedRole)
+            ->values(); // Tetap dalam bentuk Collection
         if ($this->tipe == 'permintaan') {
             if ($this->jenis == 'umum') {
                 $this->pesan = 'Urutkan peran sesuai alur persetujuan.';
             }
-            $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('unit_id', $this->unit_id)
-                ->where('jenis', $this->jenis)
-                ->latest()
-                ->first();
+
             $this->approvalOrder = $latestApprovalConfiguration->urutan_persetujuan;
             $this->cancelApprovalOrder = $latestApprovalConfiguration->cancel_persetujuan;
             $this->finalizerRole = $latestApprovalConfiguration->jabatan_penyelesai_id;
-
-            $this->roles = $latestApprovalConfiguration->jabatanPersetujuan->map(function ($jabatan) {
-                return $jabatan->jabatan; // Pastikan relasi ke model Role di JabatanPersetujuan benar
-            });
-
-            $this->rolesAvailable = collect($this->rolesAvailable)
-                ->reject(fn($role) => $role->id == $this->selectedRole)
-                ->values(); // Tetap dalam bentuk Collection
         }
     }
 
@@ -143,8 +142,9 @@ class ApprovalOption extends Component
         //     ->unique('id')
         //     ->values();
         // $this->approvalOrder = null;
+        $this->dispatch('success', 'Konfigurasi persetujuan berhasil disimpan!');
 
-        session()->flash('success', 'Konfigurasi persetujuan berhasil disimpan!');
+        // session()->flash('success', 'Konfigurasi persetujuan berhasil disimpan!');
     }
 
     public function render()

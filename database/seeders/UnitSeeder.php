@@ -429,6 +429,59 @@ class UnitSeeder extends Seeder
                 }
             }
         }
+        $jenisList = ['kdo', 'ruangan', 'alat']; // Daftar jenis
+        $tipe = 'peminjaman'; // Tipe permintaan
+        foreach ($this->units as $unitName => $unitData) {
+            $unit = UnitKerja::where('nama', $unitName)->first();
+
+            // Ambil semua role untuk unit ini
+            $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
+                $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
+            })
+                ->get()
+                ->pluck('roles') // Ambil seluruh data role dari relasi
+                ->flatten()
+                ->unique('id')
+                ->pluck('id') // Ambil hanya ID
+                ->toArray(); // Konversi ke array
+
+            // Pilih 3 role pertama untuk approval
+            $approvalRoles = collect($allRoles)
+                ->shuffle()
+                ->take(3) // Ambil 3 role pertama
+                ->toArray();
+
+            // Simpan roles ke $unitData
+            $unitData['roles'] = $approvalRoles;
+
+            // Filter role untuk finalizer
+            $availableFinalizerRoles = array_diff($allRoles, $approvalRoles);
+
+            $finalizerRole = Arr::random($availableFinalizerRoles);
+
+            foreach ($jenisList as $jenis) {
+                // Simpan konfigurasi persetujuan
+                $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
+                    'unit_id' => $unit->id,
+                    'uuid' => \Illuminate\Support\Str::uuid(), // Generate UUID unik
+                    'jenis' => $jenis,
+                    'tipe' => $tipe,
+                    'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
+                    'urutan_persetujuan' => 1, // Urutan persetujuan pertama
+                    'cancel_persetujuan' => 2, // Urutan pembatalan kedua
+                    'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
+                ]);
+
+                // Simpan role untuk setiap opsi persetujuan
+                foreach ($approvalRoles as $index => $role) {
+                    \App\Models\JabatanPersetujuan::create([
+                        'opsi_persetujuan_id' => $approvalConfiguration->id,
+                        'jabatan_id' => $role,
+                        'urutan' => $index + 1,
+                    ]);
+                }
+            }
+        }
     }
 
     private function lokasiSeed()

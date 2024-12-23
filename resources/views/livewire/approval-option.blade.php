@@ -1,7 +1,7 @@
 <div>
     <div class="flex justify-between py-2 mb-3">
         <h1 class="text-2xl font-bold text-primary-900 ">Pengaturan Persetujuan
-            {{ Str::title($tipe . ' ' . $jenis) }}
+            {{ Str::title($tipe) }} {{ $jenis !== 'kdo' ? Str::title($jenis) : Str::upper($jenis) }}
             @if (auth()->user()->unitKerja)
                 {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
             @endif
@@ -113,73 +113,76 @@
             @endpush
         </x-card>
         <x-card title="Tambahan">
-            <div class="flex flex-col gap-6">
-                <div class="text-gray-700">
-                    <label for="approvalOrder" class="block font-medium mb-2">
-                        Tentukan setelah persetujuan keberapa jumlah barang akan ditentukan
-                    </label>
-                    <select wire:model.live="approvalOrder" id="approvalOrder" @disabled(count($roles) < 2)
-                        class="w-full px-4 py-2 border rounded-md focus:outline-none  focus:ring focus:ring-blue-300">
-                        <option value="" selected>Pilih urutan persetujuan...</option>
-                        @foreach (range(1, count($roles)) as $index)
-                            <option value="{{ $index }}">Setelah Persetujuan ke-{{ $index }}</option>
-                        @endforeach
-                    </select>
-                    @error('approvalOrder')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                <!-- Input Terkait Pembatalan -->
-                @if ($approvalOrder)
-                    <div class="text-gray-700 ">
-                        <label for="cancelApprovalOrder" class="block font-medium mb-2">
-                            Tentukan setelah persetujuan keberapa user dapat membatalkan
+            @if ($tipe == 'permintaan')
+                <div class="flex flex-col gap-6">
+                    <div class="text-gray-700">
+                        <label for="approvalOrder" class="block font-medium mb-2">
+                            Tentukan setelah persetujuan keberapa jumlah barang akan ditentukan
                         </label>
-                        <select wire:model.live="cancelApprovalOrder" id="cancelApprovalOrder"
-                            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-red-300">
+                        <select wire:model.live="approvalOrder" id="approvalOrder" @disabled(count($roles) < 2)
+                            class="w-full px-4 py-2 border rounded-md focus:outline-none  focus:ring focus:ring-blue-300">
                             <option value="" selected>Pilih urutan persetujuan...</option>
-                            @foreach (range($approvalOrder + 1, count($roles)) as $index)
+                            @foreach (range(1, count($roles)) as $index)
                                 <option value="{{ $index }}">Setelah Persetujuan ke-{{ $index }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('cancelApprovalOrder')
+                        @error('approvalOrder')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
-                @endif
+                    @if ($approvalOrder)
+                        <div class="text-gray-700 ">
+                            <label for="cancelApprovalOrder" class="block font-medium mb-2">
+                                Tentukan setelah persetujuan keberapa user dapat membatalkan
+                            </label>
+                            <select wire:model.live="cancelApprovalOrder" id="cancelApprovalOrder"
+                                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-red-300">
+                                <option value="" selected>Pilih urutan persetujuan...</option>
+                                @foreach (range($approvalOrder + 1, count($roles)) as $index)
+                                    <option value="{{ $index }}">Setelah Persetujuan ke-{{ $index }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('cancelApprovalOrder')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    @endif
 
-                {{-- @if ($roles) --}}
-                <div class="text-gray-700">
-                    <label for="finalizerRole" class="block font-medium mb-2">
-                        Pilih jabatan yang menyelesaikan permintaan
-                    </label>
-                    <select wire:model.live="finalizerRole" id="finalizerRole" @disabled(count($roles) < 2)
-                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-green-300">
-                        <option value="" selected>Pilih Jabatan</option>
-                        @foreach ($rolesAvailable as $role)
-                            @if (!collect($roles)->contains('id', $role->id))
-                                <option value="{{ $role->id }}">{{ $role->name }}</option>
-                            @endif
-                        @endforeach
+                    <div class="text-gray-700">
+                        <label for="finalizerRole" class="block font-medium mb-2">
+                            Pilih jabatan yang menyelesaikan permintaan
+                        </label>
+                        <select wire:model.live="finalizerRole" id="finalizerRole" @disabled(count($roles) < 2)
+                            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-green-300">
+                            <option value="" selected>Pilih Jabatan</option>
+                            @foreach ($rolesAvailable as $role)
+                                @if (!collect($roles)->contains('id', $role->id))
+                                    <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                @endif
+                            @endforeach
 
-                    </select>
-                    @error('finalizerRole')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
+                        </select>
+                        @error('finalizerRole')
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
-                {{-- @endif --}}
-                {{-- @if (collect($roles)->count() > 1)
-                <div class="flex justify-end">
-                    <button type="submit" class="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
-                        Simpan Konfigurasi
-                    </button>
-                </div>
-            @endif --}}
-            </div>
+            @else
+            @endif
         </x-card>
 
 
     </div>
 
+    @push('scripts')
+        <script type="module">
+            document.addEventListener('success', function(e) {
+                feedback('Berhasil!', e.detail[0],
+                    'success')
+
+            })
+        </script>
+    @endpush
 </div>

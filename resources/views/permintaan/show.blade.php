@@ -1,9 +1,9 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">DETAIL PERMINTAAN</h1>
+        <h1 class="text-2xl font-bold text-primary-900 ">DETAIL {{ Str::upper($tipe) }}</h1>
         <div>
-            @if ($permintaan->getTable() == 'detail_peminjaman_aset')
+            @if ($tipe == 'peminjaman')
                 <a href="/permintaan/umum"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
             @else
@@ -98,10 +98,9 @@
                         <livewire:list-peminjaman-form :peminjaman="$permintaan">
                 @endif
                 @if ($tipe == 'permintaan')
-                    {{-- <livewire:list-permintaan-form :permintaan="$permintaan"> --}}
                     <livewire:approval-permintaan :permintaan="$permintaan">
                     @else
-                        {{-- <livewire:list-peminjaman-form :permintaan="$permintaan"> --}}
+                        <livewire:approval-permintaan :permintaan="$permintaan">
                 @endif
             </x-card>
         </div>
