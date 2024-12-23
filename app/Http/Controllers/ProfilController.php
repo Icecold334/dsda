@@ -91,7 +91,7 @@ class ProfilController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create($tipe, $id = 0)
+    public function create($tipe, $id)
     {
         return view('profil.create', compact('tipe', 'id'));
     }

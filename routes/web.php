@@ -127,6 +127,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('toko/{tipe}/{toko}', [TokoController::class, 'create'])->middleware('can:data_toko');
     Route::resource('toko', TokoController::class)->middleware('can:data_toko');
     Route::resource('bagian-stok', BagianStokController::class);
+    Route::get('barang/{tipe}/{barang}', [BarangStokController::class, 'create'])->middleware('can:data_barang');
     Route::resource('barang', BarangStokController::class)->middleware('can:data_barang');
     // Route::resource('kontrak-vendor', KontrakVendorController::class);
     Route::get('lokasi-stok/{tipe}', [LokasiStokController::class, 'create'])->middleware('can:data_lokasi_gudang');

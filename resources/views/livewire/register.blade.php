@@ -11,7 +11,8 @@
         <!-- Unit -->
         <div class="mt-4">
             <x-input-label for="parent_id" :value="__('Unit Kerja Utama')" />
-            <select wire:model.live="parent_id" id="parent_id" class="block mt-1 w-full">
+            <select wire:model.live="parent_id" id="parent_id"
+                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm ">
                 <option value="">{{ __('Pilih Unit') }}</option>
                 @foreach ($unitkerjas as $unitkerja)
                     <option value="{{ $unitkerja->id }}">
@@ -24,7 +25,8 @@
         @if ($parent_id)
             <div class="mt-4">
                 <x-input-label for="sub_unit" :value="__('Sub Unit Kerja')" />
-                <select wire:model.live="sub_unit" id="sub_unit" class="block mt-1 w-full">
+                <select wire:model.live="sub_unit" id="sub_unit"
+                    class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                     <option value="">{{ __('Pilih Unit') }}</option>
                     @foreach ($subUnits as $sub)
                         <option value="{{ $sub->id }}">{{ $sub->nama }}
@@ -38,7 +40,8 @@
         <!-- Lokasi -->
         <div class="mt-4">
             <x-input-label for="lokasi_id" :value="__('Lokasi')" />
-            <select wire:model.live="lokasi_id" id="lokasi_id" class="block mt-1 w-full">
+            <select wire:model.live="lokasi_id" id="lokasi_id"
+                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                 <option value="">{{ __('Pilih Lokasi') }}</option>
                 @foreach ($lokasis as $lokasi)
                     <option value="{{ $lokasi['id'] }}">{{ $lokasi['nama'] }}</option>

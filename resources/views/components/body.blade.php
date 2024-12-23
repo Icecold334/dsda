@@ -56,6 +56,11 @@
         feedback('Berhasil', "{{ session('success') }}", 'success');
     </script>
 @endif
+@if (session('error'))
+    <script type="module">
+        feedback('Gagal', "{{ session('error') }}", 'error');
+    </script>
+@endif
 
 @if (session('tanya'))
     <script type="module">
@@ -90,6 +95,7 @@
                 }
             });
         });
+
     </script>
 @endif
 @stack('scripts')

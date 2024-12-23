@@ -23,7 +23,6 @@ class Register extends Component
     public $unitkerjas;
     public array $subunitkerjas;
     public array $lokasis = [];
-    public $unit_id = '';
     public $lokasi_id = '';
     public $parent_id;
     public $sub_unit;
@@ -63,7 +62,7 @@ class Register extends Component
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'unit_id' => $validated['sub_unit'] ?? $validated['parent_id'],
+            'unit_id' => $this->sub_unit ?? $this->parent_id,
             'lokasi_id' => $validated['lokasi_id'],
         ]);
 

@@ -10,7 +10,7 @@
                 <div class="flex space-x-2 items-center">
                     <!-- Input Pencarian -->
                     <input type="text" wire:model.live="search" placeholder="Cari pengguna..."
-                        class="px-4 py-2 border rounded-lg w-full">
+                        class="px-4 py-2 border rounded-lg w-[25rem]">
 
                     @if ($search)
                         <!-- Tombol Reset -->

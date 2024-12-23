@@ -157,7 +157,7 @@
                         @can('aset_xls')
                             <a data-tooltip-target="tooltip-excel" href="{{ route('aset.export', request()->query()) }}"
                                 target="_blank"
-                                class="text-primary-900 bg-white border-2 hover:bg-primary-600 hover:text-white font-lg rounded-lg text-sm px-4 py-2 transition duration-200"><i
+                                class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
                                     class="fa-solid fa-file-excel"></i></a>
                             <div id="tooltip-excel" role="tooltip"
                                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
@@ -397,7 +397,7 @@
                             <p class="font-semibold text-gray-800">{{ $aset->kode }}</p>
                             <p class="font-normal text-gray-500 text-sm">Kode Sistem : {{ $aset->systemcode }}</p>
                             <p class="font-normal text-gray-500 text-sm">Tanggal Pembelian :
-                                {{ date('j F Y', $aset->tanggalbeli) }}
+                                {{ $aset->tanggalbeli ? date('j F Y', $aset->tanggalbeli) : '---' }}
                             </p>
                         </td>
                         <td class="py-3 px-6 ">

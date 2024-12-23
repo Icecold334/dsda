@@ -13,12 +13,12 @@ class LokasiStokController extends Controller
     public function index()
     {
         // Retrieve all lokasi stok from the database, you could also add pagination here if needed
-        $lokasiStok = LokasiStok::whereHas('unitKerja', function ($unit) {
-            return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-        })->get(); // or ->paginate(10) if you prefer pagination
+        // $lokasiStok = LokasiStok::whereHas('unitKerja', function ($unit) {
+        //     return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        // })->get(); // or ->paginate(10) if you prefer pagination
 
         // Pass lokasiStok to the view
-        return view('lokasi_stok.index', compact('lokasiStok'));
+        return view('lokasi_stok.index');
     }
 
     /**

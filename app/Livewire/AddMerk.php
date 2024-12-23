@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Aset;
 use App\Models\Merk;
 use Livewire\Component;
 use Illuminate\Support\Str;
@@ -28,30 +29,38 @@ class AddMerk extends Component
 
     public function removeMerk()
     {
+        // Cek apakah ID kategori sedang digunakan di tabel aset
+        $isUsedInAset = Aset::where('merk_id', $this->id)->exists();
+
+        if ($isUsedInAset) {
+            // dd($isUsedInAset);
+            // Berikan pesan error jika kategori sedang digunakan
+            return redirect()->route('merk.index')->with('error', 'Merk ini sedang digunakan di tabel aset dan tidak dapat dihapus.');
+        }
 
         Merk::destroy($this->id);
-        return redirect()->route('merk.index');
+        return redirect()->route('merk.index')->with('success', 'Merk berhasil dihapus.');
     }
     public function saveMerk()
     {
-// <<<<<<< support
-//         $data = [
-//             'nama' => $this->merk,
-//             'keterangan' => $this->keterangan,
-//             'nama_nospace' => Str::slug($this->merk),
-//         ];
-//         // Jika ID diberikan, cari kategori
-//         $merk = Merk::find($this->id);
+        // <<<<<<< support
+        //         $data = [
+        //             'nama' => $this->merk,
+        //             'keterangan' => $this->keterangan,
+        //             'nama_nospace' => Str::slug($this->merk),
+        //         ];
+        //         // Jika ID diberikan, cari kategori
+        //         $merk = Merk::find($this->id);
 
-//         // Set user_id
-//         $data['user_id'] = $merk ? $merk->user_id : Auth::id();
+        //         // Set user_id
+        //         $data['user_id'] = $merk ? $merk->user_id : Auth::id();
 
-//         // Update atau create dengan data
-//         Merk::updateOrCreate(['id' => $this->id ?? 0], $data);
+        //         // Update atau create dengan data
+        //         Merk::updateOrCreate(['id' => $this->id ?? 0], $data);
 
-//         return redirect()->route('merk.index');
-// =======
-        $merk=Merk::updateOrCreate(
+        //         return redirect()->route('merk.index');
+        // =======
+        $merk = Merk::updateOrCreate(
             ['id' => $this->id ?? 0], // Unique field to check for existing record
             [
                 'user_id' => Auth::user()->id,
@@ -60,14 +69,13 @@ class AddMerk extends Component
                 'nama_nospace' => Str::slug($this->merk),
             ]
         );
-        if ($merk->wasRecentlyCreated && $this->merk){
+        if ($merk->wasRecentlyCreated && $this->merk) {
             return redirect()->route('merk.index')->with('success', 'Berhasil Menambah Merk');
-        }
-        else {
+        } else {
             return redirect()->route('merk.index')->with('success', 'Berhasil Mengubah Merk');
         }
- //       return redirect()->route('merk.index')->with('success', 'Berhasil Menambah Merk');
-// >>>>>>> main
+        //       return redirect()->route('merk.index')->with('success', 'Berhasil Menambah Merk');
+        // >>>>>>> main
     }
     public function render()
     {

@@ -30,4 +30,9 @@ class Lokasi extends Model
     {
         return $this->hasMany(Aset::class);
     }
+
+    public function history()
+    {
+        return $this->hasMany(History::class, 'lokasi_id');
+    }
 }
