@@ -150,7 +150,7 @@
         {{-- @endrole --}}
     </div>
     {{-- @hasanyrole($roles) --}}
-    @if ($showButton)
+    @if ($showButton && Auth::user()->hasRole('Pemeriksa Barang'))
         <div class="flex">
             <div class="flex space-x-2 justify-center w-full">
                 @if ($isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa)
@@ -183,11 +183,8 @@
                             <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror --}}
                 @endif
-                <button type="button"
-                    onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
-                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                    Setuju
-                </button>
+
+
                 <button type="button" onclick="confirmReject()"
                     class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     Tidak Setuju
@@ -196,17 +193,29 @@
 
         </div>
     @endif
-    
+
+    {{-- @role('Pejabat Pelaksana Teknis Kegiatan')
+        <div class="flex">
+            <div class="flex space-x-2 justify-center w-full">
+                <button type="button"
+                    onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    Setuju
+                </button>
+            </div>
+        </div>
+    @endrole --}}
+
     <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
         <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
             {{-- @endhasanyrole --}}
 
 
-            
+
             <div class="relative pl-16">
                 <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-900 dark:text-white">File Persetujuan
                 </h5>
-            
+
                 <div class="mt-4 gap-4 w-3/5">
                     @if (count($files) > 0)
                         @if ($files)

@@ -9,6 +9,7 @@ use App\Models\BagianStok;
 use App\Models\LokasiStok;
 use App\Models\PosisiStok;
 use Livewire\Attributes\On;
+use Spatie\Permission\Guard;
 use App\Models\TransaksiStok;
 use Livewire\WithFileUploads;
 use App\Models\PengirimanStok;
@@ -256,7 +257,7 @@ class ListPengirimanForm extends Component
                     'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
                     'jumlah' => $transaksi->jumlah ?? 1,
                     'jumlah_diterima' => $transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
-                    'boolean_jumlah' => 0,
+                    'boolean_jumlah' => $transaksi->jumlah_diterima ?? 0,
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
                     'editable' => true,
                 ];
@@ -354,11 +355,14 @@ class ListPengirimanForm extends Component
         ];
 
         if (auth()->user()->can('inventaris_edit_jumlah_diterima')) {
+            if ($data['jumlah_diterima'] > $data['jumlah']){
+                $this->dispatch('error', pesan: "Jumlah barang tidak boleh melebihi dari jumlah yang dikirim!");
+                    return;
+            }
             $editJumlah = [
                 'jumlah_diterima' => $data['jumlah_diterima']
             ];
             $attr = array_merge($attr, $editJumlah);
-
             $data['boolean_jumlah'] = 1;
         }
 
@@ -410,9 +414,6 @@ class ListPengirimanForm extends Component
 
     public function updateJumlah($index, $value)
     {
-
-
-
         $maxAllowed = $this->list[$index]['max_jumlah'];
         $merkId = $this->list[$index]['merk_id'];
         $previousJumlah = $this->list[$index]['jumlah'];
