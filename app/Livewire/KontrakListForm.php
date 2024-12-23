@@ -251,7 +251,7 @@ class KontrakListForm extends Component
         $this->validate([
             'newBarangName' => 'required|string|max:255',
             'newBarangSatuanBesar' => 'required|string',
-            'newKategori' => 'required|string',
+            // 'newKategori' => 'required|string',
             'newBarangSatuanKecil' => 'nullable|string',
             // 'jumlahKecilDalamBesar' => 'required_with:newBarangSatuanKecil|integer|min:1',
         ]);
@@ -286,6 +286,7 @@ class KontrakListForm extends Component
         // Simpan barang
         $barang = BarangStok::create([
             'nama' => $this->newBarangName,
+            'slug' => Str::slug($this->newBarangName),
             'kode_barang' => $faker->unique()->numerify('BRG-#####-#####'),
             'jenis_id' => $this->jenis_id,
             'kategori_id' => $this->jenis_id == 3 ? $kategori->id : null,
@@ -320,7 +321,7 @@ class KontrakListForm extends Component
             'type' => 1,
             'status' => 1,
         ]);
-        
+
 
         foreach ($this->list as $item) {
             $merk = MerkStok::updateOrCreate(

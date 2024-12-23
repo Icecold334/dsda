@@ -4,6 +4,8 @@ import ApexCharts from "apexcharts";
 window.ApexCharts = ApexCharts;
 import Swal from "sweetalert2";
 window.Swal = Swal;
+import Sortable from "sortablejs";
+window.Sortable = Sortable;
 window.formatRupiah = function (value) {
     let stringValue = value.toString();
     let split = stringValue.split(",");
@@ -67,7 +69,7 @@ window.feedback = function (title, message, icon) {
     }).then((result) => {
         /* Read more about handling dismissals below */
         if (result.dismiss === Swal.DismissReason.timer) {
-            console.log("I was closed by the timer");
+            // console.log("I was closed by the timer");
         }
     });
 };
