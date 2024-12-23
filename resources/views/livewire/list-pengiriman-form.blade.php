@@ -252,7 +252,7 @@
                                 <i class="fa-solid fa-circle-check"></i>
                             </button>
                         @endif --}}
-                        {{ $item['boolean_jumlah'] }}
+                        {{-- {{ $item['boolean_jumlah'] }} --}}
                         @if ($showDokumen && (!$item['bagian_id'] || !$item['posisi_id'] || !$item['bukti']))
                             <button wire:click="updatePengirimanStok({{ $index }})"
                                 class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200

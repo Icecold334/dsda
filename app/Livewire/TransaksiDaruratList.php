@@ -105,11 +105,11 @@ class TransaksiDaruratList extends Component
             foreach ($this->transaksi as $key => $item) {
                 $this->id = $item->id;
 
-                $this->ppk_isapprove = $this->checkApprovals('ppk');
+                $this->ppk_isapprove = $this->checkApprovals('Pejabat Pembuat Komitmen');
 
-                $this->pptk_isapprove = $this->checkApprovals('pptk');
+                $this->pptk_isapprove = $this->checkApprovals('Pejabat Pelaksana Teknis Kegiatan');
 
-                $this->pj_isapprove = $this->checkApprovals('penanggungjawab');
+                $this->pj_isapprove = $this->checkApprovals('Penanggung Jawab');
 
                 $sumapprove = $this->getStatusApprov($this->id);
 
