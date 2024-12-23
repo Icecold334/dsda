@@ -69,10 +69,11 @@
                                 </td>
                                 @if (!$showNew)
                                     <td class="py-3 px-6">
-                                        <input type="number" value="{{ $item['jumlah'] }}" min="1"
+                                        <input type="number"
+                                            wire:model.live='list.{{ $index }}.approved_jumlah' min="1"
                                             @disabled(auth()->user()->cannot('peminjaman_persetujuan_peminjaman_aset') || $item['fix'])
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                            placeholder="Jumlah Permintaan">
+                                            placeholder="Jumlah Disetujui">
                                     </td>
                                 @endif
                             @endif

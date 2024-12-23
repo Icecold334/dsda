@@ -29,13 +29,16 @@
                                 {{-- @dump($user->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)) --}}
                                 <i
                                     class="my-1 fa-solid {{ is_null(
-                                        optional($user->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                        optional($user->{"persetujuan{$tipe}"}->where('detail_' . Str::lower($tipe) . '_id', $permintaan->id ?? 0)->first())->status,
                                     )
                                         ? 'fa-circle-question text-secondary-600'
-                                        : (optional($user->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                        : (optional(
+                                            $user->{"persetujuan{$tipe}"}->where('detail_' . Str::lower($tipe) . '_id', $permintaan->id ?? 0)->first(),
+                                        )->status
                                             ? 'fa-circle-check text-success-500'
                                             : 'fa-circle-xmark text-danger-500') }}">
                                 </i>
+
                             </td>
                         </tr>
                     @endforeach

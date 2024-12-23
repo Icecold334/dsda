@@ -32,9 +32,15 @@ class PermintaanStokController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create($tipe)
+    public function create($tipe, $next = 0)
     {
-        return view('permintaan.create', compact('tipe'));
+        $last = null;
+        if ($next) {
+            $model = $tipe === 'permintaan' ? '\App\Models\DetailPermintaanStok' : '\App\Models\DetailPeminjamanAset';
+            $last = app($model)::latest()->first();
+        }
+
+        return view('permintaan.create', compact('tipe', 'last'));
     }
 
     /**

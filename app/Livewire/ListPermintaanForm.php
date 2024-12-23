@@ -53,6 +53,7 @@ class ListPermintaanForm extends Component
     public $showApprovalModal = false;
     public $ruleShow;
     public $ruleAdd;
+    public $last;
     public $approve_after;
     public $selectedItemId; // ID dari item yang dipilih
     public $approvalData = []; // Data untuk lokasi dan stok

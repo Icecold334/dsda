@@ -122,8 +122,8 @@
         </div>
     </div>
     @if ($tipe == 'peminjaman')
-        <livewire:list-peminjaman-form>
+        <livewire:list-peminjaman-form :peminjaman="$permintaan" :last="$last">
         @else
-            <livewire:list-permintaan-form :permintaan="$permintaan">
+            <livewire:list-permintaan-form :permintaan="$permintaan" :last="$last">
     @endif
 </div>

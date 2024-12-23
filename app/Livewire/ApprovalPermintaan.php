@@ -23,6 +23,7 @@ class ApprovalPermintaan extends Component
     public $currentApprovalIndex;
     public $penulis;
     public $isPenulis;
+    public $tipe;
     public $showCancelOption;
     public $user;
     public $files = [];
@@ -36,6 +37,8 @@ class ApprovalPermintaan extends Component
     {
         $this->isPenulis = $this->permintaan->user_id === Auth::id();
         $this->penulis = Auth::user();
+
+        $this->tipe = Str::contains($this->permintaan->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
 
         if ($this->permintaan->persetujuan->where('file')) {
             $this->files = $this->permintaan->persetujuan->filter(fn($persetujuan) => $persetujuan->file !== null)->pluck('file');
@@ -79,8 +82,8 @@ class ApprovalPermintaan extends Component
         // Menggabungkan semua approval untuk pengecekan urutan
         $allApproval = collect($this->roleLists)->flatten(1);
         $this->currentApprovalIndex = $allApproval->filter(function ($user) {
-            $approval = $user->persetujuanPermintaan()
-                ->where('detail_permintaan_id', $this->permintaan->id ?? 0)
+            $approval = $user->{"persetujuan{$this->tipe}"}()
+                ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
                 ->first();
             return $approval && $approval->status === 1; // Hanya hitung persetujuan yang berhasil
         })->count();
@@ -92,21 +95,21 @@ class ApprovalPermintaan extends Component
             if ($index === 0) {
                 // Jika user adalah yang pertama dalam daftar
                 $currentUser = $allApproval[$index];
-                $this->showButton = !$currentUser->persetujuanPermintaan()
-                    ->where('detail_permintaan_id', $this->permintaan->id ?? 0)
+                $this->showButton = !$currentUser->{"persetujuan{$this->tipe}"}()
+                    ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
                     ->exists();
             } else {
                 // Jika user berada di tengah atau akhir
                 $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
                 $currentUser = $allApproval[$index];
-                $previousApprovalStatus = optional(optional($previousUser)->persetujuanPermintaan()
-                    ?->where('detail_permintaan_id', $this->permintaan->id ?? 0)
+                $previousApprovalStatus = optional(optional($previousUser)->{"persetujuan{$this->tipe}"}()
+                    ?->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
                     ->first())->status;
 
 
                 $this->showButton = $previousUser &&
-                    !$currentUser->persetujuanPermintaan()
-                        ->where('detail_permintaan_id', $this->permintaan->id ?? 0)
+                    !$currentUser->{"persetujuan{$this->tipe}"}()
+                        ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
                         ->exists() &&
                     $previousApprovalStatus === 1; // Tombol hanya muncul jika persetujuan sebelumnya berhasil (true)
             }
@@ -127,14 +130,19 @@ class ApprovalPermintaan extends Component
     public function approveConfirmed($status, $message = null)
     {
         $this->permintaan->persetujuan()->create([
-            'detail_permintaan_id' => $this->permintaan->id,
+            'detail_' . $this->tipe . '_id' => $this->permintaan->id,
             'user_id' => $this->user->id,
             'status' => $status,
             'keterangan' => $message
         ]);
+        if (($this->currentApprovalIndex + 1) == $this->listApproval) {
+            $this->permintaan->update([
+                'status' => 1
+            ]);
+        }
 
 
-        return redirect()->route('permintaan-stok.show', ['permintaan_stok' => $this->permintaan->id]);
+        return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
 
     public function render()

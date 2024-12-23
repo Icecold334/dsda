@@ -25,6 +25,6 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(8); //penanggung jawab
         // Auth::loginUsingId(194); // seksi 
         // Auth::loginUsingId(193); //sudin Sumber Daya Air Kota Administrasi Jakarta Timur
-
+        Auth::loginUsingId(12);
     }
 }

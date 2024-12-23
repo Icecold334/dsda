@@ -219,7 +219,7 @@
                             @else
                                 <!-- No photo uploaded, check location and permission -->
                                 @can('inventaris_unggah_foto_barang_datang')
-                                    @if ($item['lokasi_id'] == Auth::user()->lokasiStok->id)
+                                    @if ($item['lokasi_id'] == optional(Auth::user()->lokasiStok)->id)
                                         <!-- With permission and location matching -->
                                         <input type="file" wire:model.live="list.{{ $index }}.bukti"
                                             class="hidden" id="upload-bukti-{{ $index }}">
@@ -255,16 +255,15 @@
                             </button>
                         @endif --}}
                         @if ($showDokumen && (!$item['bagian_id'] || !$item['posisi_id'] || !$item['bukti'] || !$item['boolean_jumlah']))
-                                <button wire:click="updatePengirimanStok({{ $index }})"
-                                    class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
+                            <button wire:click="updatePengirimanStok({{ $index }})"
+                                class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
                                     ">
-                                    <i class="fa-solid fa-circle-check"></i>
-                                </button>
-                                <!-- Without permission, show "Belum ada unggahan" -->
-                                {{-- <span class="text-gray-500">Belum ada unggahan</span> --}}
-                            @endif
+                                <i class="fa-solid fa-circle-check"></i>
+                            </button>
+                            <!-- Without permission, show "Belum ada unggahan" -->
+                            {{-- <span class="text-gray-500">Belum ada unggahan</span> --}}
+                        @endif
                         @can('inventaris_unggah_foto_barang_datang')
-                            
                         @endcan
 
                     </td>

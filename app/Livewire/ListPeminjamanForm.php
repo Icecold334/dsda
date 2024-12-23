@@ -27,6 +27,7 @@ class ListPeminjamanForm extends Component
     public $sub_unit_id;
     public $tanggal_peminjaman;
     public $keterangan;
+    public $last;
     public $peminjaman;
     public $list = [];
     public $newAsetId;
@@ -205,8 +206,18 @@ class ListPeminjamanForm extends Component
     public function mount()
     {
 
-        $this->showNew = Request::is('permintaan/add/peminjaman');
+        $this->showNew = Request::is('permintaan/add/peminjaman*');
+        if ($this->last) {
 
+
+            $this->keterangan = $this->last->keterangan;
+            $this->dispatch('keterangan', keterangan: $this->keterangan);
+
+            $this->sub_unit_id = $this->last->sub_unit_id;
+            $this->dispatch('sub_unit_id', sub_unit_id: $this->sub_unit_id);
+
+            $this->fillTipe(Kategori::find($this->last->kategori_id)->nama);
+        }
         if ($this->peminjaman) {
             $this->fillTipe($this->peminjaman->kategori->nama);
             $this->tanggal_peminjaman = $this->peminjaman->tanggal_peminjaman;
@@ -226,11 +237,11 @@ class ListPeminjamanForm extends Component
                     'waktu' => WaktuPeminjaman::find($value->waktu_id),
                     'approved_waktu' => WaktuPeminjaman::find($value->approved_waktu_id) ?? null,
                     'jumlah' => $value->jumlah,
-                    'approved_jumlah' => $value->approved_jumlah ?? null,
+                    'approved_jumlah' => $value->jumlah_approve ?? null,
                     'jumlah_peserta' => $value->jumlah_orang,
                     'keterangan' => $value->deskripsi,
                     'img' => $value->img,
-                    'fix' => $this->tipe == 'Ruangan' ? $value->approved_aset_id && $value->approved_waktu_id : ($this->tipe == 'KDO' ? 1 : 0)
+                    'fix' => $this->tipe == 'Ruangan' ? $value->approved_aset_id && $value->approved_waktu_id : ($this->tipe == 'KDO' ? $value->approved_aset_id && $value->approved_waktu_id : $value->approved_aset_id && $value->approved_waktu_id && $value->jumlah_approve)
                 ];
             }
         };
@@ -253,15 +264,23 @@ class ListPeminjamanForm extends Component
         // Tandai item sebagai "fix"
         $this->list[$index]['fix'] = true;
 
+
         // Simpan perubahan ke database (misalnya, tabel PeminjamanAset)
         $peminjamanAset = PeminjamanAset::find($this->list[$index]['id']);
         // dd($peminjamanAset, $message);
         if ($peminjamanAset) {
-            $peminjamanAset->update([
+
+            $data = $this->tipe == 'Peralatan Kantor' ? [
+                'approved_aset_id' => $this->list[$index]['approved_aset_id'],
+                'approved_waktu_id' => $this->list[$index]['approved_waktu_id'],
+                'jumlah_approve' => $this->list[$index]['approved_jumlah'],
+                'catatan_approved' => $message,
+            ] : [
                 'approved_aset_id' => $this->list[$index]['approved_aset_id'],
                 'approved_waktu_id' => $this->list[$index]['approved_waktu_id'],
                 'catatan_approved' => $message,
-            ]);
+            ];
+            $peminjamanAset->update($data);
         }
         $this->dispatch('success', "Peminjaman disetujui!");
 
