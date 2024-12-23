@@ -183,8 +183,11 @@
                             <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror --}}
                 @endif
-
-
+                <button type="button"
+                    onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    Setuju
+                </button>
                 <button type="button" onclick="confirmReject()"
                     class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     Tidak Setuju
@@ -468,7 +471,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'File Tidak Ditemukan',
-                    text: 'Harap unggah file sebelum menyetujui kontrak.',
+                    text: 'Harap unggah file Persetujuan sebelum menyetujui kontrak.',
                 });
                 return;
             }
