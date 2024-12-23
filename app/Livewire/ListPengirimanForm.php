@@ -240,7 +240,7 @@ class ListPengirimanForm extends Component
         $this->lokasis = LokasiStok::all();
         if (count($this->old)) {
             $this->pengiriman = collect($this->old)->first()->detailPengirimanStok;
-            foreach ($this->old as $old) {
+            foreach ($this->old as $index => $old) {
                 // if (!collect($this->list)->contains('merk_id', $merkId)) {
                 $transaksi = PengirimanStok::findOrFail($old->id);
                 $isEditable = is_null($transaksi->bagian_id) && is_null($transaksi->posisi_id);
@@ -256,12 +256,15 @@ class ListPengirimanForm extends Component
                     'bagians' => BagianStok::where('lokasi_id', $transaksi->lokasi_id)->get(),
                     'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
                     'jumlah' => $transaksi->jumlah ?? 1,
-                    'jumlah_diterima' => $transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
+                    'jumlah_diterima' => $transaksi->jumlah_diterima ?? "", 
+                    //$transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
                     'boolean_jumlah' => $transaksi->jumlah_diterima ?? 0,
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
                     'editable' => true,
+                    
                 ];
-
+                // $this->hiddenButtons[$index] = ($transaksi->lokasi_id && $transaksi->bagian_id && $transaksi->bukti) ?? 0;
+                $this->hiddenButtons[$index] = $this->checkPropPenerima($index);
                 $this->dispatch('listCount', count: count($this->list));
                 // }
             }
@@ -270,6 +273,18 @@ class ListPengirimanForm extends Component
             $this->authLokasi = Auth::user()->lokasi_id ?? 0;
             // dd($this->list);
         }
+    }
+
+    public function checkPropPenerima($index){
+        $data = $this->list[$index];
+
+        if ($data['bagian_id'] && $data['posisi_id'] && $data['bukti'])  {
+            $result = true;
+        } else {
+            $result = false;
+        }
+
+        return $result;
     }
 
     public $propsPenerima = [
@@ -351,14 +366,21 @@ class ListPengirimanForm extends Component
         }
     }
 
+    public $hiddenButtons = [];
+
     public function updatePengirimanStok($index)
     {
         $data = $this->list[$index];
 
+        if ($data['bukti']){
+            $file = $data['bukti'];
+        } else {
+            $file = $this->namafile;
+        }
         $attr = [
             'bagian_id' => $data['bagian_id'],
             'posisi_id' => $data['posisi_id'],
-            'img' => isset($data['bukti']) && !is_string($data['bukti'])  ? str_replace('buktiPengiriman/', '', $data['bukti']->storeAs('buktiPengiriman', $data['bukti']->getClientOriginalName(), 'public')) : null
+            'img' => $file
         ];
 
         if (auth()->user()->can('inventaris_edit_jumlah_diterima')) {
@@ -377,7 +399,7 @@ class ListPengirimanForm extends Component
 
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
 
-        session()->flash('success', 'Persetujuan berhasil.');
+        $this->hiddenButtons[$index] = true;
     }
 
     public function updateBagian($index, $bagianId)
@@ -440,37 +462,51 @@ class ListPengirimanForm extends Component
         // }
     }
 
-    // public function updated($propertyName)
-    // {
-    //     if (preg_match('/^list\.\d+\.bukti$/', $propertyName)) {
-    //         // Extract the index from the property name
-    //         preg_match('/^list\.(\d+)\.bukti$/', $propertyName, $matches);
-    //         $index = $matches[1];
+    public function getListeners()
+    {
+        return [
+            'getStoreFileName' => 'handleStoreFileName', // Tangkap event dan arahkan ke method
+        ];
+    }
 
-    //         // Validate the file
-    //         // $this->validate([
-    //         //     "list.{$index}.bukti" => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust validation rules as needed
-    //         // ]);
+    public $namafile;
 
-    //         // Process the file upload
-    //         $file = $this->list[$index]['bukti'];
-    //         $pengiriman = $this->pengiriman->pengirimanStok->find($this->list[$index]['id']);
-    //         if ($file) {
+    public function handleStoreFileName($storedFileName)
+    {
+        return $this->namafile = $storedFileName; // Tangkap nilai yang dikirimkan
+    }
 
-    //             $storedFilePath = str_replace('buktiPengiriman/', '', $file->storeAs(
-    //                 'buktiPengiriman', // Directory
-    //                 $file->getClientOriginalName(), // File name
-    //                 'public' // Storage disk
-    //             ));
-    //             $pengiriman->update(['img' => $storedFilePath]);
-    //             // Update the list with the stored file path
-    //             $this->list[$index]['bukti'] = $storedFilePath;
+    public function updated($propertyName)
+    {
+        if (preg_match('/^list\.\d+\.bukti$/', $propertyName)) {
+            // Extract the index from the property name
+            preg_match('/^list\.(\d+)\.bukti$/', $propertyName, $matches);
+            $index = $matches[1];
 
-    //             // Provide feedback
-    //             session()->flash('success', 'File berhasil diunggah.');
-    //         }
-    //     }
-    // }
+            // Validate the file
+            // $this->validate([
+            //     "list.{$index}.bukti" => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust validation rules as needed
+            // ]);
+
+            // Process the file upload
+            $file = $this->list[$index]['bukti'];
+            $pengiriman = $this->pengiriman->pengirimanStok->find($this->list[$index]['id']);
+            if ($file) {
+                $fileName = strtotime("now") . '-' . $file->getClientOriginalName();
+                $storedFilePath = str_replace('buktiPengiriman/', '', $file->storeAs(
+                    'buktiPengiriman', // Directory
+                    $fileName, // File name
+                    'public' // Storage disk
+                ));
+                // $pengiriman->update(['img' => $storedFilePath]);
+                // // Update the list with the stored file path
+                $this->list[$index]['bukti'] = $storedFilePath;
+
+                // Provide feedback
+                $this->dispatch('getStoreFileName', $storedFilePath);
+            }
+        }
+    }
 
 
 

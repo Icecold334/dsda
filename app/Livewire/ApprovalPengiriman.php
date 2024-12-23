@@ -170,6 +170,28 @@ class ApprovalPengiriman extends Component
                 $previousUser && !$currentUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists() &&
                 $previousUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
         }
+
+        $this->indikatorPenerima = $this->checkApprovPenerimaBarang($this->pengiriman->id);
+    }
+
+    public $indikatorPenerima;
+    
+    public function checkApprovPenerimaBarang($id){
+
+        $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
+        $data = PengirimanStok::where('detail_pengiriman_id', $id)->where(
+            function($query){
+                $query->where('img', null)->orWhere('bagian_id', null)->orWhere('posisi_id', null);
+            }
+        )->get();
+
+        if ($data->isEmpty()){
+            $result = 1;
+        } else {
+            $result = 0;
+        }
+
+        return $result;
     }
 
     public function approveConfirmed()

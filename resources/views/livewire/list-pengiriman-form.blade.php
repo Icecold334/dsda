@@ -71,7 +71,8 @@
                     </td>
                     <td class="px-6 py-3">
                         <select wire:model="list.{{ $index }}.bagian_id"
-                            wire:change="updateBagianId({{ $index }}, $event.target.value)" wire:model.live="list.{{ $index }}.bagian_id"
+                            wire:change="updateBagianId({{ $index }}, $event.target.value)"
+                            wire:model.live="list.{{ $index }}.bagian_id"
                             class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['lokasi_id']) || $authLokasi !== $item['lokasi_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             @disabled(!$item['editable'] || empty($item['lokasi_id']) || $authLokasi !== $item['lokasi_id'])
                             @cannot('inventaris_edit_lokasi_penerimaan')
@@ -86,7 +87,8 @@
                         </select>
                     </td>
                     <td class="px-6 py-3">
-                        <select wire:model="list.{{ $index }}.posisi_id" wire:model.live="list.{{ $index }}.posisi_id"
+                        <select wire:model="list.{{ $index }}.posisi_id"
+                            wire:model.live="list.{{ $index }}.posisi_id"
                             class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['bagian_id']) || $authLokasi !== $item['bagian_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             @disabled(!$item['editable'] || empty($item['bagian_id']) || $authLokasi !== $item['lokasi_id'])>
                             <option value="">Pilih Posisi</option>
@@ -125,8 +127,9 @@
                     <td class="px-2 py-3">
                         <div class="flex items-center">
                             @if ($showDokumen)
-                                <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value="{{ $item['jumlah_diterima'] }}"
+                                <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value=""
                                     wire:model="list.{{ $index }}.jumlah_diterima"
+                                    wire:model.live="list.{{ $index }}.jumlah_diterima"
                                     @cannot('inventaris_edit_jumlah_diterima') disabled @endcannot
                                     class="bg-gray-50 border {{ $showDokumen === 1 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                     min="1" {{-- max="{{ $item['max_jumlah'] }}" --}} placeholder="Jumlah">
@@ -219,8 +222,9 @@
                                 @can('inventaris_unggah_foto_barang_datang')
                                     @if ($item['lokasi_id'] == $authLokasi)
                                         <!-- With permission and location matching -->
-                                        <input type="file" wire:model="list.{{ $index }}.bukti" wire:model.live="list.{{ $index }}.bukti"
-                                            class="hidden" id="upload-bukti-{{ $index }}"> 
+                                        <input type="file" wire:model="list.{{ $index }}.bukti"
+                                            wire:model.live="list.{{ $index }}.bukti" class="hidden"
+                                            id="upload-bukti-{{ $index }}">
                                         <button type="button"
                                             onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
                                             class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
@@ -240,6 +244,7 @@
 
 
                     <td class="text-center">
+                        {{ $item['jumlah_diterima'] ? '' : 'hidden' }}
                         {{-- {{ $item['bagian_id'] && $item['posisi_id'] && $item['bukti'] ? '' : 'hidden' }} --}}
                         @if ($item['id'] === null)
                             <button wire:click="removeFromList({{ $index }})"
@@ -257,20 +262,20 @@
                         @if ($showDokumen)
                             <button wire:click="updatePengirimanStok({{ $index }})"
                                 class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
-                                    {{ $item['bagian_id'] && $item['posisi_id'] && $item['bukti'] ? '' : 'hidden' }}" >
+                                    {{ $item['bagian_id'] && $item['posisi_id'] && $item['bukti'] && empty($hiddenButtons[$index]) ? '' : 'hidden' }}
+                                     ">
                                 <i class="fa-solid fa-circle-check"></i>
                             </button>
                             <!-- Without permission, show "Belum ada unggahan" -->
                             {{-- <span class="text-gray-500">Belum ada unggahan</span> --}}
-                        @elseif ($showDokumen && Auth::user()->can('inventaris_edit_jumlah_diterima') && !$item['boolean_jumlah'])
                             <!-- Your content or logic here -->
-
-                            
-                            <button wire:click="updatePengirimanStok({{ $index }})"
-                                class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
-                            ">
-                                <i class="fa-solid fa-circle-check"></i>
-                            </button>
+                            @can('inventaris_edit_jumlah_diterima')
+                                <button wire:click="updatePengirimanStok({{ $index }})"
+                                    class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
+                            {{ isset($item['jumlah_diterima']) > 0 && $item['jumlah_diterima'] ? '' : 'hidden' }}">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </button>
+                            @endcan
                         @endif
                         @if (!$item['id'] && $showDokumen)
                             &nbsp;
