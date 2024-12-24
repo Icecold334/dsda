@@ -108,18 +108,14 @@ class ApprovalPengiriman extends Component
         $this->lastPj = $indexPj === $pj->count() - 1;
         $this->pjList = $pj;
 
-        $ppk = User::role('Pejabat Pembuat Komitmen')->whereHas('unitKerja', function ($unit) {
-            return $unit->where('parent_id', $this->pengiriman->user->unit_id)->orWhere('id', $this->pengiriman->user->unit_id);
-        })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $ppk = User::role('Pejabat Pembuat Komitmen')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPpk = $ppk->search(function ($user) {
             return $user->id == Auth::id();
         });
         $this->lastPpk = $indexPpk === $ppk->count() - 1; // Check if current user is the last user
         $this->ppkList = $ppk;
         // dd(PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id'));
-        $penerima = User::role('Penerima Barang')->whereHas('unitKerja', function ($unit) {
-            return $unit->where('parent_id', $this->pengiriman->user->unit_id)->orWhere('id', $this->pengiriman->user->unit_id);
-        })
+        $penerima = User::role('Penerima Barang')
             ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
             ->whereHas('lokasiStok', function ($query) {
                 $query->whereIn('lokasi_id', PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id'));
@@ -134,9 +130,7 @@ class ApprovalPengiriman extends Component
         $this->penerimaList = $penerima;
 
 
-        $pemeriksa = User::role('Pemeriksa Barang')->whereHas('unitKerja', function ($unit) {
-            return $unit->where('parent_id', $this->pengiriman->user->unit_id)->orWhere('id', $this->pengiriman->user->unit_id);
-        })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $pemeriksa = User::role('Pemeriksa Barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPemeriksa = $pemeriksa->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -144,9 +138,7 @@ class ApprovalPengiriman extends Component
         $this->pemeriksaList = $pemeriksa;
 
 
-        $pptk = User::role('Pejabat Pelaksana Teknis Kegiatan')->whereHas('unitKerja', function ($unit) {
-            return $unit->where('parent_id', $this->pengiriman->user->unit_id)->orWhere('id', $this->pengiriman->user->unit_id);
-        })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $pptk = User::role('Pejabat Pelaksana Teknis Kegiatan')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
         $indexPptk = $pptk->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -302,9 +294,7 @@ class ApprovalPengiriman extends Component
         $this->pengiriman->save();
     }
 
-    public function CheckApproval(){
-
-    }
+    public function CheckApproval() {}
 
     public function ApprovePPKandFinish()
     {
