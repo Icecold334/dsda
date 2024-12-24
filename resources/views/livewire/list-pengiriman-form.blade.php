@@ -244,7 +244,7 @@
 
 
                     <td class="text-center">
-                        {{ $item['jumlah_diterima'] ? '' : 'hidden' }}
+                        {{-- {{ $item['jumlah_diterima'] ? '' : 'hidden' }} --}}
                         {{-- {{ $item['bagian_id'] && $item['posisi_id'] && $item['bukti'] ? '' : 'hidden' }} --}}
                         @if ($item['id'] === null)
                             <button wire:click="removeFromList({{ $index }})"
