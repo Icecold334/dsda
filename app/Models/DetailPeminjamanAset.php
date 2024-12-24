@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Kategori;
 use App\Models\UnitKerja;
 use App\Models\PeminjamanAset;
+use App\Models\OpsiPersetujuan;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\PersetujuanPeminjamanAset;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,17 +17,8 @@ class DetailPeminjamanAset extends Model
 
     protected $table = 'detail_peminjaman_aset';
 
-    protected $fillable = [
-        'kode_peminjaman',
-        'tanggal_peminjaman',
-        'unit_id',
-        'sub_unit_id',
-        'user_id',
-        'kategori_id',
-        'keterangan',
-        'proses',
-        'cancel',
-        'status',
+    protected $guarded = [
+        'id'
     ];
 
     public function unit()
@@ -57,5 +49,10 @@ class DetailPeminjamanAset extends Model
     public function peminjamanAset()
     {
         return $this->hasMany(PeminjamanAset::class, 'detail_peminjaman_id');
+    }
+
+    public function opsiPersetujuan()
+    {
+        return $this->belongsTo(OpsiPersetujuan::class, 'approval_configuration_id');
     }
 }

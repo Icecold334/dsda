@@ -40,4 +40,9 @@ class DetailPermintaanStok extends Model
     {
         return $this->hasMany(PersetujuanPermintaanStok::class, 'detail_permintaan_id');
     }
+
+    public function opsiPersetujuan()
+    {
+        return $this->belongsTo(OpsiPersetujuan::class, 'approval_configuration_id');
+    }
 }

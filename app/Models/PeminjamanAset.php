@@ -16,19 +16,8 @@ class PeminjamanAset extends Model
 
     protected $table = 'peminjaman_aset';
 
-    protected $fillable = [
-        'detail_peminjaman_id',
-        'user_id',
-        'aset_id',
-        'unit_id',
-        'deskripsi',
-        'catatan',
-        'img',
-        'barang_id',
-        'waktu_id',
-        'jumlah',
-        'jumlah_approve',
-        'status',
+    protected $guarded = [
+        'id'
     ];
 
     public function detailPeminjaman()

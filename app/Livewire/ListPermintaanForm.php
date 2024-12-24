@@ -53,6 +53,7 @@ class ListPermintaanForm extends Component
     public $showApprovalModal = false;
     public $ruleShow;
     public $ruleAdd;
+    public $approve_after;
     public $selectedItemId; // ID dari item yang dipilih
     public $approvalData = []; // Data untuk lokasi dan stok
     public $catatan; // Catatan opsional
@@ -262,6 +263,12 @@ class ListPermintaanForm extends Component
     public function saveData()
     {
 
+        $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('jenis', $this->requestIs == 'permintaan' ? 'umum' : ($this->requestIs == 'spare-part' ? 'spare-part' : 'material'))
+            ->where('unit_id', $this->unit_id)
+            ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
+            ->latest()
+            ->first();
+
 
         $kodePermintaan = Str::random(10); // Generate a unique code
 
@@ -275,6 +282,7 @@ class ListPermintaanForm extends Component
             'kategori_id' => $this->kategori_id,
             'sub_unit_id' => $this->sub_unit_id ?? null,
             'keterangan' => $this->keterangan,
+            'approval_configuration_id' => $latestApprovalConfiguration->id,
             'status' => null
         ]);
         $this->permintaan = $detailPermintaan;
@@ -296,7 +304,7 @@ class ListPermintaanForm extends Component
                 // 'lokasi_id' => $this->lokasiId
             ]);
         }
-        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id);
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
     }
@@ -445,10 +453,12 @@ class ListPermintaanForm extends Component
                     'dokumen' => $value->img ?? null,
                 ];
             }
-            $role = $tipe == 'Umum' ? 'Kepala Seksi' : ($tipe == 'Spare Part' ? 'Kepala Subbagian' : 'Kepala Seksi Pemeliharaan');
+            // $role = $tipe == 'Umum' ? 'Kepala Seksi' : ($tipe == 'Spare Part' ? 'Kepala Subbagian' : 'Kepala Seksi Pemeliharaan');
+            $approve_after = $this->approve_after = $this->permintaan->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray()[$this->permintaan->opsiPersetujuan->urutan_persetujuan - 1];
+
             $this->approvals = PersetujuanPermintaanStok::where('status', true)->where('detail_permintaan_id', $this->permintaan->id)
-                ->whereHas('user', function ($query) use ($role) {
-                    $query->role($role); // Muat hanya persetujuan dari kepala_seksi
+                ->whereHas('user', function ($query) use ($approve_after) {
+                    $query->role($approve_after); // Muat hanya persetujuan dari kepala_seksi
                 })
                 ->pluck('detail_permintaan_id') // Ambil hanya detail_permintaan_id yang sudah disetujui
                 ->toArray();

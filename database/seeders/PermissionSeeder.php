@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Spatie\Permission\Models\Role;
 
 class PermissionSeeder extends Seeder
 {
@@ -85,6 +87,7 @@ class PermissionSeeder extends Seeder
             'inventaris_tambah_barang_datang',
             'inventaris_unggah_foto_barang_datang',
             'permintaan_persetujuan_jumlah_barang',
+            'peminjaman_persetujuan_peminjaman_aset',
             'inventaris_edit_jumlah_diterima',
             'inventaris_upload_foto_bukti',
             'persetujuan',
@@ -109,11 +112,15 @@ class PermissionSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
-        foreach ($permissionIds as $permissionId) {
-            DB::table('role_has_permissions')->insert([
-                'role_id' => 1,
-                'permission_id' => $permissionId,
-            ]);
+
+        $users = Role::all()->pluck('id')->toArray();
+        foreach ($users as $user) {
+            foreach ($permissionIds as $permissionId) {
+                DB::table('role_has_permissions')->insert([
+                    'role_id' => $user,
+                    'permission_id' => $permissionId,
+                ]);
+            }
         }
     }
 }
