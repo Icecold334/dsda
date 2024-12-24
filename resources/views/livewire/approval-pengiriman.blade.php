@@ -1,5 +1,6 @@
 <div>
-    {{ ($indikatorPenerima) }}
+    {{ ($lastPptk) }}
+    {{ $roles }}
     <div class="flex w-full justify-evenly border-t-4 py-6">
         <div class="">
             <div class="block font-semibold text-center mb-2 text-gray-900">Penulis </div>
@@ -201,19 +202,21 @@
         </div>
     @endif
 
-    @if ()
-    @role('Pejabat Pelaksana Teknis Kegiatan')
-        <div class="flex">
-            <div class="flex space-x-2 justify-center w-full">
-                <button type="button"
-                    onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
-                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                    Setuju
-                </button>
-            </div>
+    @hasanyrole('Pejabat Pelaksana Teknis Kegiatan|Pejabat Pembuat Komitmen')
+    <div class="flex">
+        <div class="flex space-x-2 justify-center w-full">
+            <button type="button"
+                onclick="confirmApprove()"
+                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200
+                {{ 1 ? '' : 'hidden' }}">
+                Setuju
+            </button>
         </div>
-    @endrole    
-    @endif
+    </div>
+@endhasanyrole
+    {{-- @if ()
+        
+    @endif --}}
     
 
     <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
@@ -463,7 +466,13 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    @this.call('approveConfirmed');
+                    if ('{{ $roles }}' == 'Pejabat Pelaksana Teknis Kegiatan'){
+                        @this.call('ApprovePPTK');
+                    } else if ('{{ $roles }}' == 'Pejabat Pembuat Komitmen'){
+                        @this.call('ApprovePPKandFinish');
+                    } else {
+                        @this.call('approveConfirmed');
+                    }
                 }
             });
         }
