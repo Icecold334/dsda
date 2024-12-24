@@ -65,7 +65,7 @@
                 </div>
 
                 <div class="mb-6">
-                    <label for="selectedRole" class="block text-gray-700 font-medium mb-2">Tambah Peran</label>
+                    <label for="selectedRole" class="block text-gray-700 font-medium mb-2">Tambah Jabatan</label>
                     <div class="flex">
                         <select wire:model.live="selectedRole" id="selectedRole"
                             class="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
@@ -113,11 +113,12 @@
             @endpush
         </x-card>
         <x-card title="Tambahan">
-            @if ($tipe == 'permintaan')
+            {{-- @if ($tipe == 'permintaan') --}}
+            @if (true)
                 <div class="flex flex-col gap-6">
                     <div class="text-gray-700">
                         <label for="approvalOrder" class="block font-medium mb-2">
-                            Tentukan setelah persetujuan keberapa jumlah barang akan ditentukan
+                            {{ $approveAfter }}
                         </label>
                         <select wire:model.live="approvalOrder" id="approvalOrder" @disabled(count($roles) < 2)
                             class="w-full px-4 py-2 border rounded-md focus:outline-none  focus:ring focus:ring-blue-300">
@@ -149,7 +150,7 @@
                             @enderror
                         </div>
                     @endif
-
+                    {{-- 
                     <div class="text-gray-700">
                         <label for="finalizerRole" class="block font-medium mb-2">
                             Pilih jabatan yang menyelesaikan permintaan
@@ -167,7 +168,7 @@
                         @error('finalizerRole')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
-                    </div>
+                    </div> --}}
                 </div>
             @else
             @endif

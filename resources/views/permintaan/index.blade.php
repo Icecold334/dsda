@@ -65,7 +65,12 @@
                         {{ $permintaan->kode_permintaan ?? $permintaan->kode_peminjaman }}</td>
                     @if (request()->routeIs('permintaan-stok.index') || request()->is('permintaan/umum'))
                         <td class="px-6 py-3 font-semibold">
-                            {{ $permintaan->getTable() == 'detail_permintaan_stok' ? 'Permintaan' : 'Peminjaman' }}
+                            <div>
+                                {{ $permintaan->getTable() == 'detail_permintaan_stok' ? 'Permintaan' : 'Peminjaman' }}
+                            </div>
+                            <div class="text-gray-500 text-sm">
+                                {{ $permintaan->getTable() == 'detail_permintaan_stok' ? $permintaan->kategoriStok->nama : $permintaan->kategori->nama }}
+                            </div>
                         </td>
                     @endif
                     <td class="px-6 py-3 font-semibold">{{ date('j F Y', $permintaan->tanggal_permintaan) }}</td>

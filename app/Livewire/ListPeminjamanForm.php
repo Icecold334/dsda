@@ -12,6 +12,7 @@ use Livewire\WithFileUploads;
 use App\Models\PeminjamanAset;
 use App\Models\WaktuPeminjaman;
 use App\Models\DetailPeminjamanAset;
+use App\Models\PersetujuanPeminjamanAset;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 
@@ -19,6 +20,8 @@ class ListPeminjamanForm extends Component
 {
 
     use WithFileUploads;
+    public $approve_after;
+    public $approvals;
     public $showNew;
     public $tipe;
     public $newWaktu;
@@ -228,6 +231,7 @@ class ListPeminjamanForm extends Component
             foreach ($this->peminjaman->peminjamanAset as $key => $value) {
                 $this->list[] = [
                     'id' => $value->id,
+                    'detail_peminjaman_id' => $value->detail_peminjaman_id,
                     'aset_id' => $value->aset_id,
                     'approved_aset_id' => $value->approved_aset_id ?? null,
                     'aset_name' => Aset::find($value->aset_id)->nama,
@@ -244,6 +248,14 @@ class ListPeminjamanForm extends Component
                     'fix' => $this->tipe == 'Ruangan' ? $value->approved_aset_id && $value->approved_waktu_id : ($this->tipe == 'KDO' ? $value->approved_aset_id && $value->approved_waktu_id : $value->approved_aset_id && $value->approved_waktu_id && $value->jumlah_approve)
                 ];
             }
+            $approve_after = $this->approve_after = $this->peminjaman->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray()[$this->peminjaman->opsiPersetujuan->urutan_persetujuan - 1];
+
+            $this->approvals = PersetujuanPeminjamanAset::where('status', true)->where('detail_peminjaman_id', $this->peminjaman->id)
+                ->whereHas('user', function ($query) use ($approve_after) {
+                    $query->role($approve_after); // Muat hanya persetujuan dari kepala_seksi
+                })
+                ->pluck('detail_peminjaman_id') // Ambil hanya detail_permintaan_id yang sudah disetujui
+                ->toArray();
         };
         $this->waktus = WaktuPeminjaman::all();
 

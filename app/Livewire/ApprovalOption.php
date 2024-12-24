@@ -15,6 +15,7 @@ class ApprovalOption extends Component
     public $jenis;
     public $pesan;
     public $approvalOrder; // Urutan yang dipilih untuk persetujuan jumlah barang
+    public $approveAfter; // Urutan yang dipilih untuk persetujuan jumlah barang
     public $finalizerRole;
     public $cancelApprovalOrder; // Urutan persetujuan setelahnya user dapat membatalkan
 
@@ -22,6 +23,7 @@ class ApprovalOption extends Component
 
     public function mount()
     {
+        $this->approveAfter = $this->tipe == 'permintaan' ? 'Tentukan setelah persetujuan keberapa jumlah barang akan ditentukan' : 'Tentukan setelah persetujuan keberapa peminjaman akan ditentukan';
         $unit_id = $this->unit_id;
         $this->rolesAvailable = User::whereHas('unitKerja', function ($user) use ($unit_id) {
             return $user->where('parent_id', $unit_id)->orWhere('unit_id', $unit_id);
@@ -41,11 +43,10 @@ class ApprovalOption extends Component
         $this->rolesAvailable = collect($this->rolesAvailable)
             ->reject(fn($role) => $role->id == $this->selectedRole)
             ->values(); // Tetap dalam bentuk Collection
-        if ($this->tipe == 'permintaan') {
+        if ($this->tipe == 'permintaan' || true) {
+            $this->pesan = 'Urutkan peran sesuai alur persetujuan. Jabatan terakhir dalam daftar, bertugas menyelesaikan proses persetujuan.';
             if ($this->jenis == 'umum') {
-                $this->pesan = 'Urutkan peran sesuai alur persetujuan.';
             }
-
             $this->approvalOrder = $latestApprovalConfiguration->urutan_persetujuan;
             $this->cancelApprovalOrder = $latestApprovalConfiguration->cancel_persetujuan;
             $this->finalizerRole = $latestApprovalConfiguration->jabatan_penyelesai_id;

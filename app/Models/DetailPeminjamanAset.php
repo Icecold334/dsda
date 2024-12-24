@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Aset;
 use App\Models\User;
 use App\Models\Kategori;
 use App\Models\UnitKerja;

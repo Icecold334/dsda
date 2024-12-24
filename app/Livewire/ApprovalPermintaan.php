@@ -36,7 +36,7 @@ class ApprovalPermintaan extends Component
     public function mount()
     {
         $this->isPenulis = $this->permintaan->user_id === Auth::id();
-        $this->penulis = Auth::user();
+        $this->penulis = $this->permintaan->user;
 
         $this->tipe = Str::contains($this->permintaan->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
 
@@ -111,24 +111,30 @@ class ApprovalPermintaan extends Component
                     !$currentUser->{"persetujuan{$this->tipe}"}()
                         ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
                         ->exists() &&
-                    $previousApprovalStatus === 1; // Tombol hanya muncul jika persetujuan sebelumnya berhasil (true)
+                    $previousApprovalStatus === 1 &&
+                    ($this->permintaan->cancel === 0 || $this->currentApprovalIndex + 1 < $this->listApproval);
             }
         }
         $cancelAfter = $this->permintaan->opsiPersetujuan->cancel_persetujuan;
-
         $this->showCancelOption = $this->currentApprovalIndex >= $cancelAfter;
         // dd($this->currentApprovalIndex);
     }
 
+    public function markAsCompleted()
+    {
+        $this->permintaan->update(['cancel' => false]);
+        return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
+    }
     public function cancelRequest()
     {
         // Logika untuk membatalkan permintaan
         $this->permintaan->update(['cancel' => true]);
-        session()->flash('message', 'Permintaan telah dibatalkan.');
+        return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
 
     public function approveConfirmed($status, $message = null)
     {
+
         $this->permintaan->persetujuan()->create([
             'detail_' . $this->tipe . '_id' => $this->permintaan->id,
             'user_id' => $this->user->id,
@@ -137,13 +143,62 @@ class ApprovalPermintaan extends Component
         ]);
         if (($this->currentApprovalIndex + 1) == $this->listApproval) {
             $this->permintaan->update([
-                'status' => 1
+                'status' => 1,
+                'proses' => 1  // Proses dimulai
             ]);
+
+
+            if ($this->tipe == 'permintaan') {
+                $permintaanItems = $this->permintaan->permintaanStok;
+                foreach ($permintaanItems as $merk) {
+                    foreach ($merk->stokDisetujui as  $item) {
+                        $this->adjustStockForApproval($item);
+                    }
+                }
+            };
+        } else {
         }
 
 
         return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
+
+    protected function adjustStockForApproval($merk)
+    {
+        // Ambil stok berdasarkan merk_id, diurutkan berdasarkan lokasi atau logika lainnya
+        $stocks =
+            Stok::where('merk_id', $merk->merk_id)
+            ->where('lokasi_id', $merk->lokasi_id)
+            ->where('bagian_id', $merk->bagian_id)
+            ->where('posisi_id', $merk->posisi_id)
+            // ->where('jumlah', '>', 0)
+            ->get();
+
+        $remaining = $merk->jumlah_disetujui; // Jumlah yang harus dikurangi
+
+        foreach ($stocks as $stock) {
+            if ($remaining <= 0) break; // Hentikan jika jumlah sudah terpenuhi
+
+            if ($stock->jumlah >= $remaining) {
+                // Jika stok di lokasi ini cukup atau lebih dari jumlah yang dibutuhkan
+                $stock->jumlah -= $remaining;
+                $stock->save(); // Simpan perubahan stok
+                $remaining = 0;
+            } else {
+                // Jika stok di lokasi ini kurang dari jumlah yang dibutuhkan
+                $remaining -= $stock->jumlah; // Kurangi jumlah stok dari sisa yang diperlukan
+                $stock->jumlah = 0;
+                $stock->save(); // Simpan stok sebagai 0
+            }
+        }
+
+        // Jika stok tidak mencukupi
+        // if ($remaining > 0) {
+        //     Log::warning("Stok tidak mencukupi untuk merk_id {$merkId}. Dibutuhkan {$jumlahApprove}, namun kekurangan {$remaining}.");
+        //     // Tambahkan logika untuk menangani kekurangan stok, seperti pemberitahuan atau aksi lain
+        // }
+    }
+
 
     public function render()
     {

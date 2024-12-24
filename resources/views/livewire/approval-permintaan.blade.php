@@ -74,7 +74,6 @@
             </div>
         </div>
     @endif
-
     @if ($isPenulis && $showCancelOption && is_null($permintaan->cancel))
         <div class="flex justify-center">
             <button type="button" onclick="confirmCompletion()"
@@ -126,6 +125,55 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
+                    @this.call('approveConfirmed', 0, result.value);
+                }
+            });
+        }
+    </script>
+@endpush
+
+@push('scripts')
+    <script>
+        function confirmCompletion() {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: "Apakah Anda yakin ingin menyelesaikan permintaan ini?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Selesaikan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.markAsCompleted();
+                    Swal.fire(
+                        'Berhasil!',
+                        'Permintaan telah ditandai sebagai selesai.',
+                        'success'
+                    );
+                }
+            });
+        }
+
+        function confirmCancellation() {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: "Apakah Anda yakin ingin membatalkan permintaan ini?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Batalkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.cancelRequest();
+                    Swal.fire(
+                        'Berhasil!',
+                        'Permintaan telah dibatalkan.',
+                        'success'
+                    );
                     @this.call('approveConfirmed', 0, result.value);
                 }
             });

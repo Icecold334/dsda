@@ -68,10 +68,16 @@
 
                             <!-- NAMA BARANG Column -->
                             <td class="py-3 px-6">
-                                <input type="text" wire:model.live="list.{{ $index }}.barang_name" disabled
-                                    wire:focus="focusBarang" wire:blur="blurBarang"
-                                    placeholder="Cari atau Tambah Barang"
-                                    class="block w-full px-4 py-2 cursor-not-allowed text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                <select wire:model.live="list.{{ $index }}.barang_id" disabled
+                                    class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                    <option value="">Pilih Barang</option>
+                                    @foreach ($availBarangs as $barang)
+                                        <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
+                                    @endforeach
+                                </select>
+                                @error('newBarang')
+                                    <span class="text-sm text-red-500">{{ $message }}</span>
+                                @enderror
                             </td>
 
                             <!-- JUMLAH Column -->
@@ -221,27 +227,17 @@
                                         placeholder="Deskripsikan keperluan"></textarea>
                                 </td>
                             @endif
-                            <td class="py-3 px-6 relative">
-                                <input type="text" wire:model.live="newBarang" wire:focus="focusBarang"
-                                    wire:blur="blurBarang" placeholder="Cari atau Tambah Barang"
+                            <td class="py-3 px-6">
+                                <select wire:model.live="newBarangId" wire:change="selectMerk"
                                     class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
-                                <ul
-                                    class="absolute z-10 w-96 bg-white border border-gray-300 rounded-lg mt-2 max-h-60 overflow-auto shadow-lg">
-                                    @foreach ($barangSuggestions as $barang)
-                                        {{-- <li class="px-4 py-2 font-bold text-gray-900 bg-gray-100 cursor-default"> --}}
-                                        <li wire:click="selectMerk({{ $barang->id }})"
-                                            class="px-6 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
-                                            {{ $barang->nama }}</li>
-                                        {{-- @foreach ($barang->merkStok as $merk)
-                                            <li wire:click="selectMerk({{ $merk->merk_id }})"
-                                                class="px-6 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
-                                                Merk: {{ $merk->nama ?? '-' }} | Tipe: {{ $merk->tipe ?? '-' }} |
-                                                Ukuran:
-                                                {{ $merk->ukuran ?? '-' }}
-                                            </li>
-                                        @endforeach --}}
+                                    <option value="" selected>Pilih Barang</option>
+                                    @foreach ($availBarangs as $barang)
+                                        <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
                                     @endforeach
-                                </ul>
+                                </select>
+                                @error('newBarangId')
+                                    <span class="text-sm text-red-500">{{ $message }}</span>
+                                @enderror
                             </td>
 
 
