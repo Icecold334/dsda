@@ -12,7 +12,7 @@ class ProfilController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user(); // Mendapatkan data pengguna yang login
         // Ambil semua role pengguna yang sedang login
@@ -28,55 +28,70 @@ class ProfilController extends Controller
         $user->formatted_roles = implode(', ', $formattedRoles);
 
         // Ambil unit_id user yang sedang login
-        $userUnitId = Auth::user()->unit_id;
+        // $userUnitId = Auth::user()->unit_id;
 
-        // Cari unit berdasarkan unit_id user
-        $unit = UnitKerja::find($userUnitId);
+        // // Cari unit berdasarkan unit_id user
+        // $unit = UnitKerja::find($userUnitId);
 
-        // Tentukan parentUnitId
-        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
-        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
-        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+        // // Tentukan parentUnitId
+        // $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
-        // $Users = User::whereNotIn('id', [1, 3])->get();
-        // Membuat query berdasarkan kondisi apakah yang login adalah superadmin
-        $Users = User::whereNotIn('id', [1, $user->id]);
+        // // Ambil parameter pencarian
+        // $search = $request->input('search');
 
-        // Jika yang login bukan superadmin (id != 1), tambahkan kondisi `whereHas` untuk filter unit kerja
-        if ($user->id != 1) {
-            $Users->whereHas('unitKerja', function ($unitQuery) use ($parentUnitId) {
-                // Memfilter unit kerja berdasarkan parent_id atau id yang sama
-                $unitQuery->where('parent_id', $parentUnitId)
-                    ->orWhere('id', $parentUnitId);
-            });
-        }
-        // Ambil semua pengguna yang sesuai dengan kondisi
-        $Users = $Users->get()->filter(function ($user) {
-            return !$user->hasRole('guest');
-        });
+        // // Membuat query berdasarkan kondisi apakah yang login adalah superadmin
+        // $Users = User::query()
+        //     ->whereNotIn('id', [1, $user->id]);
 
-        foreach ($Users as $userItem) {
-            // Ambil semua role
-            $roles = $userItem->getRoleNames(); // Mengembalikan koleksi nama role
-            // Array untuk menyimpan role yang diformat
-            $formattedRoles = [];
+        // // Jika yang login bukan superadmin (id != 1), tambahkan kondisi `whereHas` untuk filter unit kerja
+        // if ($user->id != 1) {
+        //     $Users->whereHas('unitKerja', function ($unitQuery) use ($parentUnitId) {
+        //         $unitQuery->where('parent_id', $parentUnitId)
+        //             ->orWhere('id', $parentUnitId);
+        //     });
+        // }
 
-            // Iterasi setiap role untuk format ulang
-            foreach ($roles as $role) {
-                $formattedRoles[] = formatRole($role);
-            }
-            // Gabungkan semua role yang diformat ke dalam string
-            $userItem->formatted_roles = implode(', ', $formattedRoles);
-            // dd($userItem->formatted_roles);
-        }
+        // // Jika ada input pencarian, tambahkan filter berdasarkan kolom
+        // if (!empty($search)) {
+        //     $Users->where(function ($query) use ($search) {
+        //         $query->where('name', 'LIKE', "%$search%")
+        //             ->orWhere('nip', 'LIKE', "%$search%")
+        //             ->orWhere('email', 'LIKE', "%$search%")
+        //             ->orWhere('username', 'LIKE', "%$search%")
+        //             ->orWhereHas('unitKerja', function ($subQuery) use ($search) {
+        //                 $subQuery->where('nama', 'LIKE', "%$search%");
+        //             })
+        //             ->orWhereHas('lokasiStok', function ($subQuery) use ($search) {
+        //                 $subQuery->where('nama', 'LIKE', "%$search%");
+        //             })
+        //             ->orWhereHas('roles', function ($roleQuery) use ($search) {
+        //                 $roleQuery->where('name', 'LIKE', "%$search%");
+        //             });;
+        //     });
+        // }
 
-        return view('profil.index', compact('user', 'Users')); // Mengirim data pengguna ke view
+        // // Ambil semua pengguna yang sesuai dengan kondisi
+        // $Users = $Users->get()->filter(function ($user) {
+        //     return !$user->hasRole('guest');
+        // });
+
+        // // Format role untuk setiap pengguna
+        // foreach ($Users as $userItem) {
+        //     $roles = $userItem->getRoleNames(); // Mengembalikan koleksi nama role
+        //     $formattedRoles = [];
+        //     foreach ($roles as $role) {
+        //         $formattedRoles[] = formatRole($role);
+        //     }
+        //     $userItem->formatted_roles = implode(', ', $formattedRoles);
+        // }
+
+        return view('profil.index', compact('user')); // Mengirim data pengguna ke view
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create($tipe, $id = 0)
+    public function create($tipe, $id)
     {
         return view('profil.create', compact('tipe', 'id'));
     }

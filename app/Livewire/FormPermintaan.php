@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Kategori;
 use App\Models\KategoriStok;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -13,9 +14,11 @@ class FormPermintaan extends Component
 {
     public $permintaan;
     public $units;
+    public $last;
     public $unit_id;
     public $kategoris;
     public $kategori_id;
+    public $tipePeminjaman;
     public $subUnits;
     public $tipe;
     public $sub_unit_id;
@@ -31,10 +34,15 @@ class FormPermintaan extends Component
 
     public function updatedUnitId()
     {
+
         if ($this->unit_id) {
             $this->subUnits = UnitKerja::where('parent_id', $this->unit_id)->get();
         }
         $this->dispatch('unit_id', unit_id: $this->unit_id);
+    }
+    public function updatedTipePeminjaman()
+    {
+        $this->dispatch('peminjaman', peminjaman: $this->tipePeminjaman);
     }
     public function updatedKategoriId()
     {
@@ -60,8 +68,30 @@ class FormPermintaan extends Component
 
     public function mount()
     {
-        $this->showKategori = Request::is('permintaan/add/permintaan');
-        $this->tanggal_permintaan = Carbon::now()->format('Y-m-d');;
+        // dd($this->last);
+        // 2024 - 12 - 04
+        if ($this->last) {
+            $this->tanggal_permintaan = Carbon::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
+                ->format('Y-m-d');
+            $this->dispatch('tanggal_permintaan', tanggal_permintaan: $this->tanggal_permintaan);
+
+            $this->kategori_id = $this->last->kategori_id;
+
+            $this->keterangan = $this->last->keterangan;
+            $this->dispatch('keterangan', keterangan: $this->keterangan);
+
+            $this->sub_unit_id = $this->last->sub_unit_id;
+            $this->dispatch('sub_unit_id', sub_unit_id: $this->sub_unit_id);
+
+            if ($this->tipe == 'peminjaman') {
+                # code...
+                $this->tipePeminjaman = Kategori::find($this->last->kategori_id)->nama;
+                $this->dispatch('peminjaman', peminjaman: $this->tipePeminjaman);
+            }
+        } else {
+            $this->tanggal_permintaan = Carbon::now()->format('Y-m-d');
+        }
+        $this->showKategori = Request::is('permintaan/add/permintaan*');
         $this->units = UnitKerja::whereNull('parent_id')->whereHas('children', function ($sub) {
             return $sub;
         })->get();

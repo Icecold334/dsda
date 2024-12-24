@@ -1,25 +1,25 @@
 <x-body>
-    <div class="flex justify-between py-2 mb-3">
+    {{-- <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">Daftar Barang</h1>
-        <div>
+        <h1 class="text-2xl font-bold text-primary-900 ">Daftar Barang</h1> --}}
+    {{-- <div>
             {{-- <a href="{{ route('lokasi-stok.create', ['tipe' => 0]) }}" --}}
-            <a href="/barang/barang"
+    {{-- <a href="/barang/barang"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                Tambah Barang</a>
-            {{-- <a href="{{ route('barang.create', ['tipe' => 1]) }}" --}}
-            <a href="/barang/merk"
+                Tambah Barang</a> --}}
+    {{-- <a href="{{ route('barang.create', ['tipe' => 1]) }}" --}}
+    {{-- <a href="/barang/merk"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Tambah Sub-Barang</a>
-        </div>
-    </div>
+        </div>  --}}
+    {{-- </div>
 
     <table class="w-full border-3 border-separate border-spacing-y-4">
         <thead>
             <tr class="text-white uppercase">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Nama barang</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">spesifikadi (merk/tipe/ukuran)</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">spesifikasi (merk/tipe/ukuran)</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
@@ -62,5 +62,8 @@
                 </tr>
             @endforeach
         </tbody>
-    </table>
+    </table> --}}
+    <div>
+        <livewire:data-barang-stok />
+    </div>
 </x-body>

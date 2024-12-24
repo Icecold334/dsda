@@ -179,15 +179,20 @@ class AsetController extends Controller
         }
 
         if ($request->filled('penanggung_jawab_id')) {
-            $query->whereHas('histories', function ($query) use ($request) {
-                $query->where('person_id', $request->penanggung_jawab_id)
-                    ->latest()  // Mengambil histori terakhir
-                    ->limit(1);  // Hanya ambil histori terakhir
+            $personId = $request->input('penanggung_jawab_id');
+            $query->whereHas('histories', function ($query) use ($personId) {
+                $query->where('person_id', $personId);
+                // ->latest()  // Mengambil histori terakhir
+                // ->limit(1);  // Hanya ambil histori terakhir
             });
         }
 
+        // Tambahkan filter lokasi berdasarkan history
         if ($request->filled('lokasi_id')) {
-            $query->where('lokasi_id', $request->lokasi_id);
+            $lokasiId = $request->input('lokasi_id');
+            $query->whereHas('histories', function ($query) use ($lokasiId) {
+                $query->where('lokasi_id', $lokasiId);
+            });
         }
 
         return $query;
@@ -999,7 +1004,7 @@ class AsetController extends Controller
             $sheet->setCellValue('A' . $row, $aset->kode)
                 ->setCellValue('B' . $row, $aset->nama)
                 ->setCellValue('C' . $row, $aset->kategori->nama)
-                ->setCellValue('D' . $row, $aset->merk->nama)
+                ->setCellValue('D' . $row, $aset->merk->nama ?? '')
                 ->setCellValue('E' . $row, $aset->tipe)
                 ->setCellValue('F' . $row, $aset->produsen)
                 ->setCellValue('G' . $row, $aset->noseri)

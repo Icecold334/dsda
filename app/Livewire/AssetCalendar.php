@@ -7,9 +7,11 @@ use App\Models\Jurnal;
 use App\Models\History;
 use Livewire\Component;
 use App\Models\Keuangan;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use App\Models\UnitKerja;
+use App\Models\PeminjamanAset;
+use Illuminate\Support\Carbon;
+use App\Models\DetailPeminjamanAset;
+use Illuminate\Support\Facades\Auth;
 
 class AssetCalendar extends Component
 {
@@ -18,6 +20,7 @@ class AssetCalendar extends Component
     public $selectedFilter = 'all'; // Default filter (Semua)
     public $days = [];
     public $agendas = [];
+    public $peminjamans = [];
     public $journals = [];
     public $transactions = [];
     public $histories = [];
@@ -125,8 +128,37 @@ class AssetCalendar extends Component
                         'tanggal_tertentu' => 'Tanggal Tertentu',
                         default => ucfirst($agenda->tipe),
                     };
+
                     return $agenda;
                 });
+
+
+                $this->peminjamans = PeminjamanAset::whereHas('detailPeminjaman', function ($query) use ($unit, $parentUnitId) {
+                    $query->where('status', '!=', 0)->where('proses', 1)->orWhere('cancel', 0) // Filter berdasarkan cancel = 0 di tabel DetailPeminjamanAset
+                        ->when($unit, function ($query) use ($parentUnitId) {
+                            $query->whereHas('unit', function ($unitQuery) use ($parentUnitId) {
+                                $unitQuery->where('parent_id', $parentUnitId)->orWhere('id', $parentUnitId);
+                            });
+                        });
+                })
+                    ->get()
+                    ->map(function ($peminjaman) {
+                        // Format tipe berdasarkan kategori
+                        $peminjaman->formatted_tipe = match ($peminjaman->detailPeminjaman->kategori->tipe ?? null) {
+                            'mingguan' => 'Mingguan',
+                            'bulanan' => 'Bulanan',
+                            'tahunan' => 'Tahunan',
+                            'tanggal_tertentu' => 'Tanggal Tertentu',
+                            default => ucfirst($peminjaman->detailPeminjaman->kategori->tipe ?? 'Tidak Diketahui'),
+                        };
+
+                        // Format tanggal peminjaman
+                        $peminjaman->tanggal = Carbon::createFromTimestamp(strtotime($peminjaman->detailPeminjaman->tanggal_peminjaman))
+                            ->format('d M Y');
+
+                        return $peminjaman;
+                    });
+
 
 
                 $this->journals = Jurnal::whereBetween('tanggal', [$startOfMonth, $endOfMonth])->when($unit, function ($query) use ($parentUnitId) {
@@ -148,7 +180,7 @@ class AssetCalendar extends Component
                 break;
         }
     }
-    
+
     private function generateDays($start, $end)
     {
         setlocale(LC_TIME, 'id_ID.UTF-8');

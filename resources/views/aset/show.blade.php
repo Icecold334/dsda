@@ -220,7 +220,7 @@
                 <table class="text-gray-600 w-full">
                     <tr>
                         <td class="" style="width: 30%">Tanggal Pembelian</td>
-                        <td class="">{{ date('d M Y', $aset->tanggalbeli) }}</td>
+                        <td class="">{{ $aset->tanggalbeli ? date('j F Y', $aset->tanggalbeli) : '---' }}</td>
                     </tr>
                     <tr>
                         <td class="" style="width: 30%">Toko / Distributor</td>
