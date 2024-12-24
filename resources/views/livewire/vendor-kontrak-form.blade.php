@@ -51,11 +51,11 @@
             </td> --}}
         </tr>
         @if ($showNomor)
-            <tr class={{ !$cekSemuaItem ? 'hidden' : '' }}>
+            {{-- <tr class={{ !$cekSemuaItem ? 'hidden' : '' }}> --}}
+            <tr class={{ true ? 'hidden' : '' }}>
                 <td class="w-1/3">
                     <label for="nomor_kontrak"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                        >Nomor
+                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nomor
                         Kontrak *</label>
                 </td>
                 <td>
