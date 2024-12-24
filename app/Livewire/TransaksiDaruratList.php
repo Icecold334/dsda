@@ -41,7 +41,7 @@ class TransaksiDaruratList extends Component
         'satuanKecil' => [],
     ];
 
-    public $role_name;
+    public $role_name, $cekStatusItem;
 
     public function __construct()
     {
@@ -105,11 +105,11 @@ class TransaksiDaruratList extends Component
             foreach ($this->transaksi as $key => $item) {
                 $this->id = $item->id;
 
-                $this->ppk_isapprove = $this->checkApprovals('ppk');
+                $this->ppk_isapprove = $this->checkApprovals('Pejabat Pembuat Komitmen');
 
-                $this->pptk_isapprove = $this->checkApprovals('pptk');
+                $this->pptk_isapprove = $this->checkApprovals('Pejabat Pelaksana Teknis Kegiatan');
 
-                $this->pj_isapprove = $this->checkApprovals('penanggungjawab');
+                $this->pj_isapprove = $this->checkApprovals('Penanggung Jawab');
 
                 $sumapprove = $this->getStatusApprov($this->id);
 
@@ -144,7 +144,7 @@ class TransaksiDaruratList extends Component
                     'satuan' => BarangStok::find($item->merkStok->barangStok->id)->satuanBesar->nama,
                     'lokasi_penerimaan' => $item->lokasi_penerimaan,
                     'keterangan' => $item->deskripsi,
-                    'bukti' => $img,
+                    'bukti' => $item->img,
                     'pptk_isapprove' => $this->pptk_isapprove ?? 0,
                     'ppk_isapprove' => $this->ppk_isapprove ?? 0,
                     'pj_isapprove' => $this->pj_isapprove ?? 0,
@@ -154,15 +154,27 @@ class TransaksiDaruratList extends Component
                 ];
             }
             $this->dispatch('listCount', count: count($this->list));
+            $this->cekStatusItem  = $this->checkStatusbyVendor($this->vendor_id);
         }
-        $this->cekApproval =     TransaksiStok::where('vendor_id', $this->vendor_id)->where(function ($query) {
-            $query->whereNull('pptk_id')
-                ->orWhereNull('ppk_id');
-        })->get();
+        // $this->cekApproval = TransaksiStok::where('vendor_id', $this->vendor_id)->where(function ($query) {
+        //     $query->whereNull('pptk_id')
+        //         ->orWhereNull('ppk_id');
+        // })->get();
 
 
 
         // $this->nomor_kontrak = $this->getNoKontrak($this->vendor_id)->nomor_kontrak;
+    }
+
+    private function checkStatusbyVendor($vendor_id){
+        $data = TransaksiStok::where('status', 0)->where('vendor_id', $vendor_id)->get();
+        if ($data->isEmpty()) { // Gunakan isEmpty() untuk Collection jika tidak ada maka sudah acc semua
+            $result = 1;
+        } else {
+            $result = 0;
+        }
+
+        return $result;
     }
 
     private function checkApprovals($params)
@@ -505,7 +517,7 @@ class TransaksiDaruratList extends Component
 
         // Periksa peran pengguna untuk menentukan level approval
         // Simpan perubahan transaksi
-        if ($this->role_name === 'ppk') {
+        if ($this->role_name === 'Pejabat Pembuat Komitmen') {
             $transaction->status = true;
         }
         $transaction->save();
@@ -567,7 +579,7 @@ class TransaksiDaruratList extends Component
     }
     public function render()
     {
-        $roles = $this->role_name;
-        return view('livewire.transaksi-darurat-list', ['roles' => $roles]);
+        
+        return view('livewire.transaksi-darurat-list');
     }
 }

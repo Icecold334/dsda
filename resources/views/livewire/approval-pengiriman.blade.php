@@ -1,8 +1,9 @@
 <div>
-
+    {{ ($lastPptk) }}
+    {{ $roles }}
     <div class="flex w-full justify-evenly border-t-4 py-6">
         <div class="">
-            <div class="block font-semibold text-center mb-2 text-gray-900">Penulis</div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">Penulis </div>
 
             <div class="text-sm border-b-2 ">
                 <div class="flex justify-between px-3">
@@ -52,6 +53,10 @@
                                 {{ $penerima->id == auth()->id() ? 'Anda' : $penerima->name }}
                             </span>
                             <i
+                                class="my-1 fa-solid {{ ($indikatorPenerima == 0)
+                                    ?'fa-circle-question text-secondary-600' : 'fa-circle-check text-success-500'}}">
+                            </i>
+                            {{-- <i
                                 class="my-1 fa-solid {{ is_null(
                                     optional($penerima->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status,
                                 )
@@ -59,7 +64,7 @@
                                     : (optional($penerima->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
                                         ? 'fa-circle-check text-success-500'
                                         : 'fa-circle-xmark text-danger-500') }}">
-                            </i>
+                            </i> --}}
 
 
                         </td>
@@ -150,8 +155,8 @@
         {{-- @endrole --}}
     </div>
     {{-- @hasanyrole($roles) --}}
-    @if ($showButton)
-        <div class="flex">
+    @if ($showButton && Auth::user()->hasRole('Pemeriksa Barang'))
+        <div class="flex {{ $indikatorPenerima == 0 ? 'hidden' : '' }}">
             <div class="flex space-x-2 justify-center w-full">
                 @if ($isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa)
                     <div class="flex flex-col items-center">
@@ -196,17 +201,34 @@
 
         </div>
     @endif
+
+    @hasanyrole('Pejabat Pelaksana Teknis Kegiatan|Pejabat Pembuat Komitmen')
+    <div class="flex">
+        <div class="flex space-x-2 justify-center w-full">
+            <button type="button"
+                onclick="confirmApprove()"
+                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200
+                {{ 1 ? '' : 'hidden' }}">
+                Setuju
+            </button>
+        </div>
+    </div>
+@endhasanyrole
+    {{-- @if ()
+        
+    @endif --}}
     
+
     <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
         <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
             {{-- @endhasanyrole --}}
 
 
-            
+
             <div class="relative pl-16">
                 <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-900 dark:text-white">File Persetujuan
                 </h5>
-            
+
                 <div class="mt-4 gap-4 w-3/5">
                     @if (count($files) > 0)
                         @if ($files)
@@ -444,7 +466,13 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    @this.call('approveConfirmed');
+                    if ('{{ $roles }}' == 'Pejabat Pelaksana Teknis Kegiatan'){
+                        @this.call('ApprovePPTK');
+                    } else if ('{{ $roles }}' == 'Pejabat Pembuat Komitmen'){
+                        @this.call('ApprovePPKandFinish');
+                    } else {
+                        @this.call('approveConfirmed');
+                    }
                 }
             });
         }
@@ -459,7 +487,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'File Tidak Ditemukan',
-                    text: 'Harap unggah file sebelum menyetujui kontrak.',
+                    text: 'Harap unggah file Persetujuan sebelum menyetujui kontrak.',
                 });
                 return;
             }

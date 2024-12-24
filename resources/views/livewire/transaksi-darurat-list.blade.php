@@ -1,6 +1,6 @@
 <div>
     <table class="w-full border-3 border-separate border-spacing-y-4">
-        cek
+        {{ $role_name }} 
         <thead>
             <tr class="text-white bg-primary-950 uppercase">
                 <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
@@ -63,7 +63,7 @@
                                         <img src="{{ is_string($item['bukti']) ? asset('storage/buktiTransaksi/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
                                             alt="Bukti" class="w-16 h-16 rounded-md">
                                     </a>
-                                    @role('penanggungjawab')
+                                    @role('Penanggung Jawab')
                                         <button wire:click="removePhoto({{ $index }})"
                                             class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600  text-white rounded-full w-5 h-5 text-xs">
                                             &times;
@@ -72,7 +72,7 @@
                                 </div>
                             @else
                                 <!-- Show upload button if no file is selected -->
-                                @role('penanggungjawab')
+                                @role('Penanggung Jawab')
                                     <button type="button"
                                         onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
                                         class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
@@ -92,27 +92,27 @@
                                 {{-- {{ $item['sumApprove'] }} --}}
                                 {{-- Jika pengguna adalah PPK --}}
                                 {{-- @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $item['ppk_isapprove']) --}}
-                                @if ($item['bukti'] && auth()->user()->hasRole('penanggungjawab') && $item['pj_isapprove'])
-                                    <button onclick="confirmApproval({{ $index }}, 'pj')"
+                                @if ($item['bukti'] && auth()->user()->hasRole('Penanggung Jawab') && $item['pj_isapprove'])
+                                    <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PJ
                                     </button>
 
                                     {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
-                                @elseif ($item['bukti'] && auth()->user()->hasRole('pptk') && $item['pptk_isapprove'] && !$item['pj_isapprove'])
-                                    <button onclick="confirmApproval({{ $index }}, 'pptk')"
+                                @elseif ($item['bukti'] && auth()->user()->hasRole('Pejabat Pelaksana Teknis Kegiatan') && $item['pptk_isapprove'] && !$item['pj_isapprove'])
+                                    <button onclick="confirmApproval({{ $index }}, 'Pejabat Pelaksana Teknis Kegiatan')"
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PPTK
                                     </button>
                                     {{-- Jika pengguna adalah PJ dan sudah ada approval dari PPTK --}}
                                 @elseif (
                                     $item['bukti'] &&
-                                        auth()->user()->hasRole('ppk') &&
+                                        auth()->user()->hasRole('Pejabat Pembuat Komitmen') &&
                                         $item['ppk_isapprove'] &&
                                         !$item['pptk_isapprove'] &&
                                         !$item['pj_isapprove']
                                 )
-                                    <button onclick="confirmApproval({{ $index }}, 'pj')"
+                                    <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PPK
                                     </button>
