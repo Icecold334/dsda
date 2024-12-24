@@ -235,7 +235,9 @@ class ListPengirimanForm extends Component
         // dd($this->old);
         $this->showDokumen = !Request::routeIs('pengiriman-stok.create');
         $this->showRemove = !Request::routeIs('pengiriman-stok.show');
-        $this->lokasis = LokasiStok::all();
+        $this->lokasis = LokasiStok::whereHas('unitKerja', function ($unit) {
+            return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        })->get();
         if (count($this->old)) {
             $this->pengiriman = collect($this->old)->first()->detailPengirimanStok;
             foreach ($this->old as $old) {

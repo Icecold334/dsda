@@ -68,11 +68,11 @@ class FormPermintaan extends Component
 
     public function mount()
     {
-        // dd($this->last);
-        // 2024 - 12 - 04
         if ($this->last) {
-            $this->tanggal_permintaan = Carbon::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
-                ->format('Y-m-d');
+            $this->tanggal_permintaan = Carbon::createFromTimestamp(
+                $this->last->{"tanggal_" . ($this->last->getTable() == 'detail_permintaan_stok' ? 'permintaan' : 'peminjaman')}
+            )->format('Y-m-d');
+
             $this->dispatch('tanggal_permintaan', tanggal_permintaan: $this->tanggal_permintaan);
 
             $this->kategori_id = $this->last->kategori_id;

@@ -203,7 +203,7 @@ class ListPeminjamanForm extends Component
                 'jumlah' => $item['jumlah'],
             ]);
         }
-        return redirect()->to('permintaan/peminjaman/' . $this->peminjaman->id)->with('tanya', 'berhasil');
+        return redirect()->to('permintaan/peminjaman/' . $this->peminjaman->id)->with('tanya', 'berhasil')->with('next', 2);
     }
 
     public function mount()

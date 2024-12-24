@@ -30,8 +30,9 @@
                 </tr>
             </thead>
             <tbody>
-                {{-- @if ($ruleShow) --}}
-                @if (true)
+                {{-- @dump($ruleShow) --}}
+                @if ($ruleShow)
+                    {{-- @if (true) --}}
                     @foreach ($list as $index => $item)
                         <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                             <!-- Empty Column -->

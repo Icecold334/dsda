@@ -1,12 +1,12 @@
 <div>
-    <div class="flex justify-between py-2 mb-3">
-        <h1 class="text-2xl font-bold text-primary-900 ">Pengaturan Persetujuan
+    <div class="flex justify-between py-2 mb-3 gap-28">
+        <h1 class="text-2xl w-2/3 font-bold text-primary-900 ">Pengaturan Persetujuan
             {{ Str::title($tipe) }} {{ $jenis !== 'kdo' ? Str::title($jenis) : Str::upper($jenis) }}
             @if (auth()->user()->unitKerja)
                 {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
             @endif
         </h1>
-        <div>
+        <div class="">
             @if (collect($roles)->count() > 1)
                 <button type="submit" wire:click="saveApprovalConfiguration"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">

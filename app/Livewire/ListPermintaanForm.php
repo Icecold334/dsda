@@ -334,7 +334,7 @@ class ListPermintaanForm extends Component
                 // 'lokasi_id' => $this->lokasiId
             ]);
         }
-        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil')->with('next', 1);
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
     }
@@ -443,7 +443,10 @@ class ListPermintaanForm extends Component
 
     public function fillShowRule()
     {
-        $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id;
+        // dump($this->showAdd);
+        $this->ruleShow = $this->showAdd ? $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id && $this->kategori_id :
+            //  $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
+            true;
     }
     public function updated()
     {
@@ -454,12 +457,12 @@ class ListPermintaanForm extends Component
     {
 
 
-        $this->fillShowRule();
         $expl = explode('/', Request::getUri());
         $this->requestIs = (int)strlen(Request::segment(3)) > 3 ? Request::segment(3) : $expl[count($expl) - 2];
         $this->fillKategoriId();
 
         $this->showAdd = Request::is('permintaan/add/*');
+        $this->fillShowRule();
 
         if ($this->requestIs == 'spare-part') {
             $this->kdos = Aset::all();

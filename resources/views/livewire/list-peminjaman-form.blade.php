@@ -1,7 +1,7 @@
 <div>
     <div>
-        {{-- @if ($tanggal_peminjaman && $keterangan && $unit_id) --}}
-        @if (true)
+        @if ($tanggal_peminjaman && $keterangan && $unit_id && $sub_unit_id)
+            {{-- @if (true) --}}
 
             <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
                 <thead>

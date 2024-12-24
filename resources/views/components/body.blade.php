@@ -86,10 +86,12 @@
                     }).then((choice) => {
                         if (choice.isConfirmed) {
                             // Jika pilih "Permintaan", redirect ke halaman permintaan umum
-                            window.location.href = "/permintaan/add/permintaan/1";
+                            window.location.href =
+                                "/permintaan/add/permintaan/{{ session('next') }}";
                         } else {
                             // Jika pilih "Peminjaman", redirect ke halaman peminjaman
-                            window.location.href = "/permintaan/add/peminjaman/1";
+                            window.location.href =
+                                "/permintaan/add/peminjaman/{{ session('next') }}";
                         }
                     });
                 }

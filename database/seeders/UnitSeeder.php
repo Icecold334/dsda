@@ -392,10 +392,10 @@ class UnitSeeder extends Seeder
                 ->pluck('id') // Ambil hanya ID
                 ->toArray(); // Konversi ke array
 
-            // Pilih 3 role pertama untuk approval
+            $selectedIndexes = [8, 7, 6]; // Indeks yang ingin diambil
             $approvalRoles = collect($allRoles)
-                ->shuffle()
-                ->take(3) // Ambil 3 role pertama
+                ->only($selectedIndexes)
+                ->values() // Reset indeks agar outputnya rapi
                 ->toArray();
 
             // Simpan roles ke $unitData
@@ -445,10 +445,10 @@ class UnitSeeder extends Seeder
                 ->pluck('id') // Ambil hanya ID
                 ->toArray(); // Konversi ke array
 
-            // Pilih 3 role pertama untuk approval
+            $selectedIndexes = [8, 7, 6]; // Indeks yang ingin diambil
             $approvalRoles = collect($allRoles)
-                ->shuffle()
-                ->take(3) // Ambil 3 role pertama
+                ->only($selectedIndexes)
+                ->values() // Reset indeks agar outputnya rapi
                 ->toArray();
 
             // Simpan roles ke $unitData
