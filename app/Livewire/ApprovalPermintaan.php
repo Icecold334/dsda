@@ -46,7 +46,9 @@ class ApprovalPermintaan extends Component
             $this->files = [];
         }
         $this->user = Auth::user();
-        $this->roles = $this->permintaan->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
+        // dd($this->permintaan->opsiPersetujuan->jabatanPersetujuan);
+        // $this->roles = $this->permintaan->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
+        $this->roles = $this->permintaan->opsiPersetujuan->jabatanPersetujuan;
         $this->roleLists = [];
         $this->lastRoles = [];
 
@@ -54,7 +56,8 @@ class ApprovalPermintaan extends Component
 
         foreach ($this->roles as $role) {
             $users = User::whereHas('roles', function ($query) use ($role) {
-                $query->where('name', 'LIKE', '%' . $role . '%');
+                $query->where('name', $role->jabatan->name);
+                // $query->where('id', 1)->dd();
             })
                 ->where(function ($query) use ($date) {
                     $query->whereHas('unitKerja', function ($subQuery) {
@@ -63,10 +66,10 @@ class ApprovalPermintaan extends Component
                         ->orWhere('unit_id', $this->permintaan->unit_id);
                 })
                 ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-                ->limit(1)
+                ->limit($role->limit)
                 ->get();
 
-            $propertyKey = Str::slug($role); // Generate dynamic key for roles
+            $propertyKey = Str::title($role->jabatan->name); // Generate dynamic key for roles
             $this->roleLists[$propertyKey] = $users;
             $this->lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
         }

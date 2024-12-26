@@ -38,6 +38,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('opsi_persetujuan_id'); // ID opsi persetujuan
             $table->unsignedBigInteger('jabatan_id'); // ID jabatan dari tabel roles
+            $table->integer('limit')->default(1); // Urutan jabatan dalam persetujuan
             $table->integer('urutan'); // Urutan jabatan dalam persetujuan
             $table->timestamps();
 
