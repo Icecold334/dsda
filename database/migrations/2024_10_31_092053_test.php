@@ -59,6 +59,7 @@ return new class extends Migration
             $table->integer('lama_garansi')->nullable();
             $table->string('kartu_garansi')->nullable();
             $table->boolean('status')->default(1);
+            $table->boolean('peminjaman')->default(1);
             $table->timestamps();
         });
 

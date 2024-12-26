@@ -716,6 +716,23 @@
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                             placeholder="Masukkan Keterangan" rows="4"></textarea>
                     </div>
+                    <div class="flex items-center space-x-4">
+                        <label for="peminjaman" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                            style="width: 40%">
+                            Status Peminjaman </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="peminjaman" id="asetBisaDipinjam"
+                                wire:model.live="peminjaman" value="1"
+                                class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                            <span class="ml-2 text-gray-900 dark:text-white">Bisa Dipinjam</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="peminjaman" id="asetTidakBisaDipinjam"
+                                wire:model.live="peminjaman" value="0"
+                                class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                            <span class="ml-2 text-gray-900 dark:text-white">Tidak Bisa Dipinjam</span>
+                        </label>
+                    </div>
                 </x-card>
 
             </div>

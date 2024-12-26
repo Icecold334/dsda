@@ -150,5 +150,4 @@
             @endforeach
         </tbody>
     </table>
-
 </x-body>

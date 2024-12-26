@@ -288,7 +288,12 @@
                 </table>
             </x-card>
             <x-card title="Keterangan" class="mb-3">
-                {{ $aset->keterangan ?? '---' }}
+                <p>
+                    {{ $aset->keterangan ?? '---' }}
+                </p>
+                <p>
+                    {{ $aset->peminjaman === 1 ? 'Aset Bisa Dipinjam' : ($aset->peminjaman === 0 ? 'Aset Tidak Bisa Dipinjam' : '---') }}
+                </p>
             </x-card>
             <x-card title="Lampiran" class="mb-3">
                 @if ($aset->lampirans->isNotEmpty())
