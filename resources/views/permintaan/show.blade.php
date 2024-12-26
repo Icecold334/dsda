@@ -52,7 +52,7 @@
                                     : ($permintaan->cancel === 0 && $permintaan->proses === 1
                                         ? 'selesai'
                                         : ($permintaan->cancel === 0 && $permintaan->proses === null
-                                            ? 'siap diambil'
+                                            ? 'siap digunakan'
                                             : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
                                                 ? 'diproses'
                                                 : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1

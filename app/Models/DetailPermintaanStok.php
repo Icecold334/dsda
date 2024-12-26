@@ -21,6 +21,11 @@ class DetailPermintaanStok extends Model
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id');
     }
+
+    public function kategoriStok()
+    {
+        return $this->belongsTo(KategoriStok::class, 'kategori_id');
+    }
     public function jenisStok()
     {
         return $this->belongsTo(JenisStok::class, 'jenis_id');

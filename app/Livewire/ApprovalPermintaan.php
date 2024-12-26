@@ -23,6 +23,7 @@ class ApprovalPermintaan extends Component
     public $currentApprovalIndex;
     public $penulis;
     public $isPenulis;
+    public $tipe;
     public $showCancelOption;
     public $user;
     public $files = [];
@@ -35,7 +36,9 @@ class ApprovalPermintaan extends Component
     public function mount()
     {
         $this->isPenulis = $this->permintaan->user_id === Auth::id();
-        $this->penulis = Auth::user();
+        $this->penulis = $this->permintaan->user;
+
+        $this->tipe = Str::contains($this->permintaan->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
 
         if ($this->permintaan->persetujuan->where('file')) {
             $this->files = $this->permintaan->persetujuan->filter(fn($persetujuan) => $persetujuan->file !== null)->pluck('file');
@@ -79,8 +82,8 @@ class ApprovalPermintaan extends Component
         // Menggabungkan semua approval untuk pengecekan urutan
         $allApproval = collect($this->roleLists)->flatten(1);
         $this->currentApprovalIndex = $allApproval->filter(function ($user) {
-            $approval = $user->persetujuanPermintaan()
-                ->where('detail_permintaan_id', $this->permintaan->id ?? 0)
+            $approval = $user->{"persetujuan{$this->tipe}"}()
+                ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
                 ->first();
             return $approval && $approval->status === 1; // Hanya hitung persetujuan yang berhasil
         })->count();
@@ -92,50 +95,110 @@ class ApprovalPermintaan extends Component
             if ($index === 0) {
                 // Jika user adalah yang pertama dalam daftar
                 $currentUser = $allApproval[$index];
-                $this->showButton = !$currentUser->persetujuanPermintaan()
-                    ->where('detail_permintaan_id', $this->permintaan->id ?? 0)
+                $this->showButton = !$currentUser->{"persetujuan{$this->tipe}"}()
+                    ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
                     ->exists();
             } else {
                 // Jika user berada di tengah atau akhir
                 $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
                 $currentUser = $allApproval[$index];
-                $previousApprovalStatus = optional(optional($previousUser)->persetujuanPermintaan()
-                    ?->where('detail_permintaan_id', $this->permintaan->id ?? 0)
+                $previousApprovalStatus = optional(optional($previousUser)->{"persetujuan{$this->tipe}"}()
+                    ?->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
                     ->first())->status;
 
 
                 $this->showButton = $previousUser &&
-                    !$currentUser->persetujuanPermintaan()
-                        ->where('detail_permintaan_id', $this->permintaan->id ?? 0)
+                    !$currentUser->{"persetujuan{$this->tipe}"}()
+                        ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
                         ->exists() &&
-                    $previousApprovalStatus === 1; // Tombol hanya muncul jika persetujuan sebelumnya berhasil (true)
+                    $previousApprovalStatus === 1 &&
+                    ($this->permintaan->cancel === 0 || $this->currentApprovalIndex + 1 < $this->listApproval);
             }
         }
         $cancelAfter = $this->permintaan->opsiPersetujuan->cancel_persetujuan;
-
         $this->showCancelOption = $this->currentApprovalIndex >= $cancelAfter;
         // dd($this->currentApprovalIndex);
     }
 
+    public function markAsCompleted()
+    {
+        $this->permintaan->update(['cancel' => false]);
+        return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
+    }
     public function cancelRequest()
     {
         // Logika untuk membatalkan permintaan
         $this->permintaan->update(['cancel' => true]);
-        session()->flash('message', 'Permintaan telah dibatalkan.');
+        return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
 
     public function approveConfirmed($status, $message = null)
     {
+
         $this->permintaan->persetujuan()->create([
-            'detail_permintaan_id' => $this->permintaan->id,
+            'detail_' . $this->tipe . '_id' => $this->permintaan->id,
             'user_id' => $this->user->id,
             'status' => $status,
             'keterangan' => $message
         ]);
+        if (($this->currentApprovalIndex + 1) == $this->listApproval) {
+            $this->permintaan->update([
+                'status' => 1,
+                'proses' => 1  // Proses dimulai
+            ]);
 
 
-        return redirect()->route('permintaan-stok.show', ['permintaan_stok' => $this->permintaan->id]);
+            if ($this->tipe == 'permintaan') {
+                $permintaanItems = $this->permintaan->permintaanStok;
+                foreach ($permintaanItems as $merk) {
+                    foreach ($merk->stokDisetujui as  $item) {
+                        $this->adjustStockForApproval($item);
+                    }
+                }
+            };
+        } else {
+        }
+
+
+        return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
+
+    protected function adjustStockForApproval($merk)
+    {
+        // Ambil stok berdasarkan merk_id, diurutkan berdasarkan lokasi atau logika lainnya
+        $stocks =
+            Stok::where('merk_id', $merk->merk_id)
+            ->where('lokasi_id', $merk->lokasi_id)
+            ->where('bagian_id', $merk->bagian_id)
+            ->where('posisi_id', $merk->posisi_id)
+            // ->where('jumlah', '>', 0)
+            ->get();
+
+        $remaining = $merk->jumlah_disetujui; // Jumlah yang harus dikurangi
+
+        foreach ($stocks as $stock) {
+            if ($remaining <= 0) break; // Hentikan jika jumlah sudah terpenuhi
+
+            if ($stock->jumlah >= $remaining) {
+                // Jika stok di lokasi ini cukup atau lebih dari jumlah yang dibutuhkan
+                $stock->jumlah -= $remaining;
+                $stock->save(); // Simpan perubahan stok
+                $remaining = 0;
+            } else {
+                // Jika stok di lokasi ini kurang dari jumlah yang dibutuhkan
+                $remaining -= $stock->jumlah; // Kurangi jumlah stok dari sisa yang diperlukan
+                $stock->jumlah = 0;
+                $stock->save(); // Simpan stok sebagai 0
+            }
+        }
+
+        // Jika stok tidak mencukupi
+        // if ($remaining > 0) {
+        //     Log::warning("Stok tidak mencukupi untuk merk_id {$merkId}. Dibutuhkan {$jumlahApprove}, namun kekurangan {$remaining}.");
+        //     // Tambahkan logika untuk menangani kekurangan stok, seperti pemberitahuan atau aksi lain
+        // }
+    }
+
 
     public function render()
     {

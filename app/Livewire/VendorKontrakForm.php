@@ -30,7 +30,7 @@ class VendorKontrakForm extends Component
     public $kontak;
     public $listCount;
     public $show;
-    public $showNomor;
+    public $showNomor, $cekSemuaItem;
     public $showAddVendorForm = false;
     public $showSuggestions;
     public $query = ''; // Untuk query input saran vendor
@@ -84,6 +84,7 @@ class VendorKontrakForm extends Component
         $this->showNomor = !(request()->is('transaksi-darurat-stok/create') || request()->is('pengiriman-stok/create'));
         $this->barangs = JenisStok::all();
         $this->vendors = Toko::all();
+        $this->cekSemuaItem = $this->checkStatusbyVendor($this->vendor_id);
         if ($this->vendor_id) {
             $vendor = Toko::find($this->vendor_id);
             $this->query = $vendor->nama;
@@ -158,6 +159,19 @@ class VendorKontrakForm extends Component
     {
         // $this->suggestions = [];
         $this->showSuggestions = false;
+    }
+
+    private function checkStatusbyVendor($vendor_id){
+        $data = TransaksiStok::where(function ($query) {
+            $query->where('status', NULL)->orWhere('status', 0);
+        })->where('vendor_id', $vendor_id)->get();
+        if ($data->isEmpty()) { // Gunakan isEmpty() untuk Collection jika tidak ada maka sudah acc semua
+            $result = true;
+        } else {
+            $result = false;
+        }
+
+        return $result;
     }
 
 

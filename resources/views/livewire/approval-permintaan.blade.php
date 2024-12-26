@@ -29,13 +29,16 @@
                                 {{-- @dump($user->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)) --}}
                                 <i
                                     class="my-1 fa-solid {{ is_null(
-                                        optional($user->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status,
+                                        optional($user->{"persetujuan{$tipe}"}->where('detail_' . Str::lower($tipe) . '_id', $permintaan->id ?? 0)->first())->status,
                                     )
                                         ? 'fa-circle-question text-secondary-600'
-                                        : (optional($user->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)->first())->status
+                                        : (optional(
+                                            $user->{"persetujuan{$tipe}"}->where('detail_' . Str::lower($tipe) . '_id', $permintaan->id ?? 0)->first(),
+                                        )->status
                                             ? 'fa-circle-check text-success-500'
                                             : 'fa-circle-xmark text-danger-500') }}">
                                 </i>
+
                             </td>
                         </tr>
                     @endforeach
@@ -71,7 +74,6 @@
             </div>
         </div>
     @endif
-
     @if ($isPenulis && $showCancelOption && is_null($permintaan->cancel))
         <div class="flex justify-center">
             <button type="button" onclick="confirmCompletion()"
@@ -123,6 +125,55 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
+                    @this.call('approveConfirmed', 0, result.value);
+                }
+            });
+        }
+    </script>
+@endpush
+
+@push('scripts')
+    <script>
+        function confirmCompletion() {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: "Apakah Anda yakin ingin menyelesaikan permintaan ini?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Selesaikan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.markAsCompleted();
+                    Swal.fire(
+                        'Berhasil!',
+                        'Permintaan telah ditandai sebagai selesai.',
+                        'success'
+                    );
+                }
+            });
+        }
+
+        function confirmCancellation() {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: "Apakah Anda yakin ingin membatalkan permintaan ini?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Batalkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.cancelRequest();
+                    Swal.fire(
+                        'Berhasil!',
+                        'Permintaan telah dibatalkan.',
+                        'success'
+                    );
                     @this.call('approveConfirmed', 0, result.value);
                 }
             });

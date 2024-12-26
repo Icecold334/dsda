@@ -15,6 +15,7 @@ use Livewire\WithFileUploads;
 use App\Models\PermintaanStok;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailPermintaanStok;
+use App\Models\Kategori;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
@@ -33,6 +34,7 @@ class ListPermintaanForm extends Component
     public $permintaan;
     public $showAdd;
     public $kdos;
+    public $availBarangs;
 
     public $list = []; // List of items
     public $newDeskripsi; // Input for new barang
@@ -53,6 +55,7 @@ class ListPermintaanForm extends Component
     public $showApprovalModal = false;
     public $ruleShow;
     public $ruleAdd;
+    public $last;
     public $approve_after;
     public $selectedItemId; // ID dari item yang dipilih
     public $approvalData = []; // Data untuk lokasi dan stok
@@ -239,8 +242,35 @@ class ListPermintaanForm extends Component
         $this->fillShowRule();
     }
     #[On('kategori_id')]
-    public function fillKategoriId($kategori_id)
+    public function fillKategoriId($kategori_id = null)
     {
+        $userUnitId = $this->unit_id;
+        $this->availBarangs = [];
+        $avai = BarangStok::whereHas('merkStok', function ($merkQuery) use ($userUnitId) {
+            $merkQuery->join('stok', 'merk_stok.id', '=', 'stok.merk_id') // Join tabel stok
+                ->join('lokasi_stok', 'stok.lokasi_id', '=', 'lokasi_stok.id') // Join tabel lokasi
+                ->join('unit_kerja', 'lokasi_stok.unit_id', '=', 'unit_kerja.id') // Join unit kerja
+                ->where('unit_kerja.id', $userUnitId) // Filter berdasarkan unit kerja pengguna login
+                ->select('merk_stok.*', DB::raw('SUM(stok.jumlah) as total_stok')) // Hitung stok total
+                ->groupBy('merk_stok.id') // Kelompokkan berdasarkan merk
+                ->havingRaw('total_stok > 0'); // Hanya stok dengan jumlah > 0
+        })->with([
+            'merkStok' => function ($merkQuery) {
+                $merkQuery->with(['stok' => function ($stokQuery) {
+                    $stokQuery->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah')) // Hitung total jumlah
+                        ->groupBy('merk_id');
+                }]);
+            }
+        ]);
+
+        if ($this->requestIs === 'permintaan') {
+            $this->availBarangs = $avai->where('kategori_id', $kategori_id)->get();
+        } elseif ($this->requestIs === 'spare-part') {
+            $this->availBarangs = $avai->where('jenis_id', 2)->get();
+        } elseif ($this->requestIs === 'material') {
+            $this->availBarangs = $avai->where('jenis_id', 1)->get();
+        }
+
         $this->kategori_id = $kategori_id;
         $this->fillShowRule();
     }
@@ -304,7 +334,7 @@ class ListPermintaanForm extends Component
                 // 'lokasi_id' => $this->lokasiId
             ]);
         }
-        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil')->with('next', 1);
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
     }
@@ -319,26 +349,28 @@ class ListPermintaanForm extends Component
     }
     public $newUnit = 'Satuan'; // Default unit
 
-    public function selectMerk($merkId)
+    public function selectMerk()
     {
-        $merk = BarangStok::find($merkId);
-        if ($merk) {
-            $this->newBarangId = $merk->id;
-            $this->newUnit = optional($merk->satuanBesar)->nama; // Set the new unit from the selected merk
+        $merk = BarangStok::find($this->newBarangId);
+        $this->newBarang = $merk;
+        // $this->newBarangId = null;
+        // if ($merk) {
+        //     $this->newBarangId = $merk->id;
+        //     $this->newUnit = optional($merk->satuanBesar)->nama; // Set the new unit from the selected merk
 
-            $this->resetBarangSuggestions();
-        }
-        if ($merk) {
-            // Concatenate merk, tipe, and ukuran into one string, use '-' for any null values
-            // $this->newBarang = collect([$merk->nama, $merk->tipe, $merk->ukuran])
-            //     ->map(function ($value) {
-            //         return $value ?? '-';
-            //     })
-            //     ->join(' | '); // Join the values with ' | ' as separator
-            $this->newBarang = $merk->nama;
+        //     $this->resetBarangSuggestions();
+        // }
+        // if ($merk) {
+        //     // Concatenate merk, tipe, and ukuran into one string, use '-' for any null values
+        //     // $this->newBarang = collect([$merk->nama, $merk->tipe, $merk->ukuran])
+        //     //     ->map(function ($value) {
+        //     //         return $value ?? '-';
+        //     //     })
+        //     //     ->join(' | '); // Join the values with ' | ' as separator
+        //     $this->newBarang = $merk->nama;
 
-            $this->resetBarangSuggestions();
-        }
+        //     $this->resetBarangSuggestions();
+        // }
     }
     public function selectLokasi($merkId)
     {
@@ -378,7 +410,7 @@ class ListPermintaanForm extends Component
     {
 
         $this->validate([
-            'newBarang' => 'required|string|max:255',
+            // 'newBarang' => 'required|string|max:255',
             'newJumlah' => 'required|integer|min:1',
             'newDokumen' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,txt',
         ]);
@@ -392,7 +424,8 @@ class ListPermintaanForm extends Component
             'catatan' => $this->newCatatan ?? null,
             'img' => $this->newBukti,
             'barang_id' => $this->newBarangId, // Assuming a dropdown for selecting existing barang
-            'barang_name' => $this->newBarang,
+            // 'barang_name' => $this->newBarang,
+            'barang' => $this->newBarang,
             'jumlah' => $this->newJumlah,
             'satuan' => $this->newUnit,
             'dokumen' => $this->newDokumen ?? null,
@@ -400,7 +433,7 @@ class ListPermintaanForm extends Component
         $this->ruleAdd = false;
         $this->dispatch('listCount', count: count($this->list));
         // Reset inputs after adding to the list
-        $this->reset(['newBarang', 'newJumlah', 'newDokumen', 'newAset', 'newAsetId', 'newDeskripsi', 'newCatatan', 'newBukti']);
+        $this->reset(['newBarangId', 'newJumlah', 'newDokumen', 'newAset', 'newAsetId', 'newDeskripsi', 'newCatatan', 'newBukti']);
     }
 
     public function updateList($index, $field, $value)
@@ -410,7 +443,10 @@ class ListPermintaanForm extends Component
 
     public function fillShowRule()
     {
-        $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id;
+        // dump($this->showAdd);
+        $this->ruleShow = $this->showAdd ? $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id && $this->kategori_id :
+            //  $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
+            true;
     }
     public function updated()
     {
@@ -420,10 +456,13 @@ class ListPermintaanForm extends Component
     public function mount()
     {
 
-        $this->fillShowRule();
+
         $expl = explode('/', Request::getUri());
-        $this->requestIs = $expl[count($expl) - 1];
+        $this->requestIs = (int)strlen(Request::segment(3)) > 3 ? Request::segment(3) : $expl[count($expl) - 2];
+        $this->fillKategoriId();
+
         $this->showAdd = Request::is('permintaan/add/*');
+        $this->fillShowRule();
 
         if ($this->requestIs == 'spare-part') {
             $this->kdos = Aset::all();
@@ -431,10 +470,13 @@ class ListPermintaanForm extends Component
         if ($this->permintaan) {
             $tipe = $this->permintaan->jenisStok->nama;
             $this->tipe = $tipe;
+
             foreach ($this->permintaan->permintaanStok as $key => $value) {
                 $this->unit_id = $this->permintaan->unit_id;
                 $this->keterangan = $this->permintaan->keterangan;
                 $this->tanggal_permintaan = $this->permintaan->tanggal_permintaan;
+                $this->fillKategoriId($this->permintaan->kategori_id);
+
 
                 $this->list[] = [
                     'detail_permintaan_id' => $value->detail_permintaan_id,
