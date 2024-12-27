@@ -8,6 +8,7 @@
         </h1>
         <div class="flex gap-4">
             <!-- Date Picker for Tanggal -->
+            @dump($tanggal)
             <input type="date" wire:model.live="tanggal" class="border rounded-lg px-4 py-2 w-full" />
             <!-- Search Input -->
             <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2 w-full"

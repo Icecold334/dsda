@@ -39,6 +39,7 @@ class DataPengirimanStok extends Component
                     ->orWhere('id', $this->unit_id);
             });
         })
+
             // ->when($this->search, function ($query) {
             //     $query->where('kode_pengiriman_stok', 'like', '%' . $this->search . '%')
             //         ->orWhereHas('pengirimanStok.kontrakVendorStok.vendorStok', function ($vendor) {
@@ -58,11 +59,23 @@ class DataPengirimanStok extends Component
             //         $jenisQuery->where('nama', $this->jenis);
             //     });
             // })
-            ->when($this->tanggal, function ($query) {
-                $query->where('tanggal', strtotime($this->tanggal));
-            })
+            // ->when($this->tanggal, function ($query) {
+            //     // Mengonversi tanggal dari format Y-m-d ke timestamp
+            //     $timestamp = strtotime($this->tanggal);
+            //     $query->where('tanggal', $timestamp); // Bandingkan dengan timestamp di database
+            // })
             ->orderBy('id', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                // Mengonversi timestamp ke format Y-m-d
+                $item->tanggal_search = date('Y-m-d', $item->tanggal);
+                // dd($item->tanggal);
+                return $item;
+            })
+            ->when($this->tanggal, function ($query) {
+                $query->where('tanggal_search', $this->tanggal);
+                dd($query); // Bandingkan dengan timestamp di database
+            });
     }
 
 
