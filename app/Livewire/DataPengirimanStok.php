@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\DetailPengirimanStok;
+use Carbon\Carbon;
 
 class DataPengirimanStok extends Component
 {
@@ -66,15 +67,11 @@ class DataPengirimanStok extends Component
             // })
             ->orderBy('id', 'desc')
             ->get()
-            ->map(function ($item) {
-                // Mengonversi timestamp ke format Y-m-d
-                $item->tanggal_search = date('Y-m-d', $item->tanggal);
-                // dd($item->tanggal);
-                return $item;
-            })
-            ->when($this->tanggal, function ($query) {
-                $query->where('tanggal_search', $this->tanggal);
-                dd($query); // Bandingkan dengan timestamp di database
+            ->map(function ($q) {
+                $q->tanggal_search = date('Y-m-d', $q->tanggal);
+                return $q;
+            })->when($this->tanggal, function ($query) {
+                return $query->where('tanggal_search', $this->tanggal);
             });
     }
 
