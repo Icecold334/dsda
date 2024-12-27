@@ -1,6 +1,6 @@
 <div>
-    {{ ($lastPptk) }}
-    {{ $roles }}
+    {{-- {{ ($lastPptk) }}
+    {{ $checkPreviousApproval }} --}}
     <div class="flex w-full justify-evenly border-t-4 py-6">
         <div class="">
             <div class="block font-semibold text-center mb-2 text-gray-900">Penulis </div>
@@ -53,8 +53,8 @@
                                 {{ $penerima->id == auth()->id() ? 'Anda' : $penerima->name }}
                             </span>
                             <i
-                                class="my-1 fa-solid {{ ($indikatorPenerima == 0)
-                                    ?'fa-circle-question text-secondary-600' : 'fa-circle-check text-success-500'}}">
+                                class="my-1 fa-solid {{ ($indikatorPenerima == 0) 
+                                    ?'fa-circle-question text-secondary-600' : 'fa-circle-check text-success-500'}}" id="penerimaApp">
                             </i>
                             {{-- <i
                                 class="my-1 fa-solid {{ is_null(
@@ -101,7 +101,7 @@
 
         <div class="">
             <div class="block font-semibold text-center mb-2 text-gray-900">
-                Pejabat Pelaksana Teknis Kegiatan</div>
+                Pejabat Pelaksana Teknis Kegiatanss</div>
             <table class="w-full mt-3">
                 @foreach ($pptkList as $pptk)
                     <tr class="text-sm border-b-2 ">
@@ -208,12 +208,12 @@
             <button type="button"
                 onclick="confirmApprove()"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200
-                {{ 1 ? '' : 'hidden' }}">
+                {{ count($checkPreviousApproval) > 0 ? '' : 'hidden' }}">
                 Setuju
             </button>
         </div>
     </div>
-@endhasanyrole
+    @endhasanyrole
     {{-- @if ()
         
     @endif --}}
@@ -450,9 +450,13 @@
 
 
 </div>
-
 @push('scripts')
+
     <script>
+        document.addEventListener('statusAppPenerima', function(event) {
+            console.log(event.detail.data); // Get the count from the event detail
+        });
+
         let fileCount = 0,
             BapCount = 0;
 
