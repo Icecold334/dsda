@@ -377,34 +377,20 @@ class UnitSeeder extends Seeder
 
         $jenisList = ['umum', 'spare-part', 'material']; // Daftar jenis
         $tipe = 'permintaan'; // Tipe permintaan
-
         foreach ($this->units as $unitName => $unitData) {
             $unit = UnitKerja::where('nama', $unitName)->first();
-
-            // Ambil semua role untuk unit ini
             $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
                 $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
             })
                 ->get()
                 ->pluck('roles') // Ambil seluruh data role dari relasi
                 ->flatten()
-                ->unique('id')
-                ->pluck('id') // Ambil hanya ID
-                ->toArray(); // Konversi ke array
+                ->unique('id'); // Konversi ke array
+            $selectedIndexes = ['Kepala Seksi', 'Kepala Subbagian']; // Indeks yang ingin diambil
+            $approvalRoles = $allRoles->whereIn('name', $selectedIndexes);
+            $availableFinalizerRoles = $allRoles->whereNotIn('name', $selectedIndexes);
 
-            $selectedIndexes = [8, 7, 6]; // Indeks yang ingin diambil
-            $approvalRoles = collect($allRoles)
-                ->only($selectedIndexes)
-                ->values() // Reset indeks agar outputnya rapi
-                ->toArray();
-
-            // Simpan roles ke $unitData
-            $unitData['roles'] = $approvalRoles;
-
-            // Filter role untuk finalizer
-            $availableFinalizerRoles = array_diff($allRoles, $approvalRoles);
-
-            $finalizerRole = Arr::random($availableFinalizerRoles);
+            $finalizerRole = $availableFinalizerRoles->shuffle()->first();
 
             foreach ($jenisList as $jenis) {
                 // Simpan konfigurasi persetujuan
@@ -416,15 +402,14 @@ class UnitSeeder extends Seeder
                     'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
                     'urutan_persetujuan' => 1, // Urutan persetujuan pertama
                     'cancel_persetujuan' => 2, // Urutan pembatalan kedua
-                    'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
+                    'jabatan_penyelesai_id' => $finalizerRole->id, // Jabatan penyelesaian
                 ]);
 
                 // Simpan role untuk setiap opsi persetujuan
                 foreach ($approvalRoles as $index => $role) {
                     \App\Models\JabatanPersetujuan::create([
                         'opsi_persetujuan_id' => $approvalConfiguration->id,
-                        'jabatan_id' => $role,
-                        'urutan' => $index + 1,
+                        'jabatan_id' => $role->id,
                     ]);
                 }
             }
@@ -433,31 +418,18 @@ class UnitSeeder extends Seeder
         $tipe = 'peminjaman'; // Tipe permintaan
         foreach ($this->units as $unitName => $unitData) {
             $unit = UnitKerja::where('nama', $unitName)->first();
-
-            // Ambil semua role untuk unit ini
             $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
                 $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
             })
                 ->get()
                 ->pluck('roles') // Ambil seluruh data role dari relasi
                 ->flatten()
-                ->unique('id')
-                ->pluck('id') // Ambil hanya ID
-                ->toArray(); // Konversi ke array
+                ->unique('id'); // Konversi ke array
+            $selectedIndexes = ['Kepala Seksi', 'Kepala Subbagian']; // Indeks yang ingin diambil
+            $approvalRoles = $allRoles->whereIn('name', $selectedIndexes);
+            $availableFinalizerRoles = $allRoles->whereNotIn('name', $selectedIndexes);
 
-            $selectedIndexes = [8, 7, 6]; // Indeks yang ingin diambil
-            $approvalRoles = collect($allRoles)
-                ->only($selectedIndexes)
-                ->values() // Reset indeks agar outputnya rapi
-                ->toArray();
-
-            // Simpan roles ke $unitData
-            $unitData['roles'] = $approvalRoles;
-
-            // Filter role untuk finalizer
-            $availableFinalizerRoles = array_diff($allRoles, $approvalRoles);
-
-            $finalizerRole = Arr::random($availableFinalizerRoles);
+            $finalizerRole = $availableFinalizerRoles->shuffle()->first();
 
             foreach ($jenisList as $jenis) {
                 // Simpan konfigurasi persetujuan
@@ -469,15 +441,54 @@ class UnitSeeder extends Seeder
                     'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
                     'urutan_persetujuan' => 1, // Urutan persetujuan pertama
                     'cancel_persetujuan' => 2, // Urutan pembatalan kedua
-                    'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
+                    'jabatan_penyelesai_id' => $finalizerRole->id, // Jabatan penyelesaian
                 ]);
 
                 // Simpan role untuk setiap opsi persetujuan
                 foreach ($approvalRoles as $index => $role) {
                     \App\Models\JabatanPersetujuan::create([
                         'opsi_persetujuan_id' => $approvalConfiguration->id,
-                        'jabatan_id' => $role,
-                        'urutan' => $index + 1,
+                        'jabatan_id' => $role->id,
+                    ]);
+                }
+            }
+        }
+        $jenisList = ['transaksi']; // Daftar jenis
+        $tipe = 'peminjaman'; // Tipe permintaan
+        foreach ($this->units as $unitName => $unitData) {
+            $unit = UnitKerja::where('nama', $unitName)->first();
+            $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
+                $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
+            })
+                ->get()
+                ->pluck('roles') // Ambil seluruh data role dari relasi
+                ->flatten()
+                ->unique('id'); // Konversi ke array
+            $selectedIndexes = ['Penanggung Jawab', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen']; // Indeks yang ingin diambil
+            $approvalRoles = $allRoles->whereIn('name', $selectedIndexes);
+            $availableFinalizerRoles = $allRoles->whereNotIn('name', $selectedIndexes);
+
+            $finalizerRole = $availableFinalizerRoles->shuffle()->first();
+
+            foreach ($jenisList as $jenis) {
+                // Simpan konfigurasi persetujuan
+                $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
+                    'unit_id' => $unit->id,
+                    'uuid' => \Illuminate\Support\Str::uuid(), // Generate UUID unik
+                    'jenis' => $jenis,
+                    'tipe' => $tipe,
+                    'item' => 1,
+                    'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
+                    'urutan_persetujuan' => 1, // Urutan persetujuan pertama
+                    'cancel_persetujuan' => 2, // Urutan pembatalan kedua
+                    'jabatan_penyelesai_id' => $finalizerRole->id, // Jabatan penyelesaian
+                ]);
+
+                // Simpan role untuk setiap opsi persetujuan
+                foreach ($approvalRoles as $index => $role) {
+                    \App\Models\JabatanPersetujuan::create([
+                        'opsi_persetujuan_id' => $approvalConfiguration->id,
+                        'jabatan_id' => $role->id,
                     ]);
                 }
             }

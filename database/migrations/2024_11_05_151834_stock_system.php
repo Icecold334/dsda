@@ -167,7 +167,7 @@ return new class extends Migration
             $table->id();
             $table->boolean('status')->nullable();
             $table->string('keterangan_status')->nullable();
-
+            $table->foreignId('approval_configuration_id')->nullable()->constrained('opsi_persetujuan')->onDelete('set null');
             $table->string('kode_transaksi_stok')->nullable();
             $table->string('img')->nullable();
             $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']);
@@ -281,7 +281,7 @@ return new class extends Migration
             $table->foreignId('sub_unit_id')->nullable()->constrained('unit_kerja')->onDelete('set null'); // Optional sub-unit link
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('kategori_id')->nullable()->constrained('kategori');
-            $table->foreignId('approval_configuration_id')->nullable()->constrained('opsi_persetujuan')->onDelete('set null');
+            $table->foreignId('approval_configuration_id')->nullable()->constrained('Fopsi_persetujuan')->onDelete('set null');
             $table->text('keterangan')->nullable();
             $table->boolean('proses')->nullable();
             $table->boolean('cancel')->nullable();
