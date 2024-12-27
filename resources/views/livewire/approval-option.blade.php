@@ -140,43 +140,44 @@
             @endpush
 
         </x-card>
-        <x-card title="Tambahan">
-            <div class="flex flex-col gap-6">
-                <div class="text-gray-700">
-                    <label for="approvalOrder" class="block font-medium mb-2">
-                        {{ $approveAfter }}
-                    </label>
-                    <select wire:model.live="approvalOrder" id="approvalOrder" @disabled(count($roles) < 2)
-                        class="w-full px-4 py-2 border rounded-md focus:outline-none  focus:ring focus:ring-blue-300">
-                        <option value="" selected>Pilih urutan persetujuan...</option>
-                        @foreach (range(1, count($roles)) as $index)
-                            <option value="{{ $index }}">Setelah Persetujuan ke-{{ $index }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('approvalOrder')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                @if ($approvalOrder)
-                    <div class="text-gray-700 ">
-                        <label for="cancelApprovalOrder" class="block font-medium mb-2">
-                            Tentukan setelah persetujuan keberapa penulis dapat membatalkan {{ $tipe }}
+        @if ($tipe !== 'transaksi')
+            <x-card title="Tambahan">
+                <div class="flex flex-col gap-6">
+                    <div class="text-gray-700">
+                        <label for="approvalOrder" class="block font-medium mb-2">
+                            {{ $approveAfter }}
                         </label>
-                        <select wire:model.live="cancelApprovalOrder" id="cancelApprovalOrder"
-                            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-red-300">
+                        <select wire:model.live="approvalOrder" id="approvalOrder" @disabled(count($roles) < 2)
+                            class="w-full px-4 py-2 border rounded-md focus:outline-none  focus:ring focus:ring-blue-300">
                             <option value="" selected>Pilih urutan persetujuan...</option>
-                            @foreach (range($approvalOrder + 1, count($roles)) as $index)
+                            @foreach (range(1, count($roles)) as $index)
                                 <option value="{{ $index }}">Setelah Persetujuan ke-{{ $index }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('cancelApprovalOrder')
+                        @error('approvalOrder')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
-                @endif
-                {{-- 
+                    @if ($approvalOrder)
+                        <div class="text-gray-700 ">
+                            <label for="cancelApprovalOrder" class="block font-medium mb-2">
+                                Tentukan setelah persetujuan keberapa penulis dapat membatalkan {{ $tipe }}
+                            </label>
+                            <select wire:model.live="cancelApprovalOrder" id="cancelApprovalOrder"
+                                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-red-300">
+                                <option value="" selected>Pilih urutan persetujuan...</option>
+                                @foreach (range($approvalOrder + 1, count($roles)) as $index)
+                                    <option value="{{ $index }}">Setelah Persetujuan ke-{{ $index }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('cancelApprovalOrder')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    @endif
+                    {{-- 
                     <div class="text-gray-700">
                         <label for="finalizerRole" class="block font-medium mb-2">
                             Pilih jabatan yang menyelesaikan permintaan
@@ -195,10 +196,9 @@
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
                     </div> --}}
-            </div>
-        </x-card>
-
-
+                </div>
+            </x-card>
+        @endif
     </div>
 
     @push('scripts')

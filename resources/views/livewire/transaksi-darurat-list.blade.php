@@ -1,6 +1,6 @@
 <div>
     <table class="w-full border-3 border-separate border-spacing-y-4">
-        {{ $role_name }} 
+        {{ $role_name }}
         <thead>
             <tr class="text-white bg-primary-950 uppercase">
                 <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
@@ -58,17 +58,17 @@
                             @if (!empty($item['bukti']))
                                 <!-- Display uploaded proof preview with remove icon -->
                                 <div class="relative inline-block">
-                                    <a href="{{ is_string($item['bukti']) ? asset('storage/buktiTransaksi/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
+                                    <a href="{{ is_string($item['bukti']) ? (Str::contains($item['bukti'], 'http') ? $item['bukti'] : asset('storage/buktiTransaksi/' . $item['bukti'])) : $item['bukti']->temporaryUrl() }}"
                                         download="{{ is_string($item['bukti']) ? pathinfo($item['bukti'], PATHINFO_BASENAME) : $item['bukti']->getClientOriginalName() }}">
-                                        <img src="{{ is_string($item['bukti']) ? asset('storage/buktiTransaksi/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
+                                        <img src="{{ is_string($item['bukti']) ? (Str::contains($item['bukti'], 'http') ? $item['bukti'] : asset('storage/buktiTransaksi/' . $item['bukti'])) : $item['bukti']->temporaryUrl() }}"
                                             alt="Bukti" class="w-16 h-16 rounded-md">
                                     </a>
-                                    @role('Penanggung Jawab')
+                                    {{-- @role('Penanggung Jawab')
                                         <button wire:click="removePhoto({{ $index }})"
                                             class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600  text-white rounded-full w-5 h-5 text-xs">
                                             &times;
                                         </button>
-                                    @endrole
+                                    @endrole --}}
                                 </div>
                             @else
                                 <!-- Show upload button if no file is selected -->
@@ -99,8 +99,14 @@
                                     </button>
 
                                     {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
-                                @elseif ($item['bukti'] && auth()->user()->hasRole('Pejabat Pelaksana Teknis Kegiatan') && $item['pptk_isapprove'] && !$item['pj_isapprove'])
-                                    <button onclick="confirmApproval({{ $index }}, 'Pejabat Pelaksana Teknis Kegiatan')"
+                                @elseif (
+                                    $item['bukti'] &&
+                                        auth()->user()->hasRole('Pejabat Pelaksana Teknis Kegiatan') &&
+                                        $item['pptk_isapprove'] &&
+                                        !$item['pj_isapprove']
+                                )
+                                    <button
+                                        onclick="confirmApproval({{ $index }}, 'Pejabat Pelaksana Teknis Kegiatan')"
                                         class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
                                         Approve PPTK
                                     </button>

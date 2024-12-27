@@ -86,17 +86,26 @@ class DatabaseSeeder extends Seeder
         }
 
 
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
             $vendorid = Toko::inRandomOrder()->first()->id;
+            $user = User::whereNotIn('id', [1, 2])->inRandomOrder()->first();
+            $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('jenis', 'langsung')
+                ->where('unit_id', $user->unitKerja->parent_id ? $user->unitKerja->parent_id  : $user->unitKerja->id)
+                ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
+                ->latest()
+                ->first();
+            $true = $faker->boolean;
             TransaksiStok::create([
                 'kode_transaksi_stok' => $faker->unique()->numerify('TRX#####'),
                 // 'tipe' => $faker->randomElement(['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']),
                 'tipe' => $i < 6 ? 'Pemasukan' : 'Penggunaan Langsung',
                 'merk_id' => MerkStok::inRandomOrder()->first()->id,
                 'vendor_id' => $vendorid,
-                'user_id' => User::inRandomOrder()->first()->id,
+                'user_id' => $user->id,
                 'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
-                'kontrak_id' => $i < 6 ? $vendorid : null,
+                'kontrak_id' => $true ? $vendorid : null,
+                'img' => $true ? null : $faker->imageUrl,
+                'approval_configuration_id' => $true ? null : $latestApprovalConfiguration->id,
                 'tanggal' => strtotime(date('Y-m-d H:i:s')),
                 'jumlah' => $faker->numberBetween(1, 100),
                 'deskripsi' => $faker->sentence(),
