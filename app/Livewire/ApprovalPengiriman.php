@@ -42,7 +42,13 @@ class ApprovalPengiriman extends Component
     public $approvalFiles = []; // To hold multiple uploaded files
     public $files = [], $arrayfiles; // To hold multiple uploaded files
 
+    protected $listeners = ['eventName' => 'statusAppPenerima'],$receivedData;
 
+    public function handleEvent($data)
+    {
+        // Handle the event and update the component's state
+        $this->receivedData = $data;
+    }
 
     public function updatedNewApprovalFiles()
     {
@@ -171,10 +177,11 @@ class ApprovalPengiriman extends Component
                 $previousUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
         }
 
-        $this->indikatorPenerima = $this->checkApprovPenerimaBarang($this->pengiriman->id);
+        $this->indikatorPenerima = $this->receivedData ?? $this->checkApprovPenerimaBarang($this->pengiriman->id);
+        $this->checkPreviousApproval = $this->CheckApproval();
     }
 
-    public $indikatorPenerima;
+    public $indikatorPenerima, $checkPreviousApproval;
 
     public function checkApprovPenerimaBarang($id)
     {
@@ -294,8 +301,25 @@ class ApprovalPengiriman extends Component
         $this->pengiriman->save();
     }
 
-    public function CheckApproval(){
+    public function CheckApproval()
+    {
+        $urutanApproval = collect(['Penerima Barang','Pemeriksa Barang','Pejabat Pelaksana Teknis Kegiatan','Pejabat Pembuat Komitmen']);
+        // return $this->pengiriman->persetujuan()->get();
+        $index = $urutanApproval->search(function ($item) {
+            return $item === $this->roles;
+        });
+        $previousElement = $urutanApproval->filter(function ($item, $key) use ($index) {
+            return $key === $index - 1;
+        })->first();
 
+        // return $previousElement;
+        return $this->pengiriman->whereHas(
+            'persetujuan',
+            fn($query) => $query->where('status', 1)->whereHas(
+                'user',
+                fn($query1) => $query1->role($previousElement)
+            )
+        )->get();
     }
 
     public function ApprovePPKandFinish()

@@ -3,6 +3,7 @@
 use App\Models\Aset;
 use App\Models\Option;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 
 // app/Helpers/helpers.php
@@ -189,10 +190,17 @@ if (!function_exists('formatRole')) {
 if (!function_exists('canViewAdditionalUsers')) {
   function canViewAdditionalUsers($user)
   {
-    $authUser = Auth::user();
-    return $authUser->unit_id == null ||
-      $user->unitKerja->id == $authUser->unit_id && $user->unitKerja->parent_id === null;
 
-    dd($authUser);
+    // return $authUser->unit_id == null ||
+    //   $user->unitKerja->id == $authUser->unit_id && $user->unitKerja->parent_id === null;
+    // Periksa role dari pengguna yang sedang login
+    $authUser = Auth::user();
+    $userRoles = $user->getRoleNames();
+    // Role yang diizinkan
+    $allowedRoles = ['superadmin', 'Kepala Unit', 'Kepala Suku Dinas'];
+
+    // Cek apakah role pengguna termasuk dalam allowedRoles
+    return $userRoles->intersect($allowedRoles)->isNotEmpty();
+    // dd($authUser->roles);
   }
 }

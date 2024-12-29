@@ -19,6 +19,7 @@
     "dependencies": {
         "apexcharts": "^4.0.0",
         "select2": "^4.1.0-rc.0",
+        "sortablejs": "^1.15.6",
         "sweetalert2": "^11.6.13"
     }
 }

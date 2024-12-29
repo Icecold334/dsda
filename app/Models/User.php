@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\UnitKerja;
 use App\Models\LokasiStok;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -69,6 +70,10 @@ class User extends Authenticatable
     public function persetujuanPermintaan()
     {
         return $this->hasMany(PersetujuanPermintaanStok::class, 'user_id');
+    }
+    public function persetujuanPeminjaman()
+    {
+        return $this->hasMany(PersetujuanPeminjamanAset::class, 'user_id');
     }
     /**
      * Get the attributes that should be cast.

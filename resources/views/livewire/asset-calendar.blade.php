@@ -84,6 +84,24 @@
                                 </div>
                             @endif
                         @endforeach
+                        @foreach ($peminjamans as $peminjaman)
+                            {{-- @dump($day['date_strtotime'], $peminjaman->tanggal_peminjaman, $day['date_strtotime'] == $peminjaman->tanggal_peminjaman) --}}
+                            @php
+                                $showPeminjaman = false;
+
+                                if ($peminjaman->detailPeminjaman->tanggal_peminjaman == $day['date_strtotime']) {
+                                    $showPeminjaman = true;
+                                }
+                            @endphp
+                            @if ($showPeminjaman)
+                                <div class="bg-danger-100 p-2 rounded-lg mb-1">
+                                    <div class="font-bold">{{ $peminjaman->aset->nama }}</div>
+                                    <div class="text-sm text-gray-600">
+                                        {{ $peminjaman->detailPeminjaman->keterangan }}
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
                     </td>
 
                     <td class="border border-gray-300 px-4 py-2">

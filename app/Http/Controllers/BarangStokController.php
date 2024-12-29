@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MerkStok;
 use App\Models\BarangStok;
 use Illuminate\Http\Request;
 
@@ -12,16 +13,21 @@ class BarangStokController extends Controller
      */
     public function index()
     {
-        $barangs = BarangStok::all();
-        return view('barang.index', compact('barangs'));
+        // $barangs = BarangStok::all();
+        return view('barang.index');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($tipe, $id)
     {
-        //
+        if ($tipe === 'stok') {
+            // Jika tipe adalah stok, dapatkan data BarangStok berdasarkan ID
+            $stok = MerkStok::findOrFail($id);
+            return view('barang.create', compact('tipe', 'id', 'stok'));
+        }
+        return view('barang.create', compact('tipe', 'id'));
     }
 
     /**
@@ -37,7 +43,8 @@ class BarangStokController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $barang = Barangstok::find($id);
+        return view('barang.show', compact(var_name: 'barang'));
     }
 
     /**

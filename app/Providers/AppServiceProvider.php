@@ -19,13 +19,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-
-        // Auth::loginUsingId(8);
-        // Auth::loginUsingId(7);
-        // Auth::loginUsingId(25);
-        // Auth::loginUsingId(22);
-        // Auth::loginUsingId(7);
-        // Auth::loginUsingId(22);
-
+        // Auth::loginUsingId(1); //superadmin
+        // Auth::loginUsingId(10); //kepala unit
+        // Auth::loginUsingId(207);
+        // Auth::loginUsingId(118); //kepala suku dinas
+        // Auth::loginUsingId(8); //penanggung jawab
+        // Auth::loginUsingId(194); // seksi 
+        // Auth::loginUsingId(193); //sudin Sumber Daya Air Kota Administrasi Jakarta Timur
     }
 }

@@ -56,6 +56,47 @@
         feedback('Berhasil', "{{ session('success') }}", 'success');
     </script>
 @endif
+@if (session('error'))
+    <script type="module">
+        feedback('Gagal', "{{ session('error') }}", 'error');
+    </script>
+@endif
+
+@if (session('tanya'))
+    <script type="module">
+        // SweetAlert pertama: Konfirmasi tambah permintaan
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Tambah Permintaan?',
+                text: "Apakah Anda ingin membuat permintaan lagi?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Jika pilih "Ya", munculkan alert kedua
+                    Swal.fire({
+                        title: 'Layanan Apa yang Dipilih?',
+                        text: "Silakan pilih jenis layanan:",
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Permintaan',
+                        cancelButtonText: 'Peminjaman'
+                    }).then((choice) => {
+                        if (choice.isConfirmed) {
+                            // Jika pilih "Permintaan", redirect ke halaman permintaan umum
+                            window.location.href = "/permintaan/add/permintaan/1";
+                        } else {
+                            // Jika pilih "Peminjaman", redirect ke halaman peminjaman
+                            window.location.href = "/permintaan/add/peminjaman/1";
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+@endif
 @stack('scripts')
 
 </html>

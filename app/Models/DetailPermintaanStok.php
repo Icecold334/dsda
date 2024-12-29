@@ -21,6 +21,11 @@ class DetailPermintaanStok extends Model
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id');
     }
+
+    public function kategoriStok()
+    {
+        return $this->belongsTo(KategoriStok::class, 'kategori_id');
+    }
     public function jenisStok()
     {
         return $this->belongsTo(JenisStok::class, 'jenis_id');
@@ -39,5 +44,10 @@ class DetailPermintaanStok extends Model
     public function persetujuan()
     {
         return $this->hasMany(PersetujuanPermintaanStok::class, 'detail_permintaan_id');
+    }
+
+    public function opsiPersetujuan()
+    {
+        return $this->belongsTo(OpsiPersetujuan::class, 'approval_configuration_id');
     }
 }

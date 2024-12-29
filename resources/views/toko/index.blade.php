@@ -1,5 +1,5 @@
 <x-body>
-    <div class="flex justify-between py-2 mb-3">
+    {{-- <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">Toko/Distributor Aset</h1>
         <div>
@@ -9,20 +9,6 @@
                 Tambah Toko</a>
         </div>
     </div>
-
-    @if (session('success'))
-        <script type="module">
-            // document.addEventListener('DOMContentLoaded', function() {
-            //     Swal.fire({
-            //         title: 'Success!',
-            //         text: "{{ session('success') }}",
-            //         icon: 'success',
-            //         confirmButtonText: 'Okay'
-            //     });
-            // });
-            feedback('Berhasil', "{{ session('success') }}", 'success');
-        </script>
-    @endif
 
     <table class="w-full border-3 border-separate border-spacing-y-4">
         <thead>
@@ -50,7 +36,7 @@
                     <td class="px-6 py-3">{{ $toko->petugas }}</td>
                     <td class="px-6 py-3">{{ $toko->keterangan }}</td>
                     {{-- <td class="text-center px-6 py-3">{{ $toko->aset->count() }}</td> --}}
-                    <td class="text-center px-6 py-3">
+    {{-- <td class="text-center px-6 py-3">
                         <!-- Link to aset.index with tooltip -->
                         <a href="{{ route('aset.index', ['toko_id' => $toko->id]) }}"
                             class="text-primary-950 hover:underline"
@@ -78,6 +64,9 @@
                 </tr>
             @endforeach
         </tbody>
-    </table>
+    </table> --}}
+    <div>
+        <livewire:data-toko />
+    </div>
 
 </x-body>

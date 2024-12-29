@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Aset;
 use Livewire\Component;
 use App\Models\Kategori;
 use App\Models\UnitKerja;
@@ -55,73 +56,79 @@ class AddKategori extends Component
     }
     public function removeKategori()
     {
-        if ($this->tipe == 'utama') {
-            Kategori::destroy($this->id);
-        } else {
-            Kategori::destroy($this->id);
+        // Cek apakah ID kategori sedang digunakan di tabel aset
+        $isUsedInAset = Aset::where('kategori_id', $this->id)->exists();
+
+        if ($isUsedInAset) {
+            // dd($isUsedInAset);
+            // Berikan pesan error jika kategori sedang digunakan
+            return redirect()->route('kategori.index')->with('error', 'Kategori ini sedang digunakan di tabel aset dan tidak dapat dihapus.');
         }
-        return redirect()->route('kategori.index');
+        // Jika tidak digunakan, hapus kategori
+        Kategori::destroy($this->id);
+
+        // Redirect dengan pesan sukses
+        return redirect()->route('kategori.index')->with('success', 'Kategori berhasil dihapus.');
     }
 
     public function saveKategori()
     {
-// <<<<<<< support
-//         // Tentukan apakah kategori ini "utama" atau "sub"
-//         $data = [
-//             'nama' => $this->tipe == 'utama' ? $this->utama : $this->sub,
-//             'keterangan' => $this->keterangan,
-//         ];
+        // <<<<<<< support
+        //         // Tentukan apakah kategori ini "utama" atau "sub"
+        //         $data = [
+        //             'nama' => $this->tipe == 'utama' ? $this->utama : $this->sub,
+        //             'keterangan' => $this->keterangan,
+        //         ];
 
-//         if ($this->tipe != 'utama') {
-//             $data['parent_id'] = $this->parent_id;
-//         }
+        //         if ($this->tipe != 'utama') {
+        //             $data['parent_id'] = $this->parent_id;
+        //         }
 
-//         // Jika ID diberikan, cari kategori
-//         $kategori = Kategori::find($this->id);
+        //         // Jika ID diberikan, cari kategori
+        //         $kategori = Kategori::find($this->id);
 
-//         // Set user_id
-//         $data['user_id'] = $kategori ? $kategori->user_id : Auth::id();
+        //         // Set user_id
+        //         $data['user_id'] = $kategori ? $kategori->user_id : Auth::id();
 
-//         // Update atau create dengan data
-//         Kategori::updateOrCreate(['id' => $this->id ?? 0], $data);
+        //         // Update atau create dengan data
+        //         Kategori::updateOrCreate(['id' => $this->id ?? 0], $data);
 
-//         return redirect()->route('kategori.index');
-// =======
+        //         return redirect()->route('kategori.index');
+        // =======
         // Siapkan data kategori berdasarkan tipe
         $data = [
             'user_id' => Auth::id(),
             'nama' => $this->tipe === 'utama' ? $this->utama : $this->sub,
             'keterangan' => $this->keterangan,
         ];
-    
+
         // Tambahkan parent_id jika tipe adalah sub
         if ($this->tipe === 'sub') {
             $data['parent_id'] = $this->parent_id;
         }
-    
+
         // Simpan atau update data kategori
         $kategori = Kategori::updateOrCreate(
             ['id' => $this->id ?? 0], // Cek data berdasarkan ID
             $data
         );
-    
+
         // Tentukan pesan keberhasilan
         $message = $kategori->wasRecentlyCreated
             ? 'Berhasil Menambah Kategori'
             : 'Berhasil Mengubah Kategori';
-            
-            if ($kategori->parent_id===null) {
-                return redirect()->route('kategori.index')->with('success', $message);
-            }
-                
-        if ($kategori->wasRecentlyCreated && $this->tipe==='sub'){
-            return redirect()->route('kategori.index')->with('success', 'Berhasil Menambah Sub Kategori');
+
+        if ($kategori->parent_id === null) {
+            return redirect()->route('kategori.index')->with('success', $message);
         }
-        else {
+
+        if ($kategori->wasRecentlyCreated && $this->tipe === 'sub') {
+            return redirect()->route('kategori.index')->with('success', 'Berhasil Menambah Sub Kategori');
+        } else {
             return redirect()->route('kategori.index')->with('success', 'Berhasil Mengubah Sub Kategori');
         }
-//        return redirect()->route('kategori.index')->with('success', $message);
-// >>>>>>> main
+        //        return redirect()->route('kategori.index')->with('success', $message);
+        // >>>>>>> main
     }
 
     public function render()

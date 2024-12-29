@@ -12,8 +12,8 @@ class UnitKerjaController extends Controller
      */
     public function index()
     {
-        $unitKerja = UnitKerja::with('children')->whereNull('parent_id')->get();
-        return view('unit-kerja.index', compact('unitKerja'));
+        // $unitKerja = UnitKerja::with('children')->whereNull('parent_id')->get();
+        return view('unit-kerja.index');
     }
 
     /**

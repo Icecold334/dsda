@@ -29,6 +29,7 @@ use App\Models\PermintaanStok;
 // use App\Models\DetailPengirimanStok;
 // use App\Models\TransaksiDaruratStok;
 use App\Models\MetodePengadaan;
+use App\Models\OpsiPersetujuan;
 use Illuminate\Database\Seeder;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\DB;
@@ -55,6 +56,7 @@ class DatabaseSeeder extends Seeder
             BaseInventaSeeder::class,
             BarangStokSeeder::class,
             MerkStokSeeder::class,
+            WaktuPeminjamanSeeder::class,
         ]);
         $methods = [
             'Pengadaan Langsung',
@@ -148,6 +150,11 @@ class DatabaseSeeder extends Seeder
                 'tanggal_permintaan' => strtotime(Carbon::now()),
                 'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
                 'kategori_id' => KategoriStok::inRandomOrder()->first()->id,
+                'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')
+                    ->where('unit_id', $parentUnit->id)
+                    ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
+                    ->latest()
+                    ->first()->id,
                 'jenis_id' => 3, // unit_id diambil dari unit induk
                 'unit_id' => $parentUnit->id, // unit_id diambil dari unit induk
                 'keterangan' => $faker->paragraph(),

@@ -400,6 +400,15 @@ class ListPengirimanForm extends Component
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
 
         $this->hiddenButtons[$index] = true;
+
+        // $data['bagian_id'] && $data['posisi_id'] && $data['bukti']
+        // $this->dispatch('statusAppPenerima', data: 'cek' );
+        return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
+    }
+
+    public function refreshData()
+    {
+        // Simulate fetching new data
     }
 
     public function updateBagian($index, $bagianId)

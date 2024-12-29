@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetailPeminjamanAset;
 use App\Models\DetailPermintaanStok;
 use App\Models\PermintaanStok;
 use Illuminate\Http\Request;
@@ -16,19 +17,30 @@ class PermintaanStokController extends Controller
         $jenis_id = is_null($tipe) || $tipe === 'umum' ? 3 : ($tipe === 'spare-part' ? 2 : 1);
 
 
-        $permintaans = DetailPermintaanStok::where('jenis_id', $jenis_id)->whereHas('unit', function ($unit) {
+        $permintaan = DetailPermintaanStok::where('jenis_id', $jenis_id)->whereHas('unit', function ($unit) {
+            return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        })->orderBy('id', 'desc')->get();
+        $peminjaman = DetailPeminjamanAset::whereHas('unit', function ($unit) {
             return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
         })->orderBy('id', 'desc')->get();
 
-        return view('permintaan.index', compact('permintaans'));
+        $permintaans = is_null($tipe) || $tipe === 'umum' ?  $permintaan->merge($peminjaman) : $permintaan;
+
+        return view('permintaan.index', compact('permintaans', 'tipe'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create($tipe)
+    public function create($tipe, $next = 0)
     {
-        return view('permintaan.create', compact('tipe'));
+        $last = null;
+        if ($next) {
+            $model = $tipe === 'permintaan' ? '\App\Models\DetailPermintaanStok' : '\App\Models\DetailPeminjamanAset';
+            $last = app($model)::latest()->first();
+        }
+
+        return view('permintaan.create', compact('tipe', 'last'));
     }
 
     /**
@@ -42,10 +54,11 @@ class PermintaanStokController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $tipe = '', string $id)
     {
-        $permintaan = DetailPermintaanStok::find($id);
-        return view('permintaan.show', compact('permintaan'));
+
+        $permintaan = $tipe == 'permintaan' ? DetailPermintaanStok::find($id) : DetailPeminjamanAset::find($id);
+        return view('permintaan.show', compact('permintaan', 'tipe'));
     }
 
     /**
