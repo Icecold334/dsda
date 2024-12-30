@@ -205,10 +205,13 @@
     @hasanyrole('Pejabat Pelaksana Teknis Kegiatan|Pejabat Pembuat Komitmen')
     <div class="flex">
         <div class="flex space-x-2 justify-center w-full">
-            <button type="button"
+            <button 
+                type="button"
                 onclick="confirmApprove()"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200
-                {{ !count($checkPreviousApproval)? '' : ( 1 ? 'hidden' : '')  }}">
+                @class([
+                    'text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200',
+                    'hidden' => count($checkPreviousApproval) > 0 && count($CheckCurrentApproval) > 0,
+                ])>
                 Setuju
             </button>
         </div>

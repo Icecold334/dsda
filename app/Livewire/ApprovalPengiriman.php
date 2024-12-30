@@ -6,9 +6,11 @@ use Carbon\Carbon;
 use App\Models\Stok;
 use App\Models\User;
 use Livewire\Component;
+use App\Models\Persetujuan;
 use App\Models\PengirimanStok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\PersetujuanPengirimanStok;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 class ApprovalPengiriman extends Component
@@ -179,9 +181,10 @@ class ApprovalPengiriman extends Component
 
         $this->indikatorPenerima = $this->receivedData ?? $this->checkApprovPenerimaBarang($this->pengiriman->id);
         $this->checkPreviousApproval = $this->CheckApproval();
+        $this->CheckCurrentApproval = $this->CheckCurrentApproval();
     }
 
-    public $indikatorPenerima, $checkPreviousApproval;
+    public $indikatorPenerima, $checkPreviousApproval, $CheckCurrentApproval;
 
     public function checkApprovPenerimaBarang($id)
     {
@@ -313,13 +316,36 @@ class ApprovalPengiriman extends Component
         })->first();
 
         // return $previousElement;
-        return $this->pengiriman->whereHas(
-            'persetujuan',
-            fn($query) => $query->where('status', 1)->whereHas(
+        // return $this->pengiriman->whereHas(
+        //     'persetujuan',
+        //     fn($query) => $query->where('status', 1)->whereHas(
+        //         'user',
+        //         fn($query1) => $query1->role($previousElement)
+        //     )
+        // )->get();
+
+        return PersetujuanPengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->where('status', 1)->whereHas(
                 'user',
                 fn($query1) => $query1->role($previousElement)
-            )
-        )->get();
+            )->get();
+    }
+
+    public function CheckCurrentApproval()
+    {
+        $currentRole = $this->roles;
+
+        // return $previousElement;
+        // return $this->pengiriman->whereHas(
+        //     'persetujuan',
+        //     fn($query) => $query->where('status', 1)->whereHas(
+        //         'user',
+        //         fn($query1) => $query1->role($currentRole)
+        //     )
+        // )->get();
+        return PersetujuanPengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->where('status', 1)->whereHas(
+                'user',
+                fn($query1) => $query1->role($currentRole)
+            )->get();
     }
 
     public function ApprovePPKandFinish()
