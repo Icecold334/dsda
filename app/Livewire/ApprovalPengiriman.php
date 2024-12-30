@@ -302,6 +302,7 @@ class ApprovalPengiriman extends Component
             'status' => true
         ]);
         $this->pengiriman->save();
+        return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
     }
 
     public function CheckApproval()
