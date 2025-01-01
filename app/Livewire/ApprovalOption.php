@@ -27,18 +27,18 @@ class ApprovalOption extends Component
         $unit_id = $this->unit_id;
         $this->rolesAvailable = User::whereHas('unitKerja', function ($user) use ($unit_id) {
             return $user->where('parent_id', $unit_id)->orWhere('unit_id', $unit_id);
-        })->get()->pluck('roles')->flatten()->unique('id')->values();
+        })
+            ->get()
+            ->pluck('roles') // Ambil seluruh data role dari relasi
+            ->flatten()
+            ->unique('id')
+            ->values();
         $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('unit_id', $this->unit_id)
             ->where('jenis', $this->jenis)
             ->latest()
             ->first();
         $this->roles = $latestApprovalConfiguration->jabatanPersetujuan->map(function ($jabatan) {
-            $data = [
-                'id' => $jabatan->jabatan->id,
-                'name' => $jabatan->jabatan->name,
-                'limit' => $jabatan->limit,
-            ];
-            return $data;
+            return $jabatan->jabatan; // Pastikan relasi ke model Role di JabatanPersetujuan benar
         });
         $this->rolesAvailable = collect($this->rolesAvailable)
             ->reject(fn($role) => $role->id == $this->selectedRole)
@@ -55,20 +55,15 @@ class ApprovalOption extends Component
 
     public function addRole()
     {
-        // $this->validate([
-        //     'selectedRole' => 'required|integer', // Pastikan selectedRole adalah ID
-        // ]);
+        $this->validate([
+            'selectedRole' => 'required|integer', // Pastikan selectedRole adalah ID
+        ]);
 
         // Pastikan role yang dipilih tidak duplikat di dalam $this->roles
-        if (!collect($this->roles)->contains(fn($role) => $role['id'] == $this->selectedRole)) {
+        if (!collect($this->roles)->contains(fn($role) => $role->id == $this->selectedRole)) {
             $role = collect($this->rolesAvailable)->firstWhere('id', $this->selectedRole);
             if ($role) {
-                $data = [
-                    'id' => $role->id,
-                    'name' => $role->name,
-                    'limit' => 1,
-                ];
-                $this->roles[] = $data; // Tambahkan role ke daftar roles
+                $this->roles[] = $role; // Tambahkan role ke daftar roles
             }
         }
 
@@ -85,46 +80,34 @@ class ApprovalOption extends Component
 
     public function removeRole($index)
     {
-        // Ambil role yang dihapus berdasarkan indeks
-        $removedRole = collect($this->roles)->get($index); // Gunakan get() karena $this->roles adalah Collection
+        // Hapus role dari daftar roles berdasarkan indeks
+        $removedRole = collect($this->roles)->get($index); // Ambil role berdasarkan indeks
+        $this->roles = collect($this->roles)->filter(function ($item, $key) use ($index) {
+            return $key !== $index; // Hapus item dengan indeks yang sesuai
+        })->values(); // Reindex koleksi
 
-        // Hapus role dari daftar roles
-        $this->roles = collect($this->roles)->filter(function ($role, $key) use ($index) {
-            return $key !== $index; // Hapus item berdasarkan indeks
-        })->values(); // Reset indeks setelah filter
-
-        // Perbarui daftar rolesAvailable
-        $unit_id = $this->unit_id; // Pastikan unit_id tersedia
+        // Ambil ulang data rolesAvailable dari model
+        $unit_id = $this->unit_id; // Pastikan $unit_id sudah didefinisikan sebelumnya
         $this->rolesAvailable = User::whereHas('unitKerja', function ($query) use ($unit_id) {
-            $query->where('parent_id', $unit_id)->orWhere('id', $unit_id);
+            $query->where('parent_id', $unit_id)->orWhere('unit_id', $unit_id);
         })
             ->get()
-            ->pluck('roles') // Ambil seluruh role dari relasi
+            ->pluck('roles') // Ambil seluruh data role dari relasi
             ->flatten()
-            ->unique('id') // Hilangkan duplikasi berdasarkan ID
-            ->reject(function ($role) {
-                return collect($this->roles)->pluck('id')->contains($role['id']); // Hilangkan role yang sudah ada di $this->roles
-            })
-            ->values(); // Reset indeks setelah reject
+            ->unique('id')
+            ->reject(fn($role) => collect($this->roles)->pluck('id')->contains($role->id)) // Hilangkan role yang sudah ada di $this->roles
+            ->values();
     }
-
 
 
     public function updateRolesOrder($newOrder)
     {
         // Urutkan ulang daftar roles berdasarkan ID baru
         $this->roles = collect($newOrder)
-            ->map(function ($roleData) {
-                $existingRole = collect($this->roles)->firstWhere('id', $roleData['id']);
-                if ($existingRole) {
-                    $existingRole['limit'] = $roleData['limit']; // Perbarui limit
-                }
-                return $existingRole;
-            })
+            ->map(fn($id) => collect($this->roles)->firstWhere('id', $id))
             ->filter() // Hapus nilai null jika ID tidak ditemukan
-            ->unique('id') // Pastikan tidak ada duplikasi ID
+            ->unique('id') // Hapus role dengan ID yang sama
             ->values(); // Reset indeks array
-
     }
 
 
@@ -148,7 +131,6 @@ class ApprovalOption extends Component
             \App\Models\JabatanPersetujuan::create([
                 'opsi_persetujuan_id' => $approvalConfiguration->id,
                 'jabatan_id' => $role['id'],
-                'limit' => $role['limit'],
                 'urutan' => $index + 1,
             ]);
         }
@@ -165,16 +147,6 @@ class ApprovalOption extends Component
 
         // session()->flash('success', 'Konfigurasi persetujuan berhasil disimpan!');
     }
-
-    public function rolePeople($index, $value)
-    {
-        $rolesArray = collect($this->roles)->toArray(); // Konversi ke array
-        $rolesArray[$index]['limit'] = (int)$value; // Perbarui nilai
-        $this->roles = collect($rolesArray); // Konversi kembali ke koleksi
-
-    }
-
-
 
     public function render()
     {

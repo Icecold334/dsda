@@ -63,7 +63,7 @@ class DataLokasiStok extends Component
             })
             // ->get()
             // ->toArray();
-            ->paginate(10); // Ganti get() dengan paginate()
+            ->paginate(5); // Ganti get() dengan paginate()
     }
 
     private function filterByParentUnit($query, $parentUnitId)

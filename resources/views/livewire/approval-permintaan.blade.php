@@ -16,7 +16,8 @@
         @foreach ($roleLists as $roleKey => $users)
             <div>
                 <div class="block font-semibold text-center mb-2 text-gray-900">
-                    {{ $roleKey }}
+                    {{-- {{ $roleKey }} --}}
+                    {{ ucwords(str_replace('-', ' ', $roleKey)) }}
                 </div>
                 <table class="w-full mt-3">
                     @foreach ($users as $user)

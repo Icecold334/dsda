@@ -7,7 +7,7 @@
         </h1>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <x-card title="Permintaan" class="">
 
             <div class="flex flex-col  gap-3">
@@ -112,8 +112,8 @@
 
 
         </x-card>
-        <x-card title="Transaksi" class="">
-            <div class="flex items-center flex-col gap-3">
+        {{-- <x-card title="Transaksi" class="">
+            <div class="flex flex-col gap-3">
                 <a href="/option-approval/transaksi/langsung"
                     class="block items-center p-4 w-full shadow-lg bg-white border border-gray-200 rounded-lg hover:bg-gray-200 dark:bg-gray-800 transition duration-200 dark:border-gray-700 dark:hover:bg-gray-700 vertical-center">
                     <div class="content">
@@ -145,6 +145,6 @@
                     </div>
                 </a>
             </div>
-        </x-card>
+        </x-card> --}}
     </div>
 </x-body>

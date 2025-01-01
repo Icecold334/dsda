@@ -1,12 +1,12 @@
 <div>
-    <div class="flex justify-between py-2 mb-3 gap-28">
-        <h1 class="text-2xl w-2/3 font-bold text-primary-900 ">Pengaturan Persetujuan
+    <div class="flex justify-between py-2 mb-3">
+        <h1 class="text-2xl font-bold text-primary-900 ">Pengaturan Persetujuan
             {{ Str::title($tipe) }} {{ $jenis !== 'kdo' ? Str::title($jenis) : Str::upper($jenis) }}
             @if (auth()->user()->unitKerja)
                 {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
             @endif
         </h1>
-        <div class="">
+        <div>
             @if (collect($roles)->count() > 1)
                 <button type="submit" wire:click="saveApprovalConfiguration"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
@@ -28,7 +28,7 @@
                         @forelse ($roles as $index => $role)
                             <li
                                 class="flex items-center justify-between bg-white border rounded-md p-3 mb-2 {{ collect($roles)->count() > 1 ? 'cursor-move' : '' }}">
-                                <div class="flex space-x-3 items-center">
+                                <div class="flex space-x-3">
                                     @if (collect($roles)->count() > 1)
                                         <button type="button"
                                             class="text-secondary-500 text-sm rotate-90 hover:text-secondary-700">
@@ -38,36 +38,20 @@
                                     <div class="font-semibold">
                                         {{ $loop->iteration }}.
                                     </div>
-                                    <div class="hidden" id="id-role{{ $role['id'] }}">
-                                        {{ $role['id'] }}
+                                    <div class="hidden" id="id-role{{ $role->id }}">
+                                        {{ $role->id }}
                                     </div>
                                     <div class="font-semibold">
-                                        {{ $role['name'] }}
+                                        {{ $role->name }}
                                     </div>
-
                                 </div>
-                                <div class="flex items-center space-x-2">
-                                    <div class="flex items-center  space-x-2">
-                                        {{-- <label for="rolePeople{{ $index }}" class="text-gray-700 text-sm">Jumlah
-                                                Orang</label> --}}
-                                        <input type="number" wire:model="roles.{{ $index }}.limit"
-                                            data-tooltip-target="rolePeople{{ $index }}"
-                                            data-tooltip-placement="top"
-                                            wire:change="rolePeople({{ $index }}, $event.target.value)"
-                                            class="w-16  px-2 py-1 border rounded-md focus:border-0 focus:ring focus:ring-blue-300"
-                                            min="1" placeholder="1">
-                                        <div id="rolePeople{{ $index }}" role="tooltip"
-                                            class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                            Maksimal Orang Yang Dibutuhkan
-                                            <div class="tooltip-arrow" data-popper-arrow></div>
-                                        </div>
-                                    </div>
+                                <div>
+
                                     <button type="button" wire:click="removeRole({{ $index }})"
                                         class="text-red-500 hover:text-red-700">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </div>
-
                             </li>
                         @empty
                             <li class="flex items-center justify-center bg-white border rounded-md p-3 mb-2">
@@ -77,7 +61,6 @@
                             </li>
                         @endforelse
                     </ul>
-
                     <div class="text-gray-500 text-sm font-semibold">{{ $pesan }}</div>
                 </div>
 
@@ -88,7 +71,7 @@
                             class="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
                             <option value="" selected>Pilih Jabatan</option>
                             @foreach ($rolesAvailable as $role)
-                                <option value="{{ $role['id'] }}">{{ $role['name'] }}</option>
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
                             @endforeach
 
                         </select>
@@ -113,35 +96,25 @@
                     let sortable = new Sortable(document.getElementById('sortable-roles'), {
                         animation: 150,
                         onEnd: function(evt) {
-                            // Ambil data urutan baru berdasarkan elemen
+                            // Ambil urutan baru berdasarkan elemen ID
                             const newOrder = Array.from(evt.to.children).map(function(item) {
                                 const idElement = item.querySelector(
-                                    '[id^="id-role"]'
-                                ); // Cari elemen dengan ID yang dimulai dengan "id-role"
-                                const limitInput = item.querySelector(
-                                    'input[type="number"]'); // Cari input limit
+                                    '[id^="id-role"]'); // Cari elemen dengan ID dimulai dengan "id-role"
+                                return idElement ? idElement.textContent.trim() :
+                                    null; // Ambil nilai ID jika elemen ditemukan
+                            }).filter(Boolean); // Hapus null dari array
 
-                                return idElement ? {
-                                        id: idElement.textContent.trim(), // ID role
-                                        limit: limitInput ? parseInt(limitInput.value) || 1 :
-                                        1, // Ambil nilai limit atau default 1
-                                    } :
-                                    null; // Abaikan jika ID tidak ditemukan
-                            }).filter(Boolean); // Hapus elemen null dari array
-
-                            // console.log(newOrder); // Debugging untuk melihat data urutan baru
-
-                            // Kirim data ke Livewire untuk memperbarui urutan
-                            @this.call('updateRolesOrder', newOrder);
+                            // console.log(newOrder); // Debugging untuk melihat urutan baru
+                            @this.call('updateRolesOrder', newOrder); // Panggil Livewire untuk memperbarui urutan
                         },
                     });
                     // });
                 </script>
             @endpush
-
         </x-card>
-        @if ($tipe !== 'transaksi')
-            <x-card title="Tambahan">
+        <x-card title="Tambahan">
+            {{-- @if ($tipe == 'permintaan') --}}
+            @if (true)
                 <div class="flex flex-col gap-6">
                     <div class="text-gray-700">
                         <label for="approvalOrder" class="block font-medium mb-2">
@@ -162,7 +135,7 @@
                     @if ($approvalOrder)
                         <div class="text-gray-700 ">
                             <label for="cancelApprovalOrder" class="block font-medium mb-2">
-                                Tentukan setelah persetujuan keberapa penulis dapat membatalkan {{ $tipe }}
+                                Tentukan setelah persetujuan keberapa user dapat membatalkan
                             </label>
                             <select wire:model.live="cancelApprovalOrder" id="cancelApprovalOrder"
                                 class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-red-300">
@@ -197,8 +170,11 @@
                         @enderror
                     </div> --}}
                 </div>
-            </x-card>
-        @endif
+            @else
+            @endif
+        </x-card>
+
+
     </div>
 
     @push('scripts')

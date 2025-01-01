@@ -11,7 +11,11 @@ class JabatanPersetujuan extends Model
     use HasFactory;
 
     protected $table = 'jabatan_persetujuan'; // Nama tabel
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'opsi_persetujuan_id',
+        'jabatan_id',
+        'urutan',
+    ];
 
     /**
      * Relasi ke model OpsiPersetujuan

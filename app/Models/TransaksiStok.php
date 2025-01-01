@@ -40,13 +40,9 @@ class TransaksiStok extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function opsiPersetujuan()
-    {
-        return $this->belongsTo(OpsiPersetujuan::class, 'approval_configuration_id');
-    }
-
     public function approvals()
     {
         return $this->morphMany(Approval::class, 'approvable');
     }
+
 }

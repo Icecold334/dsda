@@ -377,24 +377,34 @@ class UnitSeeder extends Seeder
 
         $jenisList = ['umum', 'spare-part', 'material']; // Daftar jenis
         $tipe = 'permintaan'; // Tipe permintaan
+
         foreach ($this->units as $unitName => $unitData) {
             $unit = UnitKerja::where('nama', $unitName)->first();
+
+            // Ambil semua role untuk unit ini
             $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
                 $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
             })
                 ->get()
                 ->pluck('roles') // Ambil seluruh data role dari relasi
                 ->flatten()
-                ->unique('id'); // Konversi ke array
-            $selectedIndexes = ['Kepala Seksi/Subbagian', 'Kepala Unit/Suku Dinas']; // Indeks yang ingin diambil
-            $approvalRoles = $allRoles->whereIn('name', $selectedIndexes);
-            $approvalRoles = $approvalRoles->sortBy(function ($role) use ($selectedIndexes) {
-                return array_search($role->name, $selectedIndexes);
-            });
+                ->unique('id')
+                ->pluck('id') // Ambil hanya ID
+                ->toArray(); // Konversi ke array
 
-            $availableFinalizerRoles = $allRoles->whereNotIn('name', $selectedIndexes);
+            // Pilih 3 role pertama untuk approval
+            $approvalRoles = collect($allRoles)
+                ->shuffle()
+                ->take(3) // Ambil 3 role pertama
+                ->toArray();
 
-            $finalizerRole = $availableFinalizerRoles->shuffle()->first();
+            // Simpan roles ke $unitData
+            $unitData['roles'] = $approvalRoles;
+
+            // Filter role untuk finalizer
+            $availableFinalizerRoles = array_diff($allRoles, $approvalRoles);
+
+            $finalizerRole = Arr::random($availableFinalizerRoles);
 
             foreach ($jenisList as $jenis) {
                 // Simpan konfigurasi persetujuan
@@ -406,14 +416,15 @@ class UnitSeeder extends Seeder
                     'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
                     'urutan_persetujuan' => 1, // Urutan persetujuan pertama
                     'cancel_persetujuan' => 2, // Urutan pembatalan kedua
-                    'jabatan_penyelesai_id' => $finalizerRole->id, // Jabatan penyelesaian
+                    'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
                 ]);
 
                 // Simpan role untuk setiap opsi persetujuan
                 foreach ($approvalRoles as $index => $role) {
                     \App\Models\JabatanPersetujuan::create([
                         'opsi_persetujuan_id' => $approvalConfiguration->id,
-                        'jabatan_id' => $role->id,
+                        'jabatan_id' => $role,
+                        'urutan' => $index + 1,
                     ]);
                 }
             }
@@ -422,22 +433,31 @@ class UnitSeeder extends Seeder
         $tipe = 'peminjaman'; // Tipe permintaan
         foreach ($this->units as $unitName => $unitData) {
             $unit = UnitKerja::where('nama', $unitName)->first();
+
+            // Ambil semua role untuk unit ini
             $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
                 $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
             })
                 ->get()
                 ->pluck('roles') // Ambil seluruh data role dari relasi
                 ->flatten()
-                ->unique('id'); // Konversi ke array
-            $selectedIndexes = ['Kepala Seksi/Subbagian', 'Kepala Unit/Suku Dinas']; // Indeks yang ingin diambil
-            $approvalRoles = $allRoles->whereIn('name', $selectedIndexes);
-            $approvalRoles = $approvalRoles->sortBy(function ($role) use ($selectedIndexes) {
-                return array_search($role->name, $selectedIndexes);
-            });
+                ->unique('id')
+                ->pluck('id') // Ambil hanya ID
+                ->toArray(); // Konversi ke array
 
-            $availableFinalizerRoles = $allRoles->whereNotIn('name', $selectedIndexes);
+            // Pilih 3 role pertama untuk approval
+            $approvalRoles = collect($allRoles)
+                ->shuffle()
+                ->take(3) // Ambil 3 role pertama
+                ->toArray();
 
-            $finalizerRole = $availableFinalizerRoles->shuffle()->first();
+            // Simpan roles ke $unitData
+            $unitData['roles'] = $approvalRoles;
+
+            // Filter role untuk finalizer
+            $availableFinalizerRoles = array_diff($allRoles, $approvalRoles);
+
+            $finalizerRole = Arr::random($availableFinalizerRoles);
 
             foreach ($jenisList as $jenis) {
                 // Simpan konfigurasi persetujuan
@@ -449,99 +469,15 @@ class UnitSeeder extends Seeder
                     'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
                     'urutan_persetujuan' => 1, // Urutan persetujuan pertama
                     'cancel_persetujuan' => 2, // Urutan pembatalan kedua
-                    'jabatan_penyelesai_id' => $finalizerRole->id, // Jabatan penyelesaian
+                    'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
                 ]);
 
                 // Simpan role untuk setiap opsi persetujuan
                 foreach ($approvalRoles as $index => $role) {
                     \App\Models\JabatanPersetujuan::create([
                         'opsi_persetujuan_id' => $approvalConfiguration->id,
-                        'jabatan_id' => $role->id,
-                    ]);
-                }
-            }
-        }
-        $jenisList = ['langsung']; // Daftar jenis
-        $tipe = 'transaksi'; // Tipe permintaan
-        foreach ($this->units as $unitName => $unitData) {
-            $unit = UnitKerja::where('nama', $unitName)->first();
-            $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
-                $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
-            })
-                ->get()
-                ->pluck('roles') // Ambil seluruh data role dari relasi
-                ->flatten()
-                ->unique('id'); // Konversi ke array
-            $selectedIndexes = ['Penanggung Jawab', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen']; // Indeks yang ingin diambil
-            $approvalRoles = $allRoles->whereIn('name', $selectedIndexes);
-            $approvalRoles = $approvalRoles->sortBy(function ($role) use ($selectedIndexes) {
-                return array_search($role->name, $selectedIndexes);
-            });
-            $availableFinalizerRoles = $allRoles->whereNotIn('name', $selectedIndexes);
-
-            $finalizerRole = $availableFinalizerRoles->shuffle()->first();
-
-            foreach ($jenisList as $jenis) {
-                // Simpan konfigurasi persetujuan
-                $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
-                    'unit_id' => $unit->id,
-                    'uuid' => \Illuminate\Support\Str::uuid(), // Generate UUID unik
-                    'jenis' => $jenis,
-                    'tipe' => $tipe,
-                    'item' => 1,
-                    'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
-                    'urutan_persetujuan' => 1, // Urutan persetujuan pertama
-                    'cancel_persetujuan' => 2, // Urutan pembatalan kedua
-                    'jabatan_penyelesai_id' => $finalizerRole->id, // Jabatan penyelesaian
-                ]);
-
-                // Simpan role untuk setiap opsi persetujuan
-                foreach ($approvalRoles as $index => $role) {
-                    \App\Models\JabatanPersetujuan::create([
-                        'opsi_persetujuan_id' => $approvalConfiguration->id,
-                        'jabatan_id' => $role->id,
-                    ]);
-                }
-            }
-        }
-        $jenisList = ['pengiriman']; // Daftar jenis
-        $tipe = 'transkasi'; // Tipe permintaan
-        foreach ($this->units as $unitName => $unitData) {
-            $unit = UnitKerja::where('nama', $unitName)->first();
-            $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
-                $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
-            })
-                ->get()
-                ->pluck('roles') // Ambil seluruh data role dari relasi
-                ->flatten()
-                ->unique('id'); // Konversi ke array
-            $selectedIndexes = ['Pemeriksa Barang', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen']; // Indeks yang ingin diambil
-            $approvalRoles = $allRoles->whereIn('name', $selectedIndexes);
-            $approvalRoles = $approvalRoles->sortBy(function ($role) use ($selectedIndexes) {
-                return array_search($role->name, $selectedIndexes);
-            });
-            $availableFinalizerRoles = $allRoles->whereNotIn('name', $selectedIndexes);
-
-            $finalizerRole = $availableFinalizerRoles->shuffle()->first();
-
-            foreach ($jenisList as $jenis) {
-                // Simpan konfigurasi persetujuan
-                $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
-                    'unit_id' => $unit->id,
-                    'uuid' => \Illuminate\Support\Str::uuid(), // Generate UUID unik
-                    'jenis' => $jenis,
-                    'tipe' => $tipe,
-                    'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
-                    'urutan_persetujuan' => 1, // Urutan persetujuan pertama
-                    'cancel_persetujuan' => 2, // Urutan pembatalan kedua
-                    'jabatan_penyelesai_id' => $finalizerRole->id, // Jabatan penyelesaian
-                ]);
-
-                // Simpan role untuk setiap opsi persetujuan
-                foreach ($approvalRoles as $index => $role) {
-                    \App\Models\JabatanPersetujuan::create([
-                        'opsi_persetujuan_id' => $approvalConfiguration->id,
-                        'jabatan_id' => $role->id,
+                        'jabatan_id' => $role,
+                        'urutan' => $index + 1,
                     ]);
                 }
             }
@@ -603,7 +539,7 @@ class UnitSeeder extends Seeder
     {
         $units = $this->units;
 
-        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang',];
+        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang', 'Kepala Seksi', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit'];
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
             'guard_name' => 'web',
@@ -650,21 +586,21 @@ class UnitSeeder extends Seeder
 
 
 
-            // if (Str::contains($unitName, 'Suku Dinas Sumber Daya Air')) {
-            //     // Buat kepala unit utama
-            // } else {
-            //     // Buat kepala unit utama
-            //     $unitRole = Role::firstOrCreate([
-            //         // 'name' => 'Kepala ' . $unitName,
-            //         'name' => 'Kepala Unit',
-            //         'guard_name' => 'web',
-            //     ]);
-            // }
-            $unitRole = Role::firstOrCreate([
-                // 'name' => 'Kepala Suku Dinas Sumber Daya Air',
-                'name' => 'Kepala Unit/Suku Dinas',
-                'guard_name' => 'web',
-            ]);
+            if (Str::contains($unitName, 'Suku Dinas Sumber Daya Air')) {
+                // Buat kepala unit utama
+                $unitRole = Role::firstOrCreate([
+                    // 'name' => 'Kepala Suku Dinas Sumber Daya Air',
+                    'name' => 'Kepala Suku Dinas',
+                    'guard_name' => 'web',
+                ]);
+            } else {
+                // Buat kepala unit utama
+                $unitRole = Role::firstOrCreate([
+                    // 'name' => 'Kepala ' . $unitName,
+                    'name' => 'Kepala Unit',
+                    'guard_name' => 'web',
+                ]);
+            }
             $unitUser = User::create([
                 'name' => $unitData['kepala'],
                 'unit_id' => $unit->id,
@@ -690,24 +626,28 @@ class UnitSeeder extends Seeder
                 'Pengurus Barang',
                 'Penjaga Gudang',
             ];
-            // $pemeliharaanExists = collect($unitData['sub_units'])->contains(function ($subUnit) {
-            //     return $subUnit['nama'] === "Seksi Pemeliharaan";
-            // });
-            // if (!$pemeliharaanExists) {
-            //     $unitData['sub_units'][] = [
-            //         'nama' => 'Seksi Pemeliharaan',
-            //         'kepala' => $this->faker->name, // Provide a default name
-            //     ];
-            // }
-            // $tataUsahaExists = collect($unitData['sub_units'])->contains(function ($subUnit) {
-            //     return $subUnit['nama'] === "Subbagian Tata Usaha";
-            // });
-            // if (!$tataUsahaExists) {
-            //     $unitData['sub_units'][] = [
-            //         'nama' => 'Subbagian Tata Usaha',
-            //         'kepala' => $this->faker->name, // Provide a default name
-            //     ];
-            // }
+
+
+            $pemeliharaanExists = collect($unitData['sub_units'])->contains(function ($subUnit) {
+                return $subUnit['nama'] === "Seksi Pemeliharaan";
+            });
+
+            if (!$pemeliharaanExists) {
+                $unitData['sub_units'][] = [
+                    'nama' => 'Seksi Pemeliharaan',
+                    'kepala' => $this->faker->name, // Provide a default name
+                ];
+            }
+            $tataUsahaExists = collect($unitData['sub_units'])->contains(function ($subUnit) {
+                return $subUnit['nama'] === "Subbagian Tata Usaha";
+            });
+
+            if (!$tataUsahaExists) {
+                $unitData['sub_units'][] = [
+                    'nama' => 'Subbagian Tata Usaha',
+                    'kepala' => $this->faker->name, // Provide a default name
+                ];
+            }
 
 
             $roleOnce = $defaultRoles;
@@ -729,21 +669,21 @@ class UnitSeeder extends Seeder
                     'parent_id' => $unit->id, // Sub-unit terkait dengan unit
                     'keterangan' => "Sub-unit $subUnit[nama].",
                 ]);
-                // if (Str::contains($subUnit['nama'], 'Seksi')) {
-                //     // Buat Jabatan
-                // } else {
-                //     // Buat Jabatan
-                //     $role = Role::firstOrCreate([
-                //         // 'name' => 'Kepala' . $subUnit['nama'],
-                //         'name' => 'Kepala Subbagian',
-                //         'guard_name' => 'web',
-                //     ]);
-                // }
-                $role = Role::firstOrCreate([
-                    // 'name' => 'Kepala ' . $subUnit['nama'],
-                    'name' => 'Kepala Seksi/Subbagian',
-                    'guard_name' => 'web',
-                ]);
+                if (Str::contains($subUnit['nama'], 'Seksi')) {
+                    // Buat Jabatan
+                    $role = Role::firstOrCreate([
+                        // 'name' => 'Kepala ' . $subUnit['nama'],
+                        'name' => 'Kepala Seksi',
+                        'guard_name' => 'web',
+                    ]);
+                } else {
+                    // Buat Jabatan
+                    $role = Role::firstOrCreate([
+                        // 'name' => 'Kepala' . $subUnit['nama'],
+                        'name' => 'Kepala Subbagian',
+                        'guard_name' => 'web',
+                    ]);
+                }
 
                 // Buat User
                 $user = User::create([

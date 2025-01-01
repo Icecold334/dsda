@@ -69,7 +69,7 @@
                                 {{ $permintaan->getTable() == 'detail_permintaan_stok' ? 'Permintaan' : 'Peminjaman' }}
                             </div>
                             <div class="text-gray-500 text-sm">
-                                {{ $permintaan->getTable() == 'detail_permintaan_stok' ? optional($permintaan->kategoriStok)->nama : $permintaan->kategori->nama }}
+                                {{ $permintaan->getTable() == 'detail_permintaan_stok' ? $permintaan->kategoriStok->nama : $permintaan->kategori->nama }}
                             </div>
                         </td>
                     @endif

@@ -197,7 +197,7 @@ if (!function_exists('canViewAdditionalUsers')) {
     $authUser = Auth::user();
     $userRoles = $user->getRoleNames();
     // Role yang diizinkan
-    $allowedRoles = ['superadmin', 'Kepala Unit/Suku Dinas'];
+    $allowedRoles = ['superadmin', 'Kepala Unit', 'Kepala Suku Dinas'];
 
     // Cek apakah role pengguna termasuk dalam allowedRoles
     return $userRoles->intersect($allowedRoles)->isNotEmpty();

@@ -104,6 +104,7 @@ class TransaksiDaruratList extends Component
 
             foreach ($this->transaksi as $key => $item) {
                 $this->id = $item->id;
+
                 $this->ppk_isapprove = $this->checkApprovals('Pejabat Pembuat Komitmen');
 
                 $this->pptk_isapprove = $this->checkApprovals('Pejabat Pelaksana Teknis Kegiatan');
@@ -165,8 +166,7 @@ class TransaksiDaruratList extends Component
         // $this->nomor_kontrak = $this->getNoKontrak($this->vendor_id)->nomor_kontrak;
     }
 
-    private function checkStatusbyVendor($vendor_id)
-    {
+    private function checkStatusbyVendor($vendor_id){
         $data = TransaksiStok::where('status', 0)->where('vendor_id', $vendor_id)->get();
         if ($data->isEmpty()) { // Gunakan isEmpty() untuk Collection jika tidak ada maka sudah acc semua
             $result = 1;
@@ -183,8 +183,9 @@ class TransaksiDaruratList extends Component
             ->where('approvable_type', TransaksiStok::class)
             ->where('role', $params)
             ->get();
-        // dd($data);
+
         return $data->isEmpty();
+
     }
 
     public function getNoKontrak($idkontrak)
@@ -573,7 +574,7 @@ class TransaksiDaruratList extends Component
     }
     public function render()
     {
-
+        
         return view('livewire.transaksi-darurat-list');
     }
 }
