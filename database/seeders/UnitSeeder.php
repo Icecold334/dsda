@@ -556,8 +556,8 @@ class UnitSeeder extends Seeder
             foreach ($kecamatanJakarta->random(8)->all() as $kecamatan) {
                 $lokasi = LokasiStok::create([
                     'unit_id' => $unit->id,
-                    'nama' => $kecamatan,
-                    'slug' => Str::slug($kecamatan),
+                    'nama' => 'Gudang ' . $kecamatan,
+                    'slug' => Str::slug('Gudang ' . $kecamatan),
                     'alamat' => $this->faker->address,
                 ]);
 

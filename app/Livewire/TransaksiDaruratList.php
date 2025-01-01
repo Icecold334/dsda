@@ -183,7 +183,7 @@ class TransaksiDaruratList extends Component
             ->where('approvable_type', TransaksiStok::class)
             ->where('role', $params)
             ->get();
-
+        // dd($data);
         return $data->isEmpty();
     }
 
