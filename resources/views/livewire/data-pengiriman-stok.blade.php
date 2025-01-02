@@ -8,21 +8,23 @@
         </h1>
         <div class="flex gap-4">
             <!-- Date Picker for Tanggal -->
-            @dump($tanggal)
             <input type="date" wire:model.live="tanggal" class="border rounded-lg px-4 py-2 w-full" />
             <!-- Search Input -->
             <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2 w-full"
-                placeholder="Cari Kode" />
+                placeholder="Cari Kode / Vendor" />
 
-            {{-- @dump($this->jenisOptions)
-            <!-- Select Dropdown for Jenis -->
-            <select wire:model="jenis" class="border rounded-lg px-4 py-2 w-full">
+            <!-- Dropdown untuk Memilih Jenis -->
+            <select wire:model.live="jenis" class="border rounded-lg px-4 py-2 w-full">
                 <option value="">Pilih Jenis</option>
-                @foreach ($this->jenisOptions as $jenis)
+                @foreach ($jenisOptions as $jenis)
                     <option value="{{ $jenis }}">{{ $jenis }}</option>
                 @endforeach
-            </select> --}}
+            </select>
 
+            <!-- Button Go -->
+            <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                <i class="fa fa-sync-alt"></i>
+            </button>
         </div>
     </div>
 
