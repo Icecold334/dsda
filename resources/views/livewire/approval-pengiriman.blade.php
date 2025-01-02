@@ -46,9 +46,12 @@
             <div class="block font-semibold text-center mb-2 text-gray-900">
                 Penerima Barang</div>
             <table class="w-full mt-3">
+                {{-- {{ dd($penerimaList) }} --}}
                 @foreach ($penerimaList as $penerima)
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
+                            {{ $indikatorPenerima }}
+
                             <span class="mr-9 {{ $penerima->id == auth()->id() ? 'font-bold' : '' }}">
                                 {{ $penerima->id == auth()->id() ? 'Anda' : $penerima->name }}
                             </span>
