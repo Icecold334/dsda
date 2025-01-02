@@ -1,6 +1,5 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
-
         <h1 class="text-2xl font-bold text-primary-900 ">
             {{ request()->routeIs('permintaan-stok.index') || request()->is('permintaan/umum') ? 'Pelayanan Umum' : (request()->is('permintaan/spare-part') ? 'Permintaan Spare Part' : 'Permintaan Material') }}
             @if (auth()->user()->unitKerja)

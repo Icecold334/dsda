@@ -2,11 +2,14 @@
 
 namespace App\Livewire;
 
-use App\Models\Aset;
 use Carbon\Carbon;
+use App\Models\Aset;
 use App\Models\Stok;
+use App\Models\User;
 use Livewire\Component;
+use App\Models\Kategori;
 use App\Models\MerkStok;
+use App\Models\UnitKerja;
 use App\Models\BarangStok;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
@@ -14,13 +17,14 @@ use App\Models\StokDisetujui;
 use Livewire\WithFileUploads;
 use App\Models\PermintaanStok;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 use App\Models\DetailPermintaanStok;
-use App\Models\Kategori;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PersetujuanPermintaanStok;
-use App\Models\UnitKerja;
+use Illuminate\Support\Facades\Notification;
 
 class ListPermintaanForm extends Component
 {
@@ -334,6 +338,10 @@ class ListPermintaanForm extends Component
                 // 'lokasi_id' => $this->lokasiId
             ]);
         }
+        $message = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
+        $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
+        $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
+        Notification::send($user, new UserNotification($message, "/permintaan/{$this->requestIs}/{$detailPermintaan->id}"));
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
@@ -452,6 +460,12 @@ class ListPermintaanForm extends Component
     public $tipe;
     public function mount()
     {
+        $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('jenis', $this->requestIs == 'permintaan' ? 'umum' : ($this->requestIs == 'spare-part' ? 'spare-part' : 'material'))
+            ->where('unit_id', $this->unit_id)
+            ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
+            ->latest()
+            ->first();
+
 
 
         $this->fillShowRule();
