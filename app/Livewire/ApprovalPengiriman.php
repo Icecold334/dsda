@@ -185,13 +185,39 @@ class ApprovalPengiriman extends Component
                 $previousUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
         }
 
-        $this->indikatorPenerima = $this->checkApprovPenerimaBarang($this->pengiriman->id, Auth::id()); //$this->receivedData ??
+        // $this->indikatorPenerima = $this->checkApprovPenerimaBarang($this->pengiriman->id, Auth::id()); 
+
+        //$this->receivedData ??
+        dd($this->indikatorPenerima = $this->checkApprovePB());
         $this->checkPreviousApproval = $this->CheckApproval();
         $this->CheckCurrentApproval = $this->CheckCurrentApproval();
     }
 
     public $indikatorPenerima, $checkPreviousApproval, $CheckCurrentApproval;
 
+    public function checkApprovePB(){
+        $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
+        $data = User::with(['pengirimanStok' => function ($query) {
+            $query->where('detail_pengiriman_id', $this->pengiriman->id);
+        }])
+        ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
+        ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+        ->whereHas('lokasiStok', function ($query) {
+            $query->whereIn(
+                'lokasi_id',
+                PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
+            );
+        })
+        ->get();
+        
+        $data->map(function ($item){
+            $item->pengirimanStok->map(function ($pengiriman){
+                $pengiriman->cekpeng = $pengiriman->detail_pengiriman_id;
+            });
+        });
+
+        return $data;
+    }
     public function checkApprovPenerimaBarang($id, $user_id)
     {
 
