@@ -51,6 +51,11 @@ class ApprovalPengiriman extends Component
         // Handle the event and update the component's state
         $this->receivedData = $data;
     }
+    public function handleEvent($data)
+    {
+        // Handle the event and update the component's state
+        $this->receivedData = $data;
+    }
 
     public function updatedNewApprovalFiles()
     {
@@ -147,6 +152,18 @@ class ApprovalPengiriman extends Component
             );
         })
         ->get();
+        $penerima = User::with(['pengirimanStok' => function ($query) {
+            $query->where('detail_pengiriman_id', $this->pengiriman->id);
+        }])
+        ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
+        ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+        ->whereHas('lokasiStok', function ($query) {
+            $query->whereIn(
+                'lokasi_id',
+                PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
+            );
+        })
+        ->get();
 
         $indexPenerima = $penerima->search(function ($user) {
             return $user->id == Auth::id();
@@ -154,7 +171,7 @@ class ApprovalPengiriman extends Component
 
         $this->lastPenerima = $indexPenerima === $penerima->count() - 1; // Check if current user is the last user
         $this->penerimaList = $this->checkApprovePB();
-        $this->penerimaList = $this->checkApprovePB();
+        
 
 
         $pemeriksa = User::role('Pemeriksa Barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
@@ -205,14 +222,10 @@ class ApprovalPengiriman extends Component
         $this->checkPreviousApproval = $this->CheckApproval();
         $this->CheckCurrentApproval = $this->CheckCurrentApproval();
         // $this->indikatorPenerima = $this->checkApprovPenerimaBarang($this->pengiriman->id, Auth::id()); 
-
-        //$this->receivedData ??
-        
-        $this->checkPreviousApproval = $this->CheckApproval();
-        $this->CheckCurrentApproval = $this->CheckCurrentApproval();
     }
 
     public $indikatorPenerima, $checkPreviousApproval, $CheckCurrentApproval;
+    
 
     public function checkApprovePB(){
         $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
@@ -248,6 +261,8 @@ class ApprovalPengiriman extends Component
             $item->pengirimanStok->map(function ($pengiriman) use (&$cekApprove) {
                 // Check the condition for each pengiriman
                 $cekApprove = true;
+                 // If any condition is met, set $cekApprove to true
+                $cekApprove = true;
                 if (empty($pengiriman->bagian_id) || empty($pengiriman->posisi_id) || empty($pengiriman->img)) {
                     $cekApprove = false;  // If any condition is met, set $cekApprove to true
                 }
@@ -270,16 +285,14 @@ class ApprovalPengiriman extends Component
     {
 
         $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
-        $data = PengirimanStok::where('detail_pengiriman_id', $id)->whereHas('lokasiStok', function ($query) use ($user_id) {
-            $query->whereHas('user', fn($q) => $q->where('id', $user_id));
-        })->where(
+        
         $data = PengirimanStok::where('detail_pengiriman_id', $id)->whereHas('lokasiStok', function ($query) use ($user_id) {
             $query->whereHas('user', fn($q) => $q->where('id', $user_id));
         })->where(
             function ($query) {
                 $query->where('img', null)->orWhere('bagian_id', null)->orWhere('posisi_id', null);
             }
-        ))->get();
+        )->get();
 
         if ($data->isEmpty()) {
             $result = 1;
