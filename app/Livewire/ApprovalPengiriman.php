@@ -228,8 +228,9 @@ class ApprovalPengiriman extends Component
              
             $item->pengirimanStok->map(function ($pengiriman) use (&$cekApprove) {
                 // Check the condition for each pengiriman
-                if ($pengiriman->bagian_id && $pengiriman->posisi_id && $pengiriman->img) {
-                    $cekApprove = true;  // If any condition is met, set $cekApprove to true
+                $cekApprove = true;
+                if (empty($pengiriman->bagian_id) || empty($pengiriman->posisi_id) || empty($pengiriman->img)) {
+                    $cekApprove = false;  // If any condition is met, set $cekApprove to true
                 }
                 // Assign the $cekApprove flag to each pengirimanStok
                 $pengiriman->cekpeng = $cekApprove;
