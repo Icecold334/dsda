@@ -141,7 +141,7 @@ class ApprovalPengiriman extends Component
         });
 
         $this->lastPenerima = $indexPenerima === $penerima->count() - 1; // Check if current user is the last user
-        $this->penerimaList = $penerima;
+        $this->penerimaList = $this->checkApprovePB();
 
 
         $pemeriksa = User::role('Pemeriksa Barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
@@ -188,7 +188,7 @@ class ApprovalPengiriman extends Component
         // $this->indikatorPenerima = $this->checkApprovPenerimaBarang($this->pengiriman->id, Auth::id()); 
 
         //$this->receivedData ??
-        dd($this->indikatorPenerima = $this->checkApprovePB());
+        
         $this->checkPreviousApproval = $this->CheckApproval();
         $this->CheckCurrentApproval = $this->CheckCurrentApproval();
     }
@@ -210,13 +210,40 @@ class ApprovalPengiriman extends Component
         })
         ->get();
         
-        $data->map(function ($item){
-            $item->pengirimanStok->map(function ($pengiriman){
-                $pengiriman->cekpeng = $pengiriman->detail_pengiriman_id;
+        $processedData = $data->map(function ($item) {
+           
+            $cekApprove = false;
+        
+            // Iterate through each pengirimanStok of the current item
+            /**
+             * Namanya metode Pass-by-reference (menggunakan &)
+             * kegunaan & pada variabel berguna untuk meneruskan 
+             * Penggunaan &$cekApprove dalam 
+             * kode Anda merujuk pada pass-by-reference. Artinya, 
+             * saat Anda menggunakannya di dalam closure (fungsi anonim) yang dipakai dalam map, 
+             * variabel $cekApprove akan diteruskan ke dalam fungsi tersebut dengan referensinya, 
+             * bukan dengan salinannya. Dengan begitu, setiap kali Anda mengubah nilai $cekApprove di dalam closure, perubahan tersebut akan langsung mempengaruhi 
+             * variabel $cekApprove di luar closure, dalam konteks objek $item.
+            */
+             
+            $item->pengirimanStok->map(function ($pengiriman) use (&$cekApprove) {
+                // Check the condition for each pengiriman
+                if ($pengiriman->bagian_id && $pengiriman->posisi_id && $pengiriman->img) {
+                    $cekApprove = true;  // If any condition is met, set $cekApprove to true
+                }
+                // Assign the $cekApprove flag to each pengirimanStok
+                $pengiriman->cekpeng = $cekApprove;
             });
+        
+            // Assign the final value of $cekApprove to the parent item
+            $item->cekApprove = $cekApprove;
+        
+            // Return the modified item
+            return $item;
         });
-
-        return $data;
+        
+        // Return the processed data
+        return $processedData;
     }
     public function checkApprovPenerimaBarang($id, $user_id)
     {

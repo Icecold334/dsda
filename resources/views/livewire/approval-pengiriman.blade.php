@@ -50,13 +50,11 @@
                 @foreach ($penerimaList as $penerima)
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
-                            {{ $indikatorPenerima }}
-
                             <span class="mr-9 {{ $penerima->id == auth()->id() ? 'font-bold' : '' }}">
                                 {{ $penerima->id == auth()->id() ? 'Anda' : $penerima->name }}
                             </span>
                             <i
-                                class="my-1 fa-solid {{ ($indikatorPenerima == 0) 
+                                class="my-1 fa-solid {{ ($penerima->cekApprove == 0) 
                                     ?'fa-circle-question text-secondary-600' : 'fa-circle-check text-success-500'}}" id="penerimaApp">
                             </i>
                             {{-- <i
