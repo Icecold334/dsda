@@ -44,18 +44,8 @@
                         class="bg-gray-300 hover:bg-gray-200 hover:shadow-lg font-semibold transition duration-200 rounded-2xl">
                         <td class="px-6 py-3"></td>
                         <td class="px-6 py-3 text-center">{{ $lokasi['nama'] }}</td>
-                        <td class="px-6 py-3 text-center">
-                            <button
-                                @click="openSections['lokasi-{{ $lokasi['id'] }}'] = !openSections['lokasi-{{ $lokasi['id'] }}']"
-                                class="text-primary-900 font-semibold">
-                                <i x-show="!openSections['lokasi-{{ $lokasi['id'] }}']"
-                                    class="fa-solid fa-chevron-down"></i>
-                                <i x-show="openSections['lokasi-{{ $lokasi['id'] }}']"
-                                    class="fa-solid fa-chevron-up"></i>
-                            </button>
-                        </td>
-                        <td class="px-6 py-3">
-                        </td>
+                        <td class="px-6 py-3"></td>
+                        <td class="px-6 py-3"></td>
                         <td class="py-3 px-6 text-center">
                             <a href="/lokasi-stok/lokasi/{{ $lokasi['id'] }}"
                                 class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
@@ -70,7 +60,7 @@
                         </td>
                     </tr>
                     @forelse ($lokasi->bagianStok as $bagian)
-                        <tr x-show="openSections['lokasi-{{ $lokasi['id'] }}']"
+                        <tr
                             class="bg-gray-200 hover:bg-gray-200 hover:shadow-lg font-semibold transition duration-200 rounded-2xl">
                             <td class="px-6 py-3"></td>
                             <td class="px-6 py-3"></td>

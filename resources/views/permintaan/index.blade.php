@@ -1,6 +1,5 @@
 <x-body>
     <div class="flex justify-between py-2 mb-3">
-
         <h1 class="text-2xl font-bold text-primary-900 ">
             {{ request()->routeIs('permintaan-stok.index') || request()->is('permintaan/umum') ? 'Pelayanan Umum' : (request()->is('permintaan/spare-part') ? 'Permintaan Spare Part' : 'Permintaan Material') }}
             @if (auth()->user()->unitKerja)
@@ -69,7 +68,7 @@
                                 {{ $permintaan->getTable() == 'detail_permintaan_stok' ? 'Permintaan' : 'Peminjaman' }}
                             </div>
                             <div class="text-gray-500 text-sm">
-                                {{ $permintaan->getTable() == 'detail_permintaan_stok' ? optional($permintaan->kategoriStok)->nama : $permintaan->kategori->nama }}
+                                {{ $permintaan->getTable() == 'detail_permintaan_stok' ? $permintaan->kategoriStok->nama : $permintaan->kategori->nama }}
                             </div>
                         </td>
                     @endif

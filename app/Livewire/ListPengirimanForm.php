@@ -237,9 +237,7 @@ class ListPengirimanForm extends Component
         // dd($this->old);
         $this->showDokumen = !Request::routeIs('pengiriman-stok.create');
         $this->showRemove = !Request::routeIs('pengiriman-stok.show');
-        $this->lokasis = LokasiStok::whereHas('unitKerja', function ($unit) {
-            return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-        })->get();
+        $this->lokasis = LokasiStok::all();
         if (count($this->old)) {
             $this->pengiriman = collect($this->old)->first()->detailPengirimanStok;
             foreach ($this->old as $index => $old) {
@@ -402,6 +400,15 @@ class ListPengirimanForm extends Component
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
 
         $this->hiddenButtons[$index] = true;
+
+        // $data['bagian_id'] && $data['posisi_id'] && $data['bukti']
+        // $this->dispatch('statusAppPenerima', data: 'cek' );
+        return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
+    }
+
+    public function refreshData()
+    {
+        // Simulate fetching new data
     }
 
     public function updateBagian($index, $bagianId)

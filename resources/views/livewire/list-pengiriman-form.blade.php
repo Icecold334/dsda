@@ -244,7 +244,7 @@
 
 
                     <td class="text-center">
-                        {{-- {{ $item['jumlah_diterima'] ? '' : 'hidden' }} --}}
+                        
                         {{-- {{ $item['bagian_id'] && $item['posisi_id'] && $item['bukti'] ? '' : 'hidden' }} --}}
                         @if ($item['id'] === null)
                             <button wire:click="removeFromList({{ $index }})"
@@ -272,8 +272,7 @@
                             @can('inventaris_edit_jumlah_diterima')
                                 <button wire:click="updatePengirimanStok({{ $index }})"
                                     class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
-                            {{-- {{ isset($item['jumlah_diterima']) > 0 && $item['jumlah_diterima'] ? '' : 'hidden' }} --}}
-                            ">
+                            {{ isset($item['jumlah_diterima']) > 0 && $item['jumlah_diterima'] ? '' : 'hidden' }}">
                                     <i class="fa-solid fa-circle-check"></i>
                                 </button>
                             @endcan

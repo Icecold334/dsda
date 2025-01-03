@@ -36,14 +36,9 @@ class PermintaanStokController extends Controller
     {
         $last = null;
         if ($next) {
-            $model = $next == 1 ? '\App\Models\DetailPermintaanStok' : '\App\Models\DetailPeminjamanAset';
-            $last = app($model)::whereHas('user', function ($user) {
-                return $user->whereHas('unitKerja', function ($unitQuery) {
-                    $unitQuery->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-                });
-            })->latest()->first();
+            $model = $tipe === 'permintaan' ? '\App\Models\DetailPermintaanStok' : '\App\Models\DetailPeminjamanAset';
+            $last = app($model)::latest()->first();
         }
-
 
         return view('permintaan.create', compact('tipe', 'last'));
     }

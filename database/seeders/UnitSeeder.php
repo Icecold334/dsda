@@ -392,10 +392,10 @@ class UnitSeeder extends Seeder
                 ->pluck('id') // Ambil hanya ID
                 ->toArray(); // Konversi ke array
 
-            $selectedIndexes = [8, 7, 6]; // Indeks yang ingin diambil
+            // Pilih 3 role pertama untuk approval
             $approvalRoles = collect($allRoles)
-                ->only($selectedIndexes)
-                ->values() // Reset indeks agar outputnya rapi
+                ->shuffle()
+                ->take(3) // Ambil 3 role pertama
                 ->toArray();
 
             // Simpan roles ke $unitData
@@ -445,10 +445,10 @@ class UnitSeeder extends Seeder
                 ->pluck('id') // Ambil hanya ID
                 ->toArray(); // Konversi ke array
 
-            $selectedIndexes = [8, 7, 6]; // Indeks yang ingin diambil
+            // Pilih 3 role pertama untuk approval
             $approvalRoles = collect($allRoles)
-                ->only($selectedIndexes)
-                ->values() // Reset indeks agar outputnya rapi
+                ->shuffle()
+                ->take(3) // Ambil 3 role pertama
                 ->toArray();
 
             // Simpan roles ke $unitData
@@ -492,8 +492,8 @@ class UnitSeeder extends Seeder
             foreach ($kecamatanJakarta->random(8)->all() as $kecamatan) {
                 $lokasi = LokasiStok::create([
                     'unit_id' => $unit->id,
-                    'nama' => $kecamatan,
-                    'slug' => Str::slug($kecamatan),
+                    'nama' => 'Gudang ' . $kecamatan,
+                    'slug' => Str::slug('Gudang ' . $kecamatan),
                     'alamat' => $this->faker->address,
                 ]);
 

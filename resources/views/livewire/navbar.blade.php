@@ -1,6 +1,6 @@
     <header class="">
         <nav
-            class="bg-[#d9faff] border-gray-200 shadow-2xl dark:bg-gray-800 flex flex-wrap justify-between items-center overflow-y-hidden">
+            class="bg-[#d9faff] border-gray-200 shadow-2xl dark:bg-gray-800 flex flex-wrap justify-between items-center">
             <div class="flex items-center">
                 <a href="/" class="flex">
                     <img src="{{ asset('img/dsda-logo.png') }}" alt="Logo" class="h-[4.5rem] w-auto">
@@ -16,7 +16,7 @@
                 </svg>
             </button> --}}
 
-            <div class="flex justify-between items-center overflow-y-hidden" id="menu">
+            <div class="flex justify-between items-center " id="menu">
                 <ul class="flex flex-col md:flex-row md:space-x-0 {{ Request::is('scan/*') ? 'hidden' : '' }}">
                     {{-- <ul class="grid grid-flow-col gap-0 -my-4 "> --}}
                     <livewire:nav-item href="/dashboard" title="home" />
@@ -29,7 +29,7 @@
                         ['href' => '/stok', 'title' => 'stok'],
                     ]" />
                     <livewire:nav-item title="Rekam Kontrak" :child="[
-                    ['href' => '/kontrak-vendor-stok', 'title' => 'Daftar Kontrak'],
+                        ['href' => '/kontrak-vendor-stok', 'title' => 'Daftar Kontrak'],
                         ['href' => '/transaksi-darurat-stok', 'title' => 'Transaksi Belum Berkontrak'],
                     ]" />
 
@@ -50,6 +50,7 @@
                         ['href' => '/lokasi-stok', 'title' => 'lokasi gudang'],
                         ['href' => '/unit-kerja', 'title' => 'Unit Kerja'],
                     ]" />
+                    <livewire:notification />
                     <livewire:nav-item href="/kalender"
                         title='                <button data-tooltip-target="tooltipKalender" data-tooltip-placement="bottom" type="button"><i
                         class="fa-solid fa-calendar-days"></i></button>

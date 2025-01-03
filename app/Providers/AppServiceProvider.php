@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Auth::loginUsingId(1); //superadmin
-        Auth::loginUsingId(3); //kepala unit    
+        // Auth::loginUsingId(1); //kepala unit
         // Auth::loginUsingId(207);
         // Auth::loginUsingId(118); //kepala suku dinas
         // Auth::loginUsingId(8); //penanggung jawab
