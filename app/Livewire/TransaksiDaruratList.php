@@ -73,7 +73,7 @@ class TransaksiDaruratList extends Component
         $this->suggestions[$field] = [];
     }
 
-    public $specifications = [
+    public $specifications = [  
         'merek' => '',
         'tipe' => '',
         'ukuran' => '',

@@ -260,7 +260,7 @@ class ListPengirimanForm extends Component
                     //$transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
                     'boolean_jumlah' => $transaksi->jumlah_diterima ?? 0,
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
-                    'editable' => true,
+                    'editable' => $isEditable,
                     
                 ];
                 // $this->hiddenButtons[$index] = ($transaksi->lokasi_id && $transaksi->bagian_id && $transaksi->bukti) ?? 0;
@@ -371,6 +371,7 @@ class ListPengirimanForm extends Component
     public function updatePengirimanStok($index)
     {
         $data = $this->list[$index];
+        $data['editable'] = false;
 
         if ($data['bukti']){
             $file = $data['bukti'];

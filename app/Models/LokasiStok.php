@@ -22,4 +22,10 @@ class LokasiStok extends Model
     {
         return $this->hasMany(Stok::class, 'lokasi_id');
     }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'lokasi_id');
+    }
+    
 }
