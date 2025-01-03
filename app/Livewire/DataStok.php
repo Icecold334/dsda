@@ -22,7 +22,12 @@ class DataStok extends Component
     public function mount()
     {
         $this->jenisOptions = JenisStok::pluck('nama')->toArray(); // Fetch all available jenis
-        $this->lokasiOptions = LokasiStok::pluck('nama')->toArray(); // Fetch all available lokasi
+        $this->lokasiOptions = LokasiStok::whereHas('unitKerja', function ($unit) {
+            $unit->where('parent_id', $this->unit_id)
+                ->orWhere('id', $this->unit_id);
+        })
+            ->pluck('nama')
+            ->toArray();
         $this->applyFilters(); // Fetch initial data
         // $this->fetchBarangs();
         // $this->fetchStoks();
@@ -32,10 +37,16 @@ class DataStok extends Component
     {
         $this->barangs = BarangStok::whereHas('merkStok', function ($merkQuery) {
             $merkQuery->whereHas('stok', function ($stokQuery) {
-                $stokQuery->where('jumlah', '>', 0)->whereHas('lokasiStok.unitKerja', function ($unit) {
-                    $unit->where('parent_id', $this->unit_id)
-                        ->orWhere('id', $this->unit_id);
-                });
+                $stokQuery->where('jumlah', '>', 0)
+                    ->whereHas('lokasiStok.unitKerja', function ($unit) {
+                        $unit->where('parent_id', $this->unit_id)
+                            ->orWhere('id', $this->unit_id);
+                    })
+                    ->when($this->lokasi, function ($query) {
+                        $query->whereHas('lokasiStok', function ($lokasiQuery) {
+                            $lokasiQuery->where('nama', $this->lokasi);
+                        });
+                    });
             });
         })
             ->when($this->search, function ($query) {
@@ -47,6 +58,7 @@ class DataStok extends Component
                     $jenisQuery->where('nama', $this->jenis);
                 });
             })
+
             ->get();
     }
 
@@ -106,9 +118,6 @@ class DataStok extends Component
         }
 
         $this->stoks = $groupedStoks;
-
-        // Debug the resulting array
-        // dd($this->stoks);
     }
 
 
