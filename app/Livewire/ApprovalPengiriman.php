@@ -7,11 +7,9 @@ use App\Models\Stok;
 use App\Models\User;
 use Livewire\Component;
 use App\Models\Persetujuan;
-use App\Models\Persetujuan;
 use App\Models\PengirimanStok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\PersetujuanPengirimanStok;
 use App\Models\PersetujuanPengirimanStok;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
@@ -47,13 +45,7 @@ class ApprovalPengiriman extends Component
     public $files = [], $arrayfiles; // To hold multiple uploaded files
 
     protected $listeners = ['eventName' => 'statusAppPenerima'], $receivedData;
-    protected $listeners = ['eventName' => 'statusAppPenerima'], $receivedData;
 
-    public function handleEvent($data)
-    {
-        // Handle the event and update the component's state
-        $this->receivedData = $data;
-    }
     public function handleEvent($data)
     {
         // Handle the event and update the component's state
@@ -221,7 +213,6 @@ class ApprovalPengiriman extends Component
     }
 
     public $indikatorPenerima, $checkPreviousApproval, $CheckCurrentApproval;
-    public $indikatorPenerima, $checkPreviousApproval, $CheckCurrentApproval;
 
     public function checkApprovePB(){
         $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
@@ -274,6 +265,7 @@ class ApprovalPengiriman extends Component
         // Return the processed data
         return $processedData;
     }
+
     public function checkApprovPenerimaBarang($id, $user_id)
     {
 
@@ -287,7 +279,7 @@ class ApprovalPengiriman extends Component
             function ($query) {
                 $query->where('img', null)->orWhere('bagian_id', null)->orWhere('posisi_id', null);
             }
-        )->get();
+        ))->get();
 
         if ($data->isEmpty()) {
             $result = 1;
@@ -396,9 +388,52 @@ class ApprovalPengiriman extends Component
         ]);
         $this->pengiriman->save();
         return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
-        return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
+        // return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
     }
 
+    // public function CheckApproval()
+    // {
+    //     $urutanApproval = collect(['Penerima Barang', 'Pemeriksa Barang', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen']);
+    //     // return $this->pengiriman->persetujuan()->get();
+    //     $index = $urutanApproval->search(function ($item) {
+    //         return $item === $this->roles;
+    //     });
+    //     $previousElement = $urutanApproval->filter(function ($item, $key) use ($index) {
+    //         return $key === $index - 1;
+    //     })->first();
+
+    //     // return $previousElement;
+    //     // return $this->pengiriman->whereHas(
+    //     //     'persetujuan',
+    //     //     fn($query) => $query->where('status', 1)->whereHas(
+    //     //         'user',
+    //     //         fn($query1) => $query1->role($previousElement)
+    //     //     )
+    //     // )->get();
+
+    //     return PersetujuanPengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->where('status', 1)->whereHas(
+    //         'user',
+    //         fn($query1) => $query1->role($previousElement)
+    //     )->get();
+    // }
+
+    public function CheckCurrentApproval()
+    {
+        $currentRole = $this->roles;
+
+        // return $previousElement;
+        // return $this->pengiriman->whereHas(
+        //     'persetujuan',
+        //     fn($query) => $query->where('status', 1)->whereHas(
+        //         'user',
+        //         fn($query1) => $query1->role($currentRole)
+        //     )
+        // )->get();
+        return PersetujuanPengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->where('status', 1)->whereHas(
+            'user',
+            fn($query1) => $query1->role($currentRole)
+        )->get();
+    }
     public function CheckApproval()
     {
         $urutanApproval = collect(['Penerima Barang', 'Pemeriksa Barang', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen']);
@@ -425,65 +460,23 @@ class ApprovalPengiriman extends Component
         )->get();
     }
 
-    public function CheckCurrentApproval()
-    {
-        $currentRole = $this->roles;
+    // public function CheckCurrentApproval()
+    // {
+    //     $currentRole = $this->roles;
 
-        // return $previousElement;
-        // return $this->pengiriman->whereHas(
-        //     'persetujuan',
-        //     fn($query) => $query->where('status', 1)->whereHas(
-        //         'user',
-        //         fn($query1) => $query1->role($currentRole)
-        //     )
-        // )->get();
-        return PersetujuanPengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->where('status', 1)->whereHas(
-            'user',
-            fn($query1) => $query1->role($currentRole)
-        )->get();
-    public function CheckApproval()
-    {
-        $urutanApproval = collect(['Penerima Barang', 'Pemeriksa Barang', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen']);
-        // return $this->pengiriman->persetujuan()->get();
-        $index = $urutanApproval->search(function ($item) {
-            return $item === $this->roles;
-        });
-        $previousElement = $urutanApproval->filter(function ($item, $key) use ($index) {
-            return $key === $index - 1;
-        })->first();
-
-        // return $previousElement;
-        // return $this->pengiriman->whereHas(
-        //     'persetujuan',
-        //     fn($query) => $query->where('status', 1)->whereHas(
-        //         'user',
-        //         fn($query1) => $query1->role($previousElement)
-        //     )
-        // )->get();
-
-        return PersetujuanPengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->where('status', 1)->whereHas(
-            'user',
-            fn($query1) => $query1->role($previousElement)
-        )->get();
-    }
-
-    public function CheckCurrentApproval()
-    {
-        $currentRole = $this->roles;
-
-        // return $previousElement;
-        // return $this->pengiriman->whereHas(
-        //     'persetujuan',
-        //     fn($query) => $query->where('status', 1)->whereHas(
-        //         'user',
-        //         fn($query1) => $query1->role($currentRole)
-        //     )
-        // )->get();
-        return PersetujuanPengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->where('status', 1)->whereHas(
-            'user',
-            fn($query1) => $query1->role($currentRole)
-        )->get();
-    }
+    //     // return $previousElement;
+    //     // return $this->pengiriman->whereHas(
+    //     //     'persetujuan',
+    //     //     fn($query) => $query->where('status', 1)->whereHas(
+    //     //         'user',
+    //     //         fn($query1) => $query1->role($currentRole)
+    //     //     )
+    //     // )->get();
+    //     return PersetujuanPengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->where('status', 1)->whereHas(
+    //         'user',
+    //         fn($query1) => $query1->role($currentRole)
+    //     )->get();
+    // }
 
     public function ApprovePPKandFinish()
     {
