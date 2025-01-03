@@ -51,6 +51,11 @@ class ApprovalPengiriman extends Component
         // Handle the event and update the component's state
         $this->receivedData = $data;
     }
+    public function handleEvent($data)
+    {
+        // Handle the event and update the component's state
+        $this->receivedData = $data;
+    }
 
     public function updatedNewApprovalFiles()
     {
@@ -220,7 +225,7 @@ class ApprovalPengiriman extends Component
     }
 
     public $indikatorPenerima, $checkPreviousApproval, $CheckCurrentApproval;
-    
+    public $indikatorPenerima, $checkPreviousApproval, $CheckCurrentApproval;
 
     public function checkApprovePB(){
         $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
@@ -256,7 +261,8 @@ class ApprovalPengiriman extends Component
             $item->pengirimanStok->map(function ($pengiriman) use (&$cekApprove) {
                 // Check the condition for each pengiriman
                 $cekApprove = true;
-                 // If any condition is met, set $cekApprove to true
+                if (empty($pengiriman->bagian_id) || empty($pengiriman->posisi_id) || empty($pengiriman->img)) {
+                    $cekApprove = false;  // If any condition is met, set $cekApprove to true
                 $cekApprove = true;
                 if (empty($pengiriman->bagian_id) || empty($pengiriman->posisi_id) || empty($pengiriman->img)) {
                     $cekApprove = false;  // If any condition is met, set $cekApprove to true
@@ -280,14 +286,19 @@ class ApprovalPengiriman extends Component
     {
 
         $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
-        
+        $data = PengirimanStok::where('detail_pengiriman_id', $id)->whereHas('lokasiStok', function ($query) use ($user_id) {
+            $query->whereHas('user', fn($q) => $q->where('id', $user_id));
+        })->where(
+        $data = PengirimanStok::where('detail_pengiriman_id', $id)->whereHas('lokasiStok', function ($query) use ($user_id) {
+            $query->whereHas('user', fn($q) => $q->where('id', $user_id));
+        })->where(
         $data = PengirimanStok::where('detail_pengiriman_id', $id)->whereHas('lokasiStok', function ($query) use ($user_id) {
             $query->whereHas('user', fn($q) => $q->where('id', $user_id));
         })->where(
             function ($query) {
                 $query->where('img', null)->orWhere('bagian_id', null)->orWhere('posisi_id', null);
             }
-        )->get();
+        ))->get();
 
         if ($data->isEmpty()) {
             $result = 1;
