@@ -20,31 +20,39 @@ class KontrakVendorStokController extends Controller
      */
     public function index()
     {
-        if ($this->unit_id) {
-            $transaksi = TransaksiStok::whereNotNull('kontrak_id')->whereHas('kontrakStok', function ($kontrak) {
-                return $kontrak->whereNotNull('status')->whereHas('user', function ($user) {
-                    return $user->whereHas('unitKerja', function ($unit) {
-                        return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-                    });
+        // if ($this->unit_id) {
+        //     $transaksi = TransaksiStok::whereNotNull('kontrak_id')->whereHas('kontrakStok', function ($kontrak) {
+        //         return $kontrak->whereNotNull('status')->whereHas('user', function ($user) {
+        //             return $user->whereHas('unitKerja', function ($unit) {
+        //                 return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        //             });
+        //         });
+        //     })->get();
+        // } else {
+        //     $transaksi = TransaksiStok::whereNotNull('kontrak_id')->whereHas('kontrakStok', function ($kontrak) {
+        //         return $kontrak->whereNotNull('status');
+        //     })->get();
+        // }
+        // // Get transactions with a filled kontrak_id
+
+        // $sortedTransaksi = $transaksi->sortByDesc('tanggal');
+
+        // // Group the sorted transactions by vendor_id, then by kontrak_id
+        // $groupedTransactions = $sortedTransaksi->groupBy('vendor_id')->map(function ($vendorGroup) {
+        //     return $vendorGroup->groupBy('kontrak_id')->map(function ($kontrakGroup) {
+        //         return $kontrakGroup->groupBy('id'); // Group by transaction ID for distinction
+        //     });
+        // });
+
+
+        $groupedTransactions = KontrakVendorStok::whereHas('transaksiStok')->when($this->unit_id, function ($kontrak) {
+            return $kontrak->whereHas('user', function ($user) {
+                return $user->whereHas('unitKerja', function ($unit) {
+                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                 });
-            })->get();
-        } else {
-            $transaksi = TransaksiStok::whereNotNull('kontrak_id')->whereHas('kontrakStok', function ($kontrak) {
-                return $kontrak->whereNotNull('status');
-            })->get();
-        }
-        // Get transactions with a filled kontrak_id
-
-        $waiting = KontrakVendorStok::where('type', false)->whereNull('status')->get();
-        $sortedTransaksi = $transaksi->sortByDesc('tanggal');
-
-        // Group the sorted transactions by vendor_id, then by kontrak_id
-        $groupedTransactions = $sortedTransaksi->groupBy('vendor_id')->map(function ($vendorGroup) {
-            return $vendorGroup->groupBy('kontrak_id')->map(function ($kontrakGroup) {
-                return $kontrakGroup->groupBy('id'); // Group by transaction ID for distinction
             });
-        });
-        return view('rekam.index', compact('groupedTransactions', 'waiting'));
+        })->get()->sortByDesc('tanggal');
+        return view('rekam.index', compact('groupedTransactions',));
     }
 
     /**
