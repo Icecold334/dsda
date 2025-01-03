@@ -25,9 +25,6 @@ use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 
 class AsetForm extends Component
 {
-
-
-
     public $aset;
     #[Validate]
     public $nama;
@@ -64,6 +61,7 @@ class AsetForm extends Component
     public $keterangan;
     #[Validate]
     public $umur;
+    public $peminjaman;
     public $lamagaransi;
     public $penyusutan;
     public $showSuggestionsMerk;
@@ -239,6 +237,7 @@ class AsetForm extends Component
             'jumlah' => 'required|integer|min:1',
             'hargaSatuan' => 'required|min:0',
             'umur' => 'required|min:1',
+            'peminjaman' => 'required|in:0,1', // Validasi nilai peminjaman
             'img' => $imgRule,
             'attachments.*' => 'file|max:5024|mimes:jpeg,png,jpg,gif,pdf,doc,docx',
             // 'attachments' => 'array|max:10',
@@ -262,6 +261,7 @@ class AsetForm extends Component
             'img.mimes' => 'Format gambar harus jpeg, png, jpg, gif!',
             'merk.required' => 'Merk wajib diisi!',
             'umur.required' => 'Umur wajib diisi!',
+            'peminjaman.required' => 'Status Peminjaman Aset wajib diisi!',
             'umur.min' => 'Umur minimal 1 tahun!',
             'merk.string' => 'Merk harus berupa teks!',
             'merk.max' => 'Merk tidak boleh lebih dari 255 karakter!',
@@ -331,6 +331,7 @@ class AsetForm extends Component
             $this->lamagaransi = $this->aset->lama_garansi;
             // $this->attachments = $this->aset->attachments;  // Assuming attachments are stored as an array or similar structure
             $this->keterangan = $this->aset->keterangan;
+            $this->peminjaman = $this->aset->peminjaman;
             // Ambil lampiran yang terkait dengan aset
             $this->oldattachments = Lampiran::where('aset_id', $this->aset->id)->get();
             $this->oldgaransiattachments = Garansi::where('aset_id', $this->aset->id)->get();
@@ -543,12 +544,14 @@ class AsetForm extends Component
             'jumlah' => $this->jumlah,
             'lama_garansi' => $this->lamagaransi,
             'keterangan' => $this->keterangan,
+            'peminjaman' => (int) $this->peminjaman, // Pastikan tersimpan sebagai integer
             'hargasatuan' => $this->cleanCurrency($this->hargaSatuan),
             'hargatotal' => $this->cleanCurrency($this->hargaTotal),
             'umur' => $this->umur,
             'penyusutan' => $this->cleanCurrency($this->penyusutan),
         ];
 
+        // dd($data);
         // Insert or update aset based on $this->aset
         $aset = Aset::updateOrCreate(['id' => $this->aset->id ?? 0], $data);
 
