@@ -19,6 +19,7 @@
         </thead>
 
         <tbody>
+            @if ($showDokumen)
             <tr>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
@@ -34,9 +35,11 @@
                 @endif
                 <th></th>
             </tr>
+            @endif
             @foreach ($list as $index => $item)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="px-2 py-3 font-semibold">
+                        editable {{ $item['editable'] }}
                         <div>{{ $item['merk']->barangStok->nama }}</div>
                         <div class="font-normal text-sm">
                             <table class="w-full">
@@ -244,7 +247,7 @@
 
 
                     <td class="text-center">
-                        {{ $item['jumlah_diterima'] ? '' : 'hidden' }}
+                        
                         {{-- {{ $item['bagian_id'] && $item['posisi_id'] && $item['bukti'] ? '' : 'hidden' }} --}}
                         @if ($item['id'] === null)
                             <button wire:click="removeFromList({{ $index }})"

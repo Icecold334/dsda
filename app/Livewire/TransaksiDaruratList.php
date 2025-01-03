@@ -73,7 +73,7 @@ class TransaksiDaruratList extends Component
         $this->suggestions[$field] = [];
     }
 
-    public $specifications = [
+    public $specifications = [  
         'merek' => '',
         'tipe' => '',
         'ukuran' => '',
@@ -184,13 +184,8 @@ class TransaksiDaruratList extends Component
             ->where('role', $params)
             ->get();
 
-        if ($data->isEmpty()) { // Gunakan isEmpty() untuk Collection
-            $result = true;
-        } else {
-            $result = false;
-        }
+        return $data->isEmpty();
 
-        return $result;
     }
 
     public function getNoKontrak($idkontrak)

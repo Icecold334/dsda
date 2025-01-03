@@ -260,7 +260,7 @@ class ListPengirimanForm extends Component
                     //$transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
                     'boolean_jumlah' => $transaksi->jumlah_diterima ?? 0,
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
-                    'editable' => true,
+                    'editable' => $isEditable,
                     
                 ];
                 // $this->hiddenButtons[$index] = ($transaksi->lokasi_id && $transaksi->bagian_id && $transaksi->bukti) ?? 0;
@@ -371,6 +371,7 @@ class ListPengirimanForm extends Component
     public function updatePengirimanStok($index)
     {
         $data = $this->list[$index];
+        $data['editable'] = false;
 
         if ($data['bukti']){
             $file = $data['bukti'];
@@ -400,6 +401,15 @@ class ListPengirimanForm extends Component
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
 
         $this->hiddenButtons[$index] = true;
+
+        // $data['bagian_id'] && $data['posisi_id'] && $data['bukti']
+        // $this->dispatch('statusAppPenerima', data: 'cek' );
+        return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
+    }
+
+    public function refreshData()
+    {
+        // Simulate fetching new data
     }
 
     public function updateBagian($index, $bagianId)

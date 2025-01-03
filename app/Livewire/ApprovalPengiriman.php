@@ -6,9 +6,11 @@ use Carbon\Carbon;
 use App\Models\Stok;
 use App\Models\User;
 use Livewire\Component;
+use App\Models\Persetujuan;
 use App\Models\PengirimanStok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\PersetujuanPengirimanStok;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 class ApprovalPengiriman extends Component
@@ -42,7 +44,13 @@ class ApprovalPengiriman extends Component
     public $approvalFiles = []; // To hold multiple uploaded files
     public $files = [], $arrayfiles; // To hold multiple uploaded files
 
+    protected $listeners = ['eventName' => 'statusAppPenerima'], $receivedData;
 
+    public function handleEvent($data)
+    {
+        // Handle the event and update the component's state
+        $this->receivedData = $data;
+    }
 
     public function updatedNewApprovalFiles()
     {
@@ -115,19 +123,25 @@ class ApprovalPengiriman extends Component
         $this->lastPpk = $indexPpk === $ppk->count() - 1; // Check if current user is the last user
         $this->ppkList = $ppk;
         // dd(PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id'));
-        $penerima = User::role('Penerima Barang')
-            ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-            ->whereHas('lokasiStok', function ($query) {
-                $query->whereIn('lokasi_id', PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id'));
-            })
-            ->get();
+        $penerima = User::with(['pengirimanStok' => function ($query) {
+            $query->where('detail_pengiriman_id', $this->pengiriman->id);
+        }])
+        ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
+        ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+        ->whereHas('lokasiStok', function ($query) {
+            $query->whereIn(
+                'lokasi_id',
+                PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
+            );
+        })
+        ->get();
 
         $indexPenerima = $penerima->search(function ($user) {
             return $user->id == Auth::id();
         });
 
         $this->lastPenerima = $indexPenerima === $penerima->count() - 1; // Check if current user is the last user
-        $this->penerimaList = $penerima;
+        $this->penerimaList = $this->checkApprovePB();
 
 
         $pemeriksa = User::role('Pemeriksa Barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
@@ -171,16 +185,73 @@ class ApprovalPengiriman extends Component
                 $previousUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
         }
 
-        $this->indikatorPenerima = $this->checkApprovPenerimaBarang($this->pengiriman->id);
+        // $this->indikatorPenerima = $this->checkApprovPenerimaBarang($this->pengiriman->id, Auth::id()); 
+
+        //$this->receivedData ??
+        
+        $this->checkPreviousApproval = $this->CheckApproval();
+        $this->CheckCurrentApproval = $this->CheckCurrentApproval();
     }
 
-    public $indikatorPenerima;
+    public $indikatorPenerima, $checkPreviousApproval, $CheckCurrentApproval;
 
-    public function checkApprovPenerimaBarang($id)
+    public function checkApprovePB(){
+        $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
+        $data = User::with(['pengirimanStok' => function ($query) {
+            $query->where('detail_pengiriman_id', $this->pengiriman->id);
+        }])
+        ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
+        ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+        ->whereHas('lokasiStok', function ($query) {
+            $query->whereIn(
+                'lokasi_id',
+                PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
+            );
+        })
+        ->get();
+        
+        $processedData = $data->map(function ($item) {
+           
+            $cekApprove = false;
+        
+            // Iterate through each pengirimanStok of the current item
+            /**
+             * Namanya metode Pass-by-reference (menggunakan &)
+             * kegunaan & pada variabel berguna untuk meneruskan 
+             * Penggunaan &$cekApprove dalam 
+             * kode Anda merujuk pada pass-by-reference. Artinya, 
+             * saat Anda menggunakannya di dalam closure (fungsi anonim) yang dipakai dalam map, 
+             * variabel $cekApprove akan diteruskan ke dalam fungsi tersebut dengan referensinya, 
+             * bukan dengan salinannya. Dengan begitu, setiap kali Anda mengubah nilai $cekApprove di dalam closure, perubahan tersebut akan langsung mempengaruhi 
+             * variabel $cekApprove di luar closure, dalam konteks objek $item.
+            */
+             
+            $item->pengirimanStok->map(function ($pengiriman) use (&$cekApprove) {
+                // Check the condition for each pengiriman
+                if ($pengiriman->bagian_id && $pengiriman->posisi_id && $pengiriman->img) {
+                    $cekApprove = true;  // If any condition is met, set $cekApprove to true
+                }
+                // Assign the $cekApprove flag to each pengirimanStok
+                $pengiriman->cekpeng = $cekApprove;
+            });
+        
+            // Assign the final value of $cekApprove to the parent item
+            $item->cekApprove = $cekApprove;
+        
+            // Return the modified item
+            return $item;
+        });
+        
+        // Return the processed data
+        return $processedData;
+    }
+    public function checkApprovPenerimaBarang($id, $user_id)
     {
 
         $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
-        $data = PengirimanStok::where('detail_pengiriman_id', $id)->where(
+        $data = PengirimanStok::where('detail_pengiriman_id', $id)->whereHas('lokasiStok', function ($query) use ($user_id) {
+            $query->whereHas('user', fn($q) => $q->where('id', $user_id));
+        })->where(
             function ($query) {
                 $query->where('img', null)->orWhere('bagian_id', null)->orWhere('posisi_id', null);
             }
@@ -292,10 +363,51 @@ class ApprovalPengiriman extends Component
             'status' => true
         ]);
         $this->pengiriman->save();
+        return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
     }
 
-    public function CheckApproval(){
+    public function CheckApproval()
+    {
+        $urutanApproval = collect(['Penerima Barang', 'Pemeriksa Barang', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen']);
+        // return $this->pengiriman->persetujuan()->get();
+        $index = $urutanApproval->search(function ($item) {
+            return $item === $this->roles;
+        });
+        $previousElement = $urutanApproval->filter(function ($item, $key) use ($index) {
+            return $key === $index - 1;
+        })->first();
 
+        // return $previousElement;
+        // return $this->pengiriman->whereHas(
+        //     'persetujuan',
+        //     fn($query) => $query->where('status', 1)->whereHas(
+        //         'user',
+        //         fn($query1) => $query1->role($previousElement)
+        //     )
+        // )->get();
+
+        return PersetujuanPengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->where('status', 1)->whereHas(
+            'user',
+            fn($query1) => $query1->role($previousElement)
+        )->get();
+    }
+
+    public function CheckCurrentApproval()
+    {
+        $currentRole = $this->roles;
+
+        // return $previousElement;
+        // return $this->pengiriman->whereHas(
+        //     'persetujuan',
+        //     fn($query) => $query->where('status', 1)->whereHas(
+        //         'user',
+        //         fn($query1) => $query1->role($currentRole)
+        //     )
+        // )->get();
+        return PersetujuanPengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->where('status', 1)->whereHas(
+            'user',
+            fn($query1) => $query1->role($currentRole)
+        )->get();
     }
 
     public function ApprovePPKandFinish()
