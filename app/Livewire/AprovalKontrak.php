@@ -13,7 +13,7 @@ class AprovalKontrak extends Component
 {
     use WithFileUploads;
     public $kontrak;
-    public $penanggungjawab;
+    public $pj;
     public $penulis;
     public $user;
     public $date;
@@ -61,9 +61,9 @@ class AprovalKontrak extends Component
         $this->user = Auth::user();
         if ($this->kontrak) {
             if ($this->kontrak->type) {
-                $this->roles = 'penanggungjawab';
+                $this->roles = 'Penanggung Jawab';
                 // $date = Carbon::parse($this->date);
-                // $users = User::role('penanggungjawab')
+                // $users = User::role('Penanggung Jawab')
                 //     ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
                 //     ->get();
 
@@ -71,7 +71,7 @@ class AprovalKontrak extends Component
                 //     return $user->id == Auth::id();
                 // });
                 // $previousUser = $index > 0 ? $users[$index - 1] : null;
-                // $users = User::role('penanggungjawab')
+                // $users = User::role('Penanggung Jawab')
                 //     ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
                 //     ->get();
                 // $index = $users->search(function ($user) {
@@ -90,17 +90,17 @@ class AprovalKontrak extends Component
                 // }
                 // $this->pjList = $users;
             } else {
-                $this->roles = 'penanggungjawab|ppk|pptk';
+                $this->roles = 'Penanggung Jawab|Pejabat Pembuat Komitmen|Pejabat Pembuat Komitmen';
 
                 $this->penulis = $this->kontrak->transaksiStok->unique('user_id');
                 $date = Carbon::parse($this->date);
-                $pj = User::role('penanggungjawab')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+                $pj = User::role('Penanggung Jawab')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
                 $indexPj = $pj->search(function ($user) {
                     return $user->id == Auth::id();
                 });
                 $this->lastPj = $indexPj === $pj->count() - 1;
                 $this->pjList = $pj;
-                $ppk = User::role('ppk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+                $ppk = User::role('Pejabat Pembuat Komitmen')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
                 $indexPpk = $ppk->search(function ($user) {
                     return $user->id == Auth::id();
                 });
@@ -109,7 +109,7 @@ class AprovalKontrak extends Component
                 $this->ppkList = $ppk;
 
 
-                $pptk = User::role('pptk')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+                $pptk = User::role('Pejabat Pembuat Komitmen')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
                 $indexPptk = $pptk->search(function ($user) {
                     return $user->id == Auth::id();
                 });

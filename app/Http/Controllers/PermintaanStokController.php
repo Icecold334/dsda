@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailPeminjamanAset;
 use App\Models\DetailPermintaanStok;
+use App\Models\Kategori;
+use App\Models\KategoriStok;
 use App\Models\PermintaanStok;
 use Illuminate\Http\Request;
 
@@ -25,22 +27,24 @@ class PermintaanStokController extends Controller
         })->orderBy('id', 'desc')->get();
 
         $permintaans = is_null($tipe) || $tipe === 'umum' ?  $permintaan->merge($peminjaman) : $permintaan;
+        $kategoris = KategoriStok::all();
 
-        return view('permintaan.index', compact('permintaans', 'tipe'));
+        return view('permintaan.index', compact('permintaans', 'tipe', 'kategoris'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create($tipe, $next = 0)
+    public function create($tipe, $kategori, $next = 0)
     {
         $last = null;
-        if ($next) {
+        if ($next !== 0) {
             $model = $tipe === 'permintaan' ? '\App\Models\DetailPermintaanStok' : '\App\Models\DetailPeminjamanAset';
             $last = app($model)::latest()->first();
         }
+        $kategori = KategoriStok::where('slug', $kategori)->first();
 
-        return view('permintaan.create', compact('tipe', 'last'));
+        return view('permintaan.create', compact('tipe', 'last', 'kategori'));
     }
 
     /**
@@ -56,7 +60,6 @@ class PermintaanStokController extends Controller
      */
     public function show(string $tipe = '', string $id)
     {
-
         $permintaan = $tipe == 'permintaan' ? DetailPermintaanStok::find($id) : DetailPeminjamanAset::find($id);
         return view('permintaan.show', compact('permintaan', 'tipe'));
     }

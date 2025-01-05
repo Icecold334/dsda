@@ -1,6 +1,6 @@
 <div>
     <table class="w-full border-3 border-separate border-spacing-y-4">
-        {{ $role_name }} 
+        {{ $role_name }}
         <thead>
             <tr class="text-white bg-primary-950 uppercase">
                 <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
@@ -63,15 +63,15 @@
                                         <img src="{{ is_string($item['bukti']) ? asset('storage/buktiTransaksi/' . $item['bukti']) : $item['bukti']->temporaryUrl() }}"
                                             alt="Bukti" class="w-16 h-16 rounded-md">
                                     </a>
-                                    @role('Penanggung Jawab')
+                                    {{-- @role('Penanggung Jawab')
                                         <button wire:click="removePhoto({{ $index }})"
                                             class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600  text-white rounded-full w-5 h-5 text-xs">
                                             &times;
                                         </button>
                                     @endrole
-                                </div>
-                            @else
-                                <!-- Show upload button if no file is selected -->
+                                </div> --}}
+                                @else
+                                    {{-- <!-- Show upload button if no file is selected -->
                                 @role('Penanggung Jawab')
                                     <button type="button"
                                         onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
@@ -79,73 +79,90 @@
                                         <i class="fa-solid fa-file-arrow-up"></i> Upload
                                     </button>
                                 @else
-                                    <div class="font-semibold text-gray-400">Menunggu PJ</div>
-                                @endrole
+                                    <span
+                                        class="bg-warning-100 text-warning-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-warning-900 dark:text-warning-300">Menunggu
+                                        Penanggung Jawab</span>
+                                @endrole --}}
                             @endif
 
                             @error("list.{$index}.bukti")
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                             @enderror
                         </td>
-                        <td class="text-center py-3 px-6">
-                            @can('persetujuan')
-                                {{-- {{ $item['sumApprove'] }} --}}
-                                {{-- Jika pengguna adalah PPK --}}
-                                {{-- @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $item['ppk_isapprove']) --}}
-                                @if ($item['bukti'] && auth()->user()->hasRole('Penanggung Jawab') && $item['pj_isapprove'])
-                                    <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
-                                        class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
-                                        Approve PJ
-                                    </button>
+                        <td class="text-center py-3 px-1">
+                            @if ($item['id'])
+                                @can('persetujuan')
+                                    {{-- {{ $item['sumApprove'] }} --}}
+                                    {{-- Jika pengguna adalah PPK --}}
+                                    {{-- @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $item['ppk_isapprove']) --}}
+                                    @if ($item['bukti'] && auth()->user()->hasRole('Penanggung Jawab') && $item['pj_isapprove'])
+                                        <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
+                                            class="text-warning-700 bg-warning-100 border border-warning-600 rounded-lg px-3 py-1.5 hover:bg-warning-600 hover:text-white transition">
+                                            Setujui
+                                        </button>
 
-                                    {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
-                                @elseif ($item['bukti'] && auth()->user()->hasRole('Pejabat Pelaksana Teknis Kegiatan') && $item['pptk_isapprove'] && !$item['pj_isapprove'])
-                                    <button onclick="confirmApproval({{ $index }}, 'Pejabat Pelaksana Teknis Kegiatan')"
-                                        class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
-                                        Approve PPTK
-                                    </button>
-                                    {{-- Jika pengguna adalah PJ dan sudah ada approval dari PPTK --}}
-                                @elseif (
-                                    $item['bukti'] &&
-                                        auth()->user()->hasRole('Pejabat Pembuat Komitmen') &&
-                                        $item['ppk_isapprove'] &&
-                                        !$item['pptk_isapprove'] &&
-                                        !$item['pj_isapprove']
-                                )
-                                    <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
-                                        class="text-green-700 bg-green-100 border border-green-600 rounded-lg px-3 py-1.5 hover:bg-green-600 hover:text-white transition">
-                                        Approve PPK
-                                    </button>
-                                @else
-                                    {{-- Status persetujuan hanya ditampilkan jika bukti belum diisi --}}
-                                    {{-- @if (empty($item['bukti']))
+                                        {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
+                                    @elseif (
+                                        $item['bukti'] &&
+                                            auth()->user()->hasRole('Pejabat Pelaksana Teknis Kegiatan') &&
+                                            $item['pptk_isapprove'] &&
+                                            !$item['pj_isapprove']
+                                    )
+                                        <button
+                                            onclick="confirmApproval({{ $index }}, 'Pejabat Pelaksana Teknis Kegiatan')"
+                                            class="text-warning-700 bg-warning-100 border border-warning-600 rounded-lg px-3 py-1.5 hover:bg-warning-600 hover:text-white transition">
+                                            Setujui
+                                        </button>
+                                        {{-- Jika pengguna adalah PJ dan sudah ada approval dari PPTK --}}
+                                    @elseif (
+                                        $item['bukti'] &&
+                                            auth()->user()->hasRole('Pejabat Pembuat Komitmen') &&
+                                            $item['ppk_isapprove'] &&
+                                            !$item['pptk_isapprove'] &&
+                                            !$item['pj_isapprove']
+                                    )
+                                        <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
+                                            class="text-warning-700 bg-warning-100 border border-warning-600 rounded-lg px-3 py-1.5 hover:bg-warning-600 hover:text-white transition">
+                                            Setujui
+                                        </button>
+                                    @else
+                                        {{-- Status persetujuan hanya ditampilkan jika bukti belum diisi --}}
+                                        {{-- @if (empty($item['bukti']))
                                     <span
-                                        class="{{ $item['status'] ? 'text-green-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
+                                        class="{{ $item['status'] ? 'text-warning-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
                                         {{ is_null($item['status']) ? 'Menunggu' : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
                                     </span>
                                 @endif --}}
 
-                                    @if ($item['sumApprove'] === 3 && !$item['ppk_isapprove'])
-                                        <span class="text-green-600">Disetujui ppk
-                                        </span>
-                                    @elseif($item['sumApprove'] === 2 && !$item['pptk_isapprove'])
-                                        <span class="text-green-600">Disetujui pptk
-                                        </span>
-                                    @elseif($item['sumApprove'] === 1)
-                                        <span class="text-green-600">Disetujui pj
-                                        </span>
-                                    @else
-                                        <span class="text-red-600">Menunggu
-                                        </span>
+                                        @if ($item['sumApprove'] === 3 && !$item['ppk_isapprove'])
+                                            <div
+                                                class="bg-success-100 text-success-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-success-900 dark:text-success-300">
+                                                disetujui</div>
+                                        @elseif($item['sumApprove'] === 2 && !$item['pptk_isapprove'])
+                                            <div
+                                                class="bg-warning-100 text-warning-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-warning-900 dark:text-warning-300">
+                                                Menunggu
+                                                PPK</div>
+                                        @elseif($item['sumApprove'] === 1)
+                                            <div
+                                                class="bg-warning-100 text-warning-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-warning-900 dark:text-warning-300">
+                                                Menunggu
+                                                PPTK</div>
+                                        @else
+                                            <div
+                                                class="bg-warning-100 text-warning-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-warning-900 dark:text-warning-300">
+                                                Menunggu
+                                                Penanggung Jawab</div>
+                                        @endif
                                     @endif
-                                @endif
-                            @else
-                                {{-- Untuk pengguna yang tidak memiliki hak persetujuan --}}
-                                <span
-                                    class="{{ $item['status'] ? 'text-green-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
-                                    {{ is_null($item['status']) ? (empty($item['bukti']) ? 'Menunggu' : '') : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
-                                </span>
-                            @endcan
+                                @else
+                                    {{-- Untuk pengguna yang tidak memiliki hak persetujuan --}}
+                                    <span
+                                        class="{{ $item['status'] ? 'text-warning-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
+                                        {{ is_null($item['status']) ? (empty($item['bukti']) ? 'Menunggu' : '') : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
+                                    </span>
+                                @endcan
+                            @endif
                         </td>
 
                         @push('scripts')
@@ -311,7 +328,7 @@
                     </td>
                     <td class="text-center py-3">
                         <button wire:click="addToList"
-                            class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newKeterangan && $newLokasiPenerimaan ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                            class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiPenerimaan ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                             <i class="fa-solid fa-circle-check"></i>
                         </button>
                     </td>

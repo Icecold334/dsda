@@ -6,14 +6,16 @@ use Carbon\Carbon;
 use App\Models\Stok;
 use App\Models\User;
 use Livewire\Component;
+use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use App\Models\StokDisetujui;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PersetujuanPermintaanStok;
-use App\Models\UnitKerja;
+use Illuminate\Support\Facades\Notification;
 
 class ApprovalPermintaan extends Component
 {
@@ -134,6 +136,14 @@ class ApprovalPermintaan extends Component
 
     public function approveConfirmed($status, $message = null)
     {
+        if ($status) {
+            $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
+            if ($currentIndex != count($this->roleLists) - 1) {
+                $message = 'Permintaan ' . $this->permintaan->jenisStok->nama . ' <span class="font-bold">' . $this->permintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
+                $user = User::find(collect($this->roleLists)->flatten(1)[$currentIndex + 1]->id);
+                Notification::send($user, new UserNotification($message, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+            }
+        }
 
         $this->permintaan->persetujuan()->create([
             'detail_' . $this->tipe . '_id' => $this->permintaan->id,

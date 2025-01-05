@@ -88,6 +88,10 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH</th>
                 @if ($kontrak->type)
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">SISA</th>
+                @else
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">LOKASI PENERIMAAN</th>
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">KETERANGAN</th>
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">DOKUMEN PENDUKUNG</th>
                 @endif
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
@@ -122,6 +126,14 @@
                             {{ $transaksi->merkStok->barangStok->satuanBesar->nama }}
 
                         </td>
+                    @else
+                        <td class="text-center py-3 font-semibold ">{{ $transaksi->lokasi_penerimaan }}</td>
+                        <td class="text-center py-3 font-semibold ">{{ $transaksi->deskripsi }}</td>
+                        <td class="flex justify-center py-3 font-semibold "> <a class="text-center"
+                                href="{{ asset('storage/buktiTransaksi/' . $transaksi->img) }}" target="_blank">
+                                <img src="{{ asset('storage/buktiTransaksi/' . $transaksi->img) }}" alt="Preview Bukti"
+                                    class="w-16 h-16 rounded-md text-center">
+                            </a></td>
                     @endif
 
                     <td class="text-center py-3 ">

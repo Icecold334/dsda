@@ -3,17 +3,21 @@
 namespace App\Livewire;
 
 use id;
+use App\Models\Toko;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
+use App\Models\Persetujuan;
 use App\Models\SatuanBesar;
 use Faker\Factory as Faker;
 use Livewire\Attributes\On;
 use App\Models\TransaksiStok;
 use Livewire\WithFileUploads;
 use App\Models\KontrakVendorStok;
-use App\Models\Persetujuan;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\UserNotification;
+use Illuminate\Support\Facades\Notification;
 
 class TransaksiDaruratList extends Component
 {
@@ -43,13 +47,7 @@ class TransaksiDaruratList extends Component
 
     public $role_name, $cekStatusItem;
 
-    public function __construct()
-    {
-        /**
-         * mengambil array pertama untuk role name
-         */
-        $this->role_name = Auth::user()->roles->pluck('name')->first();
-    }
+
     public function fetchSuggestions($field, $value)
     {
         $this->suggestions[$field] = [];
@@ -73,7 +71,7 @@ class TransaksiDaruratList extends Component
         $this->suggestions[$field] = [];
     }
 
-    public $specifications = [  
+    public $specifications = [
         'merek' => '',
         'tipe' => '',
         'ukuran' => '',
@@ -99,6 +97,8 @@ class TransaksiDaruratList extends Component
 
     public function mount()
     {
+        $this->role_name = Auth::user()->roles->pluck('name')->first();
+
         $this->satuanBesarOptions = SatuanBesar::all();
         if ($this->transaksi) {
 
@@ -166,7 +166,8 @@ class TransaksiDaruratList extends Component
         // $this->nomor_kontrak = $this->getNoKontrak($this->vendor_id)->nomor_kontrak;
     }
 
-    private function checkStatusbyVendor($vendor_id){
+    private function checkStatusbyVendor($vendor_id)
+    {
         $data = TransaksiStok::where('status', 0)->where('vendor_id', $vendor_id)->get();
         if ($data->isEmpty()) { // Gunakan isEmpty() untuk Collection jika tidak ada maka sudah acc semua
             $result = 1;
@@ -185,7 +186,6 @@ class TransaksiDaruratList extends Component
             ->get();
 
         return $data->isEmpty();
-
     }
 
     public function getNoKontrak($idkontrak)
@@ -280,6 +280,7 @@ class TransaksiDaruratList extends Component
 
     public function saveKontrak()
     {
+
         $this->validate([
             'vendor_id' => 'required',
             'list' => 'required|array|min:1',
@@ -323,6 +324,18 @@ class TransaksiDaruratList extends Component
                     'deskripsi' => $item['keterangan'] ?? '',
                     'lokasi_penerimaan' => $item['lokasi_penerimaan'] ?? '',
                 ]);
+                $vendor = Toko::find($this->vendor_id);
+                $message = 'Transaksi dengan vendor <span class="font-bold">' . $vendor->nama . '</span> membutuhkan persetujuan Anda.';
+                // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
+                $users = Role::where('name', 'Penanggung Jawab')->first()->users()->whereHas(
+                    'unitKerja',
+                    function ($unit) {
+                        return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                    }
+                )->get();
+                foreach ($users as $user) {
+                    Notification::send($user, new UserNotification($message, route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->vendor_id])));
+                }
             }
         }
         $vendor_id = $this->vendor_id;
@@ -488,6 +501,33 @@ class TransaksiDaruratList extends Component
 
     public function approveTransaction($index)
     {
+        if ($this->role_name == 'Penanggung Jawab') {
+            $vendor = Toko::find($this->vendor_id);
+            $message = 'Transaksi dengan vendor <span class="font-bold">' . $vendor->nama . '</span> membutuhkan persetujuan Anda.';
+            // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
+            $users = Role::where('name', 'Pejabat Pelaksana Teknis Kegiatan')->first()->users()->whereHas(
+                'unitKerja',
+                function ($unit) {
+                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                }
+            )->get();
+            foreach ($users as $user) {
+                Notification::send($user, new UserNotification($message, route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->vendor_id])));
+            }
+        } elseif ($this->role_name == 'Pejabat Pelaksana Teknis Kegiatan') {
+            $vendor = Toko::find($this->vendor_id);
+            $message = 'Transaksi dengan vendor <span class="font-bold">' . $vendor->nama . '</span> membutuhkan persetujuan Anda.';
+            // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
+            $users = Role::where('name', 'Pejabat Pembuat Komitmen')->first()->users()->whereHas(
+                'unitKerja',
+                function ($unit) {
+                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                }
+            )->get();
+            foreach ($users as $user) {
+                Notification::send($user, new UserNotification($message, route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->vendor_id])));
+            }
+        }
         // Cari transaksi berdasarkan ID yang ada di list
         $transaction = TransaksiStok::findOrFail($this->list[$index]['id']);
 
@@ -574,7 +614,7 @@ class TransaksiDaruratList extends Component
     }
     public function render()
     {
-        
+
         return view('livewire.transaksi-darurat-list');
     }
 }

@@ -30,7 +30,7 @@
                 <li class="px-4 py-3 text-gray-500 text-sm">Tidak ada notifikasi</li>
             @endforelse
         </ul>
-        @if (auth()->user()->notifications->count() > 0)
+        {{-- @if (auth()->user()->notifications->count() > 0)
             <div class="flex">
                 <div class="border-t px-4 py-3 text-center group hover:bg-primary-600 transition duration-200">
                     <button wire:click="markAllAsRead"
@@ -44,6 +44,6 @@
                         Semua</button>
                 </div>
             </div>
-        @endif
+        @endif --}}
     </div>
 </li>
