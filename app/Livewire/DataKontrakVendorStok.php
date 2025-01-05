@@ -14,6 +14,7 @@ class DataKontrakVendorStok extends Component
     public $metode = '';
     public $tanggal = '';
     public $groupedTransactions;
+    public $unit_id;
     public $jenisOptions = [];
     public $metodeOptions = [];
 

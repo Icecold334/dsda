@@ -13,6 +13,7 @@ class DataPengirimanStok extends Component
     public $jenis = '';
     public $tanggal = '';
     public $datangs;
+    public $unit_id;
     public $jenisOptions = [];
 
     // public function updatedSearch()

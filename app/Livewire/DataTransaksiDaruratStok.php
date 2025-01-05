@@ -9,6 +9,7 @@ class DataTransaksiDaruratStok extends Component
 {
     public $search = ''; // Search term
     public $transaksi; // Transactions
+    public $unit_id; // Transactions
     public $groupedTransactions; // Grouped transactions
 
     public function mount()
@@ -43,8 +44,9 @@ class DataTransaksiDaruratStok extends Component
             ->get();
 
         // Group transactions by vendor_id and then by unit_id
-        $this->groupedTransactions = $this->transaksi->sortByDesc('tanggal')->groupBy('vendor_id');
-        // dd($this->groupedTransactions);
+        // $this->groupedTransactions = $this->transaksi->sortByDesc('tanggal')->groupBy('vendor_id');
+        // $this->groupedTransactions = $this->transaksi->sortByDesc('tanggal');
+        $this->groupedTransactions = $this->transaksi->groupBy('vendor_id');
     }
 
     public function render()
