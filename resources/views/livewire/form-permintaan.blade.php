@@ -26,7 +26,7 @@
                                     Pilih Layanan *</label>
                             </td>
                             <td>
-                                <select wire:model.live="tipePeminjaman" @disabled($listCount > 0)
+                                <select wire:model.live="tipePeminjaman" @disabled($listCount > 0 || true)
                                     class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                     <option value="">Pilih Layanan</option>
                                     <option value="Ruangan">Peminjaman Ruangan</option>
@@ -122,7 +122,7 @@
         </div>
     </div>
     @if ($tipe == 'peminjaman')
-        <livewire:list-peminjaman-form :peminjaman="$permintaan" :last="$last">
+        <livewire:list-peminjaman-form :peminjaman="$permintaan" :last="$last" :tipe="$tipePeminjaman">
         @else
             <livewire:list-permintaan-form :permintaan="$permintaan" :last="$last" :kategori_id="$kategori_id">
     @endif

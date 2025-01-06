@@ -25,7 +25,7 @@
         </div>
 
     </div>
-    @if ($tipe == 'umum' || $tipe == null)
+    @if ($tipe == 'umum' && true)
         <div class="grid grid-cols-2 gap-6">
 
             <x-card title='Permintaan'>
@@ -46,7 +46,7 @@
                 </div>
             </x-card>
             <x-card title='Peminjaman'>
-                <div class="flex flex-col  gap-3">
+                <div class="flex flex-col capitalize  gap-3">
                     <a href="/permintaan/add/peminjaman/kdo"
                         class="block items-center p-4 w-full shadow-lg bg-white border border-gray-200 rounded-lg hover:bg-gray-200 dark:bg-gray-800 transition duration-200 dark:border-gray-700 dark:hover:bg-gray-700 vertical-center">
                         <div class="content">
