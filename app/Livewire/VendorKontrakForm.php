@@ -85,6 +85,7 @@ class VendorKontrakForm extends Component
         $this->barangs = JenisStok::all();
         $this->vendors = Toko::all();
         $this->cekSemuaItem = $this->checkStatusbyVendor($this->vendor_id);
+        // dd($this->cekSemuaItem);
         if ($this->vendor_id) {
             $vendor = Toko::find($this->vendor_id);
             $this->query = $vendor->nama;
@@ -161,16 +162,20 @@ class VendorKontrakForm extends Component
         $this->showSuggestions = false;
     }
 
-    private function checkStatusbyVendor($vendor_id){
-        $data = TransaksiStok::where(function ($query) {
-            $query->where('status', NULL)->orWhere('status', 0);
+    private function checkStatusbyVendor($vendor_id)
+    {
+        $data = TransaksiStok::whereHas('user.UnitKerja', function ($query) {
+            return $query->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        })->where(function ($query) {
+            $query->whereNull('status')->orWhere('status', 0);
         })->where('vendor_id', $vendor_id)->get();
+        // dd($data);
         if ($data->isEmpty()) { // Gunakan isEmpty() untuk Collection jika tidak ada maka sudah acc semua
             $result = true;
         } else {
             $result = false;
         }
-
+        $this->dispatch('daruratOk', oke: $result);
         return $result;
     }
 

@@ -146,8 +146,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('order', OrderController::class);
     Route::resource('provinsi', ProvinsiController::class);
     Route::resource('kalender', KalenderController::class);
-    Route::get('permintaan/add/{tipe}', [PermintaanStokController::class, 'create']);
-    Route::get('permintaan/add/{tipe}/{next}', [PermintaanStokController::class, 'create']);
+    Route::get('permintaan/add/{tipe}/{kategori}', [PermintaanStokController::class, 'create']);
+    Route::get('permintaan/add/{tipe}/{kategori}/{next}', [PermintaanStokController::class, 'create']);
     Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'index']);
     Route::get('option-approval', [PengaturanPersetujuanController::class, 'index']);
     Route::get('option-approval/{tipe}/{jenis}', [PengaturanPersetujuanController::class, 'edit']);

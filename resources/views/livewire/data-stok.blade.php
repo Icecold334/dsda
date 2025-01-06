@@ -24,17 +24,26 @@
                         <option value="{{ $jenis }}">{{ $jenis }}</option>
                     @endforeach
                 </select>
-                <select wire:model.live="lokasi" class="border rounded-lg px-4 py-2 w-full">
-                    <option value="">Pilih lokasi</option>
+                <select wire:model.live="lokasi" wire:change="applyFilters" class="border rounded-lg px-4 py-2 w-full">
+                    <option value="">Pilih Lokasi</option>
                     @foreach ($lokasiOptions as $lokasi)
                         <option value="{{ $lokasi }}">{{ $lokasi }}</option>
                     @endforeach
                 </select>
-
+                @if ($barangs->count())
+                    <button data-tooltip-target="tooltip-excel" wire:click="downloadExcel"
+                        class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
+                            class="fa-solid fa-file-excel"></i></button>
+                @endif
+                <div id="tooltip-excel" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Download dalam format excel
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
                 <!-- Button Go -->
-                <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                {{-- <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
                     <i class="fa fa-sync-alt"></i>
-                </button>
+                </button> --}}
             </div>
         </div>
     </div>

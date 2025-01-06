@@ -116,7 +116,7 @@
         @endif
     </div>
     @hasanyrole($roles)
-        @if ($showButton)
+        {{-- @if ($showButton)
             <div class="flex">
                 <div class="flex space-x-2 justify-center w-full">
                     @if ($isLastUser || $lastPj || $lastPpk || $lastPptk)
@@ -143,7 +143,7 @@
                 </div>
 
             </div>
-        @endif
+        @endif --}}
     @endhasanyrole
     @if (count($files))
         <div class="flex justify-center">

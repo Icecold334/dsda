@@ -54,8 +54,7 @@
             <tr class={{ !$cekSemuaItem ? 'hidden' : '' }}>
                 <td class="w-1/3">
                     <label for="nomor_kontrak"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                        >Nomor
+                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nomor
                         Kontrak *</label>
                 </td>
                 <td>
@@ -67,7 +66,7 @@
                     @enderror
                 </td>
             </tr>
-            <tr>
+            <tr class="{{ !$cekSemuaItem ? 'hidden' : '' }}">
                 <td class="w-1/3">
                     <label for="tanggal_kontrak"
                         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal Kontrak *</label>
@@ -101,7 +100,7 @@
             </td>
         </tr>
         @if ($showMetode)
-            <tr>
+            <tr class="{{ !$cekSemuaItem ? 'hidden' : '' }}">
                 <td class="w-1/3">
                     <label for="barang_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Metode Pengadaan *</label>

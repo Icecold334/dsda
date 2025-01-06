@@ -46,6 +46,7 @@
             <div class="block font-semibold text-center mb-2 text-gray-900">
                 Penerima Barang</div>
             <table class="w-full mt-3">
+                {{-- {{ dd($penerimaList) }} --}}
                 @foreach ($penerimaList as $penerima)
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
@@ -53,7 +54,7 @@
                                 {{ $penerima->id == auth()->id() ? 'Anda' : $penerima->name }}
                             </span>
                             <i
-                                class="my-1 fa-solid {{ ($indikatorPenerima == 0) 
+                                class="my-1 fa-solid {{ ($penerima->cekApprove == 0) 
                                     ?'fa-circle-question text-secondary-600' : 'fa-circle-check text-success-500'}}" id="penerimaApp">
                             </i>
                             {{-- <i

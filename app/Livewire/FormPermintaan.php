@@ -68,6 +68,8 @@ class FormPermintaan extends Component
 
     public function mount()
     {
+        $kategori = Request::segment(4);
+        // dd($kategori);    
         // dd($this->last);
         // 2024 - 12 - 04
         if ($this->last) {
@@ -91,6 +93,8 @@ class FormPermintaan extends Component
         } else {
             $this->tanggal_permintaan = Carbon::now()->format('Y-m-d');
         }
+
+
         $this->showKategori = Request::is('permintaan/add/permintaan*');
         $this->units = UnitKerja::whereNull('parent_id')->whereHas('children', function ($sub) {
             return $sub;

@@ -47,7 +47,7 @@
                                     Kategori *</label>
                             </td>
                             <td>
-                                <select wire:model.live="kategori_id" @disabled($listCount > 0)
+                                <select wire:model.live="kategori_id" @disabled($listCount > 0 || true)
                                     class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                     <option value="">Pilih Kategori</option>
                                     @foreach ($kategoris as $kategori)
@@ -124,6 +124,6 @@
     @if ($tipe == 'peminjaman')
         <livewire:list-peminjaman-form :peminjaman="$permintaan" :last="$last">
         @else
-            <livewire:list-permintaan-form :permintaan="$permintaan" :last="$last">
+            <livewire:list-permintaan-form :permintaan="$permintaan" :last="$last" :kategori_id="$kategori_id">
     @endif
 </div>

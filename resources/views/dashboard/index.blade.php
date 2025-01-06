@@ -556,10 +556,10 @@
                                             {!! $transaksi->tipe === 'out'
                                                 ? '<span class="text-danger-600"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>'
                                                 : '<span class="text-success-600"><i class="fa-solid fa-arrow-right-to-bracket"></i></span>' !!}
-                                            <a href="{{ route('aset.show', $transaksi->aset->id) }}" <a
+                                            <a href="{{ route('aset.show', $transaksi->aset->id) }}"
                                                 href="{{ route('aset.show', $transaksi->aset->id) }}"
                                                 class="text-primary-900 hover:underline">
-                                                {{ $transaksi->nominal }}</a>
+                                                {{ $transaksi->nominal }}</>
                                         </div>
                                     </div>
                                     <div class="py-3">

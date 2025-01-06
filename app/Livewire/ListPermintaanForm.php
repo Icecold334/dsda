@@ -266,7 +266,6 @@ class ListPermintaanForm extends Component
                 }]);
             }
         ]);
-
         if ($this->requestIs === 'permintaan') {
             $this->availBarangs = $avai->where('kategori_id', $kategori_id)->get();
         } elseif ($this->requestIs === 'spare-part') {
@@ -467,11 +466,10 @@ class ListPermintaanForm extends Component
             ->first();
 
 
-
         $this->fillShowRule();
         $expl = explode('/', Request::getUri());
         $this->requestIs = (int)strlen(Request::segment(3)) > 3 ? Request::segment(3) : $expl[count($expl) - 2];
-        $this->fillKategoriId();
+        $this->fillKategoriId($this->kategori_id ?? null);
 
         $this->showAdd = Request::is('permintaan/add/*');
 
