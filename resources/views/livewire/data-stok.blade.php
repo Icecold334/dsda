@@ -40,10 +40,6 @@
                     Download dalam format excel
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>
-                <!-- Button Go -->
-                {{-- <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
-                    <i class="fa fa-sync-alt"></i>
-                </button> --}}
             </div>
         </div>
     </div>

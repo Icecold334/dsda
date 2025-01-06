@@ -4,10 +4,10 @@
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL {{ Str::upper($tipe) }}</h1>
         <div>
             @if ($tipe == 'peminjaman')
-                <a href="/permintaan/umum"
+                <a href="/permintaan-stok"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
             @else
-                <a href="/permintaan/{{ $permintaan->jenis_id == 3 ? 'umum' : ($permintaan->jenis_id == 2 ? 'spare-part' : 'material') }}"
+                <a href="/permintaan{{ $permintaan->jenis_id == 3 ? '-stok' : ($permintaan->jenis_id == 2 ? '/spare-part' : '/material') }}"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
             @endif
         </div>

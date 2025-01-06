@@ -37,8 +37,8 @@ new #[Layout('layouts.guest')] class extends Component {
 
             <div class="heading">
                 <h2>Login</h2>
-                <h6 class="heading">Belum punya akun?</h6>
-                <a href="" class="toggle">Daftar disini</a>
+                {{-- <h6 class="heading">Belum punya akun?</h6>
+                <a href="" class="toggle">Daftar disini</a> --}}
             </div>
 
             {{-- @dump($form) --}}
