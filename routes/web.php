@@ -2,6 +2,7 @@
 
 use App\Models\Aset;
 use App\Models\User;
+use App\Models\Persetujuan;
 use App\Models\PermintaanStok;
 use App\Livewire\AssetCalendar;
 use Illuminate\Support\Facades\Auth;
@@ -34,24 +35,24 @@ use App\Http\Controllers\ProvinsiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JenisStokController;
 use App\Http\Controllers\MerekStokController;
+use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\BagianStokController;
 use App\Http\Controllers\BarangStokController;
 use App\Http\Controllers\KonfirmasiController;
 use App\Http\Controllers\LokasiStokController;
 use App\Http\Controllers\PosisiStokController;
 use App\Http\Controllers\VendorStokController;
+use App\Http\Controllers\PersetujuanController;
 use App\Http\Controllers\AsetNonAktifController;
+use App\Http\Controllers\KategoriStokController;
 use App\Http\Controllers\KontrakVendorController;
 use App\Http\Controllers\TransaksiStokController;
 use App\Http\Controllers\PengirimanStokController;
 use App\Http\Controllers\PermintaanStokController;
 use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
-use App\Http\Controllers\KontrakRetrospektifStokController;
 use App\Http\Controllers\PengaturanPersetujuanController;
-use App\Http\Controllers\PersetujuanController;
-use App\Http\Controllers\UnitKerjaController;
-use App\Models\Persetujuan;
+use App\Http\Controllers\KontrakRetrospektifStokController;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -133,6 +134,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('lokasi-stok/{tipe}', [LokasiStokController::class, 'create'])->middleware('can:data_lokasi_gudang');
     Route::get('lokasi-stok/{tipe}/{id}', [LokasiStokController::class, 'create'])->middleware('can:data_lokasi_gudang');
     Route::resource('lokasi-stok', LokasiStokController::class)->middleware('can:data_lokasi_gudang');
+    Route::get('kategori-stok/{tipe}/{id}', [KategoriStokController::class, 'create'])->middleware('can:data_kategori_stok');
+    Route::resource('kategori-stok', KategoriStokController::class)->middleware('can:data_kategori_stok');
     Route::resource('merek-stok', MerekStokController::class);
     Route::resource('posisi-stok', PosisiStokController::class);
     Route::resource('vendor-stok', VendorStokController::class);
@@ -159,6 +162,7 @@ Route::middleware(['auth'])->group(function () {
         'merk-stok' => MerkStokController::class,
         'vendor-stok' => VendorStokController::class,
         'lokasi-stok' => LokasiStokController::class,
+        'kategori-stok' => KategoriStokController::class,
         'bagian-stok' => BagianStokController::class,
         'posisi-stok' => PosisiStokController::class,
         'kontrak-vendor-stok' => KontrakVendorStokController::class,
