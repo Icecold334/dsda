@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\DetailPengirimanStok;
 use Illuminate\Database\Eloquent\Model;
 
 class LokasiStok extends Model
@@ -17,6 +18,10 @@ class LokasiStok extends Model
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id');
     }
+    public function pengirimanStok()
+    {
+        return $this->hasMany(PengirimanStok::class, 'lokasi_id');
+    }
 
     public function stok()
     {
@@ -27,5 +32,4 @@ class LokasiStok extends Model
     {
         return $this->hasOne(User::class, 'lokasi_id');
     }
-    
 }

@@ -441,15 +441,178 @@
 </head>
 
 <body>
-    <main class=" 
-    {{-- @if (session('register')) sign-up-mode @endif --}}
-    ">
+    <main class=" @if (session('register')) sign-up-mode @endif">
         <div class="box">
             <div class="inner-box">
-                {{ $slot }}
+                <div class="forms-wrap">
+                    <!-- Sign In Form -->
+                    <form wire:submit="loginCheck">
+                        <a class="logo" href="/" style="text-decoration: none">
+                            <img src="{{ asset('dashboard/img/logo.png') }}" alt="easyclass" />
+                            <h2>{{ env('APP_NAME') }}</h2>
+                        </a>
+
+                        <div class="heading">
+                            <h2>Login</h2>
+                            <h6 class="heading">Belum punya akun?</h6>
+                            <a href="" class="toggle">Daftar disini</a>
+                        </div>
+
+                        <div class="actual-form">
+                            <div class="input-wrap">
+                                <input class="input-field" type="text" wire:model="form.email" name="email"
+                                    id="email-login" autocomplete="off">
+                                <label>Email</label>
+                            </div>
+
+                            <div class="input-wrap">
+                                <input class="input-field" wire:model="form.password" type="password" name="password"
+                                    autocomplete="off">
+                                <label>Password</label>
+                            </div>
+
+                            <button type="submit" class="sign-btn">Login</button>
+                            <button type="button" class="sign-google" id="google"><i
+                                    class="fa-brands fa-google"></i> Login Dengan
+                                Google</button>
+                        </div>
+                    </form>
+
+                    <!-- Sign Up Form -->
+                    <form action="/register" method="post" class="form sign-up-form">
+                        @csrf
+
+                        <div class="heading">
+                            <h2>Registrasi</h2>
+                            <h6 class="heading">Sudah Punya Akun?</h6>
+                            <a href="" class="toggle">Login disini</a>
+                        </div>
+
+                        <div class="actual-form">
+                            <div class="input-wrap">
+                                <input class="input-field" type="text" name="name" value="{{ old('name') }}"
+                                    autocomplete="off">
+                                <label>Nama</label>
+                            </div>
+
+                            <div class="input-wrap">
+                                <input class="input-field" type="text" name="username"
+                                    @if (session('register')) value="{{ old('username') }}" @endif
+                                    autocomplete="off">
+                                <label>Username</label>
+                            </div>
+
+                            <div class="input-wrap">
+                                <input class="input-field" type="text" name="email" value="{{ old('email') }}"
+                                    autocomplete="off">
+                                <label>Email</label>
+                            </div>
+
+                            <div class="input-wrap">
+                                <input class="input-field" type="text" name="phone" value="{{ old('phone') }}"
+                                    autocomplete="off">
+                                <label>Nomor Telpon</label>
+                            </div>
+
+                            <div class="input-wrap">
+                                <input class="input-field" type="password" name="password" autocomplete="off">
+                                <label>Password</label>
+                            </div>
+
+                            <div class="input-wrap">
+                                <input class="input-field" type="password" name="password_confirmation"
+                                    autocomplete="off">
+                                <label>Konfirmasi Password</label>
+                            </div>
+
+                            <input type="submit" value="Daftar" class="sign-btn" />
+                        </div>
+                    </form>
+                </div>
+
+                <div class="carousel">
+                    <div class="images-wrapper">
+                        <img src="{{ asset('img/img-1.png') }}" class="image img-1 show" />
+                        <img src="{{ asset('img/img-2.png') }}" class="image img-2" />
+                    </div>
+
+                    <div class="text-slider">
+                        <div class="text-wrap">
+                            <div class="text-group" style="color: white;">
+                                <h2>Selamat Datang</h2>
+                                <h2>Login Untuk Melanjutkan</h2>
+                            </div>
+                        </div>
+
+                        <div class="bullets">
+                            <span class="active" data-value="1"></span>
+                            <span data-value="2"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
+    @if (session('login'))
+        <script>
+            var Toast = Swal.mixin({
+                toast: true,
+                position: "top-start",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({
+                showCloseButton: true,
+                icon: "error",
+                title: "Login gagal!"
+            });
+        </script>
+    @endif
+    @if (session('register'))
+        <script>
+            var Toast = Swal.mixin({
+                toast: true,
+                position: "top-start",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({
+                showCloseButton: true,
+                icon: "error",
+                title: "Registrasi gagal!"
+            });
+        </script>
+    @endif
+    @if (session('daftar'))
+        <script>
+            var Toast = Swal.mixin({
+                toast: true,
+                position: "top-start",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({
+                showCloseButton: true,
+                icon: "success",
+                title: "Registrasi berhasil!"
+            });
+        </script>
+    @endif
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const inputs = document.querySelectorAll(".input-field");
@@ -539,6 +702,9 @@
         });
     </script>
     <script>
+        $('#google').click(() => {
+            location.href = '{{ url('/auth/google') }}';
+        })
         $('input#username-login').focus();
         $('input#username-login').addClass('active');
     </script>
