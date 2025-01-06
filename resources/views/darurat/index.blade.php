@@ -1,5 +1,5 @@
 <x-body>
-    {{-- <div class="flex justify-between py-2 mb-3">
+    <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">Transaksi Belum Berkontrak
             @if (auth()->user()->unitKerja)
@@ -54,21 +54,21 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($unitGroups as $unitId => $transactions) --}}
-    {{-- <tr class="font-semibold text-primary-950">
+                                {{-- @foreach ($unitGroups as $unitId => $transactions) --}}
+                                {{-- <tr class="font-semibold text-primary-950">
                                         <td colspan="3" class="text-center py-2">
                                             {{ $transactions->first()->user->unitKerja->nama }}
                                         </td>
                                     </tr> --}}
-    {{-- @foreach ($transactions as $transaction)
-                                        <tr class="border-b-[1px] border-primary-800">
-                                            <td>{{ $transaction->merkStok->barangStok->nama }}</td>
-                                            <td>{{ $transaction->merkStok->nama ?? 'Unknown Merk' }}</td>
-                                            <td>{{ $transaction->jumlah }}
-                                                {{ $transaction->merkStok->barangStok->satuanBesar->nama }}</td>
-                                        </tr>
-                                    @endforeach
+                                @foreach ($unitGroups as $transaction)
+                                    <tr class="border-b-[1px] border-primary-800">
+                                        <td>{{ $transaction->merkStok->barangStok->nama }}</td>
+                                        <td>{{ $transaction->merkStok->nama ?? 'Unknown Merk' }}</td>
+                                        <td>{{ $transaction->jumlah }}
+                                            {{ $transaction->merkStok->barangStok->satuanBesar->nama }}</td>
+                                    </tr>
                                 @endforeach
+                                {{-- @endforeach --}}
                             </tbody>
                         </table>
                     </td>
@@ -85,11 +85,11 @@
                 </tr>
             @endforeach
         </tbody>
-    </table> --}}
+    </table>
 
-    <div>
-        <livewire:data-transaksi-darurat-stok />
-    </div>
+    {{-- <div>
+        <livewire:data-transaksi-darurat-stok :groupedTransactions="$groupedTransactions" />
+    </div> --}}
 
 
 

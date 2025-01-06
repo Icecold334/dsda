@@ -138,7 +138,7 @@ class ListPeminjamanForm extends Component
                 });
             })->whereHas('kategori', function ($query) use ($kategori) {
                 return $query->where('parent_id', $kategori->id)->orWhere('id', $kategori->id);
-            })->get();
+            })->where('peminjaman', 1)->get();
     }
 
     #[On('sub_unit_id')]
@@ -208,7 +208,6 @@ class ListPeminjamanForm extends Component
 
     public function mount()
     {
-
         $this->showNew = Request::is('permintaan/add/peminjaman*');
         if ($this->last) {
 
@@ -256,6 +255,8 @@ class ListPeminjamanForm extends Component
                 })
                 ->pluck('detail_peminjaman_id') // Ambil hanya detail_permintaan_id yang sudah disetujui
                 ->toArray();
+        } else {
+            $this->fillTipe($this->tipe);
         };
         $this->waktus = WaktuPeminjaman::all();
 

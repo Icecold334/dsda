@@ -69,7 +69,7 @@ class FormPermintaan extends Component
     public function mount()
     {
         $kategori = Request::segment(4);
-        // dd($kategori);    
+        // dd($kategori);
         // dd($this->last);
         // 2024 - 12 - 04
         if ($this->last) {
@@ -99,6 +99,7 @@ class FormPermintaan extends Component
         $this->units = UnitKerja::whereNull('parent_id')->whereHas('children', function ($sub) {
             return $sub;
         })->get();
+        $this->tipePeminjaman = Kategori::find($kategori == 'kdo' ? 1 : ($kategori == 'ruangan' ? 2 : 8))->nama;
         $this->kategoris = KategoriStok::whereHas('barangStok', function ($barang) {
             return $barang->whereHas('merkStok', function ($merk) {
                 return $merk;
