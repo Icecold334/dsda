@@ -9,7 +9,7 @@ class SatuanKecil extends Model
 {
     use HasFactory;
 
-    protected $table = 'satuan_kecil';
+    protected $table = 'satuan';
 
     protected $fillable = ['nama'];
 

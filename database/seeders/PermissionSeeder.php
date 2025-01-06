@@ -78,6 +78,7 @@ class PermissionSeeder extends Seeder
             'data_barang',
             'data_toko',
             'data_penanggung_jawab',
+            'data_kategori_stok',
             'data_lokasi',
             'data_lokasi_gudang',
             'data_unit_kerja',

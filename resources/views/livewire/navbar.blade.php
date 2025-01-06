@@ -51,6 +51,7 @@
                         ['href' => '/lokasi', 'title' => 'lokasi'],
                         ['href' => '/lokasi-stok', 'title' => 'lokasi gudang'],
                         ['href' => '/unit-kerja', 'title' => 'Unit Kerja'],
+                        ['href' => '/kategori-stok', 'title' => 'kategori stok'],
                     ]" />
                     <livewire:notification />
                     <livewire:nav-item href="/kalender"
