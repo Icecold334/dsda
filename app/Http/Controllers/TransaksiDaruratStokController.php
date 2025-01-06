@@ -43,6 +43,7 @@ class TransaksiDaruratStokController extends Controller
             return $vendorGroup->groupBy('user.unit_id'); // Group by user unit_id
         });
 
+
         return view('darurat.index', compact('groupedTransactions'));
     }
 

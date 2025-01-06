@@ -1,5 +1,5 @@
-<x-body>
-    {{-- <div class="flex justify-between py-2 mb-3">
+<div>
+    <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">Transaksi Belum Berkontrak
             @if (auth()->user()->unitKerja)
@@ -41,7 +41,7 @@
                     <td class="py-3 px-6"></td> <!-- Displays the row number -->
                     <td class="py-3 px-6">
                         <p class="font-semibold text-gray-800">
-                            {{ $unitGroups->first()->first()->vendorStok->nama ?? 'Unknown Vendor' }}
+                            {{ $unitGroups->first()->vendorStok->nama ?? 'Unknown Vendor' }}
                         </p>
                     </td>
                     <td class="py-3 px-6">
@@ -54,30 +54,23 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($unitGroups as $unitId => $transactions) --}}
-    {{-- <tr class="font-semibold text-primary-950">
-                                        <td colspan="3" class="text-center py-2">
-                                            {{ $transactions->first()->user->unitKerja->nama }}
-                                        </td>
-                                    </tr> --}}
-    {{-- @foreach ($transactions as $transaction)
-                                        <tr class="border-b-[1px] border-primary-800">
-                                            <td>{{ $transaction->merkStok->barangStok->nama }}</td>
-                                            <td>{{ $transaction->merkStok->nama ?? 'Unknown Merk' }}</td>
-                                            <td>{{ $transaction->jumlah }}
-                                                {{ $transaction->merkStok->barangStok->satuanBesar->nama }}</td>
-                                        </tr>
-                                    @endforeach
+                                @foreach ($unitGroups as $transaction)
+                                    <tr class="border-b-[1px] border-primary-800">
+                                        <td>{{ $transaction->merkStok->barangStok->nama }}</td>
+                                        <td>{{ $transaction->merkStok->nama ?? 'Unknown Merk' }}</td>
+                                        <td>{{ $transaction->jumlah }}
+                                            {{ $transaction->merkStok->barangStok->satuanBesar->nama }}</td>
+                                    </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </td>
                     <td class="py-3 px-6 w-1/6 text-center">
-                        <a href="{{ route('transaksi-darurat-stok.show', ['transaksi_darurat_stok' => $unitGroups->first()->first()->vendorStok->id]) }}"
+                        <a href="{{ route('transaksi-darurat-stok.show', ['transaksi_darurat_stok' => $unitGroups->first()->vendorStok->id]) }}"
                             class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300">
                             <i class="fa-solid fa-eye"></i>
                         </a>
-                        <a href="{{ route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $unitGroups->first()->first()->vendorStok->id]) }}"
+                        <a href="{{ route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $unitGroups->first()->vendorStok->id]) }}"
                             class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300">
                             <i class="fa-solid fa-pen"></i>
                         </a>
@@ -85,13 +78,6 @@
                 </tr>
             @endforeach
         </tbody>
-    </table> --}}
+    </table>
 
-    <div>
-        <livewire:data-transaksi-darurat-stok />
-    </div>
-
-
-
-
-</x-body>
+</div>

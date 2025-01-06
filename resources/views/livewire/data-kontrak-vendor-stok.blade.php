@@ -1,5 +1,5 @@
-<x-body>
-    {{-- <div class="flex justify-between py-2 mb-3">
+<div>
+    <div class="flex justify-between py-2 mb-3">
 
 
         @if (session('success'))
@@ -20,15 +20,41 @@
                 {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
             @endif
         </h1>
-        <div> --}}
+        <div>
             {{-- <button data-modal-target="tipe2" data-modal-toggle="tipe2"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                type="button">
-                Menunggu Persetujuan
-            </button> --}}
-            {{-- <a href="{{ route('kontrak-vendor-stok.create') }}"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                Rekam Kontrak Baru</a>
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                    type="button">
+                    Menunggu Persetujuan
+                </button> --}}
+            <div class="flex gap-4">
+                <!-- Date Picker for Tanggal -->
+                <input type="date" wire:model.live="tanggal" class="border rounded-lg px-4 py-2" />
+                <!-- Search Input -->
+                <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2"
+                    placeholder="Cari Kode / Vendor" />
+
+                <!-- Dropdown untuk Memilih Jenis -->
+                <select wire:model.live="jenis" class="border rounded-lg px-4 py-2">
+                    <option value="">Pilih Jenis</option>
+                    @foreach ($jenisOptions as $jenis)
+                        <option value="{{ $jenis }}">{{ $jenis }}</option>
+                    @endforeach
+                </select>
+                <select wire:model.live="metode" class="border rounded-lg px-4 py-2">
+                    <option value="">Pilih Metode</option>
+                    @foreach ($metodeOptions as $metode)
+                        <option value="{{ $metode }}">{{ $metode }}</option>
+                    @endforeach
+                </select>
+
+                <!-- Button Go -->
+                <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                    <i class="fa fa-sync-alt"></i>
+                </button>
+                <a href="{{ route('kontrak-vendor-stok.create') }}"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
+                    Rekam Kontrak Baru</a>
+            </div>
         </div>
     </div>
 
@@ -43,13 +69,13 @@
                 <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">DETAIL TRANSAKSI</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">METODE PENGADAAN</th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th> --}}
-                {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($groupedTransactions as $index => $transaction) --}}
+            @foreach ($groupedTransactions as $index => $transaction)
                 {{-- @foreach ($kontrakGroups as $kontrakId => $transaction) --}}
-                {{-- <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
+                <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="py-3 px-6"></td> <!-- Displays the row number -->
                     <td class="py-3 px-6">
                         <p class="font-semibold text-gray-800">
@@ -108,13 +134,10 @@
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>
                     </td>
-                </tr> --}}
+                </tr>
                 {{-- @endforeach --}}
-            {{-- @endforeach
+            @endforeach
         </tbody>
-    </table> --}}
+    </table>
 
-    <div>
-        <livewire:data-kontrak-vendor-stok />
-    </div>
-</x-body>
+</div>
