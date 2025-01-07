@@ -99,7 +99,7 @@
                 @enderror
             </td>
         </tr>
-        @if ($showMetode)
+        {{-- @if ($showMetode)
             <tr class="{{ !$cekSemuaItem ? 'hidden' : '' }}">
                 <td class="w-1/3">
                     <label for="barang_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -119,7 +119,28 @@
                     @enderror
                 </td>
             </tr>
-        @endif
+        @endif --}}
+        @if ($showMetode)
+    <tr class="{{ !$cekSemuaItem ? 'hidden' : '' }}">
+        <td class="w-1/3">
+            <label for="barang_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                Metode Pengadaan *</label>
+        </td>
+        <td>
+            <select wire:model.live="metode_id" 
+                @disabled(Request::routeIs('transaksi-darurat-stok.edit') || $vendor_id == null)
+                class="bg-gray-50 border border-gray-300 {{ $vendor_id == null ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                <option value="">Pilih Metode Pengadaan</option>
+                @foreach ($metodes as $metode)
+                    <option value="{{ $metode->id }}" @selected($metode->id == $metode_id)>{{ $metode->nama }}</option>
+                @endforeach
+            </select>
+            @error('metode_id')
+                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+            @enderror
+        </td>
+    </tr>
+@endif
 
     </table>
     <!-- Button to toggle Add New Vendor form -->
