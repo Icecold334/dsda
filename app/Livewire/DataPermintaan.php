@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailPeminjamanAset;
 use App\Models\DetailPermintaanStok;
+use Illuminate\Support\Facades\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -16,6 +17,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class DataPermintaan extends Component
 {
+    public $nonUmum;
     public $search; // Search term
     public $jenis; // Selected jenis
     public $lokasi; // Selected jenis
@@ -26,12 +28,14 @@ class DataPermintaan extends Component
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
 
+    public $tipe;
     public $permintaans;
 
     public function mount()
     {
-        $this->unitOptions = UnitKerja::find($this->unit_id);
-
+        $this->tipe = Request::segment(2);
+        $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::all();
+        $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');
         $this->applyFilters();
     }
 

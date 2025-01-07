@@ -13,16 +13,21 @@
 
                 <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2 w-full"
                     placeholder="Cari Kode" />
-                <select wire:model.live="jenis" class="border rounded-lg px-4 py-2 w-full">
-                    <option value="">Pilih Jenis</option>
-                    <option value="permintaan">Permintaan</option>
-                    <option value="peminjaman">Peminjaman</option>
-                </select>
+                @if (!$tipe)
+                    <select wire:model.live="jenis" class="border rounded-lg px-4 py-2 w-full">
+                        <option value="">Pilih Jenis</option>
+                        <option value="permintaan">Permintaan</option>
+                        <option value="peminjaman">Peminjaman</option>
+                    </select>
+                @endif
                 <select wire:model.live="unit_id" class="border rounded-lg px-4 py-2 w-full">
-                    <option value="">Pilih sub-unit</option>
-                    <option value="{{ $unitOptions->id }}">{{ $unitOptions->nama }}</option>
-                    @foreach ($unitOptions->children as $unit)
-                        <option value="{{ $unit->id }}">--- {{ $unit->nama }}</option>
+                    <option value="">Pilih Unit</option>
+                    @foreach ($unitOptions as $item)
+                        {{-- @dd($item) --}}
+                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                        @foreach ($item->children as $unit)
+                            <option value="{{ $unit->id }}">--- {{ $unit->nama }}</option>
+                        @endforeach
                     @endforeach
                 </select>
                 <select wire:model.live="status" class="border rounded-lg px-4 py-2 w-full">
@@ -45,6 +50,12 @@
                         <div class="tooltip-arrow" data-popper-arrow></div>
                     </div>
                 @endif
+                @if ($nonUmum)
+                    <a href="/permintaan/add/{{ request()->segment(2) }}/{{ request()->segment(2) }}"
+                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                        + Tambah Permintaan
+                    </a>
+                @endif
             </div>
 
         </div>
@@ -55,9 +66,10 @@
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KODE
-                    PERMINTAAN/PEMINJAMAN
+                    PERMINTAAN<span class="{{ $tipe ? 'hidden' : '' }}">/PEMINJAMAN</span>
                 </th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS LAYANAN</th>
+                <th class="{{ $tipe ? 'hidden' : '' }} py-3 px-6 bg-primary-950 text-center font-semibold">JENIS LAYANAN
+                </th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL PENGGUNAAN</th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BARANG</th> --}}
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">UNIT KERJA</th>
@@ -71,7 +83,7 @@
                     <td class="px-6 py-3"></td>
                     <td class="px-6 py-3 font-semibold">
                         {{ $permintaan->kode }}</td>
-                    <td class="px-6 py-3 font-semibold">
+                    <td class="px-6 py-3 font-semibold {{ $tipe ? 'hidden' : '' }}">
                         <div>
                             {{ $permintaan->tipe == 'permintaan' ? 'Permintaan' : 'Peminjaman' }}
                         </div>
