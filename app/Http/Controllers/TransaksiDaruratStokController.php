@@ -81,6 +81,7 @@ class TransaksiDaruratStokController extends Controller
             })
             ->get();
 
+        // dd($id, $this->unit_id, $transaksis);
 
         // Pass the data to the view
         return view('darurat.show', compact('transaksis'));

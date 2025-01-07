@@ -12,7 +12,6 @@
         <div>
             <x-card title="Data Umum">
                 <table class="w-full font-semibold">
-                    @dd($transaksis)
                     <tr>
                         <td>Nama Vendor</td>
                         <td>{{ $transaksis->first()->vendorStok->nama ?? '-' }}</td>
