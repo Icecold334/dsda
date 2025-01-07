@@ -6,9 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
         crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
 
@@ -435,7 +435,7 @@
             }
         }
     </style>
-    <link href="/dashboard/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    {{-- <link href="/dashboard/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css"> --}}
     <script src="https://kit.fontawesome.com/5fd2369345.js" crossorigin="anonymous"></script>
 
 </head>
@@ -542,6 +542,7 @@
         $('input#username-login').focus();
         $('input#username-login').addClass('active');
     </script>
+    @stack('scripts')
 </body>
 
 </html>

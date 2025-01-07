@@ -31,7 +31,7 @@ new #[Layout('layouts.guest')] class extends Component {
         <!-- Sign In Form -->
         <form wire:submit="login">
             <a class="logo" href="/" style="text-decoration: none">
-                <img src="{{ asset('dashboard/img/logo.png') }}" alt="easyclass" />
+                {{-- <img src="{{ asset('dashboard/img/logo.png') }}" alt="easyclass" /> --}}
                 <h2>{{ env('APP_NAME') }}</h2>
             </a>
 
@@ -129,6 +129,28 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
         </div>
     </div>
+    {{-- @if (strlen($errors->first() > 0)) --}}
+
+    {{-- @endif --}}
+    <script>
+        // let timerInterval;
+        // Swal.fire({
+        //     title: 'asd',
+        //     html: 'asd',
+        //     icon: 'error',
+        //     timer: 1500,
+        //     timerProgressBar: true,
+        //     showConfirmButton: false,
+        //     willClose: () => {
+        //         clearInterval(timerInterval);
+        //     },
+        // }).then((result) => {
+        //     /* Read more about handling dismissals below */
+        //     if (result.dismiss === Swal.DismissReason.timer) {
+        //         // console.log("I was closed by the timer");
+        //     }
+        // });
+    </script>
 </div>
 
 {{-- <div>

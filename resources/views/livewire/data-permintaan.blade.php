@@ -20,12 +20,13 @@
                 </select>
                 <select wire:model.live="unit_id" class="border rounded-lg px-4 py-2 w-full">
                     <option value="">Pilih sub-unit</option>
-                    @foreach ($unitOptions as $unit)
-                        <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                    <option value="{{ $unitOptions->id }}">{{ $unitOptions->nama }}</option>
+                    @foreach ($unitOptions->children as $unit)
+                        <option value="{{ $unit->id }}">--- {{ $unit->nama }}</option>
                     @endforeach
                 </select>
                 <select wire:model.live="status" class="border rounded-lg px-4 py-2 w-full">
-                    <option value="">Pilih status</option>
+                    <option value="">Pilih Status</option>
                     <option value="diproses">diproses</option>
                     <option value="ditolak">ditolak</option>
                     <option value="dibatalkan">dibatalkan</option>
@@ -34,11 +35,16 @@
                     <option value="selesai">selesai</option>
                 </select>
 
-                <div id="tooltip-excel" role="tooltip"
-                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                    Download dalam format excel
-                    <div class="tooltip-arrow" data-popper-arrow></div>
-                </div>
+                @if ($permintaans->count() || false)
+                    <button data-tooltip-target="tooltip-excel" wire:click="downloadExcel"
+                        class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
+                            class="fa-solid fa-file-excel"></i></button>
+                    <div id="tooltip-excel" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                        Download dalam format excel
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
+                @endif
             </div>
 
         </div>
@@ -69,8 +75,9 @@
                         <div>
                             {{ $permintaan->tipe == 'permintaan' ? 'Permintaan' : 'Peminjaman' }}
                         </div>
+                        {{-- @dd($permintaan->kategoriStok); --}}
                         <div class="text-gray-500 text-sm">
-                            {{ $permintaan->tipe == 'permintaan' ? $permintaan->kategoriStok->nama : $permintaan->kategori->nama }}
+                            {{-- {{ $permintaan->tipe == 'permintaan' ? $permintaan->kategoriStok->nama : $permintaan->kategori->nama }} --}}
                         </div>
                     </td>
                     <td class="px-6 py-3 font-semibold">{{ date('j F Y', $permintaan->tanggal_permintaan) }}</td>

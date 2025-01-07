@@ -34,12 +34,12 @@
                     <button data-tooltip-target="tooltip-excel" wire:click="downloadExcel"
                         class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
                             class="fa-solid fa-file-excel"></i></button>
+                    <div id="tooltip-excel" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                        Download dalam format excel
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
                 @endif
-                <div id="tooltip-excel" role="tooltip"
-                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                    Download dalam format excel
-                    <div class="tooltip-arrow" data-popper-arrow></div>
-                </div>
             </div>
         </div>
     </div>
