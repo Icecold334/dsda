@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\JenisStok;
 use App\Models\BarangStok;
+use App\Models\KategoriStok;
 
 class UpdateBarangStok extends Component
 {
@@ -14,6 +15,8 @@ class UpdateBarangStok extends Component
     public $kode_barang;
     public $stok;
     public $jenis;
+    public $kategori;
+    public $kategori_stok;
     public $description;
     public $tipe;
     public $tipe_stok;
@@ -31,11 +34,13 @@ class UpdateBarangStok extends Component
             }
         } else {
             $this->jenis_stok = JenisStok::all();
+            $this->kategori_stok = KategoriStok::all();
             if ($this->id) {
                 $barang = BarangStok::find($this->id);
                 $this->barang = $barang->nama;
                 $this->kode_barang = $barang->kode_barang;
                 $this->jenis = $barang->jenis_id;
+                $this->kategori = $barang->kategori_id;
                 $this->description = $barang->deskripsi;
             }
         }
@@ -65,6 +70,7 @@ class UpdateBarangStok extends Component
                     'kode_barang' => $this->kode_barang,
                     'jenis_id' => $this->jenis,
                     'deskripsi' => $this->description,
+                    'kategori_id' => $this->kategori ?? null,
                 ]
             );
             return redirect()->route('barang.show', ['barang' => $this->id])->with('success', 'Berhasil Mengubah Data Barang');
