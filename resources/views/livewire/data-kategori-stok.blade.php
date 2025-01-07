@@ -36,15 +36,19 @@
                     </td>
                     <td class="px-6 py-3">
                         <table class="w-full">
-                            @foreach ($kategori->BarangStok as $barang)
+                            @forelse ($kategori->BarangStok as $barang)
                                 <tr class="border-b-4 border-gray-400">
                                     <td class="w-1/3 text-center">{{ $barang->nama ?? '-' }}</td>
                                     <td class="border-x-2 border-primary-600 w-1/3 text-center">
                                         {{ $barang->satuanBesar->nama ?? '-' }}</td>
                                     <td class="w-1/3 text-center">
-                                        {{ $barang->SatuanKecil->nama ?? '-' }}</td>
+                                        {{ $barang->satuanKecil->nama ?? '-' }}</td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="text-center py-3">Tidak ada data Barang.</td>
+                                </tr>
+                            @endforelse
                         </table>
                     </td>
                     <td class="py-3 px-6 text-center">

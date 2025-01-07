@@ -34,6 +34,12 @@
                     <td>Jenis Barang</td>
                     <td>{{ $barang->jenisStok->nama }}</td>
                 </tr>
+                @if ($barang->jenisStok->id == 3)
+                    <tr class="font-semibold">
+                        <td>Kategori Stok</td>
+                        <td>{{ $barang->kategoriStok->nama }}</td>
+                    </tr>
+                @endif
                 <tr class="font-semibold">
                     <td>Deskripsi Barang</td>
                     <td>{{ $barang->deskripsi }}</td>

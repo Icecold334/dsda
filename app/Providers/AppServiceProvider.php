@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
     {
 
         // Auth::loginUsingId(1); //superadmin
-        // Auth::loginUsingId(3); //kepala unit
+        Auth::loginUsingId(3); //kepala unit
 
         // Auth::loginUsingId(1); //superadmin
 

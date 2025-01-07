@@ -13,6 +13,7 @@ class AddKategoriStok extends Component
     public $nama;
     public $tipe;
     public $kategoris;
+    public $kategori;
     public $barang;
     public $barang_id;
     public $kode_barang;
@@ -24,52 +25,41 @@ class AddKategoriStok extends Component
         'barang' => [],
     ];
 
+    public $filteredBarang = []; // Properti untuk menyimpan data barang yang difilter
+
     public function fetchSuggestions($field, $value)
     {
+        $key = Str::slug($value); // Ubah input menjadi slug untuk pencarian
 
-        $this->suggestions[$field] = [];
-        $key = Str::slug($value);
-        if ($value && $field == 'barang') {
-            $this->suggestions[$field] = BarangStok::where('jenis_id', 3) // Filter jenis_id = 3
-                ->where('slug', 'like', '%' . $key . '%') // Filter berdasarkan slug
-                ->pluck('nama')->toArray();
-        }
-    }
-
-    public function selectSuggestion($field, $value)
-    {
         if ($field === 'barang') {
-            // Cari barang berdasarkan nama
-            $barang = BarangStok::where('nama', $value)->first();
-
-            if ($barang) {
-                // Simpan data barang ke properti Livewire
-                $this->barang_id = $barang->id;
-                $this->barang = $barang->nama;
-                $this->kode_barang = $barang->kode_barang;
-                $this->satuan_besar = $barang->satuan_besar;
-                $this->satuan_kecil = $barang->satuan_kecil;
+            if (empty($key)) {
+                // Jika input kosong, tampilkan semua barang
+                $this->filteredBarang = $this->kategori->barangStok;
+            } else {
+                // Filter barang berdasarkan input
+                $this->filteredBarang = $this->kategori->barangStok->filter(function ($barang) use ($key) {
+                    return Str::contains(Str::slug($barang->nama), $key);
+                });
             }
         }
-        $this->suggestions[$field] = [];
     }
-
-
     public function hideSuggestions($field)
     {
         $this->suggestions[$field] = [];
-        // $this->showSuggestionsMerk = false;
     }
 
 
     public function mount()
     {
         if ($this->id) {
-            $kategori = KategoriStok::find($this->id);
-            if ($kategori) {
-                $this->nama = $kategori->nama;
-                $this->kategori_id = $kategori->id;
-                // $this->selectedBarang = BarangStok::find($kategori->id);
+            $kategoris = KategoriStok::with('BarangStok.satuanBesar', 'BarangStok.satuanKecil')->find($this->id);
+            // dd($kategoris);
+            if ($kategoris) {
+                $this->nama = $kategoris->nama;
+                $this->kategori_id = $kategoris->id;
+                $this->kategori = $kategoris;
+                // Set default barang yang ditampilkan
+                $this->filteredBarang = $kategoris->barangStok;
             }
         }
     }
@@ -85,7 +75,7 @@ class AddKategoriStok extends Component
         $slug = Str::slug($this->nama);
 
         // Gunakan updateOrCreate untuk membuat atau memperbarui kategori stok
-        $kategori = KategoriStok::updateOrCreate(
+        KategoriStok::updateOrCreate(
             ['id' => $this->id], // Kondisi untuk update jika ID ada
             [
                 'nama' => $this->nama,
@@ -93,44 +83,18 @@ class AddKategoriStok extends Component
             ]
         );
 
-
-        if (!empty($this->barang)) {
-
-            // Periksa apakah barang sudah ada
-            $existingBarangInCategory = BarangStok::where('kategori_id', $kategori->id)
-                ->where('nama', $this->barang)
-                ->first();
-            if ($existingBarangInCategory) {
-                // Jika barang dengan nama yang sama sudah ada dalam kategori, tampilkan error
-                session()->flash('error', 'Barang sudah ada dalam kategori ini.');
-                return;
-            }
-
-            // Periksa apakah barang sudah ada secara global untuk mendapatkan informasi tambahan
-            $existingBarang = BarangStok::where('nama', $this->barang)->first();
-
-            $kode_barang = $existingBarang->kode_barang;
-            $satuan_besar = $existingBarang->satuan_besar_id;
-            $satuan_kecil = $existingBarang->satuan_kecil_id;
-
-            BarangStok::create([
-                'kategori_id' => $kategori->id, // Hubungkan barang ke kategori
-                'jenis_id' => 3, // Pastikan jenis_id sesuai
-                'nama' => $this->barang, // Nama barang
-                'slug' => Str::slug($this->barang), // Buat slug dari nama barang
-                'kode_barang' => $kode_barang, // Kode barang
-                'satuan_besar_id' => $satuan_besar, // Satuan besar
-                'satuan_kecil_id' => $satuan_kecil, // Satuan kecil
-            ]);
-        }
-
-        // Flash message untuk notifikasi sukses
-        session()->flash('message', $this->id ? 'Kategori Stok dan barang berhasil diperbarui!' : 'Kategori Stok dan barang berhasil ditambahkan!');
-
         // Redirect atau refresh halaman
-        return redirect()->route('kategori-stok.index');
+        return redirect()->route('kategori-stok.index')->with('success', 'Kategori Stok berhasil disimpan!');
     }
 
+    public function remove()
+    {
+        // Jika tidak digunakan, hapus kategori
+        KategoriStok::destroy($this->id);
+
+        // Redirect dengan pesan sukses
+        return redirect()->route('kategori-stok.index')->with('success', 'Kategori berhasil dihapus.');
+    }
 
     public function render()
     {

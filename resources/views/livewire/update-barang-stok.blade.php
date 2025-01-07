@@ -87,6 +87,25 @@
                     @enderror
                 </td>
             </tr>
+            @if ($this->jenis == 3)
+                <tr>
+                    <td>
+                        <label for="kategori">Kategori Stok</label>
+                    </td>
+                    <td>
+                        <select id="kategori" wire:model.live="kategori"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">Pilih Kategori Stok</option>
+                            @foreach ($kategori_stok as $kategori)
+                                <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
+                            @endforeach
+                        </select>
+                        @error('kategori')
+                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                        @enderror
+                    </td>
+                </tr>
+            @endif
             <tr>
                 <td>
                     <label for="description">Deskripsi</label>
