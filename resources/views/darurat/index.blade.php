@@ -41,7 +41,7 @@
                     <td class="py-3 px-6"></td> <!-- Displays the row number -->
                     <td class="py-3 px-6">
                         <p class="font-semibold text-gray-800">
-                            {{ $unitGroups->first()->first()->vendorStok->nama ?? 'Unknown Vendor' }}
+                            {{ $unitGroups->first()->vendorStok->nama ?? 'Unknown Vendor' }}
                         </p>
                     </td>
                     <td class="py-3 px-6">
@@ -73,11 +73,11 @@
                         </table>
                     </td>
                     <td class="py-3 px-6 w-1/6 text-center">
-                        <a href="{{ route('transaksi-darurat-stok.show', ['transaksi_darurat_stok' => $unitGroups->first()->first()->vendorStok->id]) }}"
+                        <a href="{{ route('transaksi-darurat-stok.show', ['transaksi_darurat_stok' => $unitGroups->first()->vendor_id]) }}"
                             class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300">
                             <i class="fa-solid fa-eye"></i>
                         </a>
-                        <a href="{{ route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $unitGroups->first()->first()->vendorStok->id]) }}"
+                        <a href="{{ route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $unitGroups->first()->vendor_id]) }}"
                             class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300">
                             <i class="fa-solid fa-pen"></i>
                         </a>

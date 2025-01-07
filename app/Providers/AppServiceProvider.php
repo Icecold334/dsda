@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
-        Auth::loginUsingId(1); //superadmin
+        // Auth::loginUsingId(1); //superadmin
         // Auth::loginUsingId(3); //kepala unit
 
         // Auth::loginUsingId(1); //superadmin
