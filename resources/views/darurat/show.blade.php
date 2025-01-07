@@ -12,13 +12,14 @@
         <div>
             <x-card title="Data Umum">
                 <table class="w-full font-semibold">
+                    @dd($transaksis)
                     <tr>
                         <td>Nama Vendor</td>
-                        <td>{{ $transaksis->first()->vendorStok->nama }}</td>
+                        <td>{{ $transaksis->first()->vendorStok->nama ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td>Jenis Transaksi</td>
-                        <td>{{ $transaksis->first()->merkStok->barangStok->jenisStok->nama }}</td>
+                        <td>{{ $transaksis->first()->merkStok->barangStok->jenisStok->nama ?? '-' }}</td>
                     </tr>
                     {{-- <tr>
                         <td>Nomor Kontrak</td>

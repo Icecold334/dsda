@@ -28,6 +28,7 @@ class VendorKontrakForm extends Component
     public $nama;
     public $alamat;
     public $kontak;
+    public $unit_id;
     public $listCount;
     public $show;
     public $showNomor, $cekSemuaItem;
@@ -90,10 +91,10 @@ class VendorKontrakForm extends Component
             $vendor = Toko::find($this->vendor_id);
             $this->query = $vendor->nama;
         }
-        // if (Request::routeIs('kontrak-vendor-stok.create') || Request::routeIs('transaksi-darurat-stok.edit')) {
-        //     $this->showMetode = true;
-        //     $this->metodes = MetodePengadaan::all();
-        // }
+        if (Request::routeIs('kontrak-vendor-stok.create') || Request::routeIs('transaksi-darurat-stok.edit')) {
+            $this->showMetode = true;
+            $this->metodes = MetodePengadaan::all();
+        }
 
         if (Request::routeIs('kontrak-vendor-stok.create')) {
             $this->showMetode = true;
