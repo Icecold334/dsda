@@ -137,12 +137,12 @@ class ApprovalPermintaan extends Component
     public function approveConfirmed($status, $message = null)
     {
         if ($status) {
-            $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
-            if ($currentIndex != count($this->roleLists) - 1) {
-                $message = 'Permintaan ' . $this->permintaan->jenisStok->nama . ' <span class="font-bold">' . $this->permintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
-                $user = User::find(collect($this->roleLists)->flatten(1)[$currentIndex + 1]->id);
-                Notification::send($user, new UserNotification($message, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
-            }
+            // $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
+            // if ($currentIndex != count($this->roleLists) - 1) {
+            //     $message = 'Permintaan ' . $this->permintaan->jenisStok->nama . ' <span class="font-bold">' . $this->permintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
+            //     $user = User::find(collect($this->roleLists)->flatten(1)[$currentIndex + 1]->id);
+            //     Notification::send($user, new UserNotification($message, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+            // }
         }
 
         $this->permintaan->persetujuan()->create([
