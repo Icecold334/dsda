@@ -84,14 +84,13 @@
                                 {{ $pemeriksa->id == auth()->id() ? 'Anda' : $pemeriksa->name }}
                             </span>
                             <i
-                                class="my-1 fa-solid {{ is_null(
-                                    optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status,
-                                )
-                                    ? 'fa-circle-question text-secondary-600'
-                                    : (optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
-                                        ? 'fa-circle-check text-success-500'
-                                        : 'fa-circle-xmark text-danger-500') }}">
-                            </i>
+    class="my-1 fa-solid {{ $pengiriman->pengirimanStok->whereNotNull('jumlah_diterima')->count() > 0
+        ? 'fa-circle-check text-success-500'
+        : ($pengiriman->pengirimanStok->whereNotNull('jumlah_diterima')->count() > 0
+            ? 'fa-circle-question text-secondary-600'
+            : 'fa-circle-question text-secondary-600') }}">
+</i>
+
 
 
                         </td>

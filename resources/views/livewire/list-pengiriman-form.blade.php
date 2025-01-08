@@ -20,26 +20,26 @@
 
         <tbody>
             @if ($showDokumen)
-            <tr>
-                <th>&nbsp;</th>
-                <th>&nbsp;</th>
-                <th>&nbsp;</th>
-                <th>&nbsp;</th>
-                <th>Diajukan *</th>
-                <th>Diterima </th>
-                @if ($showDokumen)
+                <tr>
                     <th>&nbsp;</th>
-                    @can('inventaris_upload_foto_bukti')
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                    <th>Diajukan *</th>
+                    <th>Diterima </th>
+                    @if ($showDokumen)
                         <th>&nbsp;</th>
-                    @endcan
-                @endif
-                <th></th>
-            </tr>
+                        @can('inventaris_upload_foto_bukti')
+                            <th>&nbsp;</th>
+                        @endcan
+                    @endif
+                    <th></th>
+                </tr>
             @endif
             @foreach ($list as $index => $item)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="px-2 py-3 font-semibold">
-                        editable {{ $item['editable'] }}
+                        {{-- editable {{ $item['editable'] }} --}}
                         <div>{{ $item['merk']->barangStok->nama }}</div>
                         <div class="font-normal text-sm">
                             <table class="w-full">
@@ -60,7 +60,7 @@
                             {{-- @cannot('inventaris_edit_lokasi_penerimaan')
                                 cursor-not-allowed
                             @endcannot --}}
-                             bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             @disabled(isset($item['detail'])) {{-- @cannot('inventaris_edit_lokasi_penerimaan')
                                 disabled
                             @endcannot --}}>
@@ -247,7 +247,7 @@
 
 
                     <td class="text-center">
-                        
+
                         {{-- {{ $item['bagian_id'] && $item['posisi_id'] && $item['bukti'] ? '' : 'hidden' }} --}}
                         @if ($item['id'] === null)
                             <button wire:click="removeFromList({{ $index }})"
