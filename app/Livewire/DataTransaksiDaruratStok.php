@@ -10,9 +10,20 @@ class DataTransaksiDaruratStok extends Component
     public $search = ''; // Search term
     public $transaksi; // Transactions
     public $unit_id; // Transactions
-    public $groupedTransactions; // Grouped transactions
+    public $grouped; // Grouped transactions
 
     public function mount()
+    {
+        $this->fetchData();
+    }
+
+    public function updated($propertyName)
+    {
+        // Re-fetch data whenever a filter property is updated
+        $this->fetchData();
+    }
+
+    public function fetchData()
     {
         if ($this->unit_id) {
             # code...
@@ -38,44 +49,12 @@ class DataTransaksiDaruratStok extends Component
         // $groupedTransactions = $sortedTransaksi->groupBy('vendor_id')->map(function ($vendorGroup) {
         //     return $vendorGroup->groupBy('user.unit_id'); // Group by user unit_id
         // });
-        $this->groupedTransactions = $sortedTransaksi->groupBy('vendor_id');
-        // Initial data fetch
-        // $this->fetchData();
-    }
-
-    public function updated($propertyName)
-    {
-        // Re-fetch data whenever a filter property is updated
-        $this->fetchData();
-    }
-
-    public function fetchData()
-    {
-        // Fetch data based on unitKerja and optional search filtering
-        // $this->transaksi = TransaksiStok::whereNull('kontrak_id')
-        //     ->when($this->unit_id, function ($query) {
-        //         return $query->whereHas('user', function ($userQuery) {
-        //             $userQuery->whereHas('unitKerja', function ($unitQuery) {
-        //                 $unitQuery->where('parent_id', $this->unit_id)
-        //                     ->orWhere('id', $this->unit_id);
-        //             });
-        //         });
-        //     })
-        //     ->when($this->search, function ($query) {
-        //         return $query->whereHas('vendorStok', function ($vendorQuery) {
-        //             $vendorQuery->where('nama', 'like', '%' . $this->search . '%');
-        //         });
-        //     })
-        //     ->get();
-
-        // Group transactions by vendor_id and then by unit_id
-        // $this->groupedTransactions = $this->transaksi->sortByDesc('tanggal')->groupBy('vendor_id');
-        // $this->groupedTransactions = $this->transaksi->sortByDesc('tanggal');
-        // $this->groupedTransactions = $this->transaksi->groupBy('vendor_id');
+        // dd($sortedTransaksi->groupBy('vendor_id'));
+        $this->grouped = $sortedTransaksi->groupBy('vendor_id')->all();
     }
 
     public function render()
     {
-        return view('livewire.data-transaksi-darurat-stok');
+        return view('livewire.data-transaksi-darurat-stok',);
     }
 }

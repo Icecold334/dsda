@@ -20,7 +20,7 @@
                         <option value="peminjaman">Peminjaman</option>
                     </select>
                 @endif
-                <select wire:model.live="unit_id" class="border rounded-lg px-4 py-2 w-full">
+                <select wire:model.live="selected_unit_id" class="border rounded-lg px-4 py-2 w-full">
                     <option value="">Pilih Unit</option>
                     @foreach ($unitOptions as $item)
                         {{-- @dd($item) --}}
@@ -92,7 +92,7 @@
                             {{-- {{ $permintaan->tipe == 'permintaan' ? $permintaan->kategoriStok->nama : $permintaan->kategori->nama }} --}}
                         </div>
                     </td>
-                    <td class="px-6 py-3 font-semibold">{{ date('j F Y', $permintaan->tanggal_permintaan) }}</td>
+                    <td class="px-6 py-3 font-semibold">{{ date('j F Y', $permintaan->tanggal) }}</td>
                     {{-- <td class="px-6 py-3 font-semibold">{{ $permintaan->kode_permintaan }}</td> --}}
                     <td class="px-6 py-3 font-semibold">
                         <div class="text-gray-600 text-sm">
@@ -143,8 +143,7 @@
                         </p>
                     </td>
                     <td class="py-3 px-6 text-center">
-                        {{-- @dump($permintaan->getTable()) --}}
-                        <a href="/permintaan/{{ $permintaan->getTable() === 'detail_peminjaman_aset' ? 'peminjaman' : 'permintaan' }}/{{ $permintaan->id }}"
+                        <a href="/permintaan/{{ $permintaan->tipe === 'peminjaman' ? 'peminjaman' : 'permintaan' }}/{{ $permintaan->id }}"
                             class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
                             data-tooltip-target="tooltip-permintaan-{{ $permintaan->id }}">
                             <i class="fa-solid fa-eye"></i>

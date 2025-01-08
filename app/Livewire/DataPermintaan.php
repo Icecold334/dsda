@@ -22,7 +22,7 @@ class DataPermintaan extends Component
     public $jenis; // Selected jenis
     public $lokasi; // Selected jenis
     public $tanggal; // Selected jenis
-    public $unit_id; // Selected jenis
+    public $selected_unit_id; // Selected jenis
     public $status; // Selected jenis
     public $unitOptions = [];
     public $jenisOptions = []; // List of jenis options
@@ -34,7 +34,7 @@ class DataPermintaan extends Component
     public function mount()
     {
         $this->tipe = Request::segment(2);
-        $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::all();
+        $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::whereNull('parent_id')->get();
         $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');
         $this->applyFilters();
     }
@@ -46,16 +46,18 @@ class DataPermintaan extends Component
 
 
 
-        $permintaanQuery = DetailPermintaanStok::select('id', 'kode_permintaan as kode', 'tanggal_permintaan as tanggal', 'kategori_id', 'unit_id', 'status', 'cancel', 'proses', 'jenis_id', DB::raw('"permintaan" as tipe'), 'created_at')
-            ->where('jenis_id', 3)
-            ->whereHas('unit', function ($unit) {
-                $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        $permintaanQuery = DetailPermintaanStok::select('id', 'kode_permintaan as kode', 'tanggal_permintaan as tanggal', 'kategori_id', 'unit_id', 'sub_unit_id', 'status', 'cancel', 'proses', 'jenis_id', DB::raw('"permintaan" as tipe'), 'created_at')
+            ->where('jenis_id', 3)->when($this->unit_id, function ($query) {
+                return $query->whereHas('unit', function ($unit) {
+                    $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                });
             });
 
-        $peminjamanQuery = DetailPeminjamanAset::select('id', 'kode_peminjaman as kode', 'tanggal_peminjaman as tanggal', 'kategori_id', 'unit_id', 'status', 'cancel', 'proses', DB::raw('"peminjaman" as tipe'), DB::raw('NULL as jenis_id'), 'created_at')
-            ->whereHas('unit', function ($unit) {
+        $peminjamanQuery = DetailPeminjamanAset::select('id', 'kode_peminjaman as kode', 'tanggal_peminjaman as tanggal', 'kategori_id', 'unit_id', 'sub_unit_id', 'status', 'cancel', 'proses', DB::raw('NULL as jenis_id'), DB::raw('"peminjaman" as tipe'),  'created_at')->when($this->unit_id, function ($query) {
+            return $query->whereHas('unit', function ($unit) {
                 $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
             });
+        });
 
         // Gabungkan kedua query menggunakan union
         $query = $permintaanQuery->union($peminjamanQuery);
@@ -71,11 +73,16 @@ class DataPermintaan extends Component
         // Apply jenis filter if selected
         if (!empty($this->jenis)) {
             $query->where('tipe', $this->jenis);
-        }
+            // dd(
+            //     $this->jenis,
+            //     $query->where('tipe', $this->jenis)->get()
 
+            // );
+        }
         // Apply unit_id filter if selected
-        if (!empty($this->unit_id)) {
-            $query->where('unit_id', $this->unit_id);
+        if ($this->selected_unit_id) {
+            // dd($this->selected_unit_id);
+            $query->where('sub_unit_id', $this->selected_unit_id);
         }
         if (!empty($this->tanggal)) {
             $tanggalFormatted = $this->tanggal; // Contoh: '2025-01-02'
@@ -135,8 +142,9 @@ class DataPermintaan extends Component
 
     public function downloadExcel()
     {
+        $this->applyFilters();
         $data = $this->permintaans;
-        $unit = UnitKerja::find($this->unit_id)->nama;
+        $unit = UnitKerja::find($this->selected_unit_id)?->nama;
         $spreadsheet = new Spreadsheet();
         $filterInfo = sprintf(
             "Jenis: %s, Lokasi: %s, Unit: %s",
@@ -193,11 +201,11 @@ class DataPermintaan extends Component
 
         // Style header tabel
 
-        $sheet->getStyle('A7:E8')->getFont()->setBold(true);
-        $sheet->getStyle('A7:E8')->getFont()->getColor()->setARGB('FFFFFFFF');
-        $sheet->getStyle('A7:E8')
+        $sheet->getStyle('A7:E7')->getFont()->setBold(true);
+        $sheet->getStyle('A7:E7')->getFont()->getColor()->setARGB('FFFFFFFF');
+        $sheet->getStyle('A7:E7')
             ->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('A7:E8');
+        $sheet->getStyle('A7:E7');
         //     ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         // $sheet->mergeCells('C7:E7');
 
@@ -218,8 +226,19 @@ class DataPermintaan extends Component
             // if (isset($stoks[$barang->id]) && count($stoks[$barang->id]) > 0) {
             //     foreach ($stoks[$barang->id] as $stok) {
             //         // Set data stok terkait barang (kolom C sampai G)
-            $sheet->setCellValue('C' . $row, $barang->tanggal)
-                ->setCellValue('D' . $row, $barang->unit->nama);
+            $sheet->setCellValue('C' . $row, date('j F Y', $barang->tanggal))
+                ->setCellValue('D' . $row, $barang->subUnit->nama ?? $barang->unit->nama)
+                ->setCellValue('E' . $row, $barang->cancel === 1
+                    ? 'dibatalkan'
+                    : ($barang->cancel === 0 && $barang->proses === 1
+                        ? 'selesai'
+                        : ($barang->cancel === 0 && $barang->proses === null
+                            ? 'siap diambil'
+                            : ($barang->cancel === null && $barang->proses === null && $barang->status === null
+                                ? 'diproses'
+                                : ($barang->cancel === null && $barang->proses === null && $barang->status === 1
+                                    ? 'disetujui'
+                                    : 'ditolak')))));
             // ->setCellValue('E' . $row, $stok['ukuran'] ?? '-')
 
             //         $row++; // Pindah ke baris berikutnya
@@ -232,7 +251,7 @@ class DataPermintaan extends Component
             //         ->setCellValue('F' . $row, '0')
             //         ->setCellValue('G' . $row, '-');
 
-            //     $row++; // Pindah ke baris berikutnya
+            $row++; // Pindah ke baris berikutnya
             // }
 
             // Terapkan alignment ke kanan untuk kolom tertentu
@@ -244,12 +263,10 @@ class DataPermintaan extends Component
         $sheet->getColumnDimension('C')->setAutoSize(true);
         $sheet->getColumnDimension('D')->setAutoSize(true);
         $sheet->getColumnDimension('E')->setAutoSize(true);
-        $sheet->getColumnDimension('F')->setAutoSize(true);
-        $sheet->getColumnDimension('G')->setAutoSize(true);
 
 
 
-        $fileName = 'Daftar Stok Dinas Sumber Daya Air (DSDA).xlsx';
+        $fileName = 'Daftar Pelayanan Umum Dinas Sumber Daya Air (DSDA).xlsx';
 
         // Set header untuk file Excel
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -260,7 +277,7 @@ class DataPermintaan extends Component
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         return Response::streamDownload(function () use ($writer) {
             $writer->save('php://output');
-        }, 'Daftar_Stok_DSDA.xlsx');
+        }, $fileName);
     }
     public function render()
     {

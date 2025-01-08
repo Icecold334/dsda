@@ -37,13 +37,13 @@ class TransaksiDaruratStokController extends Controller
         }
 
         // Sort transactions by date
-        $sortedTransaksi = $transaksi->sortByDesc('tanggal');
+        $sortedTransaksi = $transaksi;
 
         // Group transactions by vendor_id first, then by unit_id
         // $groupedTransactions = $sortedTransaksi->groupBy('vendor_id')->map(function ($vendorGroup) {
         //     return $vendorGroup->groupBy('user.unit_id'); // Group by user unit_id
         // });
-        $groupedTransactions = $sortedTransaksi->groupBy('vendor_id');
+        $groupedTransactions = $sortedTransaksi;
 
 
         return view('darurat.index', compact('groupedTransactions'));
