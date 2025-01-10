@@ -499,35 +499,45 @@ class TransaksiDaruratList extends Component
         }
     }
 
+    private function notifyUsersByRole(string $roleName, string $message, int $unitId, int $vendorId): void
+    {
+        $users = Role::where('name', $roleName)->first()->users()->whereHas(
+            'unitKerja',
+            function ($unit) use ($unitId) {
+                return $unit->where('parent_id', $unitId)->orWhere('id', $unitId);
+            }
+        )->get();
+
+        foreach ($users as $user) {
+            Notification::send($user, new UserNotification($message, route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $vendorId])));
+        }
+    }
+
     public function approveTransaction($index)
     {
-        if ($this->role_name == 'Penanggung Jawab') {
-            $vendor = Toko::find($this->vendor_id);
-            $message = 'Transaksi dengan vendor <span class="font-bold">' . $vendor->nama . '</span> membutuhkan persetujuan Anda.';
-            // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
-            $users = Role::where('name', 'Pejabat Pelaksana Teknis Kegiatan')->first()->users()->whereHas(
-                'unitKerja',
-                function ($unit) {
-                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-                }
-            )->get();
-            foreach ($users as $user) {
-                Notification::send($user, new UserNotification($message, route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->vendor_id])));
-            }
-        } elseif ($this->role_name == 'Pejabat Pelaksana Teknis Kegiatan') {
-            $vendor = Toko::find($this->vendor_id);
-            $message = 'Transaksi dengan vendor <span class="font-bold">' . $vendor->nama . '</span> membutuhkan persetujuan Anda.';
-            // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
-            $users = Role::where('name', 'Pejabat Pembuat Komitmen')->first()->users()->whereHas(
-                'unitKerja',
-                function ($unit) {
-                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-                }
-            )->get();
-            foreach ($users as $user) {
-                Notification::send($user, new UserNotification($message, route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $this->vendor_id])));
-            }
+        $vendor = Toko::find($this->vendor_id);
+
+        if (!$vendor) {
+            return;
         }
+
+        $message = "Transaksi dengan vendor <span class=\"font-bold\">{$vendor->nama}</span> membutuhkan persetujuan Anda.";
+
+        switch ($this->role_name) {
+            case 'Penanggung Jawab':
+                $this->notifyUsersByRole('Pejabat Pelaksana Teknis Kegiatan', $message, $this->unit_id, $this->vendor_id);
+                break;
+
+            case 'Pejabat Pelaksana Teknis Kegiatan':
+                $this->notifyUsersByRole('Pejabat Pembuat Komitmen', $message, $this->unit_id, $this->vendor_id);
+                break;
+
+            default:
+                // Optional: Tambahkan logika jika role_name tidak dikenali.
+                break;
+        }
+
+
         // Cari transaksi berdasarkan ID yang ada di list
         $transaction = TransaksiStok::findOrFail($this->list[$index]['id']);
 
