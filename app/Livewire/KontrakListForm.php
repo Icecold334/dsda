@@ -28,6 +28,8 @@ class KontrakListForm extends Component
     public $jumlah;
     public $newBarang = '';
     public $newKategori;
+    public $newHarga;
+    public $newPpn;
     public $barangSuggestions = [];
     public $showAddBarang = false;
     public $specifications = [
@@ -230,11 +232,13 @@ class KontrakListForm extends Component
             'kategori_id' => $this->kategori_id,
             'specifications' => $this->specifications,
             'jumlah' => $this->jumlah,
+            'harga' => $this->newHarga,
+            'ppn' => $this->newPpn,
             'satuan' => BarangStok::find($this->barang_id)->satuanBesar->nama,
         ];
 
         // $this->reset(['barang_id', 'merk_id', 'jumlah', 'newBarang']);
-        $this->reset(['barang_id',  'jumlah', 'newBarang']);
+        $this->reset(['barang_id',  'jumlah', 'newBarang', 'newHarga', 'newPpn']);
         $this->resetSpecifications();
         $this->dispatch('listCount', count: count($this->list));
     }
@@ -338,6 +342,8 @@ class KontrakListForm extends Component
                 'vendor_id' => $this->vendor_id,
                 'user_id' => Auth::user()->id,
                 'jumlah' => $item['jumlah'],
+                'harga' => (int)str_replace('.', '', $item['harga']),
+                'ppn' => $item['ppn'],
                 'kontrak_id' => $kontrak->id,
                 'tanggal' => strtotime(now()),
                 'tipe' => 'Pemasukan',

@@ -4,17 +4,24 @@
         <thead>
             <tr class="text-white bg-primary-950 uppercase">
                 <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
-                <th class="py-3 px-6 text-center font-semibold w-[20%]">Spesifikasi</th>
+                <th class="py-3 px-6 text-center font-semibold w-[18%]">Spesifikasi</th>
                 <th class="py-3 px-6 text-center font-semibold w-[13%]">Jumlah</th>
-                <th class="py-3 px-6 text-center font-semibold">Lokasi Penerimaan</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">HARGA SATUAN</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">PPN</th>
+                <th class="py-3 px-6 text-center font-semibold">Lokasi</th>
+                {{-- <th class="py-3 px-6 text-center font-semibold">bagian</th>
+                <th class="py-3 px-6 text-center font-semibold">posisi</th> --}}
                 <th class="py-3 px-6 text-center font-semibold">Keterangan</th>
-                <th class="py-3 px-6 text-center font-semibold w-[15%]">dokumen pendukung</th>
-                <th class="py-3 px-6 text-center font-semibold w-[10%]">status</th>
+                <th class="py-3 px-6 text-center font-semibold w-[10%]">dokumen pendukung</th>
+                @if (!$isCreate)
+                    <th class="py-3 px-6 text-center font-semibold w-[10%]">status</th>
+                @endif
                 <th class="py-3 px-6 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
         <tbody>
-            @if ($vendor_id && $jenis_id)
+            {{-- @if ($vendor_id && $jenis_id) --}}
+            @if (1)
                 @foreach ($list as $index => $item)
                     <tr class="bg-gray-50 hover:bg-gray-200">
                         <td class="px-2 py-3">
@@ -89,81 +96,83 @@
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                             @enderror
                         </td>
-                        <td class="text-center py-3 px-1">
-                            @if ($item['id'])
-                                @can('persetujuan')
-                                    {{-- {{ $item['sumApprove'] }} --}}
-                                    {{-- Jika pengguna adalah PPK --}}
-                                    {{-- @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $item['ppk_isapprove']) --}}
-                                    @if ($item['bukti'] && auth()->user()->hasRole('Penanggung Jawab') && $item['pj_isapprove'])
-                                        <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
-                                            class="text-warning-700 bg-warning-100 border border-warning-600 rounded-lg px-3 py-1.5 hover:bg-warning-600 hover:text-white transition">
-                                            Setujui
-                                        </button>
+                        @if (!$isCreate)
+                            <td class="text-center py-3 px-1">
+                                @if ($item['id'])
+                                    @can('persetujuan')
+                                        {{-- {{ $item['sumApprove'] }} --}}
+                                        {{-- Jika pengguna adalah PPK --}}
+                                        {{-- @if ($item['bukti'] && auth()->user()->hasRole('ppk') && $item['ppk_isapprove']) --}}
+                                        @if ($item['bukti'] && auth()->user()->hasRole('Penanggung Jawab') && $item['pj_isapprove'])
+                                            <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
+                                                class="text-warning-700 bg-warning-100 border border-warning-600 rounded-lg px-3 py-1.5 hover:bg-warning-600 hover:text-white transition">
+                                                Setujui
+                                            </button>
 
-                                        {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
-                                    @elseif (
-                                        $item['bukti'] &&
-                                            auth()->user()->hasRole('Pejabat Pelaksana Teknis Kegiatan') &&
-                                            $item['pptk_isapprove'] &&
-                                            !$item['pj_isapprove']
-                                    )
-                                        <button
-                                            onclick="confirmApproval({{ $index }}, 'Pejabat Pelaksana Teknis Kegiatan')"
-                                            class="text-warning-700 bg-warning-100 border border-warning-600 rounded-lg px-3 py-1.5 hover:bg-warning-600 hover:text-white transition">
-                                            Setujui
-                                        </button>
-                                        {{-- Jika pengguna adalah PJ dan sudah ada approval dari PPTK --}}
-                                    @elseif (
-                                        $item['bukti'] &&
-                                            auth()->user()->hasRole('Pejabat Pembuat Komitmen') &&
-                                            $item['ppk_isapprove'] &&
-                                            !$item['pptk_isapprove'] &&
-                                            !$item['pj_isapprove']
-                                    )
-                                        <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
-                                            class="text-warning-700 bg-warning-100 border border-warning-600 rounded-lg px-3 py-1.5 hover:bg-warning-600 hover:text-white transition">
-                                            Setujui
-                                        </button>
-                                    @else
-                                        {{-- Status persetujuan hanya ditampilkan jika bukti belum diisi --}}
-                                        {{-- @if (empty($item['bukti']))
+                                            {{-- Jika pengguna adalah PPTK dan sudah ada approval dari PPK --}}
+                                        @elseif (
+                                            $item['bukti'] &&
+                                                auth()->user()->hasRole('Pejabat Pelaksana Teknis Kegiatan') &&
+                                                $item['pptk_isapprove'] &&
+                                                !$item['pj_isapprove']
+                                        )
+                                            <button
+                                                onclick="confirmApproval({{ $index }}, 'Pejabat Pelaksana Teknis Kegiatan')"
+                                                class="text-warning-700 bg-warning-100 border border-warning-600 rounded-lg px-3 py-1.5 hover:bg-warning-600 hover:text-white transition">
+                                                Setujui
+                                            </button>
+                                            {{-- Jika pengguna adalah PJ dan sudah ada approval dari PPTK --}}
+                                        @elseif (
+                                            $item['bukti'] &&
+                                                auth()->user()->hasRole('Pejabat Pembuat Komitmen') &&
+                                                $item['ppk_isapprove'] &&
+                                                !$item['pptk_isapprove'] &&
+                                                !$item['pj_isapprove']
+                                        )
+                                            <button onclick="confirmApproval({{ $index }}, 'Penanggung Jawab')"
+                                                class="text-warning-700 bg-warning-100 border border-warning-600 rounded-lg px-3 py-1.5 hover:bg-warning-600 hover:text-white transition">
+                                                Setujui
+                                            </button>
+                                        @else
+                                            {{-- Status persetujuan hanya ditampilkan jika bukti belum diisi --}}
+                                            {{-- @if (empty($item['bukti']))
                                     <span
                                         class="{{ $item['status'] ? 'text-warning-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
                                         {{ is_null($item['status']) ? 'Menunggu' : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
                                     </span>
                                 @endif --}}
 
-                                        @if ($item['sumApprove'] === 3 && !$item['ppk_isapprove'])
-                                            <div
-                                                class="bg-success-100 text-success-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-success-900 dark:text-success-300">
-                                                disetujui</div>
-                                        @elseif($item['sumApprove'] === 2 && !$item['pptk_isapprove'])
-                                            <div
-                                                class="bg-warning-100 text-warning-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-warning-900 dark:text-warning-300">
-                                                Menunggu
-                                                PPK</div>
-                                        @elseif($item['sumApprove'] === 1)
-                                            <div
-                                                class="bg-warning-100 text-warning-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-warning-900 dark:text-warning-300">
-                                                Menunggu
-                                                PPTK</div>
-                                        @else
-                                            <div
-                                                class="bg-warning-100 text-warning-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-warning-900 dark:text-warning-300">
-                                                Menunggu
-                                                Penanggung Jawab</div>
+                                            @if ($item['sumApprove'] === 3 && !$item['ppk_isapprove'])
+                                                <div
+                                                    class="bg-success-100 text-success-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-success-900 dark:text-success-300">
+                                                    disetujui</div>
+                                            @elseif($item['sumApprove'] === 2 && !$item['pptk_isapprove'])
+                                                <div
+                                                    class="bg-warning-100 text-warning-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-warning-900 dark:text-warning-300">
+                                                    Menunggu
+                                                    PPK</div>
+                                            @elseif($item['sumApprove'] === 1)
+                                                <div
+                                                    class="bg-warning-100 text-warning-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-warning-900 dark:text-warning-300">
+                                                    Menunggu
+                                                    PPTK</div>
+                                            @else
+                                                <div
+                                                    class="bg-warning-100 text-warning-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-warning-900 dark:text-warning-300">
+                                                    Menunggu
+                                                    Penanggung Jawab</div>
+                                            @endif
                                         @endif
-                                    @endif
-                                @else
-                                    {{-- Untuk pengguna yang tidak memiliki hak persetujuan --}}
-                                    <span
-                                        class="{{ $item['status'] ? 'text-warning-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
-                                        {{ is_null($item['status']) ? (empty($item['bukti']) ? 'Menunggu' : '') : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
-                                    </span>
-                                @endcan
-                            @endif
-                        </td>
+                                    @else
+                                        {{-- Untuk pengguna yang tidak memiliki hak persetujuan --}}
+                                        <span
+                                            class="{{ $item['status'] ? 'text-warning-600' : ($item['status'] === 0 ? 'text-red-600' : 'text-gray-600') }}">
+                                            {{ is_null($item['status']) ? (empty($item['bukti']) ? 'Menunggu' : '') : ($item['status'] ? 'Disetujui' : 'Ditolak') }}
+                                        </span>
+                                    @endcan
+                                @endif
+                            </td>
+                        @endif
 
                         @push('scripts')
                             <script>
@@ -291,11 +300,84 @@
                             </div>
                         </div>
                     </td>
-                    <td class="py-3 px-6">
-                        <textarea wire:model.live="newLokasiPenerimaan"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
-                            placeholder="Lokasi Penerimaan"></textarea>
+                    <td class="px-6 py-3">
+                        <div class="flex">
+                            <div
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
+                                Rp
+                            </div>
+                            <input id="newHarga"
+                                class="bg-gray-50 border {{ !$newJumlah ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                type="text" placeholder="Harga Satuan" oninput="formatRupiah(this)"
+                                value="{{ $newHarga }}" @if (!$newJumlah) disabled @endif>
+                            @push('scripts')
+                                <script type="module">
+                                    window.formatRupiah = function(param) {
+                                        let angka = param.value
+                                        const numberString = angka.replace(/[^,\d]/g, '').toString();
+                                        const split = numberString.split(',');
+                                        let sisa = split[0].length % 3;
+                                        let rupiah = split[0].substr(0, sisa);
+                                        const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+                                        if (ribuan) {
+                                            const separator = sisa ? '.' : '';
+                                            rupiah += separator + ribuan.join('.');
+                                        }
+
+                                        rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+                                        @this.set('newHarga', rupiah);
+                                        return param.value = rupiah;
+                                    }
+                                </script>
+                            @endpush
+
+                        </div>
                     </td>
+                    <td class="px-6 py-3">
+                        <select wire:model.live='newPpn' @disabled(!$newHarga)
+                            class="bg-gray-50 border {{ !$newHarga ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option value=""> Pilih PPN </option>
+                            <option value="11">11%</option>
+                            <option value="12">12%</option>
+                        </select>
+                    </td>
+                    <td class="px-6 py-3">
+                        <select
+                            class="
+                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="">Pilih Lokasi</option>
+                            @foreach ($lokasis as $lokasi)
+                                <option value="{{ $lokasi->id }}">
+                                    {{ $lokasi->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td>
+                    {{-- <td class="px-6 py-3">
+                        <select
+                            class="
+                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="">Pilih Bagian</option>
+                            @foreach ($lokasis as $lokasi)
+                                <option value="{{ $lokasi->id }}">
+                                    {{ $lokasi->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td class="px-6 py-3">
+                        <select
+                            class="
+                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="">Pilih Posisi</option>
+                            @foreach ($lokasis as $lokasi)
+                                <option value="{{ $lokasi->id }}">
+                                    {{ $lokasi->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td> --}}
                     <td class="py-3 px-6">
                         <textarea wire:model.live="newKeterangan"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full" placeholder="Keterangan"></textarea>

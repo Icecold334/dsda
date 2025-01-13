@@ -7,6 +7,7 @@ use App\Models\Toko;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
+use App\Models\LokasiStok;
 use App\Models\Persetujuan;
 use App\Models\SatuanBesar;
 use Faker\Factory as Faker;
@@ -17,6 +18,7 @@ use App\Models\KontrakVendorStok;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Notification;
 
 class TransaksiDaruratList extends Component
@@ -33,6 +35,9 @@ class TransaksiDaruratList extends Component
     public $vendor_id;
     public $dokumenCount;
     public $penulis;
+    public $lokasis;
+    public $bagians;
+    public $posisis;
     public $list = [];
     public $newBarang = '';
     public $barangSuggestions = [];
@@ -45,7 +50,7 @@ class TransaksiDaruratList extends Component
         'satuanKecil' => [],
     ];
 
-    public $role_name, $cekStatusItem;
+    public $role_name, $cekStatusItem, $newHarga, $newPpn;
 
 
     public function fetchSuggestions($field, $value)
@@ -79,12 +84,16 @@ class TransaksiDaruratList extends Component
     public $newJumlah = null;
     public $newKeterangan = '';
     public $newLokasiPenerimaan = '';
+    public $newLokasiId;
+    public $newBagianId;
+    public $newPosisiId;
     public $newBukti;
     public $transaksi;
     public $merkSuggestions = [];
     public $satuanBesarOptions;
     public $newBarangSatuanBesar = '';
     public $newBarangSatuanKecil = '';
+    public $isCreate;
     public $showBarangModal = false;
     public $jumlahKecilDalamBesar, $roles, $items, $id, $ppk_isapprove, $pptk_isapprove, $pj_isapprove, $statusapprove;
 
@@ -97,7 +106,9 @@ class TransaksiDaruratList extends Component
 
     public function mount()
     {
+        $this->isCreate = Request::is('transaksi-darurat-stok/create');
         $this->role_name = Auth::user()->roles->pluck('name')->first();
+        $this->lokasis = LokasiStok::all();;
 
         $this->satuanBesarOptions = SatuanBesar::all();
         if ($this->transaksi) {
