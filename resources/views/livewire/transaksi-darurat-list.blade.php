@@ -6,7 +6,7 @@
                 <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
                 <th class="py-3 px-6 text-center font-semibold w-[18%]">Spesifikasi</th>
                 <th class="py-3 px-6 text-center font-semibold w-[13%]">Jumlah</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">HARGA SATUAN</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[11%]">HARGA SATUAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">PPN</th>
                 <th class="py-3 px-6 text-center font-semibold">Lokasi</th>
                 {{-- <th class="py-3 px-6 text-center font-semibold">bagian</th>
@@ -410,7 +410,7 @@
                     </td>
                     <td class="text-center py-3">
                         <button wire:click="addToList"
-                            class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiPenerimaan ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                            class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiId && $newHarga && $newPpn ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                             <i class="fa-solid fa-circle-check"></i>
                         </button>
                     </td>
