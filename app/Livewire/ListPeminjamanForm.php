@@ -263,6 +263,31 @@ class ListPeminjamanForm extends Component
         $this->tanggal_peminjaman = Carbon::now()->format('Y-m-d');
     }
 
+    public $availHours;
+
+    public function updatedNewAsetId()
+    {
+        $selectedAsetId = $this->newAsetId;
+        // Ambil waktu yang telah di-booking untuk aset yang dipilih pada hari ini
+        $bookedTimes = PeminjamanAset::where('aset_id', $selectedAsetId)
+            ->whereHas('detailPeminjaman', function ($query) {
+                $todayStart = strtotime($this->tanggal_peminjaman); // Waktu mulai (00:00:00)
+                $todayEnd = strtotime($this->tanggal_peminjaman . ' 23:59:59'); // Waktu akhir (23:59:59)
+
+
+                $query->whereBetween('tanggal_peminjaman', [$todayStart, $todayEnd])
+                    ->where(function ($query) {
+                        $query->whereNull('status')->orWhere('status', '!=', 0);
+                    });
+            })
+            ->pluck('waktu_id')
+            ->toArray();
+        $waktus = WaktuPeminjaman::all();
+        $this->waktus = $waktus->reject(function ($item) use ($bookedTimes) {
+            return in_array($item->id, $bookedTimes);
+        });
+    }
+
     public function approveItem($index, $message)
     {
         // // Validasi input

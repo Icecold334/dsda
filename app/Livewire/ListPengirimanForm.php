@@ -237,7 +237,9 @@ class ListPengirimanForm extends Component
         // dd($this->old);
         $this->showDokumen = !Request::routeIs('pengiriman-stok.create');
         $this->showRemove = !Request::routeIs('pengiriman-stok.show');
-        $this->lokasis = LokasiStok::all();
+        $this->lokasis = LokasiStok::whereHas('unitKerja', function ($unit) {
+            return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        })->get();
         if (count($this->old)) {
             $this->pengiriman = collect($this->old)->first()->detailPengirimanStok;
             foreach ($this->old as $index => $old) {
@@ -256,12 +258,12 @@ class ListPengirimanForm extends Component
                     'bagians' => BagianStok::where('lokasi_id', $transaksi->lokasi_id)->get(),
                     'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
                     'jumlah' => $transaksi->jumlah ?? 1,
-                    'jumlah_diterima' => $transaksi->jumlah_diterima ?? "", 
+                    'jumlah_diterima' => $transaksi->jumlah_diterima ?? "",
                     //$transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
                     'boolean_jumlah' => $transaksi->jumlah_diterima ?? 0,
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
                     'editable' => $isEditable,
-                    
+
                 ];
                 // $this->hiddenButtons[$index] = ($transaksi->lokasi_id && $transaksi->bagian_id && $transaksi->bukti) ?? 0;
                 $this->hiddenButtons[$index] = $this->checkPropPenerima($index);
@@ -275,10 +277,11 @@ class ListPengirimanForm extends Component
         }
     }
 
-    public function checkPropPenerima($index){
+    public function checkPropPenerima($index)
+    {
         $data = $this->list[$index];
 
-        if ($data['bagian_id'] && $data['posisi_id'] && $data['bukti'])  {
+        if ($data['bagian_id'] && $data['posisi_id'] && $data['bukti']) {
             $result = true;
         } else {
             $result = false;
@@ -373,7 +376,7 @@ class ListPengirimanForm extends Component
         $data = $this->list[$index];
         $data['editable'] = false;
 
-        if ($data['bukti']){
+        if ($data['bukti']) {
             $file = $data['bukti'];
         } else {
             $file = $this->namafile;
@@ -385,9 +388,9 @@ class ListPengirimanForm extends Component
         ];
 
         if (auth()->user()->can('inventaris_edit_jumlah_diterima')) {
-            if ($data['jumlah_diterima'] > $data['jumlah']){
+            if ($data['jumlah_diterima'] > $data['jumlah']) {
                 $this->dispatch('error', pesan: "Jumlah barang tidak boleh melebihi dari jumlah yang dikirim!");
-                    return;
+                return;
             }
             $editJumlah = [
                 'jumlah_diterima' => $data['jumlah_diterima']

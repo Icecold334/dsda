@@ -94,6 +94,8 @@ class DatabaseSeeder extends Seeder
                 'tipe' => $i < 6 ? 'Pemasukan' : 'Penggunaan Langsung',
                 'merk_id' => MerkStok::inRandomOrder()->first()->id,
                 'vendor_id' => $vendorid,
+                'harga' => $faker->numberBetween(200000, 1000000),
+                'ppn' => $faker->boolean ? 11 : 12,
                 'user_id' => User::inRandomOrder()->first()->id,
                 'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
                 'kontrak_id' => $i < 6 ? $vendorid : null,

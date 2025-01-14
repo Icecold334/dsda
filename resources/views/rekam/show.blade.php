@@ -83,16 +83,19 @@
         <thead>
             <tr class="text-white">
 
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/3 rounded-l-lg">BARANG</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6 rounded-l-lg">BARANG</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI (MERK/TIPE/UKURAN)</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">JUMLAH</th>
                 @if ($kontrak->type)
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">SISA</th>
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">SISA</th>
                 @else
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">LOKASI PENERIMAAN</th>
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">LOKASI GUDANG</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">KETERANGAN</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">DOKUMEN PENDUKUNG</th>
                 @endif
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">HARGA SATUAN</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">PPN</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">HARGA TOTAL</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
@@ -127,7 +130,8 @@
 
                         </td>
                     @else
-                        <td class="text-center py-3 font-semibold ">{{ $transaksi->lokasi_penerimaan }}</td>
+                        <td class="text-center py-3 font-semibold ">
+                            {{ App\Models\LokasiStok::find($transaksi->lokasi_id)->nama }}</td>
                         <td class="text-center py-3 font-semibold ">{{ $transaksi->deskripsi }}</td>
                         <td class="flex justify-center py-3 font-semibold "> <a class="text-center"
                                 href="{{ asset('storage/buktiTransaksi/' . $transaksi->img) }}" target="_blank">
@@ -135,6 +139,17 @@
                                     class="w-16 h-16 rounded-md text-center">
                             </a></td>
                     @endif
+                    <td class="text-center py-3 font-semibold ">
+                        Rp {{ number_format($transaksi->harga, 0, ',', '.') }}
+                    </td>
+
+                    <td class="text-center py-3 font-semibold ">{{ $transaksi->ppn }}%</td>
+                    <td class="text-center py-3 font-semibold ">
+                        {{-- Harga total --}}
+                        Rp
+                        {{ number_format($transaksi->harga * $transaksi->jumlah + ($transaksi->harga * $transaksi->jumlah * $transaksi->ppn) / 100, 0, ',', '.') }}
+                    </td>
+
 
                     <td class="text-center py-3 ">
                     </td>

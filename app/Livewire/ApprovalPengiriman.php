@@ -126,39 +126,39 @@ class ApprovalPengiriman extends Component
         $penerima = User::with(['pengirimanStok' => function ($query) {
             $query->where('detail_pengiriman_id', $this->pengiriman->id);
         }])
-        ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
-        ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-        ->whereHas('lokasiStok', function ($query) {
-            $query->whereIn(
-                'lokasi_id',
-                PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
-            );
-        })
-        ->get();
+            ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
+            ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+            ->whereHas('lokasiStok', function ($query) {
+                $query->whereIn(
+                    'lokasi_id',
+                    PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
+                );
+            })
+            ->get();
         $penerima = User::with(['pengirimanStok' => function ($query) {
             $query->where('detail_pengiriman_id', $this->pengiriman->id);
         }])
-        ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
-        ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-        ->whereHas('lokasiStok', function ($query) {
-            $query->whereIn(
-                'lokasi_id',
-                PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
-            );
-        })
-        ->get();
+            ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
+            ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+            ->whereHas('lokasiStok', function ($query) {
+                $query->whereIn(
+                    'lokasi_id',
+                    PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
+                );
+            })
+            ->get();
         $penerima = User::with(['pengirimanStok' => function ($query) {
             $query->where('detail_pengiriman_id', $this->pengiriman->id);
         }])
-        ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
-        ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-        ->whereHas('lokasiStok', function ($query) {
-            $query->whereIn(
-                'lokasi_id',
-                PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
-            );
-        })
-        ->get();
+            ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
+            ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+            ->whereHas('lokasiStok', function ($query) {
+                $query->whereIn(
+                    'lokasi_id',
+                    PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
+                );
+            })
+            ->get();
 
         $indexPenerima = $penerima->search(function ($user) {
             return $user->id == Auth::id();
@@ -166,7 +166,7 @@ class ApprovalPengiriman extends Component
 
         $this->lastPenerima = $indexPenerima === $penerima->count() - 1; // Check if current user is the last user
         $this->penerimaList = $this->checkApprovePB();
-        
+
 
 
         $pemeriksa = User::role('Pemeriksa Barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
@@ -213,34 +213,35 @@ class ApprovalPengiriman extends Component
         // $this->indikatorPenerima = $this->checkApprovPenerimaBarang($this->pengiriman->id, Auth::id()); 
 
         //$this->receivedData ??
-        
+
         $this->checkPreviousApproval = $this->CheckApproval();
         $this->CheckCurrentApproval = $this->CheckCurrentApproval();
         // $this->indikatorPenerima = $this->checkApprovPenerimaBarang($this->pengiriman->id, Auth::id()); 
     }
 
     public $indikatorPenerima, $checkPreviousApproval, $CheckCurrentApproval;
-    
 
-    public function checkApprovePB(){
+
+    public function checkApprovePB()
+    {
         $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
         $data = User::with(['pengirimanStok' => function ($query) {
             $query->where('detail_pengiriman_id', $this->pengiriman->id);
         }])
-        ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
-        ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-        ->whereHas('lokasiStok', function ($query) {
-            $query->whereIn(
-                'lokasi_id',
-                PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
-            );
-        })
-        ->get();
-        
+            ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
+            ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+            ->whereHas('lokasiStok', function ($query) {
+                $query->whereIn(
+                    'lokasi_id',
+                    PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id')
+                );
+            })
+            ->get();
+
         $processedData = $data->map(function ($item) {
-           
+
             $cekApprove = false;
-        
+
             // Iterate through each pengirimanStok of the current item
             /**
              * Namanya metode Pass-by-reference (menggunakan &)
@@ -251,12 +252,12 @@ class ApprovalPengiriman extends Component
              * variabel $cekApprove akan diteruskan ke dalam fungsi tersebut dengan referensinya, 
              * bukan dengan salinannya. Dengan begitu, setiap kali Anda mengubah nilai $cekApprove di dalam closure, perubahan tersebut akan langsung mempengaruhi 
              * variabel $cekApprove di luar closure, dalam konteks objek $item.
-            */
-             
+             */
+
             $item->pengirimanStok->map(function ($pengiriman) use (&$cekApprove) {
                 // Check the condition for each pengiriman
                 $cekApprove = true;
-                 // If any condition is met, set $cekApprove to true
+                // If any condition is met, set $cekApprove to true
                 $cekApprove = true;
                 if (empty($pengiriman->bagian_id) || empty($pengiriman->posisi_id) || empty($pengiriman->img)) {
                     $cekApprove = false;  // If any condition is met, set $cekApprove to true
@@ -264,14 +265,14 @@ class ApprovalPengiriman extends Component
                 // Assign the $cekApprove flag to each pengirimanStok
                 $pengiriman->cekpeng = $cekApprove;
             });
-        
+
             // Assign the final value of $cekApprove to the parent item
             $item->cekApprove = $cekApprove;
-        
+
             // Return the modified item
             return $item;
         });
-        
+
         // Return the processed data
         return $processedData;
     }
@@ -280,7 +281,7 @@ class ApprovalPengiriman extends Component
     {
 
         $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
-        
+
         $data = PengirimanStok::where('detail_pengiriman_id', $id)->whereHas('lokasiStok', function ($query) use ($user_id) {
             $query->whereHas('user', fn($q) => $q->where('id', $user_id));
         })->where(

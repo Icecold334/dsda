@@ -92,6 +92,10 @@ class PermissionSeeder extends Seeder
             'inventaris_edit_jumlah_diterima',
             'inventaris_upload_foto_bukti',
             'persetujuan',
+            'kontrak_tambah_kontrak_baru',
+            'pelayanan_xls',
+            'stok_show_detail',
+            'stok_xls'
         ];
 
         // Insert permissions and get their IDs
