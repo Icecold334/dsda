@@ -89,7 +89,7 @@
                 @if ($kontrak->type)
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">SISA</th>
                 @else
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">LOKASI PENERIMAAN</th>
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">LOKASI GUDANG</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">KETERANGAN</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">DOKUMEN PENDUKUNG</th>
                 @endif
@@ -130,7 +130,8 @@
 
                         </td>
                     @else
-                        <td class="text-center py-3 font-semibold ">{{ $transaksi->lokasi_penerimaan }}</td>
+                        <td class="text-center py-3 font-semibold ">
+                            {{ App\Models\LokasiStok::find($transaksi->lokasi_id)->nama }}</td>
                         <td class="text-center py-3 font-semibold ">{{ $transaksi->deskripsi }}</td>
                         <td class="flex justify-center py-3 font-semibold "> <a class="text-center"
                                 href="{{ asset('storage/buktiTransaksi/' . $transaksi->img) }}" target="_blank">

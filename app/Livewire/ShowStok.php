@@ -6,6 +6,7 @@ use App\Models\Stok;
 use Livewire\Component;
 use App\Models\StokDisetujui;
 use App\Models\PengirimanStok;
+use App\Models\TransaksiStok;
 use Illuminate\Support\Facades\DB;
 
 class ShowStok extends Component
@@ -36,6 +37,8 @@ class ShowStok extends Component
                 return $query->where('status', 1);
             });
 
+        $transaksi = TransaksiStok::select('id', 'merk_id', 'jumlah', 'created_at as tanggal', DB::raw("'in' as type"))->where('merk_id', $stok->merk_id)->where('lokasi_id', $stok->lokasi_id)->where('status', 1);;
+
         // Ambil data dari model StokDisetujui
         $stokDisetujui = StokDisetujui::select('id', 'merk_id', 'jumlah_disetujui as jumlah', 'created_at as tanggal', DB::raw("'in' as type"))
             ->where('merk_id', $stok->merk_id)
@@ -45,7 +48,7 @@ class ShowStok extends Component
             });
 
         // Gabungkan data dengan union
-        $history = $pengiriman->union($stokDisetujui)->orderBy('tanggal', 'asc')->get();
+        $history = $pengiriman->union($stokDisetujui)->union($transaksi)->orderBy('tanggal', 'asc')->get();
         // dd($history);
         $this->selectedItemHistory = $history;
         $this->noteModalVisible = true;

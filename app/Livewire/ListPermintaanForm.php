@@ -154,7 +154,6 @@ class ListPermintaanForm extends Component
                     'catatan' => $stok['catatan'] ?? null, // Simpan catatan per stok
                     'jumlah_disetujui' => $stok['jumlah_disetujui'],
                 ]);
-
                 // Kurangi stok sesuai dengan lokasi, bagian, dan posisi (jika ada)
                 // $stokModel = Stok::where('lokasi_id', $stok['lokasi_id'])
                 //     ->when(isset($stok['bagian_id']), function ($query) use ($stok) {
@@ -172,6 +171,7 @@ class ListPermintaanForm extends Component
                 // }
             }
         }
+
 
         $this->showApprovalModal = false; // Tutup modal
         $this->catatan = null; // Reset catatan
@@ -340,7 +340,7 @@ class ListPermintaanForm extends Component
         $message = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
         $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
         $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
-        // Notification::send($user, new UserNotification($message, "/permintaan/{$this->requestIs}/{$detailPermintaan->id}"));
+        Notification::send($user, new UserNotification($message, "/permintaan/{$this->requestIs}/{$detailPermintaan->id}"));
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
@@ -450,7 +450,7 @@ class ListPermintaanForm extends Component
 
     public function fillShowRule()
     {
-        $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id;
+        $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
     }
     public function updated()
     {
@@ -459,16 +459,13 @@ class ListPermintaanForm extends Component
     public $tipe;
     public function mount()
     {
-        $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('jenis', $this->requestIs == 'permintaan' ? 'umum' : ($this->requestIs == 'spare-part' ? 'spare-part' : 'material'))
-            ->where('unit_id', $this->unit_id)
-            ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
-            ->latest()
-            ->first();
+
 
 
         $this->fillShowRule();
         $expl = explode('/', Request::getUri());
         $this->requestIs = (int)strlen(Request::segment(3)) > 3 ? Request::segment(3) : $expl[count($expl) - 2];
+
         $this->fillKategoriId($this->kategori_id ?? null);
 
         $this->showAdd = Request::is('permintaan/add/*');

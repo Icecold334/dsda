@@ -136,13 +136,25 @@ class ApprovalPermintaan extends Component
 
     public function approveConfirmed($status, $message = null)
     {
+        $permintaan  = $this->permintaan;
+        // dd($permintaan->kode_permintaan ?? $permintaan->kode_peminjaman);
         if ($status) {
-            // $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
-            // if ($currentIndex != count($this->roleLists) - 1) {
-            //     $message = 'Permintaan ' . $this->permintaan->jenisStok->nama . ' <span class="font-bold">' . $this->permintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
-            //     $user = User::find(collect($this->roleLists)->flatten(1)[$currentIndex + 1]->id);
-            //     Notification::send($user, new UserNotification($message, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
-            // }
+            $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
+            if ($currentIndex != count($this->roleLists) - 1) {
+                $message = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                    (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
+                    '</span> membutuhkan persetujuan Anda.';
+
+
+                $user = User::find(collect($this->roleLists)->flatten(1)[$currentIndex + 1]->id);
+                Notification::send($user, new UserNotification($message, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+            }
+            $cancelAfter = $permintaan->opsiPersetujuan->cancel_persetujuan;
+            if ($currentIndex + 1 == $cancelAfter) {
+                $this->permintaan->update([
+                    'cancel' => 0,
+                ]);
+            }
         }
 
         $this->permintaan->persetujuan()->create([
@@ -154,7 +166,7 @@ class ApprovalPermintaan extends Component
         if (($this->currentApprovalIndex + 1) == $this->listApproval) {
             $this->permintaan->update([
                 'status' => 1,
-                'proses' => 1  // Proses dimulai
+                'proses' => 1  // Proses selesai
             ]);
 
 

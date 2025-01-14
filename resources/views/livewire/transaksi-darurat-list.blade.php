@@ -20,8 +20,8 @@
             </tr>
         </thead>
         <tbody>
-            {{-- @if ($vendor_id && $jenis_id) --}}
-            @if (1)
+            @if ($vendor_id && $jenis_id)
+                {{-- @if (1) --}}
                 @foreach ($list as $index => $item)
                     <tr class="bg-gray-50 hover:bg-gray-200">
                         <td class="px-2 py-3">
@@ -50,10 +50,51 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3 px-6">
+                        <td class="px-6 py-3">
+                            <div class="flex">
+                                <div
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
+                                    Rp
+                                </div>
+                                <input
+                                    class="bg-gray-50 border {{ !0 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                    type="text" placeholder="Harga Satuan" oninput="formatRupiah(this)"
+                                    wire:model.live='list.{{ $index }}.harga'
+                                    @if (!0) disabled @endif>
+                            </div>
+                        </td>
+                        <td class="px-6 py-3">
+                            <select wire:model.live='list.{{ $index }}.ppn' @disabled(!0)
+                                class="bg-gray-50 border {{ !0 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value=""> Pilih PPN </option>
+                                <option value="11">11%</option>
+                                <option value="12">12%</option>
+                            </select>
+                        </td>
+                        <td class="px-6 py-3">
+
+                            <select wire:model.live='list.{{ $index }}.lokasi_id' disabled
+                                data-tooltip-target="tooltipLokasi{{ $index }}" data-tooltip-placement="top"
+                                class=" cursor-not-allowed
+                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="">Pilih Lokasi</option>
+                                @foreach ($lokasis as $lokasi)
+                                    <option value="{{ $lokasi->id }}">
+                                        {{ $lokasi->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <div id="tooltipLokasi{{ $index }}" role="tooltip"
+                                class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                {{ App\Models\LokasiStok::find($item['lokasi_id'])->nama }}
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                        </td>
+                        {{-- <td class="py-3 px-6">
                             <textarea class="bg-gray-50 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
                                 placeholder="Lokasi Penerimaan" disabled>{{ $item['lokasi_penerimaan'] }}</textarea>
-                        </td>
+                        </td> --}}
                         <td class="py-3 px-6">
                             <textarea class="bg-gray-50 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
                                 placeholder="Keterangan" disabled>{{ $item['keterangan'] }}</textarea>
@@ -343,7 +384,7 @@
                         </select>
                     </td>
                     <td class="px-6 py-3">
-                        <select
+                        <select wire:model.live='newLokasiId'
                             class="
                             bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                             <option value="">Pilih Lokasi</option>
@@ -409,15 +450,23 @@
                         @enderror
                     </td>
                     <td class="text-center py-3">
-                        <button wire:click="addToList"
+
+                        <button wire:click="addToList" onclick="removeHarga()"
                             class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiId && $newHarga && $newPpn ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                             <i class="fa-solid fa-circle-check"></i>
                         </button>
+                        @push('scripts')
+                            <script type="module">
+                                window.removeHarga = function() {
+                                    return document.getElementById('newHarga').value = '';
+                                }
+                            </script>
+                        @endpush
                     </td>
                 </tr>
             @else
                 <tr class="bg-gray-50 hover:bg-gray-20">
-                    <td colspan="8" class="text-center font-semibold">Lengkapi data diatas</td>
+                    <td colspan="9" class="text-center font-semibold">Lengkapi data diatas</td>
                 </tr>
             @endif
         </tbody>

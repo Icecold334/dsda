@@ -117,7 +117,8 @@
                                         : '<span class="text-success-600"><i class="fa-solid fa-arrow-right-to-bracket"></i></span>' !!}</td>
                                     <td class="border px-4 py-2">{{ $data->jumlah }}
                                         {{ $data->merkStok->barangStok->satuanBesar->nama }}</td>
-                                    <td class="border px-4 py-2">{{ $data->tanggal }}</td>
+                                    <td class="border px-4 py-2">
+                                        {{ Carbon\Carbon::parse($data->tanggal)->translatedFormat('d F Y') }}</td>
                                 </tr>
                             @empty
                                 <tr>

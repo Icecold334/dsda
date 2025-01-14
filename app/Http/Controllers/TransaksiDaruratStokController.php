@@ -102,6 +102,9 @@ class TransaksiDaruratStokController extends Controller
                 });
             })
             ->get();
+        if (!count($transaksi)) {
+            return redirect()->to('transaksi-darurat-stok');
+        }
 
 
         $roles = Auth::user()->roles->pluck('name');

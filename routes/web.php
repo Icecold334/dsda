@@ -108,6 +108,9 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/aset/{id}/nonaktif', [AsetController::class, 'nonaktif'])->name('show.nonaktif');
     Route::resource('history', HistoryController::class);
     Route::resource('jurnal', JurnalController::class);
+    Route::get('kalender-aset', function () {
+        return view('peminjaman.index');
+    });
     Route::get('kategori/{tipe}', [KategoriController::class, 'create']);
     Route::get('kategori/{tipe}/{kategori}', [KategoriController::class, 'create'])->middleware('can:data_kategori');
     Route::resource('kategori', KategoriController::class)->middleware('can:data_kategori');
