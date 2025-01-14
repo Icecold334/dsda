@@ -354,6 +354,8 @@
                             @push('scripts')
                                 <script type="module">
                                     window.formatRupiah = function(param) {
+                                        console.log(4445);
+
                                         let angka = param.value
                                         const numberString = angka.replace(/[^,\d]/g, '').toString();
                                         const split = numberString.split(',');
@@ -452,7 +454,7 @@
                     <td class="text-center py-3">
 
                         <button wire:click="addToList" onclick="removeHarga()"
-                            class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiId && $newHarga && $newPpn ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                            class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiId ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                             <i class="fa-solid fa-circle-check"></i>
                         </button>
                         @push('scripts')
