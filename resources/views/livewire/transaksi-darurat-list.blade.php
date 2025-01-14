@@ -378,7 +378,7 @@
                         </div>
                     </td>
                     <td class="px-6 py-3">
-                        <select wire:model.live='newPpn' @disabled(!$newHarga)
+                        <select wire:model.live='newPpn'
                             class="bg-gray-50 border {{ !$newHarga ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                             <option value=""> Pilih PPN </option>
                             <option value="11">11%</option>
