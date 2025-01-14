@@ -54,14 +54,14 @@
                         ['href' => '/kategori-stok', 'title' => 'kategori stok'],
                     ]" />
                     <livewire:notification />
-                    <livewire:nav-item href="/kalender-aset"
+                    {{-- <livewire:nav-item href="/kalender-aset"
                         title='                <button data-tooltip-target="tooltipKalenderAset" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-book"></i></button>
 
                 <div id="tooltipKalenderAset" role="tooltip"
                     class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                     Kalender Aset
                     <div class="tooltip-arrow" data-popper-arrow></div>
-                </div>' />
+                </div>' /> --}}
                     <livewire:nav-item href="/kalender"
                         title='                <button data-tooltip-target="tooltipKalender" data-tooltip-placement="bottom" type="button"><i
                         class="fa-solid fa-calendar-days"></i></button>
