@@ -101,7 +101,7 @@
 
         <div class="">
             <div class="block font-semibold text-center mb-2 text-gray-900">
-                Pejabat Pelaksana Teknis Kegiatanss</div>
+                Pejabat Pelaksana Teknis Kegiatan</div>
             <table class="w-full mt-3">
                 @foreach ($pptkList as $pptk)
                     <tr class="text-sm border-b-2 ">
