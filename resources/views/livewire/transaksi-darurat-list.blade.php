@@ -351,34 +351,12 @@
                                 class="bg-gray-50 border {{ !$newJumlah ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                                 type="text" placeholder="Harga Satuan" oninput="formatRupiah(this)"
                                 value="{{ $newHarga }}" @if (!$newJumlah) disabled @endif>
-                            @push('scripts')
-                                <script type="module">
-                                    window.formatRupiah = function(param) {
-                                        console.log(4445);
 
-                                        let angka = param.value
-                                        const numberString = angka.replace(/[^,\d]/g, '').toString();
-                                        const split = numberString.split(',');
-                                        let sisa = split[0].length % 3;
-                                        let rupiah = split[0].substr(0, sisa);
-                                        const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-
-                                        if (ribuan) {
-                                            const separator = sisa ? '.' : '';
-                                            rupiah += separator + ribuan.join('.');
-                                        }
-
-                                        rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
-                                        @this.set('newHarga', rupiah);
-                                        return param.value = rupiah;
-                                    }
-                                </script>
-                            @endpush
 
                         </div>
                     </td>
                     <td class="px-6 py-3">
-                        <select wire:model.live='newPpn'
+                        <select wire:model.live='newPpn' @disabled(!$newHarga)
                             class="bg-gray-50 border {{ !$newHarga ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                             <option value=""> Pilih PPN </option>
                             <option value="11">11%</option>
@@ -454,7 +432,7 @@
                     <td class="text-center py-3">
 
                         <button wire:click="addToList" onclick="removeHarga()"
-                            class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiId ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                            class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiId && $newHarga && $newPpn ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                             <i class="fa-solid fa-circle-check"></i>
                         </button>
                         @push('scripts')
@@ -583,4 +561,26 @@
             </div>
         @endif
     @endif
+    @push('scripts')
+        <script type="module">
+            window.formatRupiah = function(param) {
+
+                let angka = param.value
+                const numberString = angka.replace(/[^,\d]/g, '').toString();
+                const split = numberString.split(',');
+                let sisa = split[0].length % 3;
+                let rupiah = split[0].substr(0, sisa);
+                const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+                if (ribuan) {
+                    const separator = sisa ? '.' : '';
+                    rupiah += separator + ribuan.join('.');
+                }
+
+                rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+                @this.set('newHarga', rupiah);
+                return param.value = rupiah;
+            }
+        </script>
+    @endpush
 </div>

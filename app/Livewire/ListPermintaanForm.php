@@ -337,10 +337,10 @@ class ListPermintaanForm extends Component
                 // 'lokasi_id' => $this->lokasiId
             ]);
         }
-        $message = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
-        $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
-        $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
-        Notification::send($user, new UserNotification($message, "/permintaan/{$this->requestIs}/{$detailPermintaan->id}"));
+        // $message = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
+        // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
+        // $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
+        // Notification::send($user, new UserNotification($message, "/permintaan/{$this->requestIs}/{$detailPermintaan->id}"));
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
