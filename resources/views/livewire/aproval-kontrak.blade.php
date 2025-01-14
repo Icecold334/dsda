@@ -7,7 +7,8 @@
                     <div class="text-sm border-b-2 ">
                         <div class="flex justify-between px-3">
                             <span class="mr-9 {{ $kontrak->user->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $kontrak->user->id == auth()->id() ? 'Anda' : $kontrak->user->name }}
+                                {{-- {{ $kontrak->user->id == auth()->id() ? 'Anda' : $kontrak->user->name }} --}}
+                                {{ false ? 'Anda' : $kontrak->user->name }}
                             </span>
                         </div>
                     </div>

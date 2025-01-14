@@ -169,6 +169,8 @@ return new class extends Migration
             $table->string('keterangan_status')->nullable();
 
             $table->string('kode_transaksi_stok')->nullable();
+            $table->integer('harga')->nullable();
+            $table->enum('ppn', [11, 12])->nullable();
             $table->string('img')->nullable();
             $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']);
             $table->foreignId('merk_id')->constrained('merk_stok');

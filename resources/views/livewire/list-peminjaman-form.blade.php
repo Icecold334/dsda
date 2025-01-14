@@ -1,26 +1,26 @@
 <div>
     <div>
-        {{-- @if ($tanggal_peminjaman && $keterangan && $unit_id) --}}
-        @if (true)
+        @if ($tanggal_peminjaman && $keterangan && $unit_id && $sub_unit_id)
+            {{-- @if (true) --}}
 
             <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
                 <thead>
                     <tr class="text-white uppercase">
                         <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold rounded-l-lg">NAMA
                             {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }}</th>
-                        @if (!$showNew)
+                        @if (!$showNew && 0)
                             <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold ">NAMA
                                 {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }} DISETUjui</th>
                         @endif
                         @if ($tipe == 'Peralatan Kantor')
                             <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">peminjaman</th>
-                            @if (!$showNew)
+                            @if (!$showNew && 0)
                                 <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold ">peminjaman
                                     DISETUjui</th>
                             @endif
                         @endif
                         <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">waktu penggunaan</th>
-                        @if (!$showNew)
+                        @if (!$showNew && 0)
                             <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold ">waktu penggunaan
                                 DISETUjui</th>
                         @endif
@@ -44,7 +44,7 @@
                                     <option value="{{ $item['aset_id'] }}" selected>{{ $item['aset_name'] }}</option>
                                 </select>
                             </td>
-                            @if (!$showNew)
+                            @if (!$showNew && 0)
                                 <td class="py-3 px-6">
                                     <select wire:model.live="list.{{ $index }}.approved_aset_id"
                                         @disabled(auth()->user()->cannot('peminjaman_persetujuan_peminjaman_aset') ||
@@ -69,7 +69,7 @@
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                         placeholder="Jumlah Permintaan">
                                 </td>
-                                @if (!$showNew)
+                                @if (!$showNew && 0)
                                     <td class="py-3 px-6">
                                         <input type="number"
                                             wire:model.live='list.{{ $index }}.approved_jumlah' min="1"
@@ -92,7 +92,7 @@
                                     </option>
                                 </select>
                             </td>
-                            @if (!$showNew)
+                            @if (!$showNew && 0)
                                 <td class="py-3 px-6">
                                     <select wire:model.live="list.{{ $index }}.approved_waktu_id"
                                         @disabled(auth()->user()->cannot('peminjaman_persetujuan_peminjaman_aset') ||

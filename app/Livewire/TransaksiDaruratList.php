@@ -3,10 +3,12 @@
 namespace App\Livewire;
 
 use id;
+use App\Models\Stok;
 use App\Models\Toko;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
+use App\Models\LokasiStok;
 use App\Models\Persetujuan;
 use App\Models\SatuanBesar;
 use Faker\Factory as Faker;
@@ -17,6 +19,7 @@ use App\Models\KontrakVendorStok;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Notification;
 
 class TransaksiDaruratList extends Component
@@ -33,6 +36,9 @@ class TransaksiDaruratList extends Component
     public $vendor_id;
     public $dokumenCount;
     public $penulis;
+    public $lokasis;
+    public $bagians;
+    public $posisis;
     public $list = [];
     public $newBarang = '';
     public $barangSuggestions = [];
@@ -45,7 +51,7 @@ class TransaksiDaruratList extends Component
         'satuanKecil' => [],
     ];
 
-    public $role_name, $cekStatusItem;
+    public $role_name, $cekStatusItem, $newHarga, $newPpn;
 
 
     public function fetchSuggestions($field, $value)
@@ -79,12 +85,16 @@ class TransaksiDaruratList extends Component
     public $newJumlah = null;
     public $newKeterangan = '';
     public $newLokasiPenerimaan = '';
+    public $newLokasiId;
+    public $newBagianId;
+    public $newPosisiId;
     public $newBukti;
     public $transaksi;
     public $merkSuggestions = [];
     public $satuanBesarOptions;
     public $newBarangSatuanBesar = '';
     public $newBarangSatuanKecil = '';
+    public $isCreate;
     public $showBarangModal = false;
     public $jumlahKecilDalamBesar, $roles, $items, $id, $ppk_isapprove, $pptk_isapprove, $pj_isapprove, $statusapprove;
 
@@ -97,7 +107,11 @@ class TransaksiDaruratList extends Component
 
     public function mount()
     {
+        $this->isCreate = Request::is('transaksi-darurat-stok/create');
         $this->role_name = Auth::user()->roles->pluck('name')->first();
+        $this->lokasis = LokasiStok::whereHas('unitKerja', function ($unit) {
+            return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        })->get();
 
         $this->satuanBesarOptions = SatuanBesar::all();
         if ($this->transaksi) {
@@ -142,7 +156,10 @@ class TransaksiDaruratList extends Component
                     'specifications' => $spec,
                     'jumlah' => $item->jumlah,
                     'satuan' => BarangStok::find($item->merkStok->barangStok->id)->satuanBesar->nama,
-                    'lokasi_penerimaan' => $item->lokasi_penerimaan,
+                    // 'lokasi_penerimaan' => $item->lokasi_penerimaan,
+                    'lokasi_id' => $item->lokasi_id,
+                    'ppn' => $item->ppn,
+                    'harga' => number_format($item->harga, 0, ',', '.'),
                     'keterangan' => $item->deskripsi,
                     'bukti' => $item->img,
                     'pptk_isapprove' => $this->pptk_isapprove ?? 0,
@@ -319,6 +336,9 @@ class TransaksiDaruratList extends Component
                     'img' => $item['bukti'] != null ? str_replace('buktiTransaksi/', '', $item['bukti']->storeAs('buktiTransaksi', $item['bukti']->getClientOriginalName(), 'public')) : null,
                     'user_id' => Auth::id(),
                     'kontrak_id' => null,
+                    'harga' => (int)str_replace('.', '', $item['harga']),
+                    'ppn' => $item['ppn'],
+                    'lokasi_id' => $item['lokasi_id'],
                     'tanggal' => strtotime(date('Y-m-d H:i:s')),
                     'jumlah' => $item['jumlah'],
                     'deskripsi' => $item['keterangan'] ?? '',
@@ -401,7 +421,6 @@ class TransaksiDaruratList extends Component
         $this->validate([
             'newBarangId' => 'required',
             'newJumlah' => 'required|integer|min:1',
-            'newLokasiPenerimaan' => 'required|string',
             'newKeterangan' => 'nullable|string',
         ]);
 
@@ -412,7 +431,10 @@ class TransaksiDaruratList extends Component
             'specifications' => $this->specifications,
             'jumlah' => $this->newJumlah,
             'satuan' => BarangStok::find($this->newBarangId)->satuanBesar->nama,
-            'lokasi_penerimaan' => $this->newLokasiPenerimaan,
+            // 'lokasi_penerimaan' => $this->newLokasiPenerimaan,
+            'lokasi_id' => $this->newLokasiId,
+            'harga' => $this->newHarga,
+            'ppn' => $this->newPpn,
             'keterangan' => $this->newKeterangan,
             'pptk_isapprove' => $this->pptk_isapprove ?? 1,
             'ppk_isapprove' => $this->ppk_isapprove ?? 1,
@@ -422,7 +444,7 @@ class TransaksiDaruratList extends Component
             'status' => null,
         ];
 
-        $this->reset(['newBarang', 'newBarangId', 'specifications', 'newJumlah', 'newLokasiPenerimaan', 'newKeterangan', 'newBukti']);
+        $this->reset(['newBarang', 'newBarangId', 'specifications', 'newJumlah', 'newLokasiPenerimaan', 'newKeterangan', 'newBukti', 'newHarga', 'newPpn', 'newLokasiId']);
         $this->dispatch('listCount', count: count($this->list));
     }
     public function finishKontrak()
@@ -564,6 +586,16 @@ class TransaksiDaruratList extends Component
         // Simpan perubahan transaksi
         if ($this->role_name === 'Pejabat Pembuat Komitmen') {
             $transaction->status = true;
+            $stok = Stok::firstOrCreate(
+                [
+                    'merk_id' => $transaction->merk_id,
+                    'lokasi_id' => $transaction->lokasi_id,
+                ],
+                ['jumlah' => 0]  // Atur stok awal jika belum ada
+            );
+
+            $stok->jumlah += $transaction->jumlah;
+            $stok->save();
         }
         $transaction->save();
 
