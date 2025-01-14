@@ -2,6 +2,7 @@
 
 use App\Models\Aset;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use App\Models\Persetujuan;
 use App\Models\PermintaanStok;
 use App\Livewire\AssetCalendar;
@@ -109,7 +110,13 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('history', HistoryController::class);
     Route::resource('jurnal', JurnalController::class);
     Route::get('kalender-aset', function () {
-        return view('peminjaman.index');
+    $peminjaman = DB::table('peminjaman_aset')
+    ->join('detail_peminjaman_aset', 'peminjaman_aset.detail_peminjaman_id', '=', 'detail_peminjaman_aset.id')
+    ->join('aset', 'peminjaman_aset.aset_id', '=', 'aset.id')
+    ->where('detail_peminjaman_aset.status', 1)
+    ->select('peminjaman_aset.*', 'detail_peminjaman_aset.tanggal_peminjaman', 'aset.nama')
+    ->get();
+        return view('peminjaman.index', ['peminjaman' => $peminjaman]);
     });
     Route::get('kategori/{tipe}', [KategoriController::class, 'create']);
     Route::get('kategori/{tipe}/{kategori}', [KategoriController::class, 'create'])->middleware('can:data_kategori');
