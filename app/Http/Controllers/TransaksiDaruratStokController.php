@@ -10,6 +10,7 @@ use App\Models\TransaksiStok;
 use App\Models\TransaksiDaruratStok;
 use Illuminate\Support\Facades\Auth;
 use App\Models\KontrakRetrospektifStok;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Toko;
 
 class TransaksiDaruratStokController extends Controller
@@ -55,6 +56,7 @@ class TransaksiDaruratStokController extends Controller
      */
     public function create()
     {
+        Gate::authorize('kontrak_tambah_kontrak_baru');
         $vendors = VendorStok::all();
         return view('darurat.create', compact('vendors'));
     }

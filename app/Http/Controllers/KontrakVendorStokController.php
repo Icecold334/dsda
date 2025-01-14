@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\TransaksiDaruratStok;
 use App\Models\UnitKerja;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 
 class KontrakVendorStokController extends Controller
@@ -60,6 +61,7 @@ class KontrakVendorStokController extends Controller
      */
     public function create()
     {
+        Gate::authorize('kontrak_tambah_kontrak_baru');
         $vendors = VendorStok::all();
         return view('rekam.create', compact('vendors'));
     }
