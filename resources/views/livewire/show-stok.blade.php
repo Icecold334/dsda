@@ -68,7 +68,7 @@
                         <td class="{{ $item->posisiStok == null ? 'text-center' : '' }}">
                             {{ $item->posisiStok->nama ?? '---' }}</td>
                         <td class="center">
-
+                            @can('stok_show_detail')
                             <button wire:click="historyStok({{ $item->id }})"
                                 class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
                                 data-tooltip-target="tooltip-item-{{ $item->id }}">
@@ -79,6 +79,9 @@
                                 Lihat Riwayat Keluar/Masuk Barang
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
+                            @endcan
+
+                            
                         </td>
                     </tr>
                 @endforeach

@@ -46,14 +46,16 @@
                         <option value="{{ $metode }}">{{ $metode }}</option>
                     @endforeach
                 </select>
-
-                <!-- Button Go -->
+                @can('kontrak_tambah_kontrak_baru')
                 <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
                     <i class="fa fa-sync-alt"></i>
                 </button>
                 <a href="{{ route('kontrak-vendor-stok.create') }}"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                     Rekam Kontrak Baru</a>
+                @endcan
+                <!-- Button Go -->
+                
             </div>
         </div>
     </div>

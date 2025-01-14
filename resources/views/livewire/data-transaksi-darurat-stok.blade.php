@@ -6,11 +6,13 @@
                 {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
             @endif
         </h1>
+        @can('kontrak_tambah_kontrak_baru')
         <div>
             <a href="{{ route('transaksi-darurat-stok.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Rekam Kontrak Baru</a>
         </div>
+        @endcan
     </div>
 
     @if (session('success'))
