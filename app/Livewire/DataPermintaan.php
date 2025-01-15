@@ -41,97 +41,111 @@ class DataPermintaan extends Component
 
     public function applyFilters()
     {
-
-
-
-
-
-        $permintaanQuery = DetailPermintaanStok::select('id', 'kode_permintaan as kode', 'tanggal_permintaan as tanggal', 'kategori_id', 'unit_id', 'sub_unit_id', 'status', 'cancel', 'proses', 'jenis_id', DB::raw('"permintaan" as tipe'), 'created_at')
-            ->where('jenis_id', 3)->when($this->unit_id, function ($query) {
-                return $query->whereHas('unit', function ($unit) {
-                    $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-                });
-            });
-
-        $peminjamanQuery = DetailPeminjamanAset::select('id', 'kode_peminjaman as kode', 'tanggal_peminjaman as tanggal', 'kategori_id', 'unit_id', 'sub_unit_id', 'status', 'cancel', 'proses', DB::raw('NULL as jenis_id'), DB::raw('"peminjaman" as tipe'),  'created_at')->when($this->unit_id, function ($query) {
+        $permintaanQuery = DetailPermintaanStok::when($this->unit_id, function ($query) {
             return $query->whereHas('unit', function ($unit) {
                 $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
             });
+        })->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'kode' => $item->kode_permintaan,
+                'tanggal' => $item->tanggal_permintaan,
+                'kategori_id' => $item->kategori_id,
+                'kategori' => $item->kategoriStok,
+                'unit_id' => $item->unit_id,
+                'unit' => $item->unit,
+                'sub_unit_id' => $item->sub_unit_id,
+                'sub_unit' => $item->subUnit,
+                'status' => $item->status,
+                'cancel' => $item->cancel,
+                'proses' => $item->proses,
+                'jenis_id' => $item->jenis_id,
+                'tipe' => 'permintaan', // Menambahkan tipe
+                'created_at' => $item->created_at->format('Y-m-d H:i:s')
+            ];
         });
 
-        // Gabungkan kedua query menggunakan union
-        $query = $permintaanQuery->union($peminjamanQuery);
+        $peminjamanQuery = DetailPeminjamanAset::when($this->unit_id, function ($query) {
+            return $query->whereHas('unit', function ($unit) {
+                $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+            });
+        })->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'kode' => $item->kode_peminjaman,
+                'tanggal' => $item->tanggal_peminjaman,
+                'kategori_id' => $item->kategori_id,
+                'kategori' => $item->kategori,
+                'unit_id' => $item->unit_id,
+                'unit' => $item->unit,
+                'sub_unit_id' => $item->sub_unit_id,
+                'sub_unit' => $item->subUnit,
+                'status' => $item->status,
+                'cancel' => $item->cancel,
+                'proses' => $item->proses,
+                'jenis_id' => null,
+                'tipe' => 'peminjaman', // Menambahkan tipe
+                'created_at' => $item->created_at->format('Y-m-d H:i:s')
+            ];
+        });
 
-        // Tambahkan kondisi tambahan pada query gabungan
-        $query->orderBy('id', 'desc');
-        // dd($query->where('jenis_id', 4));
-        // Apply search filter if present
+        // Gabungkan kedua koleksi dan urutkan berdasarkan tanggal terbaru
+        $query = $permintaanQuery->merge($peminjamanQuery)
+            ->sortByDesc('created_at');
+
+        // Terapkan filter pencarian
         if (!empty($this->search)) {
-            $query->where('kode_permintaan', 'like', '%' . $this->search . '%');
+            $query = $query->filter(function ($item) {
+                return stripos($item['kode'], $this->search) !== false;
+            });
         }
 
-        // Apply jenis filter if selected
+        // Terapkan filter jenis
         if (!empty($this->jenis)) {
-            $query->where('tipe', $this->jenis);
-            // dd(
-            //     $this->jenis,
-            //     $query->where('tipe', $this->jenis)->get()
-
-            // );
+            $query = $query->filter(function ($item) {
+                return $item['tipe'] === $this->jenis;
+            });
         }
         // Apply unit_id filter if selected
+        // Terapkan filter unit_id
         if ($this->selected_unit_id) {
-            // dd($this->selected_unit_id);
-            $query->where('sub_unit_id', $this->selected_unit_id);
+            $query = $query->filter(function ($item) {
+                return $item['sub_unit_id'] == $this->selected_unit_id;
+            });
         }
+
+        // Terapkan filter tanggal
         if (!empty($this->tanggal)) {
-            $tanggalFormatted = $this->tanggal; // Contoh: '2025-01-02'
-
-            // Konversi tanggal input ke rentang waktu (awal dan akhir hari)
-            $tanggalStart = strtotime($tanggalFormatted . ' 00:00:00');
-            $tanggalEnd = strtotime($tanggalFormatted . ' 23:59:59');
-            // dd($tanggalStart, $tanggalEnd);
-
-            // Filter berdasarkan rentang timestamp
-            $query->whereBetween('tanggal', [$tanggalStart, $tanggalEnd]);
-        }
-
-        // Apply status filter if selected
-        if (!empty($this->status)) {
-            $s = $this->status;
-
-            $query->where(function ($query) use ($s) {
-                if ($s === 'diproses') {
-                    $query->whereNull('cancel')
-                        ->whereNull('proses')
-                        ->whereNull('status');
-                } elseif ($s === 'disetujui') {
-                    $query->whereNull('cancel')
-                        ->whereNull('proses')
-                        ->where('status', 1);
-                } elseif ($s === 'ditolak') {
-                    $query->where('cancel', 1)
-                        ->whereNull('proses')
-                        ->orWhere(function ($query) {
-                            $query->whereNull('cancel')
-                                ->whereNull('proses')
-                                ->where('status', 0);
-                        });
-                } elseif ($s === 'selesai') {
-                    $query->where('cancel', 0)
-                        ->where('proses', 1);
-                } elseif ($s === 'siap diambil') {
-                    $query->where('cancel', 0)
-                        ->whereNull('proses');
-                } elseif ($s === 'dibatalkan') {
-                    $query->where('cancel', 1);
-                }
+            $query = $query->filter(function ($item) {
+                return $item['tanggal'] === $this->tanggal;
             });
         }
 
 
-        // Fetch filtered data
-        $this->permintaans = $query->get();
+        if (!empty($this->status)) {
+            $s = $this->status;
+            $query = $query->filter(function ($item) use ($s) {
+                if ($s === 'diproses') {
+                    return is_null($item['cancel']) && is_null($item['proses']) && is_null($item['status']);
+                } elseif ($s === 'disetujui') {
+                    return is_null($item['cancel']) && is_null($item['proses']) && $item['status'] == 1;
+                } elseif ($s === 'ditolak') {
+                    return ($item['cancel'] == 1 && is_null($item['proses']))
+                        || (is_null($item['cancel']) && is_null($item['proses']) && $item['status'] == 0);
+                } elseif ($s === 'selesai') {
+                    return $item['cancel'] == 0 && $item['proses'] == 1;
+                } elseif ($s === 'siap diambil') {
+                    return $item['cancel'] == 0 && is_null($item['proses']);
+                } elseif ($s === 'dibatalkan') {
+                    return $item['cancel'] == 1;
+                }
+                return false;
+            });
+        }
+
+
+        // Simpan data hasil filter
+        $this->permintaans = $query->values(); // Reset indeks array
     }
 
 
@@ -219,44 +233,25 @@ class DataPermintaan extends Component
 
         foreach ($data as $barang) {
             // Set data utama barang (kolom A dan B)
-            $sheet->setCellValue('A' . $row, $barang->kode)
-                ->setCellValue('B' . $row, $barang->tipe);
+            $sheet->setCellValue('A' . $row, $barang['kode'])
+                ->setCellValue('B' . $row, $barang['tipe']);
 
-            // // Periksa apakah barang memiliki stok terkait
-            // if (isset($stoks[$barang->id]) && count($stoks[$barang->id]) > 0) {
-            //     foreach ($stoks[$barang->id] as $stok) {
-            //         // Set data stok terkait barang (kolom C sampai G)
-            $sheet->setCellValue('C' . $row, date('j F Y', $barang->tanggal))
-                ->setCellValue('D' . $row, $barang->subUnit->nama ?? $barang->unit->nama)
-                ->setCellValue('E' . $row, $barang->cancel === 1
-                    ? 'dibatalkan'
-                    : ($barang->cancel === 0 && $barang->proses === 1
-                        ? 'selesai'
-                        : ($barang->cancel === 0 && $barang->proses === null
-                            ? 'siap diambil'
-                            : ($barang->cancel === null && $barang->proses === null && $barang->status === null
-                                ? 'diproses'
-                                : ($barang->cancel === null && $barang->proses === null && $barang->status === 1
-                                    ? 'disetujui'
-                                    : 'ditolak')))));
-            // ->setCellValue('E' . $row, $stok['ukuran'] ?? '-')
+            // Set data terkait barang (kolom C sampai E)
+            $sheet->setCellValue('C' . $row, date('j F Y', $barang['tanggal']))
+                ->setCellValue('D' . $row, $barang['sub_unit']?->nama ?? $barang['unit']?->nama)
+                ->setCellValue(
+                    'E' . $row,
+                    $barang['cancel'] === 1 ? 'dibatalkan' : ($barang['cancel'] === 0 && $barang['proses'] === 1 ? 'selesai' : ($barang['cancel'] === 0 && $barang['proses'] === null ? 'siap diambil' : ($barang['cancel'] === null && $barang['proses'] === null && $barang['status'] === null ? 'diproses' : ($barang['cancel'] === null && $barang['proses'] === null && $barang['status'] === 1 ? 'disetujui' : 'ditolak'))))
+                );
 
-            //         $row++; // Pindah ke baris berikutnya
-            //     }
-            // } else {
-            //     // Jika tidak ada stok, kosongkan kolom C-G untuk barang ini
-            //     $sheet->setCellValue('C' . $row, '-')
-            //         ->setCellValue('D' . $row, '-')
-            //         ->setCellValue('E' . $row, '-')
-            //         ->setCellValue('F' . $row, '0')
-            //         ->setCellValue('G' . $row, '-');
-
-            $row++; // Pindah ke baris berikutnya
-            // }
-
-            // Terapkan alignment ke kanan untuk kolom tertentu
-            // $sheet->getStyle('F' . ($row - 1))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+            // Pindah ke baris berikutnya
+            $row++;
         }
+
+        // Terapkan alignment ke kolom tertentu (contoh kolom F)
+        // $sheet->getStyle('A1:E' . ($row - 1))
+        //     ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+
 
         $sheet->getColumnDimension('A')->setAutoSize(true);
         $sheet->getColumnDimension('B')->setAutoSize(true);

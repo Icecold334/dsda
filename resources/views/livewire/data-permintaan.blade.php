@@ -1,7 +1,7 @@
 <div>
     <div class="flex justify-between py-2 mb-3">
         <h1 class="text-2xl font-bold text-primary-900 ">
-            Pelayanan Umum
+            {{ $tipe === null ? 'Pelayanan Umum' : ($tipe == 'spare-part' ? 'Permintaan Spare Part' : 'Permintaan Material') }}
             @if (auth()->user()->unitKerja)
                 {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
             @endif
@@ -41,17 +41,16 @@
                 </select>
 
                 @if ($permintaans->count() || false)
-                @can('pelayanan_xls')
-                <button data-tooltip-target="tooltip-excel" wire:click="downloadExcel"
-                class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
-                    class="fa-solid fa-file-excel"></i></button>
-            <div id="tooltip-excel" role="tooltip"
-                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                Download dalam format excel
-                <div class="tooltip-arrow" data-popper-arrow></div>
-            </div>
-                @endcan
-                    
+                    @can('pelayanan_xls')
+                        <button data-tooltip-target="tooltip-excel" wire:click="downloadExcel"
+                            class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
+                                class="fa-solid fa-file-excel"></i></button>
+                        <div id="tooltip-excel" role="tooltip"
+                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                            Download dalam format excel
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                    @endcan
                 @endif
                 @if ($nonUmum)
                     <a href="/permintaan/add/{{ request()->segment(2) }}/{{ request()->segment(2) }}"
@@ -85,81 +84,78 @@
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="px-6 py-3"></td>
                     <td class="px-6 py-3 font-semibold">
-                        {{ $permintaan->kode }}</td>
+                        {{ $permintaan['kode'] }}
+                    </td>
                     <td class="px-6 py-3 font-semibold {{ $tipe ? 'hidden' : '' }}">
                         <div>
-                            {{ $permintaan->tipe == 'permintaan' ? 'Permintaan' : 'Peminjaman' }}
+                            {{ Str::ucfirst($permintaan['tipe']) }}
                         </div>
-                        {{-- @dd($permintaan->kategoriStok); --}}
                         <div class="text-gray-500 text-sm">
-                            {{-- {{ $permintaan->tipe == 'permintaan' ? $permintaan->kategoriStok->nama : $permintaan->kategori->nama }} --}}
+                            {{ $permintaan['kategori']->nama }}
                         </div>
                     </td>
-                    <td class="px-6 py-3 font-semibold">{{ date('j F Y', $permintaan->tanggal) }}</td>
-                    {{-- <td class="px-6 py-3 font-semibold">{{ $permintaan->kode_permintaan }}</td> --}}
+                    <td class="px-6 py-3 font-semibold">{{ date('j F Y', $permintaan['tanggal']) }}</td>
                     <td class="px-6 py-3 font-semibold">
                         <div class="text-gray-600 text-sm">
-                            {{ $permintaan->subUnit->nama ?? $permintaan->unit->nama }}
+                            {{ $permintaan['sub_unit']?->nama ?? $permintaan['unit']?->nama }}
                         </div>
                     </td>
                     <td class="py-3 px-6">
                         <p class="font-semibold text-gray-800 text-center">
                             <span
                                 class="
-        bg-{{ $permintaan->cancel === 1
-            ? 'secondary'
-            : ($permintaan->cancel === 0 && $permintaan->proses === 1
-                ? 'primary'
-                : ($permintaan->cancel === 0 && $permintaan->proses === null
-                    ? 'info'
-                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
-                        ? 'warning'
-                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
-                            ? 'success'
-                            : 'danger')))) }}-600
-        text-{{ $permintaan->cancel === 1
-            ? 'secondary'
-            : ($permintaan->cancel === 0 && $permintaan->proses === 1
-                ? 'primary'
-                : ($permintaan->cancel === 0 && $permintaan->proses === null
-                    ? 'info'
-                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
-                        ? 'warning'
-                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
-                            ? 'success'
-                            : 'danger')))) }}-100
-        text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
-                                {{ $permintaan->cancel === 1
+    bg-{{ $permintaan['cancel'] === 1
+        ? 'secondary'
+        : ($permintaan['cancel'] === 0 && $permintaan['proses'] === 1
+            ? 'primary'
+            : ($permintaan['cancel'] === 0 && $permintaan['proses'] === null
+                ? 'info'
+                : ($permintaan['cancel'] === null && $permintaan['proses'] === null && $permintaan['status'] === null
+                    ? 'warning'
+                    : ($permintaan['cancel'] === null && $permintaan['proses'] === null && $permintaan['status'] === 1
+                        ? 'success'
+                        : 'danger')))) }}-600
+    text-{{ $permintaan['cancel'] === 1
+        ? 'secondary'
+        : ($permintaan['cancel'] === 0 && $permintaan['proses'] === 1
+            ? 'primary'
+            : ($permintaan['cancel'] === 0 && $permintaan['proses'] === null
+                ? 'info'
+                : ($permintaan['cancel'] === null && $permintaan['proses'] === null && $permintaan['status'] === null
+                    ? 'warning'
+                    : ($permintaan['cancel'] === null && $permintaan['proses'] === null && $permintaan['status'] === 1
+                        ? 'success'
+                        : 'danger')))) }}-100
+    text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
+                                {{ $permintaan['cancel'] === 1
                                     ? 'dibatalkan'
-                                    : ($permintaan->cancel === 0 && $permintaan->proses === 1
+                                    : ($permintaan['cancel'] === 0 && $permintaan['proses'] === 1
                                         ? 'selesai'
-                                        : ($permintaan->cancel === 0 && $permintaan->proses === null
+                                        : ($permintaan['cancel'] === 0 && $permintaan['proses'] === null
                                             ? 'siap diambil'
-                                            : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                                            : ($permintaan['cancel'] === null && $permintaan['proses'] === null && $permintaan['status'] === null
                                                 ? 'diproses'
-                                                : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                                                : ($permintaan['cancel'] === null && $permintaan['proses'] === null && $permintaan['status'] === 1
                                                     ? 'disetujui'
                                                     : 'ditolak')))) }}
                             </span>
-
-
                         </p>
                     </td>
                     <td class="py-3 px-6 text-center">
-                        <a href="/permintaan/{{ $permintaan->tipe === 'peminjaman' ? 'peminjaman' : 'permintaan' }}/{{ $permintaan->id }}"
+                        <a href="/permintaan/{{ $permintaan['tipe'] === 'peminjaman' ? 'peminjaman' : 'permintaan' }}/{{ $permintaan['id'] }}"
                             class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
-                            data-tooltip-target="tooltip-permintaan-{{ $permintaan->id }}">
+                            data-tooltip-target="tooltip-permintaan-{{ $permintaan['id'] }}">
                             <i class="fa-solid fa-eye"></i>
                         </a>
-                        <div id="tooltip-permintaan-{{ $permintaan->id }}" role="tooltip"
+                        <div id="tooltip-permintaan-{{ $permintaan['id'] }}" role="tooltip"
                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                             Lihat Detail Permintaan
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>
-
                     </td>
                 </tr>
             @endforeach
         </tbody>
+
     </table>
 </div>
