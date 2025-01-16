@@ -50,10 +50,6 @@ class DataPermintaan extends Component
             ? $permintaanQuery->sortByDesc('created_at')
             : $permintaanQuery->merge($peminjamanQuery)->sortByDesc('created_at');
 
-        // Gabungkan kedua koleksi dan urutkan berdasarkan tanggal terbaru
-        $query = $this->tipe ? $permintaanQuery
-            ->sortByDesc('created_at') : $permintaanQuery->merge($peminjamanQuery)
-            ->sortByDesc('created_at');
 
         // Terapkan filter pencarian
         if (!empty($this->search)) {
@@ -175,6 +171,16 @@ class DataPermintaan extends Component
             'tipe' => $tipe,
             'created_at' => $item->created_at->format('Y-m-d H:i:s')
         ];
+    }
+
+    /**
+     * Tentukan jenis ID berdasarkan tipe.
+     *
+     * @return int
+     */
+    private function getJenisId()
+    {
+        return $this->tipe === 'material' ? 1 : ($this->tipe === 'spare-part' ? 2 : 3);
     }
 
     public function updated($propertyName)

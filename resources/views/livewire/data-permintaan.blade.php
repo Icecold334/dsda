@@ -9,19 +9,19 @@
         <div>
             <div class="flex gap-4">
                 <!-- Search Input -->
-                <input type="date" wire:model.live="tanggal" class="border rounded-lg px-4 py-2 w-full" />
+                <input type="date" wire:model.live="tanggal" class="border rounded-lg px-4 py-2 w-40" />
 
-                <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2 w-full"
+                <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2 w-40"
                     placeholder="Cari Kode" />
                 @if (!$tipe)
-                    <select wire:model.live="jenis" class="border rounded-lg px-4 py-2 w-full">
-                        <option value="">Pilih Jenis</option>
+                    <select wire:model.live="jenis" class="border rounded-lg px-4 py-2 w-40">
+                        <option value="">Semua Jenis</option>
                         <option value="permintaan">Permintaan</option>
                         <option value="peminjaman">Peminjaman</option>
                     </select>
                 @endif
-                <select wire:model.live="selected_unit_id" class="border rounded-lg px-4 py-2 w-full">
-                    <option value="">Pilih Unit</option>
+                <select wire:model.live="selected_unit_id" class="border rounded-lg px-4 py-2 w-40">
+                    <option value="">Semua Unit</option>
                     @foreach ($unitOptions as $item)
                         {{-- @dd($item) --}}
                         <option value="{{ $item->id }}">{{ $item->nama }}</option>
@@ -30,8 +30,8 @@
                         @endforeach
                     @endforeach
                 </select>
-                <select wire:model.live="status" class="border rounded-lg px-4 py-2 w-full">
-                    <option value="">Pilih Status</option>
+                <select wire:model.live="status" class="border rounded-lg px-4 py-2 w-40">
+                    <option value="">Semua Status</option>
                     <option value="diproses">diproses</option>
                     <option value="ditolak">ditolak</option>
                     <option value="dibatalkan">dibatalkan</option>
@@ -40,21 +40,21 @@
                     <option value="selesai">selesai</option>
                 </select>
 
-                @if ($permintaans->count() || false)
+                @if ($permintaans->count())
                     @can('pelayanan_xls')
                         <button data-tooltip-target="tooltip-excel" wire:click="downloadExcel"
                             class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
                                 class="fa-solid fa-file-excel"></i></button>
                         <div id="tooltip-excel" role="tooltip"
                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                            Download dalam format excel
+                            Unduh dalam format excel
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>
                     @endcan
                 @endif
                 @if ($nonUmum)
                     <a href="/permintaan/add/{{ request()->segment(2) }}/{{ request()->segment(2) }}"
-                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 transition duration-200">
                         + Tambah Permintaan
                     </a>
                 @endif
