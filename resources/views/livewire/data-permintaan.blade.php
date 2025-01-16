@@ -80,7 +80,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($permintaans as $permintaan)
+            @forelse ($permintaans as $permintaan)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="px-6 py-3"></td>
                     <td class="px-6 py-3 font-semibold">
@@ -91,7 +91,7 @@
                             {{ Str::ucfirst($permintaan['tipe']) }}
                         </div>
                         <div class="text-gray-500 text-sm">
-                            {{ $permintaan['kategori']->nama }}
+                            {{ $permintaan['kategori']?->nama }}
                         </div>
                     </td>
                     <td class="px-6 py-3 font-semibold">{{ date('j F Y', $permintaan['tanggal']) }}</td>
@@ -154,7 +154,13 @@
                         </div>
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="8">
+                        <div class="text-center text-gray-600 text-lg">Tidak ada data yang ditemukan.</div>
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
 
     </table>

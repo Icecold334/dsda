@@ -303,7 +303,7 @@ class ListPermintaanForm extends Component
             ->first();
 
 
-        $kodePermintaan = Str::random(10); // Generate a unique code
+        $kodePermintaan = Str::upper(Str::random(10));
 
         // Create Detail Permintaan Stok
         $detailPermintaan = DetailPermintaanStok::create([

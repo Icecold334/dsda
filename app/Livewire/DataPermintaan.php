@@ -41,56 +41,18 @@ class DataPermintaan extends Component
 
     public function applyFilters()
     {
-        $permintaanQuery = DetailPermintaanStok::when($this->unit_id, function ($query) {
-            return $query->whereHas('unit', function ($unit) {
-                $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-            });
-        })->get()->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'kode' => $item->kode_permintaan,
-                'tanggal' => $item->tanggal_permintaan,
-                'kategori_id' => $item->kategori_id,
-                'kategori' => $item->kategoriStok,
-                'unit_id' => $item->unit_id,
-                'unit' => $item->unit,
-                'sub_unit_id' => $item->sub_unit_id,
-                'sub_unit' => $item->subUnit,
-                'status' => $item->status,
-                'cancel' => $item->cancel,
-                'proses' => $item->proses,
-                'jenis_id' => $item->jenis_id,
-                'tipe' => 'permintaan', // Menambahkan tipe
-                'created_at' => $item->created_at->format('Y-m-d H:i:s')
-            ];
-        });
+        // Ambil data permintaan dan peminjaman
+        $permintaanQuery = $this->getPermintaanQuery();
+        $peminjamanQuery = $this->getPeminjamanQuery();
 
-        $peminjamanQuery = DetailPeminjamanAset::when($this->unit_id, function ($query) {
-            return $query->whereHas('unit', function ($unit) {
-                $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-            });
-        })->get()->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'kode' => $item->kode_peminjaman,
-                'tanggal' => $item->tanggal_peminjaman,
-                'kategori_id' => $item->kategori_id,
-                'kategori' => $item->kategori,
-                'unit_id' => $item->unit_id,
-                'unit' => $item->unit,
-                'sub_unit_id' => $item->sub_unit_id,
-                'sub_unit' => $item->subUnit,
-                'status' => $item->status,
-                'cancel' => $item->cancel,
-                'proses' => $item->proses,
-                'jenis_id' => null,
-                'tipe' => 'peminjaman', // Menambahkan tipe
-                'created_at' => $item->created_at->format('Y-m-d H:i:s')
-            ];
-        });
+        // Gabungkan data berdasarkan tipe
+        $query = $this->tipe
+            ? $permintaanQuery->sortByDesc('created_at')
+            : $permintaanQuery->merge($peminjamanQuery)->sortByDesc('created_at');
 
         // Gabungkan kedua koleksi dan urutkan berdasarkan tanggal terbaru
-        $query = $permintaanQuery->merge($peminjamanQuery)
+        $query = $this->tipe ? $permintaanQuery
+            ->sortByDesc('created_at') : $permintaanQuery->merge($peminjamanQuery)
             ->sortByDesc('created_at');
 
         // Terapkan filter pencarian
@@ -148,6 +110,72 @@ class DataPermintaan extends Component
         $this->permintaans = $query->values(); // Reset indeks array
     }
 
+
+    /**
+     * Ambil data permintaan dengan filter.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    private function getPermintaanQuery()
+    {
+        $permintaan = DetailPermintaanStok::where('jenis_id', $this->getJenisId())
+            ->when($this->unit_id, function ($query) {
+                $query->whereHas('unit', function ($unit) {
+                    $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                });
+            })->get();
+
+        return $permintaan->isNotEmpty() ? $permintaan->map(function ($item) {
+            return $this->mapData($item, 'permintaan');
+        }) : collect([]);
+    }
+
+    /**
+     * Ambil data peminjaman dengan filter.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    private function getPeminjamanQuery()
+    {
+        $peminjaman = DetailPeminjamanAset::when($this->unit_id, function ($query) {
+            $query->whereHas('unit', function ($unit) {
+                $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+            });
+        })->get();
+
+        return $peminjaman->isNotEmpty() ? $peminjaman->map(function ($item) {
+            return
+                $this->mapData($item, 'peminjaman');
+        }) : collect([]);
+    }
+
+    /**
+     * Mapping data permintaan atau peminjaman.
+     *
+     * @param  object $item
+     * @param  string $tipe
+     * @return array
+     */
+    private function mapData($item, $tipe)
+    {
+        return [
+            'id' => $item->id,
+            'kode' => $tipe === 'permintaan' ? $item->kode_permintaan : $item->kode_peminjaman,
+            'tanggal' => $tipe === 'permintaan' ? $item->tanggal_permintaan : $item->tanggal_peminjaman,
+            'kategori_id' => $item->kategori_id,
+            'kategori' => $tipe === 'permintaan' ? $item->kategoriStok : $item->kategori,
+            'unit_id' => $item->unit_id,
+            'unit' => $item->unit,
+            'sub_unit_id' => $item->sub_unit_id,
+            'sub_unit' => $item->subUnit,
+            'status' => $item->status,
+            'cancel' => $item->cancel,
+            'proses' => $item->proses,
+            'jenis_id' => $tipe === 'permintaan' ? $item->jenis_id : null,
+            'tipe' => $tipe,
+            'created_at' => $item->created_at->format('Y-m-d H:i:s')
+        ];
+    }
 
     public function updated($propertyName)
     {
