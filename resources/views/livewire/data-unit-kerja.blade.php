@@ -62,4 +62,5 @@
             @endforelse
         </tbody>
     </table>
+    {{ $units->links() }}
 </div>

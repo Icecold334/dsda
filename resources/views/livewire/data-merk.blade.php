@@ -65,4 +65,5 @@
             @endforelse
         </tbody>
     </table>
+    {{ $merks->onEachSide(1)->links() }}
 </div>

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class DataPerson extends Component
 {
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
-    public $persons = []; // Properti untuk menyimpan data lokasi
+    // public $persons = []; // Properti untuk menyimpan data lokasi
 
     public function mount()
     {
@@ -29,7 +29,7 @@ class DataPerson extends Component
         // Jika unit memiliki parent_id (child), gunakan parent_id-nya
         // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
-        $this->persons = Person::withCount(['histories as aset_count' => function ($query) use ($parentUnitId, $userUnitId) {
+        $lists = Person::withCount(['histories as aset_count' => function ($query) use ($parentUnitId, $userUnitId) {
             // Jika parentUnitId null, jangan filter berdasarkan unit_id
             if (!is_null($parentUnitId)) {
                 $query->whereHas('aset.user', function ($query) use ($parentUnitId) {
@@ -60,8 +60,9 @@ class DataPerson extends Component
                             ->orWhere('email', 'like', '%' . $this->search . '%');
                     });
             })
-            ->get()
-            ->toArray();
+            ->paginate(10);
+
+            return $lists;
     }
 
     public function updateSearch($value)
@@ -71,6 +72,7 @@ class DataPerson extends Component
     }
     public function render()
     {
-        return view('livewire.data-person');
+        $persons = $this->loadData();
+        return view('livewire.data-person', compact('persons'));
     }
 }

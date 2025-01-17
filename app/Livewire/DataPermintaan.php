@@ -29,7 +29,7 @@ class DataPermintaan extends Component
     public $lokasiOptions = []; // List of jenis options
 
     public $tipe;
-    public $permintaans;
+    // public $permintaans;
 
     public function mount()
     {
@@ -41,10 +41,6 @@ class DataPermintaan extends Component
 
     public function applyFilters()
     {
-
-
-
-
 
         $permintaanQuery = DetailPermintaanStok::select('id', 'kode_permintaan as kode', 'tanggal_permintaan as tanggal', 'kategori_id', 'unit_id', 'sub_unit_id', 'status', 'cancel', 'proses', 'jenis_id', DB::raw('"permintaan" as tipe'), 'created_at')
             ->where('jenis_id', 3)->when($this->unit_id, function ($query) {
@@ -131,7 +127,8 @@ class DataPermintaan extends Component
 
 
         // Fetch filtered data
-        $this->permintaans = $query->get();
+        $permintaans = $query->paginate(10);
+        return $permintaans;
     }
 
 
@@ -281,6 +278,7 @@ class DataPermintaan extends Component
     }
     public function render()
     {
-        return view('livewire.data-permintaan');
+        $permintaans = $this->applyFilters();
+        return view('livewire.data-permintaan', compact('permintaans'));
     }
 }

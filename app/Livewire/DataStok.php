@@ -12,15 +12,18 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Livewire\WithoutUrlPagination;
+use Livewire\WithPagination;
 
 
 class DataStok extends Component
 {
+    use WithPagination, WithoutUrlPagination;
     public $search = ''; // Search term
     public $jenis = ''; // Selected jenis
     public $lokasi = ''; // Selected jenis
     public $unit_id; // Current user's unit ID
-    public $barangs = []; // Filtered barangs
+    // public $barangs = []; Filtered barangs
     public $stoks  = [];
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
@@ -41,7 +44,7 @@ class DataStok extends Component
 
     public function fetchBarangs()
     {
-        $this->barangs = BarangStok::whereHas('merkStok', function ($merkQuery) {
+        $barang = BarangStok::whereHas('merkStok', function ($merkQuery) {
             $merkQuery->whereHas('stok', function ($stokQuery) {
                 $stokQuery->where('jumlah', '>', 0)
                     ->whereHas('lokasiStok.unitKerja', function ($unit) {
@@ -65,7 +68,8 @@ class DataStok extends Component
                 });
             })
 
-            ->get();
+            ->paginate(10);
+            return $barang;
     }
 
     // public function fetchStoks()
@@ -277,9 +281,8 @@ class DataStok extends Component
 
     public function render()
     {
-        return view('livewire.data-stok', [
-            'barangs' => $this->barangs,
-            'stoks' => $this->stoks,
-        ]);
+        $barangs = $this->fetchBarangs();
+        $stoks = $this->stoks;
+        return view('livewire.data-stok',compact('barangs', 'stoks'));
     }
 }

@@ -6,10 +6,13 @@ use Livewire\Component;
 use App\Models\Kategori;
 use App\Models\UnitKerja;
 use Illuminate\Support\Facades\Auth;
+use Livewire\WithPagination;
+use Livewire\WithoutUrlPagination;
 
 class DataKategori extends Component
 {
-    public $kategoris = [];
+    use WithPagination, WithoutUrlPagination;
+    // public $kategoris = [];
     public $search = '';
 
     public function mount()
@@ -31,7 +34,7 @@ class DataKategori extends Component
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
         // Ambil data kategori
-        $this->kategoris = Kategori::with(['children' => function ($query) use ($parentUnitId, $userUnitId) {
+        $lists = Kategori::with(['children' => function ($query) use ($parentUnitId, $userUnitId) {
             $query->withCount(['aset' => function ($query) use ($parentUnitId) {
                 if (!is_null($parentUnitId)) {
                     $query->whereHas('user', function ($query) use ($parentUnitId) {
@@ -54,8 +57,8 @@ class DataKategori extends Component
                     });
                 }
             }])
-            ->get()
-            ->toArray();
+            ->paginate(5);
+            return $lists;
     }
 
 
@@ -66,6 +69,7 @@ class DataKategori extends Component
     }
     public function render()
     {
-        return view('livewire.data-kategori');
+        $kategoris = $this->loadData();
+        return view('livewire.data-kategori', compact('kategoris'));
     }
 }
