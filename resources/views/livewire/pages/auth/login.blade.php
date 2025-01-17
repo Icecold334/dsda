@@ -9,7 +9,12 @@ use Livewire\Volt\Component;
 new #[Layout('layouts.guest')] class extends Component {
     public LoginForm $form;
 
-    // public RegisterForm $registerForm;
+    public RegisterForm $registerForm;
+
+    public function register()
+    {
+        $this->registerForm->register();
+    }
 
     /**
      * Handle an incoming authentication request.
@@ -29,7 +34,7 @@ new #[Layout('layouts.guest')] class extends Component {
 <div>
     <div class="forms-wrap">
         <!-- Sign In Form -->
-        <form wire:submit="login">
+        <form wire:submit="login" class="form sign-in-form">
             <a class="logo" href="/" style="text-decoration: none">
                 {{-- <img src="{{ asset('dashboard/img/logo.png') }}" alt="easyclass" /> --}}
                 <h2>{{ env('APP_NAME') }}</h2>
@@ -44,25 +49,24 @@ new #[Layout('layouts.guest')] class extends Component {
             {{-- @dump($form) --}}
             <div class="actual-form">
                 <div class="input-wrap">
-                    <input class="input-field" type="text" wire:model="form.email" name="email" id="email-login"
+                    <input class="input-field " type="text" wire:model="form.email" name="email" id="email-login"
                         autocomplete="off">
                     <label>Email</label>
                 </div>
 
                 <div class="input-wrap">
-                    <input class="input-field" wire:model="form.password" type="password" name="password"
+                    <input class="input-field " wire:model="form.password" type="password" name="password"
                         autocomplete="off">
                     <label>Password</label>
                 </div>
 
                 <button type="submit" class="sign-btn">Login</button>
+                <button type="button" class="sign-google" id="google">Registrasi</button>
             </div>
         </form>
-
+        @dump($errors->first())
         <!-- Sign Up Form -->
-        <form action="/register" method="post" class="form sign-up-form">
-            @csrf
-
+        <form wire:submit="register" class="form sign-up-form">
             <div class="heading">
                 <h2>Registrasi</h2>
                 <h6 class="heading">Sudah Punya Akun?</h6>
@@ -71,40 +75,61 @@ new #[Layout('layouts.guest')] class extends Component {
 
             <div class="actual-form">
                 <div class="input-wrap">
-                    <input class="input-field" type="text" name="name" value="{{ old('name') }}"
-                        autocomplete="off">
+                    <select class="input-field {{ $errors->any() && strlen($registerForm->name) ? 'active' : '' }} "
+                        type="text" wire:model="registerForm.parent_id" autocomplete="off">
+                        <label>Nama</label>
+                        <option value="">Pilih Unit Kerja</option>
+                        @foreach ($registerForm->unitkerjas as $parent)
+                            <option value="{{ $parent->id }}">{{ $parent->nama }}</option>
+                            @foreach ($parent->children as $child)
+                                <option value="{{ $child->id }}">--- {{ $child->nama }}</option>
+                            @endforeach
+                        @endforeach
+                    </select>
+                </div>
+                <div class="input-wrap">
+                    <input class="input-field {{ $errors->any() && strlen($registerForm->name) ? 'active' : '' }} "
+                        type="text" wire:model="registerForm.name" autocomplete="off">
                     <label>Nama</label>
                 </div>
-
                 <div class="input-wrap">
-                    <input class="input-field" type="text" name="username"
+                    <input class="input-field {{ $errors->any() && strlen($registerForm->email) ? 'active' : '' }} "
+                        type="text" wire:model="registerForm.email" autocomplete="off">
+                    <label>Email</label>
+                </div>
+                {{-- 
+                <div class="input-wrap">
+                    <input class="input-field {{ $errors->any() && strlen($registerForm->name) }} " type="text" name="username"
                         @if (session('register')) value="{{ old('username') }}" @endif autocomplete="off">
                     <label>Username</label>
                 </div>
 
                 <div class="input-wrap">
-                    <input class="input-field" type="text" name="email" value="{{ old('email') }}"
+                    <input class="input-field {{ $errors->any() && strlen($registerForm->name) }} " type="text" name="email" value="{{ old('email') }}"
                         autocomplete="off">
                     <label>Email</label>
-                </div>
+                </div> --}}
 
                 <div class="input-wrap">
-                    <input class="input-field" type="text" name="phone" value="{{ old('phone') }}"
-                        autocomplete="off">
+                    <input class="input-field {{ $errors->any() && strlen($registerForm->nomor) ? 'active' : '' }} "
+                        type="text" wire:model="registerForm.nomor" autocomplete="off">
                     <label>Nomor Telpon</label>
                 </div>
 
                 <div class="input-wrap">
-                    <input class="input-field" type="password" name="password" autocomplete="off">
+                    <input class="input-field {{ $errors->any() && strlen($registerForm->password) ? 'active' : '' }} "
+                        type="password" wire:model="registerForm.password" autocomplete="off">
                     <label>Password</label>
                 </div>
 
                 <div class="input-wrap">
-                    <input class="input-field" type="password" name="password_confirmation" autocomplete="off">
+                    <input
+                        class="input-field {{ $errors->any() && strlen($registerForm->password_confirmation) ? 'active' : '' }} "
+                        type="password" wire:model="registerForm.password_confirmation" autocomplete="off">
                     <label>Konfirmasi Password</label>
                 </div>
 
-                <input type="submit" value="Daftar" class="sign-btn" />
+                <button type="submit" class="sign-btn">Daftar</button>
             </div>
         </form>
     </div>

@@ -39,7 +39,9 @@
                     <option value="siap diambil">siap diambil</option>
                     <option value="selesai">selesai</option>
                 </select>
-
+                <div wire:loading wire:target='downloadExcel'>
+                    <livewire:loading>
+                </div>
                 @if ($permintaans->count())
                     @can('pelayanan_xls')
                         <button data-tooltip-target="tooltip-excel" wire:click="downloadExcel"
