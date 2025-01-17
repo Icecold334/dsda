@@ -2,15 +2,16 @@
 
 namespace App\Livewire;
 
-use Livewire\WithPagination;
+use App\Models\Aset;
 use Livewire\Component;
 use App\Models\BarangStok;
+use Livewire\WithPagination;
 
 class DataBarangStok extends Component
 {
     use WithPagination;
     public $search = '';
-    public $barangs = [];
+    // public $barangs = [];
 
     public function mount()
     {
@@ -27,7 +28,7 @@ class DataBarangStok extends Component
     private function loadData()
     {
         // Memuat data barang dengan filter pencarian
-        $this->barangs = BarangStok::when($this->search, function ($query) {
+        $lists = BarangStok::when($this->search, function ($query) {
             $query->where('nama', 'like', '%' . $this->search . '%')
                 ->orWhereHas('jenisStok', function ($query) {
                     $query->where('nama', 'like', '%' . $this->search . '%');
@@ -35,11 +36,15 @@ class DataBarangStok extends Component
                 ->orWhereHas('merkStok', function ($query) {
                     $query->where('nama', 'like', '%' . $this->search . '%');
                 });
-        })->paginate(5);
+        })->paginate(2);
+        // $this->barangs = $lists;
+        return $lists;
     }
 
     public function render()
     {
-        return view('livewire.data-barang-stok');
+        $barangs = $this->loadData();
+        // dd($barans);
+        return view('livewire.data-barang-stok', compact('barangs'));
     }
 }
