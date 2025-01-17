@@ -2,11 +2,13 @@
 
 namespace App\Livewire;
 
+use Livewire\WithPagination;
 use Livewire\Component;
 use App\Models\BarangStok;
 
 class DataBarangStok extends Component
 {
+    use WithPagination;
     public $search = '';
     public $barangs = [];
 
@@ -33,7 +35,7 @@ class DataBarangStok extends Component
                 ->orWhereHas('merkStok', function ($query) {
                     $query->where('nama', 'like', '%' . $this->search . '%');
                 });
-        })->get();
+        })->paginate(5);
     }
 
     public function render()

@@ -46,7 +46,7 @@ class AsetController extends Controller
 
         // Ambil data hasil query
         // $asets = $query->get();
-        $asets = $query->paginate(20); // 20 item per halaman
+        $asets = $query->paginate(5); // 20 item per halaman
         // Proses koleksi untuk menghitung nilaiSekarang dan totalPenyusutan
         $asets->getCollection()->transform(function ($aset) {
             $hargaTotal = floatval($aset->hargatotal);
