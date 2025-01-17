@@ -30,14 +30,14 @@ class RegisterForm extends Form
     public $sub_unit;
     public $subUnits;
 
-    public function __construct()
-    {
-        // Ambil data Unit dan Lokasi
-        $this->lokasis = LokasiStok::all();
-        $this->unitkerjas = UnitKerja::whereNull('parent_id')->get();
-        // dd($this->unitkerjas);
-        // $this->subunitkerjas = UnitKerja::all()->toArray();
-    }
+    // public function __construct()
+    // {
+    //     // Ambil data Unit dan Lokasi
+    //     $this->lokasis = LokasiStok::all();
+    //     $this->unitkerjas = UnitKerja::whereNull('parent_id')->get();
+    //     // dd($this->unitkerjas);
+    //     // $this->subunitkerjas = UnitKerja::all()->toArray();
+    // }
 
     public function register()
     {

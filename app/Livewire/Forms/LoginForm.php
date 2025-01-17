@@ -21,6 +21,8 @@ class LoginForm extends Form
     #[Validate('boolean')]
     public bool $remember = false;
 
+    public function __construct() {}
+
     /**
      * Attempt to authenticate the request's credentials.
      *
@@ -67,6 +69,6 @@ class LoginForm extends Form
      */
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+        return Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
     }
 }

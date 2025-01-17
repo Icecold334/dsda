@@ -4,12 +4,31 @@ use App\Livewire\Forms\LoginForm;
 use App\Livewire\Forms\RegisterForm;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
+use App\Models\UnitKerja;
 use Livewire\Volt\Component;
 
 new #[Layout('layouts.guest')] class extends Component {
     public LoginForm $form;
 
+    public $unitkerjas;
+    // public function __construct()
+    // {
+    //     // Ambil data Unit dan Lokasi
+    //     $this->lokasis = LokasiStok::all();
+    //     $this->unitkerjas = UnitKerja::whereNull('parent_id')->get();
+    //     // dd($this->unitkerjas);
+    //     // $this->subunitkerjas = UnitKerja::all()->toArray();
+    // }
+
     public RegisterForm $registerForm;
+
+    public function mount()
+    {
+        // Ambil data Unit dan Lokasi
+        $this->unitkerjas = UnitKerja::whereNull('parent_id')->get();
+        // dd($this->unitkerjas);
+        // $this->subunitkerjas = UnitKerja::all()->toArray();
+    }
 
     public function register()
     {
@@ -79,7 +98,7 @@ new #[Layout('layouts.guest')] class extends Component {
                         type="text" wire:model="registerForm.parent_id" autocomplete="off">
                         <label>Nama</label>
                         <option value="">Pilih Unit Kerja</option>
-                        @foreach ($registerForm->unitkerjas as $parent)
+                        @foreach ($unitkerjas as $parent)
                             <option value="{{ $parent->id }}">{{ $parent->nama }}</option>
                             @foreach ($parent->children as $child)
                                 <option value="{{ $child->id }}">--- {{ $child->nama }}</option>
