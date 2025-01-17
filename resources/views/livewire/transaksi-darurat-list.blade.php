@@ -286,96 +286,97 @@
                         </td>
                     </tr>
                 @endforeach
-                <tr>
-                    <td class="px-2 py-3">
-                        <div class="flex space-x-2">
-                            <input
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
-                                type="text" wire:model.live="newBarang" wire:focus='fillNewBarang'
-                                wire:blur="blurBarang" placeholder="Cari Barang">
-                            @if (!$newBarangId)
-                                <button wire:click="openBarangModal"
-                                    class="px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"><i
-                                        class="fa-solid fa-circle-plus"></i></button>
+                @if ($isCreate)
+                    <tr>
+                        <td class="px-2 py-3">
+                            <div class="flex space-x-2">
+                                <input
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                    type="text" wire:model.live="newBarang" wire:focus='fillNewBarang'
+                                    wire:blur="blurBarang" placeholder="Cari Barang">
+                                @if (!$newBarangId)
+                                    <button wire:click="openBarangModal"
+                                        class="px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"><i
+                                            class="fa-solid fa-circle-plus"></i></button>
+                                @endif
+                            </div>
+                            @if ($barangSuggestions)
+                                <ul
+                                    class="absolute z-10 w-96 bg-white border border-gray-300 rounded-lg mt-2 max-h-60 overflow-auto shadow-lg">
+                                    @foreach ($barangSuggestions as $suggestion)
+                                        <li wire:click="selectBarang('{{ $suggestion['id'] }}', '{{ $suggestion['nama'] }}')"
+                                            class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
+                                            {{ $suggestion['nama'] }}
+                                        </li>
+                                    @endforeach
+                                </ul>
                             @endif
-                        </div>
-                        @if ($barangSuggestions)
-                            <ul
-                                class="absolute z-10 w-96 bg-white border border-gray-300 rounded-lg mt-2 max-h-60 overflow-auto shadow-lg">
-                                @foreach ($barangSuggestions as $suggestion)
-                                    <li wire:click="selectBarang('{{ $suggestion['id'] }}', '{{ $suggestion['nama'] }}')"
-                                        class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">
-                                        {{ $suggestion['nama'] }}
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </td>
-                    <td class="px-6 py-3">
-                        <div class="flex">
-                            @foreach (['merek' => 'Merek', 'tipe' => 'Tipe', 'ukuran' => 'Ukuran'] as $key => $label)
-                                <input @disabled(!$newBarangId)
-                                    class="bg-gray-50 border {{ !$newBarangId ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm 
+                        </td>
+                        <td class="px-6 py-3">
+                            <div class="flex">
+                                @foreach (['merek' => 'Merek', 'tipe' => 'Tipe', 'ukuran' => 'Ukuran'] as $key => $label)
+                                    <input @disabled(!$newBarangId)
+                                        class="bg-gray-50 border {{ !$newBarangId ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm 
                                     {{ $key == 'merek' ? 'rounded-l-lg' : ($key == 'ukuran' ? 'rounded-r-lg' : '') }}
                                     focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
-                                    type="text" wire:model.live="specifications.{{ $key }}"
-                                    wire:input="updateSpecification('{{ $key }}', $event.target.value)"
-                                    wire:focus="updateSpecification('{{ $key }}')"
-                                    wire:blur="blurSpecification('{{ $key }}')"
-                                    placeholder="{{ $label }}">
-                                @if (count($suggestions[$key]) > 0)
-                                    <ul
-                                        class="absolute z-10 max-w-80 bg-white border border-gray-300 rounded-lg mt-12 max-h-60 overflow-auto shadow-lg">
-                                        @foreach ($suggestions[$key] as $suggestion)
-                                            <li class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-                                                wire:click="selectSpecification('{{ $key }}', '{{ $suggestion }}')">
-                                                {{ $suggestion }}
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @endif
-                            @endforeach
-                        </div>
-                    </td>
-                    <td class="px-6 py-3">
-                        <div class="flex">
-                            <input @disabled(!($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']))
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 {{ !($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) ? 'cursor-not-allowed' : '' }} focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
-                                type="number" wire:model.live="newJumlah" placeholder="Jumlah">
-                            <div
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
-                                {{ !$newBarangId ? 'Satuan' : App\Models\BarangStok::find($newBarangId)->satuanBesar->nama }}
+                                        type="text" wire:model.live="specifications.{{ $key }}"
+                                        wire:input="updateSpecification('{{ $key }}', $event.target.value)"
+                                        wire:focus="updateSpecification('{{ $key }}')"
+                                        wire:blur="blurSpecification('{{ $key }}')"
+                                        placeholder="{{ $label }}">
+                                    @if (count($suggestions[$key]) > 0)
+                                        <ul
+                                            class="absolute z-10 max-w-80 bg-white border border-gray-300 rounded-lg mt-12 max-h-60 overflow-auto shadow-lg">
+                                            @foreach ($suggestions[$key] as $suggestion)
+                                                <li class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
+                                                    wire:click="selectSpecification('{{ $key }}', '{{ $suggestion }}')">
+                                                    {{ $suggestion }}
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                @endforeach
                             </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-3">
-                        <div class="flex">
-                            <div
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
-                                Rp
+                        </td>
+                        <td class="px-6 py-3">
+                            <div class="flex">
+                                <input @disabled(!($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']))
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 {{ !($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) ? 'cursor-not-allowed' : '' }} focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                    type="number" wire:model.live="newJumlah" placeholder="Jumlah">
+                                <div
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
+                                    {{ !$newBarangId ? 'Satuan' : App\Models\BarangStok::find($newBarangId)->satuanBesar->nama }}
+                                </div>
                             </div>
-                            <input id="newHarga" autocomplete="off"
-                                class="bg-gray-50 border {{ !$newJumlah ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
-                                type="text" placeholder="Harga Satuan" oninput="formatRupiah(this)"
-                                value="{{ $newHarga }}" @if (!$newJumlah) disabled @endif>
+                        </td>
+                        <td class="px-6 py-3">
+                            <div class="flex">
+                                <div
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
+                                    Rp
+                                </div>
+                                <input id="newHarga" autocomplete="off"
+                                    class="bg-gray-50 border {{ !$newJumlah ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                    type="text" placeholder="Harga Satuan" oninput="formatRupiah(this)"
+                                    value="{{ $newHarga }}" @if (!$newJumlah) disabled @endif>
 
 
-                        </div>
-                    </td>
-                    <td class="px-6 py-3">
-                        <select wire:model.live='newPpn' @disabled(!$newHarga)
-                            class="bg-gray-50 border {{ !$newHarga ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                            <option value=""> Pilih PPN </option>
-                            <option value="11">11%</option>
-                            <option value="12">12%</option>
-                        </select>
-                    </td>
-                    <td class="py-3 px-6">
-                        <textarea wire:model.live="newLokasiPenerimaan"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
-                            placeholder="Lokasi Penerimaan"></textarea>
-                    </td>
-                    {{-- <td class="px-6 py-3">
+                            </div>
+                        </td>
+                        <td class="px-6 py-3">
+                            <select wire:model.live='newPpn' @disabled(!$newHarga)
+                                class="bg-gray-50 border {{ !$newHarga ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value=""> Pilih PPN </option>
+                                <option value="11">11%</option>
+                                <option value="12">12%</option>
+                            </select>
+                        </td>
+                        <td class="py-3 px-6">
+                            <textarea wire:model.live="newLokasiPenerimaan"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
+                                placeholder="Lokasi Penerimaan"></textarea>
+                        </td>
+                        {{-- <td class="px-6 py-3">
                         <select wire:model.live='newLokasiId'
                             class="
                             bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
@@ -387,7 +388,7 @@
                             @endforeach
                         </select>
                     </td> --}}
-                    {{-- <td class="px-6 py-3">
+                        {{-- <td class="px-6 py-3">
                         <select
                             class="
                             bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
@@ -411,51 +412,52 @@
                             @endforeach
                         </select>
                     </td> --}}
-                    <td class="py-3 px-6">
-                        <textarea wire:model.live="newKeterangan"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full" placeholder="Keterangan"></textarea>
-                    </td>
-                    <td class="py-3 px-6 text-center">
-                        <input type="file" wire:model="newBukti" class="hidden" id="upload-new-bukti">
-                        @if ($newBukti)
-                            <!-- Display uploaded proof preview with remove icon -->
-                            <div class="relative inline-block">
-                                <a href="{{ $newBukti->temporaryUrl() }}"
-                                    download="{{ $newBukti->getClientOriginalName() }}">
-                                    <img src="{{ $newBukti->temporaryUrl() }}" alt="Bukti"
-                                        class="w-16 h-16 rounded-md">
-                                </a>
-                                <button wire:click="removeNewPhoto"
-                                    class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600  text-white rounded-full w-5 h-5 text-xs">
-                                    &times;
+                        <td class="py-3 px-6">
+                            <textarea wire:model.live="newKeterangan"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full" placeholder="Keterangan"></textarea>
+                        </td>
+                        <td class="py-3 px-6 text-center">
+                            <input type="file" wire:model="newBukti" class="hidden" id="upload-new-bukti">
+                            @if ($newBukti)
+                                <!-- Display uploaded proof preview with remove icon -->
+                                <div class="relative inline-block">
+                                    <a href="{{ $newBukti->temporaryUrl() }}"
+                                        download="{{ $newBukti->getClientOriginalName() }}">
+                                        <img src="{{ $newBukti->temporaryUrl() }}" alt="Bukti"
+                                            class="w-16 h-16 rounded-md">
+                                    </a>
+                                    <button wire:click="removeNewPhoto"
+                                        class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600  text-white rounded-full w-5 h-5 text-xs">
+                                        &times;
+                                    </button>
+                                </div>
+                            @else
+                                <!-- Show upload button if no file is selected -->
+                                <button type="button" onclick="document.getElementById('upload-new-bukti').click()"
+                                    class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                    <i class="fa-solid fa-file-arrow-up"></i> Upload
                                 </button>
-                            </div>
-                        @else
-                            <!-- Show upload button if no file is selected -->
-                            <button type="button" onclick="document.getElementById('upload-new-bukti').click()"
-                                class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
-                                <i class="fa-solid fa-file-arrow-up"></i> Upload
-                            </button>
-                        @endif
-                        @error('newBukti')
-                            <span class="text-red-500 text-xs">{{ $message }}</span>
-                        @enderror
-                    </td>
-                    <td class="text-center py-3">
+                            @endif
+                            @error('newBukti')
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                            @enderror
+                        </td>
+                        <td class="text-center py-3">
 
-                        <button wire:click="addToList" onclick="removeHarga()"
-                            class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiPenerimaan && $newHarga && $newPpn ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                            <i class="fa-solid fa-circle-check"></i>
-                        </button>
-                        @push('scripts')
-                            <script type="module">
-                                window.removeHarga = function() {
-                                    return document.getElementById('newHarga').value = '';
-                                }
-                            </script>
-                        @endpush
-                    </td>
-                </tr>
+                            <button wire:click="addToList" onclick="removeHarga()"
+                                class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiPenerimaan && $newHarga && $newPpn ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </button>
+                            @push('scripts')
+                                <script type="module">
+                                    window.removeHarga = function() {
+                                        return document.getElementById('newHarga').value = '';
+                                    }
+                                </script>
+                            @endpush
+                        </td>
+                    </tr>
+                @endif
             @else
                 <tr class="bg-gray-50 hover:bg-gray-20">
                     <td colspan="9" class="text-center font-semibold">Lengkapi data diatas</td>
@@ -463,12 +465,12 @@
             @endif
         </tbody>
     </table>
-
     @if (true)
         @if ($vendor_id && count($list) > 0)
             {{-- @if (true) --}}
-            <div class="flex justify-center"><button wire:click='saveKontrak'
-                    class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
+            <div class="flex justify-center">
+                <button wire:click='saveKontrak'
+                    class="text-primary-900 {{ !$isCreate ? 'hidden' : '' }} bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
 
                 @if (
                     $dokumenCount &&
