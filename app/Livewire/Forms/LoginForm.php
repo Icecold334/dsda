@@ -21,7 +21,6 @@ class LoginForm extends Form
     #[Validate('boolean')]
     public bool $remember = false;
 
-    public function __construct() {}
 
     /**
      * Attempt to authenticate the request's credentials.
@@ -48,7 +47,7 @@ class LoginForm extends Form
      */
     protected function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 

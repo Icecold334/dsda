@@ -434,15 +434,15 @@
                 padding: 1rem 2rem 1.5rem;
             }
         }
-    </style>
-    <link href="/dashboard/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    </style>@stack('vite')
+    {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
     <script src="https://kit.fontawesome.com/5fd2369345.js" crossorigin="anonymous"></script>
 
 </head>
 
 
 <body>
-    <main class="sign-up-mode">
+    <main class="">
         {{-- @if (session('register')) sign-up-mode @endif --}}
         <div class="box">
             <div class="inner-box">

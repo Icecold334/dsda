@@ -8,8 +8,6 @@ use App\Models\UnitKerja;
 use Livewire\Volt\Component;
 
 new #[Layout('layouts.guest')] class extends Component {
-    public LoginForm $form;
-
     public $unitkerjas;
     // public function __construct()
     // {
@@ -20,10 +18,13 @@ new #[Layout('layouts.guest')] class extends Component {
     //     // $this->subunitkerjas = UnitKerja::all()->toArray();
     // }
 
+    public LoginForm $form;
     public RegisterForm $registerForm;
 
     public function mount()
     {
+        // $this->form = new LoginForm();
+        // $this->registerForm = new RegisterForm();
         // Ambil data Unit dan Lokasi
         $this->unitkerjas = UnitKerja::whereNull('parent_id')->get();
         // dd($this->unitkerjas);
@@ -83,7 +84,6 @@ new #[Layout('layouts.guest')] class extends Component {
                 <button type="button" class="sign-google" id="google">Registrasi</button>
             </div>
         </form>
-        @dump($errors->first())
         <!-- Sign Up Form -->
         <form wire:submit="register" class="form sign-up-form">
             <div class="heading">
@@ -173,6 +173,7 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
         </div>
     </div>
+
     {{-- @if (strlen($errors->first() > 0)) --}}
 
     {{-- @endif --}}

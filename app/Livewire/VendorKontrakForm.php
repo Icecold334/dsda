@@ -18,6 +18,7 @@ class VendorKontrakForm extends Component
 {
     public $vendors;
     public $nomor_kontrak;
+    public $nominalKontrak;
     public $tanggal_kontrak;
     public $barangs;
     public $metodes;
@@ -100,6 +101,10 @@ class VendorKontrakForm extends Component
         // }
     }
 
+    public function updatedNominalKontrak($nominal)
+    {
+        $this->dispatch('nominal_kontrak', nominal: $this->nominalKontrak);
+    }
     public function updatedTanggalKontrak()
     {
         $this->dispatch('tanggal_kontrak', tanggal: $this->tanggal_kontrak);

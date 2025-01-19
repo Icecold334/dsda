@@ -8,20 +8,20 @@
         {{-- {{ $role_name }} --}}
         <thead>
             <tr class="text-white bg-primary-950 uppercase">
-                <th class="py-3 px-6 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
-                <th class="py-3 px-6 text-center font-semibold w-[18%]">Spesifikasi</th>
-                <th class="py-3 px-6 text-center font-semibold w-[13%]">Jumlah</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[11%]">HARGA SATUAN</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">PPN</th>
-                <th class="py-3 px-6 text-center font-semibold">Lokasi Penerimaan</th>
-                {{-- <th class="py-3 px-6 text-center font-semibold">bagian</th>
-                <th class="py-3 px-6 text-center font-semibold">posisi</th> --}}
-                <th class="py-3 px-6 text-center font-semibold">Keterangan</th>
-                <th class="py-3 px-6 text-center font-semibold w-[10%]">dokumen pendukung</th>
+                <th class="py-3 px-2 text-center font-semibold rounded-l-lg w-[10%]">Barang</th>
+                <th class="py-3 px-2 text-center font-semibold w-[18%]">Spesifikasi</th>
+                <th class="py-3 px-2 text-center font-semibold w-[13%]">Jumlah</th>
+                <th class="py-3 px-2 text-center font-semibold">Lokasi Penerimaan</th>
+                {{-- <th class="py-3 px-2 text-center font-semibold">bagian</th>
+                <th class="py-3 px-2 text-center font-semibold">posisi</th> --}}
+                <th class="py-3 px-2 text-center font-semibold">Keterangan</th>
+                <th class="py-3 px-2 bg-primary-950 text-center font-semibold w-1/12">PPN</th>
+                <th class="py-3 px-2 bg-primary-950 text-center font-semibold w-[11%]">HARGA SATUAN</th>
+                <th class="py-3 px-2 text-center font-semibold w-[10%]">dokumen pendukung</th>
                 @if (!$isCreate)
-                    <th class="py-3 px-6 text-center font-semibold w-[10%]">status</th>
+                    <th class="py-3 px-2 text-center font-semibold w-[10%]">status</th>
                 @endif
-                <th class="py-3 px-6 text-center font-semibold rounded-r-lg"></th>
+                <th class="py-3 px-2 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
         <tbody>
@@ -34,7 +34,7 @@
                                 class="bg-gray-50 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                                 type="text" value="{{ $item['barang'] }}" placeholder="Barang" disabled>
                         </td>
-                        <td class="px-6 py-3">
+                        <td class="px-2 py-3">
                             <div class="flex space-x-2">
                                 @foreach ($item['specifications'] as $key => $value)
                                     <input
@@ -44,7 +44,7 @@
                                 @endforeach
                             </div>
                         </td>
-                        <td class="px-6 py-3">
+                        <td class="px-2 py-3">
                             <div class="flex">
                                 <input
                                     class="bg-gray-50 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
@@ -55,28 +55,8 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-3">
-                            <div class="flex">
-                                <div
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
-                                    Rp
-                                </div>
-                                <input
-                                    class="bg-gray-50 border {{ !0 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
-                                    type="text" placeholder="Harga Satuan" oninput="formatRupiah(this)"
-                                    wire:model.live='list.{{ $index }}.harga'
-                                    @if (!0) disabled @endif>
-                            </div>
-                        </td>
-                        <td class="px-6 py-3">
-                            <select wire:model.live='list.{{ $index }}.ppn' @disabled(!0)
-                                class="bg-gray-50 border {{ !0 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option value=""> Pilih PPN </option>
-                                <option value="11">11%</option>
-                                <option value="12">12%</option>
-                            </select>
-                        </td>
-                        {{-- <td class="px-6 py-3">
+
+                        {{-- <td class="px-2 py-3">
 
                             <select wire:model.live='list.{{ $index }}.lokasi_id' disabled
                                 data-tooltip-target="tooltipLokasi{{ $index }}" data-tooltip-placement="top"
@@ -96,15 +76,37 @@
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
                         </td> --}}
-                        <td class="py-3 px-6">
+                        <td class="py-3 px-2">
                             <textarea class="bg-gray-50 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
                                 placeholder="Lokasi Penerimaan" disabled>{{ $item['lokasi_penerimaan'] }}</textarea>
                         </td>
-                        <td class="py-3 px-6">
+                        <td class="py-3 px-2">
                             <textarea class="bg-gray-50 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
                                 placeholder="Keterangan" disabled>{{ $item['keterangan'] }}</textarea>
                         </td>
-                        <td class="text-center py-3 px-6">
+                        <td class="px-2 py-3">
+                            <select wire:model.live='list.{{ $index }}.ppn' @disabled(!0)
+                                class="bg-gray-50 border {{ !0 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value=""> Sudah Termasuk PPN </option>
+                                <option value="11">11%</option>
+                                <option value="12">12%</option>
+                            </select>
+                        </td>
+                        <td class="px-2 py-3">
+                            <div class="flex">
+                                <div
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
+                                    Rp
+                                </div>
+                                <input
+                                    class="bg-gray-50 border {{ !0 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                    type="text" placeholder="Harga Satuan" oninput="formatRupiah(this)"
+                                    wire:model.live='list.{{ $index }}.harga'
+                                    @if (!0) disabled @endif>
+                            </div>
+                        </td>
+
+                        <td class="text-center py-3 px-2">
                             <input type="file" wire:model.live="list.{{ $index }}.bukti" class="hidden"
                                 id="upload-bukti-{{ $index }}">
 
@@ -312,7 +314,7 @@
                                 </ul>
                             @endif
                         </td>
-                        <td class="px-6 py-3">
+                        <td class="px-2 py-3">
                             <div class="flex">
                                 @foreach (['merek' => 'Merek', 'tipe' => 'Tipe', 'ukuran' => 'Ukuran'] as $key => $label)
                                     <input @disabled(!$newBarangId)
@@ -338,7 +340,7 @@
                                 @endforeach
                             </div>
                         </td>
-                        <td class="px-6 py-3">
+                        <td class="px-2 py-3">
                             <div class="flex">
                                 <input @disabled(!($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']))
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 {{ !($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) ? 'cursor-not-allowed' : '' }} focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
@@ -349,7 +351,61 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-3">
+
+                        <td class="py-3 px-2">
+                            <textarea wire:model.live="newLokasiPenerimaan"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
+                                placeholder="Lokasi Penerimaan"></textarea>
+                        </td>
+                        {{-- <td class="px-2 py-3">
+                        <select wire:model.live='newLokasiId'
+                            class="
+                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="">Pilih Lokasi</option>
+                            @foreach ($lokasis as $lokasi)
+                                <option value="{{ $lokasi->id }}">
+                                    {{ $lokasi->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td> --}}
+                        {{-- <td class="px-2 py-3">
+                        <select
+                            class="
+                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="">Pilih Bagian</option>
+                            @foreach ($lokasis as $lokasi)
+                                <option value="{{ $lokasi->id }}">
+                                    {{ $lokasi->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td class="px-2 py-3">
+                        <select
+                            class="
+                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="">Pilih Posisi</option>
+                            @foreach ($lokasis as $lokasi)
+                                <option value="{{ $lokasi->id }}">
+                                    {{ $lokasi->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td> --}}
+                        <td class="py-3 px-2">
+                            <textarea wire:model.live="newKeterangan"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full" placeholder="Keterangan"></textarea>
+                        </td>
+                        <td class="px-2 py-3">
+                            <select wire:model.live='newPpn'
+                                class="bg-gray-50 border  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value="0">Sudah termasuk PPN</option>
+                                <option value="11">11%</option>
+                                <option value="12">12%</option>
+                            </select>
+                        </td>
+                        <td class="px-2 py-3">
                             <div class="flex">
                                 <div
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
@@ -363,60 +419,8 @@
 
                             </div>
                         </td>
-                        <td class="px-6 py-3">
-                            <select wire:model.live='newPpn' @disabled(!$newHarga)
-                                class="bg-gray-50 border {{ !$newHarga ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option value=""> Pilih PPN </option>
-                                <option value="11">11%</option>
-                                <option value="12">12%</option>
-                            </select>
-                        </td>
-                        <td class="py-3 px-6">
-                            <textarea wire:model.live="newLokasiPenerimaan"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full"
-                                placeholder="Lokasi Penerimaan"></textarea>
-                        </td>
-                        {{-- <td class="px-6 py-3">
-                        <select wire:model.live='newLokasiId'
-                            class="
-                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                            <option value="">Pilih Lokasi</option>
-                            @foreach ($lokasis as $lokasi)
-                                <option value="{{ $lokasi->id }}">
-                                    {{ $lokasi->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </td> --}}
-                        {{-- <td class="px-6 py-3">
-                        <select
-                            class="
-                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                            <option value="">Pilih Bagian</option>
-                            @foreach ($lokasis as $lokasi)
-                                <option value="{{ $lokasi->id }}">
-                                    {{ $lokasi->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </td>
-                    <td class="px-6 py-3">
-                        <select
-                            class="
-                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                            <option value="">Pilih Posisi</option>
-                            @foreach ($lokasis as $lokasi)
-                                <option value="{{ $lokasi->id }}">
-                                    {{ $lokasi->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </td> --}}
-                        <td class="py-3 px-6">
-                            <textarea wire:model.live="newKeterangan"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full" placeholder="Keterangan"></textarea>
-                        </td>
-                        <td class="py-3 px-6 text-center">
+
+                        <td class="py-3 px-2 text-center">
                             <input type="file" wire:model="newBukti" class="hidden" id="upload-new-bukti">
                             @if ($newBukti)
                                 <!-- Display uploaded proof preview with remove icon -->
@@ -445,7 +449,7 @@
                         <td class="text-center py-3">
 
                             <button wire:click="addToList" onclick="removeHarga()"
-                                class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiPenerimaan && $newHarga && $newPpn ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                class="text-primary-900 border-primary-600 text-xl border  {{ ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $newBarangId && $newBukti && $newKeterangan && $newLokasiPenerimaan && $newHarga ? '' : 'hidden' }} bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                 <i class="fa-solid fa-circle-check"></i>
                             </button>
                             @push('scripts')

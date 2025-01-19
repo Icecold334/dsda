@@ -128,6 +128,7 @@ return new class extends Migration
             $table->timestamps();
             $table->id();
             $table->string('nomor_kontrak')->nullable();
+            $table->integer('nominal_kontrak')->nullable();
             $table->foreignId('vendor_id')->constrained('toko', 'id'); // Explicitly set column
             $table->date('tanggal_kontrak');
             $table->foreignId('metode_id')->nullable()->constrained('metode_pengadaan')->onDelete('set null');
@@ -170,7 +171,7 @@ return new class extends Migration
 
             $table->string('kode_transaksi_stok')->nullable();
             $table->integer('harga')->nullable();
-            $table->enum('ppn', [11, 12])->nullable();
+            $table->integer('ppn')->nullable();
             $table->string('img')->nullable();
             $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']);
             $table->foreignId('merk_id')->constrained('merk_stok');
