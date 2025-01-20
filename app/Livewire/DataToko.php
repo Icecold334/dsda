@@ -6,11 +6,14 @@ use App\Models\Toko;
 use Livewire\Component;
 use App\Models\UnitKerja;
 use Illuminate\Support\Facades\Auth;
+use Livewire\WithoutUrlPagination;
+use Livewire\WithPagination;
 
 class DataToko extends Component
 {
+    use WithPagination, WithoutUrlPagination;
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
-    public $tokos = [];
+    // public $tokos = [];
 
     public function mount()
     {
@@ -30,7 +33,7 @@ class DataToko extends Component
         // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
 
-        $this->tokos = Toko::withCount(['aset' => function ($query) use ($parentUnitId, $userUnitId) {
+        $lists = Toko::withCount(['aset' => function ($query) use ($parentUnitId, $userUnitId) {
             // Jika unit_id user null, jangan filter unit_id (ambil semua aset)
             if (!is_null($userUnitId)) {
                 $query->whereHas('user', function ($query) use ($parentUnitId) {
@@ -46,8 +49,8 @@ class DataToko extends Component
                     ->orWhere('alamat', 'like', '%' . $this->search . '%')
                     ->orWhere('telepon', 'like', '%' . $this->search . '%');
             })
-            ->get()
-            ->toArray();
+            ->paginate(5);
+            return $lists;
     }
 
     public function updateSearch($value)
@@ -57,6 +60,7 @@ class DataToko extends Component
     }
     public function render()
     {
-        return view('livewire.data-toko');
+        $tokos = $this->loadData();
+        return view('livewire.data-toko', compact('tokos'));
     }
 }

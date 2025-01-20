@@ -75,4 +75,5 @@
             @endforelse
         </tbody>
     </table>
+    {{ $tokos->onEachSide(1)->links() }}
 </div>

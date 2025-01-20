@@ -86,4 +86,5 @@
 
         </tbody>
     </table>
+    {{ $pagination->onEachSide(1)->links() }}
 </div>

@@ -31,7 +31,7 @@ class AsetNonAktifController extends Controller
         // Apply sorting
         $this->applySorting($query, $request);
 
-        $asets = $query->paginate(20); // 20 item per halaman
+        $asets = $query->paginate(5); // 20 item per halaman
 
         // Execute the query and format the results
         $asets->getCollection()->transform(function ($aset) {

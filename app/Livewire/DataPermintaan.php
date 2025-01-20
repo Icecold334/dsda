@@ -29,7 +29,7 @@ class DataPermintaan extends Component
     public $lokasiOptions = []; // List of jenis options
 
     public $tipe;
-    public $permintaans;
+    // public $permintaans;
 
     public function mount()
     {
@@ -44,6 +44,7 @@ class DataPermintaan extends Component
         // Ambil data permintaan dan peminjaman
         $permintaanQuery = $this->getPermintaanQuery();
         $peminjamanQuery = $this->getPeminjamanQuery();
+
 
         // Gabungkan data berdasarkan tipe
         $query = $this->tipe
@@ -102,8 +103,11 @@ class DataPermintaan extends Component
         }
 
 
-        // Simpan data hasil filter
-        $this->permintaans = $query->values(); // Reset indeks array
+
+        // Fetch filtered data
+        $permintaans = $query->paginate(10);
+        return $permintaans;
+
     }
 
 
@@ -310,6 +314,7 @@ class DataPermintaan extends Component
     }
     public function render()
     {
-        return view('livewire.data-permintaan');
+        $permintaans = $this->applyFilters();
+        return view('livewire.data-permintaan', compact('permintaans'));
     }
 }

@@ -96,4 +96,5 @@
             @endforelse
         </tbody>
     </table>
+    {{ $kategoris->onEachSide(1)->links() }}
 </div>

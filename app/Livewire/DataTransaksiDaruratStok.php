@@ -12,7 +12,7 @@ class DataTransaksiDaruratStok extends Component
     public $search = ''; // Search term
     public $transaksi; // Transactions
     public $unit_id; // Transactions
-    public $grouped; // Grouped transactions
+    // public $grouped; // Grouped transactions
 
     public function mount()
     {
@@ -27,37 +27,43 @@ class DataTransaksiDaruratStok extends Component
     }
 
     public function fetchData()
-    {
-        if ($this->unit_id) {
-            # code...
-            $transaksi = TransaksiStok::whereNull('kontrak_id')
-                ->whereHas('user', function ($user) {
-                    return $user->whereHas('unitKerja', function ($unit) {
-                        return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-                    });
-                })
-                ->get();
-        } else {
-            $transaksi = TransaksiStok::whereNull('kontrak_id')
-                ->whereHas('user', function ($user) {
-                    return $user;
-                })
-                ->get();
-        }
+{
+    $query = TransaksiStok::whereNull('kontrak_id')
+        ->whereHas('user', function ($user) {
+            if ($this->unit_id) {
+                $user->whereHas('unitKerja', function ($unit) {
+                    $unit->where('parent_id', $this->unit_id)
+                        ->orWhere('id', $this->unit_id);
+                });
+            }
+        });
 
-        // Sort transactions by date
-        $sortedTransaksi = $transaksi->sortByDesc('tanggal');
+    // Gunakan paginate sebelum sorting dan grouping
+    $transaksi = $query->paginate(5);
 
-        // Group transactions by vendor_id first, then by unit_id
-        // $groupedTransactions = $sortedTransaksi->groupBy('vendor_id')->map(function ($vendorGroup) {
-        //     return $vendorGroup->groupBy('user.unit_id'); // Group by user unit_id
-        // });
-        // dd($sortedTransaksi->groupBy('vendor_id'));
-        $this->grouped = $sortedTransaksi->groupBy('vendor_id')->all();
-    }
+    // Sort transactions by date
+    $sortedTransaksi = $transaksi->getCollection()->sortByDesc('tanggal');
 
-    public function render()
-    {
-        return view('livewire.data-transaksi-darurat-stok',);
-    }
+    // Replace the collection of paginator with sorted data
+    $transaksi->setCollection($sortedTransaksi);
+
+    // Group transactions by vendor_id
+    $groupedTransactions = $sortedTransaksi->groupBy('vendor_id');
+
+    return [
+        'pagination' => $transaksi,
+        'grouped' => $groupedTransactions
+    ];
+}
+
+
+public function render()
+{
+    $data = $this->fetchData();
+    $pagination = $data['pagination'];
+    $grouped = $data['grouped'];
+
+    return view('livewire.data-transaksi-darurat-stok', compact('grouped', 'pagination'));
+}
+
 }
