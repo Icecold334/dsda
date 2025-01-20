@@ -105,9 +105,8 @@ class DataPermintaan extends Component
 
 
         // Fetch filtered data
-        $permintaans = $query->paginate(10);
+        $permintaans = $query->values();
         return $permintaans;
-
     }
 
 

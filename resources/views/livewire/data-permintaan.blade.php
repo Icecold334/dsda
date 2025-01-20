@@ -166,5 +166,5 @@
         </tbody>
 
     </table>
-    {{ $permintaans->onEachSide(1)->links() }}
+    {{-- {{ $permintaans->onEachSide(1)->links() }} --}}
 </div>
