@@ -116,5 +116,5 @@
 
         </tbody>
     </table>
-
+    {{ $barangs->onEachSide(1)->links() }}
 </div>
