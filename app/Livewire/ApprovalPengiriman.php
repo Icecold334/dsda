@@ -301,7 +301,6 @@ class ApprovalPengiriman extends Component
 
     public function approveConfirmed()
     {
-
         // if ($this->lastPj || $this->lastPpk || $this->lastPptk || $this->lastPenerima || $this->lastPemeriksa) {
         if ($this->lastPj || $this->lastPpk || $this->lastPptk || $this->lastPenerima || $this->lastPemeriksa) {
             foreach ($this->approvalFiles as $file) {
@@ -445,7 +444,7 @@ class ApprovalPengiriman extends Component
     }
     public function CheckApproval()
     {
-        $urutanApproval = collect(['Penerima Barang', 'Pemeriksa Barang', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen']);
+        $urutanApproval = collect(['Pemeriksa Barang', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen']);
         // return $this->pengiriman->persetujuan()->get();
         $index = $urutanApproval->search(function ($item) {
             return $item === $this->roles;

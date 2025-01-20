@@ -1,5 +1,8 @@
 <div>
     <div class="font-medium mb-3">Anda bisa mengunggah dokumen, invoice, sertifikat, atau foto tambahan di sini.</div>
+    <div wire:loading wire:target="newAttachments">
+        <livewire:loading>
+    </div>
     <input type="file" wire:model="newAttachments" multiple class="hidden" id="fileUpload">
     <label for="fileUpload"
         class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">

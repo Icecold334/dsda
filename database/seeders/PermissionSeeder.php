@@ -84,6 +84,7 @@ class PermissionSeeder extends Seeder
             'data_unit_kerja',
             'qr_print',
             'pengaturan',
+            'pengguna_verifikasi_pengguna',
             'inventaris_edit_lokasi_penerimaan',
             'inventaris_tambah_barang_datang',
             'inventaris_unggah_foto_barang_datang',

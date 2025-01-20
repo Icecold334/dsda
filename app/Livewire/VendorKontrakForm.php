@@ -31,6 +31,7 @@ class VendorKontrakForm extends Component
     public $kontak;
     public $listCount;
     public $show;
+    public $type;
     public $showNomor, $cekSemuaItem;
     public $showAddVendorForm = false;
     public $showSuggestions;
@@ -82,6 +83,7 @@ class VendorKontrakForm extends Component
 
         $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
         $this->show = !request()->is('pengiriman-stok/create');
+        $this->type = request()->is('kontrak-vendor-stok/create');
         $this->showNomor = !(request()->is('transaksi-darurat-stok/create') || request()->is('pengiriman-stok/create'));
         $this->barangs = JenisStok::all();
         $this->vendors = Toko::all();

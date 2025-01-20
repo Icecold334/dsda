@@ -35,12 +35,13 @@
         <table class="w-full">
             <thead class="text-primary-600">
                 <tr>
-                    <th>Spesifikasi (Merk/Tipe/Ukuran)</th>
-                    <th>Stok</th>
-                    <th>Lokasi</th>
-                    <th>Bagian</th>
-                    <th>Posisi</th>
-                    <th></th>
+                    <th class="w-1/4">Spesifikasi (Merk/Tipe/Ukuran)</th>
+                    <th class="w-1/6">Jumlah</th>
+                    <th class="w-1/6">Jenis</th>
+                    <th class="w-1/6">Lokasi</th>
+                    <th class="w-1/6">Bagian</th>
+                    <th class="w-1/6">Posisi</th>
+                    <th class=""></th>
                 </tr>
             </thead>
             <tbody>
@@ -49,39 +50,47 @@
                         <td>
                             <table class="w-full">
                                 <tr>
-                                    <td class="w-1/3 px-3  {{ $item->merkStok->nama ?? 'text-center' }}">
-                                        {{ $item->merkStok->nama ?? '-' }}</td>
+                                    <td class="w-1/3 px-3  {{ $item['merk']->nama ?? 'text-center' }}">
+                                        {{ $item['merk']->nama ?? '-' }}</td>
                                     <td
-                                        class="w-1/3 px-3 border-x-2 border-primary-500 {{ $item->merkStok->tipe ?? 'text-center' }}">
-                                        {{ $item->merkStok->tipe ?? '-' }}</td>
-                                    <td class="w-1/3 px-3 {{ $item->merkStok->ukuran ?? 'text-center' }}">
-                                        {{ $item->merkStok->ukuran ?? '-' }}</td>
+                                        class="w-1/3 px-3 border-x-2 border-primary-500 {{ $item['merk']->tipe ?? 'text-center' }}">
+                                        {{ $item['merk']->tipe ?? '-' }}</td>
+                                    <td class="w-1/3 px-3 {{ $item['merk']->ukuran ?? 'text-center' }}">
+                                        {{ $item['merk']->ukuran ?? '-' }}</td>
                                 </tr>
                             </table>
                         </td>
-                        <td class=" font-semibold">{{ $item->jumlah }}
-                            {{ $item->merkStok->barangStok->satuanBesar->nama }}
+                        <td class=" font-semibold">{{ $item['jumlah'] }}
+                            {{ $item['merk']->barangStok->satuanBesar->nama }}
                         </td>
-                        <td>{{ $item->lokasiStok->nama }}</td>
-                        <td class="{{ $item->barangStok == null ? 'text-center' : '' }}">
-                            {{ $item->bagianStok->nama ?? '---' }}</td>
-                        <td class="{{ $item->posisiStok == null ? 'text-center' : '' }}">
-                            {{ $item->posisiStok->nama ?? '---' }}</td>
-                        <td class="center">
+                        <td class="text-center">
+                            <span
+                                class="bg-{{ $item['stok'] ? 'primary' : 'warning' }}-600 text-{{ $item['stok'] ? 'primary' : 'warning' }}-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full ">
+                                {{ $item['stok'] ? 'Stok' : 'Penggunaan Langsung' }}</span>
+
+                        </td>
+                        <td>{{ $item['lokasi']->nama ?? $item['lokasi'] }}</td>
+                        <td class="{{ $item['bagian'] == null ? 'text-center' : '' }}">
+                            {{ $item['bagian']->nama ?? '---' }}</td>
+                        <td class="{{ $item['posisi'] == null ? 'text-center' : '' }}">
+                            {{ $item['posisi']->nama ?? '---' }}</td>
+                        <td>
                             @can('stok_show_detail')
-                            <button wire:click="historyStok({{ $item->id }})"
-                                class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
-                                data-tooltip-target="tooltip-item-{{ $item->id }}">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                            <div id="tooltip-item-{{ $item->id }}" role="tooltip"
-                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                Lihat Riwayat Keluar/Masuk Barang
-                                <div class="tooltip-arrow" data-popper-arrow></div>
-                            </div>
+                                @if ($item['stok'])
+                                    <button wire:click="historyStok({{ $item['id'] }})"
+                                        class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
+                                        data-tooltip-target="tooltip-item-{{ $item['id'] }}">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                    <div id="tooltip-item-{{ $item['id'] }}" role="tooltip"
+                                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                        Lihat Riwayat Keluar/Masuk Barang
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                                @endif
                             @endcan
 
-                            
+
                         </td>
                     </tr>
                 @endforeach
@@ -115,13 +124,13 @@
                         <tbody>
                             @forelse ($selectedItemHistory as $data)
                                 <tr>
-                                    <td class="border px-4 py-2 w-1/12"> {!! $data->type === 'out'
+                                    <td class="border px-4 py-2 w-1/12"> {!! $data['type'] === 'out'
                                         ? '<span class="text-danger-600"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>'
                                         : '<span class="text-success-600"><i class="fa-solid fa-arrow-right-to-bracket"></i></span>' !!}</td>
-                                    <td class="border px-4 py-2">{{ $data->jumlah }}
-                                        {{ $data->merkStok->barangStok->satuanBesar->nama }}</td>
+                                    <td class="border px-4 py-2">{{ $data['jumlah'] }}
+                                        {{ $data['merk']['merk']->barangStok->satuanBesar->nama }}</td>
                                     <td class="border px-4 py-2">
-                                        {{ Carbon\Carbon::parse($data->tanggal)->translatedFormat('d F Y') }}</td>
+                                        {{ Carbon\Carbon::parse($data['tanggal'])->translatedFormat('d F Y') }}</td>
                                 </tr>
                             @empty
                                 <tr>

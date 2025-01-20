@@ -591,16 +591,16 @@ class TransaksiDaruratList extends Component
         // Simpan perubahan transaksi
         if ($this->role_name === 'Pejabat Pembuat Komitmen') {
             $transaction->status = true;
-            $stok = Stok::firstOrCreate(
-                [
-                    'merk_id' => $transaction->merk_id,
-                    'lokasi_id' => $transaction->lokasi_id,
-                ],
-                ['jumlah' => 0]  // Atur stok awal jika belum ada
-            );
+            // $stok = Stok::firstOrCreate(
+            //     [
+            //         'merk_id' => $transaction->merk_id,
+            //         'lokasi_id' => $transaction->lokasi_id,
+            //     ],
+            //     ['jumlah' => 0]  // Atur stok awal jika belum ada
+            // );
 
-            $stok->jumlah += $transaction->jumlah;
-            $stok->save();
+            // $stok->jumlah += $transaction->jumlah;
+            // $stok->save();
         }
         $transaction->save();
 

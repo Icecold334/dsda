@@ -108,7 +108,7 @@
                     @enderror
                 </td>
             </tr>
-            <tr>
+            <tr class="{{ !$type ? 'hidden' : '' }}">
                 <td class="w-1/3">
                     <label for="vendor_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Nominal Kontrak *</label>

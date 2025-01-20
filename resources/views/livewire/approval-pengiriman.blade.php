@@ -83,13 +83,23 @@
                             <span class="mr-9 {{ $pemeriksa->id == auth()->id() ? 'font-bold' : '' }}">
                                 {{ $pemeriksa->id == auth()->id() ? 'Anda' : $pemeriksa->name }}
                             </span>
-                            <i
+                            
+                            {{-- <i
     class="my-1 fa-solid {{ $pengiriman->pengirimanStok->whereNotNull('jumlah_diterima')->count() > 0
         ? 'fa-circle-check text-success-500'
         : ($pengiriman->pengirimanStok->whereNotNull('jumlah_diterima')->count() > 0
             ? 'fa-circle-question text-secondary-600'
             : 'fa-circle-question text-secondary-600') }}">
-</i>
+</i> --}}
+<i
+                                class="my-1 fa-solid {{ is_null(
+                                    optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status,
+                                )
+                                    ? 'fa-circle-question text-secondary-600'
+                                    : (optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
+                                        ? 'fa-circle-check text-success-500'
+                                        : 'fa-circle-xmark text-danger-500') }}">
+                            </i>
 
 
 
@@ -202,18 +212,17 @@
         </div>
     @endif
 
-    @hasanyrole('Pejabat Pelaksana Teknis Kegiatan|Pejabat Pembuat Komitmen')
+    @hasanyrole('Pejabat Pelaksana Teknis Kegiatan|Pejabat Pembuat Komitmen|Pemeriksa Barang')
     <div class="flex">
         <div class="flex space-x-2 justify-center w-full">
+            @dump($checkPreviousApproval,$CheckCurrentApproval)
             <button 
-                type="button"
-                onclick="confirmApprove()"
-                @class([
-                    'text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200',
-                    'hidden' => count($checkPreviousApproval) > 0 && count($CheckCurrentApproval) > 0,
-                ])>
-                Setuju
-            </button>
+    type="button"
+    onclick="confirmApprove()"
+    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 {{ $checkPreviousApproval  && $CheckCurrentApproval ? '' : '' }}">
+    Setuju
+</button>
+
         </div>
     </div>
     @endhasanyrole

@@ -89,13 +89,13 @@
                 @if ($kontrak->type)
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">SISA</th>
                 @else
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">LOKASI GUDANG</th>
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">LOKASI PENERIMAAN</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">KETERANGAN</th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">DOKUMEN PENDUKUNG</th>
                 @endif
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">HARGA SATUAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">PPN</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">HARGA TOTAL</th>
+                <th class="py-3 px-6 bg-primary-950 text-left w-1/6 font-semibold ">HARGA TOTAL</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
@@ -131,7 +131,7 @@
                         </td>
                     @else
                         <td class="text-center py-3 font-semibold ">
-                            {{ App\Models\LokasiStok::find($transaksi->lokasi_id)->nama }}</td>
+                            {{ $transaksi->lokasi_penerimaan }}</td>
                         <td class="text-center py-3 font-semibold ">{{ $transaksi->deskripsi }}</td>
                         <td class="flex justify-center py-3 font-semibold "> <a class="text-center"
                                 href="{{ asset('storage/buktiTransaksi/' . $transaksi->img) }}" target="_blank">
@@ -143,8 +143,10 @@
                         Rp {{ number_format($transaksi->harga, 0, ',', '.') }}
                     </td>
 
-                    <td class="text-center py-3 font-semibold ">{{ $transaksi->ppn }}%</td>
-                    <td class="text-center py-3 font-semibold ">
+                    <td class="text-center px-3 py-3 text-sm font-semibold ">
+                        {{ $transaksi->ppn ? $transaksi->ppn . '%' : 'Sudah Termasuk PPN' }}</td>
+
+                    <td class="text-left py-3 font-semibold ">
                         {{-- Harga total --}}
                         Rp
                         {{ number_format($transaksi->harga * $transaksi->jumlah + ($transaksi->harga * $transaksi->jumlah * $transaksi->ppn) / 100, 0, ',', '.') }}
@@ -155,6 +157,16 @@
                     </td>
                 </tr>
             @endforeach
+            <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
+                <td colspan="{{ $kontrak->type ? '6' : '8' }}" class="px-6 py-3 font-semibold text-right">
+                    Total
+                </td>
+                <td class=" py-3 font-semibold text-left">
+                    Rp {{ number_format($total, 0, ',', '.') }}
+                </td>
+                <td class="py-3 px-6  font-semibold text-center">
+                </td>
+            </tr>
         </tbody>
     </table>
     <!-- Penulis -->
