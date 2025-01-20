@@ -156,8 +156,8 @@ class TransaksiDaruratList extends Component
                     'specifications' => $spec,
                     'jumlah' => $item->jumlah,
                     'satuan' => BarangStok::find($item->merkStok->barangStok->id)->satuanBesar->nama,
-                    // 'lokasi_penerimaan' => $item->lokasi_penerimaan,
-                    'lokasi_id' => $item->lokasi_id,
+                    'lokasi_penerimaan' => $item->lokasi_penerimaan,
+                    // 'lokasi_id' => $item->lokasi_id,
                     'ppn' => $item->ppn,
                     'harga' => number_format($item->harga, 0, ',', '.'),
                     'keterangan' => $item->deskripsi,
@@ -213,6 +213,11 @@ class TransaksiDaruratList extends Component
     // public $barang_id;
     public $newBarangName;
 
+    public function fillNewBarang()
+    {
+        $this->updatedNewBarang();
+    }
+
     public function updatedNewBarang()
     {
         $this->newBarangId = null;
@@ -250,7 +255,7 @@ class TransaksiDaruratList extends Component
             'satuanKecil' => [],
         ];
     }
-    public function updateSpecification($key, $value)
+    public function updateSpecification($key, $value = '')
     {
         if ($this->newBarangId) {
             $this->specifications[$key] = $value;
@@ -338,7 +343,7 @@ class TransaksiDaruratList extends Component
                     'kontrak_id' => null,
                     'harga' => (int)str_replace('.', '', $item['harga']),
                     'ppn' => $item['ppn'],
-                    'lokasi_id' => $item['lokasi_id'],
+                    // 'lokasi_id' => $item['lokasi_id'],
                     'tanggal' => strtotime(date('Y-m-d H:i:s')),
                     'jumlah' => $item['jumlah'],
                     'deskripsi' => $item['keterangan'] ?? '',
@@ -431,8 +436,8 @@ class TransaksiDaruratList extends Component
             'specifications' => $this->specifications,
             'jumlah' => $this->newJumlah,
             'satuan' => BarangStok::find($this->newBarangId)->satuanBesar->nama,
-            // 'lokasi_penerimaan' => $this->newLokasiPenerimaan,
-            'lokasi_id' => $this->newLokasiId,
+            'lokasi_penerimaan' => $this->newLokasiPenerimaan,
+            // 'lokasi_id' => $this->newLokasiId,
             'harga' => $this->newHarga,
             'ppn' => $this->newPpn,
             'keterangan' => $this->newKeterangan,

@@ -4,9 +4,11 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\TransaksiStok;
+use Illuminate\Support\Facades\Request;
 
 class DataTransaksiDaruratStok extends Component
 {
+    public $isCreate;
     public $search = ''; // Search term
     public $transaksi; // Transactions
     public $unit_id; // Transactions
@@ -14,6 +16,7 @@ class DataTransaksiDaruratStok extends Component
 
     public function mount()
     {
+
         $this->fetchData();
     }
 

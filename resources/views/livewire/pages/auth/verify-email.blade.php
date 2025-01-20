@@ -6,19 +6,20 @@ use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new #[Layout('layouts.guest')] class extends Component
-{
+new #[Layout('layouts.guest')] class extends Component {
+    public function mount()
+    {
+        if (Auth::user()->hasVerifiedEmail()) {
+            $this->redirectIntended(default: route('dashboard'));
+
+            return;
+        }
+    }
     /**
      * Send an email verification notification to the user.
      */
     public function sendVerification(): void
     {
-        if (Auth::user()->hasVerifiedEmail()) {
-            $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
-
-            return;
-        }
-
         Auth::user()->sendEmailVerificationNotification();
 
         Session::flash('status', 'verification-link-sent');
@@ -31,11 +32,36 @@ new #[Layout('layouts.guest')] class extends Component
     {
         $logout();
 
-        $this->redirect('/', navigate: true);
+        $this->redirect('/');
     }
 }; ?>
 
-<div>
+<div class="h-full flex items-center ">
+    @push('vite')
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endpush
+    <div>
+        <h1 class="text-4xl mb-4  font-medium">Selamat Datang <span class="font-bold">{{ auth()->user()->name }}!</span>
+        </h1>
+
+        <p class="text-xl mb-4">
+            Anda berhasil login. Namun, akun Anda belum diverifikasi. Harap menunggu verifikasi dari pengguna yang
+            memiliki
+            hak akses yang diperlukan. Anda akan diberitahu segera setelah akun Anda diverifikasi dan semua fitur sistem
+            akan sepenuhnya tersedia untuk Anda.
+
+
+        </p>
+        <p class="text-xl mb-4">
+            Terima kasih atas kesabaran Anda.
+        </p>
+
+        <button class="sign-btn max-w-32" wire:click="logout">Keluar</button>
+
+    </div>
+</div>
+
+{{-- <div>
     <div class="mb-4 text-sm text-gray-600">
         {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
     </div>
@@ -55,4 +81,4 @@ new #[Layout('layouts.guest')] class extends Component
             {{ __('Log Out') }}
         </button>
     </div>
-</div>
+</div> --}}

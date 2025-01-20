@@ -6,9 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
         crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
 
@@ -204,7 +204,7 @@
             display: inline-block;
             width: 100%;
             height: 43px;
-            background-color: #e01f1f;
+            background-color: #383838;
             color: #fff;
             border: none;
             cursor: pointer;
@@ -434,16 +434,16 @@
                 padding: 1rem 2rem 1.5rem;
             }
         }
-    </style>
-    {{-- <link href="/dashboard/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css"> --}}
+    </style>@stack('vite')
+    {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
     <script src="https://kit.fontawesome.com/5fd2369345.js" crossorigin="anonymous"></script>
 
 </head>
 
+
 <body>
-    <main class=" 
-    {{-- @if (session('register')) sign-up-mode @endif --}}
-    ">
+    <main class="">
+        {{-- @if (session('register')) sign-up-mode @endif --}}
         <div class="box">
             <div class="inner-box">
                 {{ $slot }}
@@ -454,6 +454,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             const inputs = document.querySelectorAll(".input-field");
             const toggle_btns = document.querySelectorAll(".toggle");
+            const google_btns = document.querySelectorAll("#google");
             const main = document.querySelector("main");
             const bullets = document.querySelectorAll(".bullets span");
             const images = document.querySelectorAll(".image");
@@ -484,6 +485,12 @@
             });
 
             toggle_btns.forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    main.classList.toggle("sign-up-mode");
+                });
+            });
+            google_btns.forEach((btn) => {
                 btn.addEventListener("click", (e) => {
                     e.preventDefault();
                     main.classList.toggle("sign-up-mode");
@@ -538,11 +545,7 @@
             // signUpBtn.addEventListener("click", validateForm);
         });
     </script>
-    <script>
-        $('input#username-login').focus();
-        $('input#username-login').addClass('active');
-    </script>
-    @stack('scripts')
+
 </body>
 
 </html>

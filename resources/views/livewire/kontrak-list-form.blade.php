@@ -5,8 +5,8 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/5 rounded-l-lg">BARANG</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">HARGA SATUAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">PPN</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">HARGA SATUAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
@@ -40,6 +40,13 @@
                             </div>
                         </td>
                         <td class="px-6 py-3">
+                            <select wire:model.live='list.{{ $index }}.ppn' disabled
+                                class="bg-gray-50 border border-gray-300 cursor-not-allowed text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value="0">Sudah Termasuk PPN</option>
+                                <option value="11">11%</option>
+                                <option value="12">12%</option>
+                            </select>
+                        <td class="px-6 py-3">
                             <div class="flex">
                                 <div
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
@@ -51,13 +58,7 @@
 
                             </div>
                         </td>
-                        <td class="px-6 py-3">
-                            <select wire:model.live='list.{{ $index }}.ppn' disabled
-                                class="bg-gray-50 border border-gray-300 cursor-not-allowed text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option value=""> Pilih PPN </option>
-                                <option value="11">11%</option>
-                                <option value="12">12%</option>
-                            </select>
+
                         </td>
                         <td class="px-6 py-3">
                             <button wire:click="removeFromList({{ $index }})"
@@ -81,7 +82,7 @@
                                 rounded-lg
                                 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                                 {{-- {{ $jenis_id == 3 ? '' : 'rounded-l-lg' }} {{ $barang_id ? 'rounded-lg' : '' }} --}} type="text" wire:model.live="newBarang" wire:blur="blurBarang"
-                                placeholder="Cari Barang">
+                                wire:focus='focusBarang' placeholder="Cari Barang">
                             @if (!$barang_id)
                                 <button wire:click="openBarangModal"
                                     class="px-4 py-1 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tambah</button>
@@ -106,7 +107,7 @@
                                     class="bg-gray-50 border {{ !$barang_id ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                                     type="text" wire:model.live="specifications.{{ $key }}"
                                     @disabled(!$barang_id)
-                                    wire:input="updateSpecification('{{ $key }}', $event.target.value)"
+                                    wire:focus="updateSpecification('{{ $key }}', $event.target.value)"
                                     wire:blur="blurSpecification('{{ $key }}')"
                                     placeholder="{{ $label }}">
                                 @if (count($suggestions[$key]) > 0)
@@ -134,6 +135,14 @@
                                 {{ !$barang_id ? 'Satuan' : App\Models\BarangStok::find($barang_id)->satuanBesar->nama }}
                             </div>
                         </div>
+                    </td>
+                    <td class="px-6 py-3">
+                        <select wire:model.live='newPpn'
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option value="0">Sudah Termasuk PPN</option>
+                            <option value="11">11%</option>
+                            <option value="12">12%</option>
+                        </select>
                     </td>
                     <td class="px-6 py-3">
                         <div class="flex">
@@ -169,20 +178,9 @@
 
                         </div>
                     </td>
+
                     <td class="px-6 py-3">
-                        <select wire:model.live='newPpn' @disabled(!$newHarga)
-                            class="bg-gray-50 border {{ !$newHarga ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                            <option value=""> Pilih PPN </option>
-                            <option value="11">11%</option>
-                            <option value="12">12%</option>
-                        </select>
-                    </td>
-                    <td class="px-6 py-3">
-                        @if (
-                            ($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) &&
-                                $jumlah &&
-                                $newHarga &&
-                                $newPpn)
+                        @if (($specifications['merek'] || $specifications['tipe'] || $specifications['ukuran']) && $jumlah && $newHarga)
                             <button wire:click="addToList" onclick="removeHarga()" wire:loading.attr="disabled"
                                 class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 me-2 mb-2 transition duration-200">
                                 <i class="fa-solid fa-circle-check"></i>
@@ -195,6 +193,14 @@
                                 }
                             </script>
                         @endpush
+                    </td>
+                </tr>
+                <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
+                    <td colspan="4 " class="px-6 py-3 font-semibold text-right">
+                        Total
+                    </td>
+                    <td colspan="2 " class="px-6 py-3 font-semibold text-right">
+                        Rp {{ $total }}
                     </td>
                 </tr>
             </tbody>
@@ -211,7 +217,13 @@
     </table>
     @if ($vendor_id && $jenis_id && $metode_id)
         {{-- @if (true) --}}
-        @if ($vendor_id != null && count($list) > 0 && $dokumenCount > 0 && $nomor_kontrak && $tanggal_kontrak)
+        @if (
+            $vendor_id != null &&
+                count($list) > 0 &&
+                $dokumenCount > 0 &&
+                $nomor_kontrak &&
+                $tanggal_kontrak &&
+                str_replace('.', '', $nominal_kontrak) == str_replace('.', '', $total))
             <div class="flex justify-center"><button wire:click='saveKontrak'
                     class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
             </div>

@@ -37,18 +37,6 @@
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                 @enderror
             </td>
-            {{-- <td>
-                <select wire:model.live="vendor_id" @disabled($listCount)
-                    class="bg-gray-50 border border-gray-300 {{ $listCount ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                    <option value="">Pilih Vendor</option>
-                    @foreach ($vendors as $vendor)
-                        <option value="{{ $vendor->id }}" @selected($vendor->id == $vendor_id)>{{ $vendor->nama }}</option>
-                    @endforeach
-                </select>
-                @error('vendor_id')
-                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                @enderror
-            </td> --}}
         </tr>
         @if ($showNomor)
             <tr class={{ !$cekSemuaItem ? 'hidden' : '' }}>
@@ -100,6 +88,7 @@
             </td>
         </tr>
         @if ($showMetode)
+
             <tr class="{{ !$cekSemuaItem ? 'hidden' : '' }}">
                 <td class="w-1/3">
                     <label for="barang_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -117,6 +106,48 @@
                     @error('metode_id')
                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                     @enderror
+                </td>
+            </tr>
+            <tr>
+                <td class="w-1/3">
+                    <label for="vendor_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Nominal Kontrak *</label>
+                </td>
+                <td>
+                    <div class="">
+                        <div class="flex">
+                            <div
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
+                                Rp
+                            </div>
+                            <input @disabled($listCount)
+                                class="bg-gray-50 {{ $listCount ? 'cursor-not-allowed' : '' }} border border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
+                                type="text" placeholder="Nominal Kontrak" oninput="formatRupiahh(this)">
+                            @push('scripts')
+                                <script type="module">
+                                    window.formatRupiahh = function(param) {
+                                        console.log('sadsad');
+
+                                        let angka = param.value
+                                        const numberString = angka.replace(/[^,\d]/g, '').toString();
+                                        const split = numberString.split(',');
+                                        let sisa = split[0].length % 3;
+                                        let rupiah = split[0].substr(0, sisa);
+                                        const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+                                        if (ribuan) {
+                                            const separator = sisa ? '.' : '';
+                                            rupiah += separator + ribuan.join('.');
+                                        }
+
+                                        rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+                                        @this.set('nominalKontrak', rupiah);
+                                        return param.value = rupiah;
+                                    }
+                                </script>
+                            @endpush
+                        </div>
+                    </div>
                 </td>
             </tr>
         @endif

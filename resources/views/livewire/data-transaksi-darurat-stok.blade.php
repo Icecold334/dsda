@@ -7,11 +7,11 @@
             @endif
         </h1>
         @can('kontrak_tambah_kontrak_baru')
-        <div>
-            <a href="{{ route('transaksi-darurat-stok.create') }}"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                Rekam Kontrak Baru</a>
-        </div>
+            <div>
+                <a href="{{ route('transaksi-darurat-stok.create') }}"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
+                    Rekam Kontrak Baru</a>
+            </div>
         @endcan
     </div>
 
@@ -70,13 +70,14 @@
                         </table>
                     </td>
                     <td class="py-3 px-6 w-1/6 text-center">
-                        <a href="{{ route('transaksi-darurat-stok.show', ['transaksi_darurat_stok' => $unitGroups->first()->vendor_id]) }}"
+                        {{-- <a href="{{ route('transaksi-darurat-stok.show', ['transaksi_darurat_stok' => $unitGroups->first()->vendor_id]) }}"
                             class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300">
                             <i class="fa-solid fa-eye"></i>
-                        </a>
+                        </a> --}}
                         <a href="{{ route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $unitGroups->first()->vendor_id]) }}"
                             class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300">
-                            <i class="fa-solid fa-pen"></i>
+                            {{-- <i class="fa-solid fa-pen"></i> --}}
+                            <i class="fa-solid fa-eye"></i>
                         </a>
                     </td>
                 </tr>

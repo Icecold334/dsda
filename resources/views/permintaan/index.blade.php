@@ -1,5 +1,4 @@
 <x-body>
-
     @if ($tipe == 'umum' && true)
         <div class="flex justify-between py-2 mb-3">
             <h1 class="text-2xl font-bold text-primary-900 ">

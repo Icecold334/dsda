@@ -8,10 +8,10 @@
             <div>
                 <x-card title="Profil Saya" class="mb-3">
                     <div class="space-y-2">
-                        <div class="flex justify-between border-b py-2">
+                        {{-- <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">User ID</span>
                             <span class="text-sm text-gray-500 w-2/3">{{ $user->id }}</span>
-                        </div>
+                        </div> --}}
                         <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Nama</span>
                             <span class="text-sm text-gray-500 w-2/3">{{ $user->name }}</span>

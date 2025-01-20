@@ -258,7 +258,7 @@ class ListPengirimanForm extends Component
                     'bagians' => BagianStok::where('lokasi_id', $transaksi->lokasi_id)->get(),
                     'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
                     'jumlah' => $transaksi->jumlah ?? 1,
-                    'jumlah_diterima' => $transaksi->jumlah_diterima ?? "",
+                    'jumlah_diterima' => $transaksi->jumlah_diterima ?? null,
                     //$transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
                     'boolean_jumlah' => $transaksi->jumlah_diterima ?? 0,
                     'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),

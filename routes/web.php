@@ -96,7 +96,7 @@ Route::get('dashboard', [DashboardController::class, 'index'])
 
 
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('agenda', AgendaController::class);
     Route::get('/nonaktifaset/export', [AsetNonAktifController::class, 'exportExcel'])->name('nonaktifaset.export');
     Route::get('/nonaktifaset/downlaod-qr/{assetId}', [AsetNonAktifController::class, 'downloadQrImage'])->name('nonaktifaset.downloadQrImage');
@@ -110,12 +110,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('history', HistoryController::class);
     Route::resource('jurnal', JurnalController::class);
     Route::get('kalender-aset', function () {
-    $peminjaman = DB::table('peminjaman_aset')
-    ->join('detail_peminjaman_aset', 'peminjaman_aset.detail_peminjaman_id', '=', 'detail_peminjaman_aset.id')
-    ->join('aset', 'peminjaman_aset.aset_id', '=', 'aset.id')
-    ->where('detail_peminjaman_aset.status', 1)
-    ->select('peminjaman_aset.*', 'detail_peminjaman_aset.tanggal_peminjaman', 'aset.nama')
-    ->get();
+        $peminjaman = DB::table('peminjaman_aset')
+            ->join('detail_peminjaman_aset', 'peminjaman_aset.detail_peminjaman_id', '=', 'detail_peminjaman_aset.id')
+            ->join('aset', 'peminjaman_aset.aset_id', '=', 'aset.id')
+            ->where('detail_peminjaman_aset.status', 1)
+            ->select('peminjaman_aset.*', 'detail_peminjaman_aset.tanggal_peminjaman', 'aset.nama')
+            ->get();
         return view('peminjaman.index', ['peminjaman' => $peminjaman]);
     });
     Route::get('kategori/{tipe}', [KategoriController::class, 'create']);
@@ -185,19 +185,9 @@ Route::middleware(['auth'])->group(function () {
     ]);
 });
 
-// Register all resource routes
-
-
-// Route::view('dashboard', 'dashboard')
-//     ->middleware(['auth', 'verified'])
-//     ->name('dashboard');
 
 Route::view('profile', 'profile')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'verified'])
     ->name('profile');
-
-Route::get('/testapprove', function () {
-    return Persetujuan::all()->toArray();
-});
 
 require __DIR__ . '/auth.php';

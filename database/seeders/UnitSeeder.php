@@ -500,6 +500,7 @@ class UnitSeeder extends Seeder
                 $roleOnce = ['Penerima Barang',];
                 foreach ($roleOnce as $item) {
                     User::create([
+                        'email_verified_at' => now(),
                         'name' => $this->faker->name(),
                         'unit_id' => $unit->id,
                         'lokasi_id' => $lokasi->id,
@@ -549,6 +550,7 @@ class UnitSeeder extends Seeder
             'guard_name' => 'web',
         ]);
         $superUser = User::create([
+            'email_verified_at' => now(),
             'name' => 'superadmin',
             'email' => 'superadmin@email.com',
             'unit_id' => null,
@@ -558,6 +560,7 @@ class UnitSeeder extends Seeder
             'updated_at' => now(),
         ]);
         $guestUser = User::create([
+            'email_verified_at' => now(),
             'name' => 'guest',
             'email' => 'guest@email.com',
             'unit_id' => null,
@@ -602,6 +605,7 @@ class UnitSeeder extends Seeder
                 ]);
             }
             $unitUser = User::create([
+                'email_verified_at' => now(),
                 'name' => $unitData['kepala'],
                 'unit_id' => $unit->id,
                 'email' => Str::lower(str_replace(' ', '_', $unitRole->name)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $unitRole->name)) . "%")->count() + 1 . "@email.com",
@@ -612,6 +616,7 @@ class UnitSeeder extends Seeder
             foreach ($roleMulti as $role) {
                 for ($i = 1; $i <= 3; $i++) {
                     User::create([
+                        'email_verified_at' => now(),
                         'name' => $this->faker->name(),
                         'unit_id' => $unit->id,
                         'email' => Str::lower(str_replace(' ', '_', 'Pejabat Pelaksana Teknis Kegiatan')) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', 'Pejabat Pelaksana Teknis Kegiatan')) . "%")->count() + 1 . "@email.com",
@@ -655,6 +660,7 @@ class UnitSeeder extends Seeder
 
             foreach ($roleOnce as $item) {
                 User::create([
+                    'email_verified_at' => now(),
                     'name' => $this->faker->name(),
                     'unit_id' => $unit->id,
                     'email' => Str::lower(str_replace(' ', '_', $item)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $item)) . "%")->count() + 1 . "@email.com",
@@ -687,6 +693,7 @@ class UnitSeeder extends Seeder
 
                 // Buat User
                 $user = User::create([
+                    'email_verified_at' => now(),
                     'name' => $subUnit['kepala'],
                     'unit_id' => $subUnitEntry->id,
                     'email' => Str::lower(str_replace(' ', '_', $role->name)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $role->name)) . "%")->count() + 1 . "@email.com",

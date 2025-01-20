@@ -43,8 +43,8 @@ window.confirmRemove = function (message, callback) {
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Ya, hapus!",
-        cancelButtonText: "Batal",
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
     }).then((result) => {
         if (result.isConfirmed) {
             // Callback function to execute after confirmation
