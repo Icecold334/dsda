@@ -612,7 +612,7 @@ class UnitSeeder extends Seeder
                 'password' => bcrypt('123'), // Password default
             ]);
             $unitUser->roles()->attach($unitRole->id);
-            $roleMulti = ['Pejabat Pelaksana Teknis Kegiatan'];
+            $roleMulti = ['Pejabat Pelaksana Teknis Kegiatan', 'Pemeriksa Barang',];
             foreach ($roleMulti as $role) {
                 for ($i = 1; $i <= 3; $i++) {
                     User::create([

@@ -71,12 +71,12 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed for KontrakVendorStok
-        for ($i = 1; $i <= Toko::all()->count(); $i++) {
+        for ($i = 1; $i <= 354; $i++) {
             KontrakVendorStok::create([
                 'nomor_kontrak' => $faker->unique()->bothify('KV#####'),
                 'metode_id' => MetodePengadaan::inRandomOrder()->first()->id,
                 // 'vendor_id' => Toko::inRandomOrder()->first()->id,
-                'vendor_id' => $i,
+                'vendor_id' => Toko::inRandomOrder()->first()->id,
                 'tanggal_kontrak' => strtotime($faker->date()),
                 // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
                 'user_id' => User::inRandomOrder()->first()->id,
@@ -86,21 +86,21 @@ class DatabaseSeeder extends Seeder
         }
 
 
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 1598; $i++) {
             $vendorid = Toko::inRandomOrder()->first()->id;
             TransaksiStok::create([
                 'kode_transaksi_stok' => $faker->unique()->numerify('TRX#####'),
                 // 'tipe' => $faker->randomElement(['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']),
-                'tipe' => $i < 6 ? 'Pemasukan' : 'Penggunaan Langsung',
+                'tipe' => $faker->boolean ? 'Pemasukan' : 'Penggunaan Langsung',
                 'merk_id' => MerkStok::inRandomOrder()->first()->id,
                 'vendor_id' => $vendorid,
                 'harga' => $faker->numberBetween(200000, 1000000),
-                'ppn' => $faker->boolean ? 11 : 12,
+                'ppn' => $faker->randomElement([0, 11, 12]),
                 'user_id' => User::inRandomOrder()->first()->id,
                 'lokasi_id' => LokasiStok::inRandomOrder()->first()->id,
-                'kontrak_id' => $i < 6 ? $vendorid : null,
+                'kontrak_id' => $faker->boolean ? $vendorid : null,
                 'tanggal' => strtotime(date('Y-m-d H:i:s')),
-                'jumlah' => $faker->numberBetween(1, 100),
+                'jumlah' => $faker->numberBetween(5000, 25000),
                 'deskripsi' => $faker->sentence(),
                 'lokasi_penerimaan' => $faker->address(),
             ]);
@@ -108,7 +108,7 @@ class DatabaseSeeder extends Seeder
 
 
         // Seed for Stok
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 1; $i <= 364; $i++) {
             // Pilih lokasi secara acak
             $lokasi = LokasiStok::inRandomOrder()->first();
 
@@ -139,25 +139,26 @@ class DatabaseSeeder extends Seeder
 
 
         $requests = [];
-        for ($i = 0; $i < 6; $i++) {
+        for ($i = 0; $i < 578; $i++) {
             $parentUnit = UnitKerja::whereNull('parent_id')->inRandomOrder()->first();
 
             // Ambil unit sub yang merupakan anak dari unit induk yang dipilih
-            $subUnit = null;
-            if ($faker->boolean) { // Misal 50% kemungkinan sub_unit_id ada
-                $subUnit = UnitKerja::where('parent_id', $parentUnit->id)->inRandomOrder()->first();
-            }
+            // $subUnit = null;
+            // if ($faker->boolean) { // Misal 50% kemungkinan sub_unit_id ada
+            $subUnit = UnitKerja::where('parent_id', $parentUnit->id)->inRandomOrder()->first();
+            // }
+            $f = $faker->boolean;
             $requests[] = [
                 'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
                 'tanggal_permintaan' => strtotime(Carbon::now()),
                 'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
-                'kategori_id' => KategoriStok::inRandomOrder()->first()->id,
+                'kategori_id' => $f ? KategoriStok::inRandomOrder()->first()->id : null,
                 'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')
                     ->where('unit_id', $parentUnit->id)
                     ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
                     ->latest()
                     ->first()->id,
-                'jenis_id' => 3, // unit_id diambil dari unit induk
+                'jenis_id' => $f ? 3 : $faker->randomElement([1, 2]), // unit_id diambil dari unit induk
                 'unit_id' => $parentUnit->id, // unit_id diambil dari unit induk
                 'keterangan' => $faker->paragraph(),
                 'sub_unit_id' => $subUnit ? $subUnit->id : null, // jika ada sub-unit, pakai id-nya, jika tidak null
@@ -175,7 +176,7 @@ class DatabaseSeeder extends Seeder
         $details = DetailPermintaanStok::all();
         $lokasis = LokasiStok::all();
 
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 2975; $i++) {
             $detail = $details->random();
             PermintaanStok::create([
                 'detail_permintaan_id' => $detail->id,
@@ -186,27 +187,33 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // foreach (range(1, 5) as $index) {
-        DetailPengirimanStok::create([
-            'kode_pengiriman_stok' => Str::upper($faker->word),
-            'tanggal' => strtotime(now()),
-            'penerima' => $faker->name,
-            'user_id' => User::inRandomOrder()->first()->id,
-            'pj1' => $faker->name,
-            'pj2' => $faker->name,
-            'kontrak_id' => KontrakVendorStok::where('type', true)->inRandomOrder()->first()->id
-        ]);
-        // }
+        foreach (range(1, 154) as $index) {
+            DetailPengirimanStok::create([
+                'kode_pengiriman_stok' => $faker->unique()->numerify('PB######'),
+                'tanggal' => strtotime(now()),
+                'penerima' => $faker->name,
+                'user_id' => User::inRandomOrder()->first()->id,
+                'pj1' => $faker->name,
+                'pj2' => $faker->name,
+                'kontrak_id' => KontrakVendorStok::where('type', true)->inRandomOrder()->first()->id
+            ]);
+        }
 
-        foreach (range(1, 3) as $index) {
+        foreach (range(1, 209) as $index) {
+
 
             // Pilih kontrak yang memiliki transaksi
-            $kontrak = KontrakVendorStok::has('transaksiStok')->where('type', true)->inRandomOrder()->first();
+            $kontrak = KontrakVendorStok::whereHas('transaksiStok')->whereHas('detailPengiriman')->where('type', true)->inRandomOrder()->first();
+            $detail_pengiriman = DetailPengirimanStok::where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
+
+            $unit = $kontrak->user->unitKerja;
+
+            $unit_id = $unit->parent_id ?? $unit->id;
 
             // Pilih transaksi yang terkait dengan kontrak yang dipilih
             $transaksi = TransaksiStok::where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
 
-            $lokasi = LokasiStok::inRandomOrder()->first();
+            $lokasi = LokasiStok::where('unit_id', $unit_id)->inRandomOrder()->first();
 
             // Tentukan apakah lokasi memiliki bagian
             $bagian = BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first();
@@ -217,11 +224,11 @@ class DatabaseSeeder extends Seeder
                 $posisi = PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first();
             }
             PengirimanStok::create([
-                'detail_pengiriman_id' => DetailPengirimanStok::find(1)->id,
+                'detail_pengiriman_id' => $detail_pengiriman->id,
                 'kontrak_id' => $kontrak->id,
                 'merk_id' => $transaksi->merk_id,
                 'tanggal_pengiriman' => strtotime(now()), // strtotime untuk konversi string ke timestamp
-                'jumlah' => $faker->numberBetween(1, 5),
+                'jumlah' => $faker->numberBetween(1, 30),
                 'lokasi_id' => $lokasi->id,
                 'bagian_id' => $bagian ? $bagian->id : null,  // Bagian bisa null jika tidak ada
                 'posisi_id' => $posisi ? $posisi->id : null,

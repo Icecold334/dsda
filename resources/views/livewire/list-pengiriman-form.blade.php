@@ -4,9 +4,12 @@
         <thead>
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg">NAMA BARANG</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">LOKASI *</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BAGIAN</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">POSISI</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">SPESIFIKASI</th>
+                <th class="py-3 px-6 bg-primary-950 text-center w-1/5  font-semibold">LOKASI *</th>
+                @if ($showDokumen)
+                    <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">BAGIAN</th>
+                    <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">POSISI</th>
+                @endif
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/5" colspan="2">JUMLAH *</th>
                 @if ($showDokumen)
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th>
@@ -38,21 +41,22 @@
             @endif
             @foreach ($list as $index => $item)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
-                    <td class="px-2 py-3 font-semibold">
+                    <td class="px-4 py-3 font-semibold">
                         {{-- editable {{ $item['editable'] }} --}}
                         <div>{{ $item['merk']->barangStok->nama }}</div>
-                        <div class="font-normal text-sm">
-                            <table class="w-full">
-                                <tr>
-                                    <td class=" w-1/3 ">{{ $item['merk']->nama ?? '-' }}</td>
-                                    <td
-                                        class="border-x-2 border-primary-600 w-1/3  {{ $item['merk']->tipe ? '' : 'text-center' }}">
-                                        {{ $item['merk']->tipe ?? '-' }}</td>
-                                    <td class=" w-1/3  {{ $item['merk']->ukuran ? '' : 'text-center' }}">
-                                        {{ $item['merk']->ukuran ?? '-' }}</td>
-                                </tr>
-                            </table>
-                        </div>
+
+                    </td>
+                    <td class="px-3 py-3">
+                        <table class="w-full">
+                            <tr>
+                                <td class=" w-1/3 ">{{ $item['merk']->nama ?? '-' }}</td>
+                                <td
+                                    class="border-x-2 border-primary-600 w-1/3  {{ $item['merk']->tipe ? '' : 'text-center' }}">
+                                    {{ $item['merk']->tipe ?? '-' }}</td>
+                                <td class=" w-1/3  {{ $item['merk']->ukuran ? '' : 'text-center' }}">
+                                    {{ $item['merk']->ukuran ?? '-' }}</td>
+                            </tr>
+                        </table>
                     </td>
                     <td class="px-6 py-3">
                         <select wire:change="updateLokasi({{ $index }}, $event.target.value)"
@@ -72,36 +76,40 @@
                             @endforeach
                         </select>
                     </td>
-                    <td class="px-6 py-3">
-                        <select wire:model="list.{{ $index }}.bagian_id"
-                            wire:change="updateBagianId({{ $index }}, $event.target.value)"
-                            wire:model.live="list.{{ $index }}.bagian_id"
-                            class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['lokasi_id']) || $authLokasi !== $item['lokasi_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            @disabled(!$item['editable'] || empty($item['lokasi_id']) || $authLokasi !== $item['lokasi_id'])
-                            @cannot('inventaris_edit_lokasi_penerimaan')
+                    @if ($showDokumen)
+                        <td class="px-6 py-3">
+                            <select wire:model="list.{{ $index }}.bagian_id"
+                                wire:change="updateBagianId({{ $index }}, $event.target.value)"
+                                wire:model.live="list.{{ $index }}.bagian_id"
+                                class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['lokasi_id']) || $authLokasi !== $item['lokasi_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                @disabled(!$item['editable'] || empty($item['lokasi_id']) || $authLokasi !== $item['lokasi_id'])
+                                @cannot('inventaris_edit_lokasi_penerimaan')
                                 disabled
                             @endcannot>
-                            <option value="">Pilih Bagian</option>
-                            @foreach ($item['bagians'] as $bagian)
-                                <option value="{{ $bagian->id }}" @if ($item['bagian_id'] == $bagian->id) selected @endif>
-                                    {{ $bagian->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </td>
-                    <td class="px-6 py-3">
-                        <select wire:model="list.{{ $index }}.posisi_id"
-                            wire:model.live="list.{{ $index }}.posisi_id"
-                            class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['bagian_id']) || $authLokasi !== $item['bagian_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            @disabled(!$item['editable'] || empty($item['bagian_id']) || $authLokasi !== $item['lokasi_id'])>
-                            <option value="">Pilih Posisi</option>
-                            @foreach ($item['posisis'] as $posisi)
-                                <option value="{{ $posisi->id }}" @if ($item['posisi_id'] == $posisi->id) selected @endif>
-                                    {{ $posisi->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </td>
+                                <option value="">Pilih Bagian</option>
+                                @foreach ($item['bagians'] as $bagian)
+                                    <option value="{{ $bagian->id }}"
+                                        @if ($item['bagian_id'] == $bagian->id) selected @endif>
+                                        {{ $bagian->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <td class="px-6 py-3">
+                            <select wire:model="list.{{ $index }}.posisi_id"
+                                wire:model.live="list.{{ $index }}.posisi_id"
+                                class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['bagian_id']) || $authLokasi !== $item['bagian_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                @disabled(!$item['editable'] || empty($item['bagian_id']) || $authLokasi !== $item['lokasi_id'])>
+                                <option value="">Pilih Posisi</option>
+                                @foreach ($item['posisis'] as $posisi)
+                                    <option value="{{ $posisi->id }}"
+                                        @if ($item['posisi_id'] == $posisi->id) selected @endif>
+                                        {{ $posisi->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </td>
+                    @endif
                     <td class="px-2 py-3">
                         <div class="flex items-center">
                             <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value="{{ $item['jumlah'] }}"

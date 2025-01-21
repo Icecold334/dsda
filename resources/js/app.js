@@ -1,5 +1,6 @@
 import "./bootstrap";
-import "flowbite";
+import { Tooltip } from "flowbite";
+window.tooltip = Tooltip;
 import ApexCharts from "apexcharts";
 window.ApexCharts = ApexCharts;
 import Swal from "sweetalert2";

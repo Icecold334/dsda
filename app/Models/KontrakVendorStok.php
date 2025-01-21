@@ -35,6 +35,10 @@ class KontrakVendorStok extends Model
     {
         return $this->hasMany(DokumenKontrakStok::class, 'kontrak_id');
     }
+    public function detailPengiriman()
+    {
+        return $this->hasMany(DetailPengirimanStok::class, 'kontrak_id');
+    }
 
 
     // public function merkStok()

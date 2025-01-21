@@ -38,7 +38,7 @@ class DataPengirimanStok extends Component
     public function fetchData()
     {
         // Fetch data based on unitKerja and optional search filtering
-        $this->datangs = DetailPengirimanStok::whereHas('user', function ($user) {
+        $this->datangs = DetailPengirimanStok::whereHas('pengirimanStok')->whereHas('user', function ($user) {
             $user->whereHas('unitKerja', function ($unit) {
                 $unit->where('parent_id', $this->unit_id)
                     ->orWhere('id', $this->unit_id);

@@ -18,6 +18,7 @@ class ListKontrakBarang extends Component
     {
         $this->jenis_id = $jenis_id;
 
+
         $merks = MerkStok::whereHas('transaksiStok', function ($query) {
             $query->whereHas('kontrakStok', function ($kontrakQuery) {
                 $kontrakQuery->where('vendor_id', $this->vendor_id)->where('status', true)->where('type', true)->whereHas('user', function ($user) {
@@ -27,6 +28,7 @@ class ListKontrakBarang extends Component
                 });
             });
         })->get();
+
 
         $this->merkList = $merks->map(function ($merk) {
             return [
@@ -39,6 +41,8 @@ class ListKontrakBarang extends Component
         })->filter(function ($merk) {
             return $merk['max_jumlah'] > 0 && $merk['barang_stok']->jenis_id == $this->jenis_id;
         })->values(); // Reset key array agar tetap rapi
+
+
     }
     #[On('vendor_id')]
     public function fillVendor($vendor_id)
@@ -61,7 +65,7 @@ class ListKontrakBarang extends Component
             ->whereHas('kontrakVendorStok', function ($query) {
                 $query->where('vendor_id', $this->vendor_id);
             })
-            ->sum('jumlah');
+            ->sum('jumlah_disetujui');
 
         // Calculate the maximum quantity allowed for this item
         return max($contractTotal - $sentTotal, 0);

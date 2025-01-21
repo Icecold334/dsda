@@ -168,8 +168,9 @@ class ApprovalPengiriman extends Component
         $this->penerimaList = $this->checkApprovePB();
 
 
-
-        $pemeriksa = User::role('Pemeriksa Barang')->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->limit(1)->get();
+        $pemeriksa = User::role('Pemeriksa Barang')->whereHas('unitKerja', function ($subQuery) {
+            $subQuery->where('unit_id', $this->pengiriman->user->unit_id);
+        })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
         $indexPemeriksa = $pemeriksa->search(function ($user) {
             return $user->id == Auth::id();
         });
