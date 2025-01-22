@@ -69,7 +69,6 @@ class ListKontrakBarang extends Component
                 $query->where('vendor_id', $this->vendor_id);
             })
             ->sum('jumlah_diterima');
-        dump($contractTotal);
         // Calculate the maximum quantity allowed for this item
         return max($contractTotal - $sentTotal, 0);
     }

@@ -187,7 +187,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        foreach (range(1, 154) as $index) {
+        foreach (range(1, 890) as $index) {
             DetailPengirimanStok::create([
                 'kode_pengiriman_stok' => $faker->unique()->numerify('PB######'),
                 'tanggal' => strtotime($faker->date),
@@ -199,7 +199,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        foreach (range(1, 509) as $index) {
+        foreach (range(1, 9509) as $index) {
             // Ambil unit kerja secara random yang memiliki kontrak vendor aktif
             $Unit = UnitKerja::whereHas('user.kontrakVendor')->inRandomOrder()->first();
             if (!$Unit) continue;  // Jika tidak ditemukan, skip iterasi ini
@@ -212,11 +212,13 @@ class DatabaseSeeder extends Seeder
 
             // Pilih transaksi dan detail pengiriman yang terkait dengan kontrak ini
             $transaksi = TransaksiStok::where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
-            $detail_pengiriman = DetailPengirimanStok::where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
+            $detail_pengiriman = DetailPengirimanStok::whereHas('user.unitKerja', function ($unit) use ($Unit) {
+                $unit->where('parent_id', $Unit->id)->orWhere('id', $Unit->id);
+            })->where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
             if (!$transaksi || !$detail_pengiriman) continue;  // Jika tidak ditemukan, skip iterasi ini
 
             // Ambil lokasi stok yang terkait dengan unit kerja
-            $lokasi = LokasiStok::where('unit_id', $Unit->id)->inRandomOrder()->first();
+            $lokasi = LokasiStok::where('unit_id', $Unit->parent_id ?? $Unit->id)->inRandomOrder()->first();
             if (!$lokasi) continue;  // Jika tidak ditemukan, skip iterasi ini
 
             // Tentukan bagian dan posisi dalam lokasi

@@ -43,15 +43,23 @@ class AppServiceProvider extends ServiceProvider
     {
 
 
-        // $Unit = UnitKerja::whereHas('user.kontrakVendor')->inRandomOrder()->first();
-        // $kontrak = KontrakVendorStok::whereHas('user.unitKerja')->whereHas('transaksiStok')->whereHas('detailPengiriman.user.unitKerja')->where('type', true)->inRandomOrder()->first();
-        // $detail_pengiriman = DetailPengirimanStok::whereHas('user.UnitKerja', function ($unit) use ($Unit) {
-        //     return $unit->where('parent_id', $Unit->parent_id)->orWhere('id', $Unit->id);
-        // })->where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
-        // // Pilih transaksi yang terkait dengan kontrak yang dipilih
-        // $transaksi = TransaksiStok::where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
+        $Unit = UnitKerja::whereHas('user.kontrakVendor')->inRandomOrder()->first();
+        // dd($Unit);
 
-        // $lokasi = LokasiStok::where('unit_id', $Unit->parent_id ?? $Unit->id)->inRandomOrder()->first();
-        // dd($lokasi, $kontrak);
+        // Pilih kontrak vendor yang terkait dengan unit kerja ini
+        $kontrak = KontrakVendorStok::whereHas('user.unitKerja', function ($query) use ($Unit) {
+            $query->where('parent_id', $Unit->id)->orWhere('id', $Unit->id);
+        })->inRandomOrder()->first();
+
+        // Pilih transaksi dan detail pengiriman yang terkait dengan kontrak ini
+        $transaksi = TransaksiStok::where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
+        $detail_pengiriman = DetailPengirimanStok::whereHas('user.unitKerja', function ($unit) use ($Unit) {
+            return $unit->where('parent_id', $Unit->id)->orWhere('id', $Unit->id);
+        })->where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
+
+        // Ambil lokasi stok yang terkait dengan unit kerja
+        $lokasi = LokasiStok::where('unit_id', $Unit->parent_id ?? $Unit->id)->inRandomOrder()->first();
+
+        dd($lokasi, $kontrak, $detail_pengiriman);
     }
 }
