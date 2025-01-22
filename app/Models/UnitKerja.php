@@ -30,4 +30,8 @@ class UnitKerja extends Model
     {
         return $this->hasMany(UnitKerja::class, 'parent_id');
     }
+    public function user()
+    {
+        return $this->hasMany(User::class, 'unit_id');
+    }
 }

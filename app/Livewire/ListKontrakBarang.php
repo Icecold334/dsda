@@ -38,9 +38,11 @@ class ListKontrakBarang extends Component
                 'max_jumlah' => $this->calculateMaxJumlah($merk->id), // Hitung sekali
                 'satuan' => optional($merk->barangStok->satuanBesar)->nama,
             ];
-        })->filter(function ($merk) {
-            return $merk['max_jumlah'] > 0 && $merk['barang_stok']->jenis_id == $this->jenis_id;
-        })->values(); // Reset key array agar tetap rapi
+        })
+            // ->filter(function ($merk) {
+            //     return $merk['max_jumlah'] > 0 && $merk['barang_stok']->jenis_id == $this->jenis_id;
+            // })
+            ->values(); // Reset key array agar tetap rapi
 
 
     }
@@ -61,12 +63,13 @@ class ListKontrakBarang extends Component
         })->where('merk_id', $merkId)
             ->where('tipe', 'Pemasukan') // Assuming 'Pemasukan' represents contracted quantities
             ->sum('jumlah');
+        // ->sum('jumlah_diterima');
         $sentTotal = PengirimanStok::where('merk_id', $merkId)
             ->whereHas('kontrakVendorStok', function ($query) {
                 $query->where('vendor_id', $this->vendor_id);
             })
-            ->sum('jumlah_disetujui');
-
+            ->sum('jumlah_diterima');
+        dump($contractTotal);
         // Calculate the maximum quantity allowed for this item
         return max($contractTotal - $sentTotal, 0);
     }
