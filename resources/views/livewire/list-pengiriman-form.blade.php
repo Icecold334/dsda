@@ -292,6 +292,8 @@
                             &nbsp;
                         @endif
                     </td>
+                    <td class="px-6 py-3">
+                    </td>
                 </tr>
             @endforeach
         </tbody>

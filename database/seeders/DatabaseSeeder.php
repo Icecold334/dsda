@@ -187,55 +187,55 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        foreach (range(1, 890) as $index) {
-            DetailPengirimanStok::create([
-                'kode_pengiriman_stok' => $faker->unique()->numerify('PB######'),
-                'tanggal' => strtotime($faker->date),
-                'penerima' => $faker->name,
-                'user_id' => User::inRandomOrder()->first()->id,
-                'pj1' => $faker->name,
-                'pj2' => $faker->name,
-                'kontrak_id' => KontrakVendorStok::where('type', true)->inRandomOrder()->first()->id
-            ]);
-        }
+        // foreach (range(1, 890) as $index) {
+        //     DetailPengirimanStok::create([
+        //         'kode_pengiriman_stok' => $faker->unique()->numerify('PB######'),
+        //         'tanggal' => strtotime($faker->date),
+        //         'penerima' => $faker->name,
+        //         'user_id' => User::inRandomOrder()->first()->id,
+        //         'pj1' => $faker->name,
+        //         'pj2' => $faker->name,
+        //         'kontrak_id' => KontrakVendorStok::where('type', true)->inRandomOrder()->first()->id
+        //     ]);
+        // }
 
-        foreach (range(1, 9509) as $index) {
-            // Ambil unit kerja secara random yang memiliki kontrak vendor aktif
-            $Unit = UnitKerja::whereHas('user.kontrakVendor')->inRandomOrder()->first();
-            if (!$Unit) continue;  // Jika tidak ditemukan, skip iterasi ini
+        // foreach (range(1, 9509) as $index) {
+        //     // Ambil unit kerja secara random yang memiliki kontrak vendor aktif
+        //     $Unit = UnitKerja::whereHas('user.kontrakVendor')->inRandomOrder()->first();
+        //     if (!$Unit) continue;  // Jika tidak ditemukan, skip iterasi ini
 
-            // Pilih kontrak vendor yang terkait dengan unit kerja ini
-            $kontrak = KontrakVendorStok::whereHas('user.unitKerja', function ($query) use ($Unit) {
-                $query->where('parent_id', $Unit->id)->orWhere('id', $Unit->id);
-            })->inRandomOrder()->first();
-            if (!$kontrak) continue;  // Jika tidak ditemukan, skip iterasi ini
+        //     // Pilih kontrak vendor yang terkait dengan unit kerja ini
+        //     $kontrak = KontrakVendorStok::whereHas('user.unitKerja', function ($query) use ($Unit) {
+        //         $query->where('parent_id', $Unit->id)->orWhere('id', $Unit->id);
+        //     })->inRandomOrder()->first();
+        //     if (!$kontrak) continue;  // Jika tidak ditemukan, skip iterasi ini
 
-            // Pilih transaksi dan detail pengiriman yang terkait dengan kontrak ini
-            $transaksi = TransaksiStok::where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
-            $detail_pengiriman = DetailPengirimanStok::whereHas('user.unitKerja', function ($unit) use ($Unit) {
-                $unit->where('parent_id', $Unit->id)->orWhere('id', $Unit->id);
-            })->where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
-            if (!$transaksi || !$detail_pengiriman) continue;  // Jika tidak ditemukan, skip iterasi ini
+        //     // Pilih transaksi dan detail pengiriman yang terkait dengan kontrak ini
+        //     $transaksi = TransaksiStok::where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
+        //     $detail_pengiriman = DetailPengirimanStok::whereHas('user.unitKerja', function ($unit) use ($Unit) {
+        //         $unit->where('parent_id', $Unit->id)->orWhere('id', $Unit->id);
+        //     })->where('kontrak_id', $kontrak->id)->inRandomOrder()->first();
+        //     if (!$transaksi || !$detail_pengiriman) continue;  // Jika tidak ditemukan, skip iterasi ini
 
-            // Ambil lokasi stok yang terkait dengan unit kerja
-            $lokasi = LokasiStok::where('unit_id', $Unit->parent_id ?? $Unit->id)->inRandomOrder()->first();
-            if (!$lokasi) continue;  // Jika tidak ditemukan, skip iterasi ini
+        //     // Ambil lokasi stok yang terkait dengan unit kerja
+        //     $lokasi = LokasiStok::where('unit_id', $Unit->parent_id ?? $Unit->id)->inRandomOrder()->first();
+        //     if (!$lokasi) continue;  // Jika tidak ditemukan, skip iterasi ini
 
-            // Tentukan bagian dan posisi dalam lokasi
-            $bagian = BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first();
-            $posisi = $bagian ? PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first() : null;
+        //     // Tentukan bagian dan posisi dalam lokasi
+        //     $bagian = BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first();
+        //     $posisi = $bagian ? PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first() : null;
 
-            // Buat pengiriman stok baru
-            PengirimanStok::create([
-                'detail_pengiriman_id' => $detail_pengiriman->id,
-                'kontrak_id' => $kontrak->id,
-                'merk_id' => $transaksi->merk_id,
-                'tanggal_pengiriman' => strtotime($faker->date),
-                'jumlah' => $faker->numberBetween(1, 30),
-                'lokasi_id' => $lokasi->id,
-                'bagian_id' => $bagian ? $bagian->id : null,
-                'posisi_id' => $posisi ? $posisi->id : null,
-            ]);
-        }
+        //     // Buat pengiriman stok baru
+        //     PengirimanStok::create([
+        //         'detail_pengiriman_id' => $detail_pengiriman->id,
+        //         'kontrak_id' => $kontrak->id,
+        //         'merk_id' => $transaksi->merk_id,
+        //         'tanggal_pengiriman' => strtotime($faker->date),
+        //         'jumlah' => $faker->numberBetween(1, 30),
+        //         'lokasi_id' => $lokasi->id,
+        //         'bagian_id' => $bagian ? $bagian->id : null,
+        //         'posisi_id' => $posisi ? $posisi->id : null,
+        //     ]);
+        // }
     }
 }

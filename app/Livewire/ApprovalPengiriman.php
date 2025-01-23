@@ -348,11 +348,7 @@ class ApprovalPengiriman extends Component
                 }
             }
         } else {
-            $this->pengiriman->persetujuan()->create([
-                'detail_pengiriman_id' => $this->pengiriman->id,
-                'user_id' => Auth::id(),
-                'status' => true,
-            ]);
+
 
             $list = $this->pengiriman->persetujuan;
 
@@ -380,7 +376,11 @@ class ApprovalPengiriman extends Component
             }
         }
 
-
+        $this->pengiriman->persetujuan()->create([
+            'detail_pengiriman_id' => $this->pengiriman->id,
+            'user_id' => Auth::id(),
+            'status' => true,
+        ]);
         return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
 
         // $this->emit('actionSuccess', 'Kontrak berhasil disetujui.');

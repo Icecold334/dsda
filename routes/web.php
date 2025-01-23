@@ -54,6 +54,7 @@ use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\PengaturanPersetujuanController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
+use App\Models\DetailPermintaanStok;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -67,6 +68,27 @@ Route::get('/logout', function () {
     return redirect()->to('/login');
 });
 
+Route::get('/qr/permintaan/{user_id}/{kode}', function ($user_id, $kode) {
+    // Cari aset berdasarkan systemcode
+    $permintaan = DetailPermintaanStok::where('kode_permintaan', $kode)->first();
+
+    // Jika permintaan tidak ditemukan, redirect ke halaman home atau tampilkan pesan error
+    if (!$permintaan) {
+        return redirect()->route('home')->with('error', 'Aset tidak ditemukan.');
+    }
+
+    // Gunakan user_id = 3 sebagai guest, tidak tergantung pada user yang sedang login
+    $user = User::find(3); // Selalu menggunakan user dengan ID 3 (guest)
+    // Auth::loginUsingId(3);
+    $tipe = 'permintaan';
+    // Jika user dengan ID 3 tidak ditemukan, tampilkan pesan error
+    if (!$user) {
+        return redirect()->route('home')->with('error', 'User Guest tidak ditemukan.');
+    }
+
+    // Kembalikan view dengan data aset dan user guest
+    return view('scan_permintaan', compact('permintaan', 'user', 'tipe'));
+})->name('scan_permintaan');
 Route::get('/scan/{user_id}/{systemcode}', function ($user_id, $systemcode) {
     // Cari aset berdasarkan systemcode
     $aset = Aset::with(['histories', 'keuangans', 'jurnals'])->where('systemcode', $systemcode)->first();
@@ -105,6 +127,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/aset/export', [AsetController::class, 'exportExcel'])->name('aset.export');
     Route::get('/aset/{id}/export-pdf', [AsetController::class, 'exportPdf'])->name('aset.export-pdf');
     Route::get('/aset/downlaod-qr/{assetId}', [AsetController::class, 'downloadQrImage'])->name('aset.downloadQrImage');
+    Route::get('/permintaan/downlaod-qr/{kode}', [PermintaanStokController::class, 'downloadQrImage'])->name('permintaan.downloadQrImage');
     Route::resource('aset', AsetController::class);
     Route::put('/aset/{id}/nonaktif', [AsetController::class, 'nonaktif'])->name('show.nonaktif');
     Route::resource('history', HistoryController::class);

@@ -28,15 +28,16 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
-        $this->test();
+        // $this->test();
         // Auth::loginUsingId(1); //superadmin
-        Auth::loginUsingId(3); //kepala unit
+        // Auth::loginUsingId(3); //kepala unit
         // Auth::loginUsingId(7);
         // Auth::loginUsingId(118); //kepala suku dinas
         // Auth::loginUsingId(16); //penanggung jawab
         // Auth::loginUsingId(16); //penanggung jawab
         // Auth::loginUsingId(194); // seksi 
         // Auth::loginUsingId(193); //sudin Sumber Daya Air Kota Administrasi Jakarta Timur
+        Auth::loginUsingId(4);
     }
 
     public function test()
@@ -60,6 +61,6 @@ class AppServiceProvider extends ServiceProvider
         // Ambil lokasi stok yang terkait dengan unit kerja
         $lokasi = LokasiStok::where('unit_id', $Unit->parent_id ?? $Unit->id)->inRandomOrder()->first();
 
-        dd($lokasi, $kontrak, $detail_pengiriman);
+        // dd($lokasi, $kontrak, $detail_pengiriman);
     }
 }

@@ -77,16 +77,18 @@ class ShowStok extends Component
             ->whereHas('detailPengirimanStok', function ($query) {
                 return $query->where('status', 1);
             })
-            ->get()->map(function ($data) {
-                return [
-                    'id' => $data->id,
-                    'merk_id' => $data->merk_id,
-                    'merk' => $data,
-                    'jumlah' => $data->jumlah_diterima,
-                    'tanggal' => $data->created_at->format('Y-m-d H:i:s'),
-                    'type' => 'in',
-                ];
-            });
+            ->get();
+
+        $pengiriman = $pengiriman->isNotEmpty() ? $pengiriman->map(function ($data) {
+            return [
+                'id' => $data->id,
+                'merk_id' => $data->merk_id,
+                'merk' => $data,
+                'jumlah' => $data->jumlah_diterima,
+                'tanggal' => $data->created_at->format('Y-m-d H:i:s'),
+                'type' => 'in',
+            ];
+        }) : collect([]);
 
 
 
@@ -109,21 +111,21 @@ class ShowStok extends Component
             ->whereHas('permintaan.detailPermintaan', function ($query) {
                 return $query->where('status', 1);
             })
-            ->get()->map(function ($data) {
-                return [
-                    'id' => $data->id,
-                    'merk_id' => $data->merk_id,
-                    'merk' => $data,
-                    'jumlah' => $data->jumlah_disetujui,
-                    'tanggal' => $data->created_at->format('Y-m-d H:i:s'),
-                    'type' => 'out',
-                ];
-            });
+            ->get();
+
+        $stokDisetujui = $stokDisetujui->isNotEmpty() ? $stokDisetujui->map(function ($data) {
+            return [
+                'id' => $data->id,
+                'merk_id' => $data->merk_id,
+                'merk' => $data,
+                'jumlah' => $data->jumlah_disetujui,
+                'tanggal' => $data->created_at->format('Y-m-d H:i:s'),
+                'type' => 'out',
+            ];
+        }) : collect([]);
 
         // Gabungkan data
         $history = $pengiriman->merge($stokDisetujui);
-
-
 
 
         // dd($history);

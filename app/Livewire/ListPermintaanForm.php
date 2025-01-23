@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Aset;
 use App\Models\Stok;
 use App\Models\User;
+use BaconQrCode\Writer;
 use Livewire\Component;
 use App\Models\Kategori;
 use App\Models\MerkStok;
@@ -16,11 +17,13 @@ use Livewire\Attributes\On;
 use App\Models\StokDisetujui;
 use Livewire\WithFileUploads;
 use App\Models\PermintaanStok;
+use App\Models\OpsiPersetujuan;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
+use BaconQrCode\Renderer\GDLibRenderer;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PersetujuanPermintaanStok;
@@ -303,11 +306,11 @@ class ListPermintaanForm extends Component
             ->first();
 
 
-        $kodePermintaan = Str::upper(Str::random(10));
+
 
         // Create Detail Permintaan Stok
         $detailPermintaan = DetailPermintaanStok::create([
-            'kode_permintaan' => $kodePermintaan,
+            'kode_permintaan' => $this->generateQRCode(),
             'tanggal_permintaan' => strtotime($this->tanggal_permintaan),
             'unit_id' => $this->unit_id,
             'user_id' => Auth::id(),
@@ -567,7 +570,40 @@ class ListPermintaanForm extends Component
         // Provide feedback
         session()->flash('message', 'Item approved successfully!');
     }
+    private function generateQRCode()
+    {
+        $userId = Auth::id(); // Dapatkan ID pengguna yang login
+        $qrName = strtoupper(Str::random(16)); // Buat nama file acak untuk QR code
 
+        // Tentukan folder dan path target file
+        $qrFolder = "qr_permintaan";
+        $qrTarget = "{$qrFolder}/{$qrName}.png";
+
+        // Konten QR Code (contohnya URL)
+        $qrContent = url("/qr/permintaan/{$userId}/{$qrName}");
+
+        // Pastikan direktori untuk QR Code tersedia
+        if (!Storage::disk('public')->exists($qrFolder)) {
+            Storage::disk('public')->makeDirectory($qrFolder);
+        }
+
+        // Konfigurasi renderer untuk menggunakan GD dengan ukuran 400x400
+        $renderer = new GDLibRenderer(500);
+        $writer = new Writer($renderer);
+
+        // Path absolut untuk menyimpan file
+        $filePath = Storage::disk('public')->path($qrTarget);
+
+        // Hasilkan QR Code ke file
+        $writer->writeFile($qrContent, $filePath);
+
+        // Periksa apakah file berhasil dibuat
+        if (Storage::disk('public')->exists($qrTarget)) {
+            return $qrName; // Kembalikan nama file QR
+        } else {
+            return "0"; // Kembalikan "0" jika gagal
+        }
+    }
     public function removePhoto()
     {
         $this->newBukti = null;

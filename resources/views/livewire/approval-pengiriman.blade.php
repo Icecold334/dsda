@@ -81,7 +81,8 @@
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
                             <span class="mr-9 {{ $pemeriksa->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $pemeriksa->id == auth()->id() ? 'Anda' : $pemeriksa->name }}
+                                {{-- {{ $pemeriksa->id == auth()->id()  ? 'Anda' : $pemeriksa->name }} --}}
+                                {{ false  ? 'Anda' : $pemeriksa->name }}
                             </span>
                             
                             {{-- <i
@@ -93,7 +94,7 @@
 </i> --}}
 <i
                                 class="my-1 fa-solid {{ is_null(
-                                    optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status,
+                                    optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
                                 )
                                     ? 'fa-circle-question text-secondary-600'
                                     : (optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
@@ -166,7 +167,7 @@
     </div>
     {{-- @hasanyrole($roles) --}}
     @if ($showButton && Auth::user()->hasRole('Pemeriksa Barang'))
-        <div class="flex {{ $indikatorPenerima == 0 ? 'hidden' : '' }}">
+        <div class="flex {{ $indikatorPenerima == 0 ? '' : '' }}">
             <div class="flex space-x-2 justify-center w-full">
                 @if ($isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa)
                     <div class="flex flex-col items-center">
@@ -212,10 +213,10 @@
         </div>
     @endif
 
+    {{-- @dump($checkPreviousApproval,$CheckCurrentApproval) --}}
     @hasanyrole('Pejabat Pelaksana Teknis Kegiatan|Pejabat Pembuat Komitmen|Pemeriksa Barang')
     <div class="flex">
         <div class="flex space-x-2 justify-center w-full">
-            @dump($checkPreviousApproval,$CheckCurrentApproval)
             <button 
     type="button"
     onclick="confirmApprove()"

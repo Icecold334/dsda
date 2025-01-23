@@ -121,6 +121,7 @@
                                 <th class="border px-4 py-2">Catatan</th> --}}
                             </tr>
                         </thead>
+                        {{-- @dd($selectedItemHistory) --}}
                         <tbody>
                             @forelse ($selectedItemHistory as $data)
                                 <tr>
@@ -128,7 +129,7 @@
                                         ? '<span class="text-danger-600"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>'
                                         : '<span class="text-success-600"><i class="fa-solid fa-arrow-right-to-bracket"></i></span>' !!}</td>
                                     <td class="border px-4 py-2">{{ $data['jumlah'] }}
-                                        {{ $data['merk']['merk']->barangStok->satuanBesar->nama }}</td>
+                                        {{ $data['merk']->merkStok->barangStok->satuanBesar->nama }}</td>
                                     <td class="border px-4 py-2">
                                         {{ Carbon\Carbon::parse($data['tanggal'])->translatedFormat('d F Y') }}</td>
                                 </tr>
