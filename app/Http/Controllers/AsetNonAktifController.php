@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\aset;
+use App\Models\Aset;
 use App\Models\Merk;
 use App\Models\Toko;
 use App\Models\Lokasi;
