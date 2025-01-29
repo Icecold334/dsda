@@ -78,7 +78,7 @@ class ListPengirimanForm extends Component
             }
 
             // Remove the photo from the list
-            unset($this->list[$index]['bukti']);
+            $this->list[$index]['bukti'] = null;
 
             // Provide feedback if needed
             // session()->flash('success', 'File berhasil dihapus.');
@@ -245,26 +245,9 @@ class ListPengirimanForm extends Component
             foreach ($this->old as $index => $old) {
                 // if (!collect($this->list)->contains('merk_id', $merkId)) {
                 $transaksi = PengirimanStok::findOrFail($old->id);
-                $isEditable = is_null($transaksi->bagian_id) && is_null($transaksi->posisi_id);
-                $this->list[] = [
-                    'id' => $transaksi->id,
-                    'merk_id' => $transaksi->merkStok->id,
-                    'merk' => $transaksi->merkStok,
-                    'detail' => $transaksi->detail_pengiriman_id ?? null,
-                    'bukti' => $transaksi->img,
-                    'lokasi_id' => $transaksi->lokasi_id,
-                    'bagian_id' => $transaksi->bagian_id,
-                    'posisi_id' => $transaksi->posisi_id,
-                    'bagians' => BagianStok::where('lokasi_id', $transaksi->lokasi_id)->get(),
-                    'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
-                    'jumlah' => $transaksi->jumlah ?? 1,
-                    'jumlah_diterima' => $transaksi->jumlah_diterima ?? null,
-                    //$transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
-                    'boolean_jumlah' => $transaksi->jumlah_diterima ?? 0,
-                    'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
-                    'editable' => $isEditable,
-
-                ];
+                // $isEditable = is_null($transaksi->bagian_id) && is_null($transaksi->posisi_id);
+                $isEditable = !$transaksi->status_lokasi;
+                $this->list[] = $this->arrayList($transaksi);
                 // $this->hiddenButtons[$index] = ($transaksi->lokasi_id && $transaksi->bagian_id && $transaksi->bukti) ?? 0;
                 $this->hiddenButtons[$index] = $this->checkPropPenerima($index);
                 $this->dispatch('listCount', count: count($this->list));
@@ -275,6 +258,28 @@ class ListPengirimanForm extends Component
             $this->authLokasi = Auth::user()->lokasi_id ?? 0;
             // dd($this->list);
         }
+    }
+
+    private function arrayList($item)
+    {
+        return [
+            'id' => $item->id,
+            'merk_id' => $item->merkStok->id,
+            'merk' => $item->merkStok,
+            'detail' => $item->detail_pengiriman_id ?? null,
+            'bukti' => $item->img,
+            'lokasi_id' => $item->lokasi_id,
+            'bagian_id' => $item->bagian_id,
+            'posisi_id' => $item->posisi_id,
+            'bagians' => BagianStok::where('lokasi_id', $item->lokasi_id)->get(),
+            'posisis' => PosisiStok::where('bagian_id', $item->bagian_id)->get(),
+            'jumlah' => $item->jumlah ?? 1,
+            'jumlah_diterima' => $item->jumlah_diterima ?? null,
+            //$item->jumlah_diterima ?? ($item->jumlah ?? 1),
+            'boolean_jumlah' => $item->jumlah_diterima ?? 0,
+            'max_jumlah' => $this->calculateMaxJumlah($item->merkStok->id),
+            'editable' => !$item->status_lokasi,
+        ];
     }
 
     public function checkPropPenerima($index)
@@ -376,18 +381,20 @@ class ListPengirimanForm extends Component
         $data = $this->list[$index];
         $data['editable'] = false;
 
+
         if ($data['bukti']) {
             $file = $data['bukti'];
         } else {
             $file = $this->namafile;
         }
         $attr = [
-            'bagian_id' => $data['bagian_id'],
-            'posisi_id' => $data['posisi_id'],
-            'img' => $file
+            'bagian_id' => strlen($data['bagian_id']) ? $data['bagian_id'] : null,
+            'posisi_id' => strlen($data['posisi_id']) ? $data['posisi_id'] : null,
+            'img' => $file,
+            'status_lokasi' => now()
         ];
 
-        if (auth()->user()->can('inventaris_edit_jumlah_diterima')) {
+        if (Auth::user()->can('inventaris_edit_jumlah_diterima')) {
             if ($data['jumlah_diterima'] > $data['jumlah']) {
                 $this->dispatch('error', pesan: "Jumlah barang tidak boleh melebihi dari jumlah yang dikirim!");
                 return;
@@ -403,11 +410,14 @@ class ListPengirimanForm extends Component
 
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
 
-        $this->hiddenButtons[$index] = true;
+        // $this->hiddenButtons[$index] = true;
 
         // $data['bagian_id'] && $data['posisi_id'] && $data['bukti']
         // $this->dispatch('statusAppPenerima', data: 'cek' );
-        return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
+        $newList = $this->arrayList(PengirimanStok::find($data['id']));
+        $this->dispatch('checkApproval');
+        return $this->list[$index] = $newList;
+        // return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
     }
 
     public function refreshData()

@@ -31,6 +31,10 @@ class KontrakVendorStok extends Model
     {
         return $this->belongsTo(MetodePengadaan::class, 'metode_id', 'id');
     }
+    public function jenisStok()
+    {
+        return $this->belongsTo(JenisStok::class, 'jenis_id',);
+    }
     public function dokumen()
     {
         return $this->hasMany(DokumenKontrakStok::class, 'kontrak_id');

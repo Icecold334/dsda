@@ -75,7 +75,7 @@ class DatabaseSeeder extends Seeder
             KontrakVendorStok::create([
                 'nomor_kontrak' => $faker->unique()->bothify('KV#####'),
                 'metode_id' => MetodePengadaan::inRandomOrder()->first()->id,
-                // 'vendor_id' => Toko::inRandomOrder()->first()->id,
+                'jenis_id' => $faker->numberBetween(1, 3),
                 'vendor_id' => Toko::inRandomOrder()->first()->id,
                 'tanggal_kontrak' => strtotime($faker->date()),
                 // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
@@ -89,11 +89,14 @@ class DatabaseSeeder extends Seeder
         for ($i = 0; $i < 1598; $i++) {
             $kontrak = KontrakVendorStok::inRandomOrder()->first();
             $f = $faker->boolean;
+            $jenis_id = $kontrak->jenis_id;
             TransaksiStok::create([
                 'kode_transaksi_stok' => $faker->unique()->numerify('TRX#####'),
                 // 'tipe' => $faker->randomElement(['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']),
                 'tipe' => $f ? 'Pemasukan' : 'Penggunaan Langsung',
-                'merk_id' => MerkStok::inRandomOrder()->first()->id,
+                'merk_id' => MerkStok::whereHas('barangStok.jenisStok', function ($jenis) use ($jenis_id) {
+                    return $jenis->where('id', $jenis_id);
+                })->inRandomOrder()->first()->id,
                 'vendor_id' => $kontrak->vendor_id,
                 'harga' => $faker->numberBetween(200000, 1000000),
                 'ppn' => $faker->randomElement([0, 11, 12]),

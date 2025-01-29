@@ -111,9 +111,11 @@ return new class extends Migration
             $table->date('tanggal_pengiriman');
             $table->integer('jumlah');
             $table->integer('jumlah_diterima')->nullable();
+            $table->timestamp('status_diterima')->nullable();
             $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('cascade');
             $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade');
             $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade');
+            $table->timestamp('status_lokasi')->nullable();
             $table->timestamps();
         });
 
@@ -132,6 +134,7 @@ return new class extends Migration
             $table->foreignId('vendor_id')->constrained('toko', 'id'); // Explicitly set column
             $table->date('tanggal_kontrak');
             $table->foreignId('metode_id')->nullable()->constrained('metode_pengadaan')->onDelete('set null');
+            $table->foreignId('jenis_id')->nullable()->constrained('jenis_stok')->onDelete('cascade'); // Link to unit_kerja table
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('super_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('cascade');

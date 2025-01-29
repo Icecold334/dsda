@@ -18,7 +18,6 @@ class ListKontrakBarang extends Component
     {
         $this->jenis_id = $jenis_id;
 
-
         $merks = MerkStok::whereHas('transaksiStok', function ($query) {
             $query->whereHas('kontrakStok', function ($kontrakQuery) {
                 $kontrakQuery->where('vendor_id', $this->vendor_id)->where('status', true)->where('type', true)->whereHas('user', function ($user) {
@@ -39,9 +38,9 @@ class ListKontrakBarang extends Component
                 'satuan' => optional($merk->barangStok->satuanBesar)->nama,
             ];
         })
-            // ->filter(function ($merk) {
-            //     return $merk['max_jumlah'] > 0 && $merk['barang_stok']->jenis_id == $this->jenis_id;
-            // })
+            ->filter(function ($merk) {
+                return $merk['max_jumlah'] > 0 && $merk['barang_stok']->jenis_id == $this->jenis_id;
+            })
             ->values(); // Reset key array agar tetap rapi
 
 

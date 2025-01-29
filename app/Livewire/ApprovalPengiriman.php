@@ -11,6 +11,7 @@ use App\Models\PengirimanStok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PersetujuanPengirimanStok;
+use Livewire\Attributes\On;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 class ApprovalPengiriman extends Component
@@ -239,6 +240,7 @@ class ApprovalPengiriman extends Component
             })
             ->get();
 
+
         $processedData = $data->map(function ($item) {
 
             $cekApprove = false;
@@ -256,11 +258,9 @@ class ApprovalPengiriman extends Component
              */
 
             $item->pengirimanStok->map(function ($pengiriman) use (&$cekApprove) {
-                // Check the condition for each pengiriman
                 $cekApprove = true;
-                // If any condition is met, set $cekApprove to true
-                $cekApprove = true;
-                if (empty($pengiriman->bagian_id) || empty($pengiriman->posisi_id) || empty($pengiriman->img)) {
+                // if (empty($pengiriman->bagian_id) || empty($pengiriman->posisi_id) || empty($pengiriman->img)) {
+                if (!$pengiriman->status_lokasi) {
                     $cekApprove = false;  // If any condition is met, set $cekApprove to true
                 }
                 // Assign the $cekApprove flag to each pengirimanStok
@@ -277,6 +277,13 @@ class ApprovalPengiriman extends Component
         // Return the processed data
         return $processedData;
     }
+
+    #[On('checkApproval')]
+    public function refreshAproval()
+    {
+        $this->mount();
+    }
+
 
     public function checkApprovPenerimaBarang($id, $user_id)
     {
