@@ -118,14 +118,15 @@ return new class extends Migration
             $table->timestamp('status_lokasi')->nullable();
             $table->timestamps();
         });
-
-        // Schema::create('list_kontrak_stok', function (Blueprint $table) {
-        //     $table->timestamps();
-        //     $table->id();
-        //     $table->foreignId('merk_id')->constrained('merk_stok');
-        //     $table->foreignId('kontrak_id')->constrained('kontrak_vendor_stok');
-        //     $table->integer('jumlah_total');
-        // });
+        Schema::create('stok_diterima', function (Blueprint $table) {
+            $table->id(); // Primary Key
+            $table->foreignId('pengiriman_id')->constrained('pengiriman_stok')->onDelete('cascade'); // Relasi ke pengiriman_barang
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->integer('jumlah_diterima'); // Jumlah stok yang diterima
+            // $table->string('img')->nullable();
+            $table->text('catatan')->nullable(); // Kolom untuk mencatat informasi tambahan
+            $table->timestamps(); // created_at dan updated_at
+        });
         Schema::create('kontrak_vendor_stok', function (Blueprint $table) {
             $table->timestamps();
             $table->id();

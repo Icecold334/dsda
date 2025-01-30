@@ -267,6 +267,7 @@ class ApprovalPengiriman extends Component
                 $pengiriman->cekpeng = $cekApprove;
             });
 
+            $cekApprove = $item->pengirimanStok->whereNull('status_lokasi')->count() == 0;
             // Assign the final value of $cekApprove to the parent item
             $item->cekApprove = $cekApprove;
 
@@ -355,6 +356,15 @@ class ApprovalPengiriman extends Component
                 }
             }
         } else {
+            foreach ($this->approvalFiles as $file) {
+                $path = str_replace('dokumen-persetujuan-pengiriman/', '', $file->storeAs('dokumen-persetujuan-pengiriman', $file->getClientOriginalName(), 'public'));
+                $this->pengiriman->persetujuan()->create([
+                    'detail_pengiriman_id' => $this->pengiriman->id,
+                    'user_id' => Auth::id(),
+                    'status' => true,
+                    'file' => $path
+                ]);
+            }
 
 
             $list = $this->pengiriman->persetujuan;
