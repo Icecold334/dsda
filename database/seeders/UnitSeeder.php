@@ -10,6 +10,7 @@ use App\Models\PosisiStok;
 use Faker\Factory as Faker;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use App\Models\OpsiPersetujuan;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -410,7 +411,7 @@ class UnitSeeder extends Seeder
                 // Simpan konfigurasi persetujuan
                 $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
                     'unit_id' => $unit->id,
-                    'uuid' => \Illuminate\Support\Str::uuid(), // Generate UUID unik
+                    'uuid' => Str::uuid(), // Generate UUID unik
                     'jenis' => $jenis,
                     'tipe' => $tipe,
                     'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
@@ -480,6 +481,43 @@ class UnitSeeder extends Seeder
                         'urutan' => $index + 1,
                     ]);
                 }
+            }
+        }
+        $jenisList = ['barang']; // Daftar jenis
+        $tipe = 'pengiriman'; // Tipe permintaan
+        foreach ($this->units as $unitName => $unitData) {
+            $unit = UnitKerja::where('nama', $unitName)->first();
+
+            // Ambil semua role untuk unit ini
+            $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
+                $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
+            })
+                ->whereHas('roles', function ($role) {
+                    return $role->where('name', 'Pemeriksa Barang');
+                })
+                ->get()
+                ->pluck('id') // Ambil hanya ID
+                ->toArray();
+
+
+
+
+
+
+            $finalizerRole = Arr::random($allRoles);
+
+            foreach ($jenisList as $jenis) {
+                // Simpan konfigurasi persetujuan
+                $approvalConfiguration = OpsiPersetujuan::create([
+                    'unit_id' => $unit->id,
+                    'uuid' => Str::uuid(), // Generate UUID unik
+                    'jenis' => $jenis,
+                    'tipe' => $tipe,
+                    'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
+                    'urutan_persetujuan' => 1, // Urutan persetujuan pertama
+                    'cancel_persetujuan' => 2, // Urutan pembatalan kedua
+                    'user_penyelesai_id' => $finalizerRole, // user penyelesaian
+                ]);
             }
         }
     }

@@ -788,7 +788,7 @@
             @if ($tipe == 'profile' && empty($ttd)) @click="generateTTD" @else wire:click="saveProfil" @endif
             class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
         @can('pengguna_verifikasi_pengguna')
-            @if ($tipe == 'user' && !$other?->email_verified_at)
+            @if ($tipe == 'user' && $other && !$other?->email_verified_at)
                 <button type="button"
                     onclick="confirmRemove('Apakah Anda yakin ingin memverifikasi akun ini?', () => @this.call('verify'))"
                     class="text-warning-900 bg-warning-300 hover:bg-warning-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Verifikasi</button>

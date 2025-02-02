@@ -1,4 +1,7 @@
 <div>
+    <div wire:loading wire:target='downloadExcel'>
+        <livewire:loading>
+    </div>
     <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">Daftar Stok
@@ -119,4 +122,3 @@
 
     {{ $barangs->onEachSide(1)->links() }}
 </div>
-

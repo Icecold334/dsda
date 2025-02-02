@@ -42,7 +42,7 @@ class DataStok extends Component
         // $this->fetchStoks();
     }
 
-    public function fetchBarangs()
+    public function fetchBarangs($excel = false)
     {
         $barang = BarangStok::whereHas('merkStok', function ($merkQuery) {
             $merkQuery->whereHas('stok', function ($stokQuery) {
@@ -66,10 +66,10 @@ class DataStok extends Component
                 $query->whereHas('jenisStok', function ($jenisQuery) {
                     $jenisQuery->where('nama', $this->jenis);
                 });
-            })
+            });
 
-            ->paginate(10);
-            return $barang;
+
+        return $excel ?  $barang->get() : $barang->paginate(10);
     }
 
     // public function fetchStoks()
@@ -133,7 +133,8 @@ class DataStok extends Component
 
     public function downloadExcel()
     {
-        $data = $this->barangs;
+
+        $data = $this->fetchBarangs(true);
         $unit = UnitKerja::find($this->unit_id)->nama;
         $spreadsheet = new Spreadsheet();
         $filterInfo = sprintf(
@@ -283,6 +284,6 @@ class DataStok extends Component
     {
         $barangs = $this->fetchBarangs();
         $stoks = $this->stoks;
-        return view('livewire.data-stok',compact('barangs', 'stoks'));
+        return view('livewire.data-stok', compact('barangs', 'stoks'));
     }
 }

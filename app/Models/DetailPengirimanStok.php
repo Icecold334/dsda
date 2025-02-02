@@ -44,4 +44,8 @@ class DetailPengirimanStok extends Model
     {
         return $this->morphMany(FileSource::class, 'fileable');
     }
+    public function opsiPersetujuan()
+    {
+        return $this->belongsTo(OpsiPersetujuan::class, 'approval_configuration_id');
+    }
 }

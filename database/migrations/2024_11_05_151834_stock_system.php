@@ -90,6 +90,7 @@ return new class extends Migration
         Schema::create('detail_pengiriman_stok', function (Blueprint $table) {
             $table->id();
             $table->string('kode_pengiriman_stok')->nullable();
+            $table->foreignId('approval_configuration_id')->nullable()->constrained('opsi_persetujuan')->onDelete('set null');
             $table->string('tanggal')->nullable();
             $table->string('penerima')->nullable();
             $table->string('pj1')->nullable();

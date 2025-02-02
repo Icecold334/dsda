@@ -158,7 +158,7 @@
         {{-- @endrole --}}
     </div>
     {{-- @hasanyrole($roles) --}}
-    @if ($showButton && Auth::user()->hasRole('Pemeriksa Barang'))
+    @if ($showButton && !Auth::user()->hasRole('Penerima Barang'))
         <div class="flex {{ $indikatorPenerima == 0 ? '' : '' }}">
             <div class="flex space-x-2 justify-center w-full">
                 {{-- @if ($isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa) --}}
@@ -198,10 +198,12 @@
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     Setuju
                 </button>
+                @if (Auth::user()->hasRole('Pemeriksa Barang'))
                 <button type="button" onclick="confirmReject()"
                     class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     Tidak Setuju
                 </button>
+                @endif
             </div>
 
         </div>

@@ -24,12 +24,16 @@ return new class extends Migration
             $table->integer('urutan_persetujuan')->nullable(); // Urutan untuk menentukan jumlah barang
             $table->integer('cancel_persetujuan')->nullable();
             $table->unsignedBigInteger('jabatan_penyelesai_id')->nullable(); // Jabatan penyelesaian
+            $table->unsignedBigInteger('user_penyelesai_id')->nullable(); // Jabatan penyelesaian
             $table->timestamps();
 
-            // Relasi ke tabel roles jika menggunakan Spatie Roles
             $table->foreign('jabatan_penyelesai_id')
                 ->references('id')
                 ->on('roles')
+                ->nullOnDelete();
+            $table->foreign('user_penyelesai_id')
+                ->references('id')
+                ->on('users')
                 ->nullOnDelete();
         });
 

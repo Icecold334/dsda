@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\OpsiPersetujuan;
 use Carbon\Carbon;
 use App\Models\Stok;
 use App\Models\User;
@@ -124,9 +125,11 @@ class ApprovalPengiriman extends Component
         $this->lastPpk = $indexPpk === $ppk->count() - 1; // Check if current user is the last user
         $this->ppkList = $ppk;
         // dd(PengirimanStok::where('detail_pengiriman_id', $this->pengiriman->id)->pluck('lokasi_id'));
-        $penerima = User::with(['pengirimanStok' => function ($query) {
-            $query->where('detail_pengiriman_id', $this->pengiriman->id);
-        }])
+        $penerima = User::with([
+            'pengirimanStok' => function ($query) {
+                $query->where('detail_pengiriman_id', $this->pengiriman->id);
+            }
+        ])
             ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
             ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
             ->whereHas('lokasiStok', function ($query) {
@@ -136,9 +139,11 @@ class ApprovalPengiriman extends Component
                 );
             })
             ->get();
-        $penerima = User::with(['pengirimanStok' => function ($query) {
-            $query->where('detail_pengiriman_id', $this->pengiriman->id);
-        }])
+        $penerima = User::with([
+            'pengirimanStok' => function ($query) {
+                $query->where('detail_pengiriman_id', $this->pengiriman->id);
+            }
+        ])
             ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
             ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
             ->whereHas('lokasiStok', function ($query) {
@@ -148,9 +153,11 @@ class ApprovalPengiriman extends Component
                 );
             })
             ->get();
-        $penerima = User::with(['pengirimanStok' => function ($query) {
-            $query->where('detail_pengiriman_id', $this->pengiriman->id);
-        }])
+        $penerima = User::with([
+            'pengirimanStok' => function ($query) {
+                $query->where('detail_pengiriman_id', $this->pengiriman->id);
+            }
+        ])
             ->role('Penerima Barang') // Pastikan metode `role` didefinisikan jika menggunakan Spatie Laravel Permission
             ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
             ->whereHas('lokasiStok', function ($query) {
@@ -168,10 +175,23 @@ class ApprovalPengiriman extends Component
         $this->lastPenerima = $indexPenerima === $penerima->count() - 1; // Check if current user is the last user
         $this->penerimaList = $this->checkApprovePB();
 
+        $optionLastPemeriksa = $this->pengiriman->opsiPersetujuan->userPenyelesai;
 
         $pemeriksa = User::role('Pemeriksa Barang')->whereHas('unitKerja', function ($subQuery) {
             $subQuery->where('unit_id', $this->pengiriman->user->unit_id);
         })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+        // Cari dan hapus $optionLastPemeriksa dari collection $pemeriksa jika ada
+        $filteredPemeriksa = $pemeriksa->reject(function ($user) use ($optionLastPemeriksa) {
+            return $user->id === $optionLastPemeriksa->id;
+        });
+
+        // Tambahkan $optionLastPemeriksa kembali ke akhir collection
+        $pemeriksa = $filteredPemeriksa->push($optionLastPemeriksa);
+
+
+
+
+
         $indexPemeriksa = $pemeriksa->search(function ($user) {
             return $user->id == Auth::id();
         });
@@ -194,8 +214,8 @@ class ApprovalPengiriman extends Component
             ->count();
 
         // Menggabungkan list approval sesuai urutan yang benar
-        $allApproval = $this->pemeriksaList
-            // ->merge($this->pemeriksaList)
+        $allApproval = $this->penerimaList
+            ->merge($this->pemeriksaList)
             ->merge($this->pptkList)
             ->merge($this->ppkList);
         $index = $allApproval->search(function ($user) {
@@ -203,13 +223,27 @@ class ApprovalPengiriman extends Component
         });
         if ($index === 0) {
             $currentUser = $allApproval[$index];
-            $this->showButton = !$currentUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
+            $this->showButton = !$currentUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists() && !$this->pengiriman->pengirimanStok->whereNull('status_lokasi')->count() &&
+                (
+                    !$currentUser->hasRole('Pemeriksa Barang') ? 1 : ($this->pengiriman->pengirimanStok->map(function ($pengiriman) {
+                        return $pengiriman->stokDiterima->where('user_id', $pengiriman);
+                    }))
+                );
         } else {
             $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
             $currentUser = $allApproval[$index];
+            // dump(
+
+            // );
             $this->showButton =
                 $previousUser && !$currentUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists() &&
-                $previousUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
+                $previousUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists() && !$this->pengiriman->pengirimanStok->whereNull('status_lokasi')->count() &&
+                (
+                    !$currentUser->hasRole('Pemeriksa Barang') ? 1 : $this->pengiriman->pengirimanStok->map(function ($pengiriman) use ($currentUser) {
+                        return $pengiriman->stokDiterima->where('user_id', $currentUser->id)->where('pengiriman_id', $pengiriman->id);
+                    })->flatten(1)->count() ==
+                    $this->pengiriman->pengirimanStok->count()
+                );
         }
 
         // $this->indikatorPenerima = $this->checkApprovPenerimaBarang($this->pengiriman->id, Auth::id()); 
@@ -223,7 +257,12 @@ class ApprovalPengiriman extends Component
 
     public $indikatorPenerima, $checkPreviousApproval, $CheckCurrentApproval;
 
+    #[On('itemApproved')]
+    public function refreshButton()
+    {
 
+        $this->mount();
+    }
     public function checkApprovePB()
     {
         $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
@@ -245,18 +284,6 @@ class ApprovalPengiriman extends Component
 
             $cekApprove = false;
 
-            // Iterate through each pengirimanStok of the current item
-            /**
-             * Namanya metode Pass-by-reference (menggunakan &)
-             * kegunaan & pada variabel berguna untuk meneruskan 
-             * Penggunaan &$cekApprove dalam 
-             * kode Anda merujuk pada pass-by-reference. Artinya, 
-             * saat Anda menggunakannya di dalam closure (fungsi anonim) yang dipakai dalam map, 
-             * variabel $cekApprove akan diteruskan ke dalam fungsi tersebut dengan referensinya, 
-             * bukan dengan salinannya. Dengan begitu, setiap kali Anda mengubah nilai $cekApprove di dalam closure, perubahan tersebut akan langsung mempengaruhi 
-             * variabel $cekApprove di luar closure, dalam konteks objek $item.
-             */
-
             $item->pengirimanStok->map(function ($pengiriman) use (&$cekApprove) {
                 $cekApprove = true;
                 // if (empty($pengiriman->bagian_id) || empty($pengiriman->posisi_id) || empty($pengiriman->img)) {
@@ -270,6 +297,13 @@ class ApprovalPengiriman extends Component
             $cekApprove = $item->pengirimanStok->whereNull('status_lokasi')->count() == 0;
             // Assign the final value of $cekApprove to the parent item
             $item->cekApprove = $cekApprove;
+            if ($cekApprove) {
+                $this->pengiriman->persetujuan()->firstOrCreate([
+                    'detail_pengiriman_id' => $this->pengiriman->id,
+                    'user_id' => $item->id,
+                    'status' => true,
+                ]);
+            }
 
             // Return the modified item
             return $item;
@@ -351,7 +385,7 @@ class ApprovalPengiriman extends Component
                         ['jumlah' => 0]  // Atur stok awal jika belum ada
                     );
 
-                    $stok->jumlah += $pengiriman->jumlah;
+                    $stok->jumlah += $pengiriman->jumlah_diterima;
                     $stok->save();
                 }
             }
@@ -528,10 +562,11 @@ class ApprovalPengiriman extends Component
                     ['jumlah' => 0]  // Atur stok awal jika belum ada
                 );
 
-                $stok->jumlah += $pengiriman->jumlah;
+                $stok->jumlah += $pengiriman->jumlah_diterima;
                 $stok->save();
             }
         }
+        return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
     }
 
     public function rejectConfirmed($reason)

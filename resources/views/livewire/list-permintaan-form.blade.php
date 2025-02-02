@@ -128,7 +128,7 @@
                                                     class="w-16 h-16 rounded-md">
                                             </a>
                                         @else
-                                            <span class="text-gray-500">Bukti tidak valid</span>
+                                            <span class="text-gray-500 text-sm">Tidak ada unggahan</span>
                                         @endif
                                         {{-- <button wire:click="removePhoto"
                                                 class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-xs hover:bg-red-700">
@@ -158,10 +158,10 @@
                                                 <!-- Tombol untuk menyetujui -->
                                                 <button wire:click="openApprovalModal({{ $item['id'] }})"
                                                     class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                                    Setujui
+                                                    Detail
                                                 </button>
                                             @else
-                                                <div>Menunggu {{ $approve_after }}</div>
+                                                <div class="text-sm">Menunggu {{ $approve_after }}</div>
                                             @endif
                                         @endcan
                                     @endif
@@ -284,7 +284,7 @@
                                             id="upload-newBukti">
                                         <button type="button"
                                             onclick="document.getElementById('upload-newBukti').click()"
-                                            class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                            class="text-primary-700 bg-gray-200 border text-sm border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
                                             Unggah Foto
                                         </button>
                                     @endif
@@ -376,7 +376,7 @@
 
         <div class="flex justify-center">
             {{-- @role('penanggungjawab') --}}
-            @if (count($this->list) > 0 && $showAdd)
+            @if (count($list) > 0 && $showAdd)
                 <button wire:click="saveData"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Simpan

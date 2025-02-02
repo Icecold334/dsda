@@ -299,7 +299,7 @@ class ListPermintaanForm extends Component
     public function saveData()
     {
 
-        $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('jenis', $this->requestIs == 'permintaan' ? 'umum' : ($this->requestIs == 'spare-part' ? 'spare-part' : 'material'))
+        $latestApprovalConfiguration = OpsiPersetujuan::where('jenis', $this->requestIs == 'permintaan' ? 'umum' : ($this->requestIs == 'spare-part' ? 'spare-part' : 'material'))
             ->where('unit_id', $this->unit_id)
             ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
             ->latest()
@@ -457,7 +457,7 @@ class ListPermintaanForm extends Component
     }
     public function updated()
     {
-        $this->ruleAdd = $this->requestIs == 'permintaan' ? $this->newBarang && $this->newJumlah : ($this->requestIs == 'spare-part' ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi : $this->newBarang && $this->newJumlah  && $this->newBukti && $this->newDeskripsi);
+        $this->ruleAdd = $this->requestIs == 'permintaan' ? $this->newBarang && $this->newJumlah : ($this->requestIs == 'spare-part' ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi : $this->newBarang && $this->newJumlah  && $this->newDeskripsi);
     }
     public $tipe;
     public function mount()

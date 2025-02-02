@@ -25,7 +25,6 @@
         <tbody>
             @if ($showDokumen)
                 <tr>
-
                     <th colspan="5"></th>
                     <th>Diajukan *</th>
                     <th>Diterima </th>
@@ -129,9 +128,9 @@
                             @if ($showDokumen)
                                 <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value=""
                                     wire:model="list.{{ $index }}.jumlah_diterima"
-                                    wire:model.live="list.{{ $index }}.jumlah_diterima"
-                                    @cannot('inventaris_edit_jumlah_diterima') disabled @endcannot
-                                    class="bg-gray-50 border {{ $showDokumen === 1 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    wire:model.live="list.{{ $index }}.jumlah_diterima" {{-- @cannot('inventaris_edit_jumlah_diterima') disabled @endcannot --}}
+                                    disabled
+                                    class="bg-gray-50 border {{ 1 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                     min="1" {{-- max="{{ $item['max_jumlah'] }}" --}} placeholder="Jumlah">
                                 <span
                                     class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
@@ -211,13 +210,14 @@
                             <!-- Without permission, show "Belum ada unggahan" -->
                             {{-- <span class="text-gray-500">Belum ada unggahan</span> --}}
                             <!-- Your content or logic here -->
-                            @can('inventaris_edit_jumlah_diterima')
-                                <button wire:click="updatePengirimanStok({{ $index }})"
-                                    class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
-                            {{ isset($item['jumlah_diterima']) > 0 && $item['jumlah_diterima'] ? '' : 'hidden' }}">
-                                    <i class="fa-solid fa-circle-check"></i>
-                                </button>
-                            @endcan
+                            {{-- @can('inventaris_edit_jumlah_diterima') --}}
+                            <button wire:click="openApprovalModal({{ $item['id'] }})"
+                                class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
+                            {{-- {{ $showButtonPemeriksa && !$item['editable'] ? '' : 'hidden' }}"> --}}
+                            {{ !$item['editable'] ? '' : 'hidden' }}">
+                                <i class="fa-solid fa-info"></i>
+                            </button>
+                            {{-- @endcan --}}
                         @endif
 
                     </td>
@@ -227,6 +227,8 @@
         </tbody>
     </table>
     <div class="flex justify-center mt-4">
+        {{-- @dump($showApprovalModal, $approvalData, $selectedItemId) --}}
+
         @if (!$showDokumen && collect($list)->count() > 0)
             <button wire:click="savePengiriman"
                 class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5">
@@ -234,5 +236,139 @@
             </button>
         @endif
     </div>
+
+    @if ($showApprovalModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+            <div class="bg-white rounded-lg shadow-lg w-2/3">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 class="text-xl font-semibold">Setujui Pengiriman Barang</h3>
+                    <button wire:click="openApprovalModal({{ $selectedItemId }})"
+                        class="text-gray-500 hover:text-gray-800">
+                        &times;
+                    </button>
+                </div>
+                {{-- @dd($approvalData) --}}
+                <!-- Modal Body -->
+                <div class="p-4 space-y-4">
+
+                    <!-- Daftar Lokasi, Jumlah, dan Catatan -->
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-200 text-left">
+                                <th class="border px-4 py-2">Nama</th>
+                                <th class="border px-4 py-2">Jumlah Disetujui</th>
+                                <th class="border px-4 py-2">Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($approvalData as $index => $pengiriman)
+                                <tr>
+
+                                    <td
+                                        class="border px-4 py-2 {{ auth()->id() == $pengiriman['id'] ? 'font-semibold' : '' }}">
+                                        {{ $pengiriman['nama'] }}</td>
+
+                                    <td class="border px-4 py-2">
+                                        <input type="number" wire:model="approvalData.{{ $index }}.jumlah"
+                                            @disabled($pengiriman['jumlah'] || !$showButtonPemeriksa || auth()->id() != $pengiriman['id'])
+                                            class="w-full {{ $pengiriman['jumlah'] || !$showButtonPemeriksa || auth()->id() != $pengiriman['id'] ? 'cursor-not-allowed bg-gray-200' : '' }} border rounded px-2 py-1"
+                                            min="0">
+                                    </td>
+                                    <td class="border px-4 py-2">
+                                        <textarea wire:model="approvalData.{{ $index }}.catatan" @disabled($pengiriman['jumlah'] || !$showButtonPemeriksa || auth()->id() != $pengiriman['id'])
+                                            class="w-full {{ $pengiriman['jumlah'] || !$showButtonPemeriksa || auth()->id() != $pengiriman['id'] ? 'cursor-not-allowed bg-gray-200' : '' }} border rounded px-2 py-1"
+                                            rows="1" placeholder="Belum ada catatan"></textarea>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td class="font-semibold py-4 text-center" colspan="7">Barang Tidak Tersedia
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-end p-4 border-t">
+                    <button wire:click="approveItem({{ $selectedItemId }})" {{-- optional(collect($approvalData)->where('id', auth()->id())->first())['jumlah'] --}}
+                        class="bg-primary-500 {{ !optional(
+                            collect($approvalData)->where('id', auth()->id())->first(),
+                        )['jumlah'] &&
+                        $showButtonPemeriksa &&
+                        auth()->id() ==
+                            optional(
+                                collect($approvalData)->where('id', auth()->id())->first(),
+                            )['id']
+                            ? ''
+                            : 'hidden' }} hover:bg-primary-700 text-white font-bold py-2 px-4 rounded">
+                        Setujui
+                    </button>
+                    <button wire:click="openApprovalModal({{ $selectedItemId }})"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ml-2">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
+    {{-- @if ($noteModalVisible)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+            <div class="bg-white rounded-lg shadow-lg w-1/2">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 class="text-xl font-semibold">Catatan Persetujuan</h3>
+                    <button wire:click="$set('noteModalVisible', false)" class="text-gray-500 hover:text-gray-800">
+                        &times;
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="p-4 space-y-4">
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-200 text-left">
+                                <th class="border px-4 py-2">Spesifikasi</th>
+
+                                <th class="border px-4 py-2">Lokasi</th>
+                                <th class="border px-4 py-2">Bagian</th>
+                                <th class="border px-4 py-2">Posisi</th>
+                                <th class="border px-4 py-2">Jumlah Disetujui</th>
+                                <th class="border px-4 py-2">Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($selectedItemNotes as $note)
+                                <tr>
+                                    <td class="border px-4 py-2">
+                                        <div>Merk : {{ $note['merk']->nama ?? '-' }}</div>
+                                        <div>Tipe : {{ $note['merk']->ukuran ?? '-' }}</div>
+                                        <div>Ukuran : {{ $note['merk']->tipe ?? '-' }}</div>
+                                    </td>
+                                    <td class="border px-4 py-2">{{ $note['lokasi'] }}</td>
+                                    <td class="border px-4 py-2">{{ $note['bagian'] }}</td>
+                                    <td class="border px-4 py-2">{{ $note['posisi'] }}</td>
+                                    <td class="border px-4 py-2">{{ $note['jumlah_disetujui'] }}</td>
+                                    <td class="border px-4 py-2">{{ $note['catatan'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-end p-4 border-t">
+                    <button wire:click="$set('noteModalVisible', false)"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif --}}
 
 </div>

@@ -150,11 +150,11 @@ class ApprovalPermintaan extends Component
                 Notification::send($user, new UserNotification($message, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
             $cancelAfter = $permintaan->opsiPersetujuan->cancel_persetujuan;
-            if ($currentIndex + 1 == $cancelAfter) {
-                $this->permintaan->update([
-                    'cancel' => 0,
-                ]);
-            }
+            // if ($currentIndex + 1 == $cancelAfter) {
+            //     $this->permintaan->update([
+            //         'cancel' => 0,
+            //     ]);
+            // }
         }
 
         $this->permintaan->persetujuan()->create([

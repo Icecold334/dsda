@@ -99,4 +99,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(PengirimanStok::class, 'lokasi_id', 'lokasi_id');
     }
+
+    public function opsi()
+    {
+        return $this->hasMany(OpsiPersetujuan::class, 'user_penyelesai_id');
+    }
+    public function stokDiterima()
+    {
+        return $this->hasMany(StokDiterima::class, 'user_id');
+    }
 }
