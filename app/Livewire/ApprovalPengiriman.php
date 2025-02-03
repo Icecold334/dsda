@@ -348,7 +348,7 @@ class ApprovalPengiriman extends Component
             ->merge($this->pemeriksaList)
             ->merge($this->pptkList)
             ->merge($this->ppkList);
-        dd($list);
+        // dd($list);
         // if ($this->lastPj || $this->lastPpk || $this->lastPptk || $this->lastPenerima || $this->lastPemeriksa) {
         if ($this->lastPj || $this->lastPpk || $this->lastPptk || $this->lastPenerima || $this->lastPemeriksa) {
             foreach ($this->approvalFiles as $file) {
