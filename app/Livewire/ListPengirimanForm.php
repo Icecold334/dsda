@@ -11,17 +11,19 @@ use App\Models\BagianStok;
 use App\Models\LokasiStok;
 use App\Models\PosisiStok;
 use Livewire\Attributes\On;
+use App\Models\StokDiterima;
 use Spatie\Permission\Guard;
 use App\Models\TransaksiStok;
 use Livewire\WithFileUploads;
 use App\Models\PengirimanStok;
 use App\Models\OpsiPersetujuan;
 use App\Models\DetailPengirimanStok;
-use App\Models\StokDiterima;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
 
 class ListPengirimanForm extends Component
 {
@@ -241,6 +243,15 @@ class ListPengirimanForm extends Component
         // $this->vendor_id = null;
         // $this->mount();
         if (!$this->showDokumen) {
+            $message = 'Pengirimaan <span class="font-bold">' . $detailPengiriman->kode_pengiriman_stok . '</span> membutuhkan persetujuan Anda.';
+            foreach ($detailPengiriman->pengirimanStok->unique('lokasi_id') as $pengiriman) {
+                $user = User::where('lokasi_id', $pengiriman->lokasi_id)->whereHas('unitKerja', function ($unit) {
+                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                })->get()->filter(function ($user) use ($pengiriman) {
+                    return $user->hasRole(['Penerima Barang']);
+                })->first();
+                Notification::send($user, new UserNotification($message, "/pengiriman-stok/{$detailPengiriman->id}"));
+            }
             return redirect()->route('pengiriman-stok.index');
         }
     }
@@ -540,13 +551,35 @@ class ListPengirimanForm extends Component
         $id_pengiriman = $data['id'];
 
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
-
+        $pengiriman = PengirimanStok::find($id_pengiriman);
         // $this->hiddenButtons[$index] = true;
 
         // $data['bagian_id'] && $data['posisi_id'] && $data['bukti']
         // $this->dispatch('statusAppPenerima', data: 'cek' );
         $newList = $this->arrayList(PengirimanStok::find($data['id']));
         $this->dispatch('checkApproval');
+
+        $detailPengiriman = DetailPengirimanStok::find($pengiriman->detail_pengiriman_id);
+        $checkPenerimaDone = $detailPengiriman->pengirimanStok->count() == $detailPengiriman->pengirimanStok->whereNotNull('status_lokasi')->count();
+
+        if ($checkPenerimaDone) {
+            $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
+
+            $optionLastPemeriksa = $this->pengiriman->opsiPersetujuan->userPenyelesai;
+
+            $pemeriksa = User::role('Pemeriksa Barang')->whereHas('unitKerja', function ($subQuery) {
+                $subQuery->where('unit_id', $this->pengiriman->user->unit_id);
+            })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+            // Cari dan hapus $optionLastPemeriksa dari collection $pemeriksa jika ada
+            $filteredPemeriksa = $pemeriksa->reject(function ($user) use ($optionLastPemeriksa) {
+                return $user->id === $optionLastPemeriksa->id;
+            });
+
+            // Tambahkan $optionLastPemeriksa kembali ke akhir collection
+            $user = $filteredPemeriksa->push($optionLastPemeriksa)->first();
+            $message = 'Pengirimaan <span class="font-bold">' . $detailPengiriman->kode_pengiriman_stok . '</span> membutuhkan persetujuan Anda.';
+            Notification::send($user, new UserNotification($message, "/pengiriman-stok/{$detailPengiriman->id}"));
+        }
         return $this->list[$index] = $newList;
         // return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
     }

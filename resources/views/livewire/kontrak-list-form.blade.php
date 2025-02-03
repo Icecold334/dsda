@@ -215,6 +215,9 @@
         @endif
 
     </table>
+    <div wire:loading wire:target='saveKontrak'>
+        <livewire:loading />
+    </div>
     @if ($vendor_id && $jenis_id && $metode_id)
         {{-- @if (true) --}}
         @if (

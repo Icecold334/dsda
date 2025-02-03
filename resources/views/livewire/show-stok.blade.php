@@ -125,9 +125,14 @@
                         <tbody>
                             @forelse ($selectedItemHistory as $data)
                                 <tr>
-                                    <td class="border px-4 py-2 w-1/12"> {!! $data['type'] === 'out'
-                                        ? '<span class="text-danger-600"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>'
-                                        : '<span class="text-success-600"><i class="fa-solid fa-arrow-right-to-bracket"></i></span>' !!}</td>
+                                    <td class="border px-4 py-2 w-1/12">
+                                        <span
+                                            class="{{ $data['type'] === 'out' ? 'text-danger-600' : ($data['type'] === 'in' ? 'text-success-600' : 'text-warning-700') }}">
+                                            <i
+                                                class="{{ $data['type'] === 'out' ? 'fa-solid fa-arrow-right-from-bracket' : ($data['type'] === 'in' ? 'fa-solid fa-arrow-right-to-bracket' : 'fa-regular fa-hourglass-half') }}"></i>
+                                        </span>
+                                    </td>
+
                                     <td class="border px-4 py-2">{{ $data['jumlah'] }}
                                         {{ $data['merk']->merkStok->barangStok->satuanBesar->nama }}</td>
                                     <td class="border px-4 py-2">

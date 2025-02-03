@@ -344,6 +344,11 @@ class ApprovalPengiriman extends Component
 
     public function approveConfirmed()
     {
+        $list = $this->penerimaList
+            ->merge($this->pemeriksaList)
+            ->merge($this->pptkList)
+            ->merge($this->ppkList);
+        dd($list);
         // if ($this->lastPj || $this->lastPpk || $this->lastPptk || $this->lastPenerima || $this->lastPemeriksa) {
         if ($this->lastPj || $this->lastPpk || $this->lastPptk || $this->lastPenerima || $this->lastPemeriksa) {
             foreach ($this->approvalFiles as $file) {
@@ -367,6 +372,7 @@ class ApprovalPengiriman extends Component
                 ]);
             }
             $list = $this->pengiriman->persetujuan;
+            dd($list);
             $filteredList = $list->filter(function ($approval) {
                 return $approval->status;
             })->unique('user_id');

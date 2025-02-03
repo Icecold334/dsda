@@ -373,7 +373,9 @@
         </table>
 
 
-
+        <div wire:loading wire:target='saveData'>
+            <livewire:loading />
+        </div>
         <div class="flex justify-center">
             {{-- @role('penanggungjawab') --}}
             @if (count($list) > 0 && $showAdd)

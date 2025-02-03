@@ -92,12 +92,6 @@ class ShowStok extends Component
 
 
 
-        $transaksi = TransaksiStok::select('id', 'merk_id', 'jumlah', 'created_at as tanggal', DB::raw("'in' as type"))
-            ->where('merk_id', $stok->merk_id)
-            ->where('lokasi_id', $stok->lokasi_id)
-            ->where('status', 1)
-            ->get()
-            ->toArray();
 
         // Ambil data dari model StokDisetujui
         $stokDisetujui = StokDisetujui::where('merk_id', $stok->merk_id)
@@ -124,8 +118,34 @@ class ShowStok extends Component
             ];
         }) : collect([]);
 
+
+        // Ambil data dari model StokDisetujui
+        $permintaan_pending = StokDisetujui::where('merk_id', $stok->merk_id)
+            ->where('lokasi_id', $stok->lokasi_id)
+            ->when($stok->bagian_id, function ($query) use ($stok) {
+                return $query->where('bagian_id', $stok->bagian_id);
+            })
+            ->when($stok->posisi_id, function ($query) use ($stok) {
+                return $query->where('posisi_id', $stok->posisi_id);
+            })
+            ->whereHas('permintaan.detailPermintaan', function ($query) {
+                return $query->where('cancel', 0)->where('status', '!=', 1);
+            })
+            ->get();
+
+        $permintaan_pending = $permintaan_pending->isNotEmpty() ? $permintaan_pending->map(function ($data) {
+            return [
+                'id' => $data->id,
+                'merk_id' => $data->merk_id,
+                'merk' => $data,
+                'jumlah' => $data->jumlah_disetujui,
+                'tanggal' => $data->created_at->format('Y-m-d H:i:s'),
+                'type' => 'pending',
+            ];
+        }) : collect([]);
+
         // Gabungkan data
-        $history = $pengiriman->merge($stokDisetujui);
+        $history = $pengiriman->merge($stokDisetujui)->merge($permintaan_pending);
 
 
         // dd($history);
