@@ -193,8 +193,8 @@ class DataPermintaan extends Component
 
     public function downloadExcel()
     {
-        $this->applyFilters();
-        $data = $this->permintaans;
+
+        $data = $this->applyFilters();
         $unit = UnitKerja::find($this->selected_unit_id)?->nama;
         $spreadsheet = new Spreadsheet();
         $filterInfo = sprintf(

@@ -80,15 +80,14 @@
                         <td>Sub-Unit</td>
                         <td>{{ $permintaan->subUnit->nama ?? '---' }}</td>
                     </tr>
+                    <tr class="font-semibold">
+                        <td>Keterangan</td>
+                        <td>{{ $permintaan->keterangan ?? '---' }}</td>
+                    </tr>
                 </table>
             </x-card>
         </div>
-        <div class="grid grid-cols-{{ $permintaan->cancel === 0 ? '2' : '1' }} gap-6">
-            <x-card title="keterangan" class="mb-3">
-                <div class="font-normal">
-                    {{ $permintaan->keterangan }}
-                </div>
-            </x-card>
+        <div class="grid gap-6">
             @if ($permintaan->cancel === 0)
                 <x-card title="QR Code" class="mb-3">
                     <div class="flex justify-around">
