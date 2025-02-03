@@ -31,7 +31,7 @@
                     ]" />
                     <livewire:nav-item title="Rekam Kontrak" :child="[
                         ['href' => '/kontrak-vendor-stok', 'title' => 'Daftar Kontrak'],
-                        ['href' => '/transaksi-darurat-stok', 'title' => 'Transaksi Belum Berkontrak'],
+                        // ['href' => '/transaksi-darurat-stok', 'title' => 'Transaksi Belum Berkontrak'],
                     ]" />
 
                     <livewire:nav-item href="/permintaan-stok" title="Pelayanan Umum" />
@@ -72,14 +72,14 @@
                     Kalender Aset
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                    <livewire:nav-item href="/qrprint"
+                    {{-- <livewire:nav-item href="/qrprint"
                         title='<button data-tooltip-target="tooltipQR" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-print"></i></button>
 
                 <div id="tooltipQR" role="tooltip"
                     class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                     Cetak QR-Code
                     <div class="tooltip-arrow" data-popper-arrow></div>
-                </div>' />
+                </div>' /> --}}
                     <livewire:nav-item href="/option"
                         title='<button data-tooltip-target="tooltipPengaturan" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-gear"></i></button>
 
@@ -88,7 +88,7 @@
                     Pengaturan
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                    @if (Auth::user()->unit_id)
+                    {{-- @if (Auth::user()->unit_id)
                         <livewire:nav-item href="/option-approval"
                             title='<button data-tooltip-target="tooltipPengaturanApproval" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-list-check"></i></button>
 
@@ -97,7 +97,7 @@
                     Pengaturan Persetujuan
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                    @endif
+                    @endif --}}
 
                     <livewire:nav-item href="/profil"
                         title='<button data-tooltip-target="tooltipProfil" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-user"></i></button>
