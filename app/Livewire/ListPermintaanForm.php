@@ -340,10 +340,88 @@ class ListPermintaanForm extends Component
                 // 'lokasi_id' => $this->lokasiId
             ]);
         }
-        // $message = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
+        $message = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
+
+
+
+        $this->tipe = Str::contains($this->permintaan->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
+
+        $user = Auth::user();
+        $roles = $this->permintaan->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
+        $roleLists = [];
+        $lastRoles = [];
+
+        $date = Carbon::parse($this->permintaan->created_at);
+
+        foreach ($roles as $role) {
+            $users = User::whereHas('roles', function ($query) use ($role) {
+                $query->where('name', 'LIKE', '%' . $role . '%');
+            })
+                ->where(function ($query) use ($date) {
+                    $query->whereHas('unitKerja', function ($subQuery) {
+                        $subQuery->where('parent_id', $this->permintaan->unit_id);
+                    })
+                        ->orWhere('unit_id', $this->permintaan->unit_id);
+                })
+                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+                ->limit(1)
+                ->get();
+
+            $propertyKey = Str::slug($role); // Generate dynamic key for roles
+            $roleLists[$propertyKey] = $users;
+            $lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
+        }
+
+        // Calculate listApproval dynamically
+        // $tipe = $this->permintaan->jenisStok->nama;
+        // $unit = UnitKerja::find($this->permintaan->unit_id);
+        $allApproval = collect();
+
+        // Hitung jumlah persetujuan yang dibutuhkan
+        $listApproval = collect($roleLists)->flatten(1)->count();
+
+        // Menggabungkan semua approval untuk pengecekan urutan
+        $allApproval = collect($roleLists)->flatten(1);
+        $currentApprovalIndex = $allApproval->filter(function ($user) {
+            $approval = $user->{"persetujuan{$this->tipe}"}()
+                ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
+                ->first();
+            return $approval && $approval->status === 1; // Hanya hitung persetujuan yang berhasil
+        })->count();
+
+
+        // Pengecekan urutan user dalam daftar persetujuan
+        $index = $allApproval->search(fn($user) => $user->id == Auth::id());
+        // dd($allApproval);
+        $nextUser = $allApproval[$currentApprovalIndex];
+        if (collect($roles)->count() > 1) {
+            if ($index === 0) {
+                // Jika user adalah yang pertama dalam daftar
+                $currentUser = $allApproval[$index];
+            } else {
+                // Jika user berada di tengah atau akhir
+                $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
+                $currentUser = $allApproval[$index];
+                $previousApprovalStatus = optional(optional($previousUser)->{"persetujuan{$this->tipe}"}()
+                    ?->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
+                    ->first())->status;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
         // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
         // $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
-        // Notification::send($user, new UserNotification($message, "/permintaan/{$this->requestIs}/{$detailPermintaan->id}"));
+        $material = $this->requestIs == 'material' ? 'permintaan' : '$this->requestIs';
+        Notification::send($nextUser, new UserNotification($message, "/permintaan/{$material}/{$detailPermintaan->id}"));
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
