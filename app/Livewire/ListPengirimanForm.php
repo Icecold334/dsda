@@ -297,7 +297,7 @@ class ListPengirimanForm extends Component
 
             // Tambahkan $optionLastPemeriksa kembali ke akhir collection
             $pemeriksa = $filteredPemeriksa->push($optionLastPemeriksa);
-            $allApproval = $pemeriksa;
+            $allApproval = $pemeriksa->values();
             $index = $allApproval->search(function ($user) {
                 return $user->id == Auth::id();
             });

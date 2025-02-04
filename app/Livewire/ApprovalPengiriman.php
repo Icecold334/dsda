@@ -2,17 +2,19 @@
 
 namespace App\Livewire;
 
-use App\Models\OpsiPersetujuan;
 use Carbon\Carbon;
 use App\Models\Stok;
 use App\Models\User;
 use Livewire\Component;
 use App\Models\Persetujuan;
+use Livewire\Attributes\On;
 use App\Models\PengirimanStok;
+use App\Models\OpsiPersetujuan;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PersetujuanPengirimanStok;
-use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 class ApprovalPengiriman extends Component
@@ -372,7 +374,6 @@ class ApprovalPengiriman extends Component
                 ]);
             }
             $list = $this->pengiriman->persetujuan;
-            dd($list);
             $filteredList = $list->filter(function ($approval) {
                 return $approval->status;
             })->unique('user_id');
@@ -438,6 +439,22 @@ class ApprovalPengiriman extends Component
             'user_id' => Auth::id(),
             'status' => true,
         ]);
+        $allApproval = $this->penerimaList
+            ->merge($this->pemeriksaList)
+            ->merge($this->pptkList)
+            ->merge($this->ppkList);
+        $index = $allApproval->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+
+        $detailPengiriman = $this->pengiriman;
+        $user = $allApproval[$index + 1];
+
+        $message = 'Pengirimaan <span class="font-bold">' . $detailPengiriman->kode_pengiriman_stok . '</span> membutuhkan persetujuan Anda.';
+        Notification::send($user, new UserNotification($message, "/pengiriman-stok/{$detailPengiriman->id}"));
+
+
+
         return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
 
         // $this->emit('actionSuccess', 'Kontrak berhasil disetujui.');
