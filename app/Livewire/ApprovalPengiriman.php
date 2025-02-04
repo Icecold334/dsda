@@ -188,7 +188,7 @@ class ApprovalPengiriman extends Component
         });
 
         // Tambahkan $optionLastPemeriksa kembali ke akhir collection
-        $pemeriksa = $filteredPemeriksa->push($optionLastPemeriksa);
+        $pemeriksa = $filteredPemeriksa->push($optionLastPemeriksa)->values();
 
 
 
