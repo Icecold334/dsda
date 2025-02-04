@@ -209,8 +209,8 @@ class ApprovalPengiriman extends Component
         $this->pptkList = $pptk;
 
         // Menentukan urutan approval yang benar
-        $this->listApproval = $this->pemeriksaList
-            // ->merge($this->pemeriksaList)
+        $this->listApproval = $this->penerimaList
+            ->merge($this->pemeriksaList)
             ->merge($this->pptkList)
             ->merge($this->ppkList)
             ->count();
@@ -362,7 +362,11 @@ class ApprovalPengiriman extends Component
                     'file' => $path
                 ]);
             }
-
+            // $list = $this->pengiriman->persetujuan;
+            // $filteredList = $list->filter(function ($approval) {
+            //     return $approval->status;
+            // })->unique('user_id');
+            // dd($filteredList->count(), $this->listApproval);
             foreach ($this->bapfiles as $file) {
                 $path = str_replace('dokumen-persetujuan-pengiriman/bap/', '', $file->storeAs('dokumen-persetujuan-pengiriman/bap', $file->getClientOriginalName(), 'public'));
                 $this->pengiriman->bapfile()->create([
@@ -377,6 +381,7 @@ class ApprovalPengiriman extends Component
             $filteredList = $list->filter(function ($approval) {
                 return $approval->status;
             })->unique('user_id');
+            // dd($filteredList->count(), $this->listApproval$this->listApproval);
             if ($filteredList->count() == $this->listApproval) {
                 $this->pengiriman->status = true;
                 $this->pengiriman->save();
