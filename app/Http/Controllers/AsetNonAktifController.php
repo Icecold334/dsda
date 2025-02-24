@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\aset;
+use App\Models\Aset;
 use App\Models\Merk;
 use App\Models\Toko;
 use App\Models\Lokasi;
@@ -31,7 +31,7 @@ class AsetNonAktifController extends Controller
         // Apply sorting
         $this->applySorting($query, $request);
 
-        $asets = $query->paginate(20); // 20 item per halaman
+        $asets = $query->paginate(5); // 20 item per halaman
 
         // Execute the query and format the results
         $asets->getCollection()->transform(function ($aset) {

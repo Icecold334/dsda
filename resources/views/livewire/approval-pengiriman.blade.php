@@ -8,7 +8,8 @@
             <div class="text-sm border-b-2 ">
                 <div class="flex justify-between px-3">
                     <span class="mr-9 {{ $penulis->id == auth()->id() ? 'font-bold' : '' }}">
-                        {{ $penulis->id == auth()->id() ? 'Anda' : $penulis->name }}
+                        {{-- {{ $penulis->id == auth()->id() ? 'Anda' : $penulis->name }} --}}
+                        {{ false ? 'Anda' : $penulis->name }}
                     </span>
                 </div>
             </div>
@@ -51,22 +52,12 @@
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
                             <span class="mr-9 {{ $penerima->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $penerima->id == auth()->id() ? 'Anda' : $penerima->name }}
+                                {{ false ? 'Anda' : $penerima->name }}
                             </span>
                             <i
                                 class="my-1 fa-solid {{ ($penerima->cekApprove == 0) 
                                     ?'fa-circle-question text-secondary-600' : 'fa-circle-check text-success-500'}}" id="penerimaApp">
                             </i>
-                            {{-- <i
-                                class="my-1 fa-solid {{ is_null(
-                                    optional($penerima->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status,
-                                )
-                                    ? 'fa-circle-question text-secondary-600'
-                                    : (optional($penerima->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
-                                        ? 'fa-circle-check text-success-500'
-                                        : 'fa-circle-xmark text-danger-500') }}">
-                            </i> --}}
-
 
                         </td>
                     </tr>
@@ -81,11 +72,20 @@
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
                             <span class="mr-9 {{ $pemeriksa->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $pemeriksa->id == auth()->id() ? 'Anda' : $pemeriksa->name }}
+                                {{-- {{ $pemeriksa->id == auth()->id()  ? 'Anda' : $pemeriksa->name }} --}}
+                                {{ false  ? 'Anda' : $pemeriksa->name }}
                             </span>
-                            <i
+                            
+                            {{-- <i
+    class="my-1 fa-solid {{ $pengiriman->pengirimanStok->whereNotNull('jumlah_diterima')->count() > 0
+        ? 'fa-circle-check text-success-500'
+        : ($pengiriman->pengirimanStok->whereNotNull('jumlah_diterima')->count() > 0
+            ? 'fa-circle-question text-secondary-600'
+            : 'fa-circle-question text-secondary-600') }}">
+</i> --}}
+<i
                                 class="my-1 fa-solid {{ is_null(
-                                    optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status,
+                                    optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
                                 )
                                     ? 'fa-circle-question text-secondary-600'
                                     : (optional($pemeriksa->persetujuanPengiriman->where('detail_pengiriman_id', $pengiriman->id ?? 0)->first())->status
@@ -94,21 +94,22 @@
                             </i>
 
 
+
                         </td>
                     </tr>
                 @endforeach
             </table>
         </div>
-
         <div class="">
             <div class="block font-semibold text-center mb-2 text-gray-900">
-                Pejabat Pelaksana Teknis Kegiatanss</div>
+                Pejabat Pelaksana Teknis Kegiatan</div>
             <table class="w-full mt-3">
                 @foreach ($pptkList as $pptk)
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
                             <span class="mr-9 {{ $pptk->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $pptk->id == auth()->id() ? 'Anda' : $pptk->name }}
+                                {{-- {{ $pptk->id == auth()->id() ? 'Anda' : $pptk->name }} --}}
+                                {{ false ? 'Anda' : $pptk->name }}
                             </span>
                             <i
                                 class="my-1 fa-solid {{ is_null(
@@ -134,7 +135,8 @@
                     <tr class="text-sm border-b-2 ">
                         <td class="flex justify-between px-3">
                             <span class="mr-9 {{ $ppk->id == auth()->id() ? 'font-bold' : '' }}">
-                                {{ $ppk->id == auth()->id() ? 'Anda' : $ppk->name }}
+                                {{-- {{ $ppk->id == auth()->id() ? 'Anda' : $ppk->name }} --}}
+                                {{ false ? 'Anda' : $ppk->name }}
                             </span>
                             <i
                                 class="my-1 fa-solid {{ is_null(
@@ -156,21 +158,22 @@
         {{-- @endrole --}}
     </div>
     {{-- @hasanyrole($roles) --}}
-    @if ($showButton && Auth::user()->hasRole('Pemeriksa Barang'))
-        <div class="flex {{ $indikatorPenerima == 0 ? 'hidden' : '' }}">
+    @if ($showButton && !Auth::user()->hasRole('Penerima Barang'))
+        <div class="flex {{ $indikatorPenerima == 0 ? '' : '' }}">
             <div class="flex space-x-2 justify-center w-full">
-                @if ($isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa)
+                {{-- @if ($isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa) --}}
+                @if (Auth::user()->hasRole('Pemeriksa Barang'))
                     <div class="flex flex-col items-center">
                         <input type="file" wire:model="newApprovalFiles" id="approvalFiles" multiple class="hidden">
                         <button type="button" onclick="document.getElementById('approvalFiles').click()"
                             class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
-                            Unggah File Persetujuan
+                            Unggah File Pemeriksaan
                         </button>
                         @error('approvalFiles.*')
                             <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror
                     </div>
-                    <div class="flex flex-col items-center">
+                    <div class="flex flex-col items-center {{ $lastPemeriksa?'':'hidden' }}">
                         <input type="file" wire:model="newbapfiles" id="bapfiles" multiple class="hidden">
                         <button type="button" onclick="document.getElementById('bapfiles').click()"
                             class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
@@ -183,41 +186,43 @@
                     {{-- <input type="file" wire:model="approvalFiles" id="approvalFiles" multiple class="hidden">
                         <button type="button" onclick="document.getElementById('approvalFiles').click()"
                             class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
-                            Unggah File Persetujuan
+                            Unggah File Pemeriksaan
                         </button>
                         @error('approvalFiles.*')
                             <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror --}}
                 @endif
                 <button type="button"
-                    onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
+                    {{-- onclick="{{ $isLastUser || $lastPj || $lastPpk || $lastPptk || $lastPenerima || $lastPemeriksa ? 'submitApprovalWithFile()' : 'confirmApprove()' }}" --}}
+                    onclick="{{ Auth::user()->hasRole('Pemeriksa Barang') ? 'submitApprovalWithFile()' : 'confirmApprove()' }}"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     Setuju
                 </button>
+                @if (Auth::user()->hasRole('Pemeriksa Barang'))
                 <button type="button" onclick="confirmReject()"
                     class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     Tidak Setuju
                 </button>
+                @endif
             </div>
 
         </div>
     @endif
 
-    @hasanyrole('Pejabat Pelaksana Teknis Kegiatan|Pejabat Pembuat Komitmen')
+    {{-- @dump($checkPreviousApproval,$CheckCurrentApproval) --}}
+    {{-- @hasanyrole('Pejabat Pelaksana Teknis Kegiatan|Pejabat Pembuat Komitmen|Pemeriksa Barang')
     <div class="flex">
         <div class="flex space-x-2 justify-center w-full">
             <button 
-                type="button"
-                onclick="confirmApprove()"
-                @class([
-                    'text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200',
-                    'hidden' => count($checkPreviousApproval) > 0 && count($CheckCurrentApproval) > 0,
-                ])>
-                Setuju
-            </button>
+    type="button"
+    onclick="confirmApprove()"
+    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 {{ $checkPreviousApproval  && $CheckCurrentApproval ? '' : '' }}">
+    Setuju
+</button>
+
         </div>
     </div>
-    @endhasanyrole
+    @endhasanyrole --}}
     {{-- @if ()
         
     @endif --}}
@@ -230,10 +235,10 @@
 
 
             <div class="relative pl-16">
-                <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-900 dark:text-white">File Persetujuan
+                <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-900 dark:text-white">File Pemeriksaan
                 </h5>
 
-                <div class="mt-4 gap-4 w-3/5">
+                <div class="mt-4 gap-4 w-3/5 max-h-72 overflow-y-auto">
                     @if (count($files) > 0)
                         @if ($files)
                             @foreach ($files as $index => $attachment)
@@ -285,7 +290,7 @@
             </div>
             <div class="relative pl-16">
                 <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-900 dark:text-white">File BAP</h5>
-                <div class="mt-4 gap-4 w-3/5">
+                <div class="mt-4 gap-4 w-3/5 max-h-72 overflow-y-auto">
                     @if ($arrayfiles)
                         @foreach ($arrayfiles as $index => $attachment)
                             <div
@@ -343,7 +348,7 @@
         <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
             <div class="relative pl-16">
                 @if ($approvalFiles)
-                    {{-- <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-900 dark:text-white">File Persetujuan
+                    {{-- <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-900 dark:text-white">File Pemeriksaan
                     </h5> --}}
                     <div class="gap-4 w-3/5">
                         @foreach ($approvalFiles as $index => $attachment)
@@ -451,8 +456,10 @@
         </dl>
     </div>
 
-
-
+<div wire:loading wire:target='newApprovalFiles,newbapfiles'>
+    <livewire:loading>
+</div>
+{{-- @dump($lastPemeriksa) --}}
 </div>
 @push('scripts')
 
@@ -491,22 +498,25 @@
 
 
 
+
             if (!fileCount) {
                 Swal.fire({
                     icon: 'error',
                     title: 'File Tidak Ditemukan',
-                    text: 'Harap unggah file Persetujuan sebelum menyetujui kontrak.',
+                    text: 'Harap unggah file pemeriksaan sebelum menyetujui kontrak.',
                 });
                 return;
             }
 
-            if (!BapCount) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'File Tidak Ditemukan',
-                    text: 'Harap Unggah File Bap sebelum menyetujui kontrak.',
-                });
-                return;
+            if ({{ $lastPemeriksa ?1:0 }}) {
+                if (!BapCount) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'File Tidak Ditemukan',
+                        text: 'Harap Unggah File Bap sebelum menyetujui kontrak.',
+                    });
+                    return;
+                }
             }
             confirmApprove();
             // @this.call('approveWithFile', fileInput.files[0]);

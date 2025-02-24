@@ -27,4 +27,8 @@ class OpsiPersetujuan extends Model
     {
         return $this->belongsTo(Role::class, 'jabatan_penyelesai_id');
     }
+    public function userPenyelesai()
+    {
+        return $this->belongsTo(User::class, 'user_penyelesai_id');
+    }
 }

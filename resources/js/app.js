@@ -1,5 +1,6 @@
 import "./bootstrap";
-import "flowbite";
+import { Tooltip } from "flowbite";
+window.tooltip = Tooltip;
 import ApexCharts from "apexcharts";
 window.ApexCharts = ApexCharts;
 import Swal from "sweetalert2";
@@ -43,8 +44,8 @@ window.confirmRemove = function (message, callback) {
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Ya, hapus!",
-        cancelButtonText: "Batal",
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
     }).then((result) => {
         if (result.isConfirmed) {
             // Callback function to execute after confirmation

@@ -76,22 +76,24 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Jika pilih "Ya", munculkan alert kedua
-                    Swal.fire({
-                        title: 'Layanan Apa yang Dipilih?',
-                        text: "Silakan pilih jenis layanan:",
-                        icon: 'info',
-                        showCancelButton: true,
-                        confirmButtonText: 'Permintaan',
-                        cancelButtonText: 'Peminjaman'
-                    }).then((choice) => {
-                        if (choice.isConfirmed) {
-                            // Jika pilih "Permintaan", redirect ke halaman permintaan umum
-                            window.location.href = "/permintaan/add/permintaan/1";
-                        } else {
-                            // Jika pilih "Peminjaman", redirect ke halaman peminjaman
-                            window.location.href = "/permintaan/add/peminjaman/1";
-                        }
-                    });
+                    window.location.href = "/permintaan/umum";
+
+                    // Swal.fire({
+                    //     title: 'Layanan Apa yang Dipilih?',
+                    //     text: "Silakan pilih jenis layanan:",
+                    //     icon: 'info',
+                    //     showCancelButton: true,
+                    //     confirmButtonText: 'Permintaan',
+                    //     cancelButtonText: 'Peminjaman'
+                    // }).then((choice) => {
+                    //     if (choice.isConfirmed) {
+                    //         // Jika pilih "Permintaan", redirect ke halaman permintaan umum
+                    //         window.location.href = "/permintaan/add/permintaan/1";
+                    //     } else {
+                    //         // Jika pilih "Peminjaman", redirect ke halaman peminjaman
+                    //         window.location.href = "/permintaan/add/peminjaman/1";
+                    //     }
+                    // });
                 }
             });
         });

@@ -10,6 +10,8 @@ use App\Models\TransaksiStok;
 use App\Models\TransaksiDaruratStok;
 use Illuminate\Support\Facades\Auth;
 use App\Models\KontrakRetrospektifStok;
+use Illuminate\Support\Facades\Gate;
+use App\Models\Toko;
 
 class TransaksiDaruratStokController extends Controller
 {
@@ -36,13 +38,13 @@ class TransaksiDaruratStokController extends Controller
         }
 
         // Sort transactions by date
-        $sortedTransaksi = $transaksi->sortByDesc('tanggal');
+        $sortedTransaksi = $transaksi;
 
         // Group transactions by vendor_id first, then by unit_id
         // $groupedTransactions = $sortedTransaksi->groupBy('vendor_id')->map(function ($vendorGroup) {
         //     return $vendorGroup->groupBy('user.unit_id'); // Group by user unit_id
         // });
-        $groupedTransactions = $sortedTransaksi->groupBy('vendor_id');
+        $groupedTransactions = $sortedTransaksi;
 
 
         return view('darurat.index', compact('groupedTransactions'));
@@ -54,6 +56,7 @@ class TransaksiDaruratStokController extends Controller
      */
     public function create()
     {
+        Gate::authorize('kontrak_tambah_kontrak_baru');
         $vendors = VendorStok::all();
         return view('darurat.create', compact('vendors'));
     }
@@ -94,18 +97,24 @@ class TransaksiDaruratStokController extends Controller
     {
         $transaksi = TransaksiStok::with('approvals')->where('vendor_id', $id)
             ->whereNull('kontrak_id')
-            ->whereHas('user', function ($user) {
-                return $user->whereHas('unitKerja', function ($unit) {
-                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+            ->when($this->unit_id, function ($query) {
+                return $query->whereHas('user', function ($user) {
+                    return $user->whereHas('unitKerja', function ($unit) {
+                        return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                    });
                 });
             })
             ->get();
+        if (!count($transaksi)) {
+            return redirect()->to('transaksi-darurat-stok');
+        }
+
 
         $roles = Auth::user()->roles->pluck('name');
 
         $items = Persetujuan::where('approvable_id', $id)->where('approvable_type', TransaksiStok::class)->get();
 
-
+        // dd($transaksi);
         // Pass the data to the view
         return view('darurat.edit', compact('transaksi', 'roles', 'items'));
     }

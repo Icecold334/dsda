@@ -44,6 +44,7 @@ class AddProfil extends Component
     public $nip;
     public $img;
     public $ttd;
+    public $other;
 
     // public function updatedSelectedRoles()
     // {
@@ -57,6 +58,7 @@ class AddProfil extends Component
 
     public function mount()
     {
+        $this->other = User::find($this->id);
         $user = Auth::user(); // Mendapatkan data pengguna yang login
         // Ambil unit_id user yang sedang login
         $userUnitId = Auth::user()->unit_id;
@@ -144,6 +146,16 @@ class AddProfil extends Component
         }
 
         return redirect()->route('profil.index');
+    }
+
+    public function verify()
+    {
+        if ($this->tipe == 'user') {
+            $user = User::find($this->id);
+            $user->email_verified_at = now();
+            $user->save();
+        }
+        return redirect()->route('profil.index')->with('success', 'User Berhasil Diverifikasi!');
     }
 
     public function messages()

@@ -17,7 +17,8 @@
             </button> --}}
 
             <div class="flex justify-between items-center " id="menu">
-                <ul class="flex flex-col md:flex-row md:space-x-0 {{ Request::is('scan/*') ? 'hidden' : '' }}">
+                <ul
+                    class="flex flex-col md:flex-row md:space-x-0 {{ Request::is('scan/*') || Request::is('qr/*') ? 'hidden' : '' }}">
                     {{-- <ul class="grid grid-flow-col gap-0 -my-4 "> --}}
                     <livewire:nav-item href="/dashboard" title="home" />
                     <livewire:nav-item title="aset" :child="[
@@ -54,6 +55,14 @@
                         ['href' => '/kategori-stok', 'title' => 'kategori stok'],
                     ]" />
                     <livewire:notification />
+                    <livewire:nav-item href="/kalender-aset"
+                        title='                <button data-tooltip-target="tooltipKalenderAset" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-book"></i></button>
+
+                <div id="tooltipKalenderAset" role="tooltip"
+                    class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Kalender Aset
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>' />
                     <livewire:nav-item href="/kalender"
                         title='                <button data-tooltip-target="tooltipKalender" data-tooltip-placement="bottom" type="button"><i
                         class="fa-solid fa-calendar-days"></i></button>
@@ -79,14 +88,16 @@
                     Pengaturan
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                    <livewire:nav-item href="/option-approval"
-                        title='<button data-tooltip-target="tooltipPengaturanApproval" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-list-check"></i></button>
+                    @if (Auth::user()->unit_id)
+                        <livewire:nav-item href="/option-approval"
+                            title='<button data-tooltip-target="tooltipPengaturanApproval" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-list-check"></i></button>
 
                 <div id="tooltipPengaturanApproval" role="tooltip"
                     class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                     Pengaturan Persetujuan
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
+                    @endif
 
                     <livewire:nav-item href="/profil"
                         title='<button data-tooltip-target="tooltipProfil" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-user"></i></button>

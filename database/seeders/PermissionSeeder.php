@@ -84,6 +84,7 @@ class PermissionSeeder extends Seeder
             'data_unit_kerja',
             'qr_print',
             'pengaturan',
+            'pengguna_verifikasi_pengguna',
             'inventaris_edit_lokasi_penerimaan',
             'inventaris_tambah_barang_datang',
             'inventaris_unggah_foto_barang_datang',
@@ -92,6 +93,10 @@ class PermissionSeeder extends Seeder
             'inventaris_edit_jumlah_diterima',
             'inventaris_upload_foto_bukti',
             'persetujuan',
+            'kontrak_tambah_kontrak_baru',
+            'pelayanan_xls',
+            'stok_show_detail',
+            'stok_xls'
         ];
 
         // Insert permissions and get their IDs

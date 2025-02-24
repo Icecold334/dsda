@@ -6,12 +6,14 @@ use Livewire\Component;
 use App\Models\Lokasi;
 use App\Models\UnitKerja;
 use Illuminate\Support\Facades\Auth;
+use Livewire\WithPagination;
+use Livewire\WithoutUrlPagination;
 
 class DataLokasi extends Component
 {
-
+    use WithPagination, WithoutUrlPagination;
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
-    public $lokasis = []; // Properti untuk menyimpan data lokasi
+    // public $lokasis = []; // Properti untuk menyimpan data lokasi
 
     public function mount()
     {
@@ -30,7 +32,7 @@ class DataLokasi extends Component
         // Jika unit memiliki parent_id (child), gunakan parent_id-nya
         // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
-        $this->lokasis = Lokasi::withCount(['history as aset_count' => function ($query) use ($parentUnitId, $userUnitId) {
+        $lists = Lokasi::withCount(['history as aset_count' => function ($query) use ($parentUnitId, $userUnitId) {
             // Jika parentUnitId null, jangan filter berdasarkan unit_id
             if (!is_null($parentUnitId)) {
                 $query->whereHas('aset.user', function ($query) use ($parentUnitId) {
@@ -57,8 +59,10 @@ class DataLokasi extends Component
                             ->orWhere('keterangan', 'like', '%' . $this->search . '%');
                     });
             })
-            ->get()
-            ->toArray();
+            ->paginate(10);
+
+            return $lists;
+            
     }
 
     public function updateSearch($value)
@@ -68,6 +72,7 @@ class DataLokasi extends Component
     }
     public function render()
     {
-        return view('livewire.data-lokasi');
+        $lokasis = $this->loadData();
+        return view('livewire.data-lokasi', compact('lokasis'));
     }
 }

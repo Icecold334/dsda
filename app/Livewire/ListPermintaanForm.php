@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Aset;
 use App\Models\Stok;
 use App\Models\User;
+use BaconQrCode\Writer;
 use Livewire\Component;
 use App\Models\Kategori;
 use App\Models\MerkStok;
@@ -16,11 +17,13 @@ use Livewire\Attributes\On;
 use App\Models\StokDisetujui;
 use Livewire\WithFileUploads;
 use App\Models\PermintaanStok;
+use App\Models\OpsiPersetujuan;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
+use BaconQrCode\Renderer\GDLibRenderer;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PersetujuanPermintaanStok;
@@ -154,7 +157,6 @@ class ListPermintaanForm extends Component
                     'catatan' => $stok['catatan'] ?? null, // Simpan catatan per stok
                     'jumlah_disetujui' => $stok['jumlah_disetujui'],
                 ]);
-
                 // Kurangi stok sesuai dengan lokasi, bagian, dan posisi (jika ada)
                 // $stokModel = Stok::where('lokasi_id', $stok['lokasi_id'])
                 //     ->when(isset($stok['bagian_id']), function ($query) use ($stok) {
@@ -172,6 +174,7 @@ class ListPermintaanForm extends Component
                 // }
             }
         }
+
 
         $this->showApprovalModal = false; // Tutup modal
         $this->catatan = null; // Reset catatan
@@ -296,18 +299,18 @@ class ListPermintaanForm extends Component
     public function saveData()
     {
 
-        $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('jenis', $this->requestIs == 'permintaan' ? 'umum' : ($this->requestIs == 'spare-part' ? 'spare-part' : 'material'))
+        $latestApprovalConfiguration = OpsiPersetujuan::where('jenis', $this->requestIs == 'permintaan' ? 'umum' : ($this->requestIs == 'spare-part' ? 'spare-part' : 'material'))
             ->where('unit_id', $this->unit_id)
             ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
             ->latest()
             ->first();
 
 
-        $kodePermintaan = Str::random(10); // Generate a unique code
+
 
         // Create Detail Permintaan Stok
         $detailPermintaan = DetailPermintaanStok::create([
-            'kode_permintaan' => $kodePermintaan,
+            'kode_permintaan' => $this->generateQRCode(),
             'tanggal_permintaan' => strtotime($this->tanggal_permintaan),
             'unit_id' => $this->unit_id,
             'user_id' => Auth::id(),
@@ -338,9 +341,87 @@ class ListPermintaanForm extends Component
             ]);
         }
         $message = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
-        $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
-        $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
-        Notification::send($user, new UserNotification($message, "/permintaan/{$this->requestIs}/{$detailPermintaan->id}"));
+
+
+
+        $this->tipe = Str::contains($this->permintaan->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
+
+        $user = Auth::user();
+        $roles = $this->permintaan->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
+        $roleLists = [];
+        $lastRoles = [];
+
+        $date = Carbon::parse($this->permintaan->created_at);
+
+        foreach ($roles as $role) {
+            $users = User::whereHas('roles', function ($query) use ($role) {
+                $query->where('name', 'LIKE', '%' . $role . '%');
+            })
+                ->where(function ($query) use ($date) {
+                    $query->whereHas('unitKerja', function ($subQuery) {
+                        $subQuery->where('parent_id', $this->permintaan->unit_id);
+                    })
+                        ->orWhere('unit_id', $this->permintaan->unit_id);
+                })
+                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+                ->limit(1)
+                ->get();
+
+            $propertyKey = Str::slug($role); // Generate dynamic key for roles
+            $roleLists[$propertyKey] = $users;
+            $lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
+        }
+
+        // Calculate listApproval dynamically
+        // $tipe = $this->permintaan->jenisStok->nama;
+        // $unit = UnitKerja::find($this->permintaan->unit_id);
+        $allApproval = collect();
+
+        // Hitung jumlah persetujuan yang dibutuhkan
+        $listApproval = collect($roleLists)->flatten(1)->count();
+
+        // Menggabungkan semua approval untuk pengecekan urutan
+        $allApproval = collect($roleLists)->flatten(1);
+        $currentApprovalIndex = $allApproval->filter(function ($user) {
+            $approval = $user->{"persetujuan{$this->tipe}"}()
+                ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
+                ->first();
+            return $approval && $approval->status === 1; // Hanya hitung persetujuan yang berhasil
+        })->count();
+
+
+        // Pengecekan urutan user dalam daftar persetujuan
+        $index = $allApproval->search(fn($user) => $user->id == Auth::id());
+        // dd($allApproval);
+        $nextUser = $allApproval[$currentApprovalIndex];
+        if (collect($roles)->count() > 1) {
+            if ($index === 0) {
+                // Jika user adalah yang pertama dalam daftar
+                $currentUser = $allApproval[$index];
+            } else {
+                // Jika user berada di tengah atau akhir
+                $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
+                $currentUser = $allApproval[$index];
+                $previousApprovalStatus = optional(optional($previousUser)->{"persetujuan{$this->tipe}"}()
+                    ?->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
+                    ->first())->status;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+        // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
+        // $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
+        $material = $this->requestIs == 'material' ? 'permintaan' : '$this->requestIs';
+        Notification::send($nextUser, new UserNotification($message, "/permintaan/{$material}/{$detailPermintaan->id}"));
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
@@ -450,25 +531,22 @@ class ListPermintaanForm extends Component
 
     public function fillShowRule()
     {
-        $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id;
+        $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
     }
     public function updated()
     {
-        $this->ruleAdd = $this->requestIs == 'permintaan' ? $this->newBarang && $this->newJumlah : ($this->requestIs == 'spare-part' ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi : $this->newBarang && $this->newJumlah  && $this->newBukti && $this->newDeskripsi);
+        $this->ruleAdd = $this->requestIs == 'permintaan' ? $this->newBarang && $this->newJumlah : ($this->requestIs == 'spare-part' ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi : $this->newBarang && $this->newJumlah  && $this->newDeskripsi);
     }
     public $tipe;
     public function mount()
     {
-        $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('jenis', $this->requestIs == 'permintaan' ? 'umum' : ($this->requestIs == 'spare-part' ? 'spare-part' : 'material'))
-            ->where('unit_id', $this->unit_id)
-            ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
-            ->latest()
-            ->first();
+
 
 
         $this->fillShowRule();
         $expl = explode('/', Request::getUri());
         $this->requestIs = (int)strlen(Request::segment(3)) > 3 ? Request::segment(3) : $expl[count($expl) - 2];
+
         $this->fillKategoriId($this->kategori_id ?? null);
 
         $this->showAdd = Request::is('permintaan/add/*');
@@ -570,7 +648,40 @@ class ListPermintaanForm extends Component
         // Provide feedback
         session()->flash('message', 'Item approved successfully!');
     }
+    private function generateQRCode()
+    {
+        $userId = Auth::id(); // Dapatkan ID pengguna yang login
+        $qrName = strtoupper(Str::random(16)); // Buat nama file acak untuk QR code
 
+        // Tentukan folder dan path target file
+        $qrFolder = "qr_permintaan";
+        $qrTarget = "{$qrFolder}/{$qrName}.png";
+
+        // Konten QR Code (contohnya URL)
+        $qrContent = url("/qr/permintaan/{$userId}/{$qrName}");
+
+        // Pastikan direktori untuk QR Code tersedia
+        if (!Storage::disk('public')->exists($qrFolder)) {
+            Storage::disk('public')->makeDirectory($qrFolder);
+        }
+
+        // Konfigurasi renderer untuk menggunakan GD dengan ukuran 400x400
+        $renderer = new GDLibRenderer(500);
+        $writer = new Writer($renderer);
+
+        // Path absolut untuk menyimpan file
+        $filePath = Storage::disk('public')->path($qrTarget);
+
+        // Hasilkan QR Code ke file
+        $writer->writeFile($qrContent, $filePath);
+
+        // Periksa apakah file berhasil dibuat
+        if (Storage::disk('public')->exists($qrTarget)) {
+            return $qrName; // Kembalikan nama file QR
+        } else {
+            return "0"; // Kembalikan "0" jika gagal
+        }
+    }
     public function removePhoto()
     {
         $this->newBukti = null;

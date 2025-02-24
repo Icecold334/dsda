@@ -2,26 +2,35 @@
 
 namespace App\Livewire;
 
+use Carbon\Carbon;
 use App\Models\Stok;
+use App\Models\User;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BagianStok;
 use App\Models\LokasiStok;
 use App\Models\PosisiStok;
 use Livewire\Attributes\On;
+use App\Models\StokDiterima;
 use Spatie\Permission\Guard;
 use App\Models\TransaksiStok;
 use Livewire\WithFileUploads;
 use App\Models\PengirimanStok;
+use App\Models\OpsiPersetujuan;
 use App\Models\DetailPengirimanStok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
 
 class ListPengirimanForm extends Component
 {
     use WithFileUploads;
+    public $showApprovalModal = false;
+    public $noteModalVisible = false; // Untuk mengatur visibilitas modal catatan
+
     public $pengiriman;
     public $old = [];
     public $list = [];
@@ -78,7 +87,7 @@ class ListPengirimanForm extends Component
             }
 
             // Remove the photo from the list
-            unset($this->list[$index]['bukti']);
+            $this->list[$index]['bukti'] = null;
 
             // Provide feedback if needed
             // session()->flash('success', 'File berhasil dihapus.');
@@ -124,12 +133,19 @@ class ListPengirimanForm extends Component
 
 
 
+
         // Create a new detail_pengiriman_stok record if needed
         $this->validate([
             'penulis' => 'nullable|string',
             'pj1' => 'nullable|string',
             'pj2' => 'nullable|string',
         ]);
+        $latestApprovalConfiguration = OpsiPersetujuan::where('jenis', 'barang')
+            ->where('unit_id', $this->unit_id)
+            ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
+            ->latest()
+            ->first();
+
         $detailPengiriman = DetailPengirimanStok::updateOrCreate(
             [
                 'id' => count($this->old) > 0 ? $this->old[0]->detail_pengiriman_id : 0,
@@ -137,6 +153,7 @@ class ListPengirimanForm extends Component
             [
                 'kode_pengiriman_stok' => fake()->bothify('KP#######'),
                 'kontrak_id' => 2,
+                'approval_configuration_id' => $latestApprovalConfiguration->id,
                 'tanggal' => strtotime(date('Y-m-d H:i:s')),
                 'user_id' => Auth::id(),
                 'penerima' => $this->penulis,
@@ -226,43 +243,37 @@ class ListPengirimanForm extends Component
         // $this->vendor_id = null;
         // $this->mount();
         if (!$this->showDokumen) {
+            $message = 'Pengirimaan <span class="font-bold">' . $detailPengiriman->kode_pengiriman_stok . '</span> membutuhkan persetujuan Anda.';
+            foreach ($detailPengiriman->pengirimanStok->unique('lokasi_id') as $pengiriman) {
+                $user = User::where('lokasi_id', $pengiriman->lokasi_id)->whereHas('unitKerja', function ($unit) {
+                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                })->get()->filter(function ($user) use ($pengiriman) {
+                    return $user->hasRole(['Penerima Barang']);
+                })->first();
+                Notification::send($user, new UserNotification($message, "/pengiriman-stok/{$detailPengiriman->id}"));
+            }
             return redirect()->route('pengiriman-stok.index');
         }
     }
 
-    public $roles, $authLokasi;
+    public $roles, $authLokasi, $selectedItemId;
 
     public function mount()
     {
         // dd($this->old);
         $this->showDokumen = !Request::routeIs('pengiriman-stok.create');
         $this->showRemove = !Request::routeIs('pengiriman-stok.show');
-        $this->lokasis = LokasiStok::all();
+        $this->lokasis = LokasiStok::whereHas('unitKerja', function ($unit) {
+            return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        })->get();
         if (count($this->old)) {
             $this->pengiriman = collect($this->old)->first()->detailPengirimanStok;
             foreach ($this->old as $index => $old) {
                 // if (!collect($this->list)->contains('merk_id', $merkId)) {
                 $transaksi = PengirimanStok::findOrFail($old->id);
-                $isEditable = is_null($transaksi->bagian_id) && is_null($transaksi->posisi_id);
-                $this->list[] = [
-                    'id' => $transaksi->id,
-                    'merk_id' => $transaksi->merkStok->id,
-                    'merk' => $transaksi->merkStok,
-                    'detail' => $transaksi->detail_pengiriman_id ?? null,
-                    'bukti' => $transaksi->img,
-                    'lokasi_id' => $transaksi->lokasi_id,
-                    'bagian_id' => $transaksi->bagian_id,
-                    'posisi_id' => $transaksi->posisi_id,
-                    'bagians' => BagianStok::where('lokasi_id', $transaksi->lokasi_id)->get(),
-                    'posisis' => PosisiStok::where('bagian_id', $transaksi->bagian_id)->get(),
-                    'jumlah' => $transaksi->jumlah ?? 1,
-                    'jumlah_diterima' => $transaksi->jumlah_diterima ?? "", 
-                    //$transaksi->jumlah_diterima ?? ($transaksi->jumlah ?? 1),
-                    'boolean_jumlah' => $transaksi->jumlah_diterima ?? 0,
-                    'max_jumlah' => $this->calculateMaxJumlah($old->merkStok->id),
-                    'editable' => $isEditable,
-                    
-                ];
+                // $isEditable = is_null($transaksi->bagian_id) && is_null($transaksi->posisi_id);
+                $isEditable = !$transaksi->status_lokasi;
+                $this->list[] = $this->arrayList($transaksi);
                 // $this->hiddenButtons[$index] = ($transaksi->lokasi_id && $transaksi->bagian_id && $transaksi->bukti) ?? 0;
                 $this->hiddenButtons[$index] = $this->checkPropPenerima($index);
                 $this->dispatch('listCount', count: count($this->list));
@@ -271,14 +282,153 @@ class ListPengirimanForm extends Component
 
             $this->roles = Auth::user()->roles->pluck('name')->first();
             $this->authLokasi = Auth::user()->lokasi_id ?? 0;
+            //////////////////////////////////////////
+            $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
+
+            $optionLastPemeriksa = $this->pengiriman->opsiPersetujuan->userPenyelesai;
+
+            $pemeriksa = User::role('Pemeriksa Barang')->whereHas('unitKerja', function ($subQuery) {
+                $subQuery->where('unit_id', $this->pengiriman->user->unit_id);
+            })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+            // Cari dan hapus $optionLastPemeriksa dari collection $pemeriksa jika ada
+            $filteredPemeriksa = $pemeriksa->reject(function ($user) use ($optionLastPemeriksa) {
+                return $user->id === $optionLastPemeriksa->id;
+            });
+
+            // Tambahkan $optionLastPemeriksa kembali ke akhir collection
+            $pemeriksa = $filteredPemeriksa->push($optionLastPemeriksa);
+            $allApproval = $pemeriksa->values();
+            $index = $allApproval->search(function ($user) {
+                return $user->id == Auth::id();
+            });
+            if ($index === 0) {
+                $currentUser = $allApproval[$index];
+                $this->showButtonPemeriksa = !$currentUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
+            } else {
+                $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
+                $currentUser = $allApproval[$index];
+                $this->showButtonPemeriksa =
+                    $previousUser && !$currentUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists() &&
+                    $previousUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
+            }
             // dd($this->list);
+            // $this->openApprovalModal(1);
+        }
+    }
+    public $showButtonPemeriksa;
+
+    public function openApprovalModal($itemId = 0)
+    {
+        $this->selectedItemId = $itemId;
+        $this->loadApprovalData($itemId);
+        $this->showApprovalModal = !$this->showApprovalModal;
+        if (!$this->showApprovalModal) {
+            $this->approvalData = [];
         }
     }
 
-    public function checkPropPenerima($index){
+    public function loadApprovalData($itemId)
+    {
+        $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
+
+        $optionLastPemeriksa = $this->pengiriman->opsiPersetujuan->userPenyelesai;
+
+        $pemeriksa = User::role('Pemeriksa Barang')->whereHas('unitKerja', function ($subQuery) {
+            $subQuery->where('unit_id', $this->pengiriman->user->unit_id);
+        })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+        // Cari dan hapus $optionLastPemeriksa dari collection $pemeriksa jika ada
+        $filteredPemeriksa = $pemeriksa->reject(function ($user) use ($optionLastPemeriksa) {
+            return $user->id === $optionLastPemeriksa->id;
+        });
+
+        // Tambahkan $optionLastPemeriksa kembali ke akhir collection
+        $pemeriksa = $filteredPemeriksa->push($optionLastPemeriksa);
+
+
+
+        $indexPemeriksa = $pemeriksa->search(function ($user) {
+            return $user->id == Auth::id();
+        });
+
+        $itemPengiriman = PengirimanStok::find($itemId);
+
+        foreach ($pemeriksa as $user) {
+            $this->approvalData[] = [
+                'id' => $user->id,
+                'nama' => $user->name,
+                'jumlah' => $user->stokDiterima->where('pengiriman_id', $itemPengiriman->id)->first()?->jumlah_diterima,
+                'catatan' => $user->stokDiterima->where('pengiriman_id', $itemPengiriman->id)->first()?->catatan,
+            ];
+        }
+    }
+
+    public function approveItem($id)
+    {
+        $list = $this->approvalData;
+        $user = Auth::user()->id;
+        $lastElement = end($list)['id'];
+
+
+        // return $this->dispatch('itemApproved');
+        $pengiriman = PengirimanStok::find($id);
+
+
+        $userData = collect($this->approvalData)->where('id', Auth::id())->first();
+        $data = [
+            'pengiriman_id' => $pengiriman->id,
+            'user_id' => Auth::id(),
+            'jumlah_diterima' => $userData['jumlah'] ?? 0,
+            'catatan' => $userData['catatan'] ?? null,
+        ];
+        $diterima = StokDiterima::create($data);
+        if ($user == $lastElement) {
+            $pengiriman->update([
+                'jumlah_diterima' => $userData['jumlah'],
+                'status_diterima' => now()
+            ]);
+        };
+        $listpengiriman = $this->list;
+        $newList = $this->arrayList($pengiriman);
+        $index = collect($listpengiriman)->search(function ($item, $key) use ($newList) {
+            return $item['id'] == $newList['id'];
+        });
+        $this->list[$index] = $newList;
+
+        $this->dispatch('itemApproved');
+
+        // Provide feedback
+        session()->flash('message', 'Item approved successfully!');
+    }
+
+    public $approvalData;
+
+    private function arrayList($item)
+    {
+        return [
+            'id' => $item->id,
+            'merk_id' => $item->merkStok->id,
+            'merk' => $item->merkStok,
+            'detail' => $item->detail_pengiriman_id ?? null,
+            'bukti' => $item->img,
+            'lokasi_id' => $item->lokasi_id,
+            'bagian_id' => $item->bagian_id,
+            'posisi_id' => $item->posisi_id,
+            'bagians' => BagianStok::where('lokasi_id', $item->lokasi_id)->get(),
+            'posisis' => PosisiStok::where('bagian_id', $item->bagian_id)->get(),
+            'jumlah' => $item->jumlah ?? 1,
+            'jumlah_diterima' => $item->jumlah_diterima ?? null,
+            //$item->jumlah_diterima ?? ($item->jumlah ?? 1),
+            'boolean_jumlah' => $item->jumlah_diterima ?? 0,
+            'max_jumlah' => $this->calculateMaxJumlah($item->merkStok->id),
+            'editable' => !$item->status_lokasi,
+        ];
+    }
+
+    public function checkPropPenerima($index)
+    {
         $data = $this->list[$index];
 
-        if ($data['bagian_id'] && $data['posisi_id'] && $data['bukti'])  {
+        if ($data['bagian_id'] && $data['posisi_id'] && $data['bukti']) {
             $result = true;
         } else {
             $result = false;
@@ -373,21 +523,23 @@ class ListPengirimanForm extends Component
         $data = $this->list[$index];
         $data['editable'] = false;
 
-        if ($data['bukti']){
+
+        if ($data['bukti']) {
             $file = $data['bukti'];
         } else {
             $file = $this->namafile;
         }
         $attr = [
-            'bagian_id' => $data['bagian_id'],
-            'posisi_id' => $data['posisi_id'],
-            'img' => $file
+            'bagian_id' => strlen($data['bagian_id']) ? $data['bagian_id'] : null,
+            'posisi_id' => strlen($data['posisi_id']) ? $data['posisi_id'] : null,
+            'img' => $file,
+            'status_lokasi' => now()
         ];
 
-        if (auth()->user()->can('inventaris_edit_jumlah_diterima')) {
-            if ($data['jumlah_diterima'] > $data['jumlah']){
+        if (Auth::user()->can('inventaris_edit_jumlah_diterima')) {
+            if ($data['jumlah_diterima'] > $data['jumlah']) {
                 $this->dispatch('error', pesan: "Jumlah barang tidak boleh melebihi dari jumlah yang dikirim!");
-                    return;
+                return;
             }
             $editJumlah = [
                 'jumlah_diterima' => $data['jumlah_diterima']
@@ -399,12 +551,37 @@ class ListPengirimanForm extends Component
         $id_pengiriman = $data['id'];
 
         PengirimanStok::where('id', $id_pengiriman)->update($attr);
-
-        $this->hiddenButtons[$index] = true;
+        $pengiriman = PengirimanStok::find($id_pengiriman);
+        // $this->hiddenButtons[$index] = true;
 
         // $data['bagian_id'] && $data['posisi_id'] && $data['bukti']
         // $this->dispatch('statusAppPenerima', data: 'cek' );
-        return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
+        $newList = $this->arrayList(PengirimanStok::find($data['id']));
+        $this->dispatch('checkApproval');
+
+        $detailPengiriman = DetailPengirimanStok::find($pengiriman->detail_pengiriman_id);
+        $checkPenerimaDone = $detailPengiriman->pengirimanStok->count() == $detailPengiriman->pengirimanStok->whereNotNull('status_lokasi')->count();
+
+        if ($checkPenerimaDone) {
+            $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
+
+            $optionLastPemeriksa = $this->pengiriman->opsiPersetujuan->userPenyelesai;
+
+            $pemeriksa = User::role('Pemeriksa Barang')->whereHas('unitKerja', function ($subQuery) {
+                $subQuery->where('unit_id', $this->pengiriman->user->unit_id);
+            })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+            // Cari dan hapus $optionLastPemeriksa dari collection $pemeriksa jika ada
+            $filteredPemeriksa = $pemeriksa->reject(function ($user) use ($optionLastPemeriksa) {
+                return $user->id === $optionLastPemeriksa->id;
+            });
+
+            // Tambahkan $optionLastPemeriksa kembali ke akhir collection
+            $user = $filteredPemeriksa->push($optionLastPemeriksa)->first();
+            $message = 'Pengirimaan <span class="font-bold">' . $detailPengiriman->kode_pengiriman_stok . '</span> membutuhkan persetujuan Anda.';
+            Notification::send($user, new UserNotification($message, "/pengiriman-stok/{$detailPengiriman->id}"));
+        }
+        return $this->list[$index] = $newList;
+        // return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);
     }
 
     public function refreshData()

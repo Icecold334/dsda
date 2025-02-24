@@ -80,8 +80,8 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">JUMLAH</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">TANGGAL PENGIRIMAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/5 ">KETERANGAN</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold  w-1/5">LOKASI PENERIMAAN
-                </th>
+                {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold  w-1/5">LOKASI PENERIMAAN
+                </th> --}}
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/5  rounded-r-lg">DOKUMEN PENDUKUNG
                 </th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold "></th> --}}
@@ -106,9 +106,9 @@
                     <td class="py-3 px-6 font-semibold">
                         {{ $transaksi->deskripsi }}
                     </td>
-                    <td class="py-3 px-6 font-semibold">
+                    {{-- <td class="py-3 px-6 font-semibold">
                         {{ $transaksi->lokasi_penerimaan }}
-                    </td>
+                    </td> --}}
                     <td class="py-3 px-6 font-semibold text-center">
                         @if ($transaksi->img)
                             <a href="{{ asset('storage/buktiTransaksi/' . $transaksi->img) }}" target="_blank"

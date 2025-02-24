@@ -28,6 +28,9 @@ class KontrakListForm extends Component
     public $jumlah;
     public $newBarang = '';
     public $newKategori;
+    public $newHarga;
+    public $total = 0;
+    public $newPpn;
     public $barangSuggestions = [];
     public $showAddBarang = false;
     public $specifications = [
@@ -43,7 +46,17 @@ class KontrakListForm extends Component
         'satuanKecil' => [],
         'kategori' => [],
     ];
-
+    public function calculateTotal()
+    {
+        $total = 0;
+        foreach ($this->list as $item) {
+            $hargaNumerik = (float)str_replace('.', '', $item['harga']);
+            $subtotal = $hargaNumerik * $item['jumlah'];
+            $totalPpn = $subtotal * ($item['ppn'] / 100);
+            $total += $subtotal + $totalPpn;
+        }
+        return number_format($total, 0, '', '.'); // Reformat to "1.000.000"
+    }
     public function fetchSuggestions($field, $value)
     {
         $this->suggestions[$field] = [];
@@ -109,6 +122,11 @@ class KontrakListForm extends Component
             // Jika ada kecocokan, isi vendor_id dan kosongkan suggestions
             $this->selectBarang($exactMatch->id, $exactMatch->nama);
         }
+    }
+
+    public function focusBarang()
+    {
+        $this->updatedNewBarang();
     }
 
     public function blurBarang()
@@ -230,12 +248,15 @@ class KontrakListForm extends Component
             'kategori_id' => $this->kategori_id,
             'specifications' => $this->specifications,
             'jumlah' => $this->jumlah,
+            'harga' => $this->newHarga,
+            'ppn' => $this->newPpn,
             'satuan' => BarangStok::find($this->barang_id)->satuanBesar->nama,
         ];
 
         // $this->reset(['barang_id', 'merk_id', 'jumlah', 'newBarang']);
-        $this->reset(['barang_id',  'jumlah', 'newBarang']);
+        $this->reset(['barang_id',  'jumlah', 'newBarang', 'newHarga', 'newPpn']);
         $this->resetSpecifications();
+        $this->total = $this->calculateTotal();
         $this->dispatch('listCount', count: count($this->list));
     }
 
@@ -244,6 +265,7 @@ class KontrakListForm extends Component
     {
         unset($this->list[$index]);
         $this->list = array_values($this->list);
+        $this->total = $this->calculateTotal();
     }
 
     public function saveNewBarang()
@@ -316,6 +338,7 @@ class KontrakListForm extends Component
             'vendor_id' => $this->vendor_id,
             'tanggal_kontrak' => strtotime($this->tanggal_kontrak),
             'metode_id' => $this->metode_id,
+            'jenis_id' => $this->jenis_id,
             'user_id' => Auth::user()->id,
             'nomor_kontrak' => $this->nomor_kontrak,
             'type' => 1,
@@ -338,6 +361,8 @@ class KontrakListForm extends Component
                 'vendor_id' => $this->vendor_id,
                 'user_id' => Auth::user()->id,
                 'jumlah' => $item['jumlah'],
+                'harga' => (int)str_replace('.', '', $item['harga']),
+                'ppn' => $item['ppn'],
                 'kontrak_id' => $kontrak->id,
                 'tanggal' => strtotime(now()),
                 'tipe' => 'Pemasukan',
@@ -365,6 +390,13 @@ class KontrakListForm extends Component
     public function fillTanggal($tanggal)
     {
         $this->tanggal_kontrak = $tanggal;
+    }
+
+    public $nominal_kontrak;
+    #[On('nominal_kontrak')]
+    public function fillNominal($nominal)
+    {
+        $this->nominal_kontrak = $nominal;
     }
 
     #[On('jenis_id')]

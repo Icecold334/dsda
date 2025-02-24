@@ -4,55 +4,50 @@
         <thead>
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg">NAMA BARANG</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">LOKASI *</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BAGIAN</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">POSISI</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">SPESIFIKASI</th>
+                <th class="py-3 px-6 bg-primary-950 text-center w-1/6  font-semibold">LOKASI *</th>
+                @if ($showDokumen)
+                    <th class="py-3 px-6 bg-primary-950 text-center w-1/6 font-semibold">BAGIAN</th>
+                    <th class="py-3 px-6 bg-primary-950 text-center w-1/6 font-semibold">POSISI</th>
+                @endif
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/5" colspan="2">JUMLAH *</th>
                 @if ($showDokumen)
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th>
-                    @can('inventaris_upload_foto_bukti')
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">&nbsp;</th>
-                    @endcan
+                    <th
+                        class="py-3 px-6 bg-primary-950 text-center {{ $showDokumen ? 'rounded-r-lg' : '' }} font-semibold">
+                    </th>
+                @else
+                    <th class="py-3 px-6 bg-primary-950 text-center rounded-r-lg font-semibold"></th>
                 @endif
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
 
         <tbody>
             @if ($showDokumen)
-            <tr>
-                <th>&nbsp;</th>
-                <th>&nbsp;</th>
-                <th>&nbsp;</th>
-                <th>&nbsp;</th>
-                <th>Diajukan *</th>
-                <th>Diterima </th>
-                @if ($showDokumen)
-                    <th>&nbsp;</th>
-                    @can('inventaris_upload_foto_bukti')
-                        <th>&nbsp;</th>
-                    @endcan
-                @endif
-                <th></th>
-            </tr>
+                <tr>
+                    <th colspan="5"></th>
+                    <th>Diajukan *</th>
+                    <th>Diterima </th>
+                </tr>
             @endif
             @foreach ($list as $index => $item)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
-                    <td class="px-2 py-3 font-semibold">
-                        editable {{ $item['editable'] }}
+                    <td class="px-4 py-3 font-semibold">
+                        {{-- editable {{ $item['editable'] }} --}}
                         <div>{{ $item['merk']->barangStok->nama }}</div>
-                        <div class="font-normal text-sm">
-                            <table class="w-full">
-                                <tr>
-                                    <td class=" w-1/3 ">{{ $item['merk']->nama ?? '-' }}</td>
-                                    <td
-                                        class="border-x-2 border-primary-600 w-1/3  {{ $item['merk']->tipe ? '' : 'text-center' }}">
-                                        {{ $item['merk']->tipe ?? '-' }}</td>
-                                    <td class=" w-1/3  {{ $item['merk']->ukuran ? '' : 'text-center' }}">
-                                        {{ $item['merk']->ukuran ?? '-' }}</td>
-                                </tr>
-                            </table>
-                        </div>
+
+                    </td>
+                    <td class="px-3 py-3">
+                        <table class="w-full">
+                            <tr>
+                                <td class=" w-1/3 ">{{ $item['merk']->nama ?? '-' }}</td>
+                                <td
+                                    class="border-x-2 border-primary-600 w-1/3  {{ $item['merk']->tipe ? '' : 'text-center' }}">
+                                    {{ $item['merk']->tipe ?? '-' }}</td>
+                                <td class=" w-1/3  {{ $item['merk']->ukuran ? '' : 'text-center' }}">
+                                    {{ $item['merk']->ukuran ?? '-' }}</td>
+                            </tr>
+                        </table>
                     </td>
                     <td class="px-6 py-3">
                         <select wire:change="updateLokasi({{ $index }}, $event.target.value)"
@@ -60,10 +55,8 @@
                             {{-- @cannot('inventaris_edit_lokasi_penerimaan')
                                 cursor-not-allowed
                             @endcannot --}}
-                             bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            @disabled(isset($item['detail'])) {{-- @cannot('inventaris_edit_lokasi_penerimaan')
-                                disabled
-                            @endcannot --}}>
+                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            @disabled(isset($item['detail']))>
                             <option value="">Pilih Lokasi</option>
                             @foreach ($lokasis as $lokasi)
                                 <option value="{{ $lokasi->id }}" @if ($item['lokasi_id'] == $lokasi->id) selected @endif>
@@ -72,36 +65,40 @@
                             @endforeach
                         </select>
                     </td>
-                    <td class="px-6 py-3">
-                        <select wire:model="list.{{ $index }}.bagian_id"
-                            wire:change="updateBagianId({{ $index }}, $event.target.value)"
-                            wire:model.live="list.{{ $index }}.bagian_id"
-                            class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['lokasi_id']) || $authLokasi !== $item['lokasi_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            @disabled(!$item['editable'] || empty($item['lokasi_id']) || $authLokasi !== $item['lokasi_id'])
-                            @cannot('inventaris_edit_lokasi_penerimaan')
+                    @if ($showDokumen)
+                        <td class="px-6 py-3">
+                            <select wire:model="list.{{ $index }}.bagian_id"
+                                wire:change="updateBagianId({{ $index }}, $event.target.value)"
+                                wire:model.live="list.{{ $index }}.bagian_id"
+                                class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['lokasi_id']) || $authLokasi !== $item['lokasi_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                @disabled(!$item['editable'] || empty($item['lokasi_id']) || $authLokasi !== $item['lokasi_id'])
+                                @cannot('inventaris_edit_lokasi_penerimaan')
                                 disabled
                             @endcannot>
-                            <option value="">Pilih Bagian</option>
-                            @foreach ($item['bagians'] as $bagian)
-                                <option value="{{ $bagian->id }}" @if ($item['bagian_id'] == $bagian->id) selected @endif>
-                                    {{ $bagian->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </td>
-                    <td class="px-6 py-3">
-                        <select wire:model="list.{{ $index }}.posisi_id"
-                            wire:model.live="list.{{ $index }}.posisi_id"
-                            class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['bagian_id']) || $authLokasi !== $item['bagian_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            @disabled(!$item['editable'] || empty($item['bagian_id']) || $authLokasi !== $item['lokasi_id'])>
-                            <option value="">Pilih Posisi</option>
-                            @foreach ($item['posisis'] as $posisi)
-                                <option value="{{ $posisi->id }}" @if ($item['posisi_id'] == $posisi->id) selected @endif>
-                                    {{ $posisi->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </td>
+                                <option value="">Pilih Bagian</option>
+                                @foreach ($item['bagians'] as $bagian)
+                                    <option value="{{ $bagian->id }}"
+                                        @if ($item['bagian_id'] == $bagian->id) selected @endif>
+                                        {{ $bagian->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <td class="px-6 py-3">
+                            <select wire:model="list.{{ $index }}.posisi_id"
+                                wire:model.live="list.{{ $index }}.posisi_id"
+                                class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['bagian_id']) || $authLokasi !== $item['bagian_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                @disabled(!$item['editable'] || empty($item['bagian_id']) || $authLokasi !== $item['lokasi_id'])>
+                                <option value="">Pilih Posisi</option>
+                                @foreach ($item['posisis'] as $posisi)
+                                    <option value="{{ $posisi->id }}"
+                                        @if ($item['posisi_id'] == $posisi->id) selected @endif>
+                                        {{ $posisi->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </td>
+                    @endif
                     <td class="px-2 py-3">
                         <div class="flex items-center">
                             <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value="{{ $item['jumlah'] }}"
@@ -113,7 +110,6 @@
                                 class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
                                 {{ $item['merk_id'] ? optional(App\Models\MerkStok::find($item['merk_id'])->barangStok->satuanBesar)->nama : 'Satuan' }}
                             </span>
-                            &nbsp;
 
                         </div>
                         {{-- @if (!$item['merk_id']) --}}
@@ -132,9 +128,9 @@
                             @if ($showDokumen)
                                 <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value=""
                                     wire:model="list.{{ $index }}.jumlah_diterima"
-                                    wire:model.live="list.{{ $index }}.jumlah_diterima"
-                                    @cannot('inventaris_edit_jumlah_diterima') disabled @endcannot
-                                    class="bg-gray-50 border {{ $showDokumen === 1 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    wire:model.live="list.{{ $index }}.jumlah_diterima" {{-- @cannot('inventaris_edit_jumlah_diterima') disabled @endcannot --}}
+                                    disabled
+                                    class="bg-gray-50 border {{ 1 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                     min="1" {{-- max="{{ $item['max_jumlah'] }}" --}} placeholder="Jumlah">
                                 <span
                                     class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
@@ -146,80 +142,28 @@
                     @if ($showDokumen)
                         <td class="px-6 py-3 text-center">
                             @if (isset($item['bukti']))
-                                <!-- Check if the photo exists -->
-                                @if ($pengiriman)
-                                    @if (is_null($pengiriman->status))
-                                        <!-- Pengiriman ada dan statusnya null -->
-                                        @can('inventaris_unggah_foto_barang_datang')
-                                            <!-- Check if the item location matches the user's location -->
-                                            <!-- With permission and location matching -->
-                                            <div class="relative inline-block">
-                                                @if (is_string($item['bukti']))
-                                                    <a href="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
-                                                        target="_blank">
-                                                        <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
-                                                            alt="Bukti" class="w-16 h-16 rounded-md">
-                                                    </a>
-                                                @elseif (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl'))
-                                                    <a href="{{ $item['bukti']->temporaryUrl() }}" target="_blank">
-                                                        <img src="{{ $item['bukti']->temporaryUrl() }}" alt="Bukti"
-                                                            class="w-16 h-16 rounded-md">
-                                                    </a>
-                                                @else
-                                                    <span class="text-gray-500">Bukti tidak valid</span>
-                                                @endif
-                                                @if ($item['lokasi_id'] == $authLokasi)
-                                                    <button wire:click="removePhoto({{ $index }})"
-                                                        class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-xs hover:bg-red-700">
-                                                        &times;
-                                                    </button>
-                                                @endif
-                                            </div>
-                                        @else
-                                            <!-- Non-penanggungjawab hanya melihat -->
-                                            @if (is_string($item['bukti']))
-                                                <a href="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
-                                                    target="_blank" class="flex justify-center">
-                                                    <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
-                                                        alt="Bukti" class="w-16 h-16 rounded-md text-center">
-                                                </a>
-                                            @elseif (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl'))
-                                                <a href="{{ $item['bukti']->temporaryUrl() }}" target="_blank">
-                                                    <img src="{{ $item['bukti']->temporaryUrl() }}" alt="Bukti"
-                                                        class="w-16 h-16 rounded-md">
-                                                </a>
-                                            @else
-                                                <span class="text-gray-500">Bukti tidak valid</span>
-                                            @endif
-                                        @endcan
-                                    @else
-                                        <!-- Pengiriman ada tapi status bukan null, semua pengguna hanya melihat -->
-                                        @if (is_string($item['bukti']))
-                                            <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
-                                                alt="Bukti" class="w-16 h-16 rounded-md">
-                                        @elseif (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl'))
-                                            <a href="{{ $item['bukti']->temporaryUrl() }}" target="_blank">
-                                                <img src="{{ $item['bukti']->temporaryUrl() }}" alt="Bukti"
-                                                    class="w-16 h-16 rounded-md">
-                                            </a>
-                                        @else
-                                            <span class="text-gray-500">Bukti tidak valid</span>
-                                        @endif
-                                    @endif
-                                @else
-                                    <!-- Pengiriman ada tapi status bukan null, semua pengguna hanya melihat -->
-                                    @if (is_string($item['bukti']))
-                                        <img src="{{ asset('storage/buktiPengiriman/' . $item['bukti']) }}"
+                                <div class="relative inline-block">
+                                    <a href="{{ is_string($item['bukti'])
+                                        ? asset('storage/buktiPengiriman/' . $item['bukti'])
+                                        : (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl')
+                                            ? $item['bukti']->temporaryUrl()
+                                            : null) }}"
+                                        target="_blank">
+                                        <img src="{{ is_string($item['bukti'])
+                                            ? asset('storage/buktiPengiriman/' . $item['bukti'])
+                                            : (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl')
+                                                ? $item['bukti']->temporaryUrl()
+                                                : null) }}"
                                             alt="Bukti" class="w-16 h-16 rounded-md">
-                                    @elseif (is_object($item['bukti']) && method_exists($item['bukti'], 'temporaryUrl'))
-                                        <a href="{{ $item['bukti']->temporaryUrl() }}" target="_blank">
-                                            <img src="{{ $item['bukti']->temporaryUrl() }}" alt="Bukti"
-                                                class="w-16 h-16 rounded-md">
-                                        </a>
-                                    @else
-                                        <span class="text-gray-500">Bukti tidak valid</span>
+                                    </a>
+                                    @if (
+                                        $item['editable'] &&
+                                            $item['lokasi_id'] == $authLokasi &&
+                                            auth()->user()->can('inventaris_unggah_foto_barang_datang'))
+                                        <button wire:click="removePhoto({{ $index }})"
+                                            class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-xs hover:bg-red-700">&times;</button>
                                     @endif
-                                @endif
+                                </div>
                             @else
                                 <!-- No photo uploaded, check location and permission -->
                                 @can('inventaris_unggah_foto_barang_datang')
@@ -231,7 +175,7 @@
                                         <button type="button"
                                             onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
                                             class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
-                                            Unggah Foto
+                                            Unggah
                                         </button>
                                     @else
                                         <span class="text-gray-500">Belum ada unggahan</span>
@@ -247,7 +191,7 @@
 
 
                     <td class="text-center">
-                        
+
                         {{-- {{ $item['bagian_id'] && $item['posisi_id'] && $item['bukti'] ? '' : 'hidden' }} --}}
                         @if ($item['id'] === null)
                             <button wire:click="removeFromList({{ $index }})"
@@ -255,40 +199,36 @@
                                 <i class="fa-solid fa-circle-xmark"></i>
                             </button>
                         @endif
-                        {{-- @if ($item['id'])
-                            <button wire:click="addToList"
-                                class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                <i class="fa-solid fa-circle-check"></i>
-                            </button>
-                        @endif --}}
-                        {{-- {{ $item['boolean_jumlah'] }} --}}
+
                         @if ($showDokumen)
                             <button wire:click="updatePengirimanStok({{ $index }})"
                                 class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
-                                    {{ $item['bagian_id'] && $item['posisi_id'] && $item['bukti'] && empty($hiddenButtons[$index]) ? '' : 'hidden' }}
+                                    {{ $item['bukti'] && $item['editable'] && $item['lokasi_id'] == $authLokasi ? '' : 'hidden' }}
                                      ">
                                 <i class="fa-solid fa-circle-check"></i>
                             </button>
                             <!-- Without permission, show "Belum ada unggahan" -->
                             {{-- <span class="text-gray-500">Belum ada unggahan</span> --}}
                             <!-- Your content or logic here -->
-                            @can('inventaris_edit_jumlah_diterima')
-                                <button wire:click="updatePengirimanStok({{ $index }})"
-                                    class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
-                            {{ isset($item['jumlah_diterima']) > 0 && $item['jumlah_diterima'] ? '' : 'hidden' }}">
-                                    <i class="fa-solid fa-circle-check"></i>
-                                </button>
-                            @endcan
+                            {{-- @can('inventaris_edit_jumlah_diterima') --}}
+                            <button wire:click="openApprovalModal({{ $item['id'] }})"
+                                class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200
+                            {{-- {{ $showButtonPemeriksa && !$item['editable'] ? '' : 'hidden' }}"> --}}
+                            {{ !$item['editable'] ? '' : 'hidden' }}">
+                                <i class="fa-solid fa-info"></i>
+                            </button>
+                            {{-- @endcan --}}
                         @endif
-                        @if (!$item['id'] && $showDokumen)
-                            &nbsp;
-                        @endif
+
                     </td>
+
                 </tr>
             @endforeach
         </tbody>
     </table>
     <div class="flex justify-center mt-4">
+        {{-- @dump($showApprovalModal, $approvalData, $selectedItemId) --}}
+
         @if (!$showDokumen && collect($list)->count() > 0)
             <button wire:click="savePengiriman"
                 class="text-primary-900 bg-primary-100 border border-primary-600 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5">
@@ -296,5 +236,139 @@
             </button>
         @endif
     </div>
+
+    @if ($showApprovalModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+            <div class="bg-white rounded-lg shadow-lg w-2/3">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 class="text-xl font-semibold">Setujui Pengiriman Barang</h3>
+                    <button wire:click="openApprovalModal({{ $selectedItemId }})"
+                        class="text-gray-500 hover:text-gray-800">
+                        &times;
+                    </button>
+                </div>
+                {{-- @dd($approvalData) --}}
+                <!-- Modal Body -->
+                <div class="p-4 space-y-4">
+
+                    <!-- Daftar Lokasi, Jumlah, dan Catatan -->
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-200 text-left">
+                                <th class="border px-4 py-2">Nama</th>
+                                <th class="border px-4 py-2">Jumlah Disetujui</th>
+                                <th class="border px-4 py-2">Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($approvalData as $index => $pengiriman)
+                                <tr>
+
+                                    <td
+                                        class="border px-4 py-2 {{ auth()->id() == $pengiriman['id'] ? 'font-semibold' : '' }}">
+                                        {{ $pengiriman['nama'] }}</td>
+
+                                    <td class="border px-4 py-2">
+                                        <input type="number" wire:model="approvalData.{{ $index }}.jumlah"
+                                            @disabled($pengiriman['jumlah'] || !$showButtonPemeriksa || auth()->id() != $pengiriman['id'])
+                                            class="w-full {{ $pengiriman['jumlah'] || !$showButtonPemeriksa || auth()->id() != $pengiriman['id'] ? 'cursor-not-allowed bg-gray-200' : '' }} border rounded px-2 py-1"
+                                            min="0">
+                                    </td>
+                                    <td class="border px-4 py-2">
+                                        <textarea wire:model="approvalData.{{ $index }}.catatan" @disabled($pengiriman['jumlah'] || !$showButtonPemeriksa || auth()->id() != $pengiriman['id'])
+                                            class="w-full {{ $pengiriman['jumlah'] || !$showButtonPemeriksa || auth()->id() != $pengiriman['id'] ? 'cursor-not-allowed bg-gray-200' : '' }} border rounded px-2 py-1"
+                                            rows="1" placeholder="Belum ada catatan"></textarea>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td class="font-semibold py-4 text-center" colspan="7">Barang Tidak Tersedia
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-end p-4 border-t">
+                    <button wire:click="approveItem({{ $selectedItemId }})" {{-- optional(collect($approvalData)->where('id', auth()->id())->first())['jumlah'] --}}
+                        class="bg-primary-500 {{ !optional(
+                            collect($approvalData)->where('id', auth()->id())->first(),
+                        )['jumlah'] &&
+                        $showButtonPemeriksa &&
+                        auth()->id() ==
+                            optional(
+                                collect($approvalData)->where('id', auth()->id())->first(),
+                            )['id']
+                            ? ''
+                            : 'hidden' }} hover:bg-primary-700 text-white font-bold py-2 px-4 rounded">
+                        Setujui
+                    </button>
+                    <button wire:click="openApprovalModal({{ $selectedItemId }})"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ml-2">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
+    {{-- @if ($noteModalVisible)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+            <div class="bg-white rounded-lg shadow-lg w-1/2">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 class="text-xl font-semibold">Catatan Persetujuan</h3>
+                    <button wire:click="$set('noteModalVisible', false)" class="text-gray-500 hover:text-gray-800">
+                        &times;
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="p-4 space-y-4">
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-200 text-left">
+                                <th class="border px-4 py-2">Spesifikasi</th>
+
+                                <th class="border px-4 py-2">Lokasi</th>
+                                <th class="border px-4 py-2">Bagian</th>
+                                <th class="border px-4 py-2">Posisi</th>
+                                <th class="border px-4 py-2">Jumlah Disetujui</th>
+                                <th class="border px-4 py-2">Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($selectedItemNotes as $note)
+                                <tr>
+                                    <td class="border px-4 py-2">
+                                        <div>Merk : {{ $note['merk']->nama ?? '-' }}</div>
+                                        <div>Tipe : {{ $note['merk']->ukuran ?? '-' }}</div>
+                                        <div>Ukuran : {{ $note['merk']->tipe ?? '-' }}</div>
+                                    </td>
+                                    <td class="border px-4 py-2">{{ $note['lokasi'] }}</td>
+                                    <td class="border px-4 py-2">{{ $note['bagian'] }}</td>
+                                    <td class="border px-4 py-2">{{ $note['posisi'] }}</td>
+                                    <td class="border px-4 py-2">{{ $note['jumlah_disetujui'] }}</td>
+                                    <td class="border px-4 py-2">{{ $note['catatan'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-end p-4 border-t">
+                    <button wire:click="$set('noteModalVisible', false)"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif --}}
 
 </div>

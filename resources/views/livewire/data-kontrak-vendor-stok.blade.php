@@ -46,14 +46,16 @@
                         <option value="{{ $metode }}">{{ $metode }}</option>
                     @endforeach
                 </select>
-
+                @can('kontrak_tambah_kontrak_baru')
+                    <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                        <i class="fa fa-sync-alt"></i>
+                    </button>
+                    <a href="{{ route('kontrak-vendor-stok.create') }}"
+                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
+                        Rekam Kontrak Baru</a>
+                @endcan
                 <!-- Button Go -->
-                <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
-                    <i class="fa fa-sync-alt"></i>
-                </button>
-                <a href="{{ route('kontrak-vendor-stok.create') }}"
-                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                    Rekam Kontrak Baru</a>
+
             </div>
         </div>
     </div>
@@ -103,7 +105,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($transaction->transaksiStok as $tran)
+                                @foreach ($transaction->transaksiStok->take(3) as $tran)
                                     <tr class="border-b-[1px] border-primary-800">
                                         <td class="border-r-4 px-2">
                                             {{ $tran->merkStok->barangStok->nama }}
@@ -112,6 +114,13 @@
                                             {{ $tran->merkStok->barangStok->satuanBesar->nama }}</td>
                                     </tr>
                                 @endforeach
+                                @if ($transaction->transaksiStok->count() > 3)
+                                    <tr class="border-b-[1px] border-primary-800">
+                                        <td colspan="2" class="text-center font-semibold px-2">
+                                            {{ $transaction->transaksiStok->count() - 3 }} Transaksi Lain
+                                        </td>
+                                    </tr>
+                                @endif
                             </tbody>
                         </table>
                     </td>

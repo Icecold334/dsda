@@ -448,7 +448,7 @@
                     <!-- Sign In Form -->
                     <form wire:submit="loginCheck">
                         <a class="logo" href="/" style="text-decoration: none">
-                            <img src="{{ asset('dashboard/img/logo.png') }}" alt="easyclass" />
+                            {{-- <img src="{{ asset('dashboard/img/logo.png') }}" alt="easyclass" /> --}}
                             <h2>{{ env('APP_NAME') }}</h2>
                         </a>
 

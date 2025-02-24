@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\UnitKerja;
 use App\Models\LokasiStok;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
@@ -31,6 +32,7 @@ class User extends Authenticatable
         'foto',
         'email',
         'password',
+        'email_verified_at',
         'username',
         'alamat',
         'perusahaan',
@@ -64,6 +66,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(PersetujuanKontrakStok::class, 'user_id');
     }
+    public function kontrakVendor()
+    {
+        return $this->hasMany(KontrakVendorStok::class, 'user_id');
+    }
     public function persetujuanPengiriman()
     {
         return $this->hasMany(PersetujuanPengirimanStok::class, 'user_id');
@@ -92,5 +98,14 @@ class User extends Authenticatable
     public function pengirimanStok()
     {
         return $this->hasMany(PengirimanStok::class, 'lokasi_id', 'lokasi_id');
+    }
+
+    public function opsi()
+    {
+        return $this->hasMany(OpsiPersetujuan::class, 'user_penyelesai_id');
+    }
+    public function stokDiterima()
+    {
+        return $this->hasMany(StokDiterima::class, 'user_id');
     }
 }

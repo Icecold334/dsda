@@ -74,4 +74,5 @@
             @endforelse
         </tbody>
     </table>
+    {{ $persons->onEachSide(1)->links() }}
 </div>

@@ -2,7 +2,7 @@
     <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL {{ Str::upper($tipe) }}</h1>
-        <div>
+        {{-- <div>
             @if ($tipe == 'peminjaman')
                 <a href="/permintaan-stok"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
@@ -10,7 +10,7 @@
                 <a href="/permintaan{{ $permintaan->jenis_id == 3 ? '-stok' : ($permintaan->jenis_id == 2 ? '/spare-part' : '/material') }}"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
             @endif
-        </div>
+        </div> --}}
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
@@ -80,33 +80,32 @@
                         <td>Sub-Unit</td>
                         <td>{{ $permintaan->subUnit->nama ?? '---' }}</td>
                     </tr>
-                    <tr class="font-semibold">
-                        <td>Keterangan</td>
-                        <td>{{ $permintaan->keterangan ?? '---' }}</td>
-                    </tr>
                 </table>
             </x-card>
         </div>
-        <div class="grid gap-6">
-            @if ($permintaan->cancel === 0)
-                <x-card title="QR Code" class="mb-3">
-                    <div class="flex justify-around">
-                        <div
-                            class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
-                            <a href="{{ route('permintaan.downloadQrImage', $permintaan->id) }}" class="w-full h-full">
-                                <img src="{{ asset($permintaan->kode_permintaan ? 'storage/qr_permintaan/' . $permintaan->kode_permintaan . '.png' : 'img/default-pic.png') }}"
-                                    data-tooltip-target="tooltip-QR" alt="QR Code"
-                                    class="w-full h-full object-cover object-center rounded-sm">
-                            </a>
-                        </div>
-                        <div id="tooltip-QR" role="tooltip"
-                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                            Klik Untuk Mengunduh QR-Code Ini
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
+        <div class="grid grid-cols-2 gap-6">
+            <x-card title="keterangan" class="mb-3">
+                <div class="font-normal">
+                    {{ $permintaan->keterangan }}
+                </div>
+            </x-card>
+            <x-card title="QR Code" class="mb-3">
+                <div class="flex justify-around">
+                    <div
+                        class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
+                        <a href="{{ route('aset.downloadQrImage', $permintaan->id) }}" class="w-full h-full">
+                            <img src="{{ asset($permintaan->kode_permintaan ? 'storage/qr_permintaan/' . $permintaan->kode_permintaan . '.png' : 'img/default-pic.png') }}"
+                                data-tooltip-target="tooltip-QR" alt="QR Code"
+                                class="w-full h-full object-cover object-center rounded-sm">
+                        </a>
                     </div>
-                </x-card>
-            @endif
+                    <div id="tooltip-QR" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                        Klik Untuk Mengunduh QR-Code Ini
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
+                </div>
+            </x-card>
         </div>
         <div class="col-span-2">
             <x-card title="daftar permintaan">

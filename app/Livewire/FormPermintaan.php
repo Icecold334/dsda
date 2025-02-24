@@ -2,13 +2,18 @@
 
 namespace App\Livewire;
 
-use App\Models\Kategori;
-use App\Models\KategoriStok;
 use Carbon\Carbon;
+use BaconQrCode\Writer;
 use Livewire\Component;
+use App\Models\Kategori;
 use App\Models\UnitKerja;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Str;
 use Livewire\Attributes\On;
+use App\Models\KategoriStok;
+use Illuminate\Support\Facades\Auth;
+use BaconQrCode\Renderer\GDLibRenderer;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Storage;
 
 class FormPermintaan extends Component
 {
@@ -116,6 +121,9 @@ class FormPermintaan extends Component
             $this->dispatch('sub_unit_id', sub_unit_id: $this->sub_unit_id);
         }
     }
+
+
+
     public function render()
     {
         return view('livewire.form-permintaan');

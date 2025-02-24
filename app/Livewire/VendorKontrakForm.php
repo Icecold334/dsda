@@ -18,6 +18,7 @@ class VendorKontrakForm extends Component
 {
     public $vendors;
     public $nomor_kontrak;
+    public $nominalKontrak;
     public $tanggal_kontrak;
     public $barangs;
     public $metodes;
@@ -31,6 +32,7 @@ class VendorKontrakForm extends Component
     public $unit_id;
     public $listCount;
     public $show;
+    public $type;
     public $showNomor, $cekSemuaItem;
     public $showAddVendorForm = false;
     public $showSuggestions;
@@ -82,6 +84,7 @@ class VendorKontrakForm extends Component
 
         $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
         $this->show = !request()->is('pengiriman-stok/create');
+        $this->type = request()->is('kontrak-vendor-stok/create');
         $this->showNomor = !(request()->is('transaksi-darurat-stok/create') || request()->is('pengiriman-stok/create'));
         $this->barangs = JenisStok::all();
         $this->vendors = Toko::all();
@@ -115,6 +118,10 @@ class VendorKontrakForm extends Component
         // }
     }
 
+    public function updatedNominalKontrak($nominal)
+    {
+        $this->dispatch('nominal_kontrak', nominal: $this->nominalKontrak);
+    }
     public function updatedTanggalKontrak()
     {
         $this->dispatch('tanggal_kontrak', tanggal: $this->tanggal_kontrak);

@@ -39,4 +39,9 @@ class PengirimanStok extends Model
     {
         return $this->belongsTo(PosisiStok::class, 'posisi_id');
     }
+
+    public function stokDiterima()
+    {
+        return $this->hasMany(StokDiterima::class, 'pengiriman_id');
+    }
 }

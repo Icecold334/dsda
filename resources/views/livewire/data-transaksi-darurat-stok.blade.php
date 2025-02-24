@@ -6,11 +6,13 @@
                 {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
             @endif
         </h1>
-        <div>
-            <a href="{{ route('transaksi-darurat-stok.create') }}"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                Rekam Kontrak Baru</a>
-        </div>
+        @can('kontrak_tambah_kontrak_baru')
+            <div>
+                <a href="{{ route('transaksi-darurat-stok.create') }}"
+                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
+                    Rekam Kontrak Baru</a>
+            </div>
+        @endcan
     </div>
 
     @if (session('success'))
@@ -36,12 +38,12 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($groupedTransactions as $vendorId => $unitGroups)
+            @foreach ($grouped as $unitGroups)
                 <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                     <td class="py-3 px-6"></td> <!-- Displays the row number -->
                     <td class="py-3 px-6">
                         <p class="font-semibold text-gray-800">
-                            {{ $unitGroups->first()->first()->vendorStok->nama ?? 'Unknown Vendor' }}
+                            {{ optional($unitGroups->first()->vendorStok)->nama ?? 'Unknown Vendor' }}
                         </p>
                     </td>
                     <td class="py-3 px-6">
@@ -54,37 +56,35 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- @foreach ($unitGroups as $unitId => $transactions) --}}
-                                {{-- <tr class="font-semibold text-primary-950">
-                                        <td colspan="3" class="text-center py-2">
-                                            {{ $transactions->first()->user->unitKerja->nama }}
-                                        </td>
-                                    </tr> --}}
                                 @foreach ($unitGroups as $transaction)
                                     <tr class="border-b-[1px] border-primary-800">
-                                        <td>{{ $transaction->merkStok->barangStok->nama }}</td>
-                                        <td>{{ $transaction->merkStok->nama ?? 'Unknown Merk' }}</td>
+                                        <td>{{ optional($transaction->merkStok->barangStok)->nama ?? 'Unknown Barang' }}
+                                        </td>
+                                        <td>{{ optional($transaction->merkStok)->nama ?? 'Unknown Merk' }}</td>
                                         <td>{{ $transaction->jumlah }}
-                                            {{ $transaction->merkStok->barangStok->satuanBesar->nama }}</td>
+                                            {{ optional($transaction->merkStok->barangStok->satuanBesar)->nama ?? '' }}
+                                        </td>
                                     </tr>
                                 @endforeach
-                                {{-- @endforeach --}}
                             </tbody>
                         </table>
                     </td>
                     <td class="py-3 px-6 w-1/6 text-center">
-                        <a href="{{ route('transaksi-darurat-stok.show', ['transaksi_darurat_stok' => $unitGroups->first()->first()->vendorStok->id]) }}"
+                        {{-- <a href="{{ route('transaksi-darurat-stok.show', ['transaksi_darurat_stok' => $unitGroups->first()->vendor_id]) }}"
                             class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300">
                             <i class="fa-solid fa-eye"></i>
-                        </a>
-                        <a href="{{ route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $unitGroups->first()->first()->vendorStok->id]) }}"
+                        </a> --}}
+                        <a href="{{ route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $unitGroups->first()->vendor_id]) }}"
                             class="text-primary-950 px-3 py-3 mx-2 rounded-md border hover:bg-slate-300">
-                            <i class="fa-solid fa-pen"></i>
+                            {{-- <i class="fa-solid fa-pen"></i> --}}
+                            <i class="fa-solid fa-eye"></i>
                         </a>
                     </td>
                 </tr>
             @endforeach
+            {{-- @dd($unitGroups) --}}
+
         </tbody>
     </table>
-
+    {{ $pagination->onEachSide(1)->links() }}
 </div>

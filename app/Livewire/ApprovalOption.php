@@ -23,33 +23,47 @@ class ApprovalOption extends Component
 
     public function mount()
     {
-        $this->approveAfter = $this->tipe == 'permintaan' ? 'Tentukan setelah persetujuan keberapa jumlah barang akan ditentukan' : 'Tentukan setelah persetujuan keberapa peminjaman akan ditentukan';
-        $unit_id = $this->unit_id;
-        $this->rolesAvailable = User::whereHas('unitKerja', function ($user) use ($unit_id) {
-            return $user->where('parent_id', $unit_id)->orWhere('unit_id', $unit_id);
-        })
-            ->get()
-            ->pluck('roles') // Ambil seluruh data role dari relasi
-            ->flatten()
-            ->unique('id')
-            ->values();
-        $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('unit_id', $this->unit_id)
-            ->where('jenis', $this->jenis)
-            ->latest()
-            ->first();
-        $this->roles = $latestApprovalConfiguration->jabatanPersetujuan->map(function ($jabatan) {
-            return $jabatan->jabatan; // Pastikan relasi ke model Role di JabatanPersetujuan benar
-        });
-        $this->rolesAvailable = collect($this->rolesAvailable)
-            ->reject(fn($role) => $role->id == $this->selectedRole)
-            ->values(); // Tetap dalam bentuk Collection
-        if ($this->tipe == 'permintaan' || true) {
-            $this->pesan = 'Urutkan peran sesuai alur persetujuan. Jabatan terakhir dalam daftar, bertugas menyelesaikan proses persetujuan.';
-            if ($this->jenis == 'umum') {
+        // dd(User::whereHas('roles', function ($role) {
+        //     return $role->where('name', 'Pemeriksa Barang');
+        // })->get());
+        if ($this->tipe == 'pengiriman') {
+            $unit_id = $this->unit_id;
+            $this->roles = $rolesAvailable = $this->rolesAvailable = User::whereHas('unitKerja', function ($user) use ($unit_id) {
+                return $user->where('parent_id', $unit_id)->orWhere('unit_id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'Pemeriksa Barang');
+            })->get()->toArray();
+            $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('unit_id', $this->unit_id)
+                ->where('jenis', $this->jenis)
+                ->latest()
+                ->first();
+            $this->finalizerRole = $latestApprovalConfiguration->user_penyelesai_id;
+
+            // dd($rolesAvailable, $latestApprovalConfiguration->userPenyelesai);
+        } else {
+            $this->approveAfter = $this->tipe == 'permintaan' ? 'Tentukan setelah persetujuan keberapa jumlah barang akan ditentukan' : 'Tentukan setelah persetujuan keberapa peminjaman akan ditentukan';
+            $unit_id = $this->unit_id;
+            $this->rolesAvailable = User::whereHas('unitKerja', function ($user) use ($unit_id) {
+                return $user->where('parent_id', $unit_id)->orWhere('unit_id', $unit_id);
+            })->get()->pluck('roles')->flatten()->unique('id')->values();
+            $latestApprovalConfiguration = \App\Models\OpsiPersetujuan::where('unit_id', $this->unit_id)
+                ->where('jenis', $this->jenis)
+                ->latest()
+                ->first();
+            $this->roles = $latestApprovalConfiguration->jabatanPersetujuan->map(function ($jabatan) {
+                return $jabatan->jabatan; // Pastikan relasi ke model Role di JabatanPersetujuan benar
+            });
+            $this->rolesAvailable = collect($this->rolesAvailable)
+                ->reject(fn($role) => $role->id == $this->selectedRole)
+                ->values(); // Tetap dalam bentuk Collection
+            if ($this->tipe == 'permintaan' || true) {
+                $this->pesan = 'Urutkan peran sesuai alur persetujuan. Jabatan terakhir dalam daftar, bertugas menyelesaikan proses persetujuan.';
+                if ($this->jenis == 'umum') {
+                }
+                $this->approvalOrder = $latestApprovalConfiguration->urutan_persetujuan;
+                $this->cancelApprovalOrder = $latestApprovalConfiguration->cancel_persetujuan;
+                $this->finalizerRole = $latestApprovalConfiguration->jabatan_penyelesai_id;
             }
-            $this->approvalOrder = $latestApprovalConfiguration->urutan_persetujuan;
-            $this->cancelApprovalOrder = $latestApprovalConfiguration->cancel_persetujuan;
-            $this->finalizerRole = $latestApprovalConfiguration->jabatan_penyelesai_id;
         }
     }
 
@@ -113,18 +127,30 @@ class ApprovalOption extends Component
 
     public function saveApprovalConfiguration()
     {
+
+        $arr = $this->tipe == 'pengiriman' ?
+            [
+                'unit_id' => $this->unit_id, // Ganti sesuai kebutuhan
+                'uuid' => $this->faker->uuid, // Ganti sesuai kebutuhan
+                'jenis' => $this->jenis, // Ganti sesuai kebutuhan
+                'tipe' => $this->tipe, // Ganti sesuai kebutuhan
+                'deskripsi' => $this->faker->text(400), // Ganti sesuai kebutuhan
+                'user_penyelesai_id' => $this->finalizerRole, // Jabatan terakhir sebagai penyelesaian
+            ]
+            :
+            [
+                'unit_id' => $this->unit_id, // Ganti sesuai kebutuhan
+                'uuid' => $this->faker->uuid, // Ganti sesuai kebutuhan
+                'jenis' => $this->jenis, // Ganti sesuai kebutuhan
+                'tipe' => $this->tipe, // Ganti sesuai kebutuhan
+                'deskripsi' => $this->faker->text(400), // Ganti sesuai kebutuhan
+                'urutan_persetujuan' => $this->approvalOrder,
+                'cancel_persetujuan' => $this->cancelApprovalOrder,
+                'jabatan_penyelesai_id' => $this->finalizerRole, // Jabatan terakhir sebagai penyelesaian
+            ];
         // dd($this->faker->uuid);
         // Simpan opsi persetujuan ke database
-        $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
-            'unit_id' => $this->unit_id, // Ganti sesuai kebutuhan
-            'uuid' => $this->faker->uuid, // Ganti sesuai kebutuhan
-            'jenis' => $this->jenis, // Ganti sesuai kebutuhan
-            'tipe' => $this->tipe, // Ganti sesuai kebutuhan
-            'deskripsi' => $this->faker->text(400), // Ganti sesuai kebutuhan
-            'urutan_persetujuan' => $this->approvalOrder,
-            'cancel_persetujuan' => $this->cancelApprovalOrder,
-            'jabatan_penyelesai_id' => $this->finalizerRole, // Jabatan terakhir sebagai penyelesaian
-        ]);
+        $approvalConfiguration = \App\Models\OpsiPersetujuan::create($arr);
 
         // Simpan setiap role dalam konfigurasi ke tabel jabatan_persetujuan
         foreach ($this->roles as $index => $role) {

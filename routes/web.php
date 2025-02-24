@@ -2,6 +2,7 @@
 
 use App\Models\Aset;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use App\Models\Persetujuan;
 use App\Models\PermintaanStok;
 use App\Livewire\AssetCalendar;
@@ -53,6 +54,7 @@ use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\PengaturanPersetujuanController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
+use App\Models\DetailPermintaanStok;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -66,6 +68,27 @@ Route::get('/logout', function () {
     return redirect()->to('/login');
 });
 
+Route::get('/qr/permintaan/{user_id}/{kode}', function ($user_id, $kode) {
+    // Cari aset berdasarkan systemcode
+    $permintaan = DetailPermintaanStok::where('kode_permintaan', $kode)->first();
+
+    // Jika permintaan tidak ditemukan, redirect ke halaman home atau tampilkan pesan error
+    if (!$permintaan) {
+        return redirect()->route('home')->with('error', 'Aset tidak ditemukan.');
+    }
+
+    // Gunakan user_id = 3 sebagai guest, tidak tergantung pada user yang sedang login
+    $user = User::find(3); // Selalu menggunakan user dengan ID 3 (guest)
+    // Auth::loginUsingId(3);
+    $tipe = 'permintaan';
+    // Jika user dengan ID 3 tidak ditemukan, tampilkan pesan error
+    if (!$user) {
+        return redirect()->route('home')->with('error', 'User Guest tidak ditemukan.');
+    }
+
+    // Kembalikan view dengan data aset dan user guest
+    return view('scan_permintaan', compact('permintaan', 'user', 'tipe'));
+})->name('scan_permintaan');
 Route::get('/scan/{user_id}/{systemcode}', function ($user_id, $systemcode) {
     // Cari aset berdasarkan systemcode
     $aset = Aset::with(['histories', 'keuangans', 'jurnals'])->where('systemcode', $systemcode)->first();
@@ -95,7 +118,7 @@ Route::get('dashboard', [DashboardController::class, 'index'])
 
 
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('agenda', AgendaController::class);
     Route::get('/nonaktifaset/export', [AsetNonAktifController::class, 'exportExcel'])->name('nonaktifaset.export');
     Route::get('/nonaktifaset/downlaod-qr/{assetId}', [AsetNonAktifController::class, 'downloadQrImage'])->name('nonaktifaset.downloadQrImage');
@@ -104,10 +127,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/aset/export', [AsetController::class, 'exportExcel'])->name('aset.export');
     Route::get('/aset/{id}/export-pdf', [AsetController::class, 'exportPdf'])->name('aset.export-pdf');
     Route::get('/aset/downlaod-qr/{assetId}', [AsetController::class, 'downloadQrImage'])->name('aset.downloadQrImage');
+    Route::get('/permintaan/downlaod-qr/{kode}', [PermintaanStokController::class, 'downloadQrImage'])->name('permintaan.downloadQrImage');
     Route::resource('aset', AsetController::class);
     Route::put('/aset/{id}/nonaktif', [AsetController::class, 'nonaktif'])->name('show.nonaktif');
     Route::resource('history', HistoryController::class);
     Route::resource('jurnal', JurnalController::class);
+    Route::get('kalender-aset', function () {
+        $peminjaman = DB::table('peminjaman_aset')
+            ->join('detail_peminjaman_aset', 'peminjaman_aset.detail_peminjaman_id', '=', 'detail_peminjaman_aset.id')
+            ->join('aset', 'peminjaman_aset.aset_id', '=', 'aset.id')
+            ->where('detail_peminjaman_aset.status', 1)
+            ->select('peminjaman_aset.*', 'detail_peminjaman_aset.tanggal_peminjaman', 'aset.nama')
+            ->get();
+        return view('peminjaman.index', ['peminjaman' => $peminjaman]);
+    });
     Route::get('kategori/{tipe}', [KategoriController::class, 'create']);
     Route::get('kategori/{tipe}/{kategori}', [KategoriController::class, 'create'])->middleware('can:data_kategori');
     Route::resource('kategori', KategoriController::class)->middleware('can:data_kategori');
@@ -175,19 +208,9 @@ Route::middleware(['auth'])->group(function () {
     ]);
 });
 
-// Register all resource routes
-
-
-// Route::view('dashboard', 'dashboard')
-//     ->middleware(['auth', 'verified'])
-//     ->name('dashboard');
 
 Route::view('profile', 'profile')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'verified'])
     ->name('profile');
-
-Route::get('/testapprove', function () {
-    return Persetujuan::all()->toArray();
-});
 
 require __DIR__ . '/auth.php';

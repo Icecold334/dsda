@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class DataMerk extends Component
 {
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
-    public $merks = [];
+    // public $merks = [];
 
     public function mount()
     {
@@ -29,7 +29,7 @@ class DataMerk extends Component
         // Jika unit memiliki parent_id (child), gunakan parent_id-nya
         // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
         $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
-        $this->merks = Merk::withCount(['aset' => function ($query) use ($parentUnitId, $userUnitId) {
+        $lists = Merk::withCount(['aset' => function ($query) use ($parentUnitId, $userUnitId) {
             // Jika unit_id user null, jangan filter unit_id (ambil semua aset)
             if (!is_null($userUnitId)) {
                 $query->whereHas('user', function ($query) use ($parentUnitId) {
@@ -41,8 +41,9 @@ class DataMerk extends Component
                 $query->where('nama', 'like', '%' . $this->search . '%')
                     ->orWhere('keterangan', 'like', '%' . $this->search . '%');
             })
-            ->get()
-            ->toArray();
+            ->paginate(10);
+
+            return $lists;
     }
 
     public function updateSearch($value)
@@ -53,6 +54,7 @@ class DataMerk extends Component
 
     public function render()
     {
-        return view('livewire.data-merk');
+        $merks = $this->loadData();
+        return view('livewire.data-merk', compact('merks'));
     }
 }

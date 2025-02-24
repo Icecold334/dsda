@@ -1,4 +1,7 @@
 <div>
+    <div wire:loading wire:target='downloadExcel'>
+        <livewire:loading>
+    </div>
     <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">Daftar Stok
@@ -34,16 +37,12 @@
                     <button data-tooltip-target="tooltip-excel" wire:click="downloadExcel"
                         class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
                             class="fa-solid fa-file-excel"></i></button>
+                    <div id="tooltip-excel" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                        Download dalam format excel
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
                 @endif
-                <div id="tooltip-excel" role="tooltip"
-                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                    Download dalam format excel
-                    <div class="tooltip-arrow" data-popper-arrow></div>
-                </div>
-                <!-- Button Go -->
-                {{-- <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
-                    <i class="fa fa-sync-alt"></i>
-                </button> --}}
             </div>
         </div>
     </div>
@@ -121,4 +120,5 @@
         </tbody>
     </table>
 
+    {{ $barangs->onEachSide(1)->links() }}
 </div>

@@ -5,15 +5,16 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\UnitKerja;
 use App\Models\LokasiStok;
+use Livewire\WithoutUrlPagination;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 
 class DataLokasiStok extends Component
 {
-
+    
     // public $search = ''; // Properti untuk menyimpan nilai input pencarian
     // public $lokasiStok = []; // Properti untuk menyimpan data lokasi
-    use WithPagination; // Gunakan trait
+    use WithPagination, WithoutUrlPagination; // Gunakan trait
 
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
 
@@ -63,7 +64,7 @@ class DataLokasiStok extends Component
             })
             // ->get()
             // ->toArray();
-            ->paginate(5); // Ganti get() dengan paginate()
+            ->paginate(3); // Ganti get() dengan paginate()
     }
 
     private function filterByParentUnit($query, $parentUnitId)

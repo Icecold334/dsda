@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\TransaksiDaruratStok;
 use App\Models\UnitKerja;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 
 class KontrakVendorStokController extends Controller
@@ -60,6 +61,7 @@ class KontrakVendorStokController extends Controller
      */
     public function create()
     {
+        Gate::authorize('kontrak_tambah_kontrak_baru');
         $vendors = VendorStok::all();
         return view('rekam.create', compact('vendors'));
     }
@@ -79,9 +81,13 @@ class KontrakVendorStokController extends Controller
     {
         // Retrieve the contract details with related data (such as vendor and items)
         $kontrak = KontrakVendorStok::findOrFail($id);
+        $total = $kontrak->transaksiStok->map(function ($item) {
+            $item->afterPpn = $item->harga * $item->jumlah + ($item->harga * $item->jumlah * $item->ppn) / 100;
+            return $item;
+        })->sum('afterPpn');
 
         // Return the view with the contract data
-        return view('rekam.show', compact('kontrak'));
+        return view('rekam.show', compact('kontrak', 'total'));
     }
 
 

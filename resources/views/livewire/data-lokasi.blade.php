@@ -65,4 +65,5 @@
             @endforelse
         </tbody>
     </table>
+    {{ $lokasis->links() }}
 </div>

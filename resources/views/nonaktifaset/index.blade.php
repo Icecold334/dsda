@@ -329,7 +329,9 @@
                     </tr>
                 @endforeach
             @else
-                <p class="text-gray-600">Tidak ada Aset Non Aktif.</p>
+                <tr>
+                    <td colspan="5" class="text-center font-semibold text-gray-700">Tidak ada Aset Non Aktif</td>
+                </tr>
             @endif
         </tbody>
     </table>
