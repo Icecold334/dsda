@@ -10,19 +10,19 @@
                             {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }}</th>
                         @if (!$showNew && 0)
                             <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold ">NAMA
-                                {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }} DISETUjui</th>
+                                {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }} Disetujui</th>
                         @endif
                         @if ($tipe == 'Peralatan Kantor')
                             <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">peminjaman</th>
                             @if (!$showNew && 0)
                                 <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold ">peminjaman
-                                    DISETUjui</th>
+                                    Disetujui</th>
                             @endif
                         @endif
                         <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">waktu penggunaan</th>
                         @if (!$showNew && 0)
                             <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold ">waktu penggunaan
-                                DISETUjui</th>
+                                Disetujui</th>
                         @endif
                         @if ($tipe == 'KDO' || $tipe == 'Ruangan')
                             <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jumlah Orang</th>

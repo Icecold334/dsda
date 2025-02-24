@@ -33,51 +33,54 @@
         <x-card title="Permintaan" class="">
 
             <div class="flex flex-col  gap-3">
-                <a href="/option-approval/permintaan/umum"
-                    class="block items-center p-4 w-full shadow-lg bg-white border border-gray-200 rounded-lg hover:bg-gray-200 dark:bg-gray-800 transition duration-200 dark:border-gray-700 dark:hover:bg-gray-700 vertical-center">
-                    <div class="content">
-                        <div
-                            class="flex text-2xl justify-between font-bold tracking-tight text-gray-900 dark:text-white">
-                            <div>
-                                Permintaan Umum
-                            </div>
+                @if (auth()->user()->unitKerja->hak == 1)
+                    <a href="/option-approval/permintaan/umum"
+                        class="block items-center p-4 w-full shadow-lg bg-white border border-gray-200 rounded-lg hover:bg-gray-200 dark:bg-gray-800 transition duration-200 dark:border-gray-700 dark:hover:bg-gray-700 vertical-center">
+                        <div class="content">
                             <div
-                                class="icon bg-primary-700 text-white w-8 h-8 text-sm rounded-full flex justify-center items-center">
-                                <i class="fa-solid fa-boxes-packing"></i>
+                                class="flex text-2xl justify-between font-bold tracking-tight text-gray-900 dark:text-white">
+                                <div>
+                                    Permintaan Umum
+                                </div>
+                                <div
+                                    class="icon bg-primary-700 text-white w-8 h-8 text-sm rounded-full flex justify-center items-center">
+                                    <i class="fa-solid fa-boxes-packing"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </a>
-                <a href="/option-approval/permintaan/spare-part"
-                    class="block items-center p-4 w-full shadow-lg bg-white border border-gray-200 rounded-lg hover:bg-gray-200 dark:bg-gray-800 transition duration-200 dark:border-gray-700 dark:hover:bg-gray-700 vertical-center">
-                    <div class="content">
-                        <div
-                            class="flex text-2xl justify-between font-bold tracking-tight text-gray-900 dark:text-white">
-                            <div>
-                                Permintaan Spare Part
-                            </div>
+                    </a>
+                    <a href="/option-approval/permintaan/spare-part"
+                        class="block items-center p-4 w-full shadow-lg bg-white border border-gray-200 rounded-lg hover:bg-gray-200 dark:bg-gray-800 transition duration-200 dark:border-gray-700 dark:hover:bg-gray-700 vertical-center">
+                        <div class="content">
                             <div
-                                class="icon bg-primary-700 text-white w-8 h-8 text-sm rounded-full flex justify-center items-center">
-                                <i class="fa-solid fa-screwdriver-wrench"></i>
+                                class="flex text-2xl justify-between font-bold tracking-tight text-gray-900 dark:text-white">
+                                <div>
+                                    Permintaan Spare Part
+                                </div>
+                                <div
+                                    class="icon bg-primary-700 text-white w-8 h-8 text-sm rounded-full flex justify-center items-center">
+                                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </a>
-                <a href="/option-approval/permintaan/material"
-                    class="block items-center p-4 w-full shadow-lg bg-white border border-gray-200 rounded-lg hover:bg-gray-200 dark:bg-gray-800 transition duration-200 dark:border-gray-700 dark:hover:bg-gray-700 vertical-center">
-                    <div class="content">
-                        <div
-                            class="flex text-2xl justify-between font-bold tracking-tight text-gray-900 dark:text-white">
-                            <div>
-                                Permintaan Material
-                            </div>
+                    </a>
+                @else
+                    <a href="/option-approval/permintaan/material"
+                        class="block items-center p-4 w-full shadow-lg bg-white border border-gray-200 rounded-lg hover:bg-gray-200 dark:bg-gray-800 transition duration-200 dark:border-gray-700 dark:hover:bg-gray-700 vertical-center">
+                        <div class="content">
                             <div
-                                class="icon bg-primary-700 text-white w-8 h-8 text-sm rounded-full flex justify-center items-center">
-                                <i class="fa-solid fa-hammer"></i>
+                                class="flex text-2xl justify-between font-bold tracking-tight text-gray-900 dark:text-white">
+                                <div>
+                                    Permintaan Material
+                                </div>
+                                <div
+                                    class="icon bg-primary-700 text-white w-8 h-8 text-sm rounded-full flex justify-center items-center">
+                                    <i class="fa-solid fa-hammer"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                @endif
             </div>
 
 

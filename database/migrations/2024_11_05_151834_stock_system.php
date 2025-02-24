@@ -334,6 +334,7 @@ return new class extends Migration
             $table->string('nama', 255);
             $table->foreignId('parent_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
             $table->string('kode', 50)->nullable();
+            $table->integer('hak')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });

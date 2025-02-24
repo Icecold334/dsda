@@ -34,201 +34,39 @@ class BarangStokSeeder extends Seeder
         $faker = $this->faker;
         $kategoriBarang = [
             'Alat Tulis Kantor (ATK)' => [
-                [
-                    'nama' => 'Pensil',
-                    'satuan_besar' => 'Kotak',
-                    'satuan_kecil' => 'Pcs',
-                ],
-                [
-                    'nama' => 'Pulpen',
-                    'satuan_besar' => 'Kotak',
-                    'satuan_kecil' => 'Pcs',
-                ],
-                [
-                    'nama' => 'Spidol',
-                    'satuan_besar' => 'Kotak',
-                    'satuan_kecil' => 'Pcs',
-                ],
-                [
-                    'nama' => 'Penghapus',
-                    'satuan_besar' => 'Kotak',
-                    'satuan_kecil' => 'Pcs',
-                ],
-                [
-                    'nama' => 'Penggaris',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Stabilo',
-                    'satuan_besar' => 'Kotak',
-                    'satuan_kecil' => 'Pcs',
-                ],
-                [
-                    'nama' => 'Tipe-X',
-                    'satuan_besar' => 'Kotak',
-                    'satuan_kecil' => 'Pcs',
-                ],
+                ['nama' => 'Pensil', 'satuan_besar' => 'Kotak', 'satuan_kecil' => 'Pcs'],
+                ['nama' => 'Pulpen', 'satuan_besar' => 'Kotak', 'satuan_kecil' => 'Pcs'],
+                ['nama' => 'Spidol', 'satuan_besar' => 'Kotak', 'satuan_kecil' => 'Pcs'],
+                ['nama' => 'Penghapus', 'satuan_besar' => 'Kotak', 'satuan_kecil' => 'Pcs'],
+                ['nama' => 'Penggaris', 'satuan_besar' => 'Pcs', 'satuan_kecil' => null],
+                ['nama' => 'Stabilo', 'satuan_besar' => 'Kotak', 'satuan_kecil' => 'Pcs'],
+                ['nama' => 'Tipe-X', 'satuan_besar' => 'Kotak', 'satuan_kecil' => 'Pcs'],
             ],
             'Peralatan Kantor' => [
-                [
-                    'nama' => 'Stapler',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Perforator',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Lemari Arsip',
-                    'satuan_besar' => 'Unit',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Meja Kantor',
-                    'satuan_besar' => 'Unit',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Kursi Kantor',
-                    'satuan_besar' => 'Unit',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Laci Meja',
-                    'satuan_besar' => 'Unit',
-                    'satuan_kecil' => null,
-                ],
-            ],
-            'Peralatan Kesehatan' => [
-                [
-                    'nama' => 'Termometer Digital',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Tensimeter',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Alat Pengukur Gula Darah',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Masker',
-                    'satuan_besar' => 'Box',
-                    'satuan_kecil' => 'Pcs',
-                ],
-                [
-                    'nama' => 'Hand Sanitizer',
-                    'satuan_besar' => 'Botol',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Kotak P3K',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-            ],
-            'Alat Berkebun' => [
-                [
-                    'nama' => 'Sekop Kecil',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Cangkul',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Gunting Taman',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Pot Bunga',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Sprayer',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Benih Tanaman',
-                    'satuan_besar' => 'Paket',
-                    'satuan_kecil' => null,
-                ],
+                ['nama' => 'Stapler', 'satuan_besar' => 'Pcs', 'satuan_kecil' => null],
+                ['nama' => 'Perforator', 'satuan_besar' => 'Pcs', 'satuan_kecil' => null],
+                ['nama' => 'Lemari Arsip', 'satuan_besar' => 'Unit', 'satuan_kecil' => null],
+                ['nama' => 'Meja Kantor', 'satuan_besar' => 'Unit', 'satuan_kecil' => null],
+                ['nama' => 'Kursi Kantor', 'satuan_besar' => 'Unit', 'satuan_kecil' => null],
+                ['nama' => 'Laci Meja', 'satuan_besar' => 'Unit', 'satuan_kecil' => null],
             ],
             'Konsumsi' => [
-                [
-                    'nama' => 'Air Mineral Galon',
-                    'satuan_besar' => 'Galon',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Kopi Sachet',
-                    'satuan_besar' => 'Box',
-                    'satuan_kecil' => 'Sachet',
-                ],
-                [
-                    'nama' => 'Teh Celup',
-                    'satuan_besar' => 'Box',
-                    'satuan_kecil' => 'Pcs',
-                ],
-                [
-                    'nama' => 'Gula Pasir',
-                    'satuan_besar' => 'Kg',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Snack',
-                    'satuan_besar' => 'Paket',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Roti Tawar',
-                    'satuan_besar' => 'Bungkus',
-                    'satuan_kecil' => null,
-                ],
+                ['nama' => 'Air Mineral Galon', 'satuan_besar' => 'Galon', 'satuan_kecil' => null],
+                ['nama' => 'Kopi Sachet', 'satuan_besar' => 'Box', 'satuan_kecil' => 'Sachet'],
+                ['nama' => 'Teh Celup', 'satuan_besar' => 'Box', 'satuan_kecil' => 'Pcs'],
+                ['nama' => 'Gula Pasir', 'satuan_besar' => 'Kg', 'satuan_kecil' => null],
+                ['nama' => 'Snack', 'satuan_besar' => 'Paket', 'satuan_kecil' => null],
+                ['nama' => 'Roti Tawar', 'satuan_besar' => 'Bungkus', 'satuan_kecil' => null],
             ],
-            'Aksesoris Komputer' => [
-                [
-                    'nama' => 'Mouse',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Keyboard',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Flashdisk',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Headset',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Cooling Pad',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
-                [
-                    'nama' => 'Kabel HDMI',
-                    'satuan_besar' => 'Pcs',
-                    'satuan_kecil' => null,
-                ],
+            'Perbaikan KDO' => [
+                ['nama' => 'Suku Cadang Mobil', 'satuan_besar' => 'Unit', 'satuan_kecil' => null],
+                ['nama' => 'Jasa Service Mesin', 'satuan_besar' => 'Layanan', 'satuan_kecil' => null],
+                ['nama' => 'Oli Mesin', 'satuan_besar' => 'Liter', 'satuan_kecil' => null],
+                ['nama' => 'Busi', 'satuan_besar' => 'Set', 'satuan_kecil' => null],
+            ],
+            'Voucher Carwash' => [
+                ['nama' => 'Voucher Cuci Mobil', 'satuan_besar' => 'Lembar', 'satuan_kecil' => null],
+                ['nama' => 'Voucher Cuci Motor', 'satuan_besar' => 'Lembar', 'satuan_kecil' => null],
             ],
         ];
 
@@ -417,10 +255,9 @@ class BarangStokSeeder extends Seeder
         $kategori_umum = [
             'Alat Tulis Kantor (ATK)',
             'Peralatan Kantor',
-            'Peralatan Kesehatan',
-            'Alat Berkebun',
             'Konsumsi',
-            'Aksesoris Komputer',
+            'Perbaikan KDO',
+            'Voucher Carwash',
         ];
         foreach ($kategori_umum as $kategori) {
             KategoriStok::create([

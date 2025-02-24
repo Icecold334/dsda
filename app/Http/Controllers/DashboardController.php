@@ -4,16 +4,11 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Aset;
-use App\Models\User;
 use App\Models\Agenda;
 use App\Models\Jurnal;
 use App\Models\History;
 use App\Models\Kategori;
 use App\Models\Keuangan;
-use App\Models\TransaksiStok;
-use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 
 
 class DashboardController extends Controller
@@ -25,6 +20,7 @@ class DashboardController extends Controller
             ->where([['status', 1], ['tipe', 'mingguan']])
             ->orderBy('aset_id')
             ->orderBy('tanggal', 'desc')
+            ->take(5) // Ambil 5 
             ->get()
             ->unique('aset_id'); // Mengambil entri terakhir berdasarkan aset_id
         foreach ($agendas as $agenda) {
@@ -34,6 +30,7 @@ class DashboardController extends Controller
             ->where('status', 1)
             ->orderBy('aset_id')
             ->orderBy('tanggal', 'desc')
+            ->take(5) // Ambil 5 
             ->get()
             ->unique('aset_id'); // Mengambil entri terakhir berdasarkan aset_id
         foreach ($jurnals as $jurnal) {
@@ -43,6 +40,7 @@ class DashboardController extends Controller
             ->where('status', 1)
             ->orderBy('aset_id')
             ->orderBy('tanggal', 'desc')
+            ->take(5) // Ambil 5 
             ->get()
             ->unique('aset_id'); // Mengambil entri terakhir berdasarkan aset_id
         foreach ($histories as $histori) {
@@ -52,6 +50,7 @@ class DashboardController extends Controller
             ->where('status', 1)
             ->orderBy('aset_id')
             ->orderBy('tanggal', 'desc')
+            ->take(5) // Ambil 5 
             ->get()
             ->unique('aset_id'); // Mengambil entri terakhir berdasarkan aset_id
         foreach ($transactions as $transaksi) {
@@ -182,7 +181,7 @@ class DashboardController extends Controller
         if ($nilaiAsetNoKat > 0) {
             $label_nilaiArr[] = 'Tak Berkategori';
             $data_nilaiArr[] = $nilaiAsetNoKat;
-        }   
+        }
 
         foreach ($kategoris as $category) {
             $jmlAset = $this->nilaiAset('kategori_id', $category->id);

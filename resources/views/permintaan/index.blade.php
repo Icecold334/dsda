@@ -4,7 +4,8 @@
             <h1 class="text-2xl font-bold text-primary-900 ">
                 {{ request()->routeIs('permintaan-stok.index') || request()->is('permintaan/umum') ? 'Pelayanan Umum' : (request()->is('permintaan/spare-part') ? 'Permintaan Spare Part' : 'Permintaan Material') }}
                 @if (auth()->user()->unitKerja)
-                    {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+                    {{-- {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }} --}}
+                    {{ auth()->user()->unitKerja->nama }}
                 @endif
             </h1>
             <div>

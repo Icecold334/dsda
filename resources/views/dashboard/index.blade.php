@@ -1,11 +1,13 @@
 <x-body>
-    <h1 class="text-2xl font-bold text-primary-900 mb-3">
+    {{-- <h1 class="text-2xl font-bold text-primary-900 mb-3">
         @if (auth()->user()->unitKerja)
-            {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
-        @endif
+            <div> --}}
+    {{-- {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }} --}}
+    {{-- {{ auth()->user()->unitKerja->nama }}
+            </div>
+        @endif --}}
 
-
-    </h1>
+    {{-- </h1>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-3">
 
         <div class="col-span-2">
@@ -369,7 +371,7 @@
                         @endforelse
                     </div>
                     <hr><br>
-                    <a href="#"
+                    <a href="/kalender"
                         class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                         Lihat Kalender Aset
                     </a>
@@ -585,5 +587,9 @@
                 </x-card>
             </div>
         </div>
+    </div> --}}
+
+    <div>
+        <livewire:dashboard-display />
     </div>
 </x-body>
