@@ -17,6 +17,7 @@ class DashboardDisplay extends Component
     public $agendas, $jurnals, $histories, $transactions, $asets_limit;
     public $pelayanan;
     public $KDO;
+    public $unit_id;
 
     public function mount()
     {
