@@ -29,6 +29,7 @@ class VendorKontrakForm extends Component
     public $nama;
     public $alamat;
     public $kontak;
+    public $unit_id;
     public $listCount;
     public $show;
     public $type;
@@ -97,6 +98,20 @@ class VendorKontrakForm extends Component
             $this->showMetode = true;
             $this->metodes = MetodePengadaan::all();
         }
+
+        if (Request::routeIs('kontrak-vendor-stok.create')) {
+            $this->showMetode = true;
+            // Semua metode pengadaan kecuali ID 1
+            $this->metodes = MetodePengadaan::where('id', '!=', 1)->get();
+        }
+    
+        if (Request::routeIs('transaksi-darurat-stok.edit')) {
+            $this->showMetode = true;
+            // Pilih metode ID 1 secara otomatis
+            $this->metodes = MetodePengadaan::where('id', 1)->get();
+            $this->metode_id = 1;
+        }
+        
         // if (Request::routeIs('kontrak-vendor-stok.create') || Request::routeIs('transaksi-darurat-stok.create')) {
         //     $vendorIdsWithKontrak = TransaksiStok::whereNull('kontrak_id')->pluck('vendor_id')->unique();
         //     $this->vendors = $this->vendors->whereNotIn('id', $vendorIdsWithKontrak);
