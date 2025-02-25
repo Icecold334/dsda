@@ -13,15 +13,15 @@ class RuangController extends Controller
      */
     public function index()
     {
-        //
+        return view('ruang.index');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($tipe, $ruang = 0)
     {
-        //
+        return view('ruang.create', compact('tipe', 'ruang'));
     }
 
     /**

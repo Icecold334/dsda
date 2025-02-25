@@ -206,6 +206,105 @@ class AsetSeeder extends Seeder
             }
         }
 
+        $kdoData = [
+            [
+                'nama' => 'Hiace',
+                'tipe' => 'Mirobus',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Silver Metalik',
+                'thproduksi' => 2018,
+                'noseri' => 'B 7670 PPA',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+            ],
+            [
+                'nama' => 'Hiace',
+                'tipe' => 'Micro/Minibus',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Putih',
+                'thproduksi' => 2024,
+                'noseri' => 'B 7582 PPB',
+                'keterangan' => 'Gedung Pompa Cideng',
+            ],
+            [
+                'nama' => 'Hiace',
+                'tipe' => 'Micro/Minibus',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Putih',
+                'thproduksi' => 2024,
+                'noseri' => 'B 7584 PPB',
+                'keterangan' => 'Gedung Pompa Cideng',
+            ],
+            [
+                'nama' => 'Hilux Rangga',
+                'tipe' => 'Pick UP',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Putih',
+                'thproduksi' => 2024,
+                'noseri' => 'B 9936 PTB',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+            ],
+            [
+                'nama' => 'Avanza',
+                'tipe' => 'Minibus',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Silver Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 8515 WU',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+            ],
+            [
+                'nama' => 'Panther Tour',
+                'tipe' => 'Minibus',
+                'merk' => 'Isuzu',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2024,
+                'noseri' => 'B 2184 BQ',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+            ],
+            [
+                'nama' => 'Hillux',
+                'tipe' => 'Pick UP',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 9010 PTA',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+            ],
+        ];
+
+        foreach ($kdoData as $data) {
+            $merk = Merk::firstOrCreate(
+                ['nama' => $data['merk'], 'nama_nospace' => Str::slug($data['merk'])],
+                ['user_id' => User::inRandomOrder()->first()->id]
+            );
+
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(1);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [1, 7])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => $merk->id,
+                'deskripsi' => $data['deskripsi'],
+                'thproduksi' => $data['thproduksi'],
+                'noseri' => $data['noseri'],
+                'keterangan' => $data['keterangan'],
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(50000000, 500000000),
+                'hargatotal' => rand(50000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+            ]);
+        }
+
         $asetRuangan = [
             [
                 'nama' => 'Ruang Rapat 1 (Lt. 7)',

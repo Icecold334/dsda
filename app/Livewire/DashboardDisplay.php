@@ -10,6 +10,8 @@ use App\Models\History;
 use Livewire\Component;
 use App\Models\Keuangan;
 use App\Models\UnitKerja;
+use App\Models\DetailPeminjamanAset;
+use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardDisplay extends Component
@@ -18,6 +20,7 @@ class DashboardDisplay extends Component
     public $pelayanan;
     public $KDO;
     public $unit_id;
+    public $tipe;
 
     public function mount()
     {
@@ -97,10 +100,77 @@ class DashboardDisplay extends Component
 
         foreach ($this->KDO as $kdo) {
             $kdo->formatted_date = Carbon::parse($kdo->tanggalbeli)->translatedFormat('j M Y');
+
+            // Tambahkan status peminjaman
+            $kdo->status_text = $this->statusText[$kdo->peminjaman] ?? 'Tidak Diketahui';
+            $kdo->status_class = $this->statusClasses[$kdo->peminjaman] ?? 'text-gray-500';
+            $kdo->status_icon = $this->statusIcons[$kdo->peminjaman] ?? '❓';
         }
 
-        // $this->pelayanan = 
+        // Ambil data permintaan dan peminjaman
+        $permintaan = $this->getPermintaanQuery();
+        $peminjaman = $this->getPeminjamanQuery();
+
+        // Gabungkan dua dataset dan urutkan berdasarkan tanggal terbaru
+        $this->pelayanan = collect()
+            ->merge($permintaan)
+            ->merge($peminjaman)
+            ->sortByDesc('created_at')
+            ->take(5);
     }
+
+    private function getPermintaanQuery()
+    {
+        $permintaan = DetailPermintaanStok::where('jenis_id', $this->getJenisId())
+            ->when($this->unit_id, function ($query) {
+                $query->whereHas('unit', function ($unit) {
+                    $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                });
+            })->get();
+        return $permintaan->isNotEmpty() ? $permintaan->map(function ($item) {
+            return $this->mapPelayananData($item, 'permintaan');
+        }) : collect([]);
+    }
+
+
+    private function getPeminjamanQuery()
+    {
+        $peminjaman = DetailPeminjamanAset::when($this->unit_id, function ($query) {
+            $query->whereHas('unit', function ($unit) {
+                $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+            });
+        })->get();
+
+        return $peminjaman->isNotEmpty() ? $peminjaman->map(function ($item) {
+            return
+                $this->mapPelayananData($item, 'peminjaman');
+        }) : collect([]);
+    }
+
+
+    private function mapPelayananData($item, $tipe)
+    {
+        return [
+            'id' => $item->id,
+            'kode' => $tipe === 'permintaan' ? $item->kode_permintaan : $item->kode_peminjaman,
+            'tanggal' => $tipe === 'permintaan' ? $item->tanggal_permintaan : $item->tanggal_peminjaman,
+            'unit' => $item->unit?->nama ?? 'Tidak Ada Unit',
+            'kategori_id' => $item->kategori_id,
+            'kategori' => $tipe === 'permintaan' ? $item->kategoriStok : $item->kategori,
+            'tipe' => $tipe,
+            'status' => $item->status ?? null,
+            'cancel' => $item->cancel ?? null,
+            'proses' => $item->proses ?? null,
+            'created_at' => $item->created_at,
+            'formatted_date' => Carbon::parse($item->created_at)->translatedFormat('j M Y')
+        ];
+    }
+
+    private function getJenisId()
+    {
+        return $this->tipe === 'material' ? 1 : ($this->tipe === 'spare-part' ? 2 : 3);
+    }
+
 
     private function getAsetQuery()
     {
@@ -123,6 +193,45 @@ class DashboardDisplay extends Component
                     filterByParentUnit($query, $parentUnitId);
                 });
             });
+    }
+
+    // Tambahkan array mapping status
+    public $statusText = [
+        0 => 'Dipinjam',
+        1 => 'Tersedia',
+        2 => 'Diperbaiki'
+    ];
+
+    public $statusClasses = [
+        0 => 'text-red-500',    // Dipinjam (Merah)
+        1 => 'text-green-500',  // Tersedia (Hijau)
+        2 => 'text-yellow-500'  // Diperbaiki (Kuning)
+    ];
+
+    public $statusIcons = [
+        0 => '❌',  // Dipinjam (Silang)
+        1 => '✅',  // Tersedia (Centang)
+        2 => '🔧'   // Diperbaiki (Kunci)
+    ];
+
+    public $statusMapping = [
+        'dibatalkan' => ['text' => 'Dibatalkan', 'color' => 'secondary'],
+        'selesai' => ['text' => 'Selesai', 'color' => 'primary'],
+        'siap_diambil' => ['text' => 'Siap Diambil', 'color' => 'info'],
+        'diproses' => ['text' => 'Diproses', 'color' => 'warning'],
+        'disetujui' => ['text' => 'Disetujui', 'color' => 'success'],
+        'ditolak' => ['text' => 'Ditolak', 'color' => 'danger'],
+    ];
+
+    // Fungsi untuk menentukan status berdasarkan data
+    public function getStatus($permintaan)
+    {
+        if ($permintaan['cancel'] === 1) return 'dibatalkan';
+        if ($permintaan['cancel'] === 0 && $permintaan['proses'] === 1) return 'selesai';
+        if ($permintaan['cancel'] === 0 && is_null($permintaan['proses'])) return 'siap_diambil';
+        if (is_null($permintaan['cancel']) && is_null($permintaan['proses']) && is_null($permintaan['status'])) return 'diproses';
+        if (is_null($permintaan['cancel']) && is_null($permintaan['proses']) && $permintaan['status'] === 1) return 'disetujui';
+        return 'ditolak';
     }
 
 

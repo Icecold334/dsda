@@ -113,4 +113,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Ruang::class, 'user_id');
     }
+    public function penanggungjawab()
+    {
+        return $this->hasMany(Ruang::class, 'pj_id');
+    }
 }

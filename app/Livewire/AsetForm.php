@@ -515,7 +515,7 @@ class AsetForm extends Component
     {
         $this->validate();
         // dd(strtotime($this->tanggalPembelian)); // Debug hasil dari strtotime
-        // dd($this->merk);
+        // dd($this->peminjaman);
         // Ensure Merk and Toko IDs are set correctly or created if they don't exist
         $merkId = $this->getOrCreateMerk($this->merk);
         $tokoId = $this->getOrCreateToko($this->toko);

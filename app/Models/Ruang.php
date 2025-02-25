@@ -17,4 +17,8 @@ class Ruang extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function penanggungjawab()
+    {
+        return $this->belongsTo(User::class, 'pj_id');
+    }
 }

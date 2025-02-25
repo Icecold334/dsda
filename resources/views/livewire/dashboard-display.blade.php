@@ -65,21 +65,32 @@
                 <x-card title="Status KDO" class="mb-3">
                     <div class="relative overflow-y-auto max-h-80">
                         @forelse ($KDO as $kdos)
-                            <div class="p-2 hover:bg-gray-100 border-b border-gray-200">
-                                <!-- Container setiap item dengan efek hover -->
-                                <div class="text-lg">
-                                    <strong><a href="{{ route('aset.show', $kdos->id) }}"
-                                            class="text-primary-900 hover:underline">
-                                            {{ $kdos->nama }}
-                                        </a></strong>
-                                </div>
+                            <div
+                                class="p-2 hover:bg-gray-100 border-b border-gray-200 flex justify-between items-center">
                                 <div>
-                                    <div class="text-sm">
-                                        <strong>{{ $kdos->formatted_date }}</strong>
+                                    <div class="text-md">
+                                        <strong>
+                                            <a href="{{ route('aset.show', $kdos->id) }}"
+                                                class="text-primary-900 hover:underline">
+                                                {{ $kdos->nama }} - {{ $kdos->noseri }}
+                                            </a>
+                                        </strong>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm">
+                                            <strong class="{{ $kdos->status_class }}">
+                                                {{ $kdos->status_text }}
+                                            </strong>
+                                        </div>
+                                        <div class="text-sm">
+                                            {{ $kdos->merk->nama }}
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="text-sm">
-                                    {{ $kdos->keterangan }}
+
+                                <!-- Ikon Centang / Silang -->
+                                <div class="text-xl">
+                                    {{ $kdos->status_icon }}
                                 </div>
                             </div>
                         @empty
@@ -96,54 +107,67 @@
         <div>
             <x-card title="Pelayanan Umum Terbaru" class="mb-3">
                 <div class="relative">
-                    @forelse ($asets_limit as $aset)
+                    @forelse ($pelayanan as $layanan)
                         <div class="p-2 hover:bg-gray-100 border-b border-gray-200">
                             <!-- Container setiap item dengan efek hover -->
                             <div class="flex justify-between">
                                 <div class="flex">
-                                    <img class="w-10 h-10 object-cover object-center rounded-sm"
-                                        src="{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}"
-                                        alt="">
                                     <div class="ml-4">
                                         <div class="text-sm">
-                                            {{ $aset->formatted_date }}
+                                            <strong>{{ $layanan['formatted_date'] }}</strong>
                                         </div>
                                         <div class="text-md">
-                                            <strong> <a href="{{ route('aset.show', $aset->id) }}"
-                                                    class="text-primary-900 hover:underline">
-                                                    {{ $aset->nama }}
-                                                </a></strong>
+                                            <a href="/permintaan/{{ $layanan['tipe'] === 'peminjaman' ? 'peminjaman' : 'permintaan' }}/{{ $layanan['id'] }}"
+                                                class="text-primary-900 hover:underline">
+                                                {{ $layanan['kode'] }}
+                                            </a>
+                                        </div>
+                                        <div class="text-sm">
+                                            {{ Str::ucfirst($layanan['tipe']) }} - {{ $layanan['kategori']?->nama }}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="py-3">
-                                    <a href="{{ route('aset.show', ['aset' => $aset->id]) }}"
-                                        class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
-                                        data-tooltip-target="tooltip-aset-{{ $aset->id }}">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </a>
-                                    <div id="tooltip-aset-{{ $aset->id }}" role="tooltip"
-                                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                        Lihat Detail Aset
-                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                <div class="flex justify-between py-3">
+                                    <div>
+                                        @php
+                                            $statusKey = $this->getStatus($layanan);
+                                            $statusText = $statusMapping[$statusKey]['text'];
+                                            $statusColor = $statusMapping[$statusKey]['color'];
+                                        @endphp
+                                        <span
+                                            class="bg-{{ $statusColor }}-600 text-{{ $statusColor }}-100 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                            {{ $statusText }}
+                                        </span>
+                                    </div>
+                                    <div class="px-3">
+                                        <a href="/permintaan/{{ $layanan['tipe'] === 'peminjaman' ? 'peminjaman' : 'permintaan' }}/{{ $layanan['id'] }}"
+                                            class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
+                                            data-tooltip-target="tooltip-layanan-{{ $layanan['id'] }}">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                        <div id="tooltip-layanan-{{ $layanan['id'] }}" role="tooltip"
+                                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                            Lihat Detail Pelayanan
+                                            <div class="tooltip-arrow" data-popper-arrow></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     @empty
                         <div class="p-2 text-center">
-                            <p>Tidak ada Aset</p> <!-- Message if $asets is empty -->
+                            <p>Tidak ada Layanan</p> <!-- Message if $asets is empty -->
                         </div>
                     @endforelse
                 </div>
                 <hr><br>
                 <div class="text-center">
-                    <a href="{{ route('aset.index') }}"
+                    <a href="{{ route('permintaan-stok.index') }}"
                         class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Lihat
-                        Aset</a>
-                    <a href="{{ route('aset.create') }}"
-                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Tambah
-                        Aset</a>
+                        List</a>
+                    <a href="/permintaan/umum"
+                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Lihat
+                        Form</a>
                 </div>
             </x-card>
         </div>
