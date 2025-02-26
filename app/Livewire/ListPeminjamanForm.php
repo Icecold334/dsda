@@ -13,6 +13,7 @@ use App\Models\PeminjamanAset;
 use App\Models\WaktuPeminjaman;
 use App\Models\DetailPeminjamanAset;
 use App\Models\PersetujuanPeminjamanAset;
+use App\Models\Ruang;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 
@@ -47,6 +48,7 @@ class ListPeminjamanForm extends Component
     public $barangSuggestions = []; // Suggestions for barang
     public $assetSuggestions = [];
     public $asets = [];
+    public $ruangs = [];
     public $suggestions = [
         'barang' => [],
         'aset' => []
@@ -128,17 +130,29 @@ class ListPeminjamanForm extends Component
         //     $this->showAdd = $this->newAsetId && $this->newWaktu && $this->newPeserta && $this->newKeterangan && $this->newDokumen;
         // }
         $cond = false;
-        $this->asets =
-            Aset::when($cond, function ($query) {
+        // dd($tipe);
+        if ($tipe == 'Ruangan') {
+            $this->asets =  Ruang::when($cond, function ($query) {
                 $query->whereHas('user', function ($query) {
                     return $query->whereHas('unitKerja', function ($query) {
                         return $query->where('parent_id', $this->unit_id)
                             ->orWhere('id', $this->unit_id);
                     });
                 });
-            })->whereHas('kategori', function ($query) use ($kategori) {
-                return $query->where('parent_id', $kategori->id)->orWhere('id', $kategori->id);
-            })->where('peminjaman', 1)->get();
+            })->get();
+        } else {
+            $this->asets =
+                Aset::when($cond, function ($query) {
+                    $query->whereHas('user', function ($query) {
+                        return $query->whereHas('unitKerja', function ($query) {
+                            return $query->where('parent_id', $this->unit_id)
+                                ->orWhere('id', $this->unit_id);
+                        });
+                    });
+                })->whereHas('kategori', function ($query) use ($kategori) {
+                    return $query->where('parent_id', $kategori->id)->orWhere('id', $kategori->id);
+                })->where('peminjaman', 1)->get();
+        }
     }
 
     #[On('sub_unit_id')]

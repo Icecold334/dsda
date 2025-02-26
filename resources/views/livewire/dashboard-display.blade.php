@@ -72,7 +72,7 @@
                                         <strong>
                                             <a href="{{ route('aset.show', $kdos->id) }}"
                                                 class="text-primary-900 hover:underline">
-                                                {{ $kdos->nama }} - {{ $kdos->noseri }}
+                                                {{ $kdos->merk->nama }} {{ $kdos->nama }} - {{ $kdos->noseri }}
                                             </a>
                                         </strong>
                                     </div>
@@ -83,7 +83,7 @@
                                             </strong>
                                         </div>
                                         <div class="text-sm">
-                                            {{ $kdos->merk->nama }}
+                                            {{ $kdos->tipe }} - {{ $kdos->deskripsi }}
                                         </div>
                                     </div>
                                 </div>

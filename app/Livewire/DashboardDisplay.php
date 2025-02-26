@@ -94,8 +94,8 @@ class DashboardDisplay extends Component
         $this->KDO = $query->whereHas('kategori', function ($query) use ($tipe) {
             $query->where('nama', $tipe);
         })
-            ->orderBy('tanggalbeli', 'desc')
-            ->take(5)
+            ->orderBy('nama', 'asc')
+            // ->take(5)
             ->get();
 
         foreach ($this->KDO as $kdo) {
@@ -197,21 +197,24 @@ class DashboardDisplay extends Component
 
     // Tambahkan array mapping status
     public $statusText = [
-        0 => 'Dipinjam',
+        0 => 'Tidak Dapat Dipinjam',
         1 => 'Tersedia',
-        2 => 'Diperbaiki'
+        2 => 'Dipinjam',
+        3 => 'Diperbaiki'
     ];
 
     public $statusClasses = [
         0 => 'text-red-500',    // Dipinjam (Merah)
         1 => 'text-green-500',  // Tersedia (Hijau)
-        2 => 'text-yellow-500'  // Diperbaiki (Kuning)
+        2 => 'text-yellow-500',  // Diperbaiki (Kuning)
+        3 => 'text-blue-500'  // Diperbaiki (Kuning)
     ];
 
     public $statusIcons = [
         0 => '❌',  // Dipinjam (Silang)
         1 => '✅',  // Tersedia (Centang)
-        2 => '🔧'   // Diperbaiki (Kunci)
+        2 => '❌',   // Diperbaiki (Kunci)
+        3 => '🔧'   // Diperbaiki (Kunci)
     ];
 
     public $statusMapping = [

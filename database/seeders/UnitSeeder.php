@@ -618,7 +618,7 @@ class UnitSeeder extends Seeder
 
         foreach ($units as $unitName => $unitData) {
             // Simpan unit
-            $hak = (Str::contains($unitName, 'Sekretariat')) ? 1 : 0;
+            $hak = (Str::contains($unitName, ['Sekretariat', 'Bidang', 'Unit', 'Pusat Data'])) ? 1 : 0;
             $unit = UnitKerja::create([
                 'nama' => $unitName,
                 'kode' => strtoupper(substr(str_replace('Bidang', '', $unitName), 0, 3)), // Membuat kode dari 3 huruf pertama nama unit
@@ -709,16 +709,15 @@ class UnitSeeder extends Seeder
             }
             // Simpan sub-unit
             foreach ($unitData['sub_units'] as $subUnit) {
-                $isParentSekretariat = isset($unit->nama) && $unit->nama === 'Sekretariat';
-
-                // Jika unit adalah "Subbagian Umum" ATAU parent-nya "Sekretariat", maka hak = 1
-                $hak = ($isParentSekretariat) ? 1 : 0;
-
+                // Cek apakah parent adalah Sekretariat, Bidang, Unit, atau Pusat Data
+                $isParentHak = (Str::contains($unitName, ['Sekretariat', 'Bidang', 'Unit', 'Pusat Data']));
+                // Hak sub-unit = 1 jika parentnya memenuhi syarat
+                $hakSubUnit = ($isParentHak) ? 1 : 0;
                 $subUnitEntry =  UnitKerja::create([
                     'nama' => $subUnit['nama'],
                     'kode' => strtoupper(substr(str_replace('Subkelompok', '', $subUnit['nama']), 0, 3)),
                     'parent_id' => $unit->id, // Sub-unit terkait dengan unit
-                    'hak' => $hak, // 
+                    'hak' => $hakSubUnit, // 
                     'keterangan' => "Sub-unit $subUnit[nama].",
                 ]);
                 if (Str::contains($subUnit['nama'], 'Seksi')) {
