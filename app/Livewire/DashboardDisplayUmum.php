@@ -10,21 +10,27 @@ use App\Models\History;
 use Livewire\Component;
 use App\Models\Keuangan;
 use App\Models\UnitKerja;
+use App\Models\BarangStok;
 use App\Models\DetailPeminjamanAset;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
 
-class DashboardDisplay extends Component
+class DashboardDisplayUmum extends Component
 {
     public $agendas, $jurnals, $histories, $transactions, $asets_limit;
     public $pelayanan;
     public $KDO;
     public $unit_id;
     public $tipe;
+    public $lokasi;
+    public $data_nilai = [];
+    public $label_nilai = [];
+
 
     public function mount()
     {
         $this->loadData();
+        $this->getChartData();
     }
 
     public function loadData()
@@ -42,18 +48,6 @@ class DashboardDisplay extends Component
 
         foreach ($this->agendas as $agenda) {
             $agenda->formatted_date = Carbon::parse($agenda->tanggal)->translatedFormat('l, j M Y');
-        }
-
-        $this->jurnals = Jurnal::with('aset')
-            ->where('status', 1)
-            ->orderBy('aset_id')
-            ->orderBy('tanggal', 'desc')
-            ->take(5)
-            ->get()
-            ->unique('aset_id');
-
-        foreach ($this->jurnals as $jurnal) {
-            $jurnal->formatted_date = Carbon::parse($jurnal->tanggal)->translatedFormat('j M Y');
         }
 
         $this->histories = History::with('aset', 'lokasi')
@@ -78,15 +72,6 @@ class DashboardDisplay extends Component
 
         foreach ($this->transactions as $transaksi) {
             $transaksi->formatted_date = Carbon::parse($transaksi->tanggal)->translatedFormat('j M Y');
-        }
-
-        $this->asets_limit = Aset::where('status', true)
-            ->orderBy('tanggalbeli', 'desc')
-            ->take(5)
-            ->get();
-
-        foreach ($this->asets_limit as $aset) {
-            $aset->formatted_date = Carbon::parse($aset->tanggalbeli)->translatedFormat('j M Y');
         }
 
         // Filter Aset Berdasarkan Kategori KDO dan UnitKerja
@@ -237,9 +222,53 @@ class DashboardDisplay extends Component
         return 'ditolak';
     }
 
+    public function getChartData()
+    {
+        // Ambil data BarangStok yang memiliki MerkStok dan Stok tersedia
+        $barang = BarangStok::whereHas('merkStok.stok', function ($stokQuery) {
+            $stokQuery->where('jumlah', '>', 0)
+                ->whereHas('lokasiStok.unitKerja', function ($unit) {
+                    $unit->where('parent_id', $this->unit_id)
+                        ->orWhere('id', $this->unit_id);
+                })
+                ->when($this->lokasi, function ($query) {
+                    $query->whereHas('lokasiStok', function ($lokasiQuery) {
+                        $lokasiQuery->where('nama', $this->lokasi);
+                    });
+                });
+        })
+            ->with(['merkStok', 'merkStok.stok']) // Ambil relasi untuk mendapatkan nama MerkStok dan jumlah stok
+            ->get();
+
+        // dd($barang);
+
+        // Transformasi data untuk chart
+        $data = [];
+        foreach ($barang as $item) {
+            if ($item->merkStok) {
+                $stokTotal = $item->merkStok->stok->sum('jumlah'); // Hitung total stok berdasarkan MerkStok
+                $data[] = [
+                    'nama_barang' => $item->nama, // Nama BarangStok
+                    'jumlah_stok' => $stokTotal,
+                ];
+            }
+        }
+
+        // Ubah format agar sesuai untuk Chart.js / ApexCharts
+        $this->data_nilai = array_column($data, 'nama_barang');
+        $this->label_nilai = array_column($data, 'jumlah_stok');
+
+        // Debugging (Opsional)
+        // dd($this->data_nilai, $this->label_nilai);
+    }
+
+
 
     public function render()
     {
-        return view('livewire.dashboard-display');
+        return view('livewire.dashboard-display-umum', [
+            'data_nilai' => json_encode($this->data_nilai),
+            'label_nilai' => json_encode($this->label_nilai)
+        ]);
     }
 }

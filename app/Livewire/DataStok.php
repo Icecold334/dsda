@@ -131,6 +131,13 @@ class DataStok extends Component
         $this->stoks = $groupedStoks;
     }
 
+    public function applyFilters()
+    {
+        $this->fetchBarangs();
+        $this->fetchStoks();
+    }
+
+
     public function downloadExcel()
     {
 
@@ -266,11 +273,6 @@ class DataStok extends Component
         }, 'Daftar_Stok_DSDA.xlsx');
     }
 
-    public function applyFilters()
-    {
-        $this->fetchBarangs();
-        $this->fetchStoks();
-    }
 
 
     public function updated($propertyName)
