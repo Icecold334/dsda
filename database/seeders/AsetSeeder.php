@@ -1138,61 +1138,6 @@ class AsetSeeder extends Seeder
 
         $asetRuangan = [
             [
-                'nama' => 'Ruang Rapat 1 (Lt. 7)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk keperluan diskusi dan presentasi di lantai 7.',
-            ],
-            [
-                'nama' => 'Ruang Rapat 2 (Lt. 7)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat kedua di lantai 7 untuk meeting tambahan.',
-            ],
-            [
-                'nama' => 'Ruang Rapat ex BPK (Lt. 8)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat bekas BPK di lantai 8.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang ROB (Lt. 8)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat khusus bidang ROB di lantai 8.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Unit Pengadaan Tanah (Lt. 8)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk unit pengadaan tanah di lantai 8.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang Geologi (Lt. 9)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat bidang geologi di lantai 9.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang Banjir (Lt. 9)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk bidang pengendalian banjir di lantai 9.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang Limbah (Lt. 10)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk bidang pengelolaan limbah di lantai 10.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Keuangan (Lt. 10)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk tim keuangan di lantai 10.',
-            ],
-            [
-                'nama' => 'Ruangan Lantai 1',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan utama di lantai 1 untuk keperluan umum.',
-            ],
-            [
-                'nama' => 'Ruangan Lantai 2',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan utama di lantai 2 untuk keperluan staf.',
-            ],
-            [
                 'nama' => 'Ruangan Meeting Utama',
                 'kategori' => 'Ruangan',
                 'deskripsi' => 'Ruangan besar untuk rapat internal dan eksternal.',
@@ -1273,6 +1218,117 @@ class AsetSeeder extends Seeder
                 'hargatotal' => 0,
                 'aktif' => 1,
                 'status' => 1,
+            ]);
+        }
+
+        $pelkantorData = [
+            [
+                'nama' => 'Kursi Hitam Plastik',
+                'tipe' => 'Kursi',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Kursi Hitam Lipat',
+                'tipe' => 'Kursi',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Meja Lipat',
+                'tipe' => 'Meja',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Kabel Roll Besar',
+                'tipe' => 'Kabel',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Kabel Roll Kecil',
+                'tipe' => 'Kabel',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Speaker/Sound System',
+                'tipe' => 'Sound',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Printer',
+                'tipe' => 'Printer',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Laptop',
+                'tipe' => 'Laptop',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Tenda Portable',
+                'tipe' => 'Tenda',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Terpal',
+                'tipe' => 'Tenda',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Tangga',
+                'tipe' => 'Alat Bantu',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Trolly Besar',
+                'tipe' => 'Trolly',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Karpet Hitam',
+                'tipe' => 'Karpet',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Karpet Mushola',
+                'tipe' => 'Karpet',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Vacum Cleaner',
+                'tipe' => 'Vacum',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Tool Kit',
+                'tipe' => 'Alat Bantu',
+                'peminjaman' => 1,
+            ],
+
+
+        ];
+
+        foreach ($pelkantorData as $data) {
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(8);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [1, 7])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'tipe' => $data['tipe'],
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => Merk::inRandomOrder()->first()->id,
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(500000, 500000000),
+                'hargatotal' => rand(5000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+                'peminjaman' => $data['peminjaman'],
             ]);
         }
     }

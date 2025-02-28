@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\Aset;
+use App\Models\Stok;
 use App\Models\Agenda;
 use App\Models\Jurnal;
 use App\Models\History;
@@ -224,45 +225,42 @@ class DashboardDisplayUmum extends Component
 
     public function getChartData()
     {
-        // Ambil data BarangStok yang memiliki MerkStok dan Stok tersedia
+        // Ambil data BarangStok yang memiliki MerkStok dan stok yang tersedia berdasarkan unit kerja
         $barang = BarangStok::whereHas('merkStok.stok', function ($stokQuery) {
             $stokQuery->where('jumlah', '>', 0)
                 ->whereHas('lokasiStok.unitKerja', function ($unit) {
                     $unit->where('parent_id', $this->unit_id)
                         ->orWhere('id', $this->unit_id);
-                })
-                ->when($this->lokasi, function ($query) {
-                    $query->whereHas('lokasiStok', function ($lokasiQuery) {
-                        $lokasiQuery->where('nama', $this->lokasi);
-                    });
                 });
         })
-            ->with(['merkStok', 'merkStok.stok']) // Ambil relasi untuk mendapatkan nama MerkStok dan jumlah stok
+            ->with(['merkStok.stok.lokasiStok.unitKerja']) // Eager load untuk memastikan stok memiliki unit kerja
             ->get();
-
-        // dd($barang);
 
         // Transformasi data untuk chart
         $data = [];
         foreach ($barang as $item) {
-            if ($item->merkStok) {
-                $stokTotal = $item->merkStok->stok->sum('jumlah'); // Hitung total stok berdasarkan MerkStok
-                $data[] = [
-                    'nama_barang' => $item->nama, // Nama BarangStok
-                    'jumlah_stok' => $stokTotal,
-                ];
+            // Looping melalui setiap MerkStok yang dimiliki barang
+            foreach ($item->merkStok as $merk) {
+                foreach ($merk->stok as $stok) {
+                    // Pastikan stok hanya dihitung jika unitKerja sesuai
+                    if ($stok->lokasiStok->unitKerja->id == $this->unit_id || $stok->lokasiStok->unitKerja->parent_id == $this->unit_id) {
+                        $data[] = [
+                            'nama_barang' => $item->nama . ' - ' . ($merk->nama ?? null) . ' - ' . ($item->satuanBesar->nama ?? null),
+                            'jumlah_stok' => $stok->jumlah, // Tidak dijumlahkan, langsung diambil
+                        ];
+                    }
+                }
             }
         }
 
-        // Ubah format agar sesuai untuk Chart.js / ApexCharts
-        $this->data_nilai = array_column($data, 'nama_barang');
-        $this->label_nilai = array_column($data, 'jumlah_stok');
+        // Debugging untuk memastikan data valid sebelum digunakan di chart
+        // dd($barang, $data);
 
-        // Debugging (Opsional)
-        // dd($this->data_nilai, $this->label_nilai);
+        // Pisahkan data untuk digunakan dalam chart
+        $this->label_nilai = array_column($data, 'nama_barang'); // Array nama barang
+        $this->data_nilai = array_column($data, 'jumlah_stok'); // Array jumlah stok
+
     }
-
-
 
     public function render()
     {
