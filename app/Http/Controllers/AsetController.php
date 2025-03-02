@@ -1011,7 +1011,7 @@ class AsetController extends Controller
                 ->setCellValue('I' . $row, $aset->thproduksi)
                 ->setCellValue('J' . $row, $aset->deskripsi)
                 ->setCellValue('K' . $row, date("d M Y", $aset->tanggalbeli))
-                ->setCellValue('L' . $row, $aset->toko->nama)
+                ->setCellValue('L' . $row, $aset->toko->nama ?? '')
                 ->setCellValue('M' . $row, $aset->invoice)
                 ->setCellValue('N' . $row, $aset->jumlah)
                 ->setCellValue('O' . $row, rupiah($aset->hargasatuan))

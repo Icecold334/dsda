@@ -112,7 +112,7 @@ class DatabaseSeeder extends Seeder
 
 
         // Seed for Stok
-        for ($i = 1; $i <= 364; $i++) {
+        for ($i = 1; $i <= 100; $i++) {
             // Pilih lokasi secara acak
             $lokasi = LokasiStok::inRandomOrder()->first();
 
