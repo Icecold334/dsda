@@ -12,135 +12,107 @@
                 class="text-blue-700 bg-blue-100 hover:bg-blue-600 hover:text-white font-medium rounded-lg px-4 py-2 transition duration-200">
                 <i class="fa fa-search"></i> Pencarian & Pengurutan
             </button>
-
-            @can('aset_new')
-                <a href="{{ route('aset.create') }}"
-                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                    + Tambah Aset
-                </a>
-            @endcan
         </div>
     </div>
 
     <div x-data="{ showFilters: @entangle('showFilters') }">
         <div x-show="showFilters" class="mt-4 p-4 border rounded-lg">
-            <fieldset class="border p-4 rounded-lg">
-                <legend class="text-lg font-semibold text-gray-800">Filter Tampilan</legend>
-                <form wire:submit.prevent="loadAsets">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Filter Nama -->
-                        <div>
-                            <label for="nama" class="text-sm font-medium">Cari Nama Aset</label>
-                            <input type="text" wire:model.live="nama" class="border p-2 rounded w-full">
-                        </div>
-
-                        <!-- Filter Kategori -->
-                        <div>
-                            <label class="text-sm font-medium">Kategori</label>
-                            <select wire:model.live="kategori_id" class="border p-2 rounded w-full">
-                                <option value="">Semua Kategori</option>
-                                @foreach ($kategoris as $kategori)
-                                    <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Filter Merk -->
-                        <div>
-                            <label class="text-sm font-medium">Merk</label>
-                            <select wire:model.live="merk_id" class="border p-2 rounded w-full">
-                                <option value="">Semua Merk</option>
-                                @foreach ($merks as $merk)
-                                    <option value="{{ $merk->id }}">{{ $merk->nama }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <!-- Filter Toko -->
-                        <div>
-                            <label class="text-sm font-medium">Toko</label>
-                            <select wire:model.live="toko_id" class="border p-2 rounded w-full">
-                                <option value="">Semua Toko</option>
-                                @foreach ($tokos as $toko)
-                                    <option value="{{ $toko->id }}">{{ $toko->nama }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <!-- Filter Penanggung Jawab -->
-                        <div>
-                            <label class="text-sm font-medium">Penanggung Jawab</label>
-                            <select wire:model.live="penanggung_jawab_id" class="border p-2 rounded w-full">
-                                <option value="">Semua Penanggung Jawab</option>
-                                @foreach ($penanggungJawabs as $penanggung)
-                                    <option value="{{ $penanggung->id }}">{{ $penanggung->nama }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <!-- Filter Lokasi -->
-                        <div>
-                            <label class="text-sm font-medium">Lokasi</label>
-                            <select wire:model.live="lokasi_id" class="border p-2 rounded w-full">
-                                <option value="">Semua Lokasi</option>
-                                @foreach ($lokasis as $lokasi)
-                                    <option value="{{ $lokasi->id }}">{{ $lokasi->nama }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between mt-4">
-                        <button type="button" wire:click="resetFilters"
-                            class="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-400 transition">
-                            <i class="fa fa-sync-alt"></i>
-                        </button>
-
-                        @can('aset_xls')
-                            <div x-data="{ tooltip: false }" class="relative inline-block">
-                                <!-- Tombol Download Excel -->
-                                <button wire:click="exportExcel" @mouseover="tooltip = true" @mouseleave="tooltip = false"
-                                    class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
-                                        class="fa-solid fa-file-excel"></i></a>
-                                </button>
-
-                                <!-- Tooltip -->
-                                <div x-show="tooltip" x-transition
-                                    class="absolute left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-lg">
-                                    Download dalam format MS Excel
-                                </div>
+            <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6">
+                <fieldset class="border p-4 rounded-lg">
+                    <legend class="text-lg font-semibold text-gray-800">Filter Tampilan</legend>
+                    <form wire:submit.prevent="loadAsets">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Filter Nama -->
+                            <div>
+                                <label for="nama" class="text-sm font-medium">Cari Nama Aset</label>
+                                <input type="text" wire:model.live="nama" class="border p-2 rounded w-full">
                             </div>
-                        @endcan
-                    </div>
-                </form>
-            </fieldset>
 
-            <!-- Filter Urutan -->
-            <fieldset class="border p-4 rounded-lg">
-                <legend class="text-lg font-semibold text-gray-800">Filter Urutan</legend>
+                            <!-- Filter Kategori -->
+                            <div>
+                                <label class="text-sm font-medium">Kategori</label>
+                                <select wire:model.live="kategori_id" class="border p-2 rounded w-full">
+                                    <option value="">Semua Kategori</option>
+                                    @foreach ($kategoris as $kategori)
+                                        <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Dropdown untuk Kolom Urutan -->
-                    <div>
-                        <label for="order_by" class="block text-sm font-medium text-gray-700">Urutkan
-                            Berdasarkan</label>
-                        <select wire:model.live="orderBy" id="order_by"
-                            class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
-                            <option value="nama">Nama Aset</option>
-                            <option value="tanggalbeli">Tanggal Pembelian</option>
-                            <option value="hargasatuan">Harga Pembelian</option>
-                            <option value="riwayat">Riwayat</option>
-                        </select>
+                            <!-- Filter Sebab -->
+                            <div>
+                                <label for="sebab" class="text-sm font-medium">Sebab</label>
+                                <select wire:model.live="sebab" name="sebab" id="sebab"
+                                    class="border p-2 rounded w-full">
+                                    <option value="">Semua Sebab</option>
+                                    @foreach ($sebabs as $sebab)
+                                        <option value="{{ $sebab }}">{{ $sebab }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between mt-4">
+
+                        </div>
+                    </form>
+                </fieldset>
+
+                <!-- Filter Urutan -->
+                <fieldset class="border p-4 rounded-lg">
+                    <legend class="text-lg font-semibold text-gray-800">Filter Urutan</legend>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Dropdown untuk Kolom Urutan -->
+                        <div>
+                            <label for="order_by" class="text-sm font-medium">Urutkan
+                                Berdasarkan</label>
+                            <select wire:model.live="orderBy" id="order_by"
+                                class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
+                                <option value="nama">Nama Aset</option>
+                                <option value="tanggalnonaktif">Tanggal Non-Aktif</option>
+                                <option value="sebabnonaktif">Sebab Non-Aktif</option>
+                            </select>
+                        </div>
+
+                        <!-- Dropdown untuk Arah Urutan -->
+                        <div>
+                            <label for="order_direction" class="text-sm font-medium">Arah
+                                Urutan</label>
+                            <select wire:model.live="orderDirection" id="order_direction"
+                                class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
+                                <option value="asc">Menaik</option>
+                                <option value="desc">Menurun</option>
+                            </select>
+                        </div>
+
+                        <div class="flex justify-end items-center space-x-4">
+                            <button type="button" wire:click="resetFilters"
+                                class="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-400 transition">
+                                <i class="fa fa-sync-alt"></i>
+                            </button>
+
+                            @can('aset_xls')
+                                <div x-data="{ tooltip: false }" class="relative inline-block">
+                                    <!-- Tombol Download Excel -->
+                                    <button wire:click="exportExcel" @mouseover="tooltip = true"
+                                        @mouseleave="tooltip = false"
+                                        class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
+                                            class="fa-solid fa-file-excel"></i></a>
+                                    </button>
+
+                                    <!-- Tooltip -->
+                                    <div x-show="tooltip" x-transition
+                                        class="absolute left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-lg">
+                                        Download dalam format MS Excel
+                                    </div>
+                                </div>
+                            @endcan
+                        </div>
                     </div>
 
-                    <!-- Dropdown untuk Arah Urutan -->
-                    <div>
-                        <label for="order_direction" class="block text-sm font-medium text-gray-700">Arah Urutan</label>
-                        <select wire:model.live="orderDirection" id="order_direction"
-                            class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
-                            <option value="asc">Menaik</option>
-                            <option value="desc">Menurun</option>
-                        </select>
-                    </div>
-                </div>
-            </fieldset>
+                </fieldset>
+            </div>
         </div>
     </div>
 
@@ -151,13 +123,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold rounded-l-lg"></th>
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold ">NAMA ASET</th>
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold">KODE</th>
-                <th class="py-3 px-6 bg-primary-950 text-left font-semibold">MERK & TIPE</th>
-                @can('aset_price')
-                    <th class="py-3 px-6 bg-primary-950 text-left font-semibold">PENYUSUTAN</th>
-                @endcan
-                @can('history_view')
-                    <th class="py-3 px-6 bg-primary-950 text-left font-semibold">RIWAYAT TERAKHIR</th>
-                @endcan
+                <th class="py-3 px-6 bg-primary-950 text-left font-semibold">NON AKTIF</th>
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
@@ -266,51 +232,22 @@
                         <td class="py-3 px-6">
                             <p class="font-semibold text-gray-800">{{ $aset['kode'] }}</p>
                             <p class="font-normal text-gray-500 text-sm">Kode Sistem : {{ $aset['systemcode'] }}</p>
-                            <p class="font-normal text-gray-500 text-sm">Tanggal Pembelian :
-                                {{ $aset['tanggalbeli'] ? date('j F Y', $aset['tanggalbeli']) : '---' }}
-                            </p>
+
                         </td>
                         <td class="py-3 px-6 ">
-                            <p class="font-semibold text-gray-800">{{ $aset['merk'] ?? '--' }}</p>
-                            <p class="text-sm text-gray-500">{{ $aset['tipe'] ?? '---' }}</p>
+                            <p class="font-semibold text-gray-800">
+                                {{ $aset['tglnonaktif'] ? date('j F Y', $aset['tglnonaktif']) : '---' }}
+                            </p>
+                            <p class="text-sm text-gray-500">{{ $aset['alasannonaktif'] ?? '---' }}</p>
 
                         </td>
-                        @can('aset_price')
-                            <td class="py-3 px-6 ">
-                                <div class="flex items-center text-gray-800">
-                                    {{ $aset['hargatotal'] }}
-                                </div>
-                                <div class="flex items-center text-gray-800">
-                                    {{ $aset['totalpenyusutan'] }}
-                                </div>
-                                <div class="flex items-center text-gray-800">
-                                    {{ $aset['nilaiSekarang'] }}
-                                </div>
-                            </td>
-                        @endcan
-                        @can('history_view')
-                            <td class="py-3 px-6 ">
-                                @if (!empty($aset['histories']))
-                                    @php
-                                        $lastHistory = end($aset['histories']); // Ambil history terakhir
-                                    @endphp
-                                    <p class="font-semibold text-gray-800">
-                                        {{ date('j F Y', strtotime($lastHistory['tanggal'])) }}</p>
-                                    <p class="text-sm text-gray-500">{{ $lastHistory['person'] }}</p>
-                                    <p class="text-sm text-gray-500">{{ $lastHistory['lokasi'] }}</p>
-                                @else
-                                    ---
-                                @endif
-
-                            </td>
-                        @endcan
                         <td class="py-3 px-6">
-                            <a href="{{ route('aset.show', ['aset' => $aset['id']]) }}"
+                            <a href="{{ route('nonaktifaset.show', ['nonaktifaset' => $aset['id']]) }}"
                                 class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
                                 data-tooltip-target="tooltip-aset-{{ $aset['id'] }}">
                                 <i class="fa-solid fa-eye"></i>
                             </a>
-                            <div id="tooltip-aset-{{ $aset['id'] }}" role="tooltip"
+                            <div id="tooltip-nonaktifaset-{{ $aset['id'] }}" role="tooltip"
                                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                                 Lihat Detail Aset
                                 <div class="tooltip-arrow" data-popper-arrow></div>

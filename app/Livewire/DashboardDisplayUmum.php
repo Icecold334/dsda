@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Carbon\Carbon;
 use App\Models\Aset;
 use App\Models\Stok;
+use App\Models\User;
 use App\Models\Agenda;
 use App\Models\Jurnal;
 use App\Models\History;
@@ -24,6 +25,7 @@ class DashboardDisplayUmum extends Component
     public $unit_id;
     public $tipe;
     public $lokasi;
+    public $drivers;
     public $data_nilai = [];
     public $label_nilai = [];
 
@@ -36,6 +38,7 @@ class DashboardDisplayUmum extends Component
 
     public function loadData()
     {
+        $this->getDrivers();
         // Mendapatkan query untuk aset aktif
         $query = $this->getAsetQuery();
 
@@ -49,18 +52,6 @@ class DashboardDisplayUmum extends Component
 
         foreach ($this->agendas as $agenda) {
             $agenda->formatted_date = Carbon::parse($agenda->tanggal)->translatedFormat('l, j M Y');
-        }
-
-        $this->histories = History::with('aset', 'lokasi')
-            ->where('status', 1)
-            ->orderBy('aset_id')
-            ->orderBy('tanggal', 'desc')
-            ->take(5)
-            ->get()
-            ->unique('aset_id');
-
-        foreach ($this->histories as $histori) {
-            $histori->formatted_date = Carbon::parse($histori->tanggal)->translatedFormat('j M Y');
         }
 
         $this->transactions = Keuangan::with('aset')
@@ -104,6 +95,53 @@ class DashboardDisplayUmum extends Component
             ->sortByDesc('created_at')
             ->take(5);
     }
+
+    public function getDrivers()
+    {
+        // Ambil unit_id user yang sedang login
+        $userUnitId = Auth::user()->unit_id;
+
+        // Cari unit berdasarkan unit_id user
+        $unit = UnitKerja::find($userUnitId);
+
+        // Tentukan parentUnitId
+        // Jika unit memiliki parent_id (child), gunakan parent_id-nya
+        // Jika unit tidak memiliki parent_id (parent), gunakan unit_id itu sendiri
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
+
+        // Query untuk mengambil driver berdasarkan unit kerja
+        $this->drivers = User::whereHas('roles', function ($query) {
+            $query->where('name', 'Driver'); // Ambil user dengan role "Driver"
+        })
+            ->whereHas('unitKerja', function ($query) use ($parentUnitId) {
+                $query->where('parent_id', $parentUnitId)->orWhere('id', $parentUnitId);
+            })
+            ->get();
+        // ->map(function ($driver) {
+        //     // Menentukan status driver berdasarkan peminjaman kategori "KDO"
+        //     $driver->status = $this->isDriverAvailable($driver) ? 'Tersedia' : 'Tidak Tersedia';
+        //     return $driver;
+        // });
+    }
+
+    private function isDriverAvailable($driver)
+    {
+        return !DetailPeminjamanAset::whereHas('user', function ($query) use ($driver) {
+            $query->where('id', $driver->id); // Cek apakah driver terhubung ke peminjaman
+        })
+            ->whereHas('user.aset', function ($query) {
+                $query->whereHas('kategori', function ($kategoriQuery) {
+                    $kategoriQuery->where('nama', 'KDO'); // Hanya kategori "KDO"
+                });
+            })
+            ->whereHas('unit', function ($query) {
+                $query->where('id', $this->unit_id) // Hanya unit kerja yang sesuai
+                    ->orWhere('parent_id', $this->unit_id);
+            })
+            ->where('status', 1) // Hanya peminjaman yang sedang aktif
+            ->exists();
+    }
+
 
     private function getPermintaanQuery()
     {

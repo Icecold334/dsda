@@ -305,9 +305,6 @@ class ListPermintaanForm extends Component
             ->latest()
             ->first();
 
-
-
-
         // Create Detail Permintaan Stok
         $detailPermintaan = DetailPermintaanStok::create([
             'kode_permintaan' => $this->generateQRCode(),

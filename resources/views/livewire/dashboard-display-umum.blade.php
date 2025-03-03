@@ -240,33 +240,34 @@
             <div>
                 <x-card title="Driver Tersedia" class="mb-3">
                     <div class="relative">
-                        @forelse ($transactions as $transaksi)
+                        @forelse ($drivers as $driver)
                             <div class="p-2 hover:bg-gray-100 border-b border-gray-200">
                                 <div class="flex justify-between">
                                     <div>
-                                        <!-- Container setiap item dengan efek hover -->
+                                        <!-- Menampilkan informasi driver -->
                                         <div class="text-sm text-gray-500">
-                                            {{ $transaksi->formatted_date }} , {{ $transaksi->aset->nama }}
+                                            {{ $driver->unitKerja->nama ?? 'Tidak Ada Unit' }}
                                         </div>
                                         <div class="text-sm">
-                                            {!! $transaksi->tipe === 'out'
-                                                ? '<span class="text-danger-600"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>'
-                                                : '<span class="text-success-600"><i class="fa-solid fa-arrow-right-to-bracket"></i></span>' !!}
-                                            <a href="{{ route('aset.show', $transaksi->aset->id) }}"
-                                                href="{{ route('aset.show', $transaksi->aset->id) }}"
-                                                class="text-primary-900 hover:underline">
-                                                {{ $transaksi->nominal }}</>
+                                            <span class="text-primary-900"><i class="fa-solid fa-user"></i></span>
+                                            <span class="font-semibold">{{ $driver->name }}</span>
                                         </div>
                                     </div>
-                                    <div class="py-3">
-                                        <a href="{{ route('aset.show', ['aset' => $transaksi->aset->id, 'tab' => 'keuangan']) }}"
-                                            class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
-                                            data-tooltip-target="tooltip-transaksi-{{ $transaksi->id }}">
+                                    <div class="flex items-center space-x-3">
+                                        <!-- Status driver -->
+                                        {{-- <span class="px-2 py-1 rounded text-white text-xs font-semibold"
+                                            style="background-color: {{ $driver->status === 'Tersedia' ? '#4CAF50' : '#F44336' }}">
+                                            {{ $driver->status }}
+                                        </span> --}}
+
+                                        <a href="{{ route('profil.index', $driver->id) }}"
+                                            class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
+                                            data-tooltip-target="tooltip-driver-{{ $driver->id }}">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
-                                        <div id="tooltip-transaksi-{{ $transaksi->id }}" role="tooltip"
+                                        <div id="tooltip-driver-{{ $driver->id }}" role="tooltip"
                                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                            Lihat Detail Transaksi
+                                            Lihat Detail Driver
                                             <div class="tooltip-arrow" data-popper-arrow></div>
                                         </div>
                                     </div>
@@ -274,7 +275,7 @@
                             </div>
                         @empty
                             <div class="p-2 text-center">
-                                <p>Tidak ada Transaksi</p> <!-- Message if $transaksis is empty -->
+                                <p>Tidak ada Driver yang tersedia</p>
                             </div>
                         @endforelse
                     </div>
