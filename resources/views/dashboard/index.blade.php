@@ -1,6 +1,5 @@
 <x-body>
-    @if (auth()->user()->unitKerja->hak == 1)
-
+    @if (auth()->user()->unitKerja?->hak == 1)
         <div>
             <livewire:dashboard-display-umum />
         </div>

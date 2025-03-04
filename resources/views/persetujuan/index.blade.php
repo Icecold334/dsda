@@ -33,7 +33,7 @@
         <x-card title="Permintaan" class="">
 
             <div class="flex flex-col  gap-3">
-                @if (auth()->user()->unitKerja->hak == 1)
+                @if (auth()->user()->unitKerja?->hak == 1)
                     <a href="/option-approval/permintaan/umum"
                         class="block items-center p-4 w-full shadow-lg bg-white border border-gray-200 rounded-lg hover:bg-gray-200 dark:bg-gray-800 transition duration-200 dark:border-gray-700 dark:hover:bg-gray-700 vertical-center">
                         <div class="content">

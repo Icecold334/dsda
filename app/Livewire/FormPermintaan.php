@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Carbon\Carbon;
+use App\Models\Ruang;
 use BaconQrCode\Writer;
 use Livewire\Component;
 use App\Models\Kategori;
@@ -30,6 +31,12 @@ class FormPermintaan extends Component
     public $tanggal_permintaan;
     public $keterangan;
     public $listCount;
+    public $RuangId;
+    public $ruangs;
+    public $peserta;
+    public $LokasiLain;
+    public $AlamatLokasi;
+    public $KontakPerson;
 
     #[On('listCount')]
     public function updateListCount($count)
@@ -65,8 +72,27 @@ class FormPermintaan extends Component
 
     public function updatedSubUnitId()
     {
-
         $this->dispatch('sub_unit_id', sub_unit_id: $this->sub_unit_id);
+    }
+    public function updatedPeserta()
+    {
+        $this->dispatch('peserta', peserta: $this->peserta);
+    }
+    public function updatedRuangId()
+    {
+        $this->dispatch('RuangId', RuangId: $this->RuangId);
+    }
+    public function updatedLokasiLain()
+    {
+        $this->dispatch('LokasiLain', LokasiLain: $this->LokasiLain);
+    }
+    public function updatedAlamatLokasi()
+    {
+        $this->dispatch('AlamatLokasi', AlamatLokasi: $this->AlamatLokasi);
+    }
+    public function updatedKontakPerson()
+    {
+        $this->dispatch('KontakPerson', KontakPerson: $this->KontakPerson);
     }
 
     public $showKategori;
@@ -90,6 +116,21 @@ class FormPermintaan extends Component
             $this->sub_unit_id = $this->last->sub_unit_id;
             $this->dispatch('sub_unit_id', sub_unit_id: $this->sub_unit_id);
 
+            $this->peserta = $this->last->peserta;
+            $this->dispatch('peserta', peserta: $this->peserta);
+
+            $this->RuangId = $this->last->RuangId;
+            $this->dispatch('RuangId', RuangId: $this->RuangId);
+
+            $this->LokasiLain = $this->last->LokasiLain;
+            $this->dispatch('LokasiLain', LokasiLain: $this->LokasiLain);
+
+            $this->AlamatLokasi = $this->last->AlamatLokasi;
+            $this->dispatch('AlamatLokasi', AlamatLokasi: $this->AlamatLokasi);
+
+            $this->KontakPerson = $this->last->KontakPerson;
+            $this->dispatch('KontakPerson', KontakPerson: $this->KontakPerson);
+
             if ($this->tipe == 'peminjaman') {
                 # code...
                 $this->tipePeminjaman = Kategori::find($this->last->kategori_id)->nama;
@@ -99,6 +140,15 @@ class FormPermintaan extends Component
             $this->tanggal_permintaan = Carbon::now()->format('Y-m-d');
         }
 
+        $cond = false;
+        $this->ruangs =  Ruang::when($cond, function ($query) {
+            $query->whereHas('user', function ($query) {
+                return $query->whereHas('unitKerja', function ($query) {
+                    return $query->where('parent_id', $this->unit_id)
+                        ->orWhere('id', $this->unit_id);
+                });
+            });
+        })->get();
 
         $this->showKategori = Request::is('permintaan/add/permintaan*');
         $this->units = UnitKerja::whereNull('parent_id')->whereHas('children', function ($sub) {

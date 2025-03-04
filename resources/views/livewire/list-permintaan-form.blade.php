@@ -30,6 +30,7 @@
                 </tr>
             </thead>
             <tbody>
+                @dump($RuangId, $peserta, $LokasiLain, $AlamatLokasi, $KontakPerson)
                 {{-- @if ($ruleShow) --}}
                 @if (true)
                     @foreach ($list as $index => $item)

@@ -242,6 +242,12 @@ return new class extends Migration
             $table->boolean('proses')->nullable();
             $table->boolean('cancel')->nullable();
             $table->boolean('status')->nullable();
+            $table->foreignId('lokasi_id')->nullable()->constrained('ruangs')->onDelete('set null');
+            $table->text('lokasi_lain')->nullable();
+            $table->text('alamat_lokasi')->nullable();
+            $table->text('kontak_person')->nullable();
+            $table->dateTime('tanggal_masuk')->nullable();
+            $table->dateTime('tanggal_keluar')->nullable();
 
             $table->timestamps();
         });
@@ -258,7 +264,7 @@ return new class extends Migration
             $table->integer('jumlah');
             $table->integer('jumlah_approve')->nullable();
             $table->boolean('status')->nullable();
-            $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('set null');
+            $table->foreignId('lokasi_id')->nullable()->constrained('ruangs')->onDelete('set null');
             // $table->text('tanggal_permintaan');
             $table->timestamps();
         });

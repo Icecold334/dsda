@@ -2,7 +2,6 @@
     <div>
         {{-- @if ($tanggal_peminjaman && $keterangan && $unit_id && $sub_unit_id) --}}
         @if (true)
-
             <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
                 <thead>
                     <tr class="text-white uppercase">
@@ -250,7 +249,7 @@
                                         $show = $newAsetId && $newWaktu && $newJumlah && $newKeterangan;
                                     }
                                 @endphp
-                                @if ($show)
+                                @if (!in_array($tipe, ['KDO', 'Ruangan']) && $show)
                                     <button wire:click="addToList"
                                         class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                         <i class="fa-solid fa-circle-plus"></i>
@@ -266,14 +265,26 @@
             <div class="text-xl font-semibold mt-8 flex w-full justify-center">Lengkapi data diatas terlebih dahulu
             </div>
         @endif
+        @php
+            $showSaveButton = false;
+            if ($tipe == 'Ruangan') {
+                $showSaveButton = $newAsetId && $newWaktu && $newPeserta && $newKeterangan && $newDokumen;
+            } elseif ($tipe == 'KDO') {
+                $showSaveButton = $newAsetId && $newWaktu && $newPeserta && $newKeterangan;
+            } else {
+                $showSaveButton = count($list) > 0 && $showNew;
+            }
+        @endphp
+
         <div class="flex justify-center mt-4">
-            @if (count($list) > 0 && $showNew)
+            @if ($showSaveButton)
                 <button wire:click="saveData"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Simpan
                 </button>
             @endif
         </div>
+
     </div>
     @push('scripts')
         <script>

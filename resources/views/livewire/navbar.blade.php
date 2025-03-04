@@ -30,7 +30,7 @@
                         ['href' => '/pengiriman-stok', 'title' => 'List Inventaris'],
                         ['href' => '/stok', 'title' => 'List Stok'],
                     ]" />
-                    @if (auth()->user()->unitKerja->hak == 1)
+                    @if (auth()->user()->unitKerja?->hak == 1)
                         <livewire:nav-item title="Pelayanan Umum" :child="[
                             ['href' => '/permintaan/umum', 'title' => 'Form Pelayanan Umum'],
                             ['href' => '/permintaan-stok', 'title' => 'List Pelayanan Umum'],
