@@ -242,6 +242,7 @@ return new class extends Migration
             $table->boolean('proses')->nullable();
             $table->boolean('cancel')->nullable();
             $table->boolean('status')->nullable();
+            $table->integer('jumlah_peserta')->nullable();
             $table->foreignId('lokasi_id')->nullable()->constrained('ruangs')->onDelete('set null');
             $table->text('lokasi_lain')->nullable();
             $table->text('alamat_lokasi')->nullable();

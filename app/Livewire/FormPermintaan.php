@@ -104,11 +104,16 @@ class FormPermintaan extends Component
         // dd($this->last);
         // 2024 - 12 - 04
         if ($this->last) {
-            $this->tanggal_permintaan = Carbon::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
-                ->format('Y-m-d');
-            $this->dispatch('tanggal_permintaan', tanggal_permintaan: $this->tanggal_permintaan);
-
             $this->kategori_id = $this->last->kategori_id;
+
+            if ($this->last->kategori_id === 4) {
+                $this->tanggal_permintaan = Carbon::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
+                    ->format('Y-m-d\TH:i'); // Format untuk datetime-local
+            } else {
+                $this->tanggal_permintaan = Carbon  ::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
+                    ->format('Y-m-d'); // Format untuk date biasa
+            }
+            $this->dispatch('tanggal_permintaan', tanggal_permintaan: $this->tanggal_permintaan);
 
             $this->keterangan = $this->last->keterangan;
             $this->dispatch('keterangan', keterangan: $this->keterangan);
@@ -137,7 +142,11 @@ class FormPermintaan extends Component
                 $this->dispatch('peminjaman', peminjaman: $this->tipePeminjaman);
             }
         } else {
-            $this->tanggal_permintaan = Carbon::now()->format('Y-m-d');
+            if ($kategori == 4) {
+                $this->tanggal_permintaan = Carbon::now()->format('Y-m-d\TH:i'); // Format datetime-local
+            } else {
+                $this->tanggal_permintaan = Carbon::now()->format('Y-m-d'); // Format date biasa
+            }
         }
 
         $cond = false;

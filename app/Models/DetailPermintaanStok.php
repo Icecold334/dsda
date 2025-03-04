@@ -50,4 +50,8 @@ class DetailPermintaanStok extends Model
     {
         return $this->belongsTo(OpsiPersetujuan::class, 'approval_configuration_id');
     }
+    public function ruang()
+    {
+        return $this->belongsTo(Ruang::class, 'lokasi_id');
+    }
 }

@@ -70,8 +70,29 @@
                     @endif
                     <tr class="font-semibold">
                         <td>Tanggal {{ Str::ucfirst($tipe) }}</td>
-                        <td>{{ date('j F Y', $permintaan->tanggal_permintaan) }}</td>
+                        <td> {{ $permintaan->kategori_id == 4
+                            ? date('j F Y - H:i', $permintaan->tanggal_permintaan)
+                            : date('j F Y', $permintaan->tanggal_permintaan) }}
+                        </td>
                     </tr>
+                    @if ($permintaan->kategori_id == 4)
+                        <tr class="font-semibold">
+                            <td>Lokasi/Ruang </td>
+                            <td>
+                                @if (!is_null($permintaan->lokasi_id))
+                                    {{ optional($permintaan->ruang)->nama ?? '-' }}
+                                @else
+                                    {{ $permintaan->lokasi_lain ?? '-' }}<br>
+                                    {{ $permintaan->alamat_lokasi ?? '-' }}<br>
+                                    {{ $permintaan->kontak_person ?? '-' }}
+                                @endif
+                            </td>
+                        </tr>
+                        <tr class="font-semibold">
+                            <td>Jumlah Peserta</td>
+                            <td>{{ $permintaan->jumlah_peserta }}</td>
+                        </tr>
+                    @endif
                     <tr class="font-semibold">
                         <td>Unit Kerja</td>
                         <td>{{ $permintaan->unit->nama }}</td>

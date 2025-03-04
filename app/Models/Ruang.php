@@ -22,8 +22,8 @@ class Ruang extends Model
         return $this->belongsTo(User::class, 'pj_id');
     }
 
-    public function permintaanstok()
+    public function detailpermintaanstok()
     {
-        return $this->hasMany(PermintaanStok::class, 'lokasi_id');
+        return $this->hasMany(DetailPermintaanStok::class, 'lokasi_id');
     }
 }

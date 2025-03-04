@@ -367,7 +367,7 @@ class ListPermintaanForm extends Component
             ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
             ->latest()
             ->first();
-
+        dd($this->LokasiLain, $this->AlamatLokasi, $this->KontakPerson);
         // Create Detail Permintaan Stok
         $detailPermintaan = DetailPermintaanStok::create([
             'kode_permintaan' => $this->generateQRCode(),
@@ -578,21 +578,13 @@ class ListPermintaanForm extends Component
             // 'barang_name' => $this->newBarang,
             'barang' => $this->newBarang,
             'jumlah' => $this->newJumlah,
-            'jumlah_peserta' => $this->newPeserta,
             'satuan' => $this->newUnit,
-            'waktu_id' => $this->newWaktu ?? null,
-            'waktu' => WaktuPeminjaman::find($this->newWaktu),
             'dokumen' => $this->newDokumen ?? null,
-            // Pastikan lokasi tidak mereset data lama
-            'lokasi_id' => $this->newRuangId !== 0 ? $this->newRuangId : null,
-            'lokasi_lain' => $this->newRuangId === 0 ? $this->newLokasiLain : null,
-            'alamat_lokasi' => $this->newRuangId === 0 ? $this->newAlamatLokasi : null,
-            'kontak_person' => $this->newRuangId === 0 ? $this->newKontakPerson : null,
         ];
         $this->ruleAdd = false;
         $this->dispatch('listCount', count: count($this->list));
         // Reset inputs after adding to the list
-        $this->reset(['newBarangId', 'newJumlah', 'newPeserta', 'newDokumen', 'newAset', 'newAsetId', 'newRuangId', 'newDeskripsi', 'newCatatan', 'newBukti', 'newLokasiLain', 'newAlamatLokasi', 'newKontakPerson']);
+        $this->reset(['newBarangId', 'newJumlah', 'newDokumen', 'newAset', 'newAsetId', 'newDeskripsi', 'newCatatan', 'newBukti']);
     }
 
     public function updateList($index, $field, $value)
