@@ -55,6 +55,7 @@ class ListPermintaanForm extends Component
     public $newCatatan; // Input for new barang
     public $newAset;
     public $newAsetId;
+    public $newDriverId;
     public $newRuangId;
     public $newRuang;
     public $asetSuggestions = []; // Input for new barang
@@ -64,7 +65,9 @@ class ListPermintaanForm extends Component
     public $newLokasiId;
     public $newLokasi;
     public $newJumlah; // Input for new jumlah
-    public $newPeserta; // Input for new jumlah
+    public $NoSeri;
+    public $JenisKDO;
+    public $NamaKDO;
     public $newDokumen; // Input for new dokumen
     public $newBukti; // Input for new dokumen
     public $barangSuggestions = []; // Suggestions for barang
@@ -85,8 +88,12 @@ class ListPermintaanForm extends Component
     public $LokasiLain;
     public $AlamatLokasi;
     public $KontakPerson;
+    public $KDOId;
+    public $tanggal_masuk;
+    public $tanggal_keluar;
     public $approvals = [];
     public $asets = [];
+    public $drivers = [];
     public $ruangs = [];
 
     public function openNoteModal($itemId)
@@ -299,16 +306,32 @@ class ListPermintaanForm extends Component
 
         $this->kategori_id = $kategori_id;
         $this->fillShowRule();
-        $cond = false;
-        $this->asets =  Ruang::when($cond, function ($query) {
-            $query->whereHas('user', function ($query) {
-                return $query->whereHas('unitKerja', function ($query) {
-                    return $query->where('parent_id', $this->unit_id)
-                        ->orWhere('id', $this->unit_id);
+
+        $KDO = 'KDO';
+        $kategori = Kategori::where('nama', $KDO)->first();
+        $cond = true;
+        $this->asets =
+            Aset::when($cond, function ($query) {
+                $query->whereHas('user', function ($query) {
+                    return $query->whereHas('unitKerja', function ($query) {
+                        return $query->where('parent_id', $this->unit_id)
+                            ->orWhere('id', $this->unit_id);
+                    });
                 });
-            });
-        })->get();
+            })->whereHas('kategori', function ($query) use ($kategori) {
+                return $query->where('parent_id', $kategori->id)->orWhere('id', $kategori->id);
+            })->get();
+
+        $this->drivers = User::whereHas('roles', function ($query) {
+            $query->where('name', 'Driver'); // Ambil user dengan role "Driver"
+        })
+            ->whereHas('unitKerja', function ($query) {
+                return $query->where('parent_id', $this->unit_id)
+                    ->orWhere('id', $this->unit_id);
+            })
+            ->get();
     }
+
 
     #[On('sub_unit_id')]
     public function fillSubUnitId($sub_unit_id)
@@ -357,6 +380,24 @@ class ListPermintaanForm extends Component
         $this->KontakPerson = $KontakPerson;
         $this->fillShowRule();
     }
+    #[On('KDOId')]
+    public function fillKDOId($KDOId)
+    {
+        $this->KDOId = $KDOId;
+        $this->fillShowRule();
+    }
+    #[On('tanggal_masuk')]
+    public function fillTanggalMasuk($tanggal_masuk)
+    {
+        $this->tanggal_masuk = $tanggal_masuk;
+        $this->fillShowRule();
+    }
+    #[On('tanggal_keluar')]
+    public function fillTanggalKeluar($tanggal_keluar)
+    {
+        $this->tanggal_keluar = $tanggal_keluar;
+        $this->fillShowRule();
+    }
 
 
     public function saveData()
@@ -367,8 +408,8 @@ class ListPermintaanForm extends Component
             ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
             ->latest()
             ->first();
-        dd($this->LokasiLain, $this->AlamatLokasi, $this->KontakPerson);
         // Create Detail Permintaan Stok
+        dd($this->KDOId, $this->tanggal_masuk, $this->tanggal_keluar, $this->tanggal_permintaan);
         $detailPermintaan = DetailPermintaanStok::create([
             'kode_permintaan' => $this->generateQRCode(),
             'tanggal_permintaan' => strtotime($this->tanggal_permintaan),
@@ -379,11 +420,14 @@ class ListPermintaanForm extends Component
             'sub_unit_id' => $this->sub_unit_id ?? null,
             'keterangan' => $this->keterangan,
             'jumlah_peserta' => $this->peserta,
-            'lokasi_id' => $this->RuangId !== 0 ? $this->RuangId : null,
-            'lokasi_lain' => $this->RuangId === 0 ? $this->LokasiLain : null,
-            'alamat_lokasi' => $this->RuangId === 0 ? $this->AlamatLokasi : null,
-            'kontak_person' => $this->RuangId === 0 ? $this->KontakPerson : null,
             'approval_configuration_id' => $latestApprovalConfiguration->id,
+            'lokasi_id' => $this->RuangId == 0 ? null : $this->RuangId, // Pastikan null jika 0
+            'lokasi_lain' => !empty($this->LokasiLain) ? $this->LokasiLain : null,
+            'alamat_lokasi' => !empty($this->AlamatLokasi) ? $this->AlamatLokasi : null,
+            'kontak_person' => !empty($this->KontakPerson) ? $this->KontakPerson : null,
+            'aset_id' => $this->KDOId ?? null,
+            'tanggal_masuk' => $this->tanggal_masuk ?? null,
+            'tanggal_keluar' => $this->tanggal_keluar ?? null,
             'status' => null
         ]);
         $this->permintaan = $detailPermintaan;
@@ -396,20 +440,18 @@ class ListPermintaanForm extends Component
             PermintaanStok::create([
                 'detail_permintaan_id' => $detailPermintaan->id,
                 'user_id' => Auth::id(),
-                'aset_id' => $item['aset_id'] ?? null,
+                // 'aset_id' => $item['aset_id'] ?? null,
+                'aset_id' => isset($item['aset_id']) && $item['aset_id'] == 0 ? null : $item['aset_id'], // Pastikan NULL jika 0
                 'deskripsi' => $item['deskripsi'] ?? null,
                 'catatan' => $item['catatan'] ?? null,
                 'img' => $storedFilePath,
                 'barang_id' => $item['barang_id'],
                 'jumlah' => $item['jumlah'],
-                'jumlah_peserta' => $item['jumlah_peserta'] ?? null,
-                'waktu_id' => $item['waktu_id'] ?? null,
-                'tanggal_masuk' => $item['tanggal_masuk'] ?? null,
-                'tanggal_keluar' => $item['tanggal_keluar'] ?? null,
                 'lokasi_id' => $item['lokasi_id'] ?? null,
-                'lokasi_lain' => $item['lokasi_lain'] ?? null,
-                'alamat_lokasi' => $item['alamat_lokasi'] ?? null,
-                'kontak_person' => $item['kontak_person'] ?? null,
+                'driver_id' => $item['driver_id'] ?? null,
+                'noseri' => $item['noseri'] ?? null,
+                'jenis_kdo' => $item['jenis_kdo'] ?? null,
+                'nama_kdo' => $item['nama_kdo'] ?? null,
                 // 'lokasi_id' => $this->lokasiId
             ]);
         }
@@ -577,14 +619,18 @@ class ListPermintaanForm extends Component
             'barang_id' => $this->newBarangId, // Assuming a dropdown for selecting existing barang
             // 'barang_name' => $this->newBarang,
             'barang' => $this->newBarang,
-            'jumlah' => $this->newJumlah,
+            'jumlah' => $this->newJumlah ?? null,
             'satuan' => $this->newUnit,
+            'driver_id' => $this->newDriverId ?? null,
+            'noseri' => $this->NoSeri ?? null,
+            'jenis_kdo' => $this->JenisKDO ?? null,
+            'nama_kdo' => $this->NamaKDO ?? null,
             'dokumen' => $this->newDokumen ?? null,
         ];
         $this->ruleAdd = false;
         $this->dispatch('listCount', count: count($this->list));
         // Reset inputs after adding to the list
-        $this->reset(['newBarangId', 'newJumlah', 'newDokumen', 'newAset', 'newAsetId', 'newDeskripsi', 'newCatatan', 'newBukti']);
+        $this->reset(['newBarangId', 'newJumlah', 'newDokumen', 'newAset', 'newAsetId', 'newDriverId', 'newDeskripsi', 'newCatatan', 'newBukti', 'NoSeri', 'JenisKDO', 'NamaKDO']);
     }
 
     public function updateList($index, $field, $value)
@@ -594,7 +640,7 @@ class ListPermintaanForm extends Component
 
     public function fillShowRule()
     {
-        $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
+        $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
     }
     public function updated()
     {
@@ -642,6 +688,10 @@ class ListPermintaanForm extends Component
                     'barang_name' => $value->barangStok->nama,
                     'jumlah' => $value->jumlah,
                     'satuan' => $value->barangStok->satuanBesar->nama,
+                    'driver_id' => $value->driver_id,
+                    'noseri' => $value->noseri,
+                    'jenis_kdo' => $value->jenis_kdo,
+                    'nama_kdo' => $value->nama_kdo,
                     'dokumen' => $value->img ?? null,
                 ];
             }

@@ -54,4 +54,8 @@ class DetailPermintaanStok extends Model
     {
         return $this->belongsTo(Ruang::class, 'lokasi_id');
     }
+    public function aset()
+    {
+        return $this->belongsTo(Aset::class, 'aset_id');
+    }
 }

@@ -129,7 +129,7 @@ class ListPeminjamanForm extends Component
         // if ($this->tipe == 'Ruangan') {
         //     $this->showAdd = $this->newAsetId && $this->newWaktu && $this->newPeserta && $this->newKeterangan && $this->newDokumen;
         // }
-        $cond = false;
+        $cond = true;
         // dd($tipe);
         if ($tipe == 'Ruangan') {
             $this->asets =  Ruang::when($cond, function ($query) {

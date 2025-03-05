@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Carbon\Carbon;
+use App\Models\Aset;
 use App\Models\Ruang;
 use BaconQrCode\Writer;
 use Livewire\Component;
@@ -29,10 +30,14 @@ class FormPermintaan extends Component
     public $tipe;
     public $sub_unit_id;
     public $tanggal_permintaan;
+    public $tanggal_masuk;
+    public $tanggal_keluar;
     public $keterangan;
     public $listCount;
     public $RuangId;
     public $ruangs;
+    public $KDOId;
+    public $kdos;
     public $peserta;
     public $LokasiLain;
     public $AlamatLokasi;
@@ -46,7 +51,6 @@ class FormPermintaan extends Component
 
     public function updatedUnitId()
     {
-
         if ($this->unit_id) {
             $this->subUnits = UnitKerja::where('parent_id', $this->unit_id)->get();
         }
@@ -62,7 +66,6 @@ class FormPermintaan extends Component
     }
     public function updatedTanggalPermintaan()
     {
-
         $this->dispatch('tanggal_permintaan', tanggal_permintaan: $this->tanggal_permintaan);
     }
     public function updatedKeterangan()
@@ -94,6 +97,18 @@ class FormPermintaan extends Component
     {
         $this->dispatch('KontakPerson', KontakPerson: $this->KontakPerson);
     }
+    public function updatedKDOId()
+    {
+        $this->dispatch('KDOId', KDOId: $this->KDOId);
+    }
+    public function updatedTanggalMasuk()
+    {
+        $this->dispatch('tanggal_masuk', tanggal_masuk: $this->tanggal_masuk);
+    }
+    public function updatedTanggalKeluar()
+    {
+        $this->dispatch('tanggal_keluar', tanggal_keluar: $this->tanggal_keluar);
+    }
 
     public $showKategori;
 
@@ -110,10 +125,16 @@ class FormPermintaan extends Component
                 $this->tanggal_permintaan = Carbon::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
                     ->format('Y-m-d\TH:i'); // Format untuk datetime-local
             } else {
-                $this->tanggal_permintaan = Carbon  ::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
+                $this->tanggal_permintaan = Carbon::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
                     ->format('Y-m-d'); // Format untuk date biasa
+                $this->tanggal_masuk = Carbon::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
+                    ->format('Y-m-d'); // Format untuk date biasa
+                $this->tanggal_keluar = Carbon::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
+                    ->addDay()->format('Y-m-d'); // Format untuk date biasa
             }
             $this->dispatch('tanggal_permintaan', tanggal_permintaan: $this->tanggal_permintaan);
+            $this->dispatch('tanggal_masuk', tanggal_masuk: $this->tanggal_masuk);
+            $this->dispatch('tanggal_keluar', tanggal_keluar: $this->tanggal_keluar);
 
             $this->keterangan = $this->last->keterangan;
             $this->dispatch('keterangan', keterangan: $this->keterangan);
@@ -136,6 +157,15 @@ class FormPermintaan extends Component
             $this->KontakPerson = $this->last->KontakPerson;
             $this->dispatch('KontakPerson', KontakPerson: $this->KontakPerson);
 
+            $this->KDOId = $this->last->KDOId;
+            $this->dispatch('KDOId', KDOId: $this->KDOId);
+
+            $this->tanggal_masuk = $this->last->tanggal_masuk;
+            $this->dispatch('tanggal_masuk', tanggal_masuk: $this->tanggal_masuk);
+
+            $this->tanggal_keluar = $this->last->tanggal_keluar;
+            $this->dispatch('tanggal_keluar', tanggal_keluar: $this->tanggal_keluar);
+
             if ($this->tipe == 'peminjaman') {
                 # code...
                 $this->tipePeminjaman = Kategori::find($this->last->kategori_id)->nama;
@@ -146,10 +176,12 @@ class FormPermintaan extends Component
                 $this->tanggal_permintaan = Carbon::now()->format('Y-m-d\TH:i'); // Format datetime-local
             } else {
                 $this->tanggal_permintaan = Carbon::now()->format('Y-m-d'); // Format date biasa
+                $this->tanggal_masuk = Carbon::now()->format('Y-m-d'); // Format date biasa
+                $this->tanggal_keluar = Carbon::tomorrow()->format('Y-m-d'); // Format date biasa
             }
         }
 
-        $cond = false;
+        $cond = true;
         $this->ruangs =  Ruang::when($cond, function ($query) {
             $query->whereHas('user', function ($query) {
                 return $query->whereHas('unitKerja', function ($query) {
@@ -158,6 +190,21 @@ class FormPermintaan extends Component
                 });
             });
         })->get();
+
+        $KDO = 'KDO';
+        $kategori = Kategori::where('nama', $KDO)->first();
+
+        $this->kdos =
+            Aset::when($cond, function ($query) {
+                $query->whereHas('user', function ($query) {
+                    return $query->whereHas('unitKerja', function ($query) {
+                        return $query->where('parent_id', $this->unit_id)
+                            ->orWhere('id', $this->unit_id);
+                    });
+                });
+            })->whereHas('kategori', function ($query) use ($kategori) {
+                return $query->where('parent_id', $kategori->id)->orWhere('id', $kategori->id);
+            })->where('perbaikan', 1)->get();
 
         $this->showKategori = Request::is('permintaan/add/permintaan*');
         $this->units = UnitKerja::whereNull('parent_id')->whereHas('children', function ($sub) {
@@ -175,9 +222,16 @@ class FormPermintaan extends Component
         if ($this->permintaan) {
             $this->updatedUnitId();
             $this->dispatch('unit_id', unit_id: $this->unit_id);
-            $this->dispatch('tanggal_permintaan', tanggal_permintaan: $this->tanggal_permintaan);
+            $this->dispatch(event: 'tanggal_permintaan', tanggal_permintaan: $this->tanggal_permintaan);
             $this->dispatch('keterangan', keterangan: $this->keterangan);
             $this->dispatch('sub_unit_id', sub_unit_id: $this->sub_unit_id);
+            $this->dispatch('RuangId', RuangId: $this->RuangId);
+            $this->dispatch('LokasiLain', LokasiLain: $this->LokasiLain);
+            $this->dispatch('AlamatLokasi', AlamatLokasi: $this->AlamatLokasi);
+            $this->dispatch('KontakPerson', KontakPerson: $this->KontakPerson);
+            $this->dispatch('KDOId', KDOId: $this->KDOId);
+            $this->dispatch('tanggal_masuk', tanggal_masuk: $this->tanggal_masuk);
+            $this->dispatch('tanggal_keluar', tanggal_keluar: $this->tanggal_keluar);
         }
     }
 
