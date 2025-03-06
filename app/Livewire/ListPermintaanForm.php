@@ -389,6 +389,7 @@ class ListPermintaanForm extends Component
     #[On('tanggal_masuk')]
     public function fillTanggalMasuk($tanggal_masuk)
     {
+
         $this->tanggal_masuk = $tanggal_masuk;
         $this->fillShowRule();
     }
@@ -409,7 +410,6 @@ class ListPermintaanForm extends Component
             ->latest()
             ->first();
         // Create Detail Permintaan Stok
-        dd($this->KDOId, $this->tanggal_masuk, $this->tanggal_keluar, $this->tanggal_permintaan);
         $detailPermintaan = DetailPermintaanStok::create([
             'kode_permintaan' => $this->generateQRCode(),
             'tanggal_permintaan' => strtotime($this->tanggal_permintaan),
@@ -426,8 +426,8 @@ class ListPermintaanForm extends Component
             'alamat_lokasi' => !empty($this->AlamatLokasi) ? $this->AlamatLokasi : null,
             'kontak_person' => !empty($this->KontakPerson) ? $this->KontakPerson : null,
             'aset_id' => $this->KDOId ?? null,
-            'tanggal_masuk' => $this->tanggal_masuk ?? null,
-            'tanggal_keluar' => $this->tanggal_keluar ?? null,
+            'tanggal_masuk' => $this->tanggal_masuk,
+            'tanggal_keluar' => $this->tanggal_keluar,
             'status' => null
         ]);
         $this->permintaan = $detailPermintaan;
@@ -437,6 +437,11 @@ class ListPermintaanForm extends Component
                 $item['img']->getClientOriginalName(), // File name
                 'public' // Storage disk
             )) : null;
+            $storedFilePathBukti = $item['dokumen'] ? str_replace('buktikdo/', '', $item['dokumen']->storeAs(
+                'buktikdo', // Directory
+                $item['dokumen']->getClientOriginalName(), // File name
+                'public' // Storage disk
+            )) : null;
             PermintaanStok::create([
                 'detail_permintaan_id' => $detailPermintaan->id,
                 'user_id' => Auth::id(),
@@ -444,7 +449,7 @@ class ListPermintaanForm extends Component
                 'aset_id' => isset($item['aset_id']) && $item['aset_id'] == 0 ? null : $item['aset_id'], // Pastikan NULL jika 0
                 'deskripsi' => $item['deskripsi'] ?? null,
                 'catatan' => $item['catatan'] ?? null,
-                'img' => $storedFilePath,
+                'img' => $storedFilePath ?? $storedFilePathBukti ?? null,
                 'barang_id' => $item['barang_id'],
                 'jumlah' => $item['jumlah'],
                 'lokasi_id' => $item['lokasi_id'] ?? null,
@@ -456,8 +461,6 @@ class ListPermintaanForm extends Component
             ]);
         }
         $message = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
-
-
 
         $this->tipe = Str::contains($this->permintaan->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
 
@@ -706,6 +709,8 @@ class ListPermintaanForm extends Component
                 ->toArray();
         }
         $this->tanggal_permintaan = Carbon::now()->format('Y-m-d');
+        $this->tanggal_masuk = Carbon::now()->format('Y-m-d');
+        $this->tanggal_keluar = Carbon::now()->addDay()->format('Y-m-d');
     }
 
     public function removeFromList($index)
@@ -717,6 +722,7 @@ class ListPermintaanForm extends Component
         $this->list = array_values($this->list); // Reindex the array
         $this->dispatch('listCount', count: count($this->list));
     }
+
 
     public function blurLokasi()
     {
@@ -798,6 +804,7 @@ class ListPermintaanForm extends Component
     public function removePhoto()
     {
         $this->newBukti = null;
+        $this->newDokumen = null;
     }
     public function removeDocument($index)
     {

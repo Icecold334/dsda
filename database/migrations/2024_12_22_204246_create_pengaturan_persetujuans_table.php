@@ -25,6 +25,7 @@ return new class extends Migration
             $table->integer('cancel_persetujuan')->nullable();
             $table->unsignedBigInteger('jabatan_penyelesai_id')->nullable(); // Jabatan penyelesaian
             $table->unsignedBigInteger('user_penyelesai_id')->nullable(); // Jabatan penyelesaian
+            $table->foreignId('kategori_id')->nullable()->constrained('kategori')->onDelete('set null');
             $table->timestamps();
 
             $table->foreign('jabatan_penyelesai_id')
@@ -43,6 +44,7 @@ return new class extends Migration
             $table->unsignedBigInteger('opsi_persetujuan_id'); // ID opsi persetujuan
             $table->unsignedBigInteger('jabatan_id'); // ID jabatan dari tabel roles
             $table->integer('urutan'); // Urutan jabatan dalam persetujuan
+            $table->integer('approval')->nullable();
             $table->timestamps();
 
             // Relasi ke tabel opsi_persetujuan

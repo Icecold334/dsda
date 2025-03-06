@@ -93,6 +93,23 @@
                             <td>{{ $permintaan->jumlah_peserta }}</td>
                         </tr>
                     @endif
+                    @if ($permintaan->kategori_id == 5)
+                        <tr class="font-semibold">
+                            <td>KDO</td>
+                            <td>
+                                {{ optional($permintaan->aset)->nama ?? '-' }}
+                            </td>
+                        </tr>
+                        <tr class="font-semibold">
+                            <td>Tanggal Masuk</td>
+                            <td>{{ \Carbon\Carbon::parse($permintaan->tanggal_masuk)->translatedFormat('j F Y') }}</td>
+                        </tr>
+                        <tr class="font-semibold">
+                            <td>Tanggal Keluar</td>
+                            <td>{{ \Carbon\Carbon::parse($permintaan->tanggal_keluar)->translatedFormat('j F Y') }}
+                            </td>
+                        </tr>
+                    @endif
                     <tr class="font-semibold">
                         <td>Unit Kerja</td>
                         <td>{{ $permintaan->unit->nama }}</td>

@@ -1,7 +1,6 @@
 <div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
-
             <x-card title="data umum">
                 <table class="w-full border-separate border-spacing-y-4">
                     <tr>
@@ -138,14 +137,12 @@
                         </tr>
                     @endif
                     @if ($tipe == 'permintaan' && $kategori_id == 5)
-
                         <tr>
                             <td class="w-1/3">
                                 <label for="ruang" class="block mb-2  font-semibold text-gray-900 dark:text-white">
                                     KDO *</label>
                             </td>
                             <td>
-                                @dump($KDOId, $tanggal_masuk, $tanggal_keluar)
                                 <div class="flex items-center">
                                     <select wire:model.live="KDOId"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
@@ -196,7 +193,6 @@
                             </td>
                         </tr>
                     @endif
-                    @dump($kategori_id)
                     <tr>
                         <td class="font-semibold"><label for="keterangan">Keterangan</label></td>
                         <td>

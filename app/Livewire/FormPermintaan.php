@@ -127,9 +127,9 @@ class FormPermintaan extends Component
             } else {
                 $this->tanggal_permintaan = Carbon::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
                     ->format('Y-m-d'); // Format untuk date biasa
-                $this->tanggal_masuk = Carbon::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
+                $this->tanggal_masuk = Carbon::createFromTimestamp($this->last->tanggal_masuk)
                     ->format('Y-m-d'); // Format untuk date biasa
-                $this->tanggal_keluar = Carbon::createFromTimestamp($this->last->{"tanggal_{$this->tipe}"})
+                $this->tanggal_keluar = Carbon::createFromTimestamp($this->last->tanggal_keluar)
                     ->addDay()->format('Y-m-d'); // Format untuk date biasa
             }
             $this->dispatch('tanggal_permintaan', tanggal_permintaan: $this->tanggal_permintaan);
@@ -172,7 +172,7 @@ class FormPermintaan extends Component
                 $this->dispatch('peminjaman', peminjaman: $this->tipePeminjaman);
             }
         } else {
-            if ($kategori == 4) {
+            if ($kategori == 'konsumsi') {
                 $this->tanggal_permintaan = Carbon::now()->format('Y-m-d\TH:i'); // Format datetime-local
             } else {
                 $this->tanggal_permintaan = Carbon::now()->format('Y-m-d'); // Format date biasa
@@ -192,7 +192,7 @@ class FormPermintaan extends Component
         })->get();
 
         $KDO = 'KDO';
-        $kategori = Kategori::where('nama', $KDO)->first();
+        $kategori_KDO = Kategori::where('nama', $KDO)->first();
 
         $this->kdos =
             Aset::when($cond, function ($query) {
@@ -202,8 +202,8 @@ class FormPermintaan extends Component
                             ->orWhere('id', $this->unit_id);
                     });
                 });
-            })->whereHas('kategori', function ($query) use ($kategori) {
-                return $query->where('parent_id', $kategori->id)->orWhere('id', $kategori->id);
+            })->whereHas('kategori', function ($query) use ($kategori_KDO) {
+                return $query->where('parent_id', $kategori_KDO->id)->orWhere('id', $kategori_KDO->id);
             })->where('perbaikan', 1)->get();
 
         $this->showKategori = Request::is('permintaan/add/permintaan*');

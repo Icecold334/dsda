@@ -22,6 +22,9 @@
                         {{ $kategori_id == 4 ? 'Konsumsi' : ($kategori_id == 5 ? 'Tipe Service' : ($kategori_id == 6 ? 'Voucher Carwash' : 'Barang')) }}
                     </th>
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH *</th>
+                    @if ($kategori_id == 5)
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BUKTI KERUSAKAN*</th>
+                    @endif
                     @if (!$showAdd)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH disetujui</th>
                     @endif
@@ -90,7 +93,7 @@
                                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                     @enderror
 
-                                    @if (empty($list[$index]['aset_id']) || $list[$index]['aset_id'] == '0')
+                                    @if ($list[$index]['aset_id'] == '0')
                                         <div class="mt-2">
                                             <input type="text" wire:model.live="list.{{ $index }}.noseri"
                                                 disabled
@@ -155,6 +158,29 @@
                                     </span>
                                 </div>
                             </td>
+                            @if ($kategori_id == 5)
+                                <td class="px-6 py-3 text-center">
+                                    <div class="relative inline-block">
+                                        @if (is_string($item['dokumen']))
+                                            <!-- Jika newBukti adalah string (path file) -->
+                                            <a href="{{ asset('storage/buktikdo/' . $item['dokumen']) }}"
+                                                target="_blank">
+                                                <img src="{{ asset('storage/buktikdo/' . $item['dokumen']) }}"
+                                                    alt="Preview Bukti" class="w-16 h-16 rounded-md">
+                                            </a>
+                                        @elseif (is_object($item['dokumen']) && method_exists($item['dokumen'], 'temporaryUrl'))
+                                            <!-- Jika newBukti adalah file Livewire upload -->
+                                            <a href="{{ $item['dokumen']->temporaryUrl() }}" target="_blank">
+                                                <img src="{{ $item['dokumen']->temporaryUrl() }}" alt="Preview Bukti"
+                                                    class="w-16 h-16 rounded-md">
+                                            </a>
+                                        @else
+                                            <span class="text-gray-500">Bukti tidak valid</span>
+                                        @endif
+                                    </div>
+
+                                </td>
+                            @endif
                             @if (!$showAdd)
                                 <td class="py-3 px-6">
                                     <div class="flex items-center">
@@ -306,7 +332,7 @@
                                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                     @enderror
 
-                                    @if (empty($newAsetId) || $newAsetId === '0')
+                                    @if ($newAsetId === '0')
                                         <div class="mt-2">
                                             <input type="text" wire:model.live="NoSeri"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
@@ -365,6 +391,30 @@
                                     </span>
                                 </div>
                             </td>
+                            @if ($kategori_id == 5)
+                                <td class="px-6 py-3 text-center">
+                                    @if ($newDokumen)
+                                        <div class="relative inline-block">
+                                            <a href="{{ $newDokumen->temporaryUrl() }}" target="_blank">
+                                                <img src="{{ $newDokumen->temporaryUrl() }}" alt="Preview Bukti"
+                                                    class="w-16 h-16 rounded-md">
+                                            </a>
+                                            <button wire:click="removePhoto"
+                                                class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-xs hover:bg-red-700">
+                                                &times;
+                                            </button>
+                                        </div>
+                                    @else
+                                        <input type="file" wire:model.live="newDokumen" class="hidden"
+                                            id="upload-newDokumen">
+                                        <button type="button"
+                                            onclick="document.getElementById('upload-newDokumen').click()"
+                                            class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                            Unggah Foto
+                                        </button>
+                                    @endif
+                                </td>
+                            @endif
                             @if (!$showAdd)
                                 <td class="py-3 px-6">
                                     <div class="flex items-center">

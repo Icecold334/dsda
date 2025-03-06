@@ -15,6 +15,7 @@ class JabatanPersetujuan extends Model
         'opsi_persetujuan_id',
         'jabatan_id',
         'urutan',
+        'approval',
     ];
 
     /**

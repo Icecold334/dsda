@@ -29,7 +29,7 @@ class UnitSeeder extends Seeder
             'Sekretariat' => [
                 'kepala' => 'Hendri, ST, MT',
                 'sub_units' => [
-                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST', 'staf' => ['Ahmad Gunadi']],
+                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST', 'staf' => ['Ahmad Gunadi'], 'cs' => ['Nisya']],
                     ['nama' => 'Subkelompok Kepegawaian', 'kepala' => 'Ratna Pertiwi, ST'],
                     ['nama' => 'Subkelompok Program dan Pelaporan', 'kepala' => 'Astrid Marzia Damayanti, ST'],
                     ['nama' => 'Subbagian Keuangan', 'kepala' => 'Indra Prabowo, SE'],
@@ -459,21 +459,51 @@ class UnitSeeder extends Seeder
                 ->pluck('id') // Ambil hanya ID
                 ->toArray(); // Konversi ke array
 
-            // Pilih 3 role pertama untuk approval
-            $approvalRoles = collect($allRoles)
-                ->shuffle()
-                ->take(3) // Ambil 3 role pertama
+            // Daftar role yang HARUS digunakan untuk jenis 'umum' dalam urutan tetap
+            $rolePriorityForUmum = [
+                'Kepala Unit',
+                'Customer Services',
+                'Penanggung Jawab',
+                'Kepala Subbagian'
+            ];
+
+            // Ambil ID dari role yang sesuai untuk 'umum'
+            $roleIdMapping = Role::whereIn('name', $rolePriorityForUmum)
+                ->get()
+                ->mapWithKeys(function ($role) {
+                    return [$role->name => $role->id];
+                })
                 ->toArray();
 
-            // Simpan roles ke $unitData
-            $unitData['roles'] = $approvalRoles;
-
-            // Filter role untuk finalizer
-            $availableFinalizerRoles = array_diff($allRoles, $approvalRoles);
-
-            $finalizerRole = Arr::random($availableFinalizerRoles);
-
+            // Susun berdasarkan urutan yang telah ditentukan
+            $filteredRolesForUmum = [];
+            foreach ($rolePriorityForUmum as $roleName) {
+                if (isset($roleIdMapping[$roleName])) {
+                    $filteredRolesForUmum[] = $roleIdMapping[$roleName];
+                }
+            }
             foreach ($jenisList as $jenis) {
+                // Tentukan approval roles berdasarkan jenis
+                if ($jenis === 'umum') {
+                    // Jika jenis 'umum', ambil semua role dalam urutan tetap
+                    $approvalRoles = $filteredRolesForUmum;
+                } else {
+                    // Jika bukan 'umum', pilih 3 role secara acak
+                    $approvalRoles = collect($allRoles)
+                        ->shuffle()
+                        ->take(3)
+                        ->toArray();
+                }
+
+                // Simpan roles ke $unitData
+                $unitData['roles'] = $approvalRoles;
+
+                // Filter role untuk finalizer (ambil dari role yang tidak dipilih untuk approval)
+                $availableFinalizerRoles = array_diff($allRoles, $approvalRoles);
+
+                // Pilih secara acak untuk finalizer jika ada yang tersedia
+                $finalizerRole = !empty($availableFinalizerRoles) ? Arr::random($availableFinalizerRoles) : null;
+
                 // Simpan konfigurasi persetujuan
                 $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
                     'unit_id' => $unit->id,
@@ -486,12 +516,19 @@ class UnitSeeder extends Seeder
                     'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
                 ]);
 
-                // Simpan role untuk setiap opsi persetujuan
+                // Simpan role untuk setiap opsi persetujuan dalam urutan tetap
                 foreach ($approvalRoles as $index => $role) {
+                    // Tentukan nilai approval berdasarkan nama role
+                    $roleName = array_search($role, $roleIdMapping); // Cari nama role berdasarkan ID
+
+                    // Jika role adalah "Customer Services" atau "Penanggung Jawab", approval = 1, selain itu 0/null
+                    $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
+
                     \App\Models\JabatanPersetujuan::create([
                         'opsi_persetujuan_id' => $approvalConfiguration->id,
                         'jabatan_id' => $role,
                         'urutan' => $index + 1,
+                        'approval' => $approvalValue,
                     ]);
                 }
             }
@@ -836,6 +873,23 @@ class UnitSeeder extends Seeder
                             'email' => Str::lower(str_replace(' ', '_', $stafNama)) . "@email.com",
                             'password' => bcrypt('123'),
                         ])->roles()->attach($pengurusBarangRole->id);
+                    }
+                }
+                // Tambahkan Customer Service dari CS Jika Ada
+                if (isset($subUnit['cs'])) {
+                    $csRole = Role::firstOrCreate([
+                        'name' => 'Customer Services',
+                        'guard_name' => 'web',
+                    ]);
+
+                    foreach ($subUnit['cs'] as $stafCS) {
+                        User::create([
+                            'email_verified_at' => now(),
+                            'name' => $stafCS, // Gunakan nama yang sudah ada di array staf
+                            'unit_id' => $subUnitEntry->id,
+                            'email' => Str::lower(str_replace(' ', '_', $stafCS)) . "@email.com",
+                            'password' => bcrypt('123'),
+                        ])->roles()->attach($csRole->id);
                     }
                 }
             }

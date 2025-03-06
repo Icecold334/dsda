@@ -10,6 +10,7 @@ use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use App\Models\StokDisetujui;
 use Livewire\WithFileUploads;
+use App\Models\JabatanPersetujuan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
@@ -28,6 +29,9 @@ class ApprovalPermintaan extends Component
     public $tipe;
     public $showCancelOption;
     public $user;
+    public $userJabatanId;
+    public $userApproval;
+    public $showButtonApproval;
     public $files = [];
     public $roles = [];
     public $roleLists = []; // List users per role
@@ -119,6 +123,17 @@ class ApprovalPermintaan extends Component
         }
         $cancelAfter = $this->permintaan->opsiPersetujuan->cancel_persetujuan;
         $this->showCancelOption = $this->currentApprovalIndex >= $cancelAfter;
+
+        $this->userJabatanId = $this->user->roles->first()->id; // Ambil jabatan_id user
+        // dd($this->permintaan->opsiPersetujuan->jabatanPersetujuan);
+        // Cek apakah ada persetujuan untuk salah satu jabatan user
+        $this->userApproval = $this->permintaan->opsiPersetujuan
+            ->jabatanPersetujuan
+            ->whereIn('jabatan_id', $this->userJabatanId)
+            ->pluck('approval')
+            ->toArray(); // Ubah ke array agar mudah digunakan
+        // dd($this->userApproval);
+        $this->showButtonApproval = in_array(1, $this->userApproval);
         // dd($this->currentApprovalIndex);
     }
 

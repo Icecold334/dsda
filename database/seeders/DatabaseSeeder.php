@@ -142,7 +142,7 @@ class DatabaseSeeder extends Seeder
 
 
         $requests = [];
-        for ($i = 0; $i < 578; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $parentUnit = UnitKerja::whereNull('parent_id')->inRandomOrder()->first();
 
             // Ambil unit sub yang merupakan anak dari unit induk yang dipilih
