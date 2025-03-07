@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\KategoriStok;
 use App\Models\User;
 use Livewire\Component;
 
@@ -14,6 +15,7 @@ class ApprovalOption extends Component
     public $selectedRole;
     public $tipe;
     public $jenis;
+    public $kategori;
     public $pesan;
     public $approvalOrder; // Urutan yang dipilih untuk persetujuan jumlah barang
     public $approveAfter; // Urutan yang dipilih untuk persetujuan jumlah barang
@@ -76,6 +78,9 @@ class ApprovalOption extends Component
                 $this->cancelApprovalOrder = $latestApprovalConfiguration->cancel_persetujuan;
                 $this->finalizerRole = $latestApprovalConfiguration->jabatan_penyelesai_id;
             }
+
+            $this->kategori = KategoriStok::pluck('id', 'nama');
+
             $this->user = User::whereHas('unitKerja', function ($user) use ($unit_id) {
                 return $user->where('parent_id', $unit_id)->orWhere('unit_id', $unit_id);
             })->whereHas('roles', function ($role) {
@@ -173,6 +178,7 @@ class ApprovalOption extends Component
                 'urutan_persetujuan' => $this->approvalOrder,
                 'cancel_persetujuan' => $this->cancelApprovalOrder,
                 'jabatan_penyelesai_id' => $this->finalizerRole, // Jabatan terakhir sebagai penyelesaian
+                'kategori_id' => $this->kategori, // Jabatan terakhir sebagai penyelesaian
             ];
         // dd($this->faker->uuid);
         // Simpan opsi persetujuan ke database

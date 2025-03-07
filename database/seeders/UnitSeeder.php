@@ -762,13 +762,6 @@ class UnitSeeder extends Seeder
                     ])->roles()->attach(Role::where('name', $role)->first()->id);
                 }
             }
-            $defaultRoles = [
-                'Pejabat Pembuat Komitmen',
-                'Penanggung Jawab',
-                'Pemeriksa Barang',
-                'Pengurus Barang',
-                'Penjaga Gudang',
-            ];
 
 
             $pemeliharaanExists = collect($unitData['sub_units'])->contains(function ($subUnit) {
@@ -792,6 +785,13 @@ class UnitSeeder extends Seeder
                 ];
             }
 
+            $defaultRoles = [
+                'Pejabat Pembuat Komitmen',
+                // 'Penanggung Jawab',
+                'Pemeriksa Barang',
+                'Pengurus Barang',
+                'Penjaga Gudang',
+            ];
 
             $roleOnce = $defaultRoles;
 
@@ -804,6 +804,18 @@ class UnitSeeder extends Seeder
                     'email' => Str::lower(str_replace(' ', '_', $item)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $item)) . "%")->count() + 1 . "@email.com",
                     'password' => bcrypt('123'), // Password default
                 ])->roles()->attach(Role::where('name', $item)->first()->id);
+            }
+
+            $roleName = 'Penanggung Jawab'; // Role yang akan digunakan
+
+            for ($i = 1; $i <= 5; $i++) { // Loop buat 5 user
+                $user = User::create([
+                    'email_verified_at' => now(),
+                    'name' => $this->faker->name(),
+                    'unit_id' => $unit->id ?? null, // Gunakan unit jika ada
+                    'email' => Str::lower(str_replace(' ', '_', $roleName)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $roleName)) . "%")->count() + 1 . "@email.com",
+                    'password' => bcrypt('123'), // Password default
+                ])->roles()->attach(Role::where('name', $roleName)->first()->id);
             }
             // Simpan sub-unit
             foreach ($unitData['sub_units'] as $subUnit) {

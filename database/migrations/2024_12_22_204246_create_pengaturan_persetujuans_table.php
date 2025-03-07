@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('cancel_persetujuan')->nullable();
             $table->unsignedBigInteger('jabatan_penyelesai_id')->nullable(); // Jabatan penyelesaian
             $table->unsignedBigInteger('user_penyelesai_id')->nullable(); // Jabatan penyelesaian
-            $table->foreignId('kategori_id')->nullable()->constrained('kategori')->onDelete('set null');
+            $table->foreignId('kategori_id')->nullable()->constrained('kategori_stok')->onDelete('set null');
             $table->timestamps();
 
             $table->foreign('jabatan_penyelesai_id')

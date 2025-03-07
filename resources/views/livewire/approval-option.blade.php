@@ -187,136 +187,74 @@
                 @else
                 @endif
             </x-card>
+
             @if ($tipe == 'permintaan' && $jenis == 'umum')
                 <x-card title="Pengaturan Penanggung Jawab">
-                    {{-- @if (true) --}}
-                    <div
-                        class="w-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                    <div>
                         <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 rounded-t-lg bg-primary-100 dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800"
                             id="defaultTab" data-tabs-toggle="#defaultTabContent" role="tablist">
-                            <li class="me-2">
-                                <button id="konsumsi-tab" data-tabs-target="#konsumsi" type="button" role="tab"
-                                    aria-controls="konsumsi" aria-selected="true"
-                                    class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">Konsumsi</button>
-                            </li>
-                            <li class="me-2">
-                                <button id="kdo-tab" data-tabs-target="#kdo" type="button" role="tab"
-                                    aria-controls="kdo" aria-selected="false"
-                                    class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">KDO</button>
-                            </li>
-                            <li class="me-2">
-                                <button id="carwash-tab" data-tabs-target="#carwash" type="button" role="tab"
-                                    aria-controls="carwash" aria-selected="false"
-                                    class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">Voucher
-                                    Carwash</button>
-                            </li>
-                            <li class="me-2">
-                                <button id="atk-tab" data-tabs-target="#atk" type="button" role="tab"
-                                    aria-controls="atk" aria-selected="false"
-                                    class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200 dark:hover:bg-gray-700 dark:hover:text-gray-300">Alat
-                                    Tulis Kantor (ATK) Dll</button>
-                            </li>
+                            @foreach ($kategori as $nama => $id)
+                                <li class="me-2">
+                                    <button id="tab-{{ $id }}"
+                                        data-tabs-target="#kategori-{{ $id }}" type="button" role="tab"
+                                        aria-controls="kategori-{{ $id }}" aria-selected="false"
+                                        class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200">
+                                        {{ $nama }}
+                                    </button>
+                                </li>
+                            @endforeach
                         </ul>
-                        <div id="defaultTabContent">
-                            <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="konsumsi"
-                                role="tabpanel">
-                                <div class="flex flex-col gap-6">
-                                    <div class="text-gray-700">
-                                        <label for="approvalOrder" class="block font-medium mb-2">
-                                            Pilih User untuk Penanggung Jawab Konsumsi.
-                                        </label>
-                                        {{-- @dd($roles) --}}
-                                        <select wire:model.live="finalizerRole" id="finalizerRole"
-                                            {{-- @disabled(count($user) < 2) --}}
-                                            class="w-full px-4 py-2 border rounded-md focus:outline-none  focus:ring focus:ring-blue-300">
-                                            <option value="" selected>Pilih Penanggung Jawab Konsumsi</option>
-                                            @foreach ($user as $item)
-                                                <option value="{{ $item['id'] }}">{{ $item['name'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('finalizerRole')
-                                            <span class="text-red-500 text-sm">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="kdo"
-                                role="tabpanel">
-                                <div class="flex flex-col gap-6">
-                                    <div class="text-gray-700">
-                                        <label for="approvalOrder" class="block font-medium mb-2">
-                                            Pilih User untuk Penanggung Jawab KDO.
-                                        </label>
-                                        {{-- @dd($roles) --}}
-                                        <select wire:model.live="finalizerRole" id="finalizerRole"
-                                            {{-- @disabled(count($user) < 2) --}}
-                                            class="w-full px-4 py-2 border rounded-md focus:outline-none  focus:ring focus:ring-blue-300">
-                                            <option value="" selected>Pilih Penanggung Jawab KDO</option>
-                                            @foreach ($user as $item)
-                                                <option value="{{ $item['id'] }}">{{ $item['name'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('finalizerRole')
-                                            <span class="text-red-500 text-sm">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="carwash"
-                                role="tabpanel">
-                                <div class="flex flex-col gap-6">
-                                    <div class="text-gray-700">
-                                        <label for="approvalOrder" class="block font-medium mb-2">
-                                            Pilih User untuk Penanggung Jawab Voucher Carwash.
-                                        </label>
-                                        {{-- @dd($roles) --}}
-                                        <select wire:model.live="finalizerRole" id="finalizerRole"
-                                            {{-- @disabled(count($user) < 2) --}}
-                                            class="w-full px-4 py-2 border rounded-md focus:outline-none  focus:ring focus:ring-blue-300">
-                                            <option value="" selected>Pilih Penanggung Jawab Voucher Carwash
-                                            </option>
-                                            @foreach ($user as $item)
-                                                <option value="{{ $item['id'] }}">{{ $item['name'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('finalizerRole')
-                                            <span class="text-red-500 text-sm">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="atk"
-                                role="tabpanel">
-                                <div class="flex flex-col gap-6">
-                                    <div class="text-gray-700">
-                                        <label for="approvalOrder" class="block font-medium mb-2">
-                                            Pilih User untuk Penanggung Jawab ATK dan Lain lain.
-                                        </label>
-                                        {{-- @dd($roles) --}}
-                                        <select wire:model.live="finalizerRole" id="finalizerRole"
-                                            {{-- @disabled(count($user) < 2) --}}
-                                            class="w-full px-4 py-2 border rounded-md focus:outline-none  focus:ring focus:ring-blue-300">
-                                            <option value="" selected>Pilih Penanggung Jawab ATK dan Lain lain
-                                            </option>
-                                            @foreach ($user as $item)
-                                                <option value="{{ $item['id'] }}">{{ $item['name'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('finalizerRole')
-                                            <span class="text-red-500 text-sm">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
-
+                    <div id="defaultTabContent">
+                        @foreach ($kategori as $nama => $id)
+                            <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800"
+                                id="kategori-{{ $id }}" role="tabpanel">
+                                <div class="flex flex-col gap-6">
+                                    <div class="text-gray-700">
+                                        <label for="finalizerRole-{{ $id }}" class="block font-medium mb-2">
+                                            Pilih User untuk {{ $nama }}.
+                                        </label>
+                                        <select wire:model.live="finalizerRole" id="finalizerRole-{{ $id }}"
+                                            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+                                            <option value="" selected>Pilih Penanggung Jawab {{ $nama }}
+                                            </option>
+                                            @foreach ($user as $item)
+                                                <option value="{{ $item['id'] }}">{{ $item['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('finalizerRole')
+                                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </x-card>
+                @push('scripts')
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const tabs = document.querySelectorAll('[data-tabs-target]');
+                            const contents = document.querySelectorAll('[role="tabpanel"]');
+
+                            tabs.forEach(tab => {
+                                tab.addEventListener('click', function() {
+                                    tabs.forEach(t => t.classList.remove('bg-primary-300', 'text-white'));
+                                    contents.forEach(c => c.classList.add('hidden'));
+
+                                    const target = document.querySelector(this.getAttribute('data-tabs-target'));
+                                    this.classList.add('bg-primary-300', 'text-white');
+                                    target.classList.remove('hidden');
+                                });
+                            });
+
+                            // Aktifkan tab pertama secara default
+                            if (tabs.length > 0) {
+                                tabs[0].click();
+                            }
+                        });
+                    </script>
+                @endpush
             @endif
         @endif
         @if ($tipe !== 'permintaan')
