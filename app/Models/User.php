@@ -3,15 +3,16 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Ruang;
 use App\Models\UnitKerja;
 use App\Models\LokasiStok;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -107,5 +108,13 @@ class User extends Authenticatable implements MustVerifyEmail
     public function stokDiterima()
     {
         return $this->hasMany(StokDiterima::class, 'user_id');
+    }
+    public function ruang()
+    {
+        return $this->hasMany(Ruang::class, 'user_id');
+    }
+    public function penanggungjawab()
+    {
+        return $this->hasMany(Ruang::class, 'pj_id');
     }
 }

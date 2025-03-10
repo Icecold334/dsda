@@ -33,6 +33,7 @@ class TransaksiDaruratList extends Component
     public $nomor_kontrak;
     public $jenis_id;
     public $metode_id;
+    public $unit_id;
     public $vendor_id;
     public $dokumenCount;
     public $penulis;

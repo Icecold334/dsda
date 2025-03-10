@@ -2,22 +2,27 @@
 
 namespace App\Livewire;
 
+use App\Models\KategoriStok;
 use App\Models\User;
 use Livewire\Component;
 
 class ApprovalOption extends Component
 {
     public $roles = []; // Simpan ID role
+    public $user = []; // Simpan ID role
     public $rolesAvailable;
     public $newRole = '';
     public $selectedRole;
     public $tipe;
     public $jenis;
+    public $kategori;
     public $pesan;
     public $approvalOrder; // Urutan yang dipilih untuk persetujuan jumlah barang
     public $approveAfter; // Urutan yang dipilih untuk persetujuan jumlah barang
     public $finalizerRole;
     public $cancelApprovalOrder; // Urutan persetujuan setelahnya user dapat membatalkan
+    public $rolesApproval = []; // Menyimpan ID roles yang memiliki approval
+
 
     // public $approvalType = 'urut'; // Mekanisme default
 
@@ -50,9 +55,18 @@ class ApprovalOption extends Component
                 ->where('jenis', $this->jenis)
                 ->latest()
                 ->first();
-            $this->roles = $latestApprovalConfiguration->jabatanPersetujuan->map(function ($jabatan) {
-                return $jabatan->jabatan; // Pastikan relasi ke model Role di JabatanPersetujuan benar
-            });
+            if ($latestApprovalConfiguration) {
+                $this->roles = $latestApprovalConfiguration->jabatanPersetujuan->map(fn($jabatan) => [
+                    'id' => $jabatan->jabatan_id,
+                    'name' => $jabatan->jabatan->name,
+                    'approval' => $jabatan->jabatan->approval,
+                ])->toArray();
+
+                $this->rolesApproval = $latestApprovalConfiguration->jabatanPersetujuan
+                    ->pluck('approval', 'jabatan_id')
+                    ->toArray();
+                // dd($this->rolesApproval);
+            }
             $this->rolesAvailable = collect($this->rolesAvailable)
                 ->reject(fn($role) => $role->id == $this->selectedRole)
                 ->values(); // Tetap dalam bentuk Collection
@@ -64,6 +78,14 @@ class ApprovalOption extends Component
                 $this->cancelApprovalOrder = $latestApprovalConfiguration->cancel_persetujuan;
                 $this->finalizerRole = $latestApprovalConfiguration->jabatan_penyelesai_id;
             }
+
+            $this->kategori = KategoriStok::pluck('id', 'nama');
+
+            $this->user = User::whereHas('unitKerja', function ($user) use ($unit_id) {
+                return $user->where('parent_id', $unit_id)->orWhere('unit_id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'Penanggung Jawab');
+            })->get()->toArray();
         }
     }
 
@@ -124,6 +146,15 @@ class ApprovalOption extends Component
             ->values(); // Reset indeks array
     }
 
+    public function setApprovalStatus($roleId, $status)
+    {
+        // Pastikan $rolesApproval adalah array
+        if (!is_array($this->rolesApproval)) {
+            $this->rolesApproval = [];
+        }
+        // Set status untuk role tertentu
+        $this->rolesApproval[$roleId] = $status;
+    }
 
     public function saveApprovalConfiguration()
     {
@@ -147,20 +178,24 @@ class ApprovalOption extends Component
                 'urutan_persetujuan' => $this->approvalOrder,
                 'cancel_persetujuan' => $this->cancelApprovalOrder,
                 'jabatan_penyelesai_id' => $this->finalizerRole, // Jabatan terakhir sebagai penyelesaian
+                'kategori_id' => $this->kategori, // Jabatan terakhir sebagai penyelesaian
             ];
         // dd($this->faker->uuid);
         // Simpan opsi persetujuan ke database
         $approvalConfiguration = \App\Models\OpsiPersetujuan::create($arr);
 
+        // dd($this->rolesApproval);
         // Simpan setiap role dalam konfigurasi ke tabel jabatan_persetujuan
         foreach ($this->roles as $index => $role) {
+            $jabatanId = $role['id'];
+            $approvalStatus = $this->rolesApproval[$jabatanId] ?? 0;
             \App\Models\JabatanPersetujuan::create([
                 'opsi_persetujuan_id' => $approvalConfiguration->id,
-                'jabatan_id' => $role['id'],
+                'jabatan_id' => $jabatanId,
                 'urutan' => $index + 1,
+                'approval' => $approvalStatus,
             ]);
         }
-
         // Reset data setelah berhasil disimpan
         // $this->roles = [];
         // $this->rolesAvailable = User::with('roles')->get()

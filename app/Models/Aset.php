@@ -49,7 +49,8 @@ class Aset extends Model
         'kartu_garansi',
         'keterangan',
         'status',
-        'peminjaman'
+        'peminjaman',
+        'perbaikan'
     ];
 
     public function user()

@@ -1,21 +1,33 @@
 <div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
-
             <x-card title="data umum">
                 <table class="w-full border-separate border-spacing-y-4">
                     <tr>
                         <td class="font-semibold">
-                            <label for="tanggal_permintaan" class="block mb-2 ">Tanggal
-                                Permintaan
-                                *</label>
+                            @if ($tipe == 'permintaan' && $kategori_id == 4)
+                                <label for="tanggal_permintaan" class="block mb-2 ">Tanggal dan Waktu Penyediaan
+                                    *</label>
+                            @else
+                                <label for="tanggal_permintaan" class="block mb-2 ">Tanggal
+                                    Permintaan
+                                    *</label>
+                            @endif
                         </td>
                         <td>
-                            <input type="date" id="tanggal_permintaan" wire:model.live="tanggal_permintaan"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                            @error('tanggal_permintaan')
-                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                            @if ($tipe == 'permintaan' && $kategori_id == 4)
+                                <input type="datetime-local" id="tanggal_permintaan" wire:model.live="tanggal_permintaan"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                @error('tanggal_permintaan')
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
+                            @else
+                                <input type="date" id="tanggal_permintaan" wire:model.live="tanggal_permintaan"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                @error('tanggal_permintaan')
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
+                            @endif
                         </td>
                     </tr>
                     @if ($tipe == 'peminjaman')
@@ -58,6 +70,126 @@
                                 @error('kategori_id')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($tipe == 'permintaan' && $kategori_id == 4)
+
+                        <tr>
+                            <td class="w-1/3">
+                                <label for="ruang" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                    Lokasi/Ruang *</label>
+                            </td>
+                            <td>
+                                <div class="flex items-center">
+                                    <select wire:model.live="RuangId"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+
+                                        <option value="">Pilih Lokasi/Ruang</option>
+
+                                        @foreach ($ruangs as $ruang)
+                                            <option value="{{ $ruang->id }}">{{ $ruang->nama }}</option>
+                                        @endforeach
+
+                                        <option value="0">Lokasi/Ruang Lain</option> <!-- Opsi Tambahan -->
+                                    </select>
+
+                                    @error('RuangId')
+                                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <!-- Jika "Lokasi/Ruang Lain" dipilih, tampilkan input tambahan -->
+                                @if ($RuangId === '0')
+                                    <div class="mt-2">
+                                        <input type="text" wire:model.live="LokasiLain"
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                            placeholder="Nama Lokasi">
+
+                                        <input type="text" wire:model.live="AlamatLokasi"
+                                            class="mt-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                            placeholder="Alamat Lokasi">
+
+                                        <input type="text" wire:model.live="KontakPerson"
+                                            class="mt-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                            placeholder="Kontak Person">
+                                    </div>
+                                @endif
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="w-1/3">
+                                <label for="jumlah_peserta"
+                                    class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                    Jumlah Peserta *</label>
+                            </td>
+                            <td>
+                                <div class="flex items-center">
+                                    <input type="number" wire:model.live="peserta" min="1"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        placeholder="Jumlah">
+                                    <span
+                                        class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
+                                        Peserta
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($tipe == 'permintaan' && $kategori_id == 5)
+                        <tr>
+                            <td class="w-1/3">
+                                <label for="ruang" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                    KDO *</label>
+                            </td>
+                            <td>
+                                <div class="flex items-center">
+                                    <select wire:model.live="KDOId"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+                                        <option value="">Pilih KDO</option>
+                                        @foreach ($kdos as $kdo)
+                                            <option value="{{ $kdo->id }}">
+                                                {{ $kdo->merk->nama . ' ' . $kdo->nama . ' - ' . $kdo->noseri }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                    @error('KDOId')
+                                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-semibold">
+                                <label for="tanggal_masuk" class="block mb-2 ">Tanggal
+                                    Masuk
+                                    *</label>
+                            </td>
+                            <td>
+                                <div class="flex items-center">
+                                    <input type="date" id="tanggal_masuk" wire:model.live="tanggal_masuk"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                    @error('tanggal_masuk')
+                                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-semibold">
+                                <label for="tanggal_keluar" class="block mb-2 ">Tanggal
+                                    Keluar
+                                    *</label>
+                            </td>
+                            <td>
+                                <div class="flex items-center">
+                                    <input type="date" id="tanggal_keluar" wire:model.live="tanggal_keluar"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                    @error('tanggal_masuk')
+                                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    @enderror
+                                </div>
                             </td>
                         </tr>
                     @endif

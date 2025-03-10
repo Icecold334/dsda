@@ -57,6 +57,7 @@ class DatabaseSeeder extends Seeder
             BarangStokSeeder::class,
             MerkStokSeeder::class,
             WaktuPeminjamanSeeder::class,
+            RuangSeeder::class,
         ]);
         $methods = [
             'Pengadaan Langsung',
@@ -111,7 +112,7 @@ class DatabaseSeeder extends Seeder
 
 
         // Seed for Stok
-        for ($i = 1; $i <= 364; $i++) {
+        for ($i = 1; $i <= 200; $i++) {
             // Pilih lokasi secara acak
             $lokasi = LokasiStok::inRandomOrder()->first();
 
@@ -130,7 +131,7 @@ class DatabaseSeeder extends Seeder
             // Buat entri stok baru
             Stok::create([
                 'merk_id' => MerkStok::inRandomOrder()->first()->id, // Pilih merk secara acak
-                'jumlah' => rand(10, 100), // Tentukan jumlah stok secara acak
+                'jumlah' => rand(10, max: 100), // Tentukan jumlah stok secara acak
                 'lokasi_id' => $lokasi->id, // Lokasi stok
                 'bagian_id' => $bagian->id ?? null, // Bagian stok (opsional)
                 'posisi_id' => $posisi->id ?? null, // Posisi stok (opsional)
@@ -140,9 +141,8 @@ class DatabaseSeeder extends Seeder
 
 
 
-
         $requests = [];
-        for ($i = 0; $i < 578; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $parentUnit = UnitKerja::whereNull('parent_id')->inRandomOrder()->first();
 
             // Ambil unit sub yang merupakan anak dari unit induk yang dipilih
@@ -177,7 +177,7 @@ class DatabaseSeeder extends Seeder
         $users = User::all();
         $barang = BarangStok::all();
         $details = DetailPermintaanStok::all();
-        $lokasis = LokasiStok::all();
+        // $lokasis = LokasiStok::all();
 
         for ($i = 0; $i < 2975; $i++) {
             $detail = $details->random();
@@ -186,7 +186,7 @@ class DatabaseSeeder extends Seeder
                 'user_id' => $users->random()->id,
                 'barang_id' => $barang->where('kategori_id', $detail->kategori_id)->random()->id,
                 'jumlah' => rand(10, 100),
-                'lokasi_id' => $lokasis->random()->id,
+                // 'lokasi_id' => $lokasis->random()->id,
             ]);
         }
 

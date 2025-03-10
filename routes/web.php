@@ -54,6 +54,7 @@ use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\PengaturanPersetujuanController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
+use App\Http\Controllers\RuangController;
 use App\Models\DetailPermintaanStok;
 
 Route::get('/', function () {
@@ -150,6 +151,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('lokasi', LokasiController::class)->middleware('can:data_lokasi');
     Route::get('merk/{tipe}/{merk}', [MerkController::class, 'create'])->middleware('can:data_merk');
     Route::resource('merk', MerkController::class)->middleware('can:data_merk');
+    Route::get('ruang/{tipe}/{ruang}', [RuangController::class, 'create'])->middleware('can:data_ruang');
+    Route::resource('ruang', RuangController::class)->middleware('can:data_ruang');
     Route::get('person/{tipe}/{person}', [PersonController::class, 'create'])->middleware('can:data_penanggung_jawab');
     Route::resource('person', PersonController::class)->middleware('can:data_penanggung_jawab');
     Route::get('unit-kerja/{tipe}', [UnitKerjaController::class, 'create'])->middleware('can:data_unit_kerja');

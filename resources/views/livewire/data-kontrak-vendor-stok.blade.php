@@ -17,7 +17,7 @@
 
         <h1 class="text-2xl font-bold text-primary-900 ">Kontrak Vendor
             @if (auth()->user()->unitKerja)
-                {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+                {{ auth()->user()->unitKerja->nama }}
             @endif
         </h1>
         <div>

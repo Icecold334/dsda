@@ -3,7 +3,8 @@
         <h1 class="text-2xl font-bold text-primary-900 ">
             {{ $tipe === null ? 'Pelayanan Umum' : ($tipe == 'spare-part' ? 'Permintaan Spare Part' : 'Permintaan Material') }}
             @if (auth()->user()->unitKerja)
-                {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
+                {{-- {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }} --}}
+                {{ auth()->user()->unitKerja->nama }}
             @endif
         </h1>
         <div>
@@ -147,7 +148,7 @@
                         <a href="/permintaan/{{ $permintaan['tipe'] === 'peminjaman' ? 'peminjaman' : 'permintaan' }}/{{ $permintaan['id'] }}"
                             class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
                             data-tooltip-target="tooltip-permintaan-{{ $permintaan['id'] }}">
-                            <i class="fa-solid fa-eye"></i>
+                        <i class="fa-solid fa-eye"></i>
                         </a>
                         <div id="tooltip-permintaan-{{ $permintaan['id'] }}" role="tooltip"
                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">

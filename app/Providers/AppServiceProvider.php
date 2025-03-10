@@ -30,8 +30,6 @@ class AppServiceProvider extends ServiceProvider
 
         // $this->test();
         // Auth::loginUsingId(1); //superadmin
-        // Auth::loginUsingId(3); //kepala unit
-        // Auth::loginUsingId(14);
         // Auth::loginUsingId(118); //kepala suku dinas
         // Auth::loginUsingId(16); //penanggung jawab
         // Auth::loginUsingId(16); //penanggung jawab

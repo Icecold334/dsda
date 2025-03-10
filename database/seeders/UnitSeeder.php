@@ -29,7 +29,7 @@ class UnitSeeder extends Seeder
             'Sekretariat' => [
                 'kepala' => 'Hendri, ST, MT',
                 'sub_units' => [
-                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST'],
+                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST', 'staf' => ['Ahmad Gunadi'], 'cs' => ['Nisya']],
                     ['nama' => 'Subkelompok Kepegawaian', 'kepala' => 'Ratna Pertiwi, ST'],
                     ['nama' => 'Subkelompok Program dan Pelaporan', 'kepala' => 'Astrid Marzia Damayanti, ST'],
                     ['nama' => 'Subbagian Keuangan', 'kepala' => 'Indra Prabowo, SE'],
@@ -42,6 +42,15 @@ class UnitSeeder extends Seeder
                     ['nama' => 'Subkelompok Pengendalian Banjir', 'kepala' => 'Ericson Indra Pulungan, ST, MT'],
                     ['nama' => 'Subkelompok Drainase', 'kepala' => 'Firmansyah Saputra, ST'],
                 ],
+                'staf' => [
+                    'Dede Heru Rahmat',
+                    'Zaenal Abidin',
+                    'Rully Narulita',
+                    'Satrio Wardanu',
+                    'Agis Setyowati',
+                    'Andhy Irawan',
+                    'Adie Widodo'
+                ],
             ],
             'Bidang Geologi, Konservasi Air Baku dan Penyediaan Air Bersih' => [
                 'kepala' => 'Nelson, ST, MT',
@@ -49,6 +58,12 @@ class UnitSeeder extends Seeder
                     ['nama' => 'Subkelompok Perencanaan', 'kepala' => 'Elisabeth Tarigan, ST, M.IWM'],
                     ['nama' => 'Subkelompok Geologi dan Konservasi Air Baku', 'kepala' => 'Ikhwan Maulani, ST, MT'],
                     ['nama' => 'Subkelompok Pengendalian dan Penyediaan Air Bersih', 'kepala' => 'Maman Supratman, ST, M.Sc'],
+                ],
+                'staf' => [
+                    'Waryono',
+                    'Fathidliyatul Haq',
+                    'Hari Krisdihanto',
+                    'Ade Nanang'
                 ],
             ],
             'Bidang Pengendalian Rob dan Pengembangan Pesisir Pantai' => [
@@ -58,6 +73,15 @@ class UnitSeeder extends Seeder
                     ['nama' => 'Subkelompok Pengendalian Rob dan Pengamanan Pesisir Pantai', 'kepala' => 'Achmad Daeroby, ST'],
                     ['nama' => 'Subkelompok Pengembangan Pesisir Pantai', 'kepala' => 'Yursid Suryanegara, ST'],
                 ],
+                'staf' => [
+                    'Ade Mohammad Yusuf',
+                    'Aditya Reyhan',
+                    'Gud Open L. Sinaga',
+                    'Supeno',
+                    'Eddy Sunarjo',
+                    'Hasan',
+                    'Syaiful Rahman'
+                ],
             ],
             'Bidang Pengelolaan Air Limbah' => [
                 'kepala' => 'Robby Dwi Mariansyah, ST',
@@ -66,11 +90,26 @@ class UnitSeeder extends Seeder
                     ['nama' => 'Subkelompok Pembangunan Sarana dan Prasarana Pengelolaan Air Limbah', 'kepala' => 'Heria Suwandi, ST'],
                     ['nama' => 'Subkelompok Peningkatan dan Pengendalian Air Limbah', 'kepala' => 'Glenn Santista, ST'],
                 ],
+                'staf' => [
+                    'Tika Risky Pertiwi',
+                    'Nining Ardiyanti Hasan',
+                    'Harry Try Hermawan',
+                    'Dedi Alfa Julian Purba',
+                    'Muhammad Shohih'
+                ],
             ],
             'Unit Pengelola Penyelidikan, Pengujian dan Pengukuran Sumber Daya Air' => [
                 'kepala' => 'Nur Aprileny, ST, MT',
                 'sub_units' => [
                     ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Niswatin Farika, ST, MT'],
+                ],
+                'staf' => [
+                    'Rido Budi A.',
+                    'Agus Sulistyono',
+                    'Nadhi Sugandi',
+                    'Sujono, S,Sos',
+                    'Sutisna',
+                    'Firman'
                 ],
             ],
             'Unit Peralatan dan Perbekalan Sumber Daya Air' => [
@@ -78,17 +117,44 @@ class UnitSeeder extends Seeder
                 'sub_units' => [
                     ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Sofia Ismiati, ST'],
                 ],
+                'staf' => [
+                    'Rinaldi Nugroho',
+                    'Achmad Syafi',
+                    'Asep Sukamto',
+                    'Syamsul Hadi Susetya',
+                    'Falaah Nugraha',
+                    'Futut Firmanda',
+                    'Migie Romataliga',
+                    'Niswatul Huwaidah',
+                    'Nurman'
+                ],
             ],
             'Pusat Data dan Informasi Sumber Daya Air' => [
                 'kepala' => 'Drs. Nugraharyadi',
                 'sub_units' => [
                     ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Gde Made Panji Diarsa, S.Kom, M.T.I'],
                 ],
+                'staf' => [
+                    'Damhuri, S.Kom',
+                    'Sri Hidayanto',
+                    'Rizky Rivandry',
+                    'Ade Sudiman',
+                    'Arsianto Paulus Patriot'
+                ],
             ],
             'Unit Pengadaan Tanah Sumber Daya Air' => [
                 'kepala' => 'Roedito Setiawan, SH',
                 'sub_units' => [
                     ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Ibnu Affan, ST'],
+                ],
+                'staf' => [
+                    'Ilan Sadida',
+                    'Mustopah',
+                    'Muhammad Ridho Jasni',
+                    'Bayu Ramadhan',
+                    'Mustopah',
+                    'Ilan Sadida',
+                    'Dandy Idwal Muad'
                 ],
             ],
             'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Pusat' => [
@@ -393,21 +459,51 @@ class UnitSeeder extends Seeder
                 ->pluck('id') // Ambil hanya ID
                 ->toArray(); // Konversi ke array
 
-            // Pilih 3 role pertama untuk approval
-            $approvalRoles = collect($allRoles)
-                ->shuffle()
-                ->take(3) // Ambil 3 role pertama
+            // Daftar role yang HARUS digunakan untuk jenis 'umum' dalam urutan tetap
+            $rolePriorityForUmum = [
+                'Kepala Unit',
+                'Customer Services',
+                'Penanggung Jawab',
+                'Kepala Subbagian'
+            ];
+
+            // Ambil ID dari role yang sesuai untuk 'umum'
+            $roleIdMapping = Role::whereIn('name', $rolePriorityForUmum)
+                ->get()
+                ->mapWithKeys(function ($role) {
+                    return [$role->name => $role->id];
+                })
                 ->toArray();
 
-            // Simpan roles ke $unitData
-            $unitData['roles'] = $approvalRoles;
-
-            // Filter role untuk finalizer
-            $availableFinalizerRoles = array_diff($allRoles, $approvalRoles);
-
-            $finalizerRole = Arr::random($availableFinalizerRoles);
-
+            // Susun berdasarkan urutan yang telah ditentukan
+            $filteredRolesForUmum = [];
+            foreach ($rolePriorityForUmum as $roleName) {
+                if (isset($roleIdMapping[$roleName])) {
+                    $filteredRolesForUmum[] = $roleIdMapping[$roleName];
+                }
+            }
             foreach ($jenisList as $jenis) {
+                // Tentukan approval roles berdasarkan jenis
+                if ($jenis === 'umum') {
+                    // Jika jenis 'umum', ambil semua role dalam urutan tetap
+                    $approvalRoles = $filteredRolesForUmum;
+                } else {
+                    // Jika bukan 'umum', pilih 3 role secara acak
+                    $approvalRoles = collect($allRoles)
+                        ->shuffle()
+                        ->take(3)
+                        ->toArray();
+                }
+
+                // Simpan roles ke $unitData
+                $unitData['roles'] = $approvalRoles;
+
+                // Filter role untuk finalizer (ambil dari role yang tidak dipilih untuk approval)
+                $availableFinalizerRoles = array_diff($allRoles, $approvalRoles);
+
+                // Pilih secara acak untuk finalizer jika ada yang tersedia
+                $finalizerRole = !empty($availableFinalizerRoles) ? Arr::random($availableFinalizerRoles) : null;
+
                 // Simpan konfigurasi persetujuan
                 $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
                     'unit_id' => $unit->id,
@@ -420,12 +516,19 @@ class UnitSeeder extends Seeder
                     'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
                 ]);
 
-                // Simpan role untuk setiap opsi persetujuan
+                // Simpan role untuk setiap opsi persetujuan dalam urutan tetap
                 foreach ($approvalRoles as $index => $role) {
+                    // Tentukan nilai approval berdasarkan nama role
+                    $roleName = array_search($role, $roleIdMapping); // Cari nama role berdasarkan ID
+
+                    // Jika role adalah "Customer Services" atau "Penanggung Jawab", approval = 1, selain itu 0/null
+                    $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
+
                     \App\Models\JabatanPersetujuan::create([
                         'opsi_persetujuan_id' => $approvalConfiguration->id,
                         'jabatan_id' => $role,
                         'urutan' => $index + 1,
+                        'approval' => $approvalValue,
                     ]);
                 }
             }
@@ -498,11 +601,6 @@ class UnitSeeder extends Seeder
                 ->get()
                 ->pluck('id') // Ambil hanya ID
                 ->toArray();
-
-
-
-
-
 
             $finalizerRole = Arr::random($allRoles);
 
@@ -578,7 +676,7 @@ class UnitSeeder extends Seeder
     {
         $units = $this->units;
 
-        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang', 'Kepala Seksi', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit'];
+        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang', 'Kepala Seksi', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver'];
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
             'guard_name' => 'web',
@@ -618,10 +716,12 @@ class UnitSeeder extends Seeder
 
         foreach ($units as $unitName => $unitData) {
             // Simpan unit
+            $hak = (Str::contains($unitName, ['Sekretariat', 'Bidang', 'Unit', 'Pusat Data'])) ? 1 : 0;
             $unit = UnitKerja::create([
                 'nama' => $unitName,
                 'kode' => strtoupper(substr(str_replace('Bidang', '', $unitName), 0, 3)), // Membuat kode dari 3 huruf pertama nama unit
                 'parent_id' => null, // Unit utama
+                'hak' => $hak, // 
                 'keterangan' => "Unit $unitName.",
             ]);
 
@@ -662,13 +762,6 @@ class UnitSeeder extends Seeder
                     ])->roles()->attach(Role::where('name', $role)->first()->id);
                 }
             }
-            $defaultRoles = [
-                'Pejabat Pembuat Komitmen',
-                'Penanggung Jawab',
-                'Pemeriksa Barang',
-                'Pengurus Barang',
-                'Penjaga Gudang',
-            ];
 
 
             $pemeliharaanExists = collect($unitData['sub_units'])->contains(function ($subUnit) {
@@ -692,6 +785,13 @@ class UnitSeeder extends Seeder
                 ];
             }
 
+            $defaultRoles = [
+                'Pejabat Pembuat Komitmen',
+                // 'Penanggung Jawab',
+                'Pemeriksa Barang',
+                'Pengurus Barang',
+                'Penjaga Gudang',
+            ];
 
             $roleOnce = $defaultRoles;
 
@@ -705,12 +805,29 @@ class UnitSeeder extends Seeder
                     'password' => bcrypt('123'), // Password default
                 ])->roles()->attach(Role::where('name', $item)->first()->id);
             }
+
+            $roleName = 'Penanggung Jawab'; // Role yang akan digunakan
+
+            for ($i = 1; $i <= 5; $i++) { // Loop buat 5 user
+                $user = User::create([
+                    'email_verified_at' => now(),
+                    'name' => $this->faker->name(),
+                    'unit_id' => $unit->id ?? null, // Gunakan unit jika ada
+                    'email' => Str::lower(str_replace(' ', '_', $roleName)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $roleName)) . "%")->count() + 1 . "@email.com",
+                    'password' => bcrypt('123'), // Password default
+                ])->roles()->attach(Role::where('name', $roleName)->first()->id);
+            }
             // Simpan sub-unit
             foreach ($unitData['sub_units'] as $subUnit) {
+                // Cek apakah parent adalah Sekretariat, Bidang, Unit, atau Pusat Data
+                $isParentHak = (Str::contains($unitName, ['Sekretariat', 'Bidang', 'Unit', 'Pusat Data']));
+                // Hak sub-unit = 1 jika parentnya memenuhi syarat
+                $hakSubUnit = ($isParentHak) ? 1 : 0;
                 $subUnitEntry =  UnitKerja::create([
                     'nama' => $subUnit['nama'],
                     'kode' => strtoupper(substr(str_replace('Subkelompok', '', $subUnit['nama']), 0, 3)),
                     'parent_id' => $unit->id, // Sub-unit terkait dengan unit
+                    'hak' => $hakSubUnit, // 
                     'keterangan' => "Sub-unit $subUnit[nama].",
                 ]);
                 if (Str::contains($subUnit['nama'], 'Seksi')) {
@@ -738,6 +855,55 @@ class UnitSeeder extends Seeder
                     'password' => bcrypt('123'), // Password default
                 ]);
                 $user->roles()->attach($role->id);
+
+                // Tambahkan Driver untuk setiap Sub-unit
+                $driverRole = Role::firstOrCreate([
+                    'name' => 'Driver',
+                    'guard_name' => 'web',
+                ]);
+
+                User::create([
+                    'email_verified_at' => now(),
+                    'name' => $this->faker->name(),
+                    'unit_id' => $subUnitEntry->id,
+                    'email' => Str::lower(Str::replace(' ', '_', 'driver_' . $subUnit['nama'])) . (User::where('email', 'LIKE', Str::lower(Str::replace(' ', '_', 'driver_' . $subUnit['nama'])) . "%")->count() + 1) . "@email.com",
+                    'password' => bcrypt('123'),
+                ])->roles()->attach($driverRole->id);
+
+                // Tambahkan Pengurus Barang dari Staf Jika Ada
+                if (isset($subUnit['staf'])) {
+                    $pengurusBarangRole = Role::firstOrCreate([
+                        'name' => 'Pengurus Barang',
+                        'guard_name' => 'web',
+                    ]);
+
+                    foreach ($subUnit['staf'] as $stafNama) {
+                        User::create([
+                            'email_verified_at' => now(),
+                            'name' => $stafNama, // Gunakan nama yang sudah ada di array staf
+                            'unit_id' => $subUnitEntry->id,
+                            'email' => Str::lower(str_replace(' ', '_', $stafNama)) . "@email.com",
+                            'password' => bcrypt('123'),
+                        ])->roles()->attach($pengurusBarangRole->id);
+                    }
+                }
+                // Tambahkan Customer Service dari CS Jika Ada
+                if (isset($subUnit['cs'])) {
+                    $csRole = Role::firstOrCreate([
+                        'name' => 'Customer Services',
+                        'guard_name' => 'web',
+                    ]);
+
+                    foreach ($subUnit['cs'] as $stafCS) {
+                        User::create([
+                            'email_verified_at' => now(),
+                            'name' => $stafCS, // Gunakan nama yang sudah ada di array staf
+                            'unit_id' => $subUnitEntry->id,
+                            'email' => Str::lower(str_replace(' ', '_', $stafCS)) . "@email.com",
+                            'password' => bcrypt('123'),
+                        ])->roles()->attach($csRole->id);
+                    }
+                }
             }
         }
     }

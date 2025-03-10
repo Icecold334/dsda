@@ -74,53 +74,53 @@ class AsetSeeder extends Seeder
                     'Chromebook Flip',
                 ],
             ],
-            'Otomotif' => [
-                'Toyota' => [
-                    'Mobil Avanza',
-                    'Mobil Rush',
-                    'Mobil Innova',
-                    'Forklift 3 Ton',
-                    'Mobil Corolla Cross',
-                    'SUV Fortuner',
-                    'Truk Dyna',
-                ],
-                'Honda' => [
-                    'Motor Beat',
-                    'Motor Vario',
-                    'Motor PCX',
-                    'Mobil HRV',
-                    'Mobil BRV',
-                    'Motor CBR 150R',
-                    'Scoopy Stylish',
-                ],
-                'Suzuki' => [
-                    'Motor Satria FU',
-                    'Motor Nex II',
-                    'Mobil Ertiga',
-                    'Motor GSX-R150',
-                    'APV Arena',
-                    'Mobil Carry Pick-up',
-                    'Motor Burgman Street',
-                ],
-                'Yamaha' => [
-                    'Motor NMAX',
-                    'Motor Aerox',
-                    'Motor MT-15',
-                    'Motor R15 V4',
-                    'Motor XSR 155',
-                    'Scooter Mio M3',
-                    'Motor Tracer 900',
-                ],
-                'Daihatsu' => [
-                    'Mobil Xenia',
-                    'Mobil Terios',
-                    'Mobil Gran Max',
-                    'Mobil Sigra',
-                    'Mobil Ayla',
-                    'Mobil Rocky',
-                    'Pick-up Hi-Max',
-                ],
-            ],
+            // 'Otomotif' => [
+            //     'Toyota' => [
+            //         'Mobil Avanza',
+            //         'Mobil Rush',
+            //         'Mobil Innova',
+            //         'Forklift 3 Ton',
+            //         'Mobil Corolla Cross',
+            //         'SUV Fortuner',
+            //         'Truk Dyna',
+            //     ],
+            //     'Honda' => [
+            //         'Motor Beat',
+            //         'Motor Vario',
+            //         'Motor PCX',
+            //         'Mobil HRV',
+            //         'Mobil BRV',
+            //         'Motor CBR 150R',
+            //         'Scoopy Stylish',
+            //     ],
+            //     'Suzuki' => [
+            //         'Motor Satria FU',
+            //         'Motor Nex II',
+            //         'Mobil Ertiga',
+            //         'Motor GSX-R150',
+            //         'APV Arena',
+            //         'Mobil Carry Pick-up',
+            //         'Motor Burgman Street',
+            //     ],
+            //     'Yamaha' => [
+            //         'Motor NMAX',
+            //         'Motor Aerox',
+            //         'Motor MT-15',
+            //         'Motor R15 V4',
+            //         'Motor XSR 155',
+            //         'Scooter Mio M3',
+            //         'Motor Tracer 900',
+            //     ],
+            //     'Daihatsu' => [
+            //         'Mobil Xenia',
+            //         'Mobil Terios',
+            //         'Mobil Gran Max',
+            //         'Mobil Sigra',
+            //         'Mobil Ayla',
+            //         'Mobil Rocky',
+            //         'Pick-up Hi-Max',
+            //     ],
+            // ],
             'Furniture' => [
                 'IKEA' => [
                     'Meja Kerja Minimalis',
@@ -177,11 +177,11 @@ class AsetSeeder extends Seeder
 
 
                 foreach ($asetList as $asetName) {
-                    if ($kategoriName == 'Otomotif') {
-                        $kategori = Kategori::find(1);
-                    } else {
-                        $kategori = Kategori::whereNotIn('id', [1, 2, 3, 4, 5, 6, 7])->inRandomOrder()->first();
-                    }
+                    // if ($kategoriName == 'Otomotif') {
+                    //     $kategori = Kategori::find(1);
+                    // } else {
+                    $kategori = Kategori::whereNotIn('id', [1, 2, 3, 4, 5, 6, 7])->inRandomOrder()->first();
+                    // }
                     $hargaSatuan = rand(1000000, 5000000); // Hitung harga satuan
                     $jumlah = rand(1, 10); // Tentukan jumlah
                     $hargatotal = $hargaSatuan * $jumlah; // Hitung harga total
@@ -206,62 +206,937 @@ class AsetSeeder extends Seeder
             }
         }
 
+        $umumkdoData = [
+            [
+                'nama' => 'Hiace',
+                'tipe' => 'Mirobus',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Silver Metalik',
+                'thproduksi' => 2018,
+                'noseri' => 'B 7670 PPA',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Hiace',
+                'tipe' => 'Micro/Minibus',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Putih',
+                'thproduksi' => 2024,
+                'noseri' => 'B 7582 PPB',
+                'keterangan' => 'Gedung Pompa Cideng',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Hiace',
+                'tipe' => 'Micro/Minibus',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Putih',
+                'thproduksi' => 2024,
+                'noseri' => 'B 7584 PPB',
+                'keterangan' => 'Gedung Pompa Cideng',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Hilux Rangga',
+                'tipe' => 'Pick UP',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Putih',
+                'thproduksi' => 2024,
+                'noseri' => 'B 9936 PTB',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Avanza',
+                'tipe' => 'Minibus',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Silver Metalik',
+                'thproduksi' => 2006,
+                'noseri' => 'B 8515 WU',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Panther Tour',
+                'tipe' => 'Minibus',
+                'merk' => 'Isuzu',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2004,
+                'noseri' => 'B 2184 BQ',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Hillux',
+                'tipe' => 'Pick UP',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2009,
+                'noseri' => 'B 9010 PTA',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'XL7',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Suzuki',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 1770 PQG',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+                'peminjaman' => 0,
+            ],
+            [
+                'nama' => 'XL7',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Suzuki',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 1772 PQG',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+                'peminjaman' => 0,
+            ],
+            [
+                'nama' => 'Altis',
+                'tipe' => 'Sedan',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2007,
+                'noseri' => 'B 2295 UQ',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+                'peminjaman' => 0,
+            ],
+            [
+                'nama' => 'Ford',
+                'tipe' => 'Pick UP',
+                'merk' => 'Ford',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2010,
+                'noseri' => 'B 9073 PSC',
+                'keterangan' => 'Sekretariat (Umum)(Pengurus Barang)',
+                'peminjaman' => 0,
+            ],
+            [
+                'nama' => 'Kijang Inova Zenix',
+                'tipe' => 'MPV',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2023,
+                'noseri' => 'B 1294 PQG',
+                'keterangan' => 'Pool Sekretariat',
+                'peminjaman' => 0,
+            ],
+        ];
+
+        foreach ($umumkdoData as $data) {
+            $merk = Merk::firstOrCreate(
+                ['nama' => $data['merk'], 'nama_nospace' => Str::slug($data['merk'])],
+                ['user_id' => User::inRandomOrder()->first()->id]
+            );
+
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(1);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [1, 7])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'tipe' => $data['tipe'],
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => $merk->id,
+                'deskripsi' => $data['deskripsi'],
+                'thproduksi' => $data['thproduksi'],
+                'noseri' => $data['noseri'],
+                'keterangan' => $data['keterangan'],
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(50000000, 500000000),
+                'hargatotal' => rand(50000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+                'peminjaman' => $data['peminjaman'],
+            ]);
+        }
+
+        $geologikdoData = [
+            [
+                'nama' => 'XL7',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Suzuki ',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 1766 PQG',
+                'keterangan' => 'Bidang Geologi, Konservasi Air Baku dan Penyediaan Air Bersih',
+            ],
+            [
+                'nama' => 'Altis',
+                'tipe' => 'Sedan',
+                'merk' => 'Toyota ',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2010,
+                'noseri' => 'B 2279 OQ',
+                'keterangan' => 'Kabid Geologi, Konservasi Air Baku dan Penyediaan Air Bersih',
+            ],
+            [
+                'nama' => 'Altis',
+                'tipe' => 'Sedan',
+                'merk' => 'Toyota ',
+                'deskripsi' => 'Silver Metalik',
+                'thproduksi' => 2007,
+                'noseri' => 'B 2277 OQ',
+                'keterangan' => 'Bidang Geologi, Konservasi Air Baku dan Penyediaan Air Bersih',
+            ],
+            [
+                'nama' => 'Ford',
+                'tipe' => 'Pick UP',
+                'merk' => 'Ford ',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2010,
+                'noseri' => 'B 9072 PSC',
+                'keterangan' => 'Bidang Geologi, Konservasi Air Baku dan Penyediaan Air Bersih',
+            ],
+        ];
+
+        foreach ($geologikdoData as $data) {
+            $merk = Merk::firstOrCreate(
+                ['nama' => $data['merk'], 'nama_nospace' => Str::slug($data['merk'])],
+                ['user_id' => User::inRandomOrder()->first()->id]
+            );
+
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(1);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [14, 19])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'tipe' => $data['tipe'],
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => $merk->id,
+                'deskripsi' => $data['deskripsi'],
+                'thproduksi' => $data['thproduksi'],
+                'noseri' => $data['noseri'],
+                'keterangan' => $data['keterangan'],
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(50000000, 500000000),
+                'hargatotal' => rand(50000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+            ]);
+        }
+
+        $limbahkdoData = [
+            [
+                'nama' => 'XL7',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Suzuki ',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 1764 PQG',
+                'keterangan' => 'Bidang Pengelolaan Air Limbah',
+            ],
+            [
+                'nama' => 'XL7',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Suzuki ',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 1762 PQG',
+                'keterangan' => 'Bidang Pengelolaan Air Limbah',
+            ],
+            [
+                'nama' => 'New Corolla Altis',
+                'tipe' => 'Sedan',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2012,
+                'noseri' => 'B 1526 PQA',
+                'keterangan' => 'Bidang Pengelolaan Air Limbah',
+            ],
+            [
+                'nama' => 'Kijang',
+                'tipe' => 'Pick Up',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2003,
+                'noseri' => 'B 9520 PQ',
+                'keterangan' => 'Bidang Pengelolaan Air Limbah',
+            ],
+            [
+                'nama' => 'Strada Double Cabin',
+                'tipe' => 'Double Cabine',
+                'merk' => 'Mitsubishi',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2013,
+                'noseri' => 'B 9520 PQ',
+                'keterangan' => 'Bidang Pengelolaan Air Limbah',
+            ],
+        ];
+
+        foreach ($limbahkdoData as $data) {
+            $merk = Merk::firstOrCreate(
+                ['nama' => $data['merk'], 'nama_nospace' => Str::slug($data['merk'])],
+                ['user_id' => User::inRandomOrder()->first()->id]
+            );
+
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(1);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [26, 31])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'tipe' => $data['tipe'],
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => $merk->id,
+                'deskripsi' => $data['deskripsi'],
+                'thproduksi' => $data['thproduksi'],
+                'noseri' => $data['noseri'],
+                'keterangan' => $data['keterangan'],
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(50000000, 500000000),
+                'hargatotal' => rand(50000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+            ]);
+        }
+        $banjirkdoData = [
+            [
+                'nama' => 'XL7',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Suzuki ',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 1756 PQG',
+                'keterangan' => 'Bidang Pengendalian Banjir dan Drainase',
+            ],
+            [
+                'nama' => 'XL7',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Suzuki ',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 1754 PQG',
+                'keterangan' => 'Bidang Pengendalian Banjir dan Drainase',
+            ],
+            [
+                'nama' => 'Navara',
+                'tipe' => 'Double Cabin',
+                'merk' => 'Nissan',
+                'deskripsi' => 'Silver Metalik',
+                'thproduksi' => 2017,
+                'noseri' => 'B 9697 PSD',
+                'keterangan' => 'Bidang Pengendalian Banjir dan Drainase',
+            ],
+            [
+                'nama' => 'Navara',
+                'tipe' => 'Double Cabin',
+                'merk' => 'Nissan',
+                'deskripsi' => 'Silver Metalik',
+                'thproduksi' => 2018,
+                'noseri' => 'B 9788 PSD',
+                'keterangan' => 'Bidang Pengendalian Banjir dan Drainase',
+            ],
+            [
+                'nama' => 'Atlis',
+                'tipe' => 'Sedan',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2015,
+                'noseri' => 'B 1072 PQB',
+                'keterangan' => 'Bidang Pengendalian Banjir dan Drainase',
+            ],
+            [
+                'nama' => 'Ford',
+                'tipe' => 'Double Cabin',
+                'merk' => 'Ford',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2010,
+                'noseri' => 'B 9070 PSC',
+                'keterangan' => 'Bidang Pengendalian Banjir dan Drainase',
+            ],
+            [
+                'nama' => 'Strada Double Cabin',
+                'tipe' => 'Double Cabin',
+                'merk' => 'Mitsubishi',
+                'deskripsi' => 'Putih',
+                'thproduksi' => 2012,
+                'noseri' => 'B 9622 PSC',
+                'keterangan' => 'Bidang Pengendalian Banjir dan Drainase',
+            ],
+            [
+                'nama' => 'Strada Double Cabin',
+                'tipe' => 'Double Cabin',
+                'merk' => 'Mitsubishi',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2013,
+                'noseri' => 'B 9153 PSD',
+                'keterangan' => 'Bidang Pengendalian Banjir dan Drainase',
+            ],
+        ];
+
+        foreach ($banjirkdoData as $data) {
+            $merk = Merk::firstOrCreate(
+                ['nama' => $data['merk'], 'nama_nospace' => Str::slug($data['merk'])],
+                ['user_id' => User::inRandomOrder()->first()->id]
+            );
+
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(1);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [8, 13])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'tipe' => $data['tipe'],
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => $merk->id,
+                'deskripsi' => $data['deskripsi'],
+                'thproduksi' => $data['thproduksi'],
+                'noseri' => $data['noseri'],
+                'keterangan' => $data['keterangan'],
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(50000000, 500000000),
+                'hargatotal' => rand(50000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+            ]);
+        }
+
+        $robkdoData = [
+            [
+                'nama' => 'XL7',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Suzuki',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 1758 PQG',
+                'keterangan' => 'Bidang Pengendalian Rob dan Pengembangan Pesisir Pantai',
+            ],
+            [
+                'nama' => 'XL7',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Suzuki',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 1760 PQG',
+                'keterangan' => 'Bidang Pengendalian Rob dan Pengembangan Pesisir Pantai',
+            ],
+            [
+                'nama' => 'New Corolla Atlis',
+                'tipe' => 'Sedan',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2006,
+                'noseri' => 'B 8658 WU',
+                'keterangan' => 'Bidang Pengendalian Rob dan Pengembangan Pesisir Pantai',
+            ],
+            [
+                'nama' => 'Panther',
+                'tipe' => 'Minibus',
+                'merk' => 'Izuzu',
+                'deskripsi' => 'Silver Metalik',
+                'thproduksi' => 2007,
+                'noseri' => 'B 2168 JQ',
+                'keterangan' => 'Bidang Pengendalian Rob dan Pengembangan Pesisir Pantai',
+            ],
+            [
+                'nama' => 'Ford',
+                'tipe' => 'Double Cabin',
+                'merk' => 'Ford',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2008,
+                'noseri' => 'B 9053 BQ',
+                'keterangan' => 'Bidang Pengendalian Rob dan Pengembangan Pesisir Pantai',
+            ],
+            [
+                'nama' => 'Ford Ranger R',
+                'tipe' => 'Double Cabin',
+                'merk' => 'Ford',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2013,
+                'noseri' => 'B 9135 PSD',
+                'keterangan' => 'Bidang Pengendalian Rob dan Pengembangan Pesisir Pantai',
+            ],
+            [
+                'nama' => 'TBR 54 PU Turbo',
+                'tipe' => 'Pick Up',
+                'merk' => 'Izuzu',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2017,
+                'noseri' => 'B 9226 PTB',
+                'keterangan' => 'Bidang Pengendalian Rob dan Pengembangan Pesisir Pantai',
+            ],
+        ];
+
+        foreach ($robkdoData as $data) {
+            $merk = Merk::firstOrCreate(
+                ['nama' => $data['merk'], 'nama_nospace' => Str::slug($data['merk'])],
+                ['user_id' => User::inRandomOrder()->first()->id]
+            );
+
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(1);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [20, 25])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'tipe' => $data['tipe'],
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => $merk->id,
+                'deskripsi' => $data['deskripsi'],
+                'thproduksi' => $data['thproduksi'],
+                'noseri' => $data['noseri'],
+                'keterangan' => $data['keterangan'],
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(50000000, 500000000),
+                'hargatotal' => rand(50000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+            ]);
+        }
+
+        $pusdatinkdoData = [
+            [
+                'nama' => 'Hilux',
+                'tipe' => 'Pick Up',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Abu-abu Metalik',
+                'thproduksi' => 2015,
+                'noseri' => 'B 9809 PTA',
+                'keterangan' => 'Pusat Data dan Informasi Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Expander',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Mitsubishi',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2019,
+                'noseri' => 'B 1916 PQT',
+                'keterangan' => 'Pusat Data dan Informasi Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Xenia',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Daihatsu',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2022,
+                'noseri' => 'B 1916 PQT',
+                'keterangan' => 'Pusat Data dan Informasi Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Xenia',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Daihatsu',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2022,
+                'noseri' => 'B 1984 PQF',
+                'keterangan' => 'Pusat Data dan Informasi Sumber Daya Air',
+            ],
+            [
+                'nama' => 'XL7',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Suzuki',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2024,
+                'noseri' => 'B 1768 PQG',
+                'keterangan' => 'Pusat Data dan Informasi Sumber Daya Air',
+            ],
+        ];
+
+        foreach ($pusdatinkdoData as $data) {
+            $merk = Merk::firstOrCreate(
+                ['nama' => $data['merk'], 'nama_nospace' => Str::slug($data['merk'])],
+                ['user_id' => User::inRandomOrder()->first()->id]
+            );
+
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(1);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [38, 40])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'tipe' => $data['tipe'],
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => $merk->id,
+                'deskripsi' => $data['deskripsi'],
+                'thproduksi' => $data['thproduksi'],
+                'noseri' => $data['noseri'],
+                'keterangan' => $data['keterangan'],
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(50000000, 500000000),
+                'hargatotal' => rand(50000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+            ]);
+        }
+
+        $alkalkdoData = [
+            [
+                'nama' => 'Hilux Rangga',
+                'tipe' => 'Pick Up',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Putih',
+                'thproduksi' => 2024,
+                'noseri' => 'B 9940 PTB',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Hilux Rangga',
+                'tipe' => 'Double Cabine',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2024,
+                'noseri' => 'B 9317 PSE',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Panther',
+                'tipe' => 'Pick Up',
+                'merk' => 'Isuzu',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2012,
+                'noseri' => 'B 9542 PQU',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Altis',
+                'tipe' => 'Sedan',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Silver',
+                'thproduksi' => 2012,
+                'noseri' => 'B 2320 UQ',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Strada',
+                'tipe' => 'Double Cabin',
+                'merk' => 'Mitsubishi',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2013,
+                'noseri' => 'B 9914 PSC',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Hilux',
+                'tipe' => 'Pick Up',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2015,
+                'noseri' => 'B 9896 PTA',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Grandmax',
+                'tipe' => 'Mobil Barang/Del Van',
+                'merk' => 'Daihatsu',
+                'deskripsi' => 'Putih',
+                'thproduksi' => 2015,
+                'noseri' => 'B 9174 POV',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Grandmax',
+                'tipe' => 'Mobil Barang/Del Van',
+                'merk' => 'Daihatsu',
+                'deskripsi' => 'Putih',
+                'thproduksi' => 2015,
+                'noseri' => 'B 9175 POV',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Expander',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Mitsubishi',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2019,
+                'noseri' => 'B 1915 PQT',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Taft',
+                'tipe' => 'Jeep',
+                'merk' => 'Daihatsu',
+                'deskripsi' => 'Biru',
+                'thproduksi' => 1994,
+                'noseri' => 'B 2322 DQ',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+        ];
+
+        foreach ($alkalkdoData as $data) {
+            $merk = Merk::firstOrCreate(
+                ['nama' => $data['merk'], 'nama_nospace' => Str::slug($data['merk'])],
+                ['user_id' => User::inRandomOrder()->first()->id]
+            );
+
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(1);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [38, 40])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'tipe' => $data['tipe'],
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => $merk->id,
+                'deskripsi' => $data['deskripsi'],
+                'thproduksi' => $data['thproduksi'],
+                'noseri' => $data['noseri'],
+                'keterangan' => $data['keterangan'],
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(50000000, 500000000),
+                'hargatotal' => rand(50000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+            ]);
+        }
+
+        $tanahkdoData = [
+            [
+                'nama' => 'Hilux',
+                'tipe' => 'Double Cabin',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2024,
+                'noseri' => 'B 9315 PSE',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Hilux Rangga',
+                'tipe' => 'Double Cabin',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Putih',
+                'thproduksi' => 2024,
+                'noseri' => 'B 9937 PTB',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Strada',
+                'tipe' => 'Single Cabin',
+                'merk' => 'Mitsubishi',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2013,
+                'noseri' => 'B 9602 PTA',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Xenia',
+                'tipe' => 'Minibus',
+                'merk' => 'Daihatsu',
+                'deskripsi' => 'Hijau Muda',
+                'thproduksi' => 2008,
+                'noseri' => 'B 1278 PQN',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Panther',
+                'tipe' => 'Pick Up',
+                'merk' => 'Izuzu',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2013,
+                'noseri' => 'B 9583 PTA',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Panther',
+                'tipe' => 'Pick Up',
+                'merk' => 'Izuzu',
+                'deskripsi' => 'Biru',
+                'thproduksi' => 2005,
+                'noseri' => 'B 9076 OQ',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Katana Standard',
+                'tipe' => 'Mobil Penumpang',
+                'merk' => 'Suzuki',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 1997,
+                'noseri' => 'B 1212 LQ',
+                'keterangan' => 'Unit Peralatan dan Perbekalan Sumber Daya Air',
+            ],
+        ];
+
+        foreach ($tanahkdoData as $data) {
+            $merk = Merk::firstOrCreate(
+                ['nama' => $data['merk'], 'nama_nospace' => Str::slug($data['merk'])],
+                ['user_id' => User::inRandomOrder()->first()->id]
+            );
+
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(1);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [41, 43])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'tipe' => $data['tipe'],
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => $merk->id,
+                'deskripsi' => $data['deskripsi'],
+                'thproduksi' => $data['thproduksi'],
+                'noseri' => $data['noseri'],
+                'keterangan' => $data['keterangan'],
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(50000000, 500000000),
+                'hargatotal' => rand(50000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+            ]);
+        }
+
+        $upppkdoData = [
+            [
+                'nama' => 'Hilux',
+                'tipe' => 'Double Cabin',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2024,
+                'noseri' => 'B 9316 PSE',
+                'keterangan' => 'Unit Pengelola Penyelidikan, Pengujian dan Pengukuran Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Atlis',
+                'tipe' => 'Sedan',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2010,
+                'noseri' => 'B 1295 PQA',
+                'keterangan' => 'Unit Pengelola Penyelidikan, Pengujian dan Pengukuran Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Avanza',
+                'tipe' => 'Minibus',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Silver Metalik',
+                'thproduksi' => 2006,
+                'noseri' => 'B 8483 WU',
+                'keterangan' => 'Unit Pengelola Penyelidikan, Pengujian dan Pengukuran Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Ford',
+                'tipe' => 'Single Cabin',
+                'merk' => 'Ford',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2008,
+                'noseri' => 'B 9052 BQ',
+                'keterangan' => 'Unit Pengelola Penyelidikan, Pengujian dan Pengukuran Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Strada',
+                'tipe' => 'Single Cabin',
+                'merk' => 'Mitsubishi ',
+                'deskripsi' => 'Hitam',
+                'thproduksi' => 2013,
+                'noseri' => 'B 9599 PTA',
+                'keterangan' => 'Unit Pengelola Penyelidikan, Pengujian dan Pengukuran Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Hillux',
+                'tipe' => 'Pick Up',
+                'merk' => 'Toyota',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2015,
+                'noseri' => 'B 9061 PTB',
+                'keterangan' => 'Unit Pengelola Penyelidikan, Pengujian dan Pengukuran Sumber Daya Air',
+            ],
+            [
+                'nama' => 'Mitsubishi Single Cabin',
+                'tipe' => 'Pick Up',
+                'merk' => 'Mitsubishi',
+                'deskripsi' => 'Hitam Metalik',
+                'thproduksi' => 2014,
+                'noseri' => 'B 9601 PTA',
+                'keterangan' => 'Unit Pengelola Penyelidikan, Pengujian dan Pengukuran Sumber Daya Air',
+            ],
+        ];
+
+        foreach ($upppkdoData as $data) {
+            $merk = Merk::firstOrCreate(
+                ['nama' => $data['merk'], 'nama_nospace' => Str::slug($data['merk'])],
+                ['user_id' => User::inRandomOrder()->first()->id]
+            );
+
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(1);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [41, 43])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'tipe' => $data['tipe'],
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => $merk->id,
+                'deskripsi' => $data['deskripsi'],
+                'thproduksi' => $data['thproduksi'],
+                'noseri' => $data['noseri'],
+                'keterangan' => $data['keterangan'],
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(50000000, 500000000),
+                'hargatotal' => rand(50000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+            ]);
+        }
+
         $asetRuangan = [
-            [
-                'nama' => 'Ruang Rapat 1 (Lt. 7)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk keperluan diskusi dan presentasi di lantai 7.',
-            ],
-            [
-                'nama' => 'Ruang Rapat 2 (Lt. 7)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat kedua di lantai 7 untuk meeting tambahan.',
-            ],
-            [
-                'nama' => 'Ruang Rapat ex BPK (Lt. 8)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat bekas BPK di lantai 8.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang ROB (Lt. 8)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat khusus bidang ROB di lantai 8.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Unit Pengadaan Tanah (Lt. 8)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk unit pengadaan tanah di lantai 8.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang Geologi (Lt. 9)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat bidang geologi di lantai 9.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang Banjir (Lt. 9)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk bidang pengendalian banjir di lantai 9.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Bidang Limbah (Lt. 10)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk bidang pengelolaan limbah di lantai 10.',
-            ],
-            [
-                'nama' => 'Ruang Rapat Keuangan (Lt. 10)',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan rapat untuk tim keuangan di lantai 10.',
-            ],
-            [
-                'nama' => 'Ruangan Lantai 1',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan utama di lantai 1 untuk keperluan umum.',
-            ],
-            [
-                'nama' => 'Ruangan Lantai 2',
-                'kategori' => 'Ruangan',
-                'deskripsi' => 'Ruangan utama di lantai 2 untuk keperluan staf.',
-            ],
             [
                 'nama' => 'Ruangan Meeting Utama',
                 'kategori' => 'Ruangan',
@@ -343,6 +1218,117 @@ class AsetSeeder extends Seeder
                 'hargatotal' => 0,
                 'aktif' => 1,
                 'status' => 1,
+            ]);
+        }
+
+        $pelkantorData = [
+            [
+                'nama' => 'Kursi Hitam Plastik',
+                'tipe' => 'Kursi',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Kursi Hitam Lipat',
+                'tipe' => 'Kursi',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Meja Lipat',
+                'tipe' => 'Meja',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Kabel Roll Besar',
+                'tipe' => 'Kabel',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Kabel Roll Kecil',
+                'tipe' => 'Kabel',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Speaker/Sound System',
+                'tipe' => 'Sound',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Printer',
+                'tipe' => 'Printer',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Laptop',
+                'tipe' => 'Laptop',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Tenda Portable',
+                'tipe' => 'Tenda',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Terpal',
+                'tipe' => 'Tenda',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Tangga',
+                'tipe' => 'Alat Bantu',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Trolly Besar',
+                'tipe' => 'Trolly',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Karpet Hitam',
+                'tipe' => 'Karpet',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Karpet Mushola',
+                'tipe' => 'Karpet',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Vacum Cleaner',
+                'tipe' => 'Vacum',
+                'peminjaman' => 1,
+            ],
+            [
+                'nama' => 'Tool Kit',
+                'tipe' => 'Alat Bantu',
+                'peminjaman' => 1,
+            ],
+
+
+        ];
+
+        foreach ($pelkantorData as $data) {
+            // Tentukan kategori khusus KDO
+            $kategori = Kategori::find(8);
+
+            Aset::create([
+                'user_id' => User::whereBetween('unit_id', [1, 7])->inRandomOrder()->first()->id,
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
+                'tipe' => $data['tipe'],
+                'systemcode' => $faker->unique()->regexify('[A-Z0-9]{8}'),
+                'kode' => $faker->unique()->regexify('[A-Z0-9]{5}'),
+                'kategori_id' => $kategori->id,
+                'merk_id' => Merk::inRandomOrder()->first()->id,
+                'person_id' => Person::inRandomOrder()->first()->id ?? null,
+                'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
+                'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
+                'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
+                'jumlah' => 1,
+                'hargasatuan' => rand(500000, 500000000),
+                'hargatotal' => rand(5000000, 500000000),
+                'aktif' => 1,
+                'status' => 1,
+                'peminjaman' => $data['peminjaman'],
             ]);
         }
     }

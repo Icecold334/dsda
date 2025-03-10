@@ -1,9 +1,10 @@
 <x-body>
-    <div class="flex justify-between py-2 mb-3">
+    {{-- <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">Aset Aktif @if (auth()->user()->unitKerja)
-                {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }}
-            @endif
+        <h1 class="text-2xl font-bold text-primary-900 ">Aset Aktif @if (auth()->user()->unitKerja) --}}
+    {{-- {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }} --}}
+    {{-- {{ auth()->user()->unitKerja->nama }} --}}
+    {{-- @endif
         </h1>
         <div>
             <!-- Toggle Button -->
@@ -138,16 +139,7 @@
                                 class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">GO!</button>
 
                             <!-- Show Reset Filter Button if query parameters exist -->
-                            @if (request()->hasAny([
-                                    'nama',
-                                    'kategori_id',
-                                    'merk_id',
-                                    'toko_id',
-                                    'penanggung_jawab_id',
-                                    'lokasi_id',
-                                    'order_by',
-                                    'order_direction',
-                                ]))
+                            @if (request()->hasAny(['nama', 'kategori_id', 'merk_id', 'toko_id', 'penanggung_jawab_id', 'lokasi_id', 'order_by', 'order_direction']))
                                 <a href="{{ route('aset.index') }}"
                                     class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
                                     <i class="fa fa-sync-alt"></i>
@@ -228,9 +220,9 @@
                 searchForm.classList.toggle('hidden');
             });
         </script>
-    @endpush
+    @endpush --}}
 
-    <table class="w-full  border-3 border-separate border-spacing-y-4 ">
+    {{-- <table class="w-full  border-3 border-separate border-spacing-y-4 ">
         <thead>
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold rounded-l-lg"></th>
@@ -324,46 +316,6 @@
 
                                     </div>
                                 </div>
-
-                                {{-- @push('scripts')
-                                    <script>
-                                        function openQrModal(imageSrc, qrData) {
-                                            const modal = document.getElementById('qr-modal');
-                                            const modalImg = document.getElementById('qr-modal-img');
-                                            const modalTitle = document.getElementById('qr-title');
-                                            const modalDescription1 = document.getElementById('qr-description1');
-                                            const modalDescription2 = document.getElementById('qr-description2');
-                                            const modalContent = modal.querySelector('.transform');
-
-                                            // Set gambar QR Code
-                                            modalImg.src = imageSrc;
-
-                                            // Set data dinamis ke modal
-                                            modalTitle.innerText = qrData.judul || 'Judul Tidak Ditemukan';
-                                            modalDescription1.innerText = qrData.baris1 || 'Baris 1 Tidak Tersedia';
-                                            modalDescription2.innerText = qrData.baris2 || 'Baris 2 Tidak Tersedia';
-
-                                            // Tampilkan modal
-                                            modal.classList.remove('hidden');
-                                            setTimeout(() => {
-                                                modalContent.classList.remove('scale-90');
-                                                modalContent.classList.add('scale-100');
-                                            }, 10);
-                                        }
-
-                                        function closeQrModal() {
-                                            const modal = document.getElementById('qr-modal');
-                                            const modalContent = modal.querySelector('.transform');
-
-                                            // Animasi menutup modal
-                                            modalContent.classList.remove('scale-100');
-                                            modalContent.classList.add('scale-90');
-                                            setTimeout(() => {
-                                                modal.classList.add('hidden');
-                                            }, 300);
-                                        }
-                                    </script>
-                                @endpush --}}
                                 <div x-data="{ open: false, imgSrc: '' }">
                                     <!-- Gambar Thumbnail -->
                                     <div class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white cursor-pointer"
@@ -494,5 +446,9 @@
                 </span>
             </div>
         </div>
-    @endif
+    @endif --}}
+
+    <div>
+        <livewire:data-aset-aktif />
+    </div>
 </x-body>

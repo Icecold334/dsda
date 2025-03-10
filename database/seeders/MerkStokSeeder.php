@@ -42,43 +42,68 @@ class MerkStokSeeder extends Seeder
                 'Faber-Castell',
                 'Staedtler',
                 'Joyko',
+                'Brother LC',
+                'Epson',
+                'Epson 008',
+            ],
+        ];
+
+        // Mapping khusus untuk merek tertentu (Brother LC, Epson, Epson 008)
+        $specialMerk = [
+            'Brother LC' => [
+                'tipe' => ['Black', 'Cyan', 'Magenta', 'Yellow'],
+                'ukuran' => ['538'],
+                'slug' => 'tinta-printer-brother-mfc',
+            ],
+            'Epson' => [
+                'tipe' => ['Black', 'Cyan', 'Magenta', 'Yellow', 'Light Cyan', 'Light Magenta'],
+                'ukuran' => ['664', '673'],
+                'slug' => 'tinta-printer',
+            ],
+            'Epson 008' => [
+                'tipe' => ['Black', 'Cyan', 'Magenta', 'Yellow'],
+                'ukuran' => ['L15160'],
+                'slug' => 'tinta-printer',
             ],
         ];
 
         // Ambil semua barang dari tabel BarangStok
         $barangList = BarangStok::all();
 
-        $totalMerk = 0;
+        // Ambil barang_id dari kategori_id 123
+        $barangDariKategori123 = BarangStok::where('kategori_id', 123)->pluck('id')->toArray();
 
         foreach ($barangList as $barang) {
-            // Tentukan merek berdasarkan jenis barang
+            // Tentukan merek berdasarkan jenis barang (gunakan fallback jika tidak ditemukan)
             $jenisBarang = $barang->jenisStok->nama;
+            $merkList = $merkData[$jenisBarang] ?? ['Generic'];
 
-            // Pilih daftar merek berdasarkan jenis barang, fallback ke 'Generic'
-            $merkList = $merkData[$jenisBarang];
+            // Jumlah merek untuk setiap barang (3 hingga 8 merek)
+            $numMerkForBarang = rand(3, 8);
 
-            // Tambahkan lebih banyak merek untuk setiap barang
-            $numMerkForBarang = rand(3, 8); // Setiap barang memiliki 3 hingga 5 merek
-            for ($i = 0; $i < $numMerkForBarang; $i++) {
-                // if ($totalMerk >= 100) {
-                //     break; // Hentikan jika sudah mencapai 100 data
-                // }
-
+            foreach (range(1, $numMerkForBarang) as $i) {
                 // Pilih merek secara acak
                 $merkName = $faker->randomElement($merkList);
 
-                // Buat MerkStok
-                MerkStok::create([
-                    'barang_id' => $barang->id,
-                    'nama' => $merkName,
-                    'tipe' => $faker->boolean ? $faker->randomElement([
+                if (isset($specialMerk[$merkName])) {
+                    // Gunakan nilai khusus untuk Brother LC, Epson, dan Epson 008
+                    $tipe = $faker->randomElement($specialMerk[$merkName]['tipe']);
+                    $ukuran = $faker->randomElement($specialMerk[$merkName]['ukuran']);
+
+                    // Cek apakah ada slug yang valid untuk mendapatkan barang_id
+                    $barangId = isset($specialMerk[$merkName]['slug'])
+                        ? BarangStok::where('slug', $specialMerk[$merkName]['slug'])->value('id')
+                        : null;
+                } else {
+                    // Gunakan nilai acak untuk merek lainnya
+                    $tipe = $faker->optional()->randomElement([
                         'Standard',
                         'Premium',
                         'Heavy Duty',
                         'Profesional',
                         'Khusus',
-                    ]) : null,
-                    'ukuran' => $faker->boolean ? $faker->randomElement([
+                    ]);
+                    $ukuran = $faker->optional()->randomElement([
                         $faker->numberBetween(5, 50) . ' cm',
                         $faker->numberBetween(1, 10) . ' m',
                         $faker->numberBetween(10, 500) . ' mm',
@@ -86,15 +111,25 @@ class MerkStokSeeder extends Seeder
                         $faker->numberBetween(1, 20) . ' L',
                         $faker->numberBetween(1, 1000) . ' gr',
                         $faker->numberBetween(1, 50) . ' kg',
-                    ]) : null,
+                    ]);
+
+                    // Ambil barang_id dari kategori 123 jika tersedia
+                    $barangId = !empty($barangDariKategori123) ? $faker->randomElement($barangDariKategori123) : $barang->id;
+                }
+
+                // Jika barang_id masih null (tidak ditemukan di database), lewati iterasi ini
+                if (!$barangId) {
+                    continue;
+                }
+
+                // Simpan ke database
+                MerkStok::create([
+                    'barang_id' => $barangId,
+                    'nama' => $merkName,
+                    'tipe' => $tipe,
+                    'ukuran' => $ukuran,
                 ]);
-
-                $totalMerk++; // Hitung total merek yang dibuat
             }
-
-            // if ($totalMerk >= 100) {
-            //     break; // Hentikan jika sudah mencapai 100 data
-            // }
         }
     }
 }

@@ -27,8 +27,13 @@
                         </div>
                         <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Unit Kerja</span>
-                            <span
-                                class="text-sm text-gray-500 w-2/3">{{ $user->unitKerja->nama ?? 'Tidak Ditemukan' }}</span>
+                            @if ($user->unitKerja?->parent)
+                                <span
+                                    class="text-sm text-gray-500 w-2/3">{{ $user->unitKerja->parent->nama . ' - ' . $user->unitKerja->nama ?? 'Tidak Ditemukan' }}</span>
+                            @else
+                                <span
+                                    class="text-sm text-gray-500 w-2/3">{{ $user->unitKerja->nama ?? 'Tidak Ditemukan' }}</span>
+                            @endif
                         </div>
                         <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Jabatan</span>

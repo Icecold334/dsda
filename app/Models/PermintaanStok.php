@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\StokDisetujui;
+use App\Models\DetailPermintaanStok;
 use Illuminate\Database\Eloquent\Model;
 
 class PermintaanStok extends Model
@@ -37,8 +38,8 @@ class PermintaanStok extends Model
         return $this->belongsTo(BarangStok::class, 'barang_id');
     }
 
-    public function lokasiStok()
+    public function ruang()
     {
-        return $this->belongsTo(LokasiStok::class, 'lokasi_id');
-    }
+        return $this->belongsTo(Ruang::class, 'lokasi_id');
+}
 }
