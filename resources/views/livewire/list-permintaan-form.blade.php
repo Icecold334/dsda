@@ -568,49 +568,53 @@
                     <p><strong>Jumlah Permintaan:</strong> {{ $approvalData['jumlah_permintaan'] }}</p>
 
                     <!-- Daftar Lokasi, Jumlah, dan Catatan -->
-                    <table class="w-full border-collapse border border-gray-300">
-                        <thead>
-                            <tr class="bg-gray-200 text-left">
-                                <th class="border px-4 py-2">Spesifikasi</th>
-                                <th class="border px-4 py-2">Lokasi</th>
-                                <th class="border px-4 py-2">Bagian</th>
-                                <th class="border px-4 py-2">Posisi</th>
-                                <th class="border px-4 py-2">Jumlah Tersedia</th>
-                                <th class="border px-4 py-2">Jumlah Disetujui</th>
-                                <th class="border px-4 py-2">Catatan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($approvalData['stok'] as $index => $stok)
-                                <tr>
-                                    <td class="border px-4 py-2">
-                                        <div>Merk : {{ $stok['nama'] ?? '-' }}</div>
-                                        <div>Tipe : {{ $stok['tipe'] ?? '-' }}</div>
-                                        <div>Ukuran : {{ $stok['ukuran'] ?? '-' }}</div>
-                                    </td>
-                                    <td class="border px-4 py-2">{{ $stok['lokasi'] }}</td>
-                                    <td class="border px-4 py-2">{{ $stok['bagian'] ?? '-' }}</td>
-                                    <td class="border px-4 py-2">{{ $stok['posisi'] ?? '-' }}</td>
-                                    <td class="border px-4 py-2">{{ $stok['jumlah_tersedia'] }}</td>
-                                    <td class="border px-4 py-2">
-                                        <input type="number"
-                                            wire:model="approvalData.stok.{{ $index }}.jumlah_disetujui"
-                                            class="w-full border rounded px-2 py-1" min="0"
-                                            max="{{ $stok['jumlah_tersedia'] }}">
-                                    </td>
-                                    <td class="border px-4 py-2">
-                                        <textarea wire:model="approvalData.stok.{{ $index }}.catatan" class="w-full border rounded px-2 py-1"
-                                            rows="1" placeholder="Tambahkan catatan"></textarea>
-                                    </td>
+                    <div class="max-h-72 overflow-y-auto">
+
+                        <table class="w-full border-collapse border border-gray-300 ">
+                            <thead>
+                                <tr class="bg-gray-200 text-left">
+                                    <th class="border px-4 py-2">Spesifikasi</th>
+                                    <th class="border px-4 py-2">Lokasi</th>
+                                    <th class="border px-4 py-2">Bagian</th>
+                                    <th class="border px-4 py-2">Posisi</th>
+                                    <th class="border px-4 py-2">Jumlah Tersedia</th>
+                                    <th class="border px-4 py-2">Jumlah Disetujui</th>
+                                    <th class="border px-4 py-2">Catatan</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td class="font-semibold py-4 text-center" colspan="7">Barang Tidak Tersedia
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @forelse ($approvalData['stok'] as $index => $stok)
+                                    <tr>
+                                        <td class="border px-4 py-2">
+                                            <div>Merk : {{ $stok['nama'] ?? '-' }}</div>
+                                            <div>Tipe : {{ $stok['tipe'] ?? '-' }}</div>
+                                            <div>Ukuran : {{ $stok['ukuran'] ?? '-' }}</div>
+                                        </td>
+                                        <td class="border px-4 py-2">{{ $stok['lokasi'] }}</td>
+                                        <td class="border px-4 py-2">{{ $stok['bagian'] ?? '-' }}</td>
+                                        <td class="border px-4 py-2">{{ $stok['posisi'] ?? '-' }}</td>
+                                        <td class="border px-4 py-2">{{ $stok['jumlah_tersedia'] }}</td>
+                                        <td class="border px-4 py-2">
+                                            <input type="number"
+                                                wire:model="approvalData.stok.{{ $index }}.jumlah_disetujui"
+                                                class="w-full border rounded px-2 py-1" min="0"
+                                                max="{{ $stok['jumlah_tersedia'] }}">
+                                        </td>
+                                        <td class="border px-4 py-2">
+                                            <textarea wire:model="approvalData.stok.{{ $index }}.catatan" class="w-full border rounded px-2 py-1"
+                                                rows="1" placeholder="Tambahkan catatan"></textarea>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td class="font-semibold py-4 text-center" colspan="7">Barang Tidak
+                                            Tersedia
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Modal Footer -->

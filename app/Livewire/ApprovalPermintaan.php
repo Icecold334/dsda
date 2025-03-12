@@ -3,9 +3,11 @@
 namespace App\Livewire;
 
 use Carbon\Carbon;
+use App\Models\Aset;
 use App\Models\Stok;
 use App\Models\User;
 use Livewire\Component;
+use App\Models\Kategori;
 use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use App\Models\StokDisetujui;
@@ -38,6 +40,7 @@ class ApprovalPermintaan extends Component
     public $lastRoles = []; // Status whether last user per role
     public $listApproval;
     public $showButton;
+    public $kategori;
 
     public function mount()
     {
@@ -192,9 +195,28 @@ class ApprovalPermintaan extends Component
                         $this->adjustStockForApproval($item);
                     }
                 }
+            } else {
+                $kategori_id = $this->permintaan->peminjamanAset->first()->aset->kategori_id;
+                if ($kategori_id == 8) {
+                    $peminjamanItems = $this->permintaan->peminjamanAset;
+                } else {
+                    $peminjamanItems = $this->permintaan->peminjamanAset()->first();
+
+                    if ($peminjamanItems) {
+                        // Ambil data aset berdasarkan aset_id
+                        $aset = Aset::find($peminjamanItems->aset_id);
+                        if ($aset) {
+                            // Update peminjaman menjadi 0
+                            $aset->update([
+                                'peminjaman' => 0
+                            ]);
+                        }
+                    }
+                }
             };
         } else {
         }
+
 
 
         return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
