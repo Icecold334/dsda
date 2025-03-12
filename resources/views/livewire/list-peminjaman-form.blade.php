@@ -35,7 +35,6 @@
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12 rounded-r-lg"></th>
                     </tr>
                 </thead>
-                @dump($tipe, $list)
                 <tbody>
                     @foreach ($list as $index => $item)
                         <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
@@ -261,7 +260,6 @@
                                         $show = $newAsetId && $newWaktu && $newJumlah && $newKeterangan;
                                     }
                                 @endphp
-                                {{-- @dump($show) --}}
                                 @if ($show)
                                     <button wire:click="addToList"
                                         class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
