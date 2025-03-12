@@ -25,7 +25,7 @@
                     @if ($kategori_id == 5)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BUKTI KERUSAKAN*</th>
                     @endif
-                    @if (!$showAdd)
+                    @if (!$showAdd && $kategori_id != 4)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH disetujui</th>
                     @endif
                     @if (
@@ -181,7 +181,7 @@
 
                                 </td>
                             @endif
-                            @if (!$showAdd)
+                            @if (!$showAdd && $kategori_id != 4)
                                 <td class="py-3 px-6">
                                     <div class="flex items-center">
                                         <input type="number" wire:model.live="list.{{ $index }}.jumlah_approve"
