@@ -7,13 +7,13 @@
                     <tr class="text-white uppercase">
                         <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold rounded-l-lg">NAMA
                             {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }}</th>
-                        @if (!$showNew && 0)
+                        @if (!$showNew)
                             <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold ">NAMA
                                 {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }} Disetujui</th>
                         @endif
                         @if ($tipe == 'Peralatan Kantor')
                             <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">peminjaman</th>
-                            @if (!$showNew && 0)
+                            @if (!$showNew)
                                 <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold ">peminjaman
                                     Disetujui</th>
                             @endif
@@ -26,13 +26,16 @@
                         @if ($tipe == 'KDO' || $tipe == 'Ruangan')
                             <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jumlah Orang</th>
                         @endif
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">keterangan</th>
+                        @if ($tipe == 'Peralatan Kantor')
+                            <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">keterangan</th>
+                        @endif
                         @if ($tipe == 'Ruangan')
                             <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">Undangan</th>
                         @endif
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12 rounded-r-lg"></th>
                     </tr>
                 </thead>
+                @dump($tipe, $list)
                 <tbody>
                     @foreach ($list as $index => $item)
                         <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
@@ -40,20 +43,23 @@
                                 <select
                                     class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     disabled>
-                                    <option value="{{ $item['aset_id'] }}" selected>{{ $item['aset_name'] }}</option>
+                                    <option value="{{ $item['aset_id'] }}" selected>
+                                        {{ $tipe == 'Peralatan Kantor' || $tipe == 'KDO' ? $item['aset_merk'] . ' ' . $item['aset_name'] . ' - ' . $item['aset_noseri'] : $item['aset_name'] }}
+                                    </option>
                                 </select>
                             </td>
-                            @if (!$showNew && 0)
+                            @if (!$showNew)
                                 <td class="py-3 px-6">
                                     <select wire:model.live="list.{{ $index }}.approved_aset_id"
                                         @disabled(auth()->user()->cannot('peminjaman_persetujuan_peminjaman_aset') ||
                                                 $item['fix'] ||
-                                                !in_array($item['detail_peminjaman_id'], $approvals))
+                                                in_array($item['detail_peminjaman_id'], $approvals))
                                         class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                         <option value="">Pilih {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }}
                                         </option>
                                         @foreach ($asets as $asets)
-                                            <option value="{{ $asets->id }}">{{ $asets->nama }}
+                                            <option value="{{ $asets->id }}">
+                                                {{ $tipe == 'Peralatan Kantor' || $tipe == 'KDO' ? $asets->merk->nama . ' ' . $asets->nama . ' - ' . $asets->noseri : $asets->nama }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -68,7 +74,7 @@
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                         placeholder="Jumlah Permintaan">
                                 </td>
-                                @if (!$showNew && 0)
+                                @if (!$showNew)
                                     <td class="py-3 px-6">
                                         <input type="number"
                                             wire:model.live='list.{{ $index }}.approved_jumlah' min="1"
@@ -112,15 +118,17 @@
                             @if ($tipe == 'KDO' || $tipe == 'Ruangan')
                                 <td class="py-3 px-6">
                                     <input type="number" value="{{ $item['jumlah_peserta'] }}" disabled
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 cursor-not-allowed"
                                         placeholder="Jumlah Orang">
                                 </td>
                             @endif
-                            <td class="py-3 px-6">
-                                <input type="text" value="{{ $item['keterangan'] }}" disabled
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                    placeholder="Keterangan">
-                            </td>
+                            @if (!$tipe == 'KDO' || !$tipe == 'Ruangan')
+                                <td class="py-3 px-6">
+                                    <input type="text" value="{{ $item['keterangan'] }}" disabled
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 cursor-not-allowed"
+                                        placeholder="Keterangan">
+                                </td>
+                            @endif
                             @if ($tipe == 'Ruangan')
                                 <td class="px-6 py-3 text-center">
                                     <div class="relative inline-block">
@@ -151,7 +159,8 @@
                                         <i class="fa-solid fa-circle-xmark"></i>
                                     </button>
                                 @else
-                                    @if (!$item['fix'] && ($item['approved_waktu_id'] && $item['approved_aset_id']))
+                                    {{-- && ($item['approved_waktu_id'] --}}
+                                    @if (!$item['fix'] && $item['approved_aset_id'])
                                         <button onclick="confirmItem({{ $index }})"
                                             class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                             <i class="fa-solid fa-circle-check"></i>
@@ -161,7 +170,7 @@
                             </td>
                         </tr>
                     @endforeach
-                    @if ($showNew)
+                    @if ($showNew && (($tipe != 'KDO' && $tipe != 'Ruangan') || count($list) < 1))
                         <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                             <td class="py-3 px-6">
                                 <select wire:model.live="newAsetId"
@@ -208,11 +217,14 @@
                                         placeholder="Jumlah Orang">
                                 </td>
                             @endif
-                            <td class="py-3 px-6">
-                                <input type="text" wire:model.live="newKeterangan"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                    placeholder="Keterangan">
-                            </td>
+                            @if (!$tipe == 'KDO' || !$tipe == 'Ruangan')
+                                <td class="py-3 px-6">
+                                    <input type="text" wire:model.live="newKeterangan"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        placeholder="Keterangan">
+                                </td>
+                            @endif
+
                             @if ($tipe == 'Ruangan')
                                 <td class="px-6 py-3 text-center">
                                     @if ($newDokumen)
@@ -242,14 +254,15 @@
                                 @php
                                     $show = null;
                                     if ($tipe == 'Ruangan') {
-                                        $show = $newAsetId && $newWaktu && $newPeserta && $newKeterangan && $newDokumen;
+                                        $show = $newAsetId && $newWaktu && $newPeserta && $newDokumen;
                                     } elseif ($tipe == 'KDO') {
-                                        $show = $newAsetId && $newWaktu && $newPeserta && $newKeterangan;
+                                        $show = $newAsetId && $newWaktu && $newPeserta;
                                     } else {
                                         $show = $newAsetId && $newWaktu && $newJumlah && $newKeterangan;
                                     }
                                 @endphp
-                                @if (!in_array($tipe, ['KDO', 'Ruangan']) && $show)
+                                {{-- @dump($show) --}}
+                                @if ($show)
                                     <button wire:click="addToList"
                                         class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                         <i class="fa-solid fa-circle-plus"></i>
@@ -265,7 +278,7 @@
             <div class="text-xl font-semibold mt-8 flex w-full justify-center">Lengkapi data diatas terlebih dahulu
             </div>
         @endif
-        @php
+        {{-- @php
             $showSaveButton = false;
             if ($tipe == 'Ruangan') {
                 $showSaveButton = $newAsetId && $newWaktu && $newPeserta && $newKeterangan && $newDokumen;
@@ -274,10 +287,10 @@
             } else {
                 $showSaveButton = count($list) > 0 && $showNew;
             }
-        @endphp
+        @endphp --}}
 
         <div class="flex justify-center mt-4">
-            @if ($showSaveButton)
+            @if (count($list) > 0 && $showNew)
                 <button wire:click="saveData"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Simpan

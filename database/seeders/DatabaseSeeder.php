@@ -24,15 +24,18 @@ use Illuminate\Support\Str;
 use App\Models\KategoriStok;
 use App\Models\KontrakVendor;
 use App\Models\TransaksiStok;
+use App\Models\PeminjamanAset;
 use App\Models\PengirimanStok;
 use App\Models\PermintaanStok;
 // use App\Models\DetailPengirimanStok;
 // use App\Models\TransaksiDaruratStok;
 use App\Models\MetodePengadaan;
 use App\Models\OpsiPersetujuan;
+use App\Models\WaktuPeminjaman;
 use Illuminate\Database\Seeder;
 use App\Models\KontrakVendorStok;
 use Illuminate\Support\Facades\DB;
+use App\Models\DetailPeminjamanAset;
 use App\Models\DetailPengirimanStok;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Hash;
@@ -112,7 +115,7 @@ class DatabaseSeeder extends Seeder
 
 
         // Seed for Stok
-        for ($i = 1; $i <= 200; $i++) {
+        for ($i = 1; $i <= 500; $i++) {
             // Pilih lokasi secara acak
             $lokasi = LokasiStok::inRandomOrder()->first();
 
@@ -188,6 +191,66 @@ class DatabaseSeeder extends Seeder
                 'jumlah' => rand(10, 100),
                 // 'lokasi_id' => $lokasis->random()->id,
             ]);
+        }
+
+        $requests = [];
+        for ($i = 0; $i < 100; $i++) {
+            $parentUnit = UnitKerja::whereNull('parent_id')->inRandomOrder()->first();
+
+            // Ambil unit sub yang merupakan anak dari unit induk yang dipilih
+            // $subUnit = null;
+            // if ($faker->boolean) { // Misal 50% kemungkinan sub_unit_id ada
+            $subUnit = UnitKerja::where('parent_id', $parentUnit->id)->inRandomOrder()->first();
+            // }
+            $f = $faker->boolean;
+            $requests[] = [
+                'kode_peminjaman' => 'REQ-' . strtoupper(Str::random(6)),
+                'tanggal_peminjaman' => strtotime(Carbon::now()),
+                'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
+                'kategori_id' => 1,
+                'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')
+                    ->where('unit_id', $parentUnit->id)
+                    ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
+                    ->latest()
+                    ->first()->id,
+                'unit_id' => $parentUnit->id, // unit_id diambil dari unit induk
+                'keterangan' => $faker->paragraph(),
+                'status' => 1,
+                'sub_unit_id' => $subUnit ? $subUnit->id : null, // jika ada sub-unit, pakai id-nya, jika tidak null
+            ];
+        }
+
+        foreach ($requests as $request) {
+            DetailPeminjamanAset::create($request);
+        }
+
+
+        $users = User::all();
+        $aset = Aset::where('peminjaman', 1)->get();
+        $details = DetailPeminjamanAset::all();
+
+        // $lokasis = LokasiStok::all();
+
+        for ($i = 0; $i < 100; $i++) {
+            $detail = $details->random();
+            // Filter data aset sesuai kategori_id
+            $filteredAset = $aset->where('kategori_id', $detail->kategori_id);
+
+            if ($filteredAset->isNotEmpty()) {
+                $set_id = $filteredAset->random()->id;
+                // Ambil waktu_id secara random dari model WaktuPeminjaman
+                $waktu_id = WaktuPeminjaman::inRandomOrder()->first()->id;
+
+
+                PeminjamanAset::create([
+                    'detail_peminjaman_id' => $detail->id,
+                    'user_id' => $users->random()->id,
+                    'aset_id' => $set_id,
+                    'approved_aset_id' => $set_id,
+                    'jumlah_orang' => rand(1, 15),
+                    'waktu_id' => $waktu_id, // Tambahkan waktu_id
+                ]);
+            }
         }
 
         // foreach (range(1, 890) as $index) {

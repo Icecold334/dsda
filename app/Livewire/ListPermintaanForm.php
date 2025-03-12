@@ -527,8 +527,8 @@ class ListPermintaanForm extends Component
         }
         // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
         // $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
-        $material = $this->requestIs == 'material' ? 'permintaan' : '$this->requestIs';
-        Notification::send($nextUser, new UserNotification($message, "/permintaan/{$material}/{$detailPermintaan->id}"));
+
+        Notification::send($nextUser, new UserNotification($message, "/permintaan/permintaan/{$detailPermintaan->id}"));
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');

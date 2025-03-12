@@ -4,6 +4,8 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\Aset;
+use App\Models\User;
+use App\Models\Ruang;
 use Livewire\Component;
 use App\Models\Kategori;
 use Illuminate\Support\Str;
@@ -12,10 +14,11 @@ use Livewire\WithFileUploads;
 use App\Models\PeminjamanAset;
 use App\Models\WaktuPeminjaman;
 use App\Models\DetailPeminjamanAset;
-use App\Models\PersetujuanPeminjamanAset;
-use App\Models\Ruang;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Request;
+use App\Models\PersetujuanPeminjamanAset;
+use Illuminate\Support\Facades\Notification;
 
 class ListPeminjamanForm extends Component
 {
@@ -45,6 +48,7 @@ class ListPeminjamanForm extends Component
     public $newJumlah; // Input for new jumlah
     public $newDokumen; // Input for new dokumen
     public $showAdd; // Input for new dokumen
+    public $requestIs;
     public $barangSuggestions = []; // Suggestions for barang
     public $assetSuggestions = [];
     public $asets = [];
@@ -95,6 +99,8 @@ class ListPeminjamanForm extends Component
             'id' => null,
             'aset_id' => $this->newAsetId,
             'aset_name' => Aset::find($this->newAsetId)->nama,
+            'aset_merk' => Aset::find($this->newAsetId)->merk->nama,
+            'aset_noseri' => Aset::find($this->newAsetId)->noseri,
             'waktu_id' => $this->newWaktu,
             'waktu' => WaktuPeminjaman::find($this->newWaktu),
             'jumlah' => $this->newJumlah,
@@ -217,6 +223,74 @@ class ListPeminjamanForm extends Component
                 'jumlah' => $item['jumlah'],
             ]);
         }
+        $message = 'Permintaan ' . $detailPeminjaman->kategori->nama . ' <span class="font-bold">' . $detailPeminjaman->kode_peminjaman . '</span> membutuhkan persetujuan Anda.';
+
+        $this->tipe = Str::contains($this->peminjaman->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
+
+        $user = Auth::user();
+        $roles = $this->peminjaman->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
+        $roleLists = [];
+        $lastRoles = [];
+
+        $date = Carbon::parse($this->peminjaman->created_at);
+
+        foreach ($roles as $role) {
+            $users = User::whereHas('roles', function ($query) use ($role) {
+                $query->where('name', 'LIKE', '%' . $role . '%');
+            })
+                ->where(function ($query) use ($date) {
+                    $query->whereHas('unitKerja', function ($subQuery) {
+                        $subQuery->where('parent_id', $this->peminjaman->unit_id);
+                    })
+                        ->orWhere('unit_id', $this->peminjaman->unit_id);
+                })
+                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+                ->limit(1)
+                ->get();
+
+            $propertyKey = Str::slug($role); // Generate dynamic key for roles
+            $roleLists[$propertyKey] = $users;
+            $lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
+        }
+
+        // Calculate listApproval dynamically
+        // $tipe = $this->permintaan->jenisStok->nama;
+        // $unit = UnitKerja::find($this->permintaan->unit_id);
+        $allApproval = collect();
+
+        // Hitung jumlah persetujuan yang dibutuhkan
+        $listApproval = collect($roleLists)->flatten(1)->count();
+
+        // Menggabungkan semua approval untuk pengecekan urutan
+        $allApproval = collect($roleLists)->flatten(1);
+        $currentApprovalIndex = $allApproval->filter(function ($user) {
+            $approval = $user->{"persetujuan{$this->tipe}"}()
+                ->where('detail_' . $this->tipe . '_id', $this->peminjaman->id ?? 0)
+                ->first();
+            return $approval && $approval->status === 1; // Hanya hitung persetujuan yang berhasil
+        })->count();
+
+
+        // Pengecekan urutan user dalam daftar persetujuan
+        $index = $allApproval->search(fn($user) => $user->id == Auth::id());
+        // dd($allApproval);
+        $nextUser = $allApproval[$currentApprovalIndex];
+        if (collect($roles)->count() > 1) {
+            if ($index === 0) {
+                // Jika user adalah yang pertama dalam daftar
+                $currentUser = $allApproval[$index];
+            } else {
+                // Jika user berada di tengah atau akhir
+                $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
+                $currentUser = $allApproval[$index];
+                $previousApprovalStatus = optional(optional($previousUser)->{"persetujuan{$this->tipe}"}()
+                    ?->where('detail_' . $this->tipe . '_id', $this->peminjaman->id ?? 0)
+                    ->first())->status;
+            }
+        }
+        // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
+        // $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
+        Notification::send($nextUser, new UserNotification($message, "/permintaan/peminjaman/{$detailPeminjaman->id}"));
         return redirect()->to('permintaan/peminjaman/' . $this->peminjaman->id)->with('tanya', 'berhasil');
     }
 
@@ -248,6 +322,8 @@ class ListPeminjamanForm extends Component
                     'aset_id' => $value->aset_id,
                     'approved_aset_id' => $value->approved_aset_id ?? null,
                     'aset_name' => Aset::find($value->aset_id)->nama,
+                    'aset_merk' => Aset::find($value->aset_id)->merk->nama,
+                    'aset_noseri' => Aset::find($value->aset_id)->noseri,
                     'approved_aset_name' => Aset::find($value->approved_aset_id)->nama ?? null,
                     'waktu_id' => $value->waktu_id,
                     'approved_waktu_id' => $value->approved_waktu_id ?? null,
@@ -258,7 +334,7 @@ class ListPeminjamanForm extends Component
                     'jumlah_peserta' => $value->jumlah_orang,
                     'keterangan' => $value->deskripsi,
                     'img' => $value->img,
-                    'fix' => $this->tipe == 'Ruangan' ? $value->approved_aset_id && $value->approved_waktu_id : ($this->tipe == 'KDO' ? $value->approved_aset_id && $value->approved_waktu_id : $value->approved_aset_id && $value->approved_waktu_id && $value->jumlah_approve)
+                    'fix' => $this->tipe == 'Ruangan' ? $value->approved_aset_id && $value->approved_waktu_id : ($this->tipe == 'KDO' ? $value->approved_aset_id : $value->approved_aset_id && $value->approved_waktu_id && $value->jumlah_approve)
                 ];
             }
             $approve_after = $this->approve_after = $this->peminjaman->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray()[$this->peminjaman->opsiPersetujuan->urutan_persetujuan - 1];
@@ -273,7 +349,6 @@ class ListPeminjamanForm extends Component
             $this->fillTipe($this->tipe);
         };
         $this->waktus = WaktuPeminjaman::all();
-
         $this->tanggal_peminjaman = Carbon::now()->format('Y-m-d');
     }
 
@@ -283,23 +358,23 @@ class ListPeminjamanForm extends Component
     {
         $selectedAsetId = $this->newAsetId;
         // Ambil waktu yang telah di-booking untuk aset yang dipilih pada hari ini
-        $bookedTimes = PeminjamanAset::where('aset_id', $selectedAsetId)
-            ->whereHas('detailPeminjaman', function ($query) {
-                $todayStart = strtotime($this->tanggal_peminjaman); // Waktu mulai (00:00:00)
-                $todayEnd = strtotime($this->tanggal_peminjaman . ' 23:59:59'); // Waktu akhir (23:59:59)
+        // $bookedTimes = PeminjamanAset::where('aset_id', $selectedAsetId)
+        //     ->whereHas('detailPeminjaman', function ($query) {
+        //         $todayStart = strtotime($this->tanggal_peminjaman); // Waktu mulai (00:00:00)
+        //         $todayEnd = strtotime($this->tanggal_peminjaman . ' 23:59:59'); // Waktu akhir (23:59:59)
 
 
-                $query->whereBetween('tanggal_peminjaman', [$todayStart, $todayEnd])
-                    ->where(function ($query) {
-                        $query->whereNull('status')->orWhere('status', '!=', 0);
-                    });
-            })
-            ->pluck('waktu_id')
-            ->toArray();
-        $waktus = WaktuPeminjaman::all();
-        $this->waktus = $waktus->reject(function ($item) use ($bookedTimes) {
-            return in_array($item->id, $bookedTimes);
-        });
+        //         $query->whereBetween('tanggal_peminjaman', [$todayStart, $todayEnd])
+        //             ->where(function ($query) {
+        //                 $query->whereNull('status')->orWhere('status', '!=', 0);
+        //             });
+        //     })
+        //     ->pluck('waktu_id')
+        //     ->toArray();
+        // $waktus = WaktuPeminjaman::all();
+        // $this->waktus = $waktus->reject(function ($item) use ($bookedTimes) {
+        //     return in_array($item->id, $bookedTimes);
+        // });
     }
 
     public function approveItem($index, $message)
