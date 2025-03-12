@@ -115,81 +115,110 @@ class DatabaseSeeder extends Seeder
 
 
         // Seed for Stok
+        // for ($i = 1; $i <= 500; $i++) {
+        //     // Pilih lokasi secara acak
+        //     $lokasi = LokasiStok::inRandomOrder()->first();
+
+        //     // Tentukan apakah lokasi memiliki bagian
+        //     $bagian = null;
+        //     if ($faker->boolean) { // Random pilihan untuk bagian
+        //         $bagian = BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first();
+        //     }
+
+        //     // Tentukan apakah bagian memiliki posisi
+        //     $posisi = null;
+        //     if ($bagian && $faker->boolean) { // Random pilihan untuk posisi
+        //         $posisi = PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first();
+        //     }
+
+        //     // Buat entri stok baru
+        //     Stok::create([
+        //         'merk_id' => MerkStok::inRandomOrder()->first()->id, // Pilih merk secara acak
+        //         'jumlah' => rand(10, max: 100), // Tentukan jumlah stok secara acak
+        //         'lokasi_id' => $lokasi->id, // Lokasi stok
+        //         'bagian_id' => $bagian->id ?? null, // Bagian stok (opsional)
+        //         'posisi_id' => $posisi->id ?? null, // Posisi stok (opsional)
+        //     ]);
+        // }
+
         for ($i = 1; $i <= 500; $i++) {
-            // Pilih lokasi secara acak
             $lokasi = LokasiStok::inRandomOrder()->first();
 
-            // Tentukan apakah lokasi memiliki bagian
             $bagian = null;
-            if ($faker->boolean) { // Random pilihan untuk bagian
+            if ($faker->boolean) {
                 $bagian = BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first();
             }
 
-            // Tentukan apakah bagian memiliki posisi
             $posisi = null;
-            if ($bagian && $faker->boolean) { // Random pilihan untuk posisi
+            if ($bagian && $faker->boolean) {
                 $posisi = PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first();
             }
 
-            // Buat entri stok baru
-            Stok::create([
-                'merk_id' => MerkStok::inRandomOrder()->first()->id, // Pilih merk secara acak
-                'jumlah' => rand(10, max: 100), // Tentukan jumlah stok secara acak
-                'lokasi_id' => $lokasi->id, // Lokasi stok
-                'bagian_id' => $bagian->id ?? null, // Bagian stok (opsional)
-                'posisi_id' => $posisi->id ?? null, // Posisi stok (opsional)
-            ]);
+            $merk = MerkStok::whereHas('barangStok', function ($query) {
+                $query->whereIn('kategori_id', [1, 2, 3, 6]);
+            })->inRandomOrder()->first();
+
+            if ($merk) {
+                Stok::create([
+                    'merk_id' => $merk->id, // Pilih merk dari kategori yang benar
+                    'jumlah' => rand(10, 100),
+                    'lokasi_id' => $lokasi->id,
+                    'bagian_id' => $bagian->id ?? null,
+                    'posisi_id' => $posisi->id ?? null,
+                ]);
+            }
         }
 
 
-        // $requests = [];
-        // for ($i = 0; $i < 100; $i++) {
-        //     $parentUnit = UnitKerja::whereNull('parent_id')->inRandomOrder()->first();
 
-        //     // Ambil unit sub yang merupakan anak dari unit induk yang dipilih
-        //     // $subUnit = null;
-        //     // if ($faker->boolean) { // Misal 50% kemungkinan sub_unit_id ada
-        //     $subUnit = UnitKerja::where('parent_id', $parentUnit->id)->inRandomOrder()->first();
-        //     // }
-        //     $f = $faker->boolean;
-        //     $requests[] = [
-        //         'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
-        //         'tanggal_permintaan' => strtotime(Carbon::now()),
-        //         'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
-        //         'kategori_id' => $f ? KategoriStok::inRandomOrder()->first()->id : null,
-        //         'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')
-        //             ->where('unit_id', $parentUnit->id)
-        //             ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
-        //             ->latest()
-        //             ->first()->id,
-        //         'jenis_id' => $f ? 3 : $faker->randomElement([1, 2]), // unit_id diambil dari unit induk
-        //         'unit_id' => $parentUnit->id, // unit_id diambil dari unit induk
-        //         'keterangan' => $faker->paragraph(),
-        //         'sub_unit_id' => $subUnit ? $subUnit->id : null, // jika ada sub-unit, pakai id-nya, jika tidak null
-        //         'jumlah' => rand(1, 30), // Jumlah acak antara 1 dan 30
-        //     ];
-        // }
+        $requests = [];
+        for ($i = 0; $i < 100; $i++) {
+            $parentUnit = UnitKerja::whereNull('parent_id')->inRandomOrder()->first();
 
-        // foreach ($requests as $request) {
-        //     DetailPermintaanStok::create($request);
-        // }
+            // Ambil unit sub yang merupakan anak dari unit induk yang dipilih
+            // $subUnit = null;
+            // if ($faker->boolean) { // Misal 50% kemungkinan sub_unit_id ada
+            $subUnit = UnitKerja::where('parent_id', $parentUnit->id)->inRandomOrder()->first();
+            // }
+            $f = $faker->boolean;
+            $requests[] = [
+                'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
+                'tanggal_permintaan' => strtotime(Carbon::now()),
+                'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
+                'kategori_id' => $f ? KategoriStok::inRandomOrder()->first()->id : null,
+                'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')
+                    ->where('unit_id', $parentUnit->id)
+                    ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
+                    ->latest()
+                    ->first()->id,
+                'jenis_id' => $f ? 3 : $faker->randomElement([1, 2]), // unit_id diambil dari unit induk
+                'unit_id' => $parentUnit->id, // unit_id diambil dari unit induk
+                'keterangan' => $faker->paragraph(),
+                'sub_unit_id' => $subUnit ? $subUnit->id : null, // jika ada sub-unit, pakai id-nya, jika tidak null
+                'jumlah' => rand(1, 30), // Jumlah acak antara 1 dan 30
+            ];
+        }
+
+        foreach ($requests as $request) {
+            DetailPermintaanStok::create($request);
+        }
 
 
-        // $users = User::all();
-        // $barang = BarangStok::all();
-        // $details = DetailPermintaanStok::all();
-        // // $lokasis = LokasiStok::all();
+        $users = User::all();
+        $barang = BarangStok::all();
+        $details = DetailPermintaanStok::all();
+        // $lokasis = LokasiStok::all();
 
-        // for ($i = 0; $i < 2975; $i++) {
-        //     $detail = $details->random();
-        //     PermintaanStok::create([
-        //         'detail_permintaan_id' => $detail->id,
-        //         'user_id' => $users->random()->id,
-        //         'barang_id' => $barang->where('kategori_id', $detail->kategori_id)->random()->id,
-        //         'jumlah' => rand(10, 100),
-        //         // 'lokasi_id' => $lokasis->random()->id,
-        //     ]);
-        // }
+        for ($i = 0; $i < 2975; $i++) {
+            $detail = $details->random();
+            PermintaanStok::create([
+                'detail_permintaan_id' => $detail->id,
+                'user_id' => $users->random()->id,
+                'barang_id' => $barang->where('kategori_id', $detail->kategori_id)->random()->id,
+                'jumlah' => rand(10, 100),
+                // 'lokasi_id' => $lokasis->random()->id,
+            ]);
+        }
 
         // $requests = [];
         // for ($i = 0; $i < 100; $i++) {
