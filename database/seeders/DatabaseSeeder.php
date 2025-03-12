@@ -142,116 +142,114 @@ class DatabaseSeeder extends Seeder
         }
 
 
+        // $requests = [];
+        // for ($i = 0; $i < 100; $i++) {
+        //     $parentUnit = UnitKerja::whereNull('parent_id')->inRandomOrder()->first();
+
+        //     // Ambil unit sub yang merupakan anak dari unit induk yang dipilih
+        //     // $subUnit = null;
+        //     // if ($faker->boolean) { // Misal 50% kemungkinan sub_unit_id ada
+        //     $subUnit = UnitKerja::where('parent_id', $parentUnit->id)->inRandomOrder()->first();
+        //     // }
+        //     $f = $faker->boolean;
+        //     $requests[] = [
+        //         'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
+        //         'tanggal_permintaan' => strtotime(Carbon::now()),
+        //         'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
+        //         'kategori_id' => $f ? KategoriStok::inRandomOrder()->first()->id : null,
+        //         'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')
+        //             ->where('unit_id', $parentUnit->id)
+        //             ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
+        //             ->latest()
+        //             ->first()->id,
+        //         'jenis_id' => $f ? 3 : $faker->randomElement([1, 2]), // unit_id diambil dari unit induk
+        //         'unit_id' => $parentUnit->id, // unit_id diambil dari unit induk
+        //         'keterangan' => $faker->paragraph(),
+        //         'sub_unit_id' => $subUnit ? $subUnit->id : null, // jika ada sub-unit, pakai id-nya, jika tidak null
+        //         'jumlah' => rand(1, 30), // Jumlah acak antara 1 dan 30
+        //     ];
+        // }
+
+        // foreach ($requests as $request) {
+        //     DetailPermintaanStok::create($request);
+        // }
 
 
-        $requests = [];
-        for ($i = 0; $i < 100; $i++) {
-            $parentUnit = UnitKerja::whereNull('parent_id')->inRandomOrder()->first();
+        // $users = User::all();
+        // $barang = BarangStok::all();
+        // $details = DetailPermintaanStok::all();
+        // // $lokasis = LokasiStok::all();
 
-            // Ambil unit sub yang merupakan anak dari unit induk yang dipilih
-            // $subUnit = null;
-            // if ($faker->boolean) { // Misal 50% kemungkinan sub_unit_id ada
-            $subUnit = UnitKerja::where('parent_id', $parentUnit->id)->inRandomOrder()->first();
-            // }
-            $f = $faker->boolean;
-            $requests[] = [
-                'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
-                'tanggal_permintaan' => strtotime(Carbon::now()),
-                'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
-                'kategori_id' => $f ? KategoriStok::inRandomOrder()->first()->id : null,
-                'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')
-                    ->where('unit_id', $parentUnit->id)
-                    ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
-                    ->latest()
-                    ->first()->id,
-                'jenis_id' => $f ? 3 : $faker->randomElement([1, 2]), // unit_id diambil dari unit induk
-                'unit_id' => $parentUnit->id, // unit_id diambil dari unit induk
-                'keterangan' => $faker->paragraph(),
-                'sub_unit_id' => $subUnit ? $subUnit->id : null, // jika ada sub-unit, pakai id-nya, jika tidak null
-                'jumlah' => rand(1, 30), // Jumlah acak antara 1 dan 30
-            ];
-        }
+        // for ($i = 0; $i < 2975; $i++) {
+        //     $detail = $details->random();
+        //     PermintaanStok::create([
+        //         'detail_permintaan_id' => $detail->id,
+        //         'user_id' => $users->random()->id,
+        //         'barang_id' => $barang->where('kategori_id', $detail->kategori_id)->random()->id,
+        //         'jumlah' => rand(10, 100),
+        //         // 'lokasi_id' => $lokasis->random()->id,
+        //     ]);
+        // }
 
-        foreach ($requests as $request) {
-            DetailPermintaanStok::create($request);
-        }
+        // $requests = [];
+        // for ($i = 0; $i < 100; $i++) {
+        //     $parentUnit = UnitKerja::whereNull('parent_id')->inRandomOrder()->first();
 
+        //     // Ambil unit sub yang merupakan anak dari unit induk yang dipilih
+        //     // $subUnit = null;
+        //     // if ($faker->boolean) { // Misal 50% kemungkinan sub_unit_id ada
+        //     $subUnit = UnitKerja::where('parent_id', $parentUnit->id)->inRandomOrder()->first();
+        //     // }
+        //     $f = $faker->boolean;
+        //     $requests[] = [
+        //         'kode_peminjaman' => 'REQ-' . strtoupper(Str::random(6)),
+        //         'tanggal_peminjaman' => strtotime(Carbon::now()),
+        //         'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
+        //         'kategori_id' => 1,
+        //         'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')
+        //             ->where('unit_id', $parentUnit->id)
+        //             ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
+        //             ->latest()
+        //             ->first()->id,
+        //         'unit_id' => $parentUnit->id, // unit_id diambil dari unit induk
+        //         'keterangan' => $faker->paragraph(),
+        //         'status' => 1,
+        //         'sub_unit_id' => $subUnit ? $subUnit->id : null, // jika ada sub-unit, pakai id-nya, jika tidak null
+        //     ];
+        // }
 
-        $users = User::all();
-        $barang = BarangStok::all();
-        $details = DetailPermintaanStok::all();
-        // $lokasis = LokasiStok::all();
-
-        for ($i = 0; $i < 2975; $i++) {
-            $detail = $details->random();
-            PermintaanStok::create([
-                'detail_permintaan_id' => $detail->id,
-                'user_id' => $users->random()->id,
-                'barang_id' => $barang->where('kategori_id', $detail->kategori_id)->random()->id,
-                'jumlah' => rand(10, 100),
-                // 'lokasi_id' => $lokasis->random()->id,
-            ]);
-        }
-
-        $requests = [];
-        for ($i = 0; $i < 100; $i++) {
-            $parentUnit = UnitKerja::whereNull('parent_id')->inRandomOrder()->first();
-
-            // Ambil unit sub yang merupakan anak dari unit induk yang dipilih
-            // $subUnit = null;
-            // if ($faker->boolean) { // Misal 50% kemungkinan sub_unit_id ada
-            $subUnit = UnitKerja::where('parent_id', $parentUnit->id)->inRandomOrder()->first();
-            // }
-            $f = $faker->boolean;
-            $requests[] = [
-                'kode_peminjaman' => 'REQ-' . strtoupper(Str::random(6)),
-                'tanggal_peminjaman' => strtotime(Carbon::now()),
-                'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
-                'kategori_id' => 1,
-                'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')
-                    ->where('unit_id', $parentUnit->id)
-                    ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
-                    ->latest()
-                    ->first()->id,
-                'unit_id' => $parentUnit->id, // unit_id diambil dari unit induk
-                'keterangan' => $faker->paragraph(),
-                'status' => 1,
-                'sub_unit_id' => $subUnit ? $subUnit->id : null, // jika ada sub-unit, pakai id-nya, jika tidak null
-            ];
-        }
-
-        foreach ($requests as $request) {
-            DetailPeminjamanAset::create($request);
-        }
+        // foreach ($requests as $request) {
+        //     DetailPeminjamanAset::create($request);
+        // }
 
 
-        $users = User::all();
-        $aset = Aset::where('peminjaman', 1)->get();
-        $details = DetailPeminjamanAset::all();
+        // $users = User::all();
+        // $aset = Aset::where('peminjaman', 1)->get();
+        // $details = DetailPeminjamanAset::all();
 
-        // $lokasis = LokasiStok::all();
+        // // $lokasis = LokasiStok::all();
 
-        for ($i = 0; $i < 100; $i++) {
-            $detail = $details->random();
-            // Filter data aset sesuai kategori_id
-            $filteredAset = $aset->where('kategori_id', $detail->kategori_id);
+        // for ($i = 0; $i < 100; $i++) {
+        //     $detail = $details->random();
+        //     // Filter data aset sesuai kategori_id
+        //     $filteredAset = $aset->where('kategori_id', $detail->kategori_id);
 
-            if ($filteredAset->isNotEmpty()) {
-                $set_id = $filteredAset->random()->id;
-                // Ambil waktu_id secara random dari model WaktuPeminjaman
-                $waktu_id = WaktuPeminjaman::inRandomOrder()->first()->id;
+        //     if ($filteredAset->isNotEmpty()) {
+        //         $set_id = $filteredAset->random()->id;
+        //         // Ambil waktu_id secara random dari model WaktuPeminjaman
+        //         $waktu_id = WaktuPeminjaman::inRandomOrder()->first()->id;
 
 
-                PeminjamanAset::create([
-                    'detail_peminjaman_id' => $detail->id,
-                    'user_id' => $users->random()->id,
-                    'aset_id' => $set_id,
-                    'approved_aset_id' => $set_id,
-                    'jumlah_orang' => rand(1, 15),
-                    'waktu_id' => $waktu_id, // Tambahkan waktu_id
-                ]);
-            }
-        }
+        //         PeminjamanAset::create([
+        //             'detail_peminjaman_id' => $detail->id,
+        //             'user_id' => $users->random()->id,
+        //             'aset_id' => $set_id,
+        //             'approved_aset_id' => $set_id,
+        //             'jumlah_orang' => rand(1, 15),
+        //             'waktu_id' => $waktu_id, // Tambahkan waktu_id
+        //         ]);
+        //     }
+        // }
 
         // foreach (range(1, 890) as $index) {
         //     DetailPengirimanStok::create([
