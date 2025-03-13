@@ -181,6 +181,12 @@ class ApprovalPermintaan extends Component
             'status' => $status,
             'keterangan' => $message
         ]);
+        if (($this->currentApprovalIndex + 2) == $this->listApproval && $this->permintaan->kategori_id == 4) {
+            $this->permintaan->update([
+                'cancel' => 0,
+            ]);
+        }
+
         if (($this->currentApprovalIndex + 1) == $this->listApproval) {
             $this->permintaan->update([
                 'status' => 1,

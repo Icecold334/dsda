@@ -36,7 +36,9 @@
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[10%]"></th>
                     @endif
                     {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th> --}}
-                    <th class="py-3 px-6 bg-primary-950 w-1/12 text-center font-semibold rounded-r-lg"></th>
+                    <th
+                        class="py-3 px-6 bg-primary-950 w-1/12 text-center font-semibold rounded-r-lg {{ $kategori_id != 4 ? '' : 'hidden' }}">
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -227,7 +229,8 @@
                                 </td>
                             @endif
 
-                            <td class="py-3 px-6 text-center">
+
+                            <td class="py-3 px-6 text-center {{ $kategori_id != 4 ? '' : 'hidden' }}">
                                 @if (!$item['id'])
                                     <button wire:click="removeFromList({{ $index }})"
                                         class="text-danger-900 border-danger-600 text-xl border bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
