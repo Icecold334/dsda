@@ -49,7 +49,6 @@ class ListPermintaanForm extends Component
     public $newWaktu;
     public $waktus;
     public $availBarangs;
-
     public $list = []; // List of items
     public $newDeskripsi; // Input for new barang
     public $newCatatan; // Input for new barang
@@ -71,7 +70,6 @@ class ListPermintaanForm extends Component
     public $newDokumen; // Input for new dokumen
     public $newBukti; // Input for new dokumen
     public $barangSuggestions = []; // Suggestions for barang
-
     public $showApprovalModal = false;
     public $ruleShow;
     public $ruleAdd;
@@ -607,7 +605,7 @@ class ListPermintaanForm extends Component
 
         $this->validate([
             // 'newBarang' => 'required|string|max:255',
-            'newJumlah' => 'required|integer|min:1',
+            'newJumlah' => 'nullable|integer|min:1',
             'newDokumen' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,txt',
         ]);
         $this->list[] = [
@@ -643,11 +641,27 @@ class ListPermintaanForm extends Component
 
     public function fillShowRule()
     {
-        $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
+        // $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
+        $this->ruleShow =
+            $this->requestIs == 'permintaan'
+            ? ($this->kategori_id == 5
+                ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id && $this->keterangan
+                : $this->tanggal_permintaan && $this->unit_id && $this->kategori_id)
+            : ($this->requestIs == 'spare-part'
+                ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id && $this->sub_unit_id && $this->keterangan
+                : $this->tanggal_permintaan && $this->unit_id && $this->sub_unit_id && $this->keterangan);
     }
     public function updated()
     {
-        $this->ruleAdd = $this->requestIs == 'permintaan' ? $this->newBarang && $this->newJumlah : ($this->requestIs == 'spare-part' ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi : $this->newBarang && $this->newJumlah  && $this->newDeskripsi);
+        // $this->ruleAdd = $this->requestIs == 'permintaan' ? $this->newBarang && $this->newJumlah : ($this->requestIs == 'spare-part' ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi : $this->newBarang && $this->newJumlah  && $this->newDeskripsi);
+        $this->ruleAdd =
+            $this->requestIs == 'permintaan'
+            ? ($this->kategori_id == 5
+                ? $this->newBarang && $this->newDeskripsi
+                : $this->newBarang && $this->newJumlah)
+            : ($this->requestIs == 'spare-part'
+                ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi
+                : $this->newBarang && $this->newJumlah && $this->newDeskripsi);
     }
     public $tipe;
     public function mount()

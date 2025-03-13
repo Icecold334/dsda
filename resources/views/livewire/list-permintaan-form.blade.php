@@ -21,8 +21,11 @@
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA
                         {{ $kategori_id == 4 ? 'Konsumsi' : ($kategori_id == 5 ? 'Tipe Service' : ($kategori_id == 6 ? 'Voucher Carwash' : 'Barang')) }}
                     </th>
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH *</th>
+                    @if ($kategori_id != 5)
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH *</th>
+                    @endif
                     @if ($kategori_id == 5)
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KETERANGAN</th>
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BUKTI KERUSAKAN*</th>
                     @endif
                     @if (!$showAdd && $kategori_id != 4)
@@ -148,19 +151,28 @@
                                 @enderror
                             </td>
 
-                            <td class="py-3 px-6">
-                                <div class="flex items-center">
-                                    <input type="number" wire:model.live="list.{{ $index }}.jumlah"
-                                        min="1" disabled
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg cursor-not-allowed focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                        placeholder="Jumlah">
-                                    <span
-                                        class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
-                                        {{ $item['satuan'] }}
-                                    </span>
-                                </div>
-                            </td>
+                            @if ($kategori_id != 5)
+                                <td class="py-3 px-6">
+                                    <div class="flex items-center">
+                                        <input type="number" wire:model.live="list.{{ $index }}.jumlah"
+                                            min="1" disabled
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg cursor-not-allowed focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                            placeholder="Jumlah">
+                                        <span
+                                            class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
+                                            {{ $item['satuan'] }}
+                                        </span>
+                                    </div>
+                                </td>
+                            @endif
                             @if ($kategori_id == 5)
+                                <!-- Deskripsi Kerusakan -->
+                                <td class="px-6 py-3">
+                                    <textarea id="deskripsiKerusakan" disabled wire:model.live="list.{{ $index }}.deskripsi" rows="2"
+                                        class="w-full border cursor-not-allowed border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Deskripsikan kerusakan secara detail"></textarea>
+                                </td>
+
                                 <td class="px-6 py-3 text-center">
                                     <div class="relative inline-block">
                                         @if (is_string($item['dokumen']))
@@ -186,8 +198,9 @@
                             @if (!$showAdd && $kategori_id != 4)
                                 <td class="py-3 px-6">
                                     <div class="flex items-center">
-                                        <input type="number" wire:model.live="list.{{ $index }}.jumlah_approve"
-                                            min="1" disabled
+                                        <input type="number"
+                                            wire:model.live="list.{{ $index }}.jumlah_approve" min="1"
+                                            disabled
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ true ? 'cursor-not-allowed' : '' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                             placeholder="Jumlah Disetujui">
                                         <span
@@ -383,18 +396,25 @@
                                 @enderror
                             </td>
 
-                            <td class="py-3 px-6">
-                                <div class="flex items-center">
-                                    <input type="number" wire:model.live="newJumlah" min="1"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                        placeholder="Jumlah">
-                                    <span
-                                        class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
-                                        {{ $newUnit }}
-                                    </span>
-                                </div>
-                            </td>
+                            @if ($kategori_id != 5)
+                                <td class="py-3 px-6">
+                                    <div class="flex items-center">
+                                        <input type="number" wire:model.live="newJumlah" min="1"
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                            placeholder="Jumlah">
+                                        <span
+                                            class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
+                                            {{ $newUnit }}
+                                        </span>
+                                    </div>
+                                </td>
+                            @endif
                             @if ($kategori_id == 5)
+                                <td class="px-6 py-3">
+                                    <textarea id="deskripsiKerusakan" wire:model.live="newDeskripsi" rows="2"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Deskripsikan kerusakan secara detail"></textarea>
+                                </td>
                                 <td class="px-6 py-3 text-center">
                                     @if ($newDokumen)
                                         <div class="relative inline-block">
