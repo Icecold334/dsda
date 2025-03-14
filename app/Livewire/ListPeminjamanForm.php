@@ -321,7 +321,9 @@ class ListPeminjamanForm extends Component
                     'detail_peminjaman_id' => $value->detail_peminjaman_id,
                     'aset_id' => $value->aset_id,
                     'approved_aset_id' => $value->approved_aset_id ?? null,
-                    'aset_name' => Aset::find($value->aset_id)->nama,
+                    'aset_name' => $this->tipe == 'Ruangan'
+                        ? Ruang::find($value->aset_id)?->nama
+                        : Aset::find($value->aset_id)?->nama,
                     'aset_merk' => Aset::find($value->aset_id)->merk->nama,
                     'aset_noseri' => Aset::find($value->aset_id)->noseri,
                     'approved_aset_name' => Aset::find($value->approved_aset_id)->nama ?? null,

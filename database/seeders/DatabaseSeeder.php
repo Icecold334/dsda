@@ -141,35 +141,50 @@ class DatabaseSeeder extends Seeder
         //     ]);
         // }
 
-        for ($i = 1; $i <= 500; $i++) {
-            $lokasi = LokasiStok::inRandomOrder()->first();
+        // Ambil lokasi Gudang Umum di luar loop (langsung pakai di semua stok)
+        $lokasi = LokasiStok::where('nama', 'Gudang Umum')->first();
 
-            $bagian = null;
-            if ($faker->boolean) {
-                $bagian = BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first();
-            }
+        // Buat stok untuk kategori voucher mobil (kategori_id = 6)
+        $voucherMerk = MerkStok::whereHas('barangStok', function ($query) {
+            $query->where('kategori_id', 6);
+        })->first();
+
+        if ($voucherMerk && $lokasi) {
+            // Gunakan firstOrCreate untuk mencegah duplikasi
+            Stok::firstOrCreate([
+                'merk_id' => $voucherMerk->id,
+                'lokasi_id' => $lokasi->id,
+            ], [
+                'jumlah' => rand(10, 100),
+                'bagian_id' => null,
+                'posisi_id' => null,
+            ]);
+        }
+
+        // Dapatkan semua merk yang sesuai dengan kategori (selain kategori 6)
+        $merks = MerkStok::whereHas('barangStok', function ($query) {
+            $query->whereIn('kategori_id', [1, 2, 3]);
+        })->get();
+
+        // Loop berdasarkan merk, bukan berdasarkan jumlah tertentu
+        foreach ($merks as $merk) {
+            $bagian = BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first();
 
             $posisi = null;
-            if ($bagian && $faker->boolean) {
+            if ($bagian) {
                 $posisi = PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first();
             }
 
-            $merk = MerkStok::whereHas('barangStok', function ($query) {
-                $query->whereIn('kategori_id', [1, 2, 3, 6]);
-            })->inRandomOrder()->first();
-
-            if ($merk) {
-                Stok::create([
-                    'merk_id' => $merk->id, // Pilih merk dari kategori yang benar
-                    'jumlah' => rand(10, 100),
-                    'lokasi_id' => $lokasi->id,
-                    'bagian_id' => $bagian->id ?? null,
-                    'posisi_id' => $posisi->id ?? null,
-                ]);
-            }
+            // Buat stok hanya jika belum ada untuk merk dan lokasi ini
+            Stok::firstOrCreate([
+                'merk_id' => $merk->id,
+                'lokasi_id' => $lokasi->id,
+            ], [
+                'jumlah' => rand(10, 100),
+                'bagian_id' => $bagian->id ?? null,
+                'posisi_id' => $posisi->id ?? null,
+            ]);
         }
-
-
 
         $requests = [];
         for ($i = 0; $i < 100; $i++) {

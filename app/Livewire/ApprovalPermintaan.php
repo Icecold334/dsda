@@ -155,17 +155,18 @@ class ApprovalPermintaan extends Component
     public function approveConfirmed($status, $message = null)
     {
         $permintaan  = $this->permintaan;
+
         // dd($permintaan->kode_permintaan ?? $permintaan->kode_peminjaman);
         if ($status) {
             $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
             if ($currentIndex != count($this->roleLists) - 1) {
-                $message = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
                     (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
                     '</span> membutuhkan persetujuan Anda.';
 
 
                 $user = User::find(collect($this->roleLists)->flatten(1)[$currentIndex + 1]->id);
-                Notification::send($user, new UserNotification($message, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+                Notification::send($user, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
             $cancelAfter = $permintaan->opsiPersetujuan->cancel_persetujuan;
             // if ($currentIndex + 1 == $cancelAfter) {
@@ -173,6 +174,18 @@ class ApprovalPermintaan extends Component
             //         'cancel' => 0,
             //     ]);
             // }
+        } else {
+            $user = $this->permintaan->user;
+            if ($user) {
+                $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                    (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
+                    '</span> menolak persetujuan Anda dengan keterangan <span class="font-bold">' . $message . '</span>';
+
+
+                Notification::send($user, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+            }
+
+            $this->permintaan->update(['status' => false]);
         }
 
         $this->permintaan->persetujuan()->create([

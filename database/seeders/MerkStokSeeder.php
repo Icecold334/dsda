@@ -18,6 +18,25 @@ class MerkStokSeeder extends Seeder
     public function run(): void
     {
         $faker = Faker::create('id_ID');
+
+        $specialMerk = [
+            'Brother LC' => [
+                'tipe' => ['Black', 'Cyan', 'Magenta', 'Yellow'],
+                'ukuran' => ['538'],
+                'slug' => 'tinta-printer-brother-mfc',
+            ],
+            'Epson' => [
+                'tipe' => ['Black', 'Cyan', 'Magenta', 'Yellow', 'Light Cyan', 'Light Magenta'],
+                'ukuran' => ['664', '673'],
+                'slug' => 'tinta-printer',
+            ],
+            'Epson 008' => [
+                'tipe' => ['Black', 'Cyan', 'Magenta', 'Yellow'],
+                'ukuran' => ['L15160'],
+                'slug' => 'tinta-printer',
+            ],
+        ];
+
         $merkData = [
             'Material' => [
                 'Semen Gresik',
@@ -42,60 +61,57 @@ class MerkStokSeeder extends Seeder
                 'Faber-Castell',
                 'Staedtler',
                 'Joyko',
-                'Brother LC',
-                'Epson',
-                'Epson 008',
             ],
         ];
 
-        // Mapping khusus untuk merek tertentu (Brother LC, Epson, Epson 008)
-        $specialMerk = [
-            'Brother LC' => [
-                'tipe' => ['Black', 'Cyan', 'Magenta', 'Yellow'],
-                'ukuran' => ['538'],
-                'slug' => 'tinta-printer-brother-mfc',
-            ],
-            'Epson' => [
-                'tipe' => ['Black', 'Cyan', 'Magenta', 'Yellow', 'Light Cyan', 'Light Magenta'],
-                'ukuran' => ['664', '673'],
-                'slug' => 'tinta-printer',
-            ],
-            'Epson 008' => [
-                'tipe' => ['Black', 'Cyan', 'Magenta', 'Yellow'],
-                'ukuran' => ['L15160'],
-                'slug' => 'tinta-printer',
-            ],
-        ];
-
-        // Ambil semua barang dari tabel BarangStok
+        // Ambil daftar barang
         $barangList = BarangStok::all();
 
-        // Ambil barang_id dari kategori_id 123
         $barangDariKategori123 = BarangStok::where('kategori_id', 123)->pluck('id')->toArray();
 
         foreach ($barangList as $barang) {
-            // Tentukan merek berdasarkan jenis barang (gunakan fallback jika tidak ditemukan)
             $jenisBarang = $barang->jenisStok->nama;
-            $merkList = $merkData[$jenisBarang] ?? ['Generic'];
 
-            // Jumlah merek untuk setiap barang (3 hingga 8 merek)
-            $numMerkForBarang = rand(3, 8);
+            // **Cek apakah barang adalah tinta berdasarkan slug**
+            $isTinta = collect($specialMerk)->pluck('slug')->contains($barang->slug);
 
-            foreach (range(1, $numMerkForBarang) as $i) {
-                // Pilih merek secara acak
-                $merkName = $faker->randomElement($merkList);
+            if ($isTinta) {
+                // 🚫 **Hanya gunakan special merk untuk tinta**
+                foreach ($specialMerk as $merkName => $details) {
+                    if ($barang->slug === $details['slug']) {
+                        // ✅ **Ambil semua kombinasi tipe dan ukuran**
+                        foreach ($details['tipe'] as $tipe) {
+                            foreach ($details['ukuran'] as $ukuran) {
+                                // ✅ **Pengecekan kombinasi lengkap nama + tipe + ukuran**
+                                $existingMerk = MerkStok::where('barang_id', $barang->id)
+                                    ->where('nama', $merkName)
+                                    ->where('tipe', $tipe)
+                                    ->where('ukuran', $ukuran)
+                                    ->exists();
 
-                if (isset($specialMerk[$merkName])) {
-                    // Gunakan nilai khusus untuk Brother LC, Epson, dan Epson 008
-                    $tipe = $faker->randomElement($specialMerk[$merkName]['tipe']);
-                    $ukuran = $faker->randomElement($specialMerk[$merkName]['ukuran']);
+                                // ➡️ Jika kombinasi belum ada → Simpan ke database
+                                if (!$existingMerk) {
+                                    MerkStok::create([
+                                        'barang_id' => $barang->id,
+                                        'nama' => $merkName,
+                                        'tipe' => $tipe,
+                                        'ukuran' => $ukuran,
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                // **Untuk barang non-tinta, gunakan merk umum**
+                $merkList = $merkData[$jenisBarang] ?? ['Generic'];
 
-                    // Cek apakah ada slug yang valid untuk mendapatkan barang_id
-                    $barangId = isset($specialMerk[$merkName]['slug'])
-                        ? BarangStok::where('slug', $specialMerk[$merkName]['slug'])->value('id')
-                        : null;
-                } else {
-                    // Gunakan nilai acak untuk merek lainnya
+                // Jumlah merek untuk setiap barang (3 hingga 8 merek)
+                $numMerkForBarang = rand(3, 8);
+
+                foreach (range(1, $numMerkForBarang) as $i) {
+                    $merkName = $faker->randomElement($merkList);
+
                     $tipe = $faker->optional()->randomElement([
                         'Standard',
                         'Premium',
@@ -103,6 +119,7 @@ class MerkStokSeeder extends Seeder
                         'Profesional',
                         'Khusus',
                     ]);
+
                     $ukuran = $faker->optional()->randomElement([
                         $faker->numberBetween(5, 50) . ' cm',
                         $faker->numberBetween(1, 10) . ' m',
@@ -113,22 +130,31 @@ class MerkStokSeeder extends Seeder
                         $faker->numberBetween(1, 50) . ' kg',
                     ]);
 
-                    // Ambil barang_id dari kategori 123 jika tersedia
-                    $barangId = !empty($barangDariKategori123) ? $faker->randomElement($barangDariKategori123) : $barang->id;
-                }
+                    $barangId = !empty($barangDariKategori123)
+                        ? $faker->randomElement($barangDariKategori123)
+                        : $barang->id;
 
-                // Jika barang_id masih null (tidak ditemukan di database), lewati iterasi ini
-                if (!$barangId) {
-                    continue;
-                }
+                    if (!$barangId) {
+                        continue;
+                    }
 
-                // Simpan ke database
-                MerkStok::create([
-                    'barang_id' => $barangId,
-                    'nama' => $merkName,
-                    'tipe' => $tipe,
-                    'ukuran' => $ukuran,
-                ]);
+                    // ✅ **Pengecekan kombinasi nama + tipe + ukuran**
+                    $existingMerk = MerkStok::where('barang_id', $barangId)
+                        ->where('nama', $merkName)
+                        ->where('tipe', $tipe)
+                        ->where('ukuran', $ukuran)
+                        ->exists();
+
+                    // ➡️ Jika kombinasi belum ada → Simpan ke database
+                    if (!$existingMerk) {
+                        MerkStok::create([
+                            'barang_id' => $barangId,
+                            'nama' => $merkName,
+                            'tipe' => $tipe,
+                            'ukuran' => $ukuran,
+                        ]);
+                    }
+                }
             }
         }
     }

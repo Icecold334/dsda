@@ -675,6 +675,34 @@ class UnitSeeder extends Seeder
 
                 $this->bagianSeed($lokasi);
             }
+            // Tambahkan Gudang Umum jika unit adalah Sekretariat dan punya anak Subbagian Umum
+            if ($unit->nama === 'Sekretariat') {
+                $subbagianUmum = $unit->children()->where('nama', 'Subbagian Umum')->first();
+
+                if ($subbagianUmum) {
+                    $lokasiUmum = LokasiStok::create([
+                        'unit_id' => $subbagianUmum->id,
+                        'nama' => 'Gudang Umum',
+                        'slug' => Str::slug('Gudang Umum'),
+                        'alamat' => $this->faker->address,
+                    ]);
+
+                    // Buat user dengan role Penerima Barang di Gudang Umum
+                    $roleOnce = ['Penerima Barang'];
+                    foreach ($roleOnce as $item) {
+                        User::create([
+                            'email_verified_at' => now(),
+                            'name' => $this->faker->name(),
+                            'unit_id' => $subbagianUmum->id,
+                            'lokasi_id' => $lokasiUmum->id,
+                            'email' => Str::lower(str_replace(' ', '_', $item)) . (User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $item)) . "%")->count() + 1) . "@email.com",
+                            'password' => bcrypt('123'),
+                        ])->roles()->attach(Role::where('name', $item)->first()->id);
+                    }
+
+                    $this->bagianSeed($lokasiUmum);
+                }
+            }
         }
     }
     private function bagianSeed($lokasi)

@@ -64,7 +64,7 @@
                     </tr>
                     @if ($permintaan->status === 0)
                         <tr class="font-semibold">
-                            <td>Keterangan</td>
+                            <td>Note Tidak Disetujui</td>
                             <td>{{ $permintaan->persetujuan->where('status', 0)->last()->keterangan }}</td>
                         </tr>
                     @endif
