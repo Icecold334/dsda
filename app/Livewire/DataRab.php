@@ -19,7 +19,7 @@ class DataRab extends Component
         return Rab::whereHas('user.unitKerja', function ($unit) {
             $unit->where('parent_id', $this->unit_id)
                 ->orWhere('id', $this->unit_id);
-        })->paginate(5);
+        })->orderBy('created_at', 'desc')->paginate(5);
     }
     public function render()
     {

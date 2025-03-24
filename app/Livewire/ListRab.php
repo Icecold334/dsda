@@ -12,9 +12,19 @@ use Livewire\Component;
 class ListRab extends Component
 {
 
-    public $barangs, $dokumenCount, $newBarangId, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
+    public $rab_id, $barangs, $dokumenCount, $newBarangId, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
     public function mount()
     {
+        if ($this->rab_id) {
+            $rab = Rab::find($this->rab_id);
+            foreach ($rab->list as $item) {
+                $this->list[] = [
+                    'id' => $item->id,
+                    'barang' => BarangStok::find($item->barang_id),
+                    'jumlah' => $item->jumlah
+                ];
+            }
+        }
         $this->checkAdd();
         $this->barangs = BarangStok::where('jenis_id', 1)->get();
     }
@@ -32,7 +42,7 @@ class ListRab extends Component
 
     public function checkShow()
     {
-        $this->showRule = true;
+        $this->showRule = count(array_filter($this->dataKegiatan, fn($value) => $value !== null && $value !== '')) === count($this->dataKegiatan);
     }
     public function checkAdd()
     {
@@ -52,7 +62,7 @@ class ListRab extends Component
         $this->dataKegiatan = $data;
         // Cek jika ada nilai yang null atau kosong
 
-        $this->showRule = count(array_filter($this->dataKegiatan, fn($value) => $value !== null && $value !== '')) === count($this->dataKegiatan);
+        $this->checkShow();
     }
 
 

@@ -37,8 +37,21 @@ class RabController extends Controller
      */
     public function show(Rab $rab)
     {
-        //
+        $statusMap = [
+            null => ['label' => 'Diproses', 'color' => 'warning'],
+            0 => ['label' => 'Ditolak', 'color' => 'danger'],
+            1 => ['label' => 'Dibatalkan', 'color' => 'secondary'],
+            2 => ['label' => 'Disetujui', 'color' => 'success'],
+            3 => ['label' => 'Selesai', 'color' => 'primary'],
+        ];
+
+        // Tambahkan properti dinamis ke dalam object
+        $rab->status_teks = $statusMap[$rab->status]['label'] ?? 'Tidak diketahui';
+        $rab->status_warna = $statusMap[$rab->status]['color'] ?? 'gray';
+
+        return view('rab.show', compact('rab'));
     }
+
 
     /**
      * Show the form for editing the specified resource.

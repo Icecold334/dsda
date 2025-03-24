@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('lokasi')->nullable();
             $table->dateTime('mulai')->nullable();
             $table->dateTime('selesai')->nullable();
+            $table->integer('status')->nullable();
+            $table->text('keterangan')->nullable();
             $table->timestamps();
         });
     }

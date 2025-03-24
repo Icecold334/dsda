@@ -4,6 +4,9 @@
             <tr class="text-white uppercase">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[60%] rounded-l-lg">Nama barang</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">estimasi penggunaan</th>
+                @if ($rab_id)
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">telah digunakan</th>
+                @endif
                 <th class="py-3 px-6 bg-primary-950 w-1/12 text-center font-semibold rounded-r-lg "></th>
             </tr>
         </thead>
@@ -23,7 +26,7 @@
                 <td class="py-3 px-6">
                     <div class="flex items-center">
                         <input type="number" wire:model.live="list.{{ $index }}.jumlah" min="1" disabled
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newBarangId?'cursor-not-allowed opacity-50':'' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newBarangId?'cursor-not-allowed':'' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             placeholder="Jumlah">
                         <span
                             class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
@@ -31,6 +34,19 @@
                         </span>
                     </div>
                 </td>
+                @if ($rab_id)
+                <td class="py-3 px-6">
+                    <div class="flex items-center">
+                        <input type="number" wire:model.live="list.{{ $index }}.jumlah" min="1" disabled
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newBarangId?'cursor-not-allowed':'' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Jumlah">
+                        <span
+                            class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
+                            {{ $item['barang']->satuanBesar->nama }}
+                        </span>
+                    </div>
+                </td>
+                @endif
                 <td class="py-3 px-6">
                     @if ($showRule)
                     <button wire:click="removeFromList({{ $index }})"
@@ -41,6 +57,7 @@
                 </td>
             </tr>
             @endforeach
+            @if (!$rab_id)
             @if ($showRule)
             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                 <td class="py-3 px-6 ">
@@ -61,7 +78,7 @@
                 <td class="py-3 px-6">
                     <div class="flex items-center">
                         <input type="number" wire:model.live="newJumlah" min="1" @disabled(!$newBarangId)
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newBarangId?'cursor-not-allowed opacity-50':'' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newBarangId?'cursor-not-allowed':'' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             placeholder="Jumlah">
                         <span
                             class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
@@ -82,6 +99,7 @@
             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                 <td colspan="3" class="text-center text-xl px-3 py-6 font-bold"> Lengkapi Data Kegiatan</td>
             </tr>
+            @endif
             @endif
         </tbody>
     </table>
