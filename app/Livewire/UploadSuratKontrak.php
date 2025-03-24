@@ -17,6 +17,8 @@ class UploadSuratKontrak extends Component
     public $attachments = [];
     public $newAttachments = [];
 
+    public function mount() {}
+
     #[On('saveDokumen')]
     public function saveAttachments($kontrak_id, $isRab = false)
     {

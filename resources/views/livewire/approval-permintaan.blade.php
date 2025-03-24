@@ -14,85 +14,87 @@
 
         <!-- Iterasi dinamis semua role -->
         @foreach ($roleLists as $roleKey => $users)
-            <div>
-                <div class="block font-semibold text-center mb-2 text-gray-900">
-                    {{-- {{ $roleKey }} --}}
-                    {{ ucwords(str_replace('-', ' ', $roleKey)) }}
-                </div>
-                <table class="w-full mt-3">
-                    @foreach ($users as $user)
-                        <tr class="text-sm border-b-2">
-                            <td class="flex justify-between px-3">
-                                <span class="mr-9 {{ $user->id == auth()->id() ? 'font-bold' : '' }}">
-                                    {{ $user->name }}
-                                </span>
-                                {{-- @dump($user->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)) --}}
-                                <i
-                                    class="my-1 fa-solid {{ is_null(
-                                        optional($user->{"persetujuan{$tipe}"}->where('detail_' . Str::lower($tipe) . '_id', $permintaan->id ?? 0)->first())->status,
-                                    )
-                                        ? 'fa-circle-question text-secondary-600'
-                                        : (optional(
-                                            $user->{"persetujuan{$tipe}"}->where('detail_' . Str::lower($tipe) . '_id', $permintaan->id ?? 0)->first(),
-                                        )->status
-                                            ? 'fa-circle-check text-success-500'
-                                            : 'fa-circle-xmark text-danger-500') }}">
-                                </i>
-
-                            </td>
-                        </tr>
-                    @endforeach
-                </table>
+        <div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">
+                {{-- {{ $roleKey }} --}}
+                {{ ucwords(str_replace('-', ' ', $roleKey)) }}
             </div>
+            <table class="w-full mt-3">
+                @foreach ($users as $user)
+                <tr class="text-sm border-b-2">
+                    <td class="flex justify-between px-3">
+                        <span class="mr-9 {{ $user->id == auth()->id() ? 'font-bold' : '' }}">
+                            {{ $user->name }}
+                        </span>
+                        {{-- @dump($user->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0))
+                        --}}
+                        <i class="my-1 fa-solid {{ is_null(
+                                        optional($user->{" persetujuan{$tipe}"}->where('detail_' . Str::lower($tipe) .
+                            '_id', $permintaan->id ?? 0)->first())->status,
+                            )
+                            ? 'fa-circle-question text-secondary-600'
+                            : (optional(
+                            $user->{"persetujuan{$tipe}"}->where('detail_' . Str::lower($tipe) . '_id', $permintaan->id
+                            ?? 0)->first(),
+                            )->status
+                            ? 'fa-circle-check text-success-500'
+                            : 'fa-circle-xmark text-danger-500') }}">
+                        </i>
+
+                    </td>
+                </tr>
+                @endforeach
+            </table>
+        </div>
         @endforeach
     </div>
 
     <!-- Tombol aksi -->
     @if ($showButton)
-        <div class="flex">
-            <div class="flex space-x-2 justify-center w-full">
-                {{-- @if ($isLastUser) --}}
-                {{-- <div class="flex flex-col items-center">
-                    <input type="file" wire:model="newApprovalFiles" id="approvalFiles" multiple class="hidden">
-                    <button type="button" onclick="document.getElementById('approvalFiles').click()"
-                        class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
-                        Unggah File Persetujuan
-                    </button>
-                    @error('approvalFiles.*')
-                        <span class="text-red-500 text-xs">{{ $message }}</span>
-                    @enderror
-                </div> --}}
-                {{-- @endif --}}
-                <button type="button" onclick="confirmApprove()"
-                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                    Setuju
+    <div class="flex">
+        <div class="flex space-x-2 justify-center w-full">
+            {{-- @if ($isLastUser) --}}
+            {{-- <div class="flex flex-col items-center">
+                <input type="file" wire:model="newApprovalFiles" id="approvalFiles" multiple class="hidden">
+                <button type="button" onclick="document.getElementById('approvalFiles').click()"
+                    class="text-primary-700 bg-gray-200 border text-center border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                    Unggah File Persetujuan
                 </button>
-                @if ($showButtonApproval)
-                    <button type="button" onclick="confirmReject()"
-                        class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                        Tidak Setuju
-                    </button>
-                @endif
-            </div>
+                @error('approvalFiles.*')
+                <span class="text-red-500 text-xs">{{ $message }}</span>
+                @enderror
+            </div> --}}
+            {{-- @endif --}}
+            <button type="button" onclick="confirmApprove()"
+                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                Setuju
+            </button>
+            @if ($showButtonApproval)
+            <button type="button" onclick="confirmReject()"
+                class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                Tidak Setuju
+            </button>
+            @endif
         </div>
+    </div>
     @endif
     @if ($isPenulis && $showCancelOption && is_null($permintaan->cancel))
-        <div class="flex justify-center">
-            <button type="button" onclick="confirmCompletion()"
-                class="text-green-900 bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                Lanjutkan
-            </button>
-            <button type="button" onclick="confirmCancellation()"
-                class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                Batalkan
-            </button>
-        </div>
+    <div class="flex justify-center">
+        <button type="button" onclick="confirmCompletion()"
+            class="text-green-900 bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+            Lanjutkan
+        </button>
+        <button type="button" onclick="confirmCancellation()"
+            class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+            Batalkan
+        </button>
+    </div>
     @endif
 </div>
 
 @push('scripts')
-    <script>
-        function confirmApprove() {
+<script>
+    function confirmApprove() {
             Swal.fire({
                 title: 'Konfirmasi Persetujuan',
                 text: 'Apakah Anda yakin ingin menyetujui permintaan ini?',
@@ -131,12 +133,12 @@
                 }
             });
         }
-    </script>
+</script>
 @endpush
 
 @push('scripts')
-    <script>
-        function confirmCompletion() {
+<script>
+    function confirmCompletion() {
             Swal.fire({
                 title: 'Konfirmasi',
                 text: "Apakah Anda yakin ingin menyelesaikan permintaan ini?",
@@ -180,5 +182,5 @@
                 }
             });
         }
-    </script>
+</script>
 @endpush

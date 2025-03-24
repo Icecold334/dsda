@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\MerkStok;
+use App\Models\Persetujuan as Approval;
+
 use App\Models\LampiranRab;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,5 +34,9 @@ class Rab extends Model
     public function lampiran()
     {
         return $this->hasMany(LampiranRab::class, 'rab_id');
+    }
+    public function persetujuan()
+    {
+        return $this->morphMany(Approval::class, 'approvable');
     }
 }

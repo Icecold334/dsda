@@ -89,6 +89,7 @@
     <div class="col-span-2">
       <x-card title="daftar permintaan">
         <livewire:list-rab :rab_id='$rab->id'>
+          <livewire:approval-rab :rab='$rab'>
       </x-card>
     </div>
   </div>
