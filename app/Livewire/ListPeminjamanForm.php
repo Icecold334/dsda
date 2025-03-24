@@ -49,6 +49,7 @@ class ListPeminjamanForm extends Component
     public $newDokumen; // Input for new dokumen
     public $showAdd; // Input for new dokumen
     public $requestIs;
+    public $newFoto;
     public $barangSuggestions = []; // Suggestions for barang
     public $assetSuggestions = [];
     public $asets = [];
@@ -101,6 +102,10 @@ class ListPeminjamanForm extends Component
             'aset_name' => Aset::find($this->newAsetId)->nama,
             'aset_merk' => Aset::find($this->newAsetId)->merk->nama,
             'aset_noseri' => Aset::find($this->newAsetId)->noseri,
+            'foto' => Aset::find($this->newAsetId)?->foto
+                ? asset('storage/asetImg/' . Aset::find($this->newAsetId)->foto)
+                : asset('img/default-pic-thumb.png'),
+
             'waktu_id' => $this->newWaktu,
             'waktu' => WaktuPeminjaman::find($this->newWaktu),
             'jumlah' => $this->newJumlah,
@@ -336,6 +341,9 @@ class ListPeminjamanForm extends Component
                     'jumlah_peserta' => $value->jumlah_orang,
                     'keterangan' => $value->deskripsi,
                     'img' => $value->img,
+                    'foto' => Aset::find($value->aset_id)?->foto
+                        ? asset('storage/asetImg/' . Aset::find($value->aset_id)?->foto)
+                        : asset('img/default-pic.png'),
                     'fix' => $this->tipe == 'Ruangan' ? $value->approved_aset_id && $value->approved_waktu_id : ($this->tipe == 'KDO' ? $value->approved_aset_id : $value->approved_aset_id && $value->approved_waktu_id && $value->jumlah_approve)
                 ];
             }
@@ -354,11 +362,18 @@ class ListPeminjamanForm extends Component
         $this->tanggal_peminjaman = Carbon::now()->format('Y-m-d');
     }
 
+
     public $availHours;
 
     public function updatedNewAsetId()
     {
-        $selectedAsetId = $this->newAsetId;
+        $selectedAset = Aset::find($this->newAsetId);
+
+        // Pastikan aset tidak null sebelum mengakses properti 'foto'
+        $this->newFoto = $selectedAset?->foto
+            ? asset('storage/asetImg/' . $selectedAset->foto)
+            : asset('img/default-pic-thumb.png');
+
         // Ambil waktu yang telah di-booking untuk aset yang dipilih pada hari ini
         // $bookedTimes = PeminjamanAset::where('aset_id', $selectedAsetId)
         //     ->whereHas('detailPeminjaman', function ($query) {

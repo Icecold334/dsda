@@ -12,6 +12,7 @@
                                 {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }} Disetujui</th>
                         @endif
                         @if ($tipe == 'Peralatan Kantor')
+                            <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">Foto</th>
                             <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">peminjaman</th>
                             @if (!$showNew)
                                 <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold ">peminjaman
@@ -25,9 +26,6 @@
                         @endif
                         @if ($tipe == 'KDO' || $tipe == 'Ruangan')
                             <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jumlah Orang</th>
-                        @endif
-                        @if ($tipe == 'Peralatan Kantor')
-                            <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">keterangan</th>
                         @endif
                         @if ($tipe == 'Ruangan')
                             <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">Undangan</th>
@@ -43,7 +41,7 @@
                                     class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     disabled>
                                     <option value="{{ $item['aset_id'] }}" selected>
-                                        {{ $tipe == 'Peralatan Kantor' || $tipe == 'KDO'
+                                        {{ $tipe == 'KDO'
                                             ? $item['aset_merk'] . ' ' . $item['aset_name'] . ' - ' . $item['aset_noseri']
                                             : ($tipe == 'Ruangan'
                                                 ? $item['aset_name']
@@ -62,7 +60,7 @@
                                         </option>
                                         @foreach ($asets as $asets)
                                             <option value="{{ $asets->id }}">
-                                                {{ $tipe == 'Peralatan Kantor' || $tipe == 'KDO' ? $asets->merk->nama . ' ' . $asets->nama . ' - ' . $asets->noseri : $asets->nama }}
+                                                {{ $tipe == 'KDO' ? $asets->merk->nama . ' ' . $asets->nama . ' - ' . $asets->noseri : $asets->nama }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -72,6 +70,36 @@
                                 </td>
                             @endif
                             @if ($tipe == 'Peralatan Kantor')
+                                <td class="py-2 px-4 items-center">
+                                    <div x-data="{ open: false, imgSrc: '{{ $item['foto'] ?? asset('img/default-pic-thumb.png') }}' }" class="flex justify-center items-center">
+
+                                        <!-- Thumbnail Gambar -->
+                                        <div class="w-20 h-20 overflow-hidden flex justify-center items-center p-1 border-2 rounded-lg bg-white cursor-pointer"
+                                            @click="open = true; imgSrc = '{{ $item['foto'] ?? asset('img/default-pic-thumb.png') }}'">
+                                            <img class="w-full h-full object-cover object-center rounded-sm"
+                                                src="{{ $item['foto'] ?? asset('img/default-pic-thumb.png') }}"
+                                                alt="Preview Aset"
+                                                onerror="this.src='{{ asset('img/default-pic-thumb.png') }}'">
+                                        </div>
+
+                                        <!-- Modal -->
+                                        <div x-show="open" x-transition:enter="transition ease-out duration-300"
+                                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                            x-transition:leave="transition ease-in duration-300"
+                                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                                            class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[9999]"
+                                            @click="open = false" @keydown.escape.window="open = false">
+
+                                            <!-- Container Gambar Modal -->
+                                            <div
+                                                class="p-2 bg-white rounded-lg shadow-lg max-w-[90vw] max-h-[90vh] overflow-hidden">
+                                                <img :src="imgSrc"
+                                                    class="max-w-full max-h-[80vh] object-contain rounded-lg"
+                                                    alt="Preview Gambar">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td class="py-3 px-6">
                                     <input type="number" value="{{ $item['jumlah'] }}" min="1" disabled
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
@@ -190,6 +218,27 @@
                                 @enderror
                             </td>
                             @if ($tipe == 'Peralatan Kantor')
+                                <td class="py-2 px-4">
+                                    <div x-data="{ open: false, imgSrc: '' }" class="flex justify-center items-center">
+                                        <!-- Gambar Thumbnail -->
+                                        <div class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white cursor-pointer"
+                                            @click="open = true; imgSrc = '{{ $newFoto ?? asset('img/default-pic-thumb.png') }}'">
+                                            <img class="w-full h-full object-cover object-center rounded-sm"
+                                                src="{{ $newFoto ?? asset('img/default-pic-thumb.png') }}"
+                                                alt="">
+                                        </div>
+
+                                        <!-- Modal -->
+                                        <div x-show="open" x-transition:enter="transition ease-out duration-300"
+                                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                            x-transition:leave="transition ease-in duration-300"
+                                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                                            class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                                            @click="open = false" @keydown.escape.window="open = false">
+                                            <img :src="imgSrc" class="w-60 h-60 object-cover object-center">
+                                        </div>
+                                    </div>
+                                </td>
                                 <td class="py-3 px-6">
                                     <input type="number" wire:model.live="newJumlah" min="1"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
@@ -261,7 +310,7 @@
                                     } elseif ($tipe == 'KDO') {
                                         $show = $newAsetId && $newWaktu && $newPeserta;
                                     } else {
-                                        $show = $newAsetId && $newWaktu && $newJumlah && $newKeterangan;
+                                        $show = $newAsetId && $newWaktu && $newJumlah;
                                     }
                                 @endphp
                                 @if ($show)
