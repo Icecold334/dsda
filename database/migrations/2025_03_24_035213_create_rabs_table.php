@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ruangs', function (Blueprint $table) {
+        Schema::create('rab', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users');
-            $table->string('nama');
-            $table->string('slug');
-            $table->foreignId('pj_id')->nullable()->constrained('users');
+            $table->foreignId('user_id')->constrained('users');
+            $table->string('nama')->nullable();
+            $table->text('lokasi')->nullable();
+            $table->dateTime('mulai')->nullable();
+            $table->dateTime('selesai')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Schema::dropIfExists('ruangs');
+        Schema::dropIfExists('rabs');
     }
 };

@@ -54,6 +54,7 @@ use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\PengaturanPersetujuanController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
+use App\Http\Controllers\RabController;
 use App\Http\Controllers\RuangController;
 use App\Models\DetailPermintaanStok;
 
@@ -207,6 +208,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'transaksi-darurat-stok' => TransaksiDaruratStokController::class,
         'kontrak-retrospektif-stok' => KontrakRetrospektifStokController::class,
         'stok' => StokController::class,
+        'rab' => RabController::class,
         'permintaan-stok' => PermintaanStokController::class,
     ]);
 });

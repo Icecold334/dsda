@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ruangs', function (Blueprint $table) {
+        Schema::create('lampiran_rab', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users');
-            $table->string('nama');
-            $table->string('slug');
-            $table->foreignId('pj_id')->nullable()->constrained('users');
+            $table->string('path');
+            $table->foreignId('rab_id')->constrained('rab');
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Schema::dropIfExists('ruangs');
+        Schema::dropIfExists('lampiran_rabs');
     }
 };

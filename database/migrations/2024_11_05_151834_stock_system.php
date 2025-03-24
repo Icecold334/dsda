@@ -353,7 +353,7 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('unit_kerja');
+        // Schema::dropIfExists('unit_kerja');
 
         Schema::dropIfExists('persetujuan_permintaan_stok');
         Schema::dropIfExists('detail_permintaan_stok');
