@@ -58,4 +58,8 @@ class DetailPermintaanStok extends Model
     {
         return $this->belongsTo(Aset::class, 'aset_id');
     }
+    public function rab()
+    {
+        return $this->belongsTo(Rab::class, 'rab_id');
+    }
 }

@@ -2,7 +2,7 @@
     <div class="flex w-full justify-evenly border-t-4 py-6">
         <!-- Penulis -->
         <div>
-            <div class="block font-semibold text-center mb-2 text-gray-900">Penulis</div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">Pemohon</div>
             <div class="text-sm border-b-2">
                 <div class="flex justify-between px-3">
                     <span class="mr-9 {{ $penulis->id == auth()->id() ? 'font-bold' : '' }}">
@@ -29,7 +29,8 @@
                         {{-- @dump($user->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0))
                         --}}
                         <i class="my-1 fa-solid {{ is_null(
-                                        optional($user->{" persetujuan{$tipe}"}->where('detail_' . Str::lower($tipe) .
+                                        optional(
+                                        $user->{"persetujuan{$tipe}"}?->where('detail_' . Str::lower($tipe) .
                             '_id', $permintaan->id ?? 0)->first())->status,
                             )
                             ? 'fa-circle-question text-secondary-600'

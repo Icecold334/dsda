@@ -155,8 +155,12 @@ class DatabaseSeeder extends Seeder
                 $posisi = PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first();
             }
 
+            // $merk = MerkStok::whereHas('barangStok', function ($query) {
+            //     $query->whereIn('kategori_id', [1, 2, 3, 6]);
+            // })->inRandomOrder()->first();
+
             $merk = MerkStok::whereHas('barangStok', function ($query) {
-                $query->whereIn('kategori_id', [1, 2, 3, 6]);
+                $query->jenis_id = 1;
             })->inRandomOrder()->first();
 
             if ($merk) {

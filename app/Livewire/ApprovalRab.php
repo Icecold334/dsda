@@ -57,7 +57,7 @@ class ApprovalRab extends Component
             })
                 ->where(function ($query) {
                     $query->whereHas('unitKerja', function ($subQuery) {
-                        $subQuery->where('parent_id', $this->rab->user->unit_id)->orWhere('id', $this->rab->user->unit_id);
+                        $subQuery->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                     });
                 })
                 ->where(function ($query) {

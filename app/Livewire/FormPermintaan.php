@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Carbon\Carbon;
+use App\Models\Rab;
 use App\Models\Aset;
 use App\Models\Ruang;
 use BaconQrCode\Writer;
@@ -19,10 +20,10 @@ use Illuminate\Support\Facades\Storage;
 
 class FormPermintaan extends Component
 {
-    public $permintaan;
+    public $permintaan, $kategori;
     public $units;
     public $last;
-    public $unit_id;
+    public $unit_id, $rab_id, $rabs;
     public $kategoris;
     public $kategori_id;
     public $tipePeminjaman;
@@ -63,6 +64,10 @@ class FormPermintaan extends Component
     public function updatedKategoriId()
     {
         $this->dispatch('kategori_id', kategori_id: $this->kategori_id);
+    }
+    public function updatedRabId()
+    {
+        $this->dispatch('rab_id', rab_id: $this->rab_id);
     }
     public function updatedTanggalPermintaan()
     {
@@ -115,7 +120,7 @@ class FormPermintaan extends Component
     public function mount()
     {
         $kategori = Request::segment(4);
-        // dd($kategori);
+        $this->kategori = $kategori;
         // dd($this->last);
         // 2024 - 12 - 04
         if ($this->last) {
@@ -233,6 +238,11 @@ class FormPermintaan extends Component
             $this->dispatch('tanggal_masuk', tanggal_masuk: $this->tanggal_masuk);
             $this->dispatch('tanggal_keluar', tanggal_keluar: $this->tanggal_keluar);
         }
+
+        $this->rabs = Rab::where('status',2)->whereHas('user.unitKerja', function ($unit) {
+            $unit->where('parent_id', $this->unit_id)
+                ->orWhere('id', $this->unit_id);
+        })->orderBy('created_at', 'desc')->get();
     }
 
 

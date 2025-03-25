@@ -4,7 +4,7 @@
             {{ $tipe === null ? 'Pelayanan Umum' : ($tipe == 'spare-part' ? 'Permintaan Spare Part' : 'Permintaan Material') }}
             @if (auth()->user()->unitKerja)
                 {{-- {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama : auth()->user()->unitKerja->nama }} --}}
-                {{ auth()->user()->unitKerja->nama }}
+                {{-- {{ auth()->user()->unitKerja->nama }} --}}
             @endif
         </h1>
         <div>
