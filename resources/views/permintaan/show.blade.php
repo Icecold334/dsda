@@ -122,6 +122,85 @@
                         <td>Keterangan</td>
                         <td>{{ $permintaan->keterangan ?? '---' }}</td>
                     </tr>
+                    @dump($permintaan->kategori_id, $tipe)
+                    @if ($permintaan->kategori_id == 1 && $tipe == 'peminjaman')
+                        <tr class="font-semibold">
+                            <td colspan="2" class="py-2">Syarat dan Ketentuan KDO</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">1.</td>
+                            <td>Harap menjaga kebersihan KDO dan memastikan tidak ada sampah yang tertinggal di dalam
+                                mobil.</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">2.</td>
+                            <td>Mohon informasikan ke kontak CS apabila penggunaan KDO sudah selesai.</td>
+                        </tr>
+                    @elseif($tipe == 'peminjaman' && $permintaan->kategori_id == 2)
+                        <tr class="font-semibold">
+                            <td colspan="2" class="py-2">Syarat dan Ketentuan Peminjaman Ruang Rapat</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">1.</td>
+                            <td>Peminjaman ruang rapat bidang via form, hanya untuk peminjaman lintas bidang/unit.</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">2.</td>
+                            <td>Jika bidangnya sendiri yang pakai ruang rapat, tidak perlu isi form.</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">3.</td>
+                            <td>Harap memastikan terjaganya kebersihan ruang rapat (tidak ada sampah, kursi dan meja
+                                dirapihkan ke posisi semula, papan tulis harus dibersihkan).</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">4.</td>
+                            <td>Harap infokan ke kontak CS apabila penggunaan ruang rapat sudah selesai.</td>
+                        </tr>
+                    @elseif($tipe == 'permintaan' && $permintaan->kategori_id == 4)
+                        <tr class="font-semibold">
+                            <td colspan="2" class="py-2">Syarat dan Ketentuan Permintaan Konsumsi Rapat</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">1.</td>
+                            <td>Pemesan wajib menyiapkan administrasi kelengkapan SPJ (absensi asli, notulen asli dan
+                                foto kegiatan)
+                                dan harus diserahkan ke Subbag Umum Maksimal 2 (dua) hari setelah kegiatan selesai
+                                dilaksanakan.</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">2.</td>
+                            <td>Apabila administrasi SPJ lewat dari 2 (dua) hari, maka permintaan selanjutnya tidak bisa
+                                diproses
+                                sampai administrasi SPJ diserahkan ke Subbag Umum.</td>
+                        </tr>
+                    @elseif($tipe == 'permintaan' && $permintaan->kategori_id == 6)
+                        <tr class="font-semibold">
+                            <td colspan="2" class="py-2">Syarat dan Ketentuan Permintaan Vocher Carwash</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">1.</td>
+                            <td>Berlaku untuk kendaraan roda 4 berplat merah di lingkungan Dinas Sumber Daya Air
+                                Provinsi DKI Jakarta.</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">2.</td>
+                            <td>Vocher bisa diambil ke CS Umum atau Insan (081386995922).</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">3.</td>
+                            <td>Pengambilan vocher maksimal 2 hari setalah input di form, lewat dari 2 hari maka
+                                dianggap batal dan harus mengajukan ulang.</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">4.</td>
+                            <td>Harap foto kendaraan ketika sedang di cuci.</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-4 align-top text-right">5.</td>
+                            <td>Setelah selesai cuci mobil harap serahkan Bon dari Carwash ke CS Umum atau Insan.</td>
+                        </tr>
+                    @endif
                 </table>
             </x-card>
         </div>
@@ -131,11 +210,21 @@
                     <div class="flex justify-around">
                         <div
                             class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
-                            <a href="{{ route('permintaan.downloadQrImage', $permintaan->id) }}" class="w-full h-full">
-                                <img src="{{ asset($permintaan->kode_permintaan ? 'storage/qr_permintaan/' . $permintaan->kode_permintaan . '.png' : 'img/default-pic.png') }}"
-                                    data-tooltip-target="tooltip-QR" alt="QR Code"
-                                    class="w-full h-full object-cover object-center rounded-sm">
-                            </a>
+                            @if ($tipe == 'peminjaman')
+                                <a href="{{ route('permintaan.downloadQrImage', ['tipe' => 'peminjaman', 'kode' => $permintaan->id]) }}"
+                                    class="w-full h-full">
+                                    <img src="{{ asset($permintaan->kode_peminjaman ? 'storage/qr_peminjaman/' . $permintaan->kode_peminjaman . '.png' : 'img/default-pic.png') }}"
+                                        data-tooltip-target="tooltip-QR" alt="QR Code"
+                                        class="w-full h-full object-cover object-center rounded-sm">
+                                </a>
+                            @else
+                                <a href="{{ route('permintaan.downloadQrImage', ['tipe' => 'permintaan', 'kode' => $permintaan->id]) }}"
+                                    class="w-full h-full">
+                                    <img src="{{ asset($permintaan->kode_permintaan ? 'storage/qr_permintaan/' . $permintaan->kode_permintaan . '.png' : 'img/default-pic.png') }}"
+                                        data-tooltip-target="tooltip-QR" alt="QR Code"
+                                        class="w-full h-full object-cover object-center rounded-sm">
+                                </a>
+                            @endif
                         </div>
                         <div id="tooltip-QR" role="tooltip"
                             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">

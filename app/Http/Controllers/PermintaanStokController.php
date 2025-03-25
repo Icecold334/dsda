@@ -82,11 +82,10 @@ class PermintaanStokController extends Controller
     }
 
 
-    public function downloadQrImage($kode)
+    public function downloadQrImage($tipe, $kode)
     {
         // Generate QR Image
-        // dd($kode);
-        $outputPath = $this->generateQrImage($kode);
+        $outputPath = $this->generateQrImage($tipe, $kode);
         if (!$outputPath) {
             // Jika gambar tidak ditemukan atau gagal generate, kembalikan error
             return redirect()->back()->with('error', 'QR Code tidak ditemukan atau gagal dibuat.');
@@ -95,29 +94,38 @@ class PermintaanStokController extends Controller
         return $outputPath; // Return generated image directly to the browser
     }
 
-    public function generateQrImage($kode)
+    public function generateQrImage($tipe, $kode)
     {
-
-        $asset = DetailPermintaanStok::find($kode);
-        // Ambil aset dan data terkait dari helper
-        $asset = [
-            'id' => $asset->id,
-            'nama' => $asset->kode_permintaan,
-            'systemcode' => $asset->kode_permintaan,
-            'kategori' => $asset->kategori->nama ?? 'Tidak Berkategori',
-            'qr_image' => "storage/qr_permintaan/{$asset->kode_permintaan}.png",
-            'judul' => 'Permintaan',
-            'baris1' => '-',
-            'baris2' => '-',
-        ];
+        // dd($tipe, $kode);
+        if ($tipe === 'peminjaman') {
+            $asset = DetailPeminjamanAset::find($kode);
+            $qrPath = 'storage/qr_peminjaman/' . ($asset->kode_peminjaman ?? '') . '.png';
+            $judul = 'Peminjaman';
+        } else {
+            $asset = DetailPermintaanStok::find($kode);
+            $qrPath = 'storage/qr_permintaan/' . ($asset->kode_permintaan ?? '') . '.png';
+            $judul = 'Permintaan';
+        }
 
         if (!$asset) {
-            return null; // Jika aset tidak ditemukan, return null
+            return null;
         }
+
+        // Siapkan data untuk QR
+        $assetData = [
+            'id' => $asset->id,
+            'nama' => $asset->kode_peminjaman ?? $asset->kode_permintaan,
+            'systemcode' => $asset->kode_peminjaman ?? $asset->kode_permintaan,
+            'kategori' => $asset->kategori->nama ?? 'Tidak Berkategori',
+            'qr_image' => $qrPath,
+            'judul' => $judul,
+            'baris1' => $asset->kode_peminjaman ?? $asset->kode_permintaan,
+            'baris2' => $asset->kategori->nama ?? 'Tidak Berkategori',
+        ];
 
         // Path ke template qrbase dan QR Code
         $qrBasePath = public_path('img/qrbase.png');
-        $qrImagePath = $asset['qr_image'];
+        $qrImagePath = $assetData['qr_image'];
 
         // Periksa apakah file template dan QR Code ada
         if (!file_exists($qrBasePath) || !file_exists($qrImagePath)) {
@@ -187,18 +195,18 @@ class PermintaanStokController extends Controller
         $fontPath_line2 = public_path('fonts/cour.ttf');
 
         // Tambahkan teks: judul dan baris 1, 2
-        $judul = $asset['judul'] ?? 'QR Code Title';
+        $judul = $assetData['judul'] ?? 'QR Code Title';
         $judulX = ($baseWidth - imagettfbbox($fontSize, 0, $fontPath, $judul)[2]) / 2;
         imagettftext($newQrBase, $fontSize, 0, $judulX, $qrY - 15, $white, $fontPath, $judul);
 
         // Baris 1
-        $baris1 = $asset['baris1'] ?? 'Line 1';
+        $baris1 = $assetData['baris1'] ?? 'Line 1';
         $baris1X = ($baseWidth - imagettfbbox($fontSize, 0, $fontPath, $baris1)[2]) / 2;
         imagettftext($newQrBase, $fontSize, 0, $baris1X, $qrY + $qrHeight + $padding, $black, $fontPath_line2, $baris1);
 
         // Baris 2
         $line2Padding = 55;  // Padding untuk baris 2
-        $baris2 = $asset['baris2'] ?? 'Line 2';
+        $baris2 = $assetData['baris2'] ?? 'Line 2';
         $baris2X = ($baseWidth - imagettfbbox($fontSize, 0, $fontPath, $baris2)[2]) / 2;
         imagettftext($newQrBase, $fontSize, 0, $baris2X, $qrY + $qrHeight + $line2Padding, $black, $fontPath, $baris2);
 
@@ -216,7 +224,7 @@ class PermintaanStokController extends Controller
         // Kembalikan gambar sebagai stream untuk diunduh
         return response($imageData)
             ->header('Content-Type', 'image/png')
-            ->header('Content-Disposition', 'attachment; filename="' . $asset['nama'] . '.png"');
+            ->header('Content-Disposition', 'attachment; filename="' . $assetData['nama'] . '.png"');
     }
 
 

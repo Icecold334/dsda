@@ -21,15 +21,21 @@
                     <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA
                         {{ $kategori_id == 4 ? 'Konsumsi' : ($kategori_id == 5 ? 'Tipe Service' : ($kategori_id == 6 ? 'Voucher Carwash' : 'Barang')) }}
                     </th>
-                    @if ($kategori_id != 5)
+                    @if ($kategori_id != 5 && $kategori_id != 6)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH *</th>
                     @endif
                     @if ($kategori_id == 5)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KETERANGAN</th>
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BUKTI KERUSAKAN*</th>
                     @endif
-                    @if (!$showAdd && $kategori_id != 4)
+                    @if ($kategori_id == 6)
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BUKTI*</th>
+                    @endif
+                    @if (!$showAdd && $kategori_id != 4 && $kategori_id != 6)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH disetujui</th>
+                    @endif
+                    @if (!$showAdd && $kategori_id == 6)
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">BUKTI PROSES</th>
                     @endif
                     @if (
                         $requestIs == 'spare-part' ||
@@ -39,14 +45,13 @@
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[10%]"></th>
                     @endif
                     {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th> --}}
-                    <th
-                        class="py-3 px-6 bg-primary-950 w-1/12 text-center font-semibold rounded-r-lg {{ $kategori_id != 4 ? '' : 'hidden' }}">
+                    <th class="py-3 px-6 bg-primary-950 w-1/12 text-center font-semibold rounded-r-lg ">
                     </th>
                 </tr>
             </thead>
             <tbody>
-                {{-- @if ($ruleShow) --}}
-                @if (true)
+                @if ($ruleShow)
+                    {{-- @if (true) --}}
                     @foreach ($list as $index => $item)
                         <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                             <!-- Empty Column -->
@@ -151,7 +156,7 @@
                                 @enderror
                             </td>
 
-                            @if ($kategori_id != 5)
+                            @if ($kategori_id != 5 && $kategori_id != 6)
                                 <td class="py-3 px-6">
                                     <div class="flex items-center">
                                         <input type="number" wire:model.live="list.{{ $index }}.jumlah"
@@ -172,7 +177,9 @@
                                         class="w-full border cursor-not-allowed border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
                                         placeholder="Deskripsikan kerusakan secara detail"></textarea>
                                 </td>
+                            @endif
 
+                            @if ($kategori_id == 5 || $kategori_id == 6)
                                 <td class="px-6 py-3 text-center">
                                     <div class="relative inline-block">
                                         @if (is_string($item['dokumen']))
@@ -192,10 +199,9 @@
                                             <span class="text-gray-500">Bukti tidak valid</span>
                                         @endif
                                     </div>
-
-                                </td>
                             @endif
-                            @if (!$showAdd && $kategori_id != 4)
+                            </td>
+                            @if (!$showAdd && $kategori_id != 4 && $kategori_id != 6)
                                 <td class="py-3 px-6">
                                     <div class="flex items-center">
                                         <input type="number"
@@ -207,6 +213,43 @@
                                             class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
                                             {{ $item['satuan'] }}
                                         </span>
+                                    </div>
+                                </td>
+                            @endif
+                            @if (!$showAdd && $kategori_id == 6)
+                                <td class="px-6 py-3 text-center">
+                                    <div class="relative inline-block">
+                                        @if (is_string($item['img_done']))
+                                            <!-- Jika img_done adalah string (path file) -->
+                                            <div class="relative inline-block">
+                                                <a href="{{ asset('storage/buktikdo/' . $item['img_done']) }}"
+                                                    target="_blank">
+                                                    <img src="{{ asset('storage/buktikdo/' . $item['img_done']) }}"
+                                                        alt="Preview Bukti" class="w-16 h-16 rounded-md">
+                                                </a>
+                                            </div>
+                                        @elseif (is_object($item['img_done']) && method_exists($item['img_done'], 'temporaryUrl'))
+                                            <!-- Jika img_done adalah file upload Livewire -->
+                                            <div class="relative inline-block">
+                                                <a href="{{ $item['img_done']->temporaryUrl() }}" target="_blank">
+                                                    <img src="{{ $item['img_done']->temporaryUrl() }}"
+                                                        alt="Preview Bukti" class="w-16 h-16 rounded-md">
+                                                </a>
+                                                <button wire:click="removeBukti({{ $index }})"
+                                                    class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-xs hover:bg-red-700">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                        @else
+                                            <!-- Jika img_done kosong, tampilkan tombol unggah -->
+                                            <input type="file" wire:model.live="list.{{ $index }}.img_done"
+                                                class="hidden" id="upload-list.{{ $index }}.img_done">
+                                            <button type="button"
+                                                onclick="document.getElementById('upload-list.{{ $index }}.img_done').click()"
+                                                class="text-primary-700 bg-gray-200 border text-sm border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                                Unggah Foto
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
                             @endif
@@ -250,28 +293,60 @@
                                         <i class="fa-solid fa-circle-xmark"></i>
                                     </button>
                                 @else
-                                    @if (isset($item['jumlah_approve']) && $item['jumlah_approve'] > 0)
-                                        <!-- Tombol untuk melihat catatan -->
-                                        <button wire:click="openNoteModal({{ $item['id'] }})"
-                                            class="text-primary-700 border-primary-500 text-sm border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                            Lihat Catatan
+                                    @if (!$kategori_id == 6)
+                                        @if (isset($item['jumlah_approve']) && $item['jumlah_approve'] > 0)
+                                            <!-- Tombol untuk melihat catatan -->
+                                            <button wire:click="openNoteModal({{ $item['id'] }})"
+                                                class="text-primary-700 border-primary-500 text-sm border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                Lihat Catatan
+                                            </button>
+                                        @else
+                                            @can('permintaan_persetujuan_jumlah_barang')
+                                                @if (in_array($item['detail_permintaan_id'], $approvals))
+                                                    <!-- Tombol untuk menyetujui -->
+                                                    <button wire:click="openApprovalModal({{ $item['id'] }})"
+                                                        class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                        Detail
+                                                    </button>
+                                                @else
+                                                    <div class="text-sm">Menunggu {{ $approve_after }}</div>
+                                                @endif
+                                            @endcan
+                                        @endif
+                                    @endif
+                                    @if (is_object($item['img_done']) && method_exists($item['img_done'], 'temporaryUrl'))
+                                        <!-- Jika file baru diunggah (Livewire) -->
+                                        <button onclick="confirmItem({{ $index }})"
+                                            class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                            <i class="fa-solid fa-circle-check"></i>
                                         </button>
-                                    @else
-                                        @can('permintaan_persetujuan_jumlah_barang')
-                                            @if (in_array($item['detail_permintaan_id'], $approvals))
-                                                <!-- Tombol untuk menyetujui -->
-                                                <button wire:click="openApprovalModal({{ $item['id'] }})"
-                                                    class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                                    Detail
-                                                </button>
-                                            @else
-                                                <div class="text-sm">Menunggu {{ $approve_after }}</div>
-                                            @endif
-                                        @endcan
                                     @endif
                                 @endif
                             </td>
-
+                            @push('scripts')
+                                <script>
+                                    function confirmItem(index) {
+                                        Swal.fire({
+                                            title: 'Keterangan',
+                                            input: 'textarea',
+                                            inputPlaceholder: 'Masukkan keterangan (Opsional)',
+                                            inputAttributes: {
+                                                'aria-label': 'Masukkan alasan Anda'
+                                            },
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Kirim',
+                                            cancelButtonText: 'Batal',
+                                            preConfirm: (inputValue) => {
+                                                return inputValue; // Allows submission
+                                            }
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                @this.call('doneItem', index, result.value);
+                                            }
+                                        });
+                                    }
+                                </script>
+                            @endpush
 
                         </tr>
                     @endforeach
@@ -396,7 +471,7 @@
                                 @enderror
                             </td>
 
-                            @if ($kategori_id != 5)
+                            @if ($kategori_id != 5 && $kategori_id != 6)
                                 <td class="py-3 px-6">
                                     <div class="flex items-center">
                                         <input type="number" wire:model.live="newJumlah" min="1"
@@ -415,6 +490,8 @@
                                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
                                         placeholder="Deskripsikan kerusakan secara detail"></textarea>
                                 </td>
+                            @endif
+                            @if ($kategori_id == 5 || $kategori_id == 6)
                                 <td class="px-6 py-3 text-center">
                                     @if ($newDokumen)
                                         <div class="relative inline-block">

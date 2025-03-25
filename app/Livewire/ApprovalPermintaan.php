@@ -41,6 +41,7 @@ class ApprovalPermintaan extends Component
     public $listApproval;
     public $showButton;
     public $kategori;
+    public $kepalaPemohon;
 
     public function mount()
     {
@@ -138,6 +139,31 @@ class ApprovalPermintaan extends Component
         // dd($this->userApproval);
         $this->showButtonApproval = in_array(1, $this->userApproval);
         // dd($this->currentApprovalIndex);
+
+        $pemohon = $this->permintaan->user; // User yang membuat permintaan
+
+        if ($pemohon->hasRole('Kepala Unit')) {
+            // Jika pemohon adalah Kepala Unit, maka tidak ada atasan di atasnya
+            $this->kepalaPemohon = null;
+        } elseif ($pemohon->hasRole('Kepala Subbagian')) {
+            // Jika pemohon adalah Kepala Subbagian, maka cari Kepala Unit di atasnya
+            $this->kepalaPemohon = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Kepala Unit');
+            })
+                ->where(function ($query) use ($pemohon) {
+                    $query->where('unit_id', $pemohon->unitKerja->parent_id);
+                })
+                ->first();
+        } else {
+            // Jika pemohon adalah staf, maka cari Kepala Subbagian di unit kerja pemohon
+            $this->kepalaPemohon = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Kepala Subbagian');
+            })
+                ->where(function ($query) use ($pemohon) {
+                    $query->where('unit_id', $pemohon->unit_id);
+                })
+                ->first();
+        }
     }
 
     public function markAsCompleted()

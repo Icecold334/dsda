@@ -261,6 +261,8 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
             $table->text('catatan')->nullable();
             $table->string('img')->nullable();
+            $table->string('img_done')->nullable();
+            $table->string('catatan_done')->nullable();
             $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
             $table->integer('jumlah');
             $table->integer('jumlah_approve')->nullable();

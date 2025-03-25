@@ -2,13 +2,27 @@
     <div class="flex w-full justify-evenly border-t-4 py-6">
         <!-- Penulis -->
         <div>
-            <div class="block font-semibold text-center mb-2 text-gray-900">Penulis</div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">Pemohon</div>
             <div class="text-sm border-b-2">
                 <div class="flex justify-between px-3">
                     <span class="mr-9 {{ $penulis->id == auth()->id() ? 'font-bold' : '' }}">
                         {{ false ? 'Anda' : $penulis->name }}
                     </span>
                 </div>
+            </div>
+        </div>
+        <div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">Kepala Pemohon</div>
+            <div class="text-sm border-b-2">
+                <div class="flex justify-between items-center">
+                    <span class="mr-2">
+                        {{ $kepalaPemohon ? $kepalaPemohon->name : 'Tidak Ada Kepala' }}
+                    </span>
+                    @if ($kepalaPemohon)
+                        <i class="fa-solid fa-circle-check text-success-500"></i>
+                    @endif
+                </div>
+
             </div>
         </div>
 

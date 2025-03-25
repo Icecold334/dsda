@@ -461,7 +461,6 @@ class UnitSeeder extends Seeder
 
             // Daftar role yang HARUS digunakan untuk jenis 'umum' dalam urutan tetap
             $rolePriorityForUmum = [
-                'Kepala Unit',
                 'Customer Services',
                 'Penanggung Jawab',
                 'Kepala Subbagian'
@@ -511,8 +510,8 @@ class UnitSeeder extends Seeder
                     'jenis' => $jenis,
                     'tipe' => $tipe,
                     'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
-                    'urutan_persetujuan' => 2, // Urutan persetujuan pertama
-                    'cancel_persetujuan' => 3, // Urutan pembatalan kedua
+                    'urutan_persetujuan' => 1, // Urutan persetujuan pertama
+                    'cancel_persetujuan' => 2, // Urutan pembatalan kedua
                     'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
                 ]);
 
@@ -537,7 +536,6 @@ class UnitSeeder extends Seeder
         $tipe = 'peminjaman'; // Tipe permintaan
 
         $rolePriorityForPeminjaman = [
-            'Kepala Unit',
             'Customer Services',
             'Penanggung Jawab',
             'Kepala Subbagian'
@@ -591,8 +589,8 @@ class UnitSeeder extends Seeder
                     'jenis' => $jenis,
                     'tipe' => $tipe,
                     'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
-                    'urutan_persetujuan' => 2, // Urutan persetujuan pertama
-                    'cancel_persetujuan' => 3, // Urutan pembatalan kedua
+                    'urutan_persetujuan' => 1, // Urutan persetujuan pertama
+                    'cancel_persetujuan' => 2, // Urutan pembatalan kedua
                     'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
                 ]);
 

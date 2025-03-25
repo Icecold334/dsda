@@ -128,7 +128,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/aset/export', [AsetController::class, 'exportExcel'])->name('aset.export');
     Route::get('/aset/{id}/export-pdf', [AsetController::class, 'exportPdf'])->name('aset.export-pdf');
     Route::get('/aset/downlaod-qr/{assetId}', [AsetController::class, 'downloadQrImage'])->name('aset.downloadQrImage');
-    Route::get('/permintaan/downlaod-qr/{kode}', [PermintaanStokController::class, 'downloadQrImage'])->name('permintaan.downloadQrImage');
+    Route::get('/permintaan/downlaod-qr/{tipe}/{kode}', [PermintaanStokController::class, 'downloadQrImage'])->name('permintaan.downloadQrImage');
     Route::resource('aset', AsetController::class);
     Route::put('/aset/{id}/nonaktif', [AsetController::class, 'nonaktif'])->name('show.nonaktif');
     Route::resource('history', HistoryController::class);

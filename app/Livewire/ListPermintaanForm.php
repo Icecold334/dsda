@@ -47,6 +47,7 @@ class ListPermintaanForm extends Component
     public $newAlamatLokasi;
     public $newKontakPerson;
     public $newWaktu;
+    public $atasanLangsung;
     public $waktus;
     public $availBarangs;
     public $list = []; // List of items
@@ -69,6 +70,7 @@ class ListPermintaanForm extends Component
     public $NamaKDO;
     public $newDokumen; // Input for new dokumen
     public $newBukti; // Input for new dokumen
+    public $newDone; // Input for new dokumen
     public $barangSuggestions = []; // Suggestions for barang
     public $showApprovalModal = false;
     public $ruleShow;
@@ -449,7 +451,7 @@ class ListPermintaanForm extends Component
                 'catatan' => $item['catatan'] ?? null,
                 'img' => $storedFilePath ?? $storedFilePathBukti ?? null,
                 'barang_id' => $item['barang_id'],
-                'jumlah' => $item['jumlah'],
+                'jumlah' => $item['jumlah'] ?? 1,
                 'lokasi_id' => $item['lokasi_id'] ?? null,
                 'driver_id' => $item['driver_id'] ?? null,
                 'noseri' => $item['noseri'] ?? null,
@@ -527,6 +529,34 @@ class ListPermintaanForm extends Component
         // $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
 
         Notification::send($nextUser, new UserNotification($message, "/permintaan/permintaan/{$detailPermintaan->id}"));
+
+        $messageAtasan = 'Permintaan ' . $detailPermintaan->kategoriStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> telah diajukan oleh staf Anda dan memerlukan perhatian Anda.';
+        $pemohon = $this->permintaan->user;
+
+        // Reset atasan langsung
+        $this->atasanLangsung = null;
+
+        // 1. Jika pemohon adalah Kepala Unit → Atasan langsung null
+        if ($pemohon->hasRole('Kepala Unit') && $this->permintaan->unit_id) {
+            $this->atasanLangsung = null;
+        }
+        // 2. Jika pemohon adalah Kepala Subbagian, cari Kepala Unit di unit utama
+        elseif ($pemohon->hasRole('Kepala Subbagian') && $this->permintaan->sub_unit_id) {
+            $this->atasanLangsung = User::role('Kepala Unit')
+                ->where('unit_id', $this->permintaan->unit->id) // Cari Kepala Unit di unit utama
+                ->first();
+        }
+        // 3. Jika pemohon BUKAN Kepala Unit dan ada sub unit → Cari Kepala Subbagian di sub unit
+        elseif ($this->permintaan->sub_unit_id) {
+            $this->atasanLangsung = User::role('Kepala Subbagian')
+                ->where('unit_id', $this->permintaan->sub_unit_id)
+                ->first();
+        }
+        // Kirim notifikasi ke atasan langsung jika ditemukan
+        if ($this->atasanLangsung) {
+            // Kirim notifikasi ke atasan langsung
+            Notification::send($this->atasanLangsung, new UserNotification($messageAtasan, "/permintaan/permintaan/{$detailPermintaan->id}"));
+        }
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
@@ -617,6 +647,7 @@ class ListPermintaanForm extends Component
             'deskripsi' => $this->newDeskripsi ?? null,
             'catatan' => $this->newCatatan ?? null,
             'img' => $this->newBukti,
+            'img_done' => $this->newDone,
             'barang_id' => $this->newBarangId, // Assuming a dropdown for selecting existing barang
             // 'barang_name' => $this->newBarang,
             'barang' => $this->newBarang,
@@ -644,7 +675,7 @@ class ListPermintaanForm extends Component
         // $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
         $this->ruleShow =
             $this->requestIs == 'permintaan'
-            ? ($this->kategori_id == 5
+            ? (($this->kategori_id == 5 || $this->kategori_id == 6)
                 ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id && $this->keterangan
                 : $this->tanggal_permintaan && $this->unit_id && $this->kategori_id)
             : ($this->requestIs == 'spare-part'
@@ -658,7 +689,9 @@ class ListPermintaanForm extends Component
             $this->requestIs == 'permintaan'
             ? ($this->kategori_id == 5
                 ? $this->newBarang && $this->newDeskripsi
-                : $this->newBarang && $this->newJumlah)
+                : ($this->kategori_id == 6
+                    ? $this->newBarang
+                    : $this->newBarang && $this->newJumlah))
             : ($this->requestIs == 'spare-part'
                 ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi
                 : $this->newBarang && $this->newJumlah && $this->newDeskripsi);
@@ -710,6 +743,7 @@ class ListPermintaanForm extends Component
                     'jenis_kdo' => $value->jenis_kdo,
                     'nama_kdo' => $value->nama_kdo,
                     'dokumen' => $value->img ?? null,
+                    'img_done' => $value->img_done ?? null,
                 ];
             }
             // $role = $tipe == 'Umum' ? 'Kepala Seksi' : ($tipe == 'Spare Part' ? 'Kepala Subbagian' : 'Kepala Seksi Pemeliharaan');
@@ -820,6 +854,17 @@ class ListPermintaanForm extends Component
         $this->newBukti = null;
         $this->newDokumen = null;
     }
+
+    public function removeBukti($index)
+    {
+        // Cek apakah index tersedia di list
+        if (isset($this->list[$index]['img_done'])) {
+            // Hapus foto pada index tertentu
+            $this->list[$index]['img_done'] = null;
+        }
+    }
+
+
     public function removeDocument($index)
     {
         $item = $this->list[$index];
@@ -829,6 +874,31 @@ class ListPermintaanForm extends Component
 
         // Remove the document path from the item in the list
         $this->list[$index]['dokumen'] = null;
+    }
+
+    public function doneItem($index, $message)
+    {
+        // Simpan perubahan ke database (misalnya, tabel PeminjamanAset)
+        $permintaanStok = PermintaanStok::find($this->list[$index]['id']);
+        // dd($permintaanStok, $message);
+        if ($permintaanStok) {
+            $storedFilePath = $this->list[$index]['img_done'] ? str_replace('kondisiKdo/', '', $this->list[$index]['img_done']->storeAs(
+                'kondisiKdo', // Directory
+                $this->list[$index]['img_done']->getClientOriginalName(), // File name
+                'public' // Storage disk
+            )) : null;
+            $data = $this->tipe == 'Umum' ? [
+                'img_done' => $storedFilePath,
+                'catatan_done' => $message,
+            ] : [
+                'img_done' => $storedFilePath,
+                'catatan_done' => $message,
+            ];
+            $permintaanStok->update($data);
+        }
+        $this->dispatch('success', "Upload Bukti Berhasil!");
+
+        // session()->flash('message', "Item pada baris ke-{$index} berhasil disetujui.");
     }
 
     public function render()
