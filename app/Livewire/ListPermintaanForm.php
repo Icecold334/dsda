@@ -882,16 +882,23 @@ class ListPermintaanForm extends Component
         $permintaanStok = PermintaanStok::find($this->list[$index]['id']);
         // dd($permintaanStok, $message);
         if ($permintaanStok) {
-            $storedFilePath = $this->list[$index]['img_done'] ? str_replace('kondisiKdo/', '', $this->list[$index]['img_done']->storeAs(
-                'kondisiKdo', // Directory
-                $this->list[$index]['img_done']->getClientOriginalName(), // File name
-                'public' // Storage disk
-            )) : null;
+            $uploadedFile = $this->list[$index]['img_done'];
+
+            $storedFilePath = $uploadedFile
+                ? $uploadedFile->storeAs(
+                    'kondisiKdo',
+                    time() . '_' . uniqid() . '.' . $uploadedFile->getClientOriginalExtension(),
+                    'public'
+                )
+                : null;
+
+            // Simpan hanya nama file-nya saja, tanpa path folder
+            $fileNameOnly = $storedFilePath ? basename($storedFilePath) : null;
             $data = $this->tipe == 'Umum' ? [
-                'img_done' => $storedFilePath,
+                'img_done' => $fileNameOnly,
                 'catatan_done' => $message,
             ] : [
-                'img_done' => $storedFilePath,
+                'img_done' => $fileNameOnly,
                 'catatan_done' => $message,
             ];
             $permintaanStok->update($data);

@@ -30,6 +30,9 @@
                         @if ($tipe == 'Ruangan')
                             <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">Undangan</th>
                         @endif
+                        @if ($tipe == 'KDO')
+                            <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">Surat Permohonan</th>
+                        @endif
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12 rounded-r-lg"></th>
                     </tr>
                 </thead>
@@ -160,14 +163,14 @@
                                         placeholder="Keterangan">
                                 </td>
                             @endif
-                            @if ($tipe == 'Ruangan')
+                            @if ($tipe == 'KDO' || $tipe == 'Ruangan')
                                 <td class="px-6 py-3 text-center">
                                     <div class="relative inline-block">
                                         @if (is_string($item['img']))
                                             <!-- Jika newBukti adalah string (path file) -->
-                                            <a href="{{ asset('storage/undanganRapat/' . $item['img']) }}"
+                                            <a href="{{ asset('storage/suratPeminjaman/' . $item['img']) }}"
                                                 target="_blank">
-                                                <img src="{{ asset('storage/undanganRapat/' . $item['img']) }}"
+                                                <img src="{{ asset('storage/suratPeminjaman/' . $item['img']) }}"
                                                     alt="Preview Bukti" class="w-16 h-16 rounded-md">
                                             </a>
                                         @elseif (is_object($item['img']) && method_exists($item['img'], 'temporaryUrl'))
@@ -276,8 +279,7 @@
                                         placeholder="Keterangan">
                                 </td>
                             @endif
-
-                            @if ($tipe == 'Ruangan')
+                            @if ($tipe == 'KDO' || $tipe == 'Ruangan')
                                 <td class="px-6 py-3 text-center">
                                     @if ($newDokumen)
                                         <div class="relative inline-block">

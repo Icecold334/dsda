@@ -26,13 +26,16 @@
                     @endif
                     @if ($kategori_id == 5)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KETERANGAN</th>
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BUKTI KERUSAKAN*</th>
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KONDISI AWAL*</th>
                     @endif
                     @if ($kategori_id == 6)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BUKTI*</th>
                     @endif
-                    @if (!$showAdd && $kategori_id != 4 && $kategori_id != 6)
+                    @if (!$showAdd && !in_array($kategori_id, [4, 5, 6]))
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH disetujui</th>
+                    @endif
+                    @if (!$showAdd && $kategori_id == 5)
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">KONDISI AKHIR</th>
                     @endif
                     @if (!$showAdd && $kategori_id == 6)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">BUKTI PROSES</th>
@@ -201,7 +204,7 @@
                                     </div>
                             @endif
                             </td>
-                            @if (!$showAdd && $kategori_id != 4 && $kategori_id != 6)
+                            @if (!$showAdd && !in_array($kategori_id, [4, 5, 6]))
                                 <td class="py-3 px-6">
                                     <div class="flex items-center">
                                         <input type="number"
@@ -216,15 +219,15 @@
                                     </div>
                                 </td>
                             @endif
-                            @if (!$showAdd && $kategori_id == 6)
+                            @if (!$showAdd && in_array($kategori_id, [5, 6]))
                                 <td class="px-6 py-3 text-center">
                                     <div class="relative inline-block">
                                         @if (is_string($item['img_done']))
                                             <!-- Jika img_done adalah string (path file) -->
                                             <div class="relative inline-block">
-                                                <a href="{{ asset('storage/buktikdo/' . $item['img_done']) }}"
+                                                <a href="{{ asset('storage/kondisiKdo/' . $item['img_done']) }}"
                                                     target="_blank">
-                                                    <img src="{{ asset('storage/buktikdo/' . $item['img_done']) }}"
+                                                    <img src="{{ asset('storage/kondisiKdo/' . $item['img_done']) }}"
                                                         alt="Preview Bukti" class="w-16 h-16 rounded-md">
                                                 </a>
                                             </div>
@@ -285,7 +288,6 @@
                                 </td>
                             @endif
 
-
                             <td class="py-3 px-6 text-center {{ $kategori_id != 4 ? '' : 'hidden' }}">
                                 @if (!$item['id'])
                                     <button wire:click="removeFromList({{ $index }})"
@@ -293,7 +295,7 @@
                                         <i class="fa-solid fa-circle-xmark"></i>
                                     </button>
                                 @else
-                                    @if (!$kategori_id == 6)
+                                    @if (!$kategori_id == 6 && !$kategori_id == 5)
                                         @if (isset($item['jumlah_approve']) && $item['jumlah_approve'] > 0)
                                             <!-- Tombol untuk melihat catatan -->
                                             <button wire:click="openNoteModal({{ $item['id'] }})"

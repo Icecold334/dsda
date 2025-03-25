@@ -122,7 +122,6 @@
                         <td>Keterangan</td>
                         <td>{{ $permintaan->keterangan ?? '---' }}</td>
                     </tr>
-                    @dump($permintaan->kategori_id, $tipe)
                     @if ($permintaan->kategori_id == 1 && $tipe == 'peminjaman')
                         <tr class="font-semibold">
                             <td colspan="2" class="py-2">Syarat dan Ketentuan KDO</td>

@@ -217,8 +217,8 @@ class ListPeminjamanForm extends Component
         ]);
         $this->peminjaman = $detailPeminjaman;
         foreach ($this->list as $item) {
-            $storedFilePath = $item['img'] ? str_replace('undanganRapat/', '', $item['img']->storeAs(
-                'undanganRapat', // Directory
+            $storedFilePath = $item['img'] ? str_replace('suratPeminjaman/', '', $item['img']->storeAs(
+                'suratPeminjaman', // Directory
                 $item['img']->getClientOriginalName(), // File name
                 'public' // Storage disk
             )) : null;

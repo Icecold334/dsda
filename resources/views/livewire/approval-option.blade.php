@@ -342,7 +342,7 @@
                 @else
                 @endif
             </x-card>
-            @dump($kategori)
+            {{-- @dump($kategori) --}}
             @if ($tipe == 'permintaan' && $jenis == 'umum')
                 <x-card title="Pengaturan Penanggung Jawab">
                     <div>
