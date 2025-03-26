@@ -307,6 +307,7 @@ return new class extends Migration
             $table->boolean('proses')->nullable();
             $table->boolean('cancel')->nullable();
             $table->boolean('status')->nullable();
+            $table->string('img_pengembalian')->nullable();
             $table->timestamps();
         });
         Schema::create('peminjaman_aset', function (Blueprint $table) {

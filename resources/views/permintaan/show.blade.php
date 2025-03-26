@@ -200,6 +200,24 @@
                             <td>Setelah selesai cuci mobil harap serahkan Bon dari Carwash ke CS Umum atau Insan.</td>
                         </tr>
                     @endif
+                    @if ($tipe == 'peminjaman' && $permintaan->status === 1 && empty($permintaan->img_pengembalian))
+                        <tr>
+                            <livewire:pengembalian-button :permintaan="$permintaan">
+                        </tr>
+                    @endif
+                    @if ($tipe == 'peminjaman' && $permintaan->status === 1 && $permintaan->img_pengembalian)
+                        <tr>
+                            <td colspan="100%">
+                                <span class="text-green-600 font-semibold">Sudah dikembalikan</span><br>
+                                <a href="{{ asset('storage/pengembalianUmum/' . $permintaan->img_pengembalian) }}"
+                                    target="_blank">
+                                    <img src="{{ asset('storage/pengembalianUmum/' . $permintaan->img_pengembalian) }}"
+                                        alt="Foto Pengembalian" class="mt-2 rounded shadow"
+                                        style="max-width: 8rem; max-height: 8rem; width: auto; height: auto;">
+                                </a>
+                            </td>
+                        </tr>
+                    @endif
                 </table>
             </x-card>
         </div>
