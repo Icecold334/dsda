@@ -104,7 +104,9 @@ class ListPeminjamanForm extends Component
         $this->list[] = [
             'id' => null,
             'aset_id' => $this->newAsetId,
-            'aset_name' => Aset::find($this->newAsetId)->nama,
+            'aset_name' => $this->tipe == 'Ruangan'
+                ? optional(Ruang::find($this->newAsetId))->nama
+                : optional(Aset::find($this->newAsetId))->nama,
             'aset_merk' => Aset::find($this->newAsetId)->merk->nama,
             'aset_noseri' => Aset::find($this->newAsetId)->noseri,
             'foto' => Aset::find($this->newAsetId)?->foto
@@ -155,7 +157,7 @@ class ListPeminjamanForm extends Component
                             ->orWhere('id', $this->unit_id);
                     });
                 });
-            })->get();
+            })->where('peminjaman', 1)->get();
         } else {
             $this->asets =
                 Aset::when($cond, function ($query) {
@@ -365,7 +367,9 @@ class ListPeminjamanForm extends Component
                         : Aset::find($value->aset_id)?->nama,
                     'aset_merk' => Aset::find($value->aset_id)->merk->nama,
                     'aset_noseri' => Aset::find($value->aset_id)->noseri,
-                    'approved_aset_name' => Aset::find($value->approved_aset_id)->nama ?? null,
+                    'approved_aset_name' => $this->tipe == 'Ruangan'
+                        ? Ruang::find($value->approved_aset_id)?->nama
+                        : Aset::find($value->approved_aset_id)?->nama,
                     'waktu_id' => $value->waktu_id,
                     'approved_waktu_id' => $value->approved_waktu_id ?? null,
                     'waktu' => WaktuPeminjaman::find($value->waktu_id),

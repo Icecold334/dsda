@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nama');
             $table->string('slug');
             $table->foreignId('pj_id')->nullable()->constrained('users');
-            $table->boolean('peminjaman')->nullable();
+            $table->boolean('peminjaman')->default(1);
             $table->timestamps();
         });
     }

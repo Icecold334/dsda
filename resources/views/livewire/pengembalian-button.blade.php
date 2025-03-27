@@ -15,10 +15,12 @@
             Swal.fire({
                 title: 'Unggah Foto Pengembalian',
                 html: `
-        <button id="open-file" class="swal2-confirm swal2-styled">Pilih Foto</button>
-        <span id="file-name" style="display: block; margin-top: 10px;"></span>
-        <div id="swal-error" style="color: red; font-size: 0.8rem; margin-top: 0.5rem;"></div>
-    `,
+    <button id="open-file" class="swal2-confirm swal2-styled">Pilih Foto</button>
+    <span id="file-name" style="display: block; margin-top: 10px;"></span>
+    <textarea id="keterangan" placeholder="Masukkan keterangan pengembalian..." rows="3"
+        style="width: 100%; margin-top: 10px; padding: 5px; border: 1px solid #ccc; border-radius: 5px;"></textarea>
+    <div id="swal-error" style="color: red; font-size: 0.8rem; margin-top: 0.5rem;"></div>
+`,
                 showCancelButton: true,
                 confirmButtonText: 'Kirim',
                 cancelButtonText: 'Batal',
@@ -48,7 +50,9 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
+                    const keterangan = document.getElementById('keterangan').value;
                     setTimeout(() => {
+                        @this.set('keteranganPengembalian', keterangan);
                         @this.call('simpanPengembalian');
                     }, 300);
                 }

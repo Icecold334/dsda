@@ -1323,7 +1323,7 @@ class AsetSeeder extends Seeder
                 'toko_id' => Toko::inRandomOrder()->first()->id ?? null,
                 'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
                 'tanggalbeli' => $faker->dateTimeBetween('-2 years', 'now')->getTimestamp(),
-                'jumlah' => 1,
+                'jumlah' => rand(1, 15),
                 'hargasatuan' => rand(500000, 500000000),
                 'hargatotal' => rand(5000000, 500000000),
                 'aktif' => 1,

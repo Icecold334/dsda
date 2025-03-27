@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Aset;
 use App\Models\Stok;
 use App\Models\User;
+use App\Models\Ruang;
 use Livewire\Component;
 use App\Models\Kategori;
 use App\Models\UnitKerja;
@@ -241,20 +242,37 @@ class ApprovalPermintaan extends Component
                     }
                 }
             } else {
-                $kategori_id = $this->permintaan->peminjamanAset->first()->aset->kategori_id;
-                if ($kategori_id == 8) {
-                    $peminjamanItems = $this->permintaan->peminjamanAset;
-                } else {
+
+                $kategori = $this->permintaan->kategori_id;
+                if ($kategori == 2) {
                     $peminjamanItems = $this->permintaan->peminjamanAset()->first();
 
                     if ($peminjamanItems) {
-                        // Ambil data aset berdasarkan aset_id
-                        $aset = Aset::find($peminjamanItems->aset_id);
-                        if ($aset) {
+                        // Ambil data ruang berdasarkan aset
+                        $ruang = Ruang::find($peminjamanItems->aset_id);
+                        if ($ruang) {
                             // Update peminjaman menjadi 0
-                            $aset->update([
+                            $ruang->update([
                                 'peminjaman' => 0
                             ]);
+                        }
+                    }
+                } else {
+                    $kategori_id = $this->permintaan->peminjamanAset->first()->aset->kategori_id;
+                    if ($kategori_id == 8) {
+                        $peminjamanItems = $this->permintaan->peminjamanAset;
+                    } else {
+                        $peminjamanItems = $this->permintaan->peminjamanAset()->first();
+
+                        if ($peminjamanItems) {
+                            // Ambil data aset berdasarkan aset_id
+                            $aset = Aset::find($peminjamanItems->aset_id);
+                            if ($aset) {
+                                // Update peminjaman menjadi 0
+                                $aset->update([
+                                    'peminjaman' => 0
+                                ]);
+                            }
                         }
                     }
                 }

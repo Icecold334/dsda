@@ -308,6 +308,7 @@ return new class extends Migration
             $table->boolean('cancel')->nullable();
             $table->boolean('status')->nullable();
             $table->string('img_pengembalian')->nullable();
+            $table->text('keterangan_pengembalian')->nullable();
             $table->timestamps();
         });
         Schema::create('peminjaman_aset', function (Blueprint $table) {
@@ -327,6 +328,8 @@ return new class extends Migration
             $table->integer('jumlah')->nullable();
             $table->integer('jumlah_approve')->nullable();
             $table->boolean('status')->nullable();
+            $table->string('img_pengembalian')->nullable();
+            $table->text('keterangan_pengembalian')->nullable();
             $table->timestamps();
         });
         Schema::create('waktu_peminjaman', function (Blueprint $table) {
