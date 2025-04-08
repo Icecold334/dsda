@@ -462,8 +462,8 @@ class UnitSeeder extends Seeder
             // Daftar role yang HARUS digunakan untuk jenis 'umum' dalam urutan tetap
             $rolePriorityForUmum = [
                 'Customer Services',
-                'Penanggung Jawab',
-                'Kepala Subbagian'
+                'Penanggung Jawab'
+                // 'Kepala Subbagian'
             ];
 
             // Ambil ID dari role yang sesuai untuk 'umum'
@@ -521,13 +521,13 @@ class UnitSeeder extends Seeder
                     $roleName = array_search($role, $roleIdMapping); // Cari nama role berdasarkan ID
 
                     // Jika role adalah "Customer Services" atau "Penanggung Jawab", approval = 1, selain itu 0/null
-                    $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
+                    // $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
 
                     \App\Models\JabatanPersetujuan::create([
                         'opsi_persetujuan_id' => $approvalConfiguration->id,
                         'jabatan_id' => $role,
                         'urutan' => $index + 1,
-                        'approval' => $approvalValue,
+                        // 'approval' => $approvalValue,
                     ]);
                 }
             }
@@ -537,8 +537,8 @@ class UnitSeeder extends Seeder
 
         $rolePriorityForPeminjaman = [
             'Customer Services',
-            'Penanggung Jawab',
-            'Kepala Subbagian'
+            'Penanggung Jawab'
+            // 'Kepala Subbagian'
         ];
 
         // Ambil ID dari role yang sesuai untuk 'peminjaman'
@@ -600,13 +600,13 @@ class UnitSeeder extends Seeder
                     $roleName = array_search($role, $roleIdMapping);
 
                     // Jika role adalah "Customer Services" atau "Penanggung Jawab", approval = 1, selain itu 0/null
-                    $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
+                    // $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
 
                     \App\Models\JabatanPersetujuan::create([
                         'opsi_persetujuan_id' => $approvalConfiguration->id,
                         'jabatan_id' => $role,
                         'urutan' => $index + 1,
-                        'approval' => $approvalValue,
+                        // 'approval' => $approvalValue,
                     ]);
                 }
             }

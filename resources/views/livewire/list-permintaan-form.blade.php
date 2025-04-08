@@ -18,9 +18,11 @@
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold">PILIH DRIVER / PENANGGUNG JAWAB *
                         </th>
                     @endif
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA
-                        {{ $kategori_id == 4 ? 'Konsumsi' : ($kategori_id == 5 ? 'Tipe Service' : ($kategori_id == 6 ? 'Voucher Carwash' : 'Barang')) }}
-                    </th>
+                    @if ($kategori_id != 6)
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA
+                            {{ $kategori_id == 4 ? 'Konsumsi' : ($kategori_id == 5 ? 'Tipe Service' : 'Barang') }}
+                        </th>
+                    @endif
                     @if ($kategori_id != 5 && $kategori_id != 6)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH *</th>
                     @endif
@@ -144,20 +146,22 @@
                             @endif
 
                             <!-- NAMA BARANG Column -->
-                            <td class="py-3 px-6">
-                                <select wire:model.live="list.{{ $index }}.barang_id" disabled
-                                    class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
-                                    <option value="">Pilih
-                                        {{ $kategori_id == 4 ? 'Konsumsi' : ($kategori_id == 5 ? 'Tipe Service' : ($kategori_id == 6 ? 'Voucher Carwash' : 'Barang')) }}
-                                    </option>
-                                    @foreach ($availBarangs as $barang)
-                                        <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
-                                    @endforeach
-                                </select>
-                                @error("list.$index.barang_id")
-                                    <span class="text-sm text-red-500">{{ $message }}</span>
-                                @enderror
-                            </td>
+                            @if ($kategori_id != 6)
+                                <td class="py-3 px-6">
+                                    <select wire:model.live="list.{{ $index }}.barang_id" disabled
+                                        class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                        <option value="">Pilih
+                                            {{ $kategori_id == 4 ? 'Konsumsi' : ($kategori_id == 5 ? 'Tipe Service' : 'Barang') }}
+                                        </option>
+                                        @foreach ($availBarangs as $barang)
+                                            <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error("list.$index.barang_id")
+                                        <span class="text-sm text-red-500">{{ $message }}</span>
+                                    @enderror
+                                </td>
+                            @endif
 
                             @if ($kategori_id != 5 && $kategori_id != 6)
                                 <td class="py-3 px-6">
@@ -173,6 +177,14 @@
                                     </div>
                                 </td>
                             @endif
+                            @if ($kategori_id == 6)
+                                <td class="px-6 py-3">
+                                    <textarea id="namadriver" disabled wire:model.live="list.{{ $index }}.driver_id" rows="1"
+                                        class="w-full border cursor-not-allowed border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Masukan Nama Driver"></textarea>
+                                </td>
+                            @endif
+
                             @if ($kategori_id == 5)
                                 <!-- Deskripsi Kerusakan -->
                                 <td class="px-6 py-3">
@@ -441,7 +453,12 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td class="py-3 px-6">
+                                <td class="px-6 py-3">
+                                    <textarea id="namadriver" wire:model.live="newDriverId" rows="1"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Masukan Nama Driver"></textarea>
+                                </td>
+                                {{-- <td class="py-3 px-6">
                                     <select wire:model.live="newDriverId"
                                         class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                         <option value="">Pilih Driver
@@ -456,22 +473,24 @@
                                     @error('newAsetId')
                                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                     @enderror
+                                </td> --}}
+                            @endif
+                            @if ($kategori_id != 6)
+                                <td class="py-3 px-6">
+                                    <select wire:model.live="newBarangId" wire:change="selectMerk"
+                                        class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                        <option value="" selected>Pilih
+                                            {{ $kategori_id == 4 ? 'Konsumsi' : ($kategori_id == 5 ? 'Tipe Service' : 'Barang') }}
+                                        </option>
+                                        @foreach ($availBarangs as $barang)
+                                            <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('newBarangId')
+                                        <span class="text-sm text-red-500">{{ $message }}</span>
+                                    @enderror
                                 </td>
                             @endif
-                            <td class="py-3 px-6">
-                                <select wire:model.live="newBarangId" wire:change="selectMerk"
-                                    class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
-                                    <option value="" selected>Pilih
-                                        {{ $kategori_id == 4 ? 'Konsumsi' : ($kategori_id == 5 ? 'Tipe Service' : ($kategori_id == 6 ? 'Voucher Carwash' : 'Barang')) }}
-                                    </option>
-                                    @foreach ($availBarangs as $barang)
-                                        <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
-                                    @endforeach
-                                </select>
-                                @error('newBarangId')
-                                    <span class="text-sm text-red-500">{{ $message }}</span>
-                                @enderror
-                            </td>
 
                             @if ($kategori_id != 5 && $kategori_id != 6)
                                 <td class="py-3 px-6">

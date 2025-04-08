@@ -304,6 +304,15 @@ class ListPermintaanForm extends Component
             $this->availBarangs = $avai->where('jenis_id', 1)->get();
         }
 
+        if ($kategori_id == 6) {
+            $voucher = $this->availBarangs->first(function ($item) {
+                return stripos($item->nama, 'voucher') !== false;
+            });
+            if ($voucher) {
+                $this->newBarangId = $voucher->id;
+            }
+        }
+
         $this->kategori_id = $kategori_id;
         $this->fillShowRule();
 
@@ -453,7 +462,8 @@ class ListPermintaanForm extends Component
                 'barang_id' => $item['barang_id'],
                 'jumlah' => $item['jumlah'] ?? 1,
                 'lokasi_id' => $item['lokasi_id'] ?? null,
-                'driver_id' => $item['driver_id'] ?? null,
+                // 'driver_id' => $item['driver_id'] ?? null,
+                'driver_name' => $item['driver_name'] ?? null,
                 'noseri' => $item['noseri'] ?? null,
                 'jenis_kdo' => $item['jenis_kdo'] ?? null,
                 'nama_kdo' => $item['nama_kdo'] ?? null,
@@ -653,7 +663,8 @@ class ListPermintaanForm extends Component
             'barang' => $this->newBarang,
             'jumlah' => $this->newJumlah ?? null,
             'satuan' => $this->newUnit,
-            'driver_id' => $this->newDriverId ?? null,
+            // 'driver_id' => $this->newDriverId ?? null,
+            'driver_name' => $this->newDriverId ?? null,
             'noseri' => $this->NoSeri ?? null,
             'jenis_kdo' => $this->JenisKDO ?? null,
             'nama_kdo' => $this->NamaKDO ?? null,
@@ -690,7 +701,7 @@ class ListPermintaanForm extends Component
             ? ($this->kategori_id == 5
                 ? $this->newBarang && $this->newDeskripsi
                 : ($this->kategori_id == 6
-                    ? $this->newBarang
+                    ? $this->newDriverId
                     : $this->newBarang && $this->newJumlah))
             : ($this->requestIs == 'spare-part'
                 ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi
@@ -738,7 +749,8 @@ class ListPermintaanForm extends Component
                     'barang_name' => $value->barangStok->nama,
                     'jumlah' => $value->jumlah,
                     'satuan' => $value->barangStok->satuanBesar->nama,
-                    'driver_id' => $value->driver_id,
+                    // 'driver_id' => $value->driver_id,
+                    'driver_name' => $value->driver_id,
                     'noseri' => $value->noseri,
                     'jenis_kdo' => $value->jenis_kdo,
                     'nama_kdo' => $value->nama_kdo,

@@ -43,6 +43,7 @@ class ApprovalPermintaan extends Component
     public $showButton;
     public $kategori;
     public $kepalaPemohon;
+    public $kepalaSubbagian;
 
     public function mount()
     {
@@ -165,6 +166,14 @@ class ApprovalPermintaan extends Component
                 })
                 ->first();
         }
+
+        $this->kepalaSubbagian = User::whereHas('roles', function ($query) {
+            $query->where('name', 'Kepala Subbagian');
+        })
+            ->where(function ($query) use ($pemohon) {
+                $query->where('unit_id', $pemohon->unit_id);
+            })
+            ->first();
     }
 
     public function markAsCompleted()
@@ -221,28 +230,40 @@ class ApprovalPermintaan extends Component
             'status' => $status,
             'keterangan' => $message
         ]);
-        if (($this->currentApprovalIndex + 2) == $this->listApproval && $this->permintaan->kategori_id == 4) {
+        if (($this->currentApprovalIndex + 2) == $this->listApproval && in_array($this->permintaan->kategori_id, [4, 6])) {
             $this->permintaan->update([
                 'cancel' => 0,
             ]);
         }
 
-        if (($this->currentApprovalIndex + 1) == $this->listApproval) {
-            $this->permintaan->update([
-                'status' => 1,
-                'proses' => 1  // Proses selesai
-            ]);
+        if ($this->tipe == 'permintaan') {
+            if (($this->currentApprovalIndex + 1) == $this->listApproval) {
+                $this->permintaan->update([
+                    'status' => 1,
+                    'proses' => 1  // Proses selesai
+                ]);
 
-
-            if ($this->tipe == 'permintaan') {
                 $permintaanItems = $this->permintaan->permintaanStok;
                 foreach ($permintaanItems as $merk) {
                     foreach ($merk->stokDisetujui as  $item) {
                         $this->adjustStockForApproval($item);
                     }
                 }
-            } else {
 
+                $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                    (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
+                    '</span> telah Disetujui dan Selesai dengan keterangan <span class="font-bold">' . $message . '</span>';
+
+                if ($this->kepalaSubbagian) {
+                    Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+                }
+            }
+        } else {
+            if (($this->currentApprovalIndex + 1) == $this->listApproval) {
+                $this->permintaan->update([
+                    'status' => 1,
+                    // 'proses' => 1  // Proses selesai
+                ]);
                 $kategori = $this->permintaan->kategori_id;
                 if ($kategori == 2) {
                     $peminjamanItems = $this->permintaan->peminjamanAset()->first();
@@ -277,7 +298,6 @@ class ApprovalPermintaan extends Component
                     }
                 }
             };
-        } else {
         }
 
 

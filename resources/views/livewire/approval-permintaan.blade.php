@@ -14,7 +14,7 @@
         <div>
             <div class="block font-semibold text-center mb-2 text-gray-900">Kepala Pemohon</div>
             <div class="text-sm border-b-2">
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center px-3">
                     <span class="mr-2">
                         {{ $kepalaPemohon ? $kepalaPemohon->name : 'Tidak Ada Kepala' }}
                     </span>
@@ -33,7 +33,7 @@
                     {{-- {{ $roleKey }} --}}
                     {{ ucwords(str_replace('-', ' ', $roleKey)) }}
                 </div>
-                <table class="w-full mt-3">
+                <table class="w-full">
                     @foreach ($users as $user)
                         <tr class="text-sm border-b-2">
                             <td class="flex justify-between px-3">
@@ -42,7 +42,7 @@
                                 </span>
                                 {{-- @dump($user->persetujuanPermintaan->where('detail_permintaan_id', $permintaan->id ?? 0)) --}}
                                 <i
-                                    class="my-1 fa-solid {{ is_null(
+                                    class=" fa-solid {{ is_null(
                                         optional($user->{"persetujuan{$tipe}"}->where('detail_' . Str::lower($tipe) . '_id', $permintaan->id ?? 0)->first())->status,
                                     )
                                         ? 'fa-circle-question text-secondary-600'
@@ -59,6 +59,26 @@
                 </table>
             </div>
         @endforeach
+
+        <div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">Kepala Subgaian</div>
+            <div class="text-sm border-b-2">
+                <div class="flex justify-between items-center px-3">
+                    <span class="mr-2">
+                        {{ $kepalaSubbagian ? $kepalaSubbagian->name : 'Tidak Ada Kepala' }}
+                    </span>
+                    @if ($kepalaSubbagian)
+                        @if ($permintaan->proses)
+                            <i class="fa-solid fa-circle-check text-success-500"></i>
+                        @else
+                            <i class="fa-solid fa-circle-question text-secondary-600"></i>
+                        @endif
+                    @endif
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
     <!-- Tombol aksi -->
@@ -77,16 +97,17 @@
                     @enderror
                 </div> --}}
                 {{-- @endif --}}
+
                 <button type="button" onclick="confirmApprove()"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     Setuju
                 </button>
-                @if ($showButtonApproval)
-                    <button type="button" onclick="confirmReject()"
-                        class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                        Tidak Setuju
-                    </button>
-                @endif
+                {{-- @if ($showButtonApproval) --}}
+                <button type="button" onclick="confirmReject()"
+                    class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    Tidak Setuju
+                </button>
+                {{-- @endif --}}
             </div>
         </div>
     @endif
