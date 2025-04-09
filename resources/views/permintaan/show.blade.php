@@ -203,8 +203,9 @@
                     @if (
                         $tipe == 'peminjaman' &&
                             $permintaan->status === 1 &&
+                            $permintaan->cancel === 0 &&
                             empty($permintaan->img_pengembalian) &&
-                            Auth::id() == $permintaan->user_id)
+                            auth()->id() == $permintaan->user_id)
                         <tr>
                             <livewire:pengembalian-button :permintaan="$permintaan">
                         </tr>

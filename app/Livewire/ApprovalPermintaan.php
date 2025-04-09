@@ -124,7 +124,9 @@ class ApprovalPermintaan extends Component
                         ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
                         ->exists() &&
                     $previousApprovalStatus === 1 &&
-                    ($this->permintaan->cancel === 0 || $this->currentApprovalIndex + 1 < $this->listApproval);
+                    ($this->permintaan->cancel === 0 || $this->currentApprovalIndex < $this->listApproval);
+
+                // dd($previousUser, $currentUser, $previousApprovalStatus, $this->currentApprovalIndex, $this->listApproval, $this->currentApprovalIndex < $this->listApproval, $this->showButton);
             }
         }
         $cancelAfter = $this->permintaan->opsiPersetujuan->cancel_persetujuan;
@@ -176,9 +178,18 @@ class ApprovalPermintaan extends Component
             ->first();
     }
 
-    public function markAsCompleted()
+    public function markAsCompleted($message = null)
     {
         $this->permintaan->update(['cancel' => false]);
+
+        $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+            (!is_null($this->permintaan->kode_permintaan) ? $this->permintaan->kode_permintaan : $this->permintaan->kode_peminjaman) .
+            '</span> telah Disetujui dan Selesai dengan keterangan <span class="font-bold">' . $message . '</span>';
+
+        if ($this->kepalaSubbagian) {
+            Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+        }
+
         return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
     public function cancelRequest()
@@ -191,7 +202,6 @@ class ApprovalPermintaan extends Component
     public function approveConfirmed($status, $message = null)
     {
         $permintaan  = $this->permintaan;
-
         // dd($permintaan->kode_permintaan ?? $permintaan->kode_peminjaman);
         if ($status) {
             $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
@@ -258,11 +268,10 @@ class ApprovalPermintaan extends Component
                     Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
                 }
             }
-        } else {
+        } elseif ($this->tipe == 'peminjaman') {
             if (($this->currentApprovalIndex + 1) == $this->listApproval) {
                 $this->permintaan->update([
                     'status' => 1,
-                    // 'proses' => 1  // Proses selesai
                 ]);
                 $kategori = $this->permintaan->kategori_id;
                 if ($kategori == 2) {

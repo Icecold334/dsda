@@ -41,13 +41,14 @@ class PengembalianButton extends Component
         $storedFilePath = $uploadedFile->storeAs('pengembalianUmum', $fileName, 'public');
         // Ambil hanya nama filenya
         $fileNameOnly = basename($storedFilePath);
-        $this->permintaan->update([
-            'img_pengembalian' => $fileNameOnly,
-            'keterangan_pengembalian' => $this->keteranganPengembalian,
-        ]);
 
         $kategori = $this->permintaan->kategori;
 
+        $this->permintaan->update([
+            'img_pengembalian' => $fileNameOnly,
+            'keterangan_pengembalian' => $this->keteranganPengembalian,
+            'proses' => 1,
+        ]);
         // Update data aset terkait
         foreach ($this->permintaan->peminjamanAset as $peminjaman) {
             if ($peminjaman->aset_id) {
@@ -74,7 +75,8 @@ class PengembalianButton extends Component
 
         Notification::send($users, new UserNotification($alert, "/permintaan/peminjaman/{$this->permintaan->id}"));
 
-        $this->dispatch('success', 'Pengembalian berhasil!');
+        // $this->dispatch('success', 'Pengembalian berhasil!');
+        return redirect()->to('permintaan/peminjaman/' . $this->permintaan->id)->with('success', 'Pengembalian berhasil');
     }
     public function render()
     {

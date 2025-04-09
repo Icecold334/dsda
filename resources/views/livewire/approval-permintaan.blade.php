@@ -24,9 +24,7 @@
                 </div>
 
             </div>
-        </div>
-
-        <!-- Iterasi dinamis semua role -->
+        </div> <!-- Iterasi dinamis semua role -->
         @foreach ($roleLists as $roleKey => $users)
             <div>
                 <div class="block font-semibold text-center mb-2 text-gray-900">
@@ -68,7 +66,9 @@
                         {{ $kepalaSubbagian ? $kepalaSubbagian->name : 'Tidak Ada Kepala' }}
                     </span>
                     @if ($kepalaSubbagian)
-                        @if ($permintaan->proses)
+                        @if ($tipe == 'permintaan' && $permintaan->proses)
+                            <i class="fa-solid fa-circle-check text-success-500"></i>
+                        @elseif ($tipe == 'peminjaman' && $permintaan->status && !$permintaan->cancel)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
                         @else
                             <i class="fa-solid fa-circle-question text-secondary-600"></i>
@@ -80,7 +80,6 @@
         </div>
 
     </div>
-
     <!-- Tombol aksi -->
     @if ($showButton)
         <div class="flex">
@@ -174,19 +173,19 @@
         function confirmCompletion() {
             Swal.fire({
                 title: 'Konfirmasi',
-                text: "Apakah Anda yakin ingin menyelesaikan permintaan ini?",
+                text: "Apakah Anda yakin dengan permintaan ini?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Selesaikan!',
+                confirmButtonText: 'Ya, Saya yakin!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
                     @this.markAsCompleted();
                     Swal.fire(
                         'Berhasil!',
-                        'Permintaan telah ditandai sebagai selesai.',
+                        'Permintaan telah ditandai siap digunakan.',
                         'success'
                     );
                 }

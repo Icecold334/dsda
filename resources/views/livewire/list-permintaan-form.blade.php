@@ -127,7 +127,12 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td class="py-3 px-6">
+                                <td class="px-6 py-3">
+                                    <textarea id="namadriver" disabled wire:model.live="list.{{ $index }}.driver_name" rows="1"
+                                        class="w-full border cursor-not-allowed border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Masukan Nama Driver"></textarea>
+                                </td>
+                                {{-- <td class="py-3 px-6">
                                     <select wire:model.live="list.{{ $index }}.driver_id" disabled
                                         class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                         <option value="">Pilih Driver
@@ -142,7 +147,7 @@
                                     @error("list.$index.driver_id")
                                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                     @enderror
-                                </td>
+                                </td> --}}
                             @endif
 
                             <!-- NAMA BARANG Column -->
@@ -175,13 +180,6 @@
                                             {{ $item['satuan'] }}
                                         </span>
                                     </div>
-                                </td>
-                            @endif
-                            @if ($kategori_id == 6)
-                                <td class="px-6 py-3">
-                                    <textarea id="namadriver" disabled wire:model.live="list.{{ $index }}.driver_id" rows="1"
-                                        class="w-full border cursor-not-allowed border-gray-300 rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
-                                        placeholder="Masukan Nama Driver"></textarea>
                                 </td>
                             @endif
 
@@ -260,8 +258,10 @@
                                             <input type="file" wire:model.live="list.{{ $index }}.img_done"
                                                 class="hidden" id="upload-list.{{ $index }}.img_done">
                                             <button type="button"
-                                                onclick="document.getElementById('upload-list.{{ $index }}.img_done').click()"
-                                                class="text-primary-700 bg-gray-200 border text-sm border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
+                                                @if (auth()->id() == $item['user_id']) onclick="document.getElementById('upload-list.{{ $index }}.img_done').click()" @endif
+                                                class="text-primary-700 bg-gray-200 border text-sm border-primary-500 rounded-lg px-3 py-1.5 transition
+                                                @if (auth()->id() != $item['user_id']) opacity-50 cursor-not-allowed pointer-events-none @else hover:bg-primary-600 hover:text-white @endif"
+                                                @if (auth()->id() != $item['user_id']) disabled @endif>
                                                 Unggah Foto
                                             </button>
                                         @endif
