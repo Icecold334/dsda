@@ -98,10 +98,13 @@ class RabSeeder extends Seeder
 
         for ($i = 0; $i < 80; $i++) {
             $rab = Rab::inRandomOrder()->first();
-            $barang = BarangStok::inRandomOrder()->where('jenis_id', 1)->first();
+            // $merk = BarangStok::inRandomOrder()->where('jenis_id', 1)->first();
+            $merk = MerkStok::whereHas('barangStok', function ($barang) {
+                return $barang->where('jenis_id', 1);
+            })->inRandomOrder()->first();
             ListRab::create([
                 'rab_id' => $rab->id,
-                'barang_id' => $barang->id,
+                'merk_id' => $merk->id,
                 'jumlah' => $faker->numberBetween(100, 1000)
             ]);
         }

@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\BarangStok;
 use App\Models\ListRab as ModelsListRab;
+use App\Models\MerkStok;
 use App\Models\Rab;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
@@ -12,7 +13,7 @@ use Livewire\Component;
 class ListRab extends Component
 {
 
-    public $rab_id, $barangs, $dokumenCount, $newBarangId, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
+    public $rab_id, $barangs, $dokumenCount, $newMerkId, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
     public function mount()
     {
         if ($this->rab_id) {
@@ -20,7 +21,7 @@ class ListRab extends Component
             foreach ($rab->list as $item) {
                 $this->list[] = [
                     'id' => $item->id,
-                    'barang' => BarangStok::find($item->barang_id),
+                    'merk' => MerkStok::find($item->merk_id),
                     'jumlah' => $item->jumlah
                 ];
             }
@@ -31,11 +32,11 @@ class ListRab extends Component
 
     public function updated($field)
     {
-        if (!$this->newBarangId) {
+        if (!$this->newMerkId) {
             $this->newJumlah = null;
             $this->newUnit = 'Satuan';
         } else {
-            $this->newUnit = BarangStok::find($this->newBarangId)->satuanBesar->nama;
+            $this->newUnit = MerkStok::find($this->newMerkId)->barangStok->satuanBesar->nama;
         }
         $this->checkAdd();
     }
@@ -46,7 +47,7 @@ class ListRab extends Component
     }
     public function checkAdd()
     {
-        $this->ruleAdd = $this->newBarangId && $this->newJumlah;
+        $this->ruleAdd = $this->newMerkId && $this->newJumlah;
     }
     public function removeFromList($index)
     {
@@ -75,11 +76,11 @@ class ListRab extends Component
     {
         $this->list[] = [
             'id' => null,
-            'barang' => BarangStok::find($this->newBarangId),
+            'merk' => MerkStok::find($this->newMerkId),
             'jumlah' => $this->newJumlah
         ];
         $this->dispatch('listCount', count: count($this->list));
-        $this->reset(['newBarangId', 'newJumlah', 'newUnit']);
+        $this->reset(['newMerkId', 'newJumlah', 'newUnit']);
         $this->checkAdd();
     }
 
@@ -96,7 +97,7 @@ class ListRab extends Component
         foreach ($this->list as $item) {
             $data[] = [
                 'rab_id' => $rab->id,
-                'barang_id' => $item['barang']->id,
+                'merk_id' => $item['merk']->id,
                 'jumlah' => $item['jumlah'],
                 'created_at' => now(),
                 'updated_at' => now()

@@ -14,23 +14,25 @@
             @foreach ($list as $index => $item)
             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                 <td class="py-3 px-6 ">
-                    <select wire:model.live="list.{{ $index }}.barang" disabled
+                    <select wire:model.live="list.{{ $index }}.merk" disabled
                         class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                        <option value="{{ $item['barang']->id }}">{{ $item['barang']->nama }}
+                        <option value="{{ $item['merk']->id }}">{{ $item['merk']->nama ?? 'Tanpa merk' }} - {{
+                            $item['merk']->tipe ?? 'Tanpa tipe' }} -
+                            {{ $item['merk']->ukuran?? 'Tanpa ukuran' }}
                         </option>
                     </select>
-                    @error('newBarangId')
+                    @error('newMerkId')
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                     @enderror
                 </td>
                 <td class="py-3 px-6">
                     <div class="flex items-center">
                         <input type="number" wire:model.live="list.{{ $index }}.jumlah" min="1" disabled
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newBarangId?'cursor-not-allowed':'' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newMerkId?'cursor-not-allowed':'' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             placeholder="Jumlah">
                         <span
                             class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
-                            {{ $item['barang']->satuanBesar->nama }}
+                            {{ $item['merk']->barangStok->satuanBesar->nama }}
                         </span>
                     </div>
                 </td>
@@ -38,11 +40,11 @@
                 <td class="py-3 px-6">
                     <div class="flex items-center">
                         <input type="number" wire:model.live="list.{{ $index }}.jumlah" min="1" disabled
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newBarangId?'cursor-not-allowed':'' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newMerkId?'cursor-not-allowed':'' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             placeholder="Jumlah">
                         <span
                             class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
-                            {{ $item['barang']->satuanBesar->nama }}
+                            {{ $item['merk']->barangStok->satuanBesar->nama }}
                         </span>
                     </div>
                 </td>
@@ -61,24 +63,30 @@
             @if ($showRule)
             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                 <td class="py-3 px-6 ">
-                    <select wire:model.live="newBarangId"
+                    <select wire:model.live="newMerkId"
                         class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         <option value="">Pilih Barang
                         </option>
                         @foreach ($barangs as $barang)
-                        <option value="{{ $barang->id }}">
-                            {{ $barang->nama }}
-                        </option>
+                        <optgroup label="{{ $barang->nama }}">
+                            @foreach ($barang->merkStok as $merk)
+                            <option value="{{ $merk->id }}">
+                                {{ $merk->nama ?? 'Tanpa merk' }} - {{
+                                $merk->tipe ?? 'Tanpa tipe' }} -
+                                {{ $merk->ukuran?? 'Tanpa ukuran' }}
+                            </option>
+                            @endforeach
+                        </optgroup>
                         @endforeach
                     </select>
-                    @error('newBarangId')
+                    @error('newMerkId')
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                     @enderror
                 </td>
                 <td class="py-3 px-6">
                     <div class="flex items-center">
-                        <input type="number" wire:model.live="newJumlah" min="1" @disabled(!$newBarangId)
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newBarangId?'cursor-not-allowed':'' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        <input type="number" wire:model.live="newJumlah" min="1" @disabled(!$newMerkId)
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newMerkId?'cursor-not-allowed':'' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             placeholder="Jumlah">
                         <span
                             class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">

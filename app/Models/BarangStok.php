@@ -39,9 +39,4 @@ class BarangStok extends Model
     {
         return $this->hasMany(MerkStok::class, 'barang_id');
     }
-
-    public function listRab()
-    {
-        return $this->hasMany(ListRab::class, 'barang_id');
-    }
 }

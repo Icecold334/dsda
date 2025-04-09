@@ -13,8 +13,8 @@ class ListRab extends Model
     {
         return $this->belongsTo(Rab::class, 'rab_id');
     }
-    public function barangStok()
+    public function merkStok()
     {
-        return $this->belongsTo(BarangStok::class, 'barang_id');
+        return $this->belongsTo(MerkStok::class, 'merk_id');
     }
 }

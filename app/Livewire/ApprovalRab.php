@@ -44,7 +44,7 @@ class ApprovalRab extends Component
             $this->files = [];
         }
         $this->user = Auth::user();
-        $this->roles = ['Kepala Seksi'];
+        $this->roles = ['Kepala Seksi', 'Kepala Suku Dinas'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
@@ -60,21 +60,23 @@ class ApprovalRab extends Component
                         $subQuery->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                     });
                 })
-                ->where(function ($query) {
-                    $query->whereHas('unitKerja', function ($subQuery) {
-                        $subQuery->where('nama', 'like', '%Seksi Perencanaan%'); // Tambahkan kondisi ini
+                ->where(function ($query) use ($role) {
+                    $query->whereHas('unitKerja', function ($subQuery) use ($role) {
+                        $subQuery->when($role === 'Kepala Seksi', function ($query) {
+                            return $query->where('nama', 'like', '%Seksi Perencanaan%');
+                        });
                     });
                 })
                 ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
                 ->limit(1)
                 ->get();
-            // dd($users);
 
 
             $propertyKey = Str::slug($role); // Generate dynamic key for roles
             $this->roleLists[$propertyKey] = $users;
             $this->lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
         }
+        // dd($users);
 
         // Calculate listApproval dynamically
         // $tipe = $this->rab->jenisStok->nama;

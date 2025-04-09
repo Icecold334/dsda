@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('list_rab', function (Blueprint $table) {
             $table->id();
             $table->foreignId('rab_id')->constrained('rab');
-            $table->foreignId('barang_id')->constrained('barang_stok');
+            $table->foreignId('merk_id')->constrained('merk_stok');
             $table->integer('jumlah');
             $table->timestamps();
         });
