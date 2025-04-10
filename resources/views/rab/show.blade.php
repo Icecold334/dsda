@@ -28,6 +28,12 @@
               </span>
             </td>
           </tr>
+          <tr class="font-semibold {{ !$rab->status  }}">
+            <td>Keterangan </td>
+            <td>
+              {{ $rab->keterangan }}
+            </td>
+          </tr>
           <tr class="font-semibold">
             <td>Tanggal Mulai</td>
             <td>

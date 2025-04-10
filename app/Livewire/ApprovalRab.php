@@ -92,7 +92,7 @@ class ApprovalRab extends Component
                 ->where('approvable_id', $this->rab->id ?? 0)
                 ->where('approvable_type', Rab::class)
                 ->first();
-            return $approval && $approval->status === 1; // Hanya hitung persetujuan yang berhasil
+            return $approval && $approval->is_approved === 1; // Hanya hitung persetujuan yang berhasil
         })->count();
 
 
@@ -113,16 +113,14 @@ class ApprovalRab extends Component
                 $previousApprovalStatus = optional(optional($previousUser)->persetujuan()
                     ?->where('approvable_id', $this->rab->id ?? 0)
                     ->where('approvable_type', Rab::class)
-                    ->first())->status;
-
-
+                    ->first())->is_approved;
                 $this->showButton = $previousUser &&
                     !$currentUser->persetujuan()
                         ->where('approvable_id', $this->rab->id ?? 0)
                         ->where('approvable_type', Rab::class)
                         ->exists() &&
-                    $previousApprovalStatus === 1 &&
-                    ($this->rab->cancel === 0 || $this->currentApprovalIndex + 1 < $this->listApproval);
+                    $previousApprovalStatus === 1;
+                // && ($this->currentApprovalIndex + 1 < $this->listApproval);
             }
         }
         // $cancelAfter = $this->rab->opsiPersetujuan->cancel_persetujuan;
@@ -156,24 +154,21 @@ class ApprovalRab extends Component
     public function approveConfirmed($status, $message = null)
     {
         $rab  = $this->rab;
-        // dd($rab->kode_rab ?? $rab->kode_peminjaman);
         if ($status) {
             $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
             if ($currentIndex != count($this->roleLists) - 1) {
-                $message = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
-                    (!is_null($rab->kode_rab) ? $rab->kode_rab : $rab->kode_peminjaman) .
-                    '</span> membutuhkan persetujuan Anda.';
+                $mess = "RAB {$rab->nama} membutuhkan persetujuan Anda.";
 
 
                 $user = User::find(collect($this->roleLists)->flatten(1)[$currentIndex + 1]->id);
-                Notification::send($user, new UserNotification($message, "/rab/{$this->tipe}/{$this->rab->id}"));
+                Notification::send($user, new UserNotification($mess, "/rab/{$this->rab->id}"));
             }
-            // $cancelAfter = $rab->opsiPersetujuan->cancel_persetujuan;
-            // // if ($currentIndex + 1 == $cancelAfter) {
-            // //     $this->rab->update([
-            // //         'cancel' => 0,
-            // //     ]);
-            // // }
+        } else {
+            $mess = "RAB {$rab->nama} ditolak dengan keterangan {$message}.";
+
+
+            $user = $rab->user;
+            Notification::send($user, new UserNotification($mess, "/rab/{$this->rab->id}"));
         }
 
         $this->rab->persetujuan()->create([
@@ -182,7 +177,10 @@ class ApprovalRab extends Component
             'keterangan' => $message
         ]);
 
-        $this->rab->update(['status' => $status ? 2 : 0, 'keterangan' => $message]);
+
+        if ($this->currentApprovalIndex + 1 == $this->listApproval || !$status) {
+            $this->rab->update(['status' => $status ? 2 : 0, 'keterangan' => $message]);
+        }
 
 
 
