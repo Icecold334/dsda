@@ -257,7 +257,7 @@ class DashboardDisplayUmum extends Component
     public $statusMapping = [
         'dibatalkan' => ['text' => 'Dibatalkan', 'color' => 'secondary'],
         'selesai' => ['text' => 'Selesai', 'color' => 'primary'],
-        'siap_diambil' => ['text' => 'Siap Diambil', 'color' => 'info'],
+        'siap_digunakan' => ['text' => 'Siap Digunakan', 'color' => 'info'],
         'diproses' => ['text' => 'Diproses', 'color' => 'warning'],
         'disetujui' => ['text' => 'Disetujui', 'color' => 'success'],
         'ditolak' => ['text' => 'Ditolak', 'color' => 'danger'],
@@ -268,7 +268,7 @@ class DashboardDisplayUmum extends Component
     {
         if ($permintaan['cancel'] === 1) return 'dibatalkan';
         if ($permintaan['cancel'] === 0 && $permintaan['proses'] === 1) return 'selesai';
-        if ($permintaan['cancel'] === 0 && is_null($permintaan['proses'])) return 'siap_diambil';
+        if ($permintaan['cancel'] === 0 && is_null($permintaan['proses'])) return 'siap_digunakan';
         if (is_null($permintaan['cancel']) && is_null($permintaan['proses']) && is_null($permintaan['status'])) return 'diproses';
         if (is_null($permintaan['cancel']) && is_null($permintaan['proses']) && $permintaan['status'] === 1) return 'disetujui';
         return 'ditolak';

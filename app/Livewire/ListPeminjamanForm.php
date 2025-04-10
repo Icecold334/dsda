@@ -48,6 +48,8 @@ class ListPeminjamanForm extends Component
     public $newDisetujui;
     public $newPeserta;
     public $newKeterangan;
+    public $fotoPengembalian;
+    public $keteranganPengembalian;
     public $newBarangId; // Input for new barang
     public $newBarang; // Input for new barang
     public $newJumlah; // Input for new jumlah
@@ -55,6 +57,7 @@ class ListPeminjamanForm extends Component
     public $showAdd; // Input for new dokumen
     public $requestIs;
     public $newFoto;
+    public $availableJumlah = 0;
     public $barangSuggestions = []; // Suggestions for barang
     public $assetSuggestions = [];
     public $asets = [];
@@ -101,6 +104,11 @@ class ListPeminjamanForm extends Component
         //     'newKeterangan' => 'nullable|string',
         // ]);
 
+        if ($this->newJumlah > $this->availableJumlah) {
+            $this->dispatch('error', 'Jumlah melebihi stok aset yang tersedia.');
+            return;
+        }
+
         $this->list[] = [
             'id' => null,
             'aset_id' => $this->newAsetId,
@@ -123,6 +131,7 @@ class ListPeminjamanForm extends Component
         $this->dispatch('listCount', count: count($this->list));
 
         $this->reset(['newAsetId', 'newJumlah', 'newPeserta', 'newDokumen', 'newWaktu', 'newKeterangan', 'newFoto']);
+        // $this->availableJumlah = 0;
     }
 
     public function removeFromList($index)
@@ -359,6 +368,7 @@ class ListPeminjamanForm extends Component
             foreach ($this->peminjaman->peminjamanAset as $key => $value) {
                 $this->list[] = [
                     'id' => $value->id,
+                    'user_id' => $value->user_id,
                     'detail_peminjaman_id' => $value->detail_peminjaman_id,
                     'aset_id' => $value->aset_id,
                     'approved_aset_id' => $value->approved_aset_id ?? null,
@@ -375,15 +385,19 @@ class ListPeminjamanForm extends Component
                     'waktu' => WaktuPeminjaman::find($value->waktu_id),
                     'approved_waktu' => WaktuPeminjaman::find($value->approved_waktu_id) ?? null,
                     'jumlah' => $value->jumlah,
+                    'avilable_jumlah' => Aset::find($value->approved_aset_id)?->jumlah,
                     'approved_jumlah' => $value->jumlah_approve ?? null,
                     'jumlah_peserta' => $value->jumlah_orang,
+                    'img_pengembalian' => $value->img_pengembalian,
+                    'keterangan_pengembalian' => $value->keterangan_pengembalian,
                     'keterangan' => $value->deskripsi,
                     'img' => $value->img,
                     'foto' => Aset::find($value->aset_id)?->foto
                         ? asset('storage/asetImg/' . Aset::find($value->aset_id)?->foto)
                         : asset('img/default-pic.png'),
-                    'fix' => $this->tipe == 'Ruangan' ? $value->approved_aset_id && $value->approved_waktu_id : ($this->tipe == 'KDO' ? $value->approved_aset_id : $value->approved_aset_id && $value->approved_waktu_id && $value->jumlah_approve)
+                    'fix' => $this->tipe == 'Ruangan' ? $value->approved_aset_id && $value->approved_waktu_id : ($this->tipe == 'KDO' ? $value->approved_aset_id : $value->approved_aset_id  && $value->jumlah_approve)
                 ];
+                // && $value->approved_waktu_id
             }
             $approve_after = $this->approve_after = $this->peminjaman->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray()[$this->peminjaman->opsiPersetujuan->urutan_persetujuan - 1];
 
@@ -412,6 +426,7 @@ class ListPeminjamanForm extends Component
             ? asset('storage/asetImg/' . $selectedAset->foto)
             : asset('img/default-pic-thumb.png');
 
+        $this->availableJumlah = $selectedAset?->jumlah ?? 0;
         // Ambil waktu yang telah di-booking untuk aset yang dipilih pada hari ini
         // $bookedTimes = PeminjamanAset::where('aset_id', $selectedAsetId)
         //     ->whereHas('detailPeminjaman', function ($query) {
@@ -451,17 +466,33 @@ class ListPeminjamanForm extends Component
         $peminjamanAset = PeminjamanAset::find($this->list[$index]['id']);
         // dd($peminjamanAset, $message);
         if ($peminjamanAset) {
+            $approvedAsetId = $this->list[$index]['approved_aset_id'];
+            $approvedJumlah = $this->list[$index]['approved_jumlah'] ?? 1;
+            if ($this->tipe == 'Peralatan Kantor') {
+                // Cek stok terlebih dahulu
+                $aset = Aset::find($approvedAsetId);
+                if ($aset && $aset->jumlah >= $approvedJumlah) {
+                    $aset->decrement('jumlah', $approvedJumlah); // Kurangi stok
+                } else {
+                    $this->dispatch('error', ['Stok aset tidak mencukupi.']);
+                    return;
+                }
 
-            $data = $this->tipe == 'Peralatan Kantor' ? [
-                'approved_aset_id' => $this->list[$index]['approved_aset_id'],
-                'approved_waktu_id' => $this->list[$index]['approved_waktu_id'],
-                'jumlah_approve' => $this->list[$index]['approved_jumlah'],
-                'catatan_approved' => $message,
-            ] : [
-                'approved_aset_id' => $this->list[$index]['approved_aset_id'],
-                'approved_waktu_id' => $this->list[$index]['approved_waktu_id'],
-                'catatan_approved' => $message,
-            ];
+                // Siapkan data untuk update
+                $data = [
+                    'approved_aset_id' => $approvedAsetId,
+                    'approved_waktu_id' => $this->list[$index]['approved_waktu_id'],
+                    'jumlah_approve' => $approvedJumlah,
+                    'catatan_approved' => $message,
+                ];
+            } else {
+                // Untuk tipe selain Peralatan Kantor
+                $data = [
+                    'approved_aset_id' => $approvedAsetId,
+                    'approved_waktu_id' => $this->list[$index]['approved_waktu_id'],
+                    'catatan_approved' => $message,
+                ];
+            }
             $peminjamanAset->update($data);
         }
         $this->dispatch('success', "Peminjaman disetujui!");
@@ -503,6 +534,61 @@ class ListPeminjamanForm extends Component
             return "0"; // Kembalikan "0" jika gagal
         }
     }
+
+    public function backItem($index)
+    {
+        $peminjamanAset = PeminjamanAset::find($this->list[$index]['id']);
+
+        if (!$peminjamanAset) {
+            $this->dispatch('error', ['Data peminjaman tidak ditemukan.']);
+            return;
+        }
+
+        $this->validate([
+            'fotoPengembalian' => 'required|image|max:2048',
+        ]);
+
+        $file = $this->fotoPengembalian;
+        $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('pengembalianUmum', $fileName, 'public');
+        $fileNameOnly = basename($path);
+
+        $peminjamanAset->update([
+            'img_pengembalian' => $fileNameOnly,
+            'keterangan_pengembalian' => $this->keteranganPengembalian,
+        ]);
+
+        // Kembalikan stok ke aset sesuai approved_jumlah
+        $aset = Aset::find($peminjamanAset->approved_aset_id);
+        if ($aset && $peminjamanAset->jumlah_approve) {
+            $aset->increment('jumlah', $peminjamanAset->jumlah_approve);
+        }
+
+        // Optional: update tampilan di Livewire list
+        $this->list[$index]['fix'] = false;
+
+        $kategori = $this->peminjaman->kategori;
+        $unitId = $this->peminjaman->sub_unit_id;
+        $users = User::role('Customer Services')
+            ->where('unit_id', $unitId)
+            ->get();
+        $alert = 'Peminjaman dengan kode <span class="font-bold">' .  $this->peminjaman->kode_peminjaman .
+            '</span> Sudah Mengembalikan Peminjaman <span class="font-bold">' .  $kategori->nama .
+            '</span> dengan Keterangan <span class="font-bold">' . $this->keteranganPengembalian . '</span>';
+
+        Notification::send($users, new UserNotification($alert, "/permintaan/peminjaman/{$this->peminjaman->id}"));
+
+        if ($index === count($this->list) - 1) {
+            $this->peminjaman->update([
+                'proses' => 1
+            ]);
+        }
+
+        $this->fotoPengembalian = null;
+        $this->keteranganPengembalian = null;
+        $this->dispatch('success', 'Item berhasil dikembalikan dan stok telah diperbarui.');
+    }
+
 
     public function render()
     {

@@ -270,6 +270,7 @@ return new class extends Migration
             $table->foreignId('lokasi_id')->nullable()->constrained('ruangs')->onDelete('set null');
             $table->foreignId('driver_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('driver_name')->nullable();
+            $table->string('voucher_name')->nullable();
             $table->text('noseri')->nullable();
             $table->text('jenis_kdo')->nullable();
             $table->text('nama_kdo')->nullable();

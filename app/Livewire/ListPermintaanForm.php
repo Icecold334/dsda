@@ -752,6 +752,7 @@ class ListPermintaanForm extends Component
                     'satuan' => $value->barangStok->satuanBesar->nama,
                     // 'driver_id' => $value->driver_id,
                     'driver_name' => $value->driver_name,
+                    'voucher_name' => $value->voucher_name,
                     'noseri' => $value->noseri,
                     'jenis_kdo' => $value->jenis_kdo,
                     'nama_kdo' => $value->nama_kdo,
@@ -916,9 +917,24 @@ class ListPermintaanForm extends Component
             ];
             $permintaanStok->update($data);
         }
-        $this->dispatch('success', "Upload Bukti Berhasil!");
+        // $this->dispatch('success', "Upload Bukti Berhasil!");
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Upload Bukti Berhasil!');
+    }
+    public function VoucherNameAction($index)
+    {
+        // Simpan perubahan ke database (misalnya, tabel PeminjamanAset)
+        $permintaanStok = PermintaanStok::find($this->list[$index]['id']);
+        // dd($permintaanStok, $message);
+        if ($permintaanStok) {
+            $voucherName = $this->list[$index]['voucher_name'];
 
-        // session()->flash('message', "Item pada baris ke-{$index} berhasil disetujui.");
+            $permintaanStok->update([
+                'voucher_name' => $voucherName,
+            ]);
+        }
+
+        // $this->dispatch('success', "Upload Bukti Berhasil!");
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Upload Bukti Berhasil!');
     }
 
     public function render()

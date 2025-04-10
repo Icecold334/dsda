@@ -15,7 +15,7 @@
             <div class="block font-semibold text-center mb-2 text-gray-900">Kepala Pemohon</div>
             <div class="text-sm border-b-2">
                 <div class="flex justify-between items-center px-3">
-                    <span class="mr-2">
+                    <span class="mr-2 {{ $kepalaPemohon && $kepalaPemohon->id == auth()->id() ? 'font-bold' : '' }}">
                         {{ $kepalaPemohon ? $kepalaPemohon->name : 'Tidak Ada Kepala' }}
                     </span>
                     @if ($kepalaPemohon)
@@ -59,16 +59,17 @@
         @endforeach
 
         <div>
-            <div class="block font-semibold text-center mb-2 text-gray-900">Kepala Subgaian</div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">Kepala Subbagian</div>
             <div class="text-sm border-b-2">
                 <div class="flex justify-between items-center px-3">
-                    <span class="mr-2">
-                        {{ $kepalaSubbagian ? $kepalaSubbagian->name : 'Tidak Ada Kepala' }}
+                    <span
+                        class="mr-2 {{ $kepalaSubbagian && $kepalaSubbagian->id == auth()->id() ? 'font-bold' : '' }}">
+                        {{ $kepalaSubbagian->name ?? 'Tidak Ada Kepala' }}
                     </span>
                     @if ($kepalaSubbagian)
                         @if ($tipe == 'permintaan' && $permintaan->proses)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
-                        @elseif ($tipe == 'peminjaman' && $permintaan->status && !$permintaan->cancel)
+                        @elseif ($tipe == 'peminjaman' && $permintaan->status == true && $permintaan->cancel === 0)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
                         @else
                             <i class="fa-solid fa-circle-question text-secondary-600"></i>

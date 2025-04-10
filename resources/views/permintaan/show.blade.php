@@ -205,7 +205,8 @@
                             $permintaan->status === 1 &&
                             $permintaan->cancel === 0 &&
                             empty($permintaan->img_pengembalian) &&
-                            auth()->id() == $permintaan->user_id)
+                            auth()->id() == $permintaan->user_id &&
+                            Str::lower($permintaan->kategori->nama) !== 'peralatan kantor')
                         <tr>
                             <livewire:pengembalian-button :permintaan="$permintaan">
                         </tr>

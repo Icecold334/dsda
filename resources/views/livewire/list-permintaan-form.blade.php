@@ -15,7 +15,7 @@
                     @endif
                     @if ($kategori_id == 6)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold">PILIH KDO *</th>
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">PILIH DRIVER / PENANGGUNG JAWAB *
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DRIVER / PENANGGUNG JAWAB *
                         </th>
                     @endif
                     @if ($kategori_id != 6)
@@ -41,6 +41,7 @@
                     @endif
                     @if (!$showAdd && $kategori_id == 6)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">BUKTI PROSES</th>
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">NAMA VOUCHER</th>
                     @endif
                     @if (
                         $requestIs == 'spare-part' ||
@@ -267,6 +268,16 @@
                                         @endif
                                     </div>
                                 </td>
+                                <td class="px-6 py-3 text-center">
+                                    <div class="relative inline-block">
+                                        @can('permintaan_persetujuan_jumlah_barang')
+                                            <input type="text" wire:model.live="list.{{ $index }}.voucher_name"
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:ring-blue-500 focus:border-blue-500 {{ !empty($list[$index]['voucher_name']) ? 'cursor-not-allowed bg-gray-200' : '' }}"
+                                                placeholder="Nama Voucher"
+                                                @if (!empty($list[$index]['voucher_name'])) disabled @endif>
+                                        @endcan
+                                    </div>
+                                </td>
                             @endif
                             @if (
                                 $requestIs == 'spare-part' ||
@@ -335,6 +346,12 @@
                                             <i class="fa-solid fa-circle-check"></i>
                                         </button>
                                     @endif
+                                    @if (empty($list[$index]['voucher_name']))
+                                        <button onclick="confirmVoucherName({{ $index }})"
+                                            class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                        </button>
+                                    @endif
                                 @endif
                             </td>
                             @push('scripts')
@@ -356,6 +373,21 @@
                                         }).then((result) => {
                                             if (result.isConfirmed) {
                                                 @this.call('doneItem', index, result.value);
+                                            }
+                                        });
+                                    }
+
+                                    function confirmVoucherName(index) {
+                                        Swal.fire({
+                                            title: 'Konfirmasi',
+                                            text: 'Apakah Anda yakin ingin mengonfirmasi Nama Voucher ini?',
+                                            icon: 'question',
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Ya',
+                                            cancelButtonText: 'Tidak'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                @this.call('VoucherNameAction', index); // Ganti dengan nama method Livewire kamu
                                             }
                                         });
                                     }
