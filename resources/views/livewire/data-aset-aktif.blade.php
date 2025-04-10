@@ -9,7 +9,7 @@
         </h1>
         <div>
             <button wire:click="$toggle('showFilters')"
-                class="text-blue-700 bg-blue-100 hover:bg-blue-600 hover:text-white font-medium rounded-lg px-4 py-2 transition duration-200">
+                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                 <i class="fa fa-search"></i> Pencarian & Pengurutan
             </button>
 
