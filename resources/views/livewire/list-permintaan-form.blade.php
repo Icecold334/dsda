@@ -396,7 +396,7 @@
 
                         </tr>
                     @endforeach
-                    @if ($showAdd)
+                    @if ($showAdd && ($kategori_id === 6 && count($list) < 1))
                         <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                             <td class="py-3 px-6"></td>
                             @if ($requestIs == 'spare-part')

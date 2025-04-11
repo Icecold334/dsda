@@ -2,7 +2,7 @@
     <!-- Header -->
     <div class="flex justify-between py-2 mb-3">
         <h1 class="text-2xl font-bold text-primary-900">
-            Aset Aktif
+            Aset Non Aktif
             @if (auth()->user()->unitKerja)
                 {{ auth()->user()->unitKerja->nama }}
             @endif
@@ -20,7 +20,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6">
                 <fieldset class="border p-4 rounded-lg">
                     <legend class="text-lg font-semibold text-gray-800">Filter Tampilan</legend>
-                    <form wire:submit.prevent="loadAsets">
+                    <form wire:submit.prevent="fetchAsets">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <!-- Filter Nama -->
                             <div>
@@ -129,7 +129,7 @@
         </thead>
         <tbody>
             @if (collect($asets)->isNotEmpty())
-                @foreach ($asets['data'] as $aset)
+                @foreach ($asets as $aset)
                     <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl ">
                         <td class="py-3 px-6 w-[15rem]">
                             <div class="grid grid-cols-2 gap-3">
@@ -203,9 +203,9 @@
                                 <div x-data="{ open: false, imgSrc: '' }">
                                     <!-- Gambar Thumbnail -->
                                     <div class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white cursor-pointer"
-                                        @click="open = true; imgSrc = '{{ asset($aset['foto'] ? 'storage/asetImg/' . $aset['foto'] : 'img/default-pic-thumb.png') }}'">
+                                        @click="open = true; imgSrc = '{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}'">
                                         <img class="w-full h-full object-cover object-center rounded-sm"
-                                            src="{{ asset($aset['foto'] ? 'storage/asetImg/' . $aset['foto'] : 'img/default-pic-thumb.png') }}"
+                                            src="{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}"
                                             alt="">
                                     </div>
 
@@ -224,30 +224,30 @@
                         </td>
                         <td class="py-3 px-6">
                             <div>
-                                <p class="font-semibold text-gray-800">{{ $aset['nama'] }}</p>
-                                <p class="text-sm text-gray-500">{{ $aset['kategori'] ?? 'Tidak Berkategori' }}
+                                <p class="font-semibold text-gray-800">{{ $aset->nama }}</p>
+                                <p class="text-sm text-gray-500">{{ $aset->kategori->nama ?? 'Tidak Berkategori' }}
                                 </p>
                             </div>
                         </td>
                         <td class="py-3 px-6">
-                            <p class="font-semibold text-gray-800">{{ $aset['kode'] }}</p>
-                            <p class="font-normal text-gray-500 text-sm">Kode Sistem : {{ $aset['systemcode'] }}</p>
+                            <p class="font-semibold text-gray-800">{{ $aset->kode }}</p>
+                            <p class="font-normal text-gray-500 text-sm">Kode Sistem : {{ $aset->systemcode }}</p>
 
                         </td>
                         <td class="py-3 px-6 ">
                             <p class="font-semibold text-gray-800">
-                                {{ $aset['tglnonaktif'] ? date('j F Y', $aset['tglnonaktif']) : '---' }}
+                                {{ $aset->tglnonaktif ? date('j F Y', $aset->tglnonaktif) : '---' }}
                             </p>
-                            <p class="text-sm text-gray-500">{{ $aset['alasannonaktif'] ?? '---' }}</p>
+                            <p class="text-sm text-gray-500">{{ $aset->alasannonaktif ?? '---' }}</p>
 
                         </td>
                         <td class="py-3 px-6">
-                            <a href="{{ route('nonaktifaset.show', ['nonaktifaset' => $aset['id']]) }}"
+                            <a href="{{ route('nonaktifaset.show', ['nonaktifaset' => $aset->id]) }}"
                                 class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
-                                data-tooltip-target="tooltip-aset-{{ $aset['id'] }}">
+                                data-tooltip-target="tooltip-aset-{{ $aset->id }}">
                                 <i class="fa-solid fa-eye"></i>
                             </a>
-                            <div id="tooltip-nonaktifaset-{{ $aset['id'] }}" role="tooltip"
+                            <div id="tooltip-nonaktifaset-{{ $aset->id }}" role="tooltip"
                                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                                 Lihat Detail Aset
                                 <div class="tooltip-arrow" data-popper-arrow></div>
@@ -256,45 +256,12 @@
                     </tr>
                 @endforeach
             @else
-                <p class="text-gray-600">Tidak ada Aset Aktif.</p>
+                <p class="text-gray-600">Tidak ada Aset Non Aktif.</p>
             @endif
         </tbody>
     </table>
 
-    <div x-data="{
-        currentPage: {{ $asets['pagination']['current_page'] }},
-        lastPage: {{ $asets['pagination']['last_page'] }},
-        perPage: {{ $asets['pagination']['per_page'] }},
-        total: {{ $asets['pagination']['total'] }}
-    }" class="mt-4 text-center">
-
-        <!-- Jika ada data -->
-        <template x-if="total > 0">
-            <div>
-                <p>Halaman <span x-text="currentPage"></span> dari <span x-text="lastPage"></span> dengan
-                    total
-                    <span x-text="total"></span> aset
-                </p>
-
-                <!-- Tombol Pagination -->
-                <div class="flex justify-center space-x-4 mt-2">
-                    <!-- Tombol Sebelumnya -->
-                    <button @click="if(currentPage > 1) window.location.href='?page=' + (currentPage - 1)"
-                        :disabled="currentPage === 1"
-                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-300 disabled:opacity-0">
-                        Sebelumnya
-                    </button>
-
-                    <!-- Tombol Selanjutnya -->
-                    <button @click="if(currentPage < lastPage) window.location.href='?page=' + (currentPage + 1)"
-                        :disabled="currentPage === lastPage"
-                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-300 disabled:opacity-0">
-                        Selanjutnya
-                    </button>
-                </div>
-            </div>
-        </template>
+    <div class="mt-6">
+        {{ $asets->onEachSide(1)->links() }}
     </div>
-
-
 </div>
