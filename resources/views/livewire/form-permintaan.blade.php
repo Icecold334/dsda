@@ -26,6 +26,28 @@
                             @enderror
                         </td>
                     </tr>
+                    <tr>
+                        <td class="w-1/3">
+                            <label for="gudang_id" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Pilih Lokasi Gudang *</label>
+                        </td>
+                        <td>
+                            <select wire:model.live="gudang_id" @disabled($listCount> 0 )
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                                focus:ring-primary-500
+                                focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600
+                                dark:text-white
+                                dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value="">Pilih Gudang</option>
+                                @foreach ($gudangs as $gudang)
+                                <option value="{{ $gudang->id }}">{{ $gudang->nama }}</option>
+                                @endforeach
+                            </select>
+                            @error('gudang_id')
+                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                            @enderror
+                        </td>
+                    </tr>
                     @endif
                     <tr>
                         <td class="font-semibold">
@@ -233,7 +255,7 @@
                 </table>
             </x-card>
         </div>
-        <div>
+        <div {{ $tipe=='material' ? 'hidden' : '' }}>
             <x-card title="unit kerja dan bagian">
                 <table class="w-full border-separate border-spacing-y-4">
                     <tr>
@@ -286,6 +308,10 @@
     @if ($tipe == 'peminjaman')
     <livewire:list-peminjaman-form :peminjaman="$permintaan" :last="$last" :tipe="$tipePeminjaman">
         @else
+        @if ($tipe === 'material')
+        <livewire:list-permintaan-material :permintaan="$permintaan" :last="$last" />
+        @else
         <livewire:list-permintaan-form :permintaan="$permintaan" :last="$last" :kategori_id="$kategori_id">
+            @endif
             @endif
 </div>

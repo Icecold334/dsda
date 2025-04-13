@@ -61,7 +61,8 @@ class DatabaseSeeder extends Seeder
             MerkStokSeeder::class,
             WaktuPeminjamanSeeder::class,
             RuangSeeder::class,
-            RabSeeder::class
+            RabSeeder::class,
+            DetailPermintaanMaterialSeeder::class
         ]);
         $methods = [
             'Pengadaan Langsung',

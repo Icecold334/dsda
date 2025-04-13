@@ -191,7 +191,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'index']);
     Route::get('option-approval', [PengaturanPersetujuanController::class, 'index']);
     Route::get('option-approval/{tipe}/{jenis}', [PengaturanPersetujuanController::class, 'edit']);
-    Route::get('permintaan/{tipe}/{id}', [PermintaanStokController::class, 'show']);
+    Route::get('permintaan/{tipe}/{id}', [PermintaanStokController::class, 'show'])->name('showPermintaan');
 
     Route::resources([
         'jenis-stok' => JenisStokController::class,

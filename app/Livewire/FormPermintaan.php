@@ -13,6 +13,7 @@ use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Models\KategoriStok;
+use App\Models\LokasiStok;
 use Illuminate\Support\Facades\Auth;
 use BaconQrCode\Renderer\GDLibRenderer;
 use Illuminate\Support\Facades\Request;
@@ -23,7 +24,7 @@ class FormPermintaan extends Component
     public $permintaan, $kategori;
     public $units;
     public $last;
-    public $unit_id, $rab_id, $rabs;
+    public $unit_id, $rab_id, $rabs, $gudang_id, $gudangs;
     public $kategoris;
     public $kategori_id;
     public $tipePeminjaman;
@@ -114,6 +115,10 @@ class FormPermintaan extends Component
     {
         $this->dispatch('tanggal_keluar', tanggal_keluar: $this->tanggal_keluar);
     }
+    public function updatedGudangId()
+    {
+        $this->dispatch('gudang_id', gudang_id: $this->gudang_id);
+    }
 
     public $showKategori;
 
@@ -121,6 +126,7 @@ class FormPermintaan extends Component
     {
         $kategori = Request::segment(4);
         $this->kategori = $kategori;
+        $this->gudangs = LokasiStok::where('unit_id', $this->unit_id)->get();
         // dd($this->last);
         // 2024 - 12 - 04
         if ($this->last) {
@@ -239,7 +245,7 @@ class FormPermintaan extends Component
             $this->dispatch('tanggal_keluar', tanggal_keluar: $this->tanggal_keluar);
         }
 
-        $this->rabs = Rab::where('status',2)->whereHas('user.unitKerja', function ($unit) {
+        $this->rabs = Rab::where('status', 2)->whereHas('user.unitKerja', function ($unit) {
             $unit->where('parent_id', $this->unit_id)
                 ->orWhere('id', $this->unit_id);
         })->orderBy('created_at', 'desc')->get();

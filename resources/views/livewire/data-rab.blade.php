@@ -27,6 +27,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">MULAI </th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SELESAI</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th>
                 <th class="py-3 px-6 bg-primary-950 text-center w-[8%] font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
@@ -42,6 +43,12 @@
                 </td>
                 <td class="py-3 px-6 font-semibold">
                     <div>{{ $rab->selesai->format('d F Y') }}</div>
+                </td>
+                <td class="py-3 px-6 font-semibold text-center">
+                    <span
+                        class="bg-{{ $rab->status_warna }}-600 text-{{ $rab->status_warna }}-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
+                        {{ $rab->status_teks }}
+                    </span>
                 </td>
                 <td class="py-3 px-6">
                     <a href="{{ route('rab.show', ['rab' => $rab->id]) }}"

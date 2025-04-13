@@ -8,6 +8,7 @@ use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailPeminjamanAset;
+use App\Models\DetailPermintaanMaterial;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -117,12 +118,31 @@ class DataPermintaan extends Component
      */
     private function getPermintaanQuery()
     {
+
         $permintaan = DetailPermintaanStok::where('jenis_id', $this->getJenisId())
             ->when($this->unit_id, function ($query) {
                 $query->whereHas('unit', function ($unit) {
                     $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                 });
             })->get();
+
+        if ($this->getJenisId() == 1) {
+            $permintaan = DetailPermintaanMaterial::all()->map(function ($perm) {
+                $statusMap = [
+                    null => ['label' => 'Diproses', 'color' => 'warning'],
+                    0 => ['label' => 'Ditolak', 'color' => 'danger'],
+                    1 => ['label' => 'Disetujui', 'color' => 'success'],
+                    2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
+                    3 => ['label' => 'Selesai', 'color' => 'primary'],
+                ];
+
+                // Menambahkan properti dinamis
+                $perm->status_teks = $statusMap[$perm->status]['label'] ?? 'Tidak diketahui';
+                $perm->status_warna = $statusMap[$perm->status]['color'] ?? 'gray';
+
+                return $perm;
+            });
+        }
 
         return $permintaan->isNotEmpty() ? $permintaan->map(function ($item) {
             return $this->mapData($item, 'permintaan');
@@ -167,6 +187,8 @@ class DataPermintaan extends Component
             'unit' => $item->unit,
             'sub_unit_id' => $item->sub_unit_id,
             'sub_unit' => $item->subUnit,
+            'status_warna' => $item->status_warna ?? null,
+            'status_teks' => $item->status_teks ?? null,
             'status' => $item->status,
             'cancel' => $item->cancel,
             'proses' => $item->proses,

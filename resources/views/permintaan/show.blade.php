@@ -1,4 +1,5 @@
 <x-body>
+    @if ($permintaan->jenis_id)
     <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL {{ Str::upper($tipe) }}</h1>
@@ -29,29 +30,29 @@
                     <tr class="font-semibold">
                         <td>Status</td>
                         <td> <span class="
-        bg-{{ $permintaan->cancel === 1
-            ? 'secondary'
-            : ($permintaan->cancel === 0 && $permintaan->proses === 1
-                ? 'primary'
-                : ($permintaan->cancel === 0 && $permintaan->proses === null
-                    ? 'info'
-                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
-                        ? 'warning'
-                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
-                            ? 'success'
-                            : 'danger')))) }}-600
-        text-{{ $permintaan->cancel === 1
-            ? 'secondary'
-            : ($permintaan->cancel === 0 && $permintaan->proses === 1
-                ? 'primary'
-                : ($permintaan->cancel === 0 && $permintaan->proses === null
-                    ? 'info'
-                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
-                        ? 'warning'
-                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
-                            ? 'success'
-                            : 'danger')))) }}-100
-        text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
+            bg-{{ $permintaan->cancel === 1
+                ? 'secondary'
+                : ($permintaan->cancel === 0 && $permintaan->proses === 1
+                    ? 'primary'
+                    : ($permintaan->cancel === 0 && $permintaan->proses === null
+                        ? 'info'
+                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                            ? 'warning'
+                            : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                                ? 'success'
+                                : 'danger')))) }}-600
+            text-{{ $permintaan->cancel === 1
+                ? 'secondary'
+                : ($permintaan->cancel === 0 && $permintaan->proses === 1
+                    ? 'primary'
+                    : ($permintaan->cancel === 0 && $permintaan->proses === null
+                        ? 'info'
+                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                            ? 'warning'
+                            : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                                ? 'success'
+                                : 'danger')))) }}-100
+            text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
                                 {{ $permintaan->cancel === 1
                                 ? 'dibatalkan'
                                 : ($permintaan->cancel === 0 && $permintaan->proses === 1
@@ -168,4 +169,7 @@
             </x-card>
         </div>
     </div>
+    @else
+    <livewire:show-permintaan-material :permintaan='$permintaan'>
+        @endif
 </x-body>
