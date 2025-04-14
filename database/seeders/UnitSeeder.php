@@ -811,7 +811,7 @@ class UnitSeeder extends Seeder
                         'email_verified_at' => now(),
                         'name' => $this->faker->name(),
                         'unit_id' => $unit->id,
-                        'email' => Str::lower(str_replace(' ', '_', 'Pejabat Pelaksana Teknis Kegiatan')) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', 'Pejabat Pelaksana Teknis Kegiatan')) . "%")->count() + 1 . "@email.com",
+                        'email' => Str::lower(str_replace(' ', '_', $role)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $role)) . "%")->count() + 1 . "@email.com",
                         'password' => bcrypt('123'), // Password default
                     ])->roles()->attach(Role::where('name', $role)->first()->id);
                 }
