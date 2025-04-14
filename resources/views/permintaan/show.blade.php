@@ -264,15 +264,20 @@
         </div>
         <div class="col-span-2">
             <x-card title="daftar permintaan">
+                @dump($permintaan->kategori_id)
                 @if ($tipe == 'permintaan')
                     <livewire:list-permintaan-form :permintaan="$permintaan">
                     @else
                         <livewire:list-peminjaman-form :peminjaman="$permintaan">
                 @endif
                 @if ($tipe == 'permintaan')
+                    @if ($permintaan->kategori_id === 6)
+                        <livewire:approval-permintaan-voucher :permintaan="$permintaan">
+                        @else
+                            <livewire:approval-permintaan :permintaan="$permintaan">
+                    @endif
+                @else
                     <livewire:approval-permintaan :permintaan="$permintaan">
-                    @else
-                        <livewire:approval-permintaan :permintaan="$permintaan">
                 @endif
             </x-card>
         </div>
