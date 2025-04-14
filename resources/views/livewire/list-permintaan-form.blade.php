@@ -31,7 +31,7 @@
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KONDISI AWAL*</th>
                     @endif
                     @if ($kategori_id == 6)
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BUKTI*</th>
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">FOTO KENDARAAN*</th>
                     @endif
                     @if (!$showAdd && !in_array($kategori_id, [4, 5, 6]))
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH disetujui</th>
@@ -40,7 +40,7 @@
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">KONDISI AKHIR</th>
                     @endif
                     @if (!$showAdd && $kategori_id == 6)
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">BUKTI PROSES</th>
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">FOTO PROSES</th>
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">NAMA VOUCHER</th>
                     @endif
                     @if (
@@ -94,22 +94,23 @@
 
                             @if ($kategori_id == 6)
                                 <td class="py-3 px-6">
-                                    <select wire:model.live="list.{{ $index }}.aset_id" disabled
-                                        class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                        <option value="">Pilih KDO
-                                        </option>
-                                        @foreach ($asets as $aset)
-                                            <option value="{{ $aset->id }}">
-                                                {{ $aset->merk->nama . ' ' . $aset->nama . ' - ' . $aset->noseri . ' | ' . $aset->tipe }}
-                                            </option>
-                                        @endforeach
-                                        <option value="0">KDO Lain</option> <!-- Opsi Tambahan -->
-                                    </select>
-                                    @error("list.$index.aset_id")
-                                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                    @enderror
+                                    @if (!is_null($list[$index]['aset_id']))
+                                        <select wire:model.live="list.{{ $index }}.aset_id" disabled
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                            <option value="">Pilih KDO</option>
+                                            @foreach ($asets as $aset)
+                                                <option value="{{ $aset->id }}">
+                                                    {{ $aset->merk->nama . ' ' . $aset->nama . ' - ' . $aset->noseri . ' | ' . $aset->tipe }}
+                                                </option>
+                                            @endforeach
+                                            <option value="0">KDO Lain</option>
+                                        </select>
+                                        @error("list.$index.aset_id")
+                                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                        @enderror
+                                    @endif
 
-                                    @if ($list[$index]['aset_id'] == '0')
+                                    @if (is_null($list[$index]['aset_id']))
                                         <div class="mt-2">
                                             <input type="text" wire:model.live="list.{{ $index }}.noseri"
                                                 disabled
@@ -268,16 +269,20 @@
                                         @endif
                                     </div>
                                 </td>
-                                <td class="px-6 py-3 text-center">
-                                    <div class="relative inline-block">
-                                        @can('permintaan_persetujuan_jumlah_barang')
-                                            <input type="text" wire:model.live="list.{{ $index }}.voucher_name"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:ring-blue-500 focus:border-blue-500 {{ !empty($list[$index]['voucher_name']) ? 'cursor-not-allowed bg-gray-200' : '' }}"
-                                                placeholder="Nama Voucher"
-                                                @if (!empty($list[$index]['voucher_name'])) disabled @endif>
-                                        @endcan
-                                    </div>
-                                </td>
+                                @if ($kategori_id == 6)
+                                    <td class="px-6 py-3 text-center">
+                                        <div class="relative inline-block">
+                                            @can('permintaan_persetujuan_jumlah_barang')
+                                                <input type="text"
+                                                    wire:model.live="list.{{ $index }}.voucher_name"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:ring-blue-500 focus:border-blue-500
+                                                {{ auth()->id() === $item['user_id'] ? 'cursor-not-allowed bg-gray-200' : '' }}"
+                                                    placeholder="Nama Voucher"
+                                                    @if (auth()->id() === $item['user_id']) disabled @endif>
+                                            @endcan
+                                        </div>
+                                    </td>
+                                @endif
                             @endif
                             @if (
                                 $requestIs == 'spare-part' ||
@@ -318,7 +323,7 @@
                                         <i class="fa-solid fa-circle-xmark"></i>
                                     </button>
                                 @else
-                                    @if (!$kategori_id == 6 && !$kategori_id == 5)
+                                    @if (!in_array($kategori_id, [5, 6]))
                                         @if (isset($item['jumlah_approve']) && $item['jumlah_approve'] > 0)
                                             <!-- Tombol untuk melihat catatan -->
                                             <button wire:click="openNoteModal({{ $item['id'] }})"
@@ -346,7 +351,8 @@
                                             <i class="fa-solid fa-circle-check"></i>
                                         </button>
                                     @endif
-                                    @if (empty($list[$index]['voucher_name']))
+
+                                    @if ($kategori_id == 6 && auth()->id() !== $item['user_id'])
                                         <button onclick="confirmVoucherName({{ $index }})"
                                             class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                             <i class="fa-solid fa-circle-check"></i>
@@ -396,7 +402,11 @@
 
                         </tr>
                     @endforeach
-                    @if ($showAdd && ($kategori_id === 6 && count($list) < 1))
+                    @if (
+                        $showAdd &&
+                            (($kategori_id === 6 && count($list) < 1) ||
+                                ($kategori_id === 5 && count($list) < 2) ||
+                                ($kategori_id !== 6 && $kategori_id !== 5)))
                         <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                             <td class="py-3 px-6"></td>
                             @if ($requestIs == 'spare-part')
@@ -507,7 +517,28 @@
                                     @enderror
                                 </td> --}}
                             @endif
-                            @if ($kategori_id != 6)
+                            @if ($kategori_id == 5)
+                                @php
+                                    $rowCount = count($list);
+                                    $allowedRow1 = ['berat', 'ringan', 'berkala'];
+                                    $allowedRow2 = ['body repair berat', 'body repair ringan'];
+                                @endphp
+
+                                <td class="py-3 px-6">
+                                    <select wire:model.live="newBarangId" wire:change="selectMerk"
+                                        class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                        <option value="" selected>Pilih Tipe Service</option>
+                                        @foreach ($availBarangs as $barang)
+                                            @if (
+                                                ($rowCount == 0 && in_array(strtolower(trim($barang->nama)), $allowedRow1)) ||
+                                                    ($rowCount == 1 && in_array(strtolower(trim($barang->nama)), $allowedRow2)))
+                                                <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </td>
+                            @endif
+                            @if (!in_array($kategori_id, [5, 6]))
                                 <td class="py-3 px-6">
                                     <select wire:model.live="newBarangId" wire:change="selectMerk"
                                         class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">

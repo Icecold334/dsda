@@ -240,7 +240,7 @@ class ApprovalPermintaan extends Component
             'status' => $status,
             'keterangan' => $message
         ]);
-        if (($this->currentApprovalIndex + 2) == $this->listApproval && in_array($this->permintaan->kategori_id, [4, 6])) {
+        if (($this->currentApprovalIndex + 1) == $this->listApproval && in_array($this->permintaan->kategori_id, [4, 6])) {
             $this->permintaan->update([
                 'cancel' => 0,
             ]);
@@ -308,8 +308,6 @@ class ApprovalPermintaan extends Component
                 }
             };
         }
-
-
 
         return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
