@@ -30,11 +30,11 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(245);
 
         // Auth::loginUsingId(1); //superadmin
-        Auth::loginUsingId(537);
+        // Auth::loginUsingId(537);
         // Auth::loginUsingId(529);
         // Auth::loginUsingId(244);
         // Auth::loginUsingId(250);
-        Auth::loginUsingId(252);
+        // Auth::loginUsingId(252);
         // Auth::loginUsingId(235);
     }
 
