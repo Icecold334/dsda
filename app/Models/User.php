@@ -83,6 +83,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(PersetujuanPeminjamanAset::class, 'user_id');
     }
+    public function persetujuan()
+    {
+        return $this->hasMany(Persetujuan::class, 'user_id');
+    }
     /**
      * Get the attributes that should be cast.
      *

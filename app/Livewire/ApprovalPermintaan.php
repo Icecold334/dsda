@@ -52,35 +52,71 @@ class ApprovalPermintaan extends Component
 
         $this->tipe = Str::contains($this->permintaan->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
 
+        $jenis = $this->permintaan->jenisStok->id;
+
         if ($this->permintaan->persetujuan->where('file')) {
             $this->files = $this->permintaan->persetujuan->filter(fn($persetujuan) => $persetujuan->file !== null)->pluck('file');
         } else {
             $this->files = [];
         }
         $this->user = Auth::user();
-        $this->roles = $this->permintaan->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
-        $this->roleLists = [];
-        $this->lastRoles = [];
+        if ($jenis === 1) {
+            $this->roles = ['Kepala Subbagian'];
+            $this->roleLists = [];
+            $this->lastRoles = [];
 
-        $date = Carbon::parse($this->permintaan->created_at);
+            $date = Carbon::parse($this->permintaan->created_at);
 
-        foreach ($this->roles as $role) {
-            $users = User::whereHas('roles', function ($query) use ($role) {
-                $query->where('name', 'LIKE', '%' . $role . '%');
-            })
-                ->where(function ($query) use ($date) {
-                    $query->whereHas('unitKerja', function ($subQuery) {
-                        $subQuery->where('parent_id', $this->permintaan->unit_id);
-                    })
-                        ->orWhere('unit_id', $this->permintaan->unit_id);
+            foreach ($this->roles as $role) {
+                // dd($this->rab->user->unit_id);
+                $users = User::whereHas('roles', function ($query) use ($role) {
+                    $query->where('name', 'LIKE', '%' . $role . '%');
                 })
-                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-                ->limit(1)
-                ->get();
+                    ->where(function ($query) {
+                        $query->whereHas('unitKerja', function ($subQuery) {
+                            $subQuery->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                        });
+                    })
+                    ->where(function ($query) {
+                        $query->whereHas('unitKerja', function ($subQuery) {
+                            $subQuery->where('nama', 'like', '%Subbagian Tata Usaha%'); // Tambahkan kondisi ini
+                        });
+                    })
+                    ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+                    ->limit(1)
+                    ->get();
+                // dd($users);
 
-            $propertyKey = Str::slug($role); // Generate dynamic key for roles
-            $this->roleLists[$propertyKey] = $users;
-            $this->lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
+
+                $propertyKey = Str::slug($role); // Generate dynamic key for roles
+                $this->roleLists[$propertyKey] = $users;
+                $this->lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
+            }
+        } else {
+            $this->roles = $this->permintaan->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
+            $this->roleLists = [];
+            $this->lastRoles = [];
+
+            $date = Carbon::parse($this->permintaan->created_at);
+
+            foreach ($this->roles as $role) {
+                $users = User::whereHas('roles', function ($query) use ($role) {
+                    $query->where('name', 'LIKE', '%' . $role . '%');
+                })
+                    ->where(function ($query) use ($date) {
+                        $query->whereHas('unitKerja', function ($subQuery) {
+                            $subQuery->where('parent_id', $this->permintaan->unit_id);
+                        })
+                            ->orWhere('unit_id', $this->permintaan->unit_id);
+                    })
+                    ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+                    ->limit(1)
+                    ->get();
+
+                $propertyKey = Str::slug($role); // Generate dynamic key for roles
+                $this->roleLists[$propertyKey] = $users;
+                $this->lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
+            }
         }
 
         // Calculate listApproval dynamically
@@ -103,7 +139,7 @@ class ApprovalPermintaan extends Component
 
         // Pengecekan urutan user dalam daftar persetujuan
         $index = $allApproval->search(fn($user) => $user->id == Auth::id());
-        if (collect($this->roles)->count() > 1) {
+        if (collect($this->roles)->count() > 1 || true) {
             if ($index === 0) {
                 // Jika user adalah yang pertama dalam daftar
                 $currentUser = $allApproval[$index];
@@ -141,7 +177,7 @@ class ApprovalPermintaan extends Component
             ->pluck('approval')
             ->toArray(); // Ubah ke array agar mudah digunakan
         // dd($this->userApproval);
-        $this->showButtonApproval = in_array(1, $this->userApproval);
+        $this->showButtonApproval = in_array(1, $this->userApproval) || 1;
         // dd($this->currentApprovalIndex);
 
         $pemohon = $this->permintaan->user; // User yang membuat permintaan
@@ -246,12 +282,14 @@ class ApprovalPermintaan extends Component
             ]);
         }
 
+
         if ($this->tipe == 'permintaan') {
             if (($this->currentApprovalIndex + 1) == $this->listApproval) {
                 $this->permintaan->update([
                     'status' => 1,
                     'proses' => 1  // Proses selesai
                 ]);
+
 
                 $permintaanItems = $this->permintaan->permintaanStok;
                 foreach ($permintaanItems as $merk) {

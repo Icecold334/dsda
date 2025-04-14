@@ -54,6 +54,7 @@ use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\PengaturanPersetujuanController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
+use App\Http\Controllers\RabController;
 use App\Http\Controllers\RuangController;
 use App\Models\DetailPermintaanStok;
 
@@ -190,7 +191,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'index']);
     Route::get('option-approval', [PengaturanPersetujuanController::class, 'index']);
     Route::get('option-approval/{tipe}/{jenis}', [PengaturanPersetujuanController::class, 'edit']);
-    Route::get('permintaan/{tipe}/{id}', [PermintaanStokController::class, 'show']);
+    Route::get('permintaan/{tipe}/{id}', [PermintaanStokController::class, 'show'])->name('showPermintaan');
 
     Route::resources([
         'jenis-stok' => JenisStokController::class,
@@ -207,6 +208,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'transaksi-darurat-stok' => TransaksiDaruratStokController::class,
         'kontrak-retrospektif-stok' => KontrakRetrospektifStokController::class,
         'stok' => StokController::class,
+        'rab' => RabController::class,
         'permintaan-stok' => PermintaanStokController::class,
     ]);
 });

@@ -40,7 +40,7 @@ class ListPermintaanForm extends Component
     public $sub_unit_id;
     public $tanggal_permintaan;
     public $keterangan;
-    public $permintaan;
+    public $permintaan, $rab_id;
     public $showAdd;
     public $kdos;
     public $newLokasiLain;
@@ -238,20 +238,26 @@ class ListPermintaanForm extends Component
     public function focusBarang()
     {
 
+        $rabId = $this->rab_id;
         $this->barangSuggestions = [];
-        $suggest
-            = BarangStok::whereHas('merkStok', function ($merkQuery) {
-                $merkQuery->where('nama', 'like', '%' . $this->newBarang . '%')
-                    ->orWhere('tipe', 'like', '%' . $this->newBarang . '%')
-                    ->orWhere('ukuran', 'like', '%' . $this->newBarang . '%')
-                    ->join('stok', 'merk_stok.id', '=', 'stok.merk_id')
-                    ->groupBy('merk_stok.id')
-                    ->havingRaw('SUM(stok.jumlah) > 0'); // Filter stok total > 0
-            })->with([
+        $suggest = BarangStok::whereHas('merkStok', function ($merkQuery) {
+            $merkQuery->where('nama', 'like', '%' . $this->newBarang . '%')
+                ->orWhere('tipe', 'like', '%' . $this->newBarang . '%')
+                ->orWhere('ukuran', 'like', '%' . $this->newBarang . '%')
+                ->join('stok', 'merk_stok.id', '=', 'stok.merk_id')
+                ->groupBy('merk_stok.id');
+            // ->havingRaw('SUM(stok.jumlah) > 0') // Filter stok total > 0
+        })->when($rabId > 0, function ($query) use ($rabId) { // Filter hanya jika $rabId > 0
+            // dd('asdas');
+            $query->whereHas('listRab', function ($query) use ($rabId) {
+                $query->where('rab_id', $rabId);
+            });
+        })
+            ->with([
                 'merkStok' => function ($merkQuery) {
                     $merkQuery->join('stok', 'merk_stok.id', '=', 'stok.merk_id')
                         ->groupBy('merk_stok.id')
-                        ->havingRaw('SUM(stok.jumlah) > 0')
+                        // ->havingRaw('SUM(stok.jumlah) > 0')
                         ->with(['stok' => function ($stokQuery) {
                             $stokQuery->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah'))
                                 ->groupBy('merk_id');
@@ -259,12 +265,22 @@ class ListPermintaanForm extends Component
                 }
             ]);
         if ($this->requestIs === 'permintaan') {
+            // dd('asdads');
             $this->barangSuggestions = $suggest->where('kategori_id', $this->kategori_id)->get();
         } elseif ($this->requestIs === 'spare-part') {
             $this->barangSuggestions = $suggest->where('jenis_id', 2)->get();
         } elseif ($this->requestIs === 'material') {
-            $this->barangSuggestions = $suggest->where('jenis_id', 1)->get();
+            // dd($suggest->get());
+            // $this->barangSuggestions = $suggest->where('jenis_id', 1)->get();
+            $this->barangSuggestions = $suggest->get();
         }
+    }
+    #[On('rab_id')]
+    public function fillRabId($rab_id)
+    {
+        $this->rab_id = $rab_id;
+        $this->fillShowRule();
+        $this->fillKategoriId();
     }
     #[On('unit_id')]
     public function fillUnitId($unit_id)
@@ -275,6 +291,7 @@ class ListPermintaanForm extends Component
     #[On('kategori_id')]
     public function fillKategoriId($kategori_id = null)
     {
+        $rabId = $this->rab_id;
         $userUnitId = $this->unit_id;
         $this->availBarangs = [];
         $avai = BarangStok::whereHas(
@@ -288,14 +305,19 @@ class ListPermintaanForm extends Component
             //         ->groupBy('merk_stok.id') // Kelompokkan berdasarkan merk
             //         ->havingRaw('total_stok > 0'); // Hanya stok dengan jumlah > 0
             // }
-        )->with([
-            'merkStok' => function ($merkQuery) {
-                $merkQuery->with(['stok' => function ($stokQuery) {
-                    $stokQuery->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah')) // Hitung total jumlah
-                        ->groupBy('merk_id');
-                }]);
-            }
-        ]);
+        )->when($rabId > 0, function ($query) use ($rabId) { // Filter hanya jika $rabId > 0
+            $query->whereHas('listRab', function ($query) use ($rabId) {
+                $query->where('rab_id', $rabId);
+            });
+        })
+            ->with([
+                'merkStok' => function ($merkQuery) {
+                    $merkQuery->with(['stok' => function ($stokQuery) {
+                        $stokQuery->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah')) // Hitung total jumlah
+                            ->groupBy('merk_id');
+                    }]);
+                }
+            ]);
         if ($this->requestIs === 'permintaan') {
             $this->availBarangs = $avai->where('kategori_id', $kategori_id)->get();
         } elseif ($this->requestIs === 'spare-part') {
@@ -418,11 +440,13 @@ class ListPermintaanForm extends Component
             ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
             ->latest()
             ->first();
+        // dd($this->rab_id);
         // Create Detail Permintaan Stok
         $detailPermintaan = DetailPermintaanStok::create([
             'kode_permintaan' => $this->generateQRCode(),
             'tanggal_permintaan' => strtotime($this->tanggal_permintaan),
             'unit_id' => $this->unit_id,
+            'rab_id' => $this->rab_id,
             'user_id' => Auth::id(),
             'jenis_id' => $this->requestIs == 'permintaan' ? 3 : ($this->requestIs == 'spare-part' ? 2 : 1),
             'kategori_id' => $this->kategori_id,
@@ -695,6 +719,7 @@ class ListPermintaanForm extends Component
     }
     public function updated()
     {
+
         // $this->ruleAdd = $this->requestIs == 'permintaan' ? $this->newBarang && $this->newJumlah : ($this->requestIs == 'spare-part' ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi : $this->newBarang && $this->newJumlah  && $this->newDeskripsi);
         $this->ruleAdd =
             $this->requestIs == 'permintaan'
@@ -706,16 +731,19 @@ class ListPermintaanForm extends Component
             : ($this->requestIs == 'spare-part'
                 ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi
                 : $this->newBarang && $this->newJumlah && $this->newDeskripsi);
+
     }
     public $tipe;
     public function mount()
     {
+
 
         $this->waktus = WaktuPeminjaman::all();
 
         $this->fillShowRule();
         $expl = explode('/', Request::getUri());
         $this->requestIs = (int)strlen(Request::segment(3)) > 3 ? Request::segment(3) : $expl[count($expl) - 2];
+        // $this->focusBarang();
 
         $this->fillKategoriId($this->kategori_id ?? null);
 
@@ -863,11 +891,16 @@ class ListPermintaanForm extends Component
             return "0"; // Kembalikan "0" jika gagal
         }
     }
-    public function removePhoto()
+    public function removePhoto($index = null)
     {
+        if ($index ) {
+            dd('asdasd');
+            $this->list[$index]['img'] = null;
+        }
         $this->newBukti = null;
         $this->newDokumen = null;
     }
+
 
     public function removeBukti($index)
     {
@@ -877,6 +910,7 @@ class ListPermintaanForm extends Component
             $this->list[$index]['img_done'] = null;
         }
     }
+
 
 
     public function removeDocument($index)
@@ -889,6 +923,7 @@ class ListPermintaanForm extends Component
         // Remove the document path from the item in the list
         $this->list[$index]['dokumen'] = null;
     }
+
 
     public function doneItem($index, $message)
     {
@@ -935,6 +970,29 @@ class ListPermintaanForm extends Component
 
         // $this->dispatch('success', "Upload Bukti Berhasil!");
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Upload Bukti Berhasil!');
+
+    public function uploadimg($index)
+    {
+        $item = $this->list[$index];
+
+        $img = str_replace('kondisiKdo/', '', $item['img']->storeAs(
+            'kondisiKdo', // Directory
+            $item['img']->getClientOriginalName(), // File name
+            'public'
+        ));
+
+        $this->list[$index]['img'] = $img;
+        $this->permintaan->permintaanStok()->where('id', $item['id'])->update(['img' => $img]);
+        $allUploaded = collect($this->list)->every(function ($item) {
+            return is_string($item['img']);
+        });
+        // dd($allUploaded);
+        if ($allUploaded) {
+            // Jika semua img sudah berupa string → update status proses
+            $this->permintaan->update(['proses' => 1]);
+            return redirect()->to('/permintaan/permintaan/'.$this->permintaan->id);
+        }
+
     }
 
     public function render()
