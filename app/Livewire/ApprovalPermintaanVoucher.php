@@ -43,14 +43,13 @@ class ApprovalPermintaanVoucher extends Component
             $this->files = [];
         }
         $this->user = Auth::user();
-        $this->roles = ['Kepala Gudang', 'Pengurus Barang'];
+        $this->roles = ['Costumer Services'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
         $date = Carbon::parse($this->permintaan->created_at);
 
         foreach ($this->roles as $role) {
-            // dd($this->permintaan->user->unit_id);
             $users = User::whereHas('roles', function ($query) use ($role) {
                 $query->where('name', 'LIKE', '%' . $role . '%');
             })
@@ -59,12 +58,15 @@ class ApprovalPermintaanVoucher extends Component
                         $subQuery->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                     });
                 })
-                ->where(function ($query) use ($role) {
-                    $query->whereHas('unitKerja', function ($subQuery) use ($role) {
-                        $subQuery->when($role === 'Kepala Subbagian', function ($query) {
-                            return $query->where('nama', 'like', '%Umum%');
-                        });
-                    });
+                // ->where(function ($query) use ($role) {
+                //     $query->whereHas('unitKerja', function ($subQuery) use ($role) {
+                //         $subQuery->when($role === 'Kepala Subbagian', function ($query) {
+                //             return $query->where('nama', 'like', '%Umum%');
+                //         });
+                //     });
+                // })
+                ->when($role === 'Costumer Services', function ($query) {
+                    $query->where('name', 'like', '%Insan%');
                 })
                 ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
                 ->limit(1)

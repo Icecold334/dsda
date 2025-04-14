@@ -731,7 +731,6 @@ class ListPermintaanForm extends Component
             : ($this->requestIs == 'spare-part'
                 ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi
                 : $this->newBarang && $this->newJumlah && $this->newDeskripsi);
-
     }
     public $tipe;
     public function mount()
@@ -893,7 +892,7 @@ class ListPermintaanForm extends Component
     }
     public function removePhoto($index = null)
     {
-        if ($index ) {
+        if ($index) {
             dd('asdasd');
             $this->list[$index]['img'] = null;
         }
@@ -970,6 +969,7 @@ class ListPermintaanForm extends Component
 
         // $this->dispatch('success', "Upload Bukti Berhasil!");
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Upload Bukti Berhasil!');
+    }
 
     public function uploadimg($index)
     {
@@ -990,9 +990,8 @@ class ListPermintaanForm extends Component
         if ($allUploaded) {
             // Jika semua img sudah berupa string → update status proses
             $this->permintaan->update(['proses' => 1]);
-            return redirect()->to('/permintaan/permintaan/'.$this->permintaan->id);
+            return redirect()->to('/permintaan/permintaan/' . $this->permintaan->id);
         }
-
     }
 
     public function render()

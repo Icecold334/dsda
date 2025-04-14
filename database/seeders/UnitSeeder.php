@@ -29,7 +29,7 @@ class UnitSeeder extends Seeder
             'Sekretariat' => [
                 'kepala' => 'Hendri, ST, MT',
                 'sub_units' => [
-                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST', 'staf' => ['Ahmad Gunadi'], 'cs' => ['Nisya']],
+                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST', 'staf' => ['Ahmad Gunadi'], 'cs' => ['Nisya', 'Insan']],
                     ['nama' => 'Subkelompok Kepegawaian', 'kepala' => 'Ratna Pertiwi, ST'],
                     ['nama' => 'Subkelompok Program dan Pelaporan', 'kepala' => 'Astrid Marzia Damayanti, ST'],
                     ['nama' => 'Subbagian Keuangan', 'kepala' => 'Indra Prabowo, SE'],

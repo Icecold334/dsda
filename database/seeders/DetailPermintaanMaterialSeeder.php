@@ -23,7 +23,7 @@ class DetailPermintaanMaterialSeeder extends Seeder
             $data[] = [
                 'kode_permintaan' => fake()->numerify('ABCD#######'),
                 'tanggal_permintaan' => strtotime(fake()->date()),
-                'user_id' => Auth::id(),
+                'user_id' => 4,
                 'gudang_id' => LokasiStok::inRandomOrder()->first()->id,
                 'keterangan' => fake()->paragraph(),
                 'lokasi' => fake()->address(),
