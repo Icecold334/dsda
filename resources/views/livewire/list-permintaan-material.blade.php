@@ -5,7 +5,6 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[60%] rounded-l-lg">Nama barang</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jumlah</th>
                 @if ($isShow)
-
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Foto barang</th>
                 @endif
                 <th class="py-3 px-6 bg-primary-950 w-1/12 text-center font-semibold rounded-r-lg "></th>
@@ -40,22 +39,31 @@
                 </td>
                 @if ($isShow)
                 <td class="py-3 px-6 text-center align-top">
-                    @if ($item['editable'])
+                    @if (
+                    $item['editable'] &&
+                    auth()->id() == $permintaan->user_id &&
+                    $permintaan->persetujuan()->where('is_approved', 1)->get()->unique('user_id')->count() >= 4
+                    )
                     {{-- Input file tersembunyi --}}
                     <input type="file" wire:model="list.{{ $index }}.img" accept="image/*" class="hidden"
                         id="upload-img-{{ $index }}">
 
                     {{-- Jika sudah ada gambar, tampilkan preview dan tombol hapus --}}
                     @if (isset($item['img']) && $item['img'])
-                    <div class="relative inline-block w-20 h-20">
+                    <div class="relative inline-block ">
                         {{-- Gambar preview --}}
                         @if (is_string($item['img']))
                         <img src="{{ asset('storage/fotoPerBarang/' . $item['img']) }}"
-                            class="object-cover w-full h-full rounded border" alt="Preview">
+                            class="object-cover w-16 h-16  rounded border" alt="Preview">
                         @else
-                        <img src="{{ $item['img']->temporaryUrl() }}" class="object-cover w-full h-full rounded border"
+                        <img src="{{ $item['img']->temporaryUrl() }}" class="object-cover w-16 h-16  rounded border"
                             alt="Preview">
+                        <button type="button" wire:click="resetImage({{ $index }})"
+                            class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-xs hover:bg-red-700">
+                            &times;
+                        </button>
                         @endif
+
                     </div>
                     @else
                     {{-- Tombol unggah --}}
@@ -64,11 +72,12 @@
                         Unggah
                     </button>
                     @endif
+
                     @elseif(isset($item['img']) && $item['img'])
                     {{-- Non-editable preview --}}
                     <a href="{{ asset('storage/fotoPerBarang/' . $item['img']) }}" target="_blank">
                         <img src="{{ asset('storage/fotoPerBarang/' . $item['img']) }}" alt="Foto"
-                            class="w-20 h-20 object-cover rounded border inline-block" />
+                            class="w-16 h-16 object-cover rounded border inline-block" />
                     </a>
                     @else
                     <span class="text-gray-400 text-sm italic">Belum ada gambar</span>

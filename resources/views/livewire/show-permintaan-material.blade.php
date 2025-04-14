@@ -7,15 +7,20 @@
             <a wire:click='spb'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
                 SPB</a>
+            @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2)
             <a wire:click='sppb'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
                 SPPB</a>
+
             <a wire:click='qrCode'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
                 QR-Code</a>
+            @endif
+            @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 3)
             <a wire:click='suratJalan'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
                 Surat Jalan</a>
+            @endif
             <a href="/permintaan/material"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
 
@@ -51,7 +56,7 @@
                     @if ($permintaan->status === 0)
                     <tr class="font-semibold">
                         <td>Keterangan</td>
-                        <td>{{ $permintaan->persetujuan->where('status', 0)->last()->keterangan }}</td>
+                        <td>{{$permintaan->keterangan_ditolak }}</td>
                     </tr>
                     @endif
                     <tr class="font-semibold">
@@ -74,7 +79,7 @@
             </x-card>
         </div>
         <div
-            class="grid grid-cols-2 gap-6 {{ $permintaan->persetujuan()->where('is_approved',1)->count() >= 3 ?'':'hidden' }}">
+            class="grid grid-cols-2 gap-6 {{ $permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 3 ?'':'hidden' }}">
             <x-card title="Foto Barang" class="mb-3  ">
                 <div wire:loading wire:target="newAttachments">
                     <livewire:loading>
@@ -173,9 +178,7 @@
                     <br>
                     {{-- <button wire:click="resetSignature" class="btn btn-sm btn-danger mt-2">Reset </button> --}}
                     @endif
-                    @push('scripts')
 
-                    @endpush
                 </div>
             </x-card>
         </div>

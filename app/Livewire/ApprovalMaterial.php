@@ -2,15 +2,16 @@
 
 namespace App\Livewire;
 
-use App\Models\DetailPermintaanMaterial;
 use Carbon\Carbon;
 use App\Models\Rab;
+use App\Models\Stok;
 use App\Models\User;
 use Livewire\Component;
 use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
+use App\Models\DetailPermintaanMaterial;
 use Illuminate\Support\Facades\Notification;
 
 class ApprovalMaterial extends Component
@@ -181,11 +182,19 @@ class ApprovalMaterial extends Component
         ]);
 
 
-        if ($this->currentApprovalIndex + 1 == 3 || !$status) {
-            $this->permintaan->update(['status' => $status, 'keterangan' => $message]);
+        if (!$status) {
+            $this->permintaan->update(['status' => 0, 'keterangan_ditolak' => $message]);
+            foreach ($this->permintaan->permintaanMaterial as $item) {
+                $stok = Stok::where('merk_id', $item->merk_id)->where('lokasi_id', $this->permintaan->gudang_id)->first();
+
+                $stok->update(['jumlah' => $stok->jumlah + $item->jumlah]);
+            }
         }
-        if ($this->currentApprovalIndex + 1 == 4 || !$status) {
-            $this->permintaan->update(['status' => 2, 'keterangan' => $message]);
+        if ($this->currentApprovalIndex + 1 == 3 && !$status) {
+            $this->permintaan->update(['status' => $status, 'keterangan_ditolak' => $message]);
+        }
+        if ($this->currentApprovalIndex + 1 == 4 && !$status) {
+            $this->permintaan->update(['status' => 2, 'keterangan_ditolak' => $message]);
         }
 
 

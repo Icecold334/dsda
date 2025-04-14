@@ -167,6 +167,7 @@ class ListPermintaanMaterial extends Component
     public function saveData()
     {
 
+
         $data = [];
         $user_id = Auth::id();
 
@@ -181,6 +182,7 @@ class ListPermintaanMaterial extends Component
         ]);
 
         foreach ($this->list as $item) {
+
             $data[] = [
                 'detail_permintaan_id' => $permintaan->id,
                 'user_id' => $user_id,
@@ -189,7 +191,13 @@ class ListPermintaanMaterial extends Component
                 'created_at' => now(),
                 'updated_at' => now()
             ];
+
+            $stok = Stok::where('merk_id', $item['merk']->id)->where('lokasi_id', $this->gudang_id)->first();
+
+            $stok->update(['jumlah' => $stok->jumlah - $item['jumlah']]);
         }
+
+
 
         PermintaanMaterial::insert($data);
         $this->reset('list');

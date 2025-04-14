@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('rab_id')->nullable()->constrained('rab')->onDelete('set null');
             $table->text('keterangan')->nullable();
+            $table->text('keterangan_ditolak')->nullable();
             $table->boolean('status')->nullable();
             $table->text('lokasi')->nullable();
             $table->text('kontak_person')->nullable();
