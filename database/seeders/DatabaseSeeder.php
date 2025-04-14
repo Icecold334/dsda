@@ -61,6 +61,8 @@ class DatabaseSeeder extends Seeder
             MerkStokSeeder::class,
             WaktuPeminjamanSeeder::class,
             RuangSeeder::class,
+            RabSeeder::class,
+            DetailPermintaanMaterialSeeder::class
         ]);
         $methods = [
             'Pengadaan Langsung',
@@ -175,6 +177,7 @@ class DatabaseSeeder extends Seeder
                 $posisi = PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first();
             }
 
+
             // Buat stok hanya jika belum ada untuk merk dan lokasi ini
             Stok::firstOrCreate([
                 'merk_id' => $merk->id,
@@ -184,6 +187,7 @@ class DatabaseSeeder extends Seeder
                 'bagian_id' => $bagian->id ?? null,
                 'posisi_id' => $posisi->id ?? null,
             ]);
+
         }
 
         $requests = [];

@@ -2,14 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\User;
-use App\Models\MerkStok;
-use App\Models\UnitKerja;
-use App\Models\LokasiStok;
-use App\Models\TransaksiStok;
-use App\Models\KontrakVendorStok;
-use Spatie\Permission\Models\Role;
-use App\Models\DetailPengirimanStok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,13 +21,21 @@ class AppServiceProvider extends ServiceProvider
     {
 
         // $this->test();
-        // Auth::loginUsingId(1); //superadmin
         // Auth::loginUsingId(118); //kepala suku dinas
         // Auth::loginUsingId(16); //penanggung jawab
         // Auth::loginUsingId(16); //penanggung jawab
         // Auth::loginUsingId(194); // seksi 
         // Auth::loginUsingId(193); //sudin Sumber Daya Air Kota Administrasi Jakarta Timur
-        // Auth::loginUsingId(4);
+        // Auth::loginUsingId(217);
+        // Auth::loginUsingId(245);
+
+        // Auth::loginUsingId(1); //superadmin
+        // Auth::loginUsingId(537);
+        // Auth::loginUsingId(529);
+        // Auth::loginUsingId(244);
+        // Auth::loginUsingId(250);
+        // Auth::loginUsingId(252);
+        // Auth::loginUsingId(235);
     }
 
     // public function test()
