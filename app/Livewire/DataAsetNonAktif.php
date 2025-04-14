@@ -22,123 +22,90 @@ class DataAsetNonAktif extends Component
 
     public $nama, $kategori_id, $sebab;
     public $orderBy = 'nama', $orderDirection = 'asc';
-    public $perPage = 5;
-    public $kategoris, $sebabs;
+    public $perPage = 10;
+
+    public $kategoris = [], $sebabs = [];
     public $showFilters = false;
 
     public function mount()
     {
-        // Ambil kategori, merk, dan toko tanpa filter unit kerja
-        $this->kategoris = Kategori::all();
-        $this->sebabs = ['Dijual', 'Dihibahkan', 'Dibuang', 'Hilang', 'Rusak Total', 'Lainnya'];
-
-        // Ambil aset berdasarkan unit parent
-        $this->loadAsets();
+        $this->loadFilterOptions();
     }
-
-    public function loadAsets()
-    {
-        // Ambil unit kerja pengguna yang login
-        $userUnitId = Auth::user()->unit_id;
-        $unit = UnitKerja::find($userUnitId);
-        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
-
-        $query = Aset::where('status', false)
-            ->when($this->nama, fn($q) => $q->where('nama', 'like', '%' . $this->nama . '%'))
-            ->when($this->kategori_id, fn($q) => $q->where('kategori_id', $this->kategori_id))
-            ->when($this->sebab, fn($q) => $q->where('alasannonaktif', $this->sebab))
-            ->whereHas('user', fn($q) => $this->filterByParentUnit($q, $parentUnitId)); //Tambahkan filter unit kerja
-
-        // Terapkan sorting
-        $query = $this->applySorting($query);
-
-        // Ambil hasil query dengan pagination
-        $paginated = $query->paginate($this->perPage);
-
-        // Proses setiap aset untuk mendapatkan data QR
-        $asetqr = $paginated->getCollection()->mapWithKeys(function ($aset) {
-            return [$aset->id => getAssetWithSettings($aset->id)];
-        })->toArray();
-
-        // Ubah hasil ke bentuk array dengan transformasi data
-        $asets = $paginated->getCollection()->map(function ($aset) use ($asetqr) {
-            return [
-                'id' => $aset->id,
-                'nama' => $aset->nama,
-                'foto' => $aset->foto,
-                'kode' => $aset->kode,
-                'systemcode' => $aset->systemcode,
-                'tipe' => $aset->tipe,
-                'tglnonaktif' => $aset->tglnonaktif,
-                'alasannonaktif' => $aset->alasannonaktif,
-                'kategori' => $aset->kategori->nama ?? '-',
-                'merk' => $aset->merk->nama ?? '-',
-                'toko' => $aset->toko->nama ?? '-',
-                'histories' => $aset->histories->map(function ($history) {
-                    return [
-                        'tanggal' => $history->tanggal,
-                        'person' => $history->person->nama ?? '-',
-                        'lokasi' => $history->lokasi->nama ?? '-',
-                    ];
-                })->toArray(),
-                'qr_code' => [
-                    'qr_image' => isset($asetqr[$aset->id]) ? asset($asetqr[$aset->id]['qr_image']) : '',
-                    'judul' => $asetqr[$aset->id]['judul'] ?? '',
-                    'baris1' => $asetqr[$aset->id]['baris1'] ?? '',
-                    'baris2' => $asetqr[$aset->id]['baris2'] ?? '',
-                ],
-                'hargatotal' => $this->rupiah($aset->hargatotal),
-                'nilaiSekarang' => $this->rupiah($this->nilaiSekarang($aset->hargatotal, strtotime($aset->tanggalbeli), $aset->umur)),
-                'totalpenyusutan' => $this->rupiah($aset->hargatotal - $this->nilaiSekarang($aset->hargatotal, strtotime($aset->tanggalbeli), $aset->umur)),
-
-            ];
-        })->toArray();
-
-        return [
-            'data' => $asets,
-            'pagination' => [
-                'current_page' => $paginated->currentPage(),
-                'last_page' => $paginated->lastPage(),
-                'per_page' => $paginated->perPage(),
-                'total' => $paginated->total(),
-            ],
-        ];
-    }
-
 
     public function updated($property)
     {
-        $this->resetPage();
-    }
-
-    public function resetFilters()
-    {
-        $this->nama = null;
-        $this->kategori_id = null;
-        $this->sebab = null;
-        $this->orderBy = 'nama';
-        $this->orderDirection = 'asc';
-        $this->perPage = 5;
-
-        $this->resetPage(); // Reset pagination ke halaman pertama
-        $this->loadAsets(); // Refresh data
+        if (in_array($property, ['nama', 'kategori_id', 'merk_id', 'toko_id', 'penanggung_jawab_id', 'lokasi_id'])) {
+            $this->resetPage();
+        }
     }
 
     public function sortBy($field)
     {
         $this->orderDirection = ($this->orderBy === $field && $this->orderDirection === 'asc') ? 'desc' : 'asc';
         $this->orderBy = $field;
-        $this->loadAsets();
+        $this->resetPage();
+    }
+
+    private function loadFilterOptions()
+    {
+        $unitId = Auth::user()->unit_id;
+        $unit = UnitKerja::find($unitId);
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
+
+        $this->kategoris = Kategori::all();
+        $this->sebabs = ['Dijual', 'Dihibahkan', 'Dibuang', 'Hilang', 'Rusak Total', 'Lainnya'];
+    }
+
+
+    public function fetchAsets()
+    {
+        $unitId = Auth::user()->unit_id;
+        $unit = UnitKerja::find($unitId);
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
+
+        $query = Aset::where('status', false)
+            ->when($this->nama, fn($q) => $q->where('nama', 'like', '%' . $this->nama . '%'))
+            ->when($this->kategori_id, fn($q) => $q->where('kategori_id', $this->kategori_id))
+            ->when($this->sebab, fn($q) => $q->where('alasannonaktif', $this->sebab))
+            ->whereHas('user', fn($q) => $this->filterByParentUnit($q, $parentUnitId));
+
+        $paginated = $this->applySorting($query)->paginate($this->perPage);
+
+        // Dapatkan data QR masing-masing aset
+        $asetqr = $paginated->getCollection()->mapWithKeys(function ($aset) {
+            return [$aset->id => getAssetWithSettings($aset->id)];
+        });
+
+        // Tambahkan properti tambahan ke tiap objek Aset
+        $paginated->getCollection()->each(function ($aset) use ($asetqr) {
+            $qr = $asetqr[$aset->id] ?? [];
+
+            $aset->qr_code = [
+                'qr_image' => isset($qr['qr_image']) ? asset($qr['qr_image']) : '',
+                'judul' => $qr['judul'] ?? '',
+                'baris1' => $qr['baris1'] ?? '',
+                'baris2' => $qr['baris2'] ?? '',
+            ];
+
+            $aset->hargatotal_formatted = $this->rupiah($aset->hargatotal);
+            $aset->nilaiSekarang = $this->rupiah($this->nilaiSekarang($aset->hargatotal, strtotime($aset->tanggalbeli), $aset->umur));
+            $aset->totalpenyusutan = $this->rupiah($aset->hargatotal - $this->nilaiSekarang($aset->hargatotal, strtotime($aset->tanggalbeli), $aset->umur));
+            // Mapping riwayat
+            $aset->histories_mapped = $aset->histories->map(function ($history) {
+                return (object)[
+                    'tanggal' => $history->tanggal,
+                    'person' => $history->person->nama ?? '-',
+                    'lokasi' => $history->lokasi->nama ?? '-',
+                ];
+            });
+        });
+
+        return $paginated;
     }
 
     private function applySorting($query)
     {
-        $orderBy = $this->orderBy ?? 'nama'; // Default sorting berdasarkan 'nama'
-        $orderDirection = $this->orderDirection ?? 'asc'; // Default ascending
-
-        $query->orderBy($orderBy, $orderDirection);
-
-        return $query;
+        return $query->orderBy($this->orderBy, $this->orderDirection);
     }
 
 
@@ -413,7 +380,8 @@ class DataAsetNonAktif extends Component
     }
     public function render()
     {
-        $asets = $this->loadAsets(); // Ambil data aset
+        $asets = $this->fetchAsets();
+        // dd($asets);
         return view('livewire.data-aset-non-aktif', compact('asets'));
     }
 }

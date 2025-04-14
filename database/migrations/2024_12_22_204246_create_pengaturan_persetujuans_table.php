@@ -24,7 +24,7 @@ return new class extends Migration
             $table->integer('urutan_persetujuan')->nullable(); // Urutan untuk menentukan jumlah barang
             $table->integer('cancel_persetujuan')->nullable();
             $table->unsignedBigInteger('jabatan_penyelesai_id')->nullable(); // Jabatan penyelesaian
-            $table->unsignedBigInteger('user_penyelesai_id')->nullable(); // Jabatan penyelesaian
+            $table->unsignedBigInteger('user_penyelesai_id')->nullable();
             $table->foreignId('kategori_id')->nullable()->constrained('kategori_stok')->onDelete('set null');
             $table->timestamps();
 

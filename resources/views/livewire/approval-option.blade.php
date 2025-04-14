@@ -20,7 +20,7 @@
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         @if ($tipe != 'pengiriman')
-            <x-card title="Pengaturan Urutan Persetujuan">
+            {{-- <x-card title="Pengaturan Urutan Persetujuan">
                 <form wire:submit.prevent="saveApprovalConfiguration">
                     <!-- Daftar Peran -->
                     <div class="mb-6">
@@ -125,7 +125,202 @@
                         // });
                     </script>
                 @endpush
+            </x-card> --}}
+
+            <x-card title="Pengaturan Persetujuan">
+                <div x-data="{ tab: '{{ $kategori->values()->first() }}' }">
+
+                    <!-- Tab Buttons -->
+                    <ul
+                        class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 rounded-t-lg bg-primary-100">
+                        @foreach ($kategori as $nama => $id)
+                            <li class="me-2">
+                                <button type="button" @click="tab = '{{ $id }}'"
+                                    :class="tab === '{{ $id }}' ? 'bg-primary-300 text-white' : ''"
+                                    class="inline-block p-4 transition duration-200 rounded-t-lg">
+                                    {{ $nama }}
+                                </button>
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    <!-- Tab Contents -->
+                    <div class="mt-4">
+                        @foreach ($kategori as $nama => $id)
+                            <div x-show="tab === '{{ $id }}'" wire:key="kategori-{{ $id }}"
+                                class="p-4 bg-white rounded-lg">
+                                <form wire:submit.prevent="saveApprovalConfiguration({{ $id }})">
+                                    <!-- Daftar Peran -->
+                                    <div class="mb-6">
+                                        <label class="block text-gray-700 font-medium mb-2">Urutan Jabatan</label>
+                                        <ul id="sortable-roles-{{ $id }}" class="bg-gray-100 rounded-md p-4">
+                                            @forelse ($roles as $index => $role)
+                                                <li data-role-id="{{ $role['id'] }}"
+                                                    class="flex items-center justify-between bg-white border rounded-md p-3 mb-2 {{ collect($roles[$id] ?? [])->count() > 1 ? 'cursor-move' : '' }}">
+                                                    <div class="flex space-x-3">
+                                                        @if (collect($roles)->count() > 1)
+                                                            <button type="button"
+                                                                class="text-secondary-500 text-sm rotate-90 hover:text-secondary-700">
+                                                                <i
+                                                                    class="fa-solid fa-arrow-right-arrow-left fa-fade"></i>
+                                                            </button>
+                                                        @endif
+                                                        <div class="font-semibold">
+                                                            {{ $loop->iteration }}.
+                                                        </div>
+                                                        <div class="hidden" id="id-role{{ $role['id'] }}">
+                                                            {{ $role['id'] }}
+                                                        </div>
+                                                        <div class="font-semibold">
+                                                            {{ $role['name'] }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center space-x-4">
+                                                        <!-- Radio Button untuk Menyetujui -->
+                                                        {{-- <label class="flex items-center space-x-1">
+                                                            <input type="radio"
+                                                                wire:model.live="rolesApproval.{{ $role['id'] }}"
+                                                                value="1">
+                                                            <span>Perlu Persetujuan</span>
+                                                        </label>
+
+                                                        <!-- Radio Button untuk Mengetahui -->
+                                                        <label class="flex items-center space-x-1">
+                                                            <input type="radio"
+                                                                wire:model.live="rolesApproval.{{ $role['id'] }}"
+                                                                value="0">
+                                                            <span>Mengetahui</span>
+                                                        </label> --}}
+                                                        <button type="button"
+                                                            wire:click="removeRole({{ $index }})"
+                                                            class="text-red-500 hover:text-red-700">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </li>
+                                            @empty
+                                                <li
+                                                    class="flex items-center justify-center bg-white border rounded-md p-3 mb-2">
+                                                    <div class="font-semibold">
+                                                        Tambahkan Jabatan
+                                                    </div>
+                                                </li>
+                                            @endforelse
+                                        </ul>
+                                    </div>
+
+                                    <!-- Tambah Jabatan -->
+                                    <div class="mb-6">
+                                        <label for="selectedRole-{{ $id }}"
+                                            class="block text-gray-700 font-medium mb-2">Tambah Jabatan</label>
+                                        <div class="flex">
+                                            <select wire:model.live="selectedRole.{{ $id }}"
+                                                id="selectedRole-{{ $id }}"
+                                                class="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+                                                <option value="">Pilih Jabatan</option>
+                                                @foreach ($rolesAvailable as $role)
+                                                    <option value="{{ $role['id'] }}">{{ $role['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                            @if (!empty($selectedRole[$id]))
+                                                <button type="button" wire:click="addRole({{ $id }})"
+                                                    class="ml-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                                    Tambah
+                                                </button>
+                                            @endif
+                                        </div>
+                                        @error("selectedRole.$id")
+                                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </form>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </x-card>
+            @foreach ($kategori as $nama => $id)
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const el = document.getElementById('sortable-roles-{{ $id }}');
+                        if (el) {
+                            new Sortable(el, {
+                                animation: 150,
+                                onEnd: function(evt) {
+                                    const newOrder = Array.from(evt.to.children).map(item => {
+                                        return item.dataset.roleId;
+                                    });
+                                    @this.call('updateRolesOrder', {{ $id }}, newOrder);
+                                }
+                            });
+                        }
+                    });
+                </script>
+            @endforeach
+
+            {{-- @foreach ($kategori as $nama => $id)
+                @push('scripts')
+                    <script type="module">
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const tabs = document.querySelectorAll('[data-tabs-target]');
+                            const contents = document.querySelectorAll('[role="tabpanel"]');
+
+                            tabs.forEach(tab => {
+                                tab.addEventListener('click', function() {
+                                    tabs.forEach(t => t.classList.remove('bg-primary-300', 'text-white'));
+                                    contents.forEach(c => c.classList.add('hidden'));
+
+                                    const targetId = this.getAttribute('data-tabs-target');
+                                    const target = document.querySelector(targetId);
+
+                                    this.classList.add('bg-primary-300', 'text-white');
+                                    target.classList.remove('hidden');
+
+                                    activeTab = targetId; // simpan ID tab aktif
+                                });
+                            });
+
+                            // Aktifkan tab pertama secara default
+                            if (tabs.length > 0) {
+                                tabs[0].click();
+                            }
+
+                            // Sortable JS untuk setiap kategori
+
+                            new Sortable(document.getElementById('sortable-roles-{{ $id }}'), {
+                                animation: 150,
+                                onEnd: function(evt) {
+                                    const newOrder = Array.from(evt.to.children).map(function(item) {
+                                        const idElement = item.querySelector('[id^="id-role"]');
+                                        return idElement ? idElement.textContent.trim() : null;
+                                    }).filter(Boolean);
+
+                                    @this.call('updateRolesOrder', {{ $id }}, newOrder);
+                                }
+                            });
+
+                            $wire.on('approval-updated', () => {
+                                // Kembalikan tab aktif
+                                if (activeTab) {
+                                    const tabBtn = document.querySelector(`[data-tabs-target="${activeTab}"]`);
+                                    const panel = document.querySelector(activeTab);
+
+                                    if (tabBtn && panel) {
+                                        document.querySelectorAll('[data-tabs-target]').forEach(t => t.classList.remove(
+                                            'bg-primary-300', 'text-white'));
+                                        document.querySelectorAll('[role="tabpanel"]').forEach(c => c.classList.add(
+                                            'hidden'));
+
+                                        tabBtn.classList.add('bg-primary-300', 'text-white');
+                                        panel.classList.remove('hidden');
+                                    }
+                                }
+                            });
+                        });
+                    </script>
+                @endpush
+            @endforeach --}}
+
             <x-card title="Tambahan">
                 {{-- @if ($tipe == 'permintaan') --}}
                 @if (true)
@@ -155,7 +350,8 @@
                                     class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-red-300">
                                     <option value="" selected>Pilih urutan persetujuan...</option>
                                     @foreach (range($approvalOrder + 1, count($roles)) as $index)
-                                        <option value="{{ $index }}">Setelah Persetujuan ke-{{ $index }}
+                                        <option value="{{ $index }}">Setelah Persetujuan
+                                            ke-{{ $index }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -187,75 +383,57 @@
                 @else
                 @endif
             </x-card>
-
+            {{-- @dump($kategori) --}}
             @if ($tipe == 'permintaan' && $jenis == 'umum')
                 <x-card title="Pengaturan Penanggung Jawab">
-                    <div>
-                        <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 rounded-t-lg bg-primary-100 dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800"
-                            id="defaultTab" data-tabs-toggle="#defaultTabContent" role="tablist">
+                    <div x-data="{ activeTab: '{{ $kategori->values()->first() }}' }" x-init="$watch('activeTab', value => $wire.activeKategoriId = value)">
+
+                        <!-- Tab Buttons -->
+                        <ul
+                            class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 rounded-t-lg bg-primary-100 dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800">
                             @foreach ($kategori as $nama => $id)
                                 <li class="me-2">
-                                    <button id="tab-{{ $id }}"
-                                        data-tabs-target="#kategori-{{ $id }}" type="button" role="tab"
-                                        aria-controls="kategori-{{ $id }}" aria-selected="false"
+                                    <button @click="activeTab = '{{ $id }}'" type="button"
+                                        :class="activeTab === '{{ $id }}' ? 'bg-primary-300 text-white' : ''"
                                         class="inline-block p-4 hover:text-white hover:bg-primary-300 transition duration-200">
                                         {{ $nama }}
                                     </button>
                                 </li>
                             @endforeach
                         </ul>
-                    </div>
-                    <div id="defaultTabContent">
-                        @foreach ($kategori as $nama => $id)
-                            <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800"
-                                id="kategori-{{ $id }}" role="tabpanel">
-                                <div class="flex flex-col gap-6">
-                                    <div class="text-gray-700">
-                                        <label for="finalizerRole-{{ $id }}" class="block font-medium mb-2">
-                                            Pilih User untuk {{ $nama }}.
-                                        </label>
-                                        <select wire:model.live="finalizerRole" id="finalizerRole-{{ $id }}"
-                                            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
-                                            <option value="" selected>Pilih Penanggung Jawab {{ $nama }}
-                                            </option>
-                                            @foreach ($user as $item)
-                                                <option value="{{ $item['id'] }}">{{ $item['name'] }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('finalizerRole')
-                                            <span class="text-red-500 text-sm">{{ $message }}</span>
-                                        @enderror
+
+                        <!-- Tab Contents -->
+                        <div class="mt-4">
+                            @foreach ($kategori as $nama => $id)
+                                <div x-show="activeTab === '{{ $id }}'" x-transition
+                                    class="p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800">
+                                    <div class="flex flex-col gap-6">
+                                        <div class="text-gray-700">
+                                            <label for="kategoriUser-{{ $id }}"
+                                                class="block font-medium mb-2">
+                                                Pilih User untuk {{ $nama }}.
+                                            </label>
+                                            <select wire:model.live="kategoriUser.{{ $id }}"
+                                                id="kategoriUser-{{ $id }}"
+                                                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+                                                <option value="" selected>Pilih Penanggung Jawab
+                                                    {{ $nama }}</option>
+                                                @foreach ($user as $item)
+                                                    <option value="{{ $item['id'] }}">{{ $item['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error("kategoriUser.$id")
+                                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        </div>
                     </div>
                 </x-card>
-                @push('scripts')
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const tabs = document.querySelectorAll('[data-tabs-target]');
-                            const contents = document.querySelectorAll('[role="tabpanel"]');
-
-                            tabs.forEach(tab => {
-                                tab.addEventListener('click', function() {
-                                    tabs.forEach(t => t.classList.remove('bg-primary-300', 'text-white'));
-                                    contents.forEach(c => c.classList.add('hidden'));
-
-                                    const target = document.querySelector(this.getAttribute('data-tabs-target'));
-                                    this.classList.add('bg-primary-300', 'text-white');
-                                    target.classList.remove('hidden');
-                                });
-                            });
-
-                            // Aktifkan tab pertama secara default
-                            if (tabs.length > 0) {
-                                tabs[0].click();
-                            }
-                        });
-                    </script>
-                @endpush
             @endif
+
         @endif
         @if ($tipe !== 'permintaan')
 

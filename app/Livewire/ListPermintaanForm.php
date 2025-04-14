@@ -47,9 +47,9 @@ class ListPermintaanForm extends Component
     public $newAlamatLokasi;
     public $newKontakPerson;
     public $newWaktu;
+    public $atasanLangsung;
     public $waktus;
     public $availBarangs;
-
     public $list = []; // List of items
     public $newDeskripsi; // Input for new barang
     public $newCatatan; // Input for new barang
@@ -70,8 +70,8 @@ class ListPermintaanForm extends Component
     public $NamaKDO;
     public $newDokumen; // Input for new dokumen
     public $newBukti; // Input for new dokumen
+    public $newDone; // Input for new dokumen
     public $barangSuggestions = []; // Suggestions for barang
-
     public $showApprovalModal = false;
     public $ruleShow;
     public $ruleAdd;
@@ -326,6 +326,15 @@ class ListPermintaanForm extends Component
             $this->availBarangs = $avai->where('jenis_id', 1)->get();
         }
 
+        if ($kategori_id == 6) {
+            $voucher = $this->availBarangs->first(function ($item) {
+                return stripos($item->nama, 'voucher') !== false;
+            });
+            if ($voucher) {
+                $this->newBarangId = $voucher->id;
+            }
+        }
+
         $this->kategori_id = $kategori_id;
         $this->fillShowRule();
 
@@ -475,9 +484,10 @@ class ListPermintaanForm extends Component
                 'catatan' => $item['catatan'] ?? null,
                 'img' => $storedFilePath ?? $storedFilePathBukti ?? null,
                 'barang_id' => $item['barang_id'],
-                'jumlah' => $item['jumlah'],
+                'jumlah' => $item['jumlah'] ?? 1,
                 'lokasi_id' => $item['lokasi_id'] ?? null,
-                'driver_id' => $item['driver_id'] ?? null,
+                // 'driver_id' => $item['driver_id'] ?? null,
+                'driver_name' => $item['driver_name'] ?? null,
                 'noseri' => $item['noseri'] ?? null,
                 'jenis_kdo' => $item['jenis_kdo'] ?? null,
                 'nama_kdo' => $item['nama_kdo'] ?? null,
@@ -553,6 +563,34 @@ class ListPermintaanForm extends Component
         // $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
 
         Notification::send($nextUser, new UserNotification($message, "/permintaan/permintaan/{$detailPermintaan->id}"));
+
+        $messageAtasan = 'Permintaan ' . $detailPermintaan->kategoriStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> telah diajukan oleh staf Anda dan memerlukan perhatian Anda.';
+        $pemohon = $this->permintaan->user;
+
+        // Reset atasan langsung
+        $this->atasanLangsung = null;
+
+        // 1. Jika pemohon adalah Kepala Unit → Atasan langsung null
+        if ($pemohon->hasRole('Kepala Unit') && $this->permintaan->unit_id) {
+            $this->atasanLangsung = null;
+        }
+        // 2. Jika pemohon adalah Kepala Subbagian, cari Kepala Unit di unit utama
+        elseif ($pemohon->hasRole('Kepala Subbagian') && $this->permintaan->sub_unit_id) {
+            $this->atasanLangsung = User::role('Kepala Unit')
+                ->where('unit_id', $this->permintaan->unit->id) // Cari Kepala Unit di unit utama
+                ->first();
+        }
+        // 3. Jika pemohon BUKAN Kepala Unit dan ada sub unit → Cari Kepala Subbagian di sub unit
+        elseif ($this->permintaan->sub_unit_id) {
+            $this->atasanLangsung = User::role('Kepala Subbagian')
+                ->where('unit_id', $this->permintaan->sub_unit_id)
+                ->first();
+        }
+        // Kirim notifikasi ke atasan langsung jika ditemukan
+        if ($this->atasanLangsung) {
+            // Kirim notifikasi ke atasan langsung
+            Notification::send($this->atasanLangsung, new UserNotification($messageAtasan, "/permintaan/permintaan/{$detailPermintaan->id}"));
+        }
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('tanya', 'berhasil');
         // $this->reset(['list', 'detailPermintaan']);
         // session()->flash('message', 'Permintaan Stok successfully saved.');
@@ -631,7 +669,7 @@ class ListPermintaanForm extends Component
 
         $this->validate([
             // 'newBarang' => 'required|string|max:255',
-            'newJumlah' => 'required|integer|min:1',
+            'newJumlah' => 'nullable|integer|min:1',
             'newDokumen' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,txt',
         ]);
         $this->list[] = [
@@ -643,12 +681,14 @@ class ListPermintaanForm extends Component
             'deskripsi' => $this->newDeskripsi ?? null,
             'catatan' => $this->newCatatan ?? null,
             'img' => $this->newBukti,
+            'img_done' => $this->newDone,
             'barang_id' => $this->newBarangId, // Assuming a dropdown for selecting existing barang
             // 'barang_name' => $this->newBarang,
             'barang' => $this->newBarang,
             'jumlah' => $this->newJumlah ?? null,
             'satuan' => $this->newUnit,
-            'driver_id' => $this->newDriverId ?? null,
+            // 'driver_id' => $this->newDriverId ?? null,
+            'driver_name' => $this->newDriverId ?? null,
             'noseri' => $this->NoSeri ?? null,
             'jenis_kdo' => $this->JenisKDO ?? null,
             'nama_kdo' => $this->NamaKDO ?? null,
@@ -667,11 +707,31 @@ class ListPermintaanForm extends Component
 
     public function fillShowRule()
     {
-        $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
+        // $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
+        $this->ruleShow =
+            $this->requestIs == 'permintaan'
+            ? (($this->kategori_id == 5 || $this->kategori_id == 6)
+                ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id && $this->keterangan
+                : $this->tanggal_permintaan && $this->unit_id && $this->kategori_id)
+            : ($this->requestIs == 'spare-part'
+                ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id && $this->sub_unit_id && $this->keterangan
+                : $this->tanggal_permintaan && $this->unit_id && $this->sub_unit_id && $this->keterangan);
     }
     public function updated()
     {
-        $this->ruleAdd = $this->requestIs == 'permintaan' ? $this->newBarang && $this->newJumlah : ($this->requestIs == 'spare-part' ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi : $this->newBarang && $this->newJumlah);
+
+        // $this->ruleAdd = $this->requestIs == 'permintaan' ? $this->newBarang && $this->newJumlah : ($this->requestIs == 'spare-part' ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi : $this->newBarang && $this->newJumlah  && $this->newDeskripsi);
+        $this->ruleAdd =
+            $this->requestIs == 'permintaan'
+            ? ($this->kategori_id == 5
+                ? $this->newBarang && $this->newDeskripsi
+                : ($this->kategori_id == 6
+                    ? $this->newDriverId
+                    : $this->newBarang && $this->newJumlah))
+            : ($this->requestIs == 'spare-part'
+                ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi
+                : $this->newBarang && $this->newJumlah && $this->newDeskripsi);
+
     }
     public $tipe;
     public function mount()
@@ -707,6 +767,7 @@ class ListPermintaanForm extends Component
                     'detail_permintaan_id' => $value->detail_permintaan_id,
                     'jumlah_approve' => $value->stokDisetujui->sum('jumlah_disetujui'),
                     'status' => $value->status,
+                    'user_id' => $value->user_id,
                     'id' => $value->id,
                     'aset_id' => $value->aset_id ?? null,
                     'aset_name' => $value->aset->nama ?? null,
@@ -717,11 +778,14 @@ class ListPermintaanForm extends Component
                     'barang_name' => $value->barangStok->nama,
                     'jumlah' => $value->jumlah,
                     'satuan' => $value->barangStok->satuanBesar->nama,
-                    'driver_id' => $value->driver_id,
+                    // 'driver_id' => $value->driver_id,
+                    'driver_name' => $value->driver_name,
+                    'voucher_name' => $value->voucher_name,
                     'noseri' => $value->noseri,
                     'jenis_kdo' => $value->jenis_kdo,
                     'nama_kdo' => $value->nama_kdo,
                     'dokumen' => $value->img ?? null,
+                    'img_done' => $value->img_done ?? null,
                 ];
             }
             // $role = $tipe == 'Umum' ? 'Kepala Seksi' : ($tipe == 'Spare Part' ? 'Kepala Subbagian' : 'Kepala Seksi Pemeliharaan');
@@ -836,12 +900,19 @@ class ListPermintaanForm extends Component
         $this->newBukti = null;
         $this->newDokumen = null;
     }
-    public function removeImg($index = null)
+
+
+    public function removeBukti($index)
     {
-        if (!is_null($index) ) {
-            $this->list[$index]['img'] = null;
+        // Cek apakah index tersedia di list
+        if (isset($this->list[$index]['img_done'])) {
+            // Hapus foto pada index tertentu
+            $this->list[$index]['img_done'] = null;
         }
     }
+
+
+
     public function removeDocument($index)
     {
         $item = $this->list[$index];
@@ -852,6 +923,53 @@ class ListPermintaanForm extends Component
         // Remove the document path from the item in the list
         $this->list[$index]['dokumen'] = null;
     }
+
+
+    public function doneItem($index, $message)
+    {
+        // Simpan perubahan ke database (misalnya, tabel PeminjamanAset)
+        $permintaanStok = PermintaanStok::find($this->list[$index]['id']);
+        // dd($permintaanStok, $message);
+        if ($permintaanStok) {
+            $uploadedFile = $this->list[$index]['img_done'];
+
+            $storedFilePath = $uploadedFile
+                ? $uploadedFile->storeAs(
+                    'kondisiKdo',
+                    time() . '_' . uniqid() . '.' . $uploadedFile->getClientOriginalExtension(),
+                    'public'
+                )
+                : null;
+
+            // Simpan hanya nama file-nya saja, tanpa path folder
+            $fileNameOnly = $storedFilePath ? basename($storedFilePath) : null;
+            $data = $this->tipe == 'Umum' ? [
+                'img_done' => $fileNameOnly,
+                'catatan_done' => $message,
+            ] : [
+                'img_done' => $fileNameOnly,
+                'catatan_done' => $message,
+            ];
+            $permintaanStok->update($data);
+        }
+        // $this->dispatch('success', "Upload Bukti Berhasil!");
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Upload Bukti Berhasil!');
+    }
+    public function VoucherNameAction($index)
+    {
+        // Simpan perubahan ke database (misalnya, tabel PeminjamanAset)
+        $permintaanStok = PermintaanStok::find($this->list[$index]['id']);
+        // dd($permintaanStok, $message);
+        if ($permintaanStok) {
+            $voucherName = $this->list[$index]['voucher_name'];
+
+            $permintaanStok->update([
+                'voucher_name' => $voucherName,
+            ]);
+        }
+
+        // $this->dispatch('success', "Upload Bukti Berhasil!");
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Upload Bukti Berhasil!');
 
     public function uploadimg($index)
     {
@@ -874,6 +992,7 @@ class ListPermintaanForm extends Component
             $this->permintaan->update(['proses' => 1]);
             return redirect()->to('/permintaan/permintaan/'.$this->permintaan->id);
         }
+
     }
 
     public function render()

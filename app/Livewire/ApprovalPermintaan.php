@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Aset;
 use App\Models\Stok;
 use App\Models\User;
+use App\Models\Ruang;
 use Livewire\Component;
 use App\Models\Kategori;
 use App\Models\UnitKerja;
@@ -41,6 +42,8 @@ class ApprovalPermintaan extends Component
     public $listApproval;
     public $showButton;
     public $kategori;
+    public $kepalaPemohon;
+    public $kepalaSubbagian;
 
     public function mount()
     {
@@ -157,7 +160,9 @@ class ApprovalPermintaan extends Component
                         ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
                         ->exists() &&
                     $previousApprovalStatus === 1 &&
-                    ($this->permintaan->cancel === 0 || $this->currentApprovalIndex + 1 < $this->listApproval);
+                    ($this->permintaan->cancel === 0 || $this->currentApprovalIndex < $this->listApproval);
+
+                // dd($previousUser, $currentUser, $previousApprovalStatus, $this->currentApprovalIndex, $this->listApproval, $this->currentApprovalIndex < $this->listApproval, $this->showButton);
             }
         }
         $cancelAfter = $this->permintaan->opsiPersetujuan->cancel_persetujuan;
@@ -174,11 +179,53 @@ class ApprovalPermintaan extends Component
         // dd($this->userApproval);
         $this->showButtonApproval = in_array(1, $this->userApproval) || 1;
         // dd($this->currentApprovalIndex);
+
+        $pemohon = $this->permintaan->user; // User yang membuat permintaan
+
+        if ($pemohon->hasRole('Kepala Unit')) {
+            // Jika pemohon adalah Kepala Unit, maka tidak ada atasan di atasnya
+            $this->kepalaPemohon = null;
+        } elseif ($pemohon->hasRole('Kepala Subbagian')) {
+            // Jika pemohon adalah Kepala Subbagian, maka cari Kepala Unit di atasnya
+            $this->kepalaPemohon = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Kepala Unit');
+            })
+                ->where(function ($query) use ($pemohon) {
+                    $query->where('unit_id', $pemohon->unitKerja->parent_id);
+                })
+                ->first();
+        } else {
+            // Jika pemohon adalah staf, maka cari Kepala Subbagian di unit kerja pemohon
+            $this->kepalaPemohon = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Kepala Subbagian');
+            })
+                ->where(function ($query) use ($pemohon) {
+                    $query->where('unit_id', $pemohon->unit_id);
+                })
+                ->first();
+        }
+
+        $this->kepalaSubbagian = User::whereHas('roles', function ($query) {
+            $query->where('name', 'Kepala Subbagian');
+        })
+            ->where(function ($query) use ($pemohon) {
+                $query->where('unit_id', $pemohon->unit_id);
+            })
+            ->first();
     }
 
-    public function markAsCompleted()
+    public function markAsCompleted($message = null)
     {
         $this->permintaan->update(['cancel' => false]);
+
+        $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+            (!is_null($this->permintaan->kode_permintaan) ? $this->permintaan->kode_permintaan : $this->permintaan->kode_peminjaman) .
+            '</span> telah Disetujui dan Selesai dengan keterangan <span class="font-bold">' . $message . '</span>';
+
+        if ($this->kepalaSubbagian) {
+            Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+        }
+
         return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
     public function cancelRequest()
@@ -195,13 +242,13 @@ class ApprovalPermintaan extends Component
         if ($status) {
             $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
             if ($currentIndex != count($this->roleLists) - 1) {
-                $message = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
                     (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
                     '</span> membutuhkan persetujuan Anda.';
 
 
                 $user = User::find(collect($this->roleLists)->flatten(1)[$currentIndex + 1]->id);
-                Notification::send($user, new UserNotification($message, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+                Notification::send($user, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
             $cancelAfter = $permintaan->opsiPersetujuan->cancel_persetujuan;
             // if ($currentIndex + 1 == $cancelAfter) {
@@ -209,6 +256,18 @@ class ApprovalPermintaan extends Component
             //         'cancel' => 0,
             //     ]);
             // }
+        } else {
+            $user = $this->permintaan->user;
+            if ($user) {
+                $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                    (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
+                    '</span> menolak persetujuan Anda dengan keterangan <span class="font-bold">' . $message . '</span>';
+
+
+                Notification::send($user, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+            }
+
+            $this->permintaan->update(['status' => false]);
         }
 
         $this->permintaan->persetujuan()->create([
@@ -217,47 +276,75 @@ class ApprovalPermintaan extends Component
             'status' => $status,
             'keterangan' => $message
         ]);
-        if (($this->currentApprovalIndex + 2) == $this->listApproval && $this->permintaan->kategori_id == 4) {
+        if (($this->currentApprovalIndex + 2) == $this->listApproval && in_array($this->permintaan->kategori_id, [4, 6])) {
             $this->permintaan->update([
                 'cancel' => 0,
             ]);
         }
 
-        if (($this->currentApprovalIndex + 1) == $this->listApproval) {
-            $this->permintaan->update([
-                'status' => 1,
-                // 'proses' => 1  // Proses selesai
-                'cancel' => 0  // Proses selesai
-            ]);
+
+        if ($this->tipe == 'permintaan') {
+            if (($this->currentApprovalIndex + 1) == $this->listApproval) {
+                $this->permintaan->update([
+                    'status' => 1,
+                    'proses' => 1  // Proses selesai
+                ]);
 
 
-            if ($this->tipe == 'permintaan') {
                 $permintaanItems = $this->permintaan->permintaanStok;
                 foreach ($permintaanItems as $merk) {
                     foreach ($merk->stokDisetujui as  $item) {
                         $this->adjustStockForApproval($item);
                     }
                 }
-            } else {
-                $kategori_id = $this->permintaan->peminjamanAset->first()->aset->kategori_id;
-                if ($kategori_id == 8) {
-                    $peminjamanItems = $this->permintaan->peminjamanAset;
-                } else {
+
+                $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                    (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
+                    '</span> telah Disetujui dan Selesai dengan keterangan <span class="font-bold">' . $message . '</span>';
+
+                if ($this->kepalaSubbagian) {
+                    Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+                }
+            }
+        } elseif ($this->tipe == 'peminjaman') {
+            if (($this->currentApprovalIndex + 1) == $this->listApproval) {
+                $this->permintaan->update([
+                    'status' => 1,
+                ]);
+                $kategori = $this->permintaan->kategori_id;
+                if ($kategori == 2) {
                     $peminjamanItems = $this->permintaan->peminjamanAset()->first();
 
                     if ($peminjamanItems) {
-                        // Ambil data aset berdasarkan aset_id
-                        $aset = Aset::find($peminjamanItems->aset_id);
-                        if ($aset) {
+                        // Ambil data ruang berdasarkan aset
+                        $ruang = Ruang::find($peminjamanItems->aset_id);
+                        if ($ruang) {
                             // Update peminjaman menjadi 0
-                            $aset->update([
+                            $ruang->update([
                                 'peminjaman' => 0
                             ]);
                         }
                     }
+                } else {
+                    $kategori_id = $this->permintaan->peminjamanAset->first()->aset->kategori_id;
+                    if ($kategori_id == 8) {
+                        $peminjamanItems = $this->permintaan->peminjamanAset;
+                    } else {
+                        $peminjamanItems = $this->permintaan->peminjamanAset()->first();
+
+                        if ($peminjamanItems) {
+                            // Ambil data aset berdasarkan aset_id
+                            $aset = Aset::find($peminjamanItems->aset_id);
+                            if ($aset) {
+                                // Update peminjaman menjadi 0
+                                $aset->update([
+                                    'peminjaman' => 0
+                                ]);
+                            }
+                        }
+                    }
                 }
             };
-        } else {
         }
 
 

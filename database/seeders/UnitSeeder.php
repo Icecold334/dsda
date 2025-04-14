@@ -461,10 +461,9 @@ class UnitSeeder extends Seeder
 
             // Daftar role yang HARUS digunakan untuk jenis 'umum' dalam urutan tetap
             $rolePriorityForUmum = [
-                'Kepala Unit',
                 'Customer Services',
-                'Penanggung Jawab',
-                'Kepala Subbagian'
+                'Penanggung Jawab'
+                // 'Kepala Subbagian'
             ];
 
             // Ambil ID dari role yang sesuai untuk 'umum'
@@ -511,8 +510,8 @@ class UnitSeeder extends Seeder
                     'jenis' => $jenis,
                     'tipe' => $tipe,
                     'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
-                    'urutan_persetujuan' => 2, // Urutan persetujuan pertama
-                    'cancel_persetujuan' => 3, // Urutan pembatalan kedua
+                    'urutan_persetujuan' => 1, // Urutan persetujuan pertama
+                    'cancel_persetujuan' => 2, // Urutan pembatalan kedua
                     'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
                 ]);
 
@@ -522,13 +521,13 @@ class UnitSeeder extends Seeder
                     $roleName = array_search($role, $roleIdMapping); // Cari nama role berdasarkan ID
 
                     // Jika role adalah "Customer Services" atau "Penanggung Jawab", approval = 1, selain itu 0/null
-                    $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
+                    // $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
 
                     \App\Models\JabatanPersetujuan::create([
                         'opsi_persetujuan_id' => $approvalConfiguration->id,
                         'jabatan_id' => $role,
                         'urutan' => $index + 1,
-                        'approval' => $approvalValue,
+                        // 'approval' => $approvalValue,
                     ]);
                 }
             }
@@ -537,10 +536,9 @@ class UnitSeeder extends Seeder
         $tipe = 'peminjaman'; // Tipe permintaan
 
         $rolePriorityForPeminjaman = [
-            'Kepala Unit',
             'Customer Services',
-            'Penanggung Jawab',
-            'Kepala Subbagian'
+            'Penanggung Jawab'
+            // 'Kepala Subbagian'
         ];
 
         // Ambil ID dari role yang sesuai untuk 'peminjaman'
@@ -591,8 +589,8 @@ class UnitSeeder extends Seeder
                     'jenis' => $jenis,
                     'tipe' => $tipe,
                     'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
-                    'urutan_persetujuan' => 2, // Urutan persetujuan pertama
-                    'cancel_persetujuan' => 3, // Urutan pembatalan kedua
+                    'urutan_persetujuan' => 1, // Urutan persetujuan pertama
+                    'cancel_persetujuan' => 2, // Urutan pembatalan kedua
                     'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
                 ]);
 
@@ -602,13 +600,13 @@ class UnitSeeder extends Seeder
                     $roleName = array_search($role, $roleIdMapping);
 
                     // Jika role adalah "Customer Services" atau "Penanggung Jawab", approval = 1, selain itu 0/null
-                    $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
+                    // $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
 
                     \App\Models\JabatanPersetujuan::create([
                         'opsi_persetujuan_id' => $approvalConfiguration->id,
                         'jabatan_id' => $role,
                         'urutan' => $index + 1,
-                        'approval' => $approvalValue,
+                        // 'approval' => $approvalValue,
                     ]);
                 }
             }
@@ -674,6 +672,34 @@ class UnitSeeder extends Seeder
                 }
 
                 $this->bagianSeed($lokasi);
+            }
+            // Tambahkan Gudang Umum jika unit adalah Sekretariat dan punya anak Subbagian Umum
+            if ($unit->nama === 'Sekretariat') {
+                $subbagianUmum = $unit->children()->where('nama', 'Subbagian Umum')->first();
+
+                if ($subbagianUmum) {
+                    $lokasiUmum = LokasiStok::create([
+                        'unit_id' => $subbagianUmum->id,
+                        'nama' => 'Gudang Umum',
+                        'slug' => Str::slug('Gudang Umum'),
+                        'alamat' => $this->faker->address,
+                    ]);
+
+                    // Buat user dengan role Penerima Barang di Gudang Umum
+                    $roleOnce = ['Penerima Barang'];
+                    foreach ($roleOnce as $item) {
+                        User::create([
+                            'email_verified_at' => now(),
+                            'name' => $this->faker->name(),
+                            'unit_id' => $subbagianUmum->id,
+                            'lokasi_id' => $lokasiUmum->id,
+                            'email' => Str::lower(str_replace(' ', '_', $item)) . (User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $item)) . "%")->count() + 1) . "@email.com",
+                            'password' => bcrypt('123'),
+                        ])->roles()->attach(Role::where('name', $item)->first()->id);
+                    }
+
+                    $this->bagianSeed($lokasiUmum);
+                }
             }
         }
     }

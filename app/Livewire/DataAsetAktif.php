@@ -26,138 +26,116 @@ class DataAsetAktif extends Component
 
     public $nama, $kategori_id, $merk_id, $toko_id, $penanggung_jawab_id, $lokasi_id;
     public $orderBy = 'nama', $orderDirection = 'asc';
-    public $perPage = 5;
-    public $kategoris, $merks, $tokos, $penanggungJawabs, $lokasis;
+    public $perPage = 10;
+
+    public $kategoris = [], $merks = [], $tokos = [], $penanggungJawabs = [], $lokasis = [];
     public $showFilters = false;
 
     public function mount()
     {
-        // Ambil unit_id user yang sedang login
-        $userUnitId = Auth::user()->unit_id;
-        $unit = UnitKerja::find($userUnitId);
-        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
-
-        // Ambil kategori, merk, dan toko tanpa filter unit kerja
-        $this->kategoris = Kategori::all();
-        $this->merks = Merk::all();
-        $this->tokos = Toko::all();
-
-        // Ambil penanggung jawab dan lokasi dengan filter unit parent
-        $this->penanggungJawabs = Person::whereHas('user', function ($query) use ($parentUnitId) {
-            $this->filterByParentUnit($query, $parentUnitId);
-        })->get();
-
-        $this->lokasis = Lokasi::whereHas('user', function ($query) use ($parentUnitId) {
-            $this->filterByParentUnit($query, $parentUnitId);
-        })->get();
-
-        // Ambil aset berdasarkan unit parent
-        $this->loadAsets();
+        $this->loadFilterOptions();
     }
-
-    public function loadAsets()
-    {
-        // Ambil unit kerja pengguna yang login
-        $userUnitId = Auth::user()->unit_id;
-        $unit = UnitKerja::find($userUnitId);
-        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $userUnitId;
-
-        $query = Aset::where('status', true)
-            ->when($this->nama, fn($q) => $q->where('nama', 'like', '%' . $this->nama . '%'))
-            ->when($this->kategori_id, fn($q) => $q->where('kategori_id', $this->kategori_id))
-            ->when($this->merk_id, fn($q) => $q->where('merk_id', $this->merk_id))
-            ->when($this->toko_id, fn($q) => $q->where('toko_id', $this->toko_id))
-            ->when($this->penanggung_jawab_id, fn($q) => $q->whereHas('histories', fn($q) => $q->where('person_id', $this->penanggung_jawab_id)))
-            ->when($this->lokasi_id, fn($q) => $q->whereHas('histories', fn($q) => $q->where('lokasi_id', $this->lokasi_id)))
-            ->whereHas('user', fn($q) => $this->filterByParentUnit($q, $parentUnitId)); //Tambahkan filter unit kerja
-
-        // Terapkan sorting
-        $query = $this->applySorting($query);
-
-        // Ambil hasil query dengan pagination
-        $paginated = $query->paginate($this->perPage);
-
-        // Proses setiap aset untuk mendapatkan data QR
-        $asetqr = $paginated->getCollection()->mapWithKeys(function ($aset) {
-            return [$aset->id => getAssetWithSettings($aset->id)];
-        })->toArray();
-
-        // Ubah hasil ke bentuk array dengan transformasi data
-        $asets = $paginated->getCollection()->map(function ($aset) use ($asetqr) {
-            return [
-                'id' => $aset->id,
-                'nama' => $aset->nama,
-                'foto' => $aset->foto,
-                'kode' => $aset->kode,
-                'systemcode' => $aset->systemcode,
-                'tipe' => $aset->tipe,
-                'tanggalbeli' => $aset->tanggalbeli,
-                'kategori' => $aset->kategori->nama ?? '-',
-                'merk' => $aset->merk->nama ?? '-',
-                'toko' => $aset->toko->nama ?? '-',
-                'histories' => $aset->histories->map(function ($history) {
-                    return [
-                        'tanggal' => $history->tanggal,
-                        'person' => $history->person->nama ?? '-',
-                        'lokasi' => $history->lokasi->nama ?? '-',
-                    ];
-                })->toArray(),
-                'qr_code' => [
-                    'qr_image' => isset($asetqr[$aset->id]) ? asset($asetqr[$aset->id]['qr_image']) : '',
-                    'judul' => $asetqr[$aset->id]['judul'] ?? '',
-                    'baris1' => $asetqr[$aset->id]['baris1'] ?? '',
-                    'baris2' => $asetqr[$aset->id]['baris2'] ?? '',
-                ],
-                'hargatotal' => $this->rupiah($aset->hargatotal),
-                'nilaiSekarang' => $this->rupiah($this->nilaiSekarang($aset->hargatotal, strtotime($aset->tanggalbeli), $aset->umur)),
-                'totalpenyusutan' => $this->rupiah($aset->hargatotal - $this->nilaiSekarang($aset->hargatotal, strtotime($aset->tanggalbeli), $aset->umur)),
-
-            ];
-        })->toArray();
-
-        return [
-            'data' => $asets,
-            'pagination' => [
-                'current_page' => $paginated->currentPage(),
-                'last_page' => $paginated->lastPage(),
-                'per_page' => $paginated->perPage(),
-                'total' => $paginated->total(),
-            ],
-        ];
-    }
-
 
     public function updated($property)
     {
-        $this->resetPage();
+        if (in_array($property, ['nama', 'kategori_id', 'merk_id', 'toko_id', 'penanggung_jawab_id', 'lokasi_id'])) {
+            $this->resetPage();
+        }
     }
 
     public function sortBy($field)
     {
         $this->orderDirection = ($this->orderBy === $field && $this->orderDirection === 'asc') ? 'desc' : 'asc';
         $this->orderBy = $field;
-        $this->loadAsets();
+        $this->resetPage();
+    }
+
+    private function loadFilterOptions()
+    {
+        $unitId = Auth::user()->unit_id;
+        $unit = UnitKerja::find($unitId);
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
+
+        $this->kategoris = Kategori::all();
+        $this->merks = Merk::all();
+        $this->tokos = Toko::all();
+
+        $this->penanggungJawabs = Person::whereHas('user', function ($q) use ($parentUnitId) {
+            $this->filterByParentUnit($q, $parentUnitId);
+        })->get();
+
+        $this->lokasis = Lokasi::whereHas('user', function ($q) use ($parentUnitId) {
+            $this->filterByParentUnit($q, $parentUnitId);
+        })->get();
+    }
+
+
+    public function fetchAsets()
+    {
+        $unitId = Auth::user()->unit_id;
+        $unit = UnitKerja::find($unitId);
+        $parentUnitId = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
+
+        $query = Aset::where('status', true)
+            ->when($this->nama, fn($q) => $q->where('nama', 'like', '%' . $this->nama . '%'))
+            ->when($this->kategori_id, fn($q) => $q->where('kategori_id', $this->kategori_id))
+            ->when($this->merk_id, fn($q) => $q->where('merk_id', $this->merk_id))
+            ->when($this->toko_id, fn($q) => $q->where('toko_id', $this->toko_id))
+            ->when($this->penanggung_jawab_id, fn($q) =>
+            $q->whereHas('histories', fn($h) => $h->where('person_id', $this->penanggung_jawab_id)))
+            ->when($this->lokasi_id, fn($q) =>
+            $q->whereHas('histories', fn($h) => $h->where('lokasi_id', $this->lokasi_id)))
+            ->whereHas('user', fn($q) => $this->filterByParentUnit($q, $parentUnitId));
+
+        $paginated = $this->applySorting($query)->paginate($this->perPage);
+
+        // Dapatkan data QR masing-masing aset
+        $asetqr = $paginated->getCollection()->mapWithKeys(function ($aset) {
+            return [$aset->id => getAssetWithSettings($aset->id)];
+        });
+
+        // Tambahkan properti tambahan ke tiap objek Aset
+        $paginated->getCollection()->each(function ($aset) use ($asetqr) {
+            $qr = $asetqr[$aset->id] ?? [];
+
+            $aset->qr_code = [
+                'qr_image' => isset($qr['qr_image']) ? asset($qr['qr_image']) : '',
+                'judul' => $qr['judul'] ?? '',
+                'baris1' => $qr['baris1'] ?? '',
+                'baris2' => $qr['baris2'] ?? '',
+            ];
+
+            $aset->hargatotal_formatted = $this->rupiah($aset->hargatotal);
+            $aset->nilaiSekarang = $this->rupiah($this->nilaiSekarang($aset->hargatotal, strtotime($aset->tanggalbeli), $aset->umur));
+            $aset->totalpenyusutan = $this->rupiah($aset->hargatotal - $this->nilaiSekarang($aset->hargatotal, strtotime($aset->tanggalbeli), $aset->umur));
+            // Mapping riwayat
+            $aset->histories_mapped = $aset->histories->map(function ($history) {
+                return (object)[
+                    'tanggal' => $history->tanggal,
+                    'person' => $history->person->nama ?? '-',
+                    'lokasi' => $history->lokasi->nama ?? '-',
+                ];
+            });
+        });
+
+        return $paginated;
     }
 
     private function applySorting($query)
     {
         if ($this->orderBy === 'riwayat') {
-            // Jika pengurutan berdasarkan 'riwayat', lakukan LEFT JOIN dengan history
             $query = Aset::query();
             $query->leftJoin('history', 'history.aset_id', '=', 'aset.id')
                 ->selectRaw('aset.*, COUNT(history.id) as history_count')
                 ->where('aset.status', true)
                 ->groupBy('aset.id');
 
-            $query = $this->orderDirection === 'asc'
+            return $this->orderDirection === 'asc'
                 ? $query->orderByRaw('COUNT(history.id) ASC')
                 : $query->orderByRaw('COUNT(history.id) DESC');
-        } else {
-            // Urutkan berdasarkan kolom lain jika bukan berdasarkan riwayat
-            $query->orderBy($this->orderBy, $this->orderDirection);
         }
 
-        return $query;
+        return $query->orderBy($this->orderBy, $this->orderDirection);
     }
 
     protected function getAssetWithSettings($asets)
@@ -434,7 +412,7 @@ class DataAsetAktif extends Component
     }
     public function render()
     {
-        $asets = $this->loadAsets(); // Ambil data aset
+        $asets = $this->fetchAsets();
         // dd($asets);
         return view('livewire.data-aset-aktif', compact('asets')); // Kirim ke Blade
     }

@@ -79,27 +79,28 @@
                     </x-card>
                 </div>
                 <div>
-                    <x-card title="agenda minggu" class="mb-3">
+                    <x-card title="Peminjaman Mingguan" class="mb-3">
                         <div class="relative">
-                            @forelse ($agendas as $agenda)
+                            @forelse ($peminjamans as $peminjaman)
                                 <div class="p-2 hover:bg-gray-100 border-b border-gray-200">
                                     <!-- Container setiap item dengan efek hover -->
                                     <div>
-                                        <strong>{{ $agenda->formatted_date }}</strong>
+                                        <strong>{{ $peminjaman->formatted_date }}</strong>
                                     </div>
                                     <div class="text-sm">
-                                        <a href="{{ route('aset.show', $agenda->aset->id) }}"
+                                        <a href="/permintaan/peminjaman/{{ $peminjaman['id'] }}"
                                             class="text-primary-900 hover:underline">
-                                            {{ $agenda->aset->nama }}
+                                            {{ $peminjaman->nama }}
                                         </a>
                                     </div>
                                     <div class="text-sm">
-                                        <em>{{ ucwords($agenda->tipe) }}:</em> {{ $agenda->keterangan }}
+                                        <em>{{ ucwords($peminjaman->waktu->mulai) }}-</em>
+                                        {{ ucwords($peminjaman->waktu->selesai) }}
                                     </div>
                                 </div>
                             @empty
                                 <div class="p-2 text-center">
-                                    <p>Tidak ada Agenda</p> <!-- Message if $agendas is empty -->
+                                    <p>Tidak ada Peminjaman</p> <!-- Message if $agendas is empty -->
                                 </div>
                             @endforelse
                         </div>

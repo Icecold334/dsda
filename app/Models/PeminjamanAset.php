@@ -35,6 +35,11 @@ class PeminjamanAset extends Model
         return $this->belongsTo(Aset::class);
     }
 
+    public function ruang()
+    {
+        return $this->belongsTo(Ruang::class, 'aset_id');
+    }
+
     public function unit()
     {
         return $this->belongsTo(UnitKerja::class);
@@ -43,5 +48,9 @@ class PeminjamanAset extends Model
     public function barang()
     {
         return $this->belongsTo(BarangStok::class, 'barang_id');
+    }
+    public function waktu()
+    {
+        return $this->belongsTo(WaktuPeminjaman::class, 'waktu_id');
     }
 }

@@ -13,13 +13,14 @@ use Livewire\Component;
 use App\Models\Keuangan;
 use App\Models\UnitKerja;
 use App\Models\BarangStok;
+use App\Models\PeminjamanAset;
 use App\Models\DetailPeminjamanAset;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardDisplayUmum extends Component
 {
-    public $agendas, $jurnals, $histories, $transactions, $asets_limit;
+    public $peminjamans, $jurnals, $histories, $transactions, $asets_limit;
     public $pelayanan;
     public $KDO;
     public $unit_id;
@@ -42,16 +43,28 @@ class DashboardDisplayUmum extends Component
         // Mendapatkan query untuk aset aktif
         $query = $this->getAsetQuery();
 
-        $this->agendas = Agenda::with('aset')
-            ->where([['status', 1], ['tipe', 'mingguan']])
+        $this->peminjamans = PeminjamanAset::with(['detailPeminjaman', 'aset', 'ruang'])
+            ->whereHas('detailPeminjaman', function ($query) {
+                $query->where('status', 1);
+            })
             ->orderBy('aset_id')
             ->orderBy('tanggal', 'desc')
             ->take(5)
             ->get()
             ->unique('aset_id');
 
-        foreach ($this->agendas as $agenda) {
-            $agenda->formatted_date = Carbon::parse($agenda->tanggal)->translatedFormat('l, j M Y');
+        foreach ($this->peminjamans as $peminjaman) {
+            $peminjaman->formatted_date = Carbon::parse($peminjaman->tanggal)->translatedFormat('l, j M Y');
+            if ($peminjaman->detailPeminjaman->kategori_id == 2) {
+                $peminjaman->nama = $peminjaman->ruang->nama ?? '-';
+            } elseif ($peminjaman->detailPeminjaman->kategori_id == 1) {
+                $merk = $peminjaman->aset->merk->nama ?? '';
+                $nama = $peminjaman->aset->nama ?? '-';
+                $noseri = $peminjaman->aset->noseri ?? '';
+                $peminjaman->nama = trim("{$merk} {$nama} - {$noseri}");
+            } else {
+                $peminjaman->nama = $peminjaman->aset->nama ?? '-';
+            }
         }
 
         $this->transactions = Keuangan::with('aset')
@@ -244,7 +257,7 @@ class DashboardDisplayUmum extends Component
     public $statusMapping = [
         'dibatalkan' => ['text' => 'Dibatalkan', 'color' => 'secondary'],
         'selesai' => ['text' => 'Selesai', 'color' => 'primary'],
-        'siap_diambil' => ['text' => 'Siap Diambil', 'color' => 'info'],
+        'siap_digunakan' => ['text' => 'Siap Digunakan', 'color' => 'info'],
         'diproses' => ['text' => 'Diproses', 'color' => 'warning'],
         'disetujui' => ['text' => 'Disetujui', 'color' => 'success'],
         'ditolak' => ['text' => 'Ditolak', 'color' => 'danger'],
@@ -255,7 +268,7 @@ class DashboardDisplayUmum extends Component
     {
         if ($permintaan['cancel'] === 1) return 'dibatalkan';
         if ($permintaan['cancel'] === 0 && $permintaan['proses'] === 1) return 'selesai';
-        if ($permintaan['cancel'] === 0 && is_null($permintaan['proses'])) return 'siap_diambil';
+        if ($permintaan['cancel'] === 0 && is_null($permintaan['proses'])) return 'siap_digunakan';
         if (is_null($permintaan['cancel']) && is_null($permintaan['proses']) && is_null($permintaan['status'])) return 'diproses';
         if (is_null($permintaan['cancel']) && is_null($permintaan['proses']) && $permintaan['status'] === 1) return 'disetujui';
         return 'ditolak';
