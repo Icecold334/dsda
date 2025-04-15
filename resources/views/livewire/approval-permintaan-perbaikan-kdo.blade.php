@@ -27,37 +27,42 @@
             </div>
         </div>
 
-        {{-- Approval Dinamis Berdasarkan Role --}}
+        <!-- Iterasi dinamis semua role -->
         @foreach ($roleLists as $roleKey => $users)
             <div>
                 <div class="block font-semibold text-center mb-2 text-gray-900">
-                    {{ ucwords(str_replace('-', ' ', $roleKey)) }}
+                    {{ ucwords(str_replace('-', ' ', $roleKey)) }}{{ $roleKey == 'kepala-subbagian' ? ' Tata Usaha' : '' }}
                 </div>
-                <table class="w-full">
+                <table class="w-full mt-3">
                     @foreach ($users as $user)
                         <tr class="text-sm border-b-2">
                             <td class="flex justify-between px-3">
                                 <span class="mr-9 {{ $user->id == auth()->id() ? 'font-bold' : '' }}">
                                     {{ $user->name }}
                                 </span>
+                                @php
+                                    $status = optional(
+                                        $user->persetujuan
+                                            ->where('approvable_id', $permintaan->id ?? 0)
+                                            ->where('approvable_type', App\Models\DetailPermintaanStok::class)
+                                            ->first(),
+                                    )->is_approved;
+                                @endphp
                                 <i
-                                    class="fa-solid {{ is_null(
-                                        optional(
-                                            $user->{'persetujuan' . $tipe}?->where('detail_' . Str::lower($tipe) . '_id', $permintaan->id ?? 0)->first(),
-                                        )?->status,
-                                    )
+                                    class="my-1 fa-solid {{ is_null($status)
                                         ? 'fa-circle-question text-secondary-600'
-                                        : (optional(
-                                            $user->{'persetujuan' . $tipe}?->where('detail_' . Str::lower($tipe) . '_id', $permintaan->id ?? 0)->first(),
-                                        )?->status
+                                        : ($status
                                             ? 'fa-circle-check text-success-500'
-                                            : 'fa-circle-xmark text-danger-500') }}"></i>
+                                            : 'fa-circle-xmark text-danger-500') }}">
+                                </i>
+
                             </td>
                         </tr>
                     @endforeach
                 </table>
             </div>
         @endforeach
+
 
         {{-- Kepala Subbagian --}}
         <div>
@@ -69,10 +74,12 @@
                         {{ $kepalaSubbagian->name ?? 'Tidak Ada Kepala' }}
                     </span>
                     @if ($kepalaSubbagian)
-                        @if ($tipe == 'permintaan' && $permintaan->proses)
+                        @if ($permintaan->status && $permintaan->cancel === null && $permintaan->proses === null)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
-                        @elseif ($tipe == 'peminjaman' && $permintaan->status && !$permintaan->cancel)
+                        @elseif($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
+                        @elseif($permintaan->status && !$permintaan->cancel && !$permintaan->proses)
+                            <i class="fa-solid fa-circle-xmark text-danger-500"></i>
                         @else
                             <i class="fa-solid fa-circle-question text-secondary-600"></i>
                         @endif
@@ -81,7 +88,6 @@
             </div>
         </div>
     </div>
-
     {{-- Tombol Approval --}}
     @if ($showButton)
         <div class="flex justify-center w-full mt-4">
@@ -117,13 +123,20 @@
             Swal.fire({
                 title: 'Konfirmasi Persetujuan',
                 text: 'Apakah Anda yakin ingin menyetujui permintaan ini?',
-                icon: 'warning',
+                input: 'textarea',
+                inputPlaceholder: 'Masukkan keterangan untuk Atasan (Opsional)',
+                inputAttributes: {
+                    'aria-label': 'Masukkan alasan Anda'
+                },
                 showCancelButton: true,
-                confirmButtonText: 'Setuju',
-                cancelButtonText: 'Batal'
+                confirmButtonText: 'Setujui',
+                cancelButtonText: 'Batal',
+                preConfirm: (inputValue) => {
+                    return inputValue; // Allows submission
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    @this.call('approveConfirmed', 1);
+                    @this.call('approveConfirmed', 1, result.value);
                 }
             });
         }

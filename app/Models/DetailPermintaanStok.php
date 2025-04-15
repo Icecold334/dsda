@@ -41,10 +41,10 @@ class DetailPermintaanStok extends Model
         return $this->hasMany(PermintaanStok::class, 'detail_permintaan_id');
     }
 
-    public function persetujuan()
-    {
-        return $this->hasMany(PersetujuanPermintaanStok::class, 'detail_permintaan_id');
-    }
+    // public function persetujuan()
+    // {
+    //     return $this->hasMany(PersetujuanPermintaanStok::class, 'detail_permintaan_id');
+    // }
 
     public function opsiPersetujuan()
     {
@@ -58,8 +58,8 @@ class DetailPermintaanStok extends Model
     {
         return $this->belongsTo(Aset::class, 'aset_id');
     }
-    public function rab()
+    public function persetujuan()
     {
-        return $this->belongsTo(Rab::class, 'rab_id');
+        return $this->morphMany(Persetujuan::class, 'approvable');
     }
 }

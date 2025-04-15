@@ -270,13 +270,8 @@ class ApprovalPermintaan extends Component
             $this->permintaan->update(['status' => false]);
         }
 
-        $this->permintaan->persetujuan()->create([
-            'detail_' . $this->tipe . '_id' => $this->permintaan->id,
-            'user_id' => $this->user->id,
-            'status' => $status,
-            'keterangan' => $message
-        ]);
-        if (($this->currentApprovalIndex + 2) == $this->listApproval && in_array($this->permintaan->kategori_id, [4, 6])) {
+   
+        if (($this->currentApprovalIndex + 1) == $this->listApproval && in_array($this->permintaan->kategori_id, [4, 6])) {
             $this->permintaan->update([
                 'cancel' => 0,
             ]);
@@ -346,8 +341,6 @@ class ApprovalPermintaan extends Component
                 }
             };
         }
-
-
 
         return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }

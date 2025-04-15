@@ -96,6 +96,7 @@ class PermintaanStokController extends Controller
             $permintaan->status_teks = $statusMap[$permintaan->status]['label'] ?? 'Tidak diketahui';
             $permintaan->status_warna = $statusMap[$permintaan->status]['color'] ?? 'gray';
         }
+
         return view('permintaan.show', compact('permintaan', 'tipe'));
     }
 

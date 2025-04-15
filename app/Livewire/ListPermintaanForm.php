@@ -351,7 +351,8 @@ class ListPermintaanForm extends Component
                 });
             })->whereHas('kategori', function ($query) use ($kategori) {
                 return $query->where('parent_id', $kategori->id)->orWhere('id', $kategori->id);
-            })->get();
+            })->where('perbaikan', true)
+            ->get();
 
         $this->drivers = User::whereHas('roles', function ($query) {
             $query->where('name', 'Driver'); // Ambil user dengan role "Driver"
@@ -731,7 +732,6 @@ class ListPermintaanForm extends Component
             : ($this->requestIs == 'spare-part'
                 ? $this->newBarang && $this->newJumlah && $this->newAsetId && $this->newBukti && $this->newDeskripsi
                 : $this->newBarang && $this->newJumlah && $this->newDeskripsi);
-
     }
     public $tipe;
     public function mount()
@@ -765,6 +765,7 @@ class ListPermintaanForm extends Component
 
                 $this->list[] = [
                     'detail_permintaan_id' => $value->detail_permintaan_id,
+                    'detail_permintaan_status' => optional($value->detailPermintaan)->status,
                     'jumlah_approve' => $value->stokDisetujui->sum('jumlah_disetujui'),
                     'status' => $value->status,
                     'user_id' => $value->user_id,
@@ -893,7 +894,7 @@ class ListPermintaanForm extends Component
     }
     public function removePhoto($index = null)
     {
-        if ($index ) {
+        if ($index) {
             dd('asdasd');
             $this->list[$index]['img'] = null;
         }
@@ -952,6 +953,41 @@ class ListPermintaanForm extends Component
             ];
             $permintaanStok->update($data);
         }
+
+        // Update juga ke tabel detail_permintaan_stok melalui relasi
+        if ($permintaanStok->detailPermintaan) {
+            $detail = $permintaanStok->detailPermintaan;
+
+            if ($detail->kategori_id == 6) {
+                $detail->update([
+                    'proses' => 1,
+                    'cancel' => 0
+                ]);
+            } elseif ($detail->kategori_id == 5) {
+                // Ambil semua permintaan stok untuk detail yang sama
+                $relatedPermintaan = $detail->permintaanStok;
+
+                // Cek jika current permintaan ini adalah elemen ke-2 (index 1)
+                if ($relatedPermintaan && $relatedPermintaan->count() >= 2) {
+                    $secondItem = $relatedPermintaan[1]; // index ke-1 = row ke-2
+                    if ($secondItem->id == $permintaanStok->id) {
+                        // Update detail
+                        $detail->update([
+                            'proses' => 1,
+                            'cancel' => 0
+                        ]);
+
+                        // Update aset terkait jika ada
+                        if ($detail->aset) {
+                            $detail->aset->update([
+                                'perbaikan' => true
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
         // $this->dispatch('success', "Upload Bukti Berhasil!");
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Upload Bukti Berhasil!');
     }
@@ -969,7 +1005,8 @@ class ListPermintaanForm extends Component
         }
 
         // $this->dispatch('success', "Upload Bukti Berhasil!");
-        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Upload Bukti Berhasil!');
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Voucher Nama Diberikan!');
+    }
 
     public function uploadimg($index)
     {
@@ -990,9 +1027,8 @@ class ListPermintaanForm extends Component
         if ($allUploaded) {
             // Jika semua img sudah berupa string → update status proses
             $this->permintaan->update(['proses' => 1]);
-            return redirect()->to('/permintaan/permintaan/'.$this->permintaan->id);
+            return redirect()->to('/permintaan/permintaan/' . $this->permintaan->id);
         }
-
     }
 
     public function render()

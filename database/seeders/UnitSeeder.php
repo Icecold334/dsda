@@ -29,7 +29,7 @@ class UnitSeeder extends Seeder
             'Sekretariat' => [
                 'kepala' => 'Hendri, ST, MT',
                 'sub_units' => [
-                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST', 'staf' => ['Ahmad Gunadi'], 'cs' => ['Nisya']],
+                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST', 'staf' => ['Ahmad Gunadi'], 'cs' => ['Nisya', 'Insan']],
                     ['nama' => 'Subkelompok Kepegawaian', 'kepala' => 'Ratna Pertiwi, ST'],
                     ['nama' => 'Subkelompok Program dan Pelaporan', 'kepala' => 'Astrid Marzia Damayanti, ST'],
                     ['nama' => 'Subbagian Keuangan', 'kepala' => 'Indra Prabowo, SE'],
@@ -686,7 +686,7 @@ class UnitSeeder extends Seeder
                     ]);
 
                     // Buat user dengan role Penerima Barang di Gudang Umum
-                    $roleOnce = ['Penerima Barang'];
+                    $roleOnce = ['Penerima Barang', 'Penjaga Gudang'];
                     foreach ($roleOnce as $item) {
                         User::create([
                             'email_verified_at' => now(),
@@ -730,7 +730,9 @@ class UnitSeeder extends Seeder
     {
         $units = $this->units;
 
+
         $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kasatpel', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang',  'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver'];
+
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
             'guard_name' => 'web',
