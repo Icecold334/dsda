@@ -35,6 +35,7 @@
                     @endif
                     @if (!$showAdd && !in_array($kategori_id, [4, 5, 6]))
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH disetujui</th>
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">FOTO STOCK</th>
                     @endif
                     @if (!$showAdd && $kategori_id == 5)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">KONDISI AKHIR</th>
@@ -230,6 +231,48 @@
                                         </span>
                                     </div>
                                 </td>
+
+                                <td class="px-6 py-3 text-center">
+                                    <div class="relative inline-block">
+                                        @if (is_string($item['img_done']))
+                                            <!-- Jika img_done adalah string (path file) -->
+                                            <div class="relative inline-block">
+                                                <a href="{{ asset('storage/kondisiKdo/' . $item['img_done']) }}"
+                                                    target="_blank">
+                                                    <img src="{{ asset('storage/kondisiKdo/' . $item['img_done']) }}"
+                                                        alt="Preview Bukti" class="w-16 h-16 rounded-md">
+                                                </a>
+                                            </div>
+                                        @elseif (is_object($item['img_done']) && method_exists($item['img_done'], 'temporaryUrl'))
+                                            <!-- Jika img_done adalah file upload Livewire -->
+                                            <div class="relative inline-block">
+                                                <a href="{{ $item['img_done']->temporaryUrl() }}" target="_blank">
+                                                    <img src="{{ $item['img_done']->temporaryUrl() }}"
+                                                        alt="Preview Bukti" class="w-16 h-16 rounded-md">
+                                                </a>
+                                                <button wire:click="removeBukti({{ $index }})"
+                                                    class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-xs hover:bg-red-700">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                        @else
+                                            <!-- Jika img_done kosong, tampilkan tombol unggah -->
+                                            <input type="file" wire:model.live="list.{{ $index }}.img_done"
+                                                class="hidden" id="upload-list.{{ $index }}.img_done">
+                                            @php
+                                                $isPenjagaGudang = auth()->user()?->hasRole('Penjaga Gudang');
+                                            @endphp
+
+                                            <button type="button"
+                                                onclick="document.getElementById('upload-list.{{ $index }}.img_done').click()"
+                                                class="text-primary-700 bg-gray-200 border text-sm border-primary-500 rounded-lg px-3 py-1.5 transition
+                                            {{ !$isPenjagaGudang ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary-600 hover:text-white' }}"
+                                                {{ !$isPenjagaGudang ? 'disabled' : '' }}>
+                                                Unggah Foto
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
                             @endif
                             @if (!$showAdd && in_array($kategori_id, [5, 6]))
                                 <td class="px-6 py-3 text-center">
@@ -260,10 +303,12 @@
                                             <input type="file" wire:model.live="list.{{ $index }}.img_done"
                                                 class="hidden" id="upload-list.{{ $index }}.img_done">
                                             <button type="button"
-                                                @if (auth()->id() == $item['user_id']) onclick="document.getElementById('upload-list.{{ $index }}.img_done').click()" @endif
+                                                @if (auth()->id() == $item['user_id'] && $item['detail_permintaan_status']) onclick="document.getElementById('upload-list.{{ $index }}.img_done').click()" @endif
                                                 class="text-primary-700 bg-gray-200 border text-sm border-primary-500 rounded-lg px-3 py-1.5 transition
-                                                @if (auth()->id() != $item['user_id']) opacity-50 cursor-not-allowed pointer-events-none @else hover:bg-primary-600 hover:text-white @endif"
-                                                @if (auth()->id() != $item['user_id']) disabled @endif>
+                                            @if (auth()->id() != $item['user_id'] || !$item['detail_permintaan_status']) opacity-50 cursor-not-allowed pointer-events-none 
+                                            @else 
+                                                hover:bg-primary-600 hover:text-white @endif"
+                                                @if (auth()->id() != $item['user_id'] || !$item['detail_permintaan_status']) disabled @endif>
                                                 Unggah Foto
                                             </button>
                                         @endif
@@ -332,15 +377,15 @@
                                             </button>
                                         @else
                                             @can('permintaan_persetujuan_jumlah_barang')
-                                                @if (in_array($item['detail_permintaan_id'], $approvals))
-                                                    <!-- Tombol untuk menyetujui -->
-                                                    <button wire:click="openApprovalModal({{ $item['id'] }})"
-                                                        class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                                        Detail
-                                                    </button>
-                                                @else
-                                                    <div class="text-sm">Menunggu {{ $approve_after }}</div>
-                                                @endif
+                                                {{-- @if (in_array($item['detail_permintaan_id'], $approvals)) --}}
+                                                <!-- Tombol untuk menyetujui -->
+                                                <button wire:click="openApprovalModal({{ $item['id'] }})"
+                                                    class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                    Detail
+                                                </button>
+                                                {{-- @else --}}
+                                                {{-- <div class="text-sm">Menunggu {{ $approve_after }}</div> --}}
+                                                {{-- @endif --}}
                                             @endcan
                                         @endif
                                     @endif

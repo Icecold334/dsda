@@ -232,7 +232,35 @@
             </x-card>
         </div>
         <div class="grid gap-6">
-            @if ($permintaan->cancel === 0)
+            @if ($tipe == 'permintaan' && $permintaan->status === 1)
+                <x-card title="QR Code" class="mb-3">
+                    <div class="flex justify-around">
+                        <div
+                            class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
+                            @if ($tipe == 'peminjaman')
+                                <a href="{{ route('permintaan.downloadQrImage', ['tipe' => 'peminjaman', 'kode' => $permintaan->id]) }}"
+                                    class="w-full h-full">
+                                    <img src="{{ asset($permintaan->kode_peminjaman ? 'storage/qr_peminjaman/' . $permintaan->kode_peminjaman . '.png' : 'img/default-pic.png') }}"
+                                        data-tooltip-target="tooltip-QR" alt="QR Code"
+                                        class="w-full h-full object-cover object-center rounded-sm">
+                                </a>
+                            @else
+                                <a href="{{ route('permintaan.downloadQrImage', ['tipe' => 'permintaan', 'kode' => $permintaan->id]) }}"
+                                    class="w-full h-full">
+                                    <img src="{{ asset($permintaan->kode_permintaan ? 'storage/qr_permintaan/' . $permintaan->kode_permintaan . '.png' : 'img/default-pic.png') }}"
+                                        data-tooltip-target="tooltip-QR" alt="QR Code"
+                                        class="w-full h-full object-cover object-center rounded-sm">
+                                </a>
+                            @endif
+                        </div>
+                        <div id="tooltip-QR" role="tooltip"
+                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                            Klik Untuk Mengunduh QR-Code Ini
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                    </div>
+                </x-card>
+            @elseif ($permintaan->cancel === 0)
                 <x-card title="QR Code" class="mb-3">
                     <div class="flex justify-around">
                         <div
@@ -264,7 +292,6 @@
         </div>
         <div class="col-span-2">
             <x-card title="daftar permintaan">
-                @dump($permintaan->kategori_id)
                 @if ($tipe == 'permintaan')
                     <livewire:list-permintaan-form :permintaan="$permintaan">
                     @else
@@ -273,8 +300,14 @@
                 @if ($tipe == 'permintaan')
                     @if ($permintaan->kategori_id === 6)
                         <livewire:approval-permintaan-voucher :permintaan="$permintaan">
-                        @else
-                            <livewire:approval-permintaan :permintaan="$permintaan">
+                        @elseif($permintaan->kategori_id === 5)
+                            <livewire:approval-permintaan-perbaikan-kdo :permintaan="$permintaan">
+                            @elseif($permintaan->kategori_id === 4)
+                                <livewire:approval-permintaan-konsumsi :permintaan="$permintaan">
+                                @elseif(in_array($permintaan->kategori_id, [1, 2, 3]))
+                                    <livewire:approval-permintaan-a-t-k :permintaan="$permintaan">
+                                    @else
+                                        <livewire:approval-permintaan :permintaan="$permintaan">
                     @endif
                 @else
                     <livewire:approval-permintaan :permintaan="$permintaan">

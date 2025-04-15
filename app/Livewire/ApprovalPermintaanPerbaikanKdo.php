@@ -2,16 +2,17 @@
 
 namespace App\Livewire;
 
-use App\Models\DetailPermintaanStok;
 use Carbon\Carbon;
+use App\Models\Aset;
 use App\Models\User;
 use Livewire\Component;
 use Illuminate\Support\Str;
+use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 
-class ApprovalPermintaanVoucher extends Component
+class ApprovalPermintaanPerbaikanKdo extends Component
 {
     public $permintaan;
     public $currentApprovalIndex;
@@ -47,25 +48,24 @@ class ApprovalPermintaanVoucher extends Component
             ->pluck('file')
             ->toArray();
 
-        $this->roles = ['Customer Services'];
+        $this->roles = ['Penanggung Jawab'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
         $date = Carbon::parse($this->permintaan->created_at);
 
         foreach ($this->roles as $role) {
-            $users = User::whereHas('roles', function ($query) use ($role) {
+            $baseQuery = User::whereHas('roles', function ($query) use ($role) {
                 $query->where('name', 'LIKE', '%' . $role . '%');
             })
                 ->whereHas('unitKerja', function ($query) {
                     $query->where('parent_id', $this->unit_id)
                         ->orWhere('id', $this->unit_id);
                 })
-                ->when($role === 'Customer Services', function ($query) {
-                    $query->where('name', 'like', '%Insan%');
-                })
-                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-                ->get();
+                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'));
+            $users = $role === 'Penanggung Jawab'
+                ? collect([$baseQuery->first()])->filter() // wrap in collection, filter null
+                : $baseQuery->get();
 
             $propertyKey = Str::slug($role);
             $this->roleLists[$propertyKey] = $users;
@@ -190,7 +190,7 @@ class ApprovalPermintaanVoucher extends Component
         $this->permintaan->persetujuan()->create([
             'user_id' => $this->user->id,
             'is_approved' => $status,
-            'keterangan' => $message
+
         ]);
 
         $nextIndex = $this->currentApprovalIndex + 1;
@@ -199,8 +199,16 @@ class ApprovalPermintaanVoucher extends Component
         if ($nextIndex === $totalApproval && $status) {
             $this->permintaan->update([
                 'status' =>  1,
+                'catatan' => $message,
             ]);
 
+            $aset = Aset::find($permintaan->aset_id);
+            if ($aset) {
+                // Update perbaikan menjadi 0
+                $aset->update([
+                    'perbaikan' => 0
+                ]);
+            }
             $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
                 (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
                 '</span> telah Disetujui dengan keterangan <span class="font-bold">' . $message . '</span>';
@@ -222,6 +230,6 @@ class ApprovalPermintaanVoucher extends Component
 
     public function render()
     {
-        return view('livewire.approval-permintaan-voucher');
+        return view('livewire.approval-permintaan-perbaikan-kdo');
     }
 }

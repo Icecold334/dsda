@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 
-class ApprovalPermintaanVoucher extends Component
+class ApprovalPermintaanKonsumsi extends Component
 {
     public $permintaan;
     public $currentApprovalIndex;
@@ -47,14 +47,14 @@ class ApprovalPermintaanVoucher extends Component
             ->pluck('file')
             ->toArray();
 
-        $this->roles = ['Customer Services'];
+        $this->roles = ['Customer Services', 'Penanggung Jawab'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
         $date = Carbon::parse($this->permintaan->created_at);
 
         foreach ($this->roles as $role) {
-            $users = User::whereHas('roles', function ($query) use ($role) {
+            $baseQuery = User::whereHas('roles', function ($query) use ($role) {
                 $query->where('name', 'LIKE', '%' . $role . '%');
             })
                 ->whereHas('unitKerja', function ($query) {
@@ -62,10 +62,14 @@ class ApprovalPermintaanVoucher extends Component
                         ->orWhere('id', $this->unit_id);
                 })
                 ->when($role === 'Customer Services', function ($query) {
-                    $query->where('name', 'like', '%Insan%');
+                    $query->where('name', 'like', '%Nisya%');
                 })
-                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-                ->get();
+
+                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'));
+
+            $users = $role === 'Penanggung Jawab'
+                ? collect([$baseQuery->first()])->filter() // wrap in collection, filter null
+                : $baseQuery->get();
 
             $propertyKey = Str::slug($role);
             $this->roleLists[$propertyKey] = $users;
@@ -169,6 +173,8 @@ class ApprovalPermintaanVoucher extends Component
         $approvers = collect($this->roleLists)->flatten(1)->values();
         $currentIndex = $approvers->search(fn($user) => $user->id === Auth::id());
 
+
+
         if ($status) {
             if ($currentIndex !== false && isset($approvers[$currentIndex + 1])) {
                 $nextUser = $approvers[$currentIndex + 1];
@@ -196,6 +202,16 @@ class ApprovalPermintaanVoucher extends Component
         $nextIndex = $this->currentApprovalIndex + 1;
         $totalApproval = $approvers->count();
 
+        if ($nextIndex == 1 && $status) {
+            $this->permintaan->update(['status' => $status]);
+        } elseif ($nextIndex == 1 && !$status) {
+            $this->permintaan->update([
+                'status' =>  1,
+                'cancel' =>  0,
+                'proses' =>  0,
+            ]);
+        }
+
         if ($nextIndex === $totalApproval && $status) {
             $this->permintaan->update([
                 'status' =>  1,
@@ -208,7 +224,7 @@ class ApprovalPermintaanVoucher extends Component
             if ($this->kepalaSubbagian) {
                 Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
-        } else {
+        } elseif ($nextIndex === $totalApproval && !$status) {
             $this->permintaan->update([
                 'status' =>  1,
                 'cancel' =>  0,
@@ -216,12 +232,10 @@ class ApprovalPermintaanVoucher extends Component
             ]);
         }
 
-
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id);
     }
-
     public function render()
     {
-        return view('livewire.approval-permintaan-voucher');
+        return view('livewire.approval-permintaan-konsumsi');
     }
 }

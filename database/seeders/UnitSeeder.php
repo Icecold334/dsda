@@ -686,7 +686,7 @@ class UnitSeeder extends Seeder
                     ]);
 
                     // Buat user dengan role Penerima Barang di Gudang Umum
-                    $roleOnce = ['Penerima Barang'];
+                    $roleOnce = ['Penerima Barang', 'Penjaga Gudang'];
                     foreach ($roleOnce as $item) {
                         User::create([
                             'email_verified_at' => now(),

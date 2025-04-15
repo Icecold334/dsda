@@ -91,10 +91,22 @@ class DashboardDisplayUmum extends Component
         foreach ($this->KDO as $kdo) {
             $kdo->formatted_date = Carbon::parse($kdo->tanggalbeli)->translatedFormat('j M Y');
 
-            // Tambahkan status peminjaman
-            $kdo->status_text = $this->statusText[$kdo->peminjaman] ?? 'Tidak Diketahui';
-            $kdo->status_class = $this->statusClasses[$kdo->peminjaman] ?? 'text-gray-500';
-            $kdo->status_icon = $this->statusIcons[$kdo->peminjaman] ?? '❓';
+            // Logika status
+            if ($kdo->perbaikan == 0 && $kdo->peminjaman == 1) {
+                $status = 3; // Diperbaiki
+            } elseif ($kdo->perbaikan == 1  && $kdo->peminjaman == 0) {
+                $status = 0; // Tidak dapat dipinjam
+            } elseif ($kdo->peminjaman == 1 && $kdo->perbaikan == 1) {
+                $status = 1; // Tersedia
+            } elseif ($kdo->peminjaman == 0 && $kdo->perbaikan == 1) {
+                $status = 2; // aipinjam
+            } else {
+                $status = null;
+            }
+
+            $kdo->status_text = $this->statusText[$status] ?? 'Tidak Diketahui';
+            $kdo->status_class = $this->statusClasses[$status] ?? 'text-gray-500';
+            $kdo->status_icon = $this->statusIcons[$status] ?? '❓';
         }
 
         // Ambil data permintaan dan peminjaman
@@ -250,7 +262,7 @@ class DashboardDisplayUmum extends Component
     public $statusIcons = [
         0 => '❌',  // Dipinjam (Silang)
         1 => '✅',  // Tersedia (Centang)
-        2 => '❌',   // Diperbaiki (Kunci)
+        2 => '❌',   // Dipinjam (Kunci)
         3 => '🔧'   // Diperbaiki (Kunci)
     ];
 

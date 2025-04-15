@@ -73,7 +73,6 @@
                         class="mr-2 {{ $kepalaSubbagian && $kepalaSubbagian->id == auth()->id() ? 'font-bold' : '' }}">
                         {{ $kepalaSubbagian->name ?? 'Tidak Ada Kepala' }}
                     </span>
-                    @dump($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses)
                     @if ($kepalaSubbagian)
                         @if ($permintaan->status && $permintaan->cancel === null && $permintaan->proses === null)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
@@ -124,13 +123,20 @@
             Swal.fire({
                 title: 'Konfirmasi Persetujuan',
                 text: 'Apakah Anda yakin ingin menyetujui permintaan ini?',
-                icon: 'warning',
+                input: 'textarea',
+                inputPlaceholder: 'Masukkan keterangan untuk Atasan (Opsional)',
+                inputAttributes: {
+                    'aria-label': 'Masukkan alasan Anda'
+                },
                 showCancelButton: true,
-                confirmButtonText: 'Setuju',
-                cancelButtonText: 'Batal'
+                confirmButtonText: 'Setujui',
+                cancelButtonText: 'Batal',
+                preConfirm: (inputValue) => {
+                    return inputValue; // Allows submission
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    @this.call('approveConfirmed', 1);
+                    @this.call('approveConfirmed', 1, result.value);
                 }
             });
         }

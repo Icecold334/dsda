@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 
-class ApprovalPermintaanVoucher extends Component
+class ApprovalPermintaanATK extends Component
 {
     public $permintaan;
     public $currentApprovalIndex;
@@ -47,25 +47,40 @@ class ApprovalPermintaanVoucher extends Component
             ->pluck('file')
             ->toArray();
 
-        $this->roles = ['Customer Services'];
+        $this->roles = ['Penjaga Gudang', 'Pengurus Barang'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
         $date = Carbon::parse($this->permintaan->created_at);
 
         foreach ($this->roles as $role) {
-            $users = User::whereHas('roles', function ($query) use ($role) {
+            $baseQuery = User::whereHas('roles', function ($query) use ($role) {
                 $query->where('name', 'LIKE', '%' . $role . '%');
             })
                 ->whereHas('unitKerja', function ($query) {
                     $query->where('parent_id', $this->unit_id)
                         ->orWhere('id', $this->unit_id);
                 })
-                ->when($role === 'Customer Services', function ($query) {
-                    $query->where('name', 'like', '%Insan%');
+                ->when($role === 'Penjaga Gudang', function ($query) {
+                    $query->whereHas('lokasiStok', function ($lokasi) {
+                        $lokasi->where('nama', 'Gudang Umum');
+                    });
                 })
-                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-                ->get();
+                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'));
+
+            $users = $role === 'Pengurus Barang'
+                ? collect([
+                    $baseQuery
+                        ->when(
+                            // Jika permintaan berasal dari unit anak, cari berdasarkan unit_id-nya langsung
+                            optional($this->permintaan->unitKerja)->parent_id !== null,
+                            fn($query) => $query->where('unit_id', $this->permintaan->unit_id),
+                            // Jika permintaan berasal dari unit parent, cari dari anak-anak unitnya
+                            fn($query) => $query->whereHas('unitKerja', fn($q) => $q->where('parent_id', $this->permintaan->unit_id))
+                        )
+                        ->first()
+                ])->filter()
+                : $baseQuery->get();
 
             $propertyKey = Str::slug($role);
             $this->roleLists[$propertyKey] = $users;
@@ -104,6 +119,8 @@ class ApprovalPermintaanVoucher extends Component
                 $this->showButton = $previousApproved && $previousApproved->is_approved && !$currentApproved;
             }
         }
+        $cancelAfter = $this->listApproval; // setelah semua approver selesai
+        $this->showCancelOption = $this->currentApprovalIndex >= $cancelAfter && $this->isPenulis;
 
         $this->userJabatanId = $this->user->roles->first()?->id;
 
@@ -143,7 +160,7 @@ class ApprovalPermintaanVoucher extends Component
 
     public function markAsCompleted($message = null)
     {
-        $this->permintaan->update(['cancel' => false]);
+        $this->permintaan->update(['cancel' => false, 'proses' =>  true]);
 
         $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
             (!is_null($this->permintaan->kode_permintaan) ? $this->permintaan->kode_permintaan : $this->permintaan->kode_peminjaman) .
@@ -168,6 +185,8 @@ class ApprovalPermintaanVoucher extends Component
         $permintaan = $this->permintaan;
         $approvers = collect($this->roleLists)->flatten(1)->values();
         $currentIndex = $approvers->search(fn($user) => $user->id === Auth::id());
+
+
 
         if ($status) {
             if ($currentIndex !== false && isset($approvers[$currentIndex + 1])) {
@@ -196,6 +215,16 @@ class ApprovalPermintaanVoucher extends Component
         $nextIndex = $this->currentApprovalIndex + 1;
         $totalApproval = $approvers->count();
 
+        if ($nextIndex == 1 && $status) {
+            $this->permintaan->update(['status' => $status]);
+        } elseif ($nextIndex == 1 && !$status) {
+            $this->permintaan->update([
+                'status' =>  1,
+                'cancel' =>  0,
+                'proses' =>  0,
+            ]);
+        }
+
         if ($nextIndex === $totalApproval && $status) {
             $this->permintaan->update([
                 'status' =>  1,
@@ -208,7 +237,7 @@ class ApprovalPermintaanVoucher extends Component
             if ($this->kepalaSubbagian) {
                 Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
-        } else {
+        } elseif ($nextIndex === $totalApproval && !$status) {
             $this->permintaan->update([
                 'status' =>  1,
                 'cancel' =>  0,
@@ -216,12 +245,10 @@ class ApprovalPermintaanVoucher extends Component
             ]);
         }
 
-
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id);
     }
-
     public function render()
     {
-        return view('livewire.approval-permintaan-voucher');
+        return view('livewire.approval-permintaan-a-t-k');
     }
 }
