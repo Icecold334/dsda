@@ -92,7 +92,7 @@
                 <a wire:click='saveDoc'
                     class="cursor-pointer {{ count($this->attachments) ?'':'hidden' }} text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</a>
                 <div class="mt-3 max-h-24 overflow-auto">
-                    @if ($isOut)
+                    @if ($isOut || auth()->user()->can('permintaan_upload_foto_dan_ttd_driver'))
                     @forelse ($permintaan->lampiran as $attachment)
                     <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
                         <span class="flex items-center space-x-3">
@@ -166,7 +166,7 @@
             </x-card>
             <x-card title="Tanda Tangan Driver" class="mb-3">
                 <div>
-                    @if (!$signature)
+                    @if (!$signature && auth()->user()->can('permintaan_upload_foto_dan_ttd_driver'))
                     <canvas id="signature-pad" class="border rounded shadow-sm h-25 bg-transparent"
                         height="100"></canvas>
                     <button wire:click="resetSignature" class="btn btn-sm btn-warning mt-2"

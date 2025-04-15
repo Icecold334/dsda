@@ -730,7 +730,9 @@ class UnitSeeder extends Seeder
     {
         $units = $this->units;
 
-        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Pemeriksa Barang', 'Pengurus Barang', 'Penjaga Gudang', 'Kepala Seksi', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver', 'Kepala Gudang'];
+
+        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kasatpel', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang',  'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver'];
+
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
             'guard_name' => 'web',
@@ -804,14 +806,14 @@ class UnitSeeder extends Seeder
                 'password' => bcrypt('123'), // Password default
             ]);
             $unitUser->roles()->attach($unitRole->id);
-            $roleMulti = ['Pejabat Pelaksana Teknis Kegiatan', 'Pemeriksa Barang',];
+            $roleMulti = ['Pejabat Pelaksana Teknis Kegiatan', 'Pemeriksa Barang', 'Perencanaan'];
             foreach ($roleMulti as $role) {
                 for ($i = 1; $i <= 3; $i++) {
                     User::create([
                         'email_verified_at' => now(),
                         'name' => $this->faker->name(),
                         'unit_id' => $unit->id,
-                        'email' => Str::lower(str_replace(' ', '_', 'Pejabat Pelaksana Teknis Kegiatan')) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', 'Pejabat Pelaksana Teknis Kegiatan')) . "%")->count() + 1 . "@email.com",
+                        'email' => Str::lower(str_replace(' ', '_', $role)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $role)) . "%")->count() + 1 . "@email.com",
                         'password' => bcrypt('123'), // Password default
                     ])->roles()->attach(Role::where('name', $role)->first()->id);
                 }
@@ -841,7 +843,7 @@ class UnitSeeder extends Seeder
 
             $defaultRoles = [
                 'Pejabat Pembuat Komitmen',
-                // 'Penanggung Jawab',
+                'Kasatpel',
                 'Pemeriksa Barang',
                 'Pengurus Barang',
             ];
