@@ -9,6 +9,7 @@ use App\Models\Ruang;
 use BaconQrCode\Writer;
 use Livewire\Component;
 use App\Models\Kategori;
+use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\WithFileUploads;
@@ -206,6 +207,7 @@ class ListPeminjamanForm extends Component
 
     public function saveData()
     {
+
         $latestApprovalConfiguration = OpsiPersetujuan::where('jenis', Str::lower($this->tipe == 'Peralatan Kantor' ? 'alat' : $this->tipe))
             ->where('unit_id', $this->unit_id)
             ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
@@ -317,28 +319,31 @@ class ListPeminjamanForm extends Component
         $messageAtasan = 'Permintaan ' . $detailPeminjaman->kategori->nama . ' <span class="font-bold">' . $detailPeminjaman->kode_peminjaman . '</span> telah diajukan oleh staf Anda dan memerlukan perhatian Anda.';
         $pemohon = $this->peminjaman->user;
 
-        // Reset atasan langsung
-        $this->atasanLangsung = null;
-
-        // 1. Jika pemohon adalah Kepala Unit → Atasan langsung null
-        if ($pemohon->hasRole('Kepala Unit') && $this->peminjaman->unit_id) {
+        // Ambil unit pemohon
+        $userUnit = UnitKerja::find($pemohon->unit_id);
+        // Cek apakah unit pemohon adalah unit yang sama atau anak dari unit
+        $isSameUnit = $pemohon->unit_id == $this->unit_id || $userUnit?->parent_id == $this->unit_id;
+        // Cek sub_unit_id jika kamu juga butuh (optional, atau bisa dibuat lebih fleksibel)
+        $isSameSubUnit = ($pemohon->unit_id ?? null) == ($this->sub_unit_id ?? null);
+        // Hanya kirim notifikasi ke atasan jika unit dan sub_unit sesuai
+        if ($isSameUnit && $isSameSubUnit) {
             $this->atasanLangsung = null;
-        }
-        // 2. Jika pemohon adalah Kepala Subbagian, cari Kepala Unit di unit utama
-        elseif ($pemohon->hasRole('Kepala Subbagian') && $this->peminjaman->sub_unit_id) {
-            $this->atasanLangsung = User::role('Kepala Unit')
-                ->where('unit_id', $this->peminjaman->unit->id) // Cari Kepala Unit di unit utama
-                ->first();
-        }
-        // 3. Jika pemohon BUKAN Kepala Unit dan ada sub unit → Cari Kepala Subbagian di sub unit
-        elseif ($this->peminjaman->sub_unit_id) {
-            $this->atasanLangsung = User::role('Kepala Subbagian')
-                ->where('unit_id', $this->peminjaman->sub_unit_id)
-                ->first();
-        }
-        if ($this->atasanLangsung) {
-            // Kirim notifikasi ke atasan langsung jika ditemukan
-            Notification::send($this->atasanLangsung, new UserNotification($messageAtasan, "/permintaan/peminjaman/{$detailPeminjaman->id}"));
+
+            if ($pemohon->hasRole('Kepala Unit') && $this->peminjaman->unit_id) {
+                $this->atasanLangsung = null;
+            } elseif ($pemohon->hasRole('Kepala Subbagian') && $this->peminjaman->sub_unit_id) {
+                $this->atasanLangsung = User::role('Kepala Unit')
+                    ->where('unit_id', $this->peminjaman->unit->id)
+                    ->first();
+            } elseif ($this->peminjaman->sub_unit_id) {
+                $this->atasanLangsung = User::role('Kepala Subbagian')
+                    ->where('unit_id', $this->peminjaman->sub_unit_id)
+                    ->first();
+            }
+
+            if ($this->atasanLangsung) {
+                Notification::send($this->atasanLangsung, new UserNotification($messageAtasan, "/permintaan/peminjaman/{$detailPeminjaman->id}"));
+            }
         }
 
         return redirect()->to('permintaan/peminjaman/' . $this->peminjaman->id)->with('tanya', 'berhasil');
@@ -348,8 +353,6 @@ class ListPeminjamanForm extends Component
     {
         $this->showNew = Request::is('permintaan/add/peminjaman*');
         if ($this->last) {
-
-
             $this->keterangan = $this->last->keterangan;
             $this->dispatch('keterangan', keterangan: $this->keterangan);
 

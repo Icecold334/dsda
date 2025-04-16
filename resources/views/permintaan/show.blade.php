@@ -112,7 +112,7 @@
                     @endif
                     <tr class="font-semibold">
                         <td>Unit Kerja</td>
-                        <td>{{ $permintaan->unit->nama }}</td>
+                        <td>{{ $permintaan->unit->nama ?? '---' }}</td>
                     </tr>
                     <tr class="font-semibold">
                         <td>Sub-Unit</td>
