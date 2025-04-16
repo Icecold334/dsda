@@ -89,7 +89,9 @@ class PermissionSeeder extends Seeder
             'inventaris_edit_lokasi_penerimaan',
             'inventaris_tambah_barang_datang',
             'inventaris_unggah_foto_barang_datang',
+            'permintaan_tambah_permintaan',
             'permintaan_persetujuan_jumlah_barang',
+            'permintaan_upload_foto_dan_ttd_driver',
             'peminjaman_persetujuan_peminjaman_aset',
             'inventaris_edit_jumlah_diterima',
             'inventaris_upload_foto_bukti',
@@ -97,7 +99,8 @@ class PermissionSeeder extends Seeder
             'kontrak_tambah_kontrak_baru',
             'pelayanan_xls',
             'stok_show_detail',
-            'stok_xls'
+            'stok_xls',
+            'RAB_tambah_rab',
         ];
 
         // Insert permissions and get their IDs
@@ -120,14 +123,39 @@ class PermissionSeeder extends Seeder
             ]);
         }
 
-        $users = Role::all()->pluck('id')->toArray();
+        $users = Role::all();
         foreach ($users as $user) {
-            foreach ($permissionIds as $permissionId) {
-                DB::table('role_has_permissions')->insert([
-                    'role_id' => $user,
-                    'permission_id' => $permissionId,
-                ]);
-            }
+            $user->syncPermissions($permissionsSystem);
         }
+
+
+        ///////////////////////////////////////////
+
+        function syncPermissions(string $roleName, array $permissions): void
+        {
+            $role = Role::where('name', $roleName)->first();
+            $role->syncPermissions($permissions);
+        }
+        function revokePermissions(string $roleName, array $permissions): void
+        {
+            $role = Role::where('name', $roleName)->first();
+            $role->revokePermissionTo($permissions);
+        }
+
+
+        syncPermissions('Perencanaan', [
+            'RAB_tambah_rab',
+        ]);
+
+        syncPermissions('Kasatpel', [
+            'permintaan_tambah_permintaan',
+        ]);
+        syncPermissions('Penjaga Gudang', [
+            'permintaan_upload_foto_dan_ttd_driver',
+        ]);
+        revokePermissions('Kepala Suku Dinas', [
+            'RAB_tambah_rab',
+            'permintaan_upload_foto_dan_ttd_driver',
+        ]);
     }
 }

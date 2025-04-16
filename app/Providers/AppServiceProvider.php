@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,7 +21,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // function assignPermissions(string $roleName, array $permissions): void
+        // {
+        //     $role = Role::where('name', $roleName)->first();
+        //     $role->syncPermissions($permissions);
+        // }
 
+
+        // assignPermissions('Perencanaan', [
+        //     'RAB_tambah_rab',
+        // ]);
         // $this->test();
         // Auth::loginUsingId(118); //kepala suku dinas
         // Auth::loginUsingId(16); //penanggung jawab
@@ -35,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(244);
         // Auth::loginUsingId(250);
         // Auth::loginUsingId(252);
-        // Auth::loginUsingId(235);
+        // Auth::loginUsingId(275);
     }
 
     // public function test()
