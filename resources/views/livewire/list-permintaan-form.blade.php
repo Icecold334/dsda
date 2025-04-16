@@ -408,7 +408,7 @@
                                                 class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                                 <i class="fa-solid fa-circle-check"></i>
                                             </button>
-                                        @elseif ($item['detail_permintaan_cancel'] === null)
+                                        @elseif ($item['detail_permintaan_status'] && $item['detail_permintaan_cancel'] === null)
                                             <button onclick="takeVoucherName({{ $index }})"
                                                 class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                                 <i class="fa-solid fa-circle-check"></i>
