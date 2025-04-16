@@ -52,7 +52,7 @@
                                     : ($permintaan->cancel === 0 && $permintaan->proses === 1
                                         ? 'selesai'
                                         : ($permintaan->cancel === 0 && $permintaan->proses === null
-                                            ? 'siap digunakan'
+                                            ? 'siap digunakan atau terambil'
                                             : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
                                                 ? 'diproses'
                                                 : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
@@ -112,7 +112,7 @@
                     @endif
                     <tr class="font-semibold">
                         <td>Unit Kerja</td>
-                        <td>{{ $permintaan->unit->nama }}</td>
+                        <td>{{ $permintaan->unit->nama ?? '---' }}</td>
                     </tr>
                     <tr class="font-semibold">
                         <td>Sub-Unit</td>

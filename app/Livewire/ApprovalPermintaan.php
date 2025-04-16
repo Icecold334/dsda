@@ -51,9 +51,7 @@ class ApprovalPermintaan extends Component
         $this->penulis = $this->permintaan->user;
 
         $this->tipe = Str::contains($this->permintaan->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
-
-        $jenis = $this->permintaan->jenisStok->id;
-
+        $jenis = $this->permintaan->jenisStok?->id;
         if ($this->permintaan->persetujuan->where('file')) {
             $this->files = $this->permintaan->persetujuan->filter(fn($persetujuan) => $persetujuan->file !== null)->pluck('file');
         } else {
@@ -182,7 +180,13 @@ class ApprovalPermintaan extends Component
 
         $pemohon = $this->permintaan->user; // User yang membuat permintaan
 
-        if ($pemohon->hasRole('Kepala Unit')) {
+        // Cek apakah unit/sub_unit pemohon sama dengan permintaan
+        $isSameUnit = $pemohon->unit_id == $this->permintaan->unit_id;
+        $isSameSubUnit = ($pemohon->sub_unit_id ?? null) == ($this->permintaan->sub_unit_id ?? null);
+
+        if (!$isSameUnit || !$isSameSubUnit) {
+            $this->kepalaPemohon = null;
+        } elseif ($pemohon->hasRole('Kepala Unit')) {
             // Jika pemohon adalah Kepala Unit, maka tidak ada atasan di atasnya
             $this->kepalaPemohon = null;
         } elseif ($pemohon->hasRole('Kepala Subbagian')) {
@@ -208,9 +212,7 @@ class ApprovalPermintaan extends Component
         $this->kepalaSubbagian = User::whereHas('roles', function ($query) {
             $query->where('name', 'Kepala Subbagian');
         })
-            ->where(function ($query) use ($pemohon) {
-                $query->where('unit_id', $pemohon->unit_id);
-            })
+            ->where('unit_id', $this->permintaan->sub_unit_id)
             ->first();
     }
 
@@ -270,7 +272,7 @@ class ApprovalPermintaan extends Component
             $this->permintaan->update(['status' => false]);
         }
 
-   
+
         if (($this->currentApprovalIndex + 1) == $this->listApproval && in_array($this->permintaan->kategori_id, [4, 6])) {
             $this->permintaan->update([
                 'cancel' => 0,

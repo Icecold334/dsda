@@ -152,9 +152,7 @@ class ApprovalPermintaanATK extends Component
         $this->kepalaSubbagian = User::whereHas('roles', function ($query) {
             $query->where('name', 'Kepala Subbagian');
         })
-            ->where(function ($query) use ($pemohon) {
-                $query->where('unit_id', $pemohon->unit_id);
-            })
+            ->where('unit_id', $this->permintaan->sub_unit_id)
             ->first();
     }
 

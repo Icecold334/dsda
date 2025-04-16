@@ -73,9 +73,10 @@
                         class="mr-2 {{ $kepalaSubbagian && $kepalaSubbagian->id == auth()->id() ? 'font-bold' : '' }}">
                         {{ $kepalaSubbagian->name ?? 'Tidak Ada Kepala' }}
                     </span>
-                    @dump($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses)
                     @if ($kepalaSubbagian)
                         @if ($permintaan->status && $permintaan->cancel === null && $permintaan->proses === null)
+                            <i class="fa-solid fa-circle-check text-success-500"></i>
+                        @elseif($permintaan->status && $permintaan->cancel === 0 && !$permintaan->proses)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
                         @elseif($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
