@@ -302,13 +302,18 @@
                                             <!-- Jika img_done kosong, tampilkan tombol unggah -->
                                             <input type="file" wire:model.live="list.{{ $index }}.img_done"
                                                 class="hidden" id="upload-list.{{ $index }}.img_done">
-                                            <button type="button"
-                                                @if (auth()->id() == $item['user_id'] && $item['detail_permintaan_status']) onclick="document.getElementById('upload-list.{{ $index }}.img_done').click()" @endif
+                                            @php
+                                                $canUpload =
+                                                    auth()->id() == $item['user_id'] &&
+                                                    $item['detail_permintaan_status'] &&
+                                                    $item['detail_permintaan_cancel'] === 0;
+                                            @endphp
+
+                                            <button
+                                                @if ($canUpload) onclick="document.getElementById('upload-list.{{ $index }}.img_done').click()" @endif
                                                 class="text-primary-700 bg-gray-200 border text-sm border-primary-500 rounded-lg px-3 py-1.5 transition
-                                            @if (auth()->id() != $item['user_id'] || !$item['detail_permintaan_status']) opacity-50 cursor-not-allowed pointer-events-none 
-                                            @else 
-                                                hover:bg-primary-600 hover:text-white @endif"
-                                                @if (auth()->id() != $item['user_id'] || !$item['detail_permintaan_status']) disabled @endif>
+                                                    {{ !$canUpload ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary-600 hover:text-white' }}"
+                                                @if (!$canUpload) disabled @endif>
                                                 Unggah Foto
                                             </button>
                                         @endif
@@ -397,11 +402,18 @@
                                         </button>
                                     @endif
 
-                                    @if ($kategori_id == 6 && auth()->id() !== $item['user_id'])
-                                        <button onclick="confirmVoucherName({{ $index }})"
-                                            class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                            <i class="fa-solid fa-circle-check"></i>
-                                        </button>
+                                    @if ($kategori_id == 6)
+                                        @if (auth()->id() !== $item['user_id'])
+                                            <button onclick="confirmVoucherName({{ $index }})"
+                                                class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                <i class="fa-solid fa-circle-check"></i>
+                                            </button>
+                                        @elseif ($item['detail_permintaan_cancel'] === null)
+                                            <button onclick="takeVoucherName({{ $index }})"
+                                                class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                <i class="fa-solid fa-circle-check"></i>
+                                            </button>
+                                        @endif
                                     @endif
                                 @endif
                             </td>
@@ -439,6 +451,21 @@
                                         }).then((result) => {
                                             if (result.isConfirmed) {
                                                 @this.call('VoucherNameAction', index); // Ganti dengan nama method Livewire kamu
+                                            }
+                                        });
+                                    }
+
+                                    function takeVoucherName(index) {
+                                        Swal.fire({
+                                            title: 'Konfirmasi',
+                                            text: 'Apakah Anda yakin ingin mengambil Nama Voucher ini?',
+                                            icon: 'question',
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Ya',
+                                            cancelButtonText: 'Tidak'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                @this.call('TakeVoucherName', index); // Ganti dengan nama method Livewire kamu
                                             }
                                         });
                                     }

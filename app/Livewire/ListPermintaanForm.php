@@ -495,75 +495,151 @@ class ListPermintaanForm extends Component
                 // 'lokasi_id' => $this->lokasiId
             ]);
         }
-        $message = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
+        // $message = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> membutuhkan persetujuan Anda.';
 
-        $this->tipe = Str::contains($this->permintaan->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
+        // $this->tipe = Str::contains($this->permintaan->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
 
-        $user = Auth::user();
-        $roles = $this->permintaan->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
-        $roleLists = [];
-        $lastRoles = [];
+        // $user = Auth::user();
+        // $roles = $this->permintaan->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
+        // $roleLists = [];
+        // $lastRoles = [];
 
-        $date = Carbon::parse($this->permintaan->created_at);
+        // $date = Carbon::parse($this->permintaan->created_at);
 
-        foreach ($roles as $role) {
-            $users = User::whereHas('roles', function ($query) use ($role) {
-                $query->where('name', 'LIKE', '%' . $role . '%');
+        // foreach ($roles as $role) {
+        //     $users = User::whereHas('roles', function ($query) use ($role) {
+        //         $query->where('name', 'LIKE', '%' . $role . '%');
+        //     })
+        //         ->where(function ($query) use ($date) {
+        //             $query->whereHas('unitKerja', function ($subQuery) {
+        //                 $subQuery->where('parent_id', $this->permintaan->unit_id);
+        //             })
+        //                 ->orWhere('unit_id', $this->permintaan->unit_id);
+        //         })
+        //         ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+        //         ->limit(1)
+        //         ->get();
+
+        //     $propertyKey = Str::slug($role); // Generate dynamic key for roles
+        //     $roleLists[$propertyKey] = $users;
+        //     $lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
+        // }
+
+        // // Calculate listApproval dynamically
+        // // $tipe = $this->permintaan->jenisStok->nama;
+        // // $unit = UnitKerja::find($this->permintaan->unit_id);
+        // $allApproval = collect();
+
+        // // Hitung jumlah persetujuan yang dibutuhkan
+        // $listApproval = collect($roleLists)->flatten(1)->count();
+
+        // // Menggabungkan semua approval untuk pengecekan urutan
+        // $allApproval = collect($roleLists)->flatten(1);
+        // $currentApprovalIndex = $allApproval->filter(function ($user) {
+        //     $approval = $user->{"persetujuan{$this->tipe}"}()
+        //         ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
+        //         ->first();
+        //     return $approval && $approval->status === 1; // Hanya hitung persetujuan yang berhasil
+        // })->count();
+
+
+        // // Pengecekan urutan user dalam daftar persetujuan
+        // $index = $allApproval->search(fn($user) => $user->id == Auth::id());
+        // // dd($allApproval);
+        // $nextUser = $allApproval[$currentApprovalIndex];
+        // if (collect($roles)->count() > 1) {
+        //     if ($index === 0) {
+        //         // Jika user adalah yang pertama dalam daftar
+        //         $currentUser = $allApproval[$index];
+        //     } else {
+        //         // Jika user berada di tengah atau akhir
+        //         $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
+        //         $currentUser = $allApproval[$index];
+        //         $previousApprovalStatus = optional(optional($previousUser)->{"persetujuan{$this->tipe}"}()
+        //             ?->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
+        //             ->first())->status;
+        //     }
+        // }
+        // // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
+        // // $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
+
+        // Notification::send($nextUser, new UserNotification($message, "/permintaan/permintaan/{$detailPermintaan->id}"));
+
+        if ($detailPermintaan->kategori_id == 6) {
+            $csUsers = User::whereHas('roles', function ($query) {
+                $query->where('name', 'LIKE', '%Customer Services%');
             })
-                ->where(function ($query) use ($date) {
-                    $query->whereHas('unitKerja', function ($subQuery) {
-                        $subQuery->where('parent_id', $this->permintaan->unit_id);
-                    })
-                        ->orWhere('unit_id', $this->permintaan->unit_id);
+                ->whereHas('unitKerja', function ($query) use ($detailPermintaan) {
+                    $query->where('parent_id', $detailPermintaan->unit_id)
+                        ->orWhere('id', $detailPermintaan->unit_id);
                 })
-                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-                ->limit(1)
+                ->where('name', 'like', '%Insan%') // Tambahan filter jika hanya "Insan"
+                ->whereDate('created_at', '<', $detailPermintaan->created_at)
                 ->get();
 
-            $propertyKey = Str::slug($role); // Generate dynamic key for roles
-            $roleLists[$propertyKey] = $users;
-            $lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
-        }
+            $notifMessage = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
+                . $detailPermintaan->kode_permintaan . '</span> telah diajukan dan membutuhkan perhatian CS.';
 
-        // Calculate listApproval dynamically
-        // $tipe = $this->permintaan->jenisStok->nama;
-        // $unit = UnitKerja::find($this->permintaan->unit_id);
-        $allApproval = collect();
-
-        // Hitung jumlah persetujuan yang dibutuhkan
-        $listApproval = collect($roleLists)->flatten(1)->count();
-
-        // Menggabungkan semua approval untuk pengecekan urutan
-        $allApproval = collect($roleLists)->flatten(1);
-        $currentApprovalIndex = $allApproval->filter(function ($user) {
-            $approval = $user->{"persetujuan{$this->tipe}"}()
-                ->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
+            Notification::send($csUsers, new UserNotification($notifMessage, "/permintaan/permintaan/{$detailPermintaan->id}"));
+        } elseif ($detailPermintaan->kategori_id == 5) {
+            $penanggungJawab = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Penanggung Jawab');
+            })
+                ->whereHas('unitKerja', function ($query) use ($detailPermintaan) {
+                    $query->where('parent_id', $detailPermintaan->unit_id)
+                        ->orWhere('id', $detailPermintaan->unit_id);
+                })
+                ->whereDate('created_at', '<', $detailPermintaan->created_at)
                 ->first();
-            return $approval && $approval->status === 1; // Hanya hitung persetujuan yang berhasil
-        })->count();
 
+            if ($penanggungJawab) {
+                $notifPJ = 'Permintaan perbaikan dengan kode <span class="font-bold">'
+                    . $detailPermintaan->kode_permintaan .
+                    '</span> memerlukan persetujuan Anda sebagai Penanggung Jawab.';
 
-        // Pengecekan urutan user dalam daftar persetujuan
-        $index = $allApproval->search(fn($user) => $user->id == Auth::id());
-        // dd($allApproval);
-        $nextUser = $allApproval[$currentApprovalIndex];
-        if (collect($roles)->count() > 1) {
-            if ($index === 0) {
-                // Jika user adalah yang pertama dalam daftar
-                $currentUser = $allApproval[$index];
-            } else {
-                // Jika user berada di tengah atau akhir
-                $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
-                $currentUser = $allApproval[$index];
-                $previousApprovalStatus = optional(optional($previousUser)->{"persetujuan{$this->tipe}"}()
-                    ?->where('detail_' . $this->tipe . '_id', $this->permintaan->id ?? 0)
-                    ->first())->status;
+                Notification::send($penanggungJawab, new UserNotification($notifPJ, "/permintaan/permintaan/{$detailPermintaan->id}"));
+            }
+        } elseif ($detailPermintaan->kategori_id == 4) {
+            $csUsers = User::whereHas('roles', function ($query) {
+                $query->where('name', 'LIKE', '%Customer Services%');
+            })
+                ->whereHas('unitKerja', function ($query) use ($detailPermintaan) {
+                    $query->where('parent_id', $detailPermintaan->unit_id)
+                        ->orWhere('id', $detailPermintaan->unit_id);
+                })
+                ->where('name', 'like', '%Nisya%') // atau filter CS sesuai kebutuhan
+                ->whereDate('created_at', '<', $detailPermintaan->created_at)
+                ->get();
+
+            $notifMessage = 'Permintaan konsumsi dengan kode <span class="font-bold">'
+                . $detailPermintaan->kode_permintaan . '</span> telah diajukan dan memerlukan perhatian Anda.';
+
+            Notification::send($csUsers, new UserNotification($notifMessage, "/permintaan/permintaan/{$detailPermintaan->id}"));
+        } else {
+            $penjagaGudang = User::whereHas('roles', function ($query) {
+                $query->where('name', 'LIKE', '%Penjaga Gudang%');
+            })
+                ->whereHas('unitKerja', function ($query) use ($detailPermintaan) {
+                    $query->where('parent_id', $detailPermintaan->unit_id)
+                        ->orWhere('id', $detailPermintaan->unit_id);
+                })
+                ->whereHas('lokasiStok', function ($query) {
+                    $query->where('nama', 'Gudang Umum');
+                })
+                ->whereDate('created_at', '<', $detailPermintaan->created_at)
+                ->first();
+
+            if ($penjagaGudang) {
+                $notifGudang = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
+                    . $detailPermintaan->kode_permintaan .
+                    '</span> telah diajukan dan perlu ditindaklanjuti oleh Penjaga Gudang.';
+
+                Notification::send($penjagaGudang, new UserNotification(
+                    $notifGudang,
+                    "/permintaan/permintaan/{$detailPermintaan->id}"
+                ));
             }
         }
-        // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
-        // $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
-
-        Notification::send($nextUser, new UserNotification($message, "/permintaan/permintaan/{$detailPermintaan->id}"));
 
         $messageAtasan = 'Permintaan ' . $detailPermintaan->kategoriStok->nama . ' <span class="font-bold">' . $detailPermintaan->kode_permintaan . '</span> telah diajukan oleh staf Anda dan memerlukan perhatian Anda.';
         $pemohon = $this->permintaan->user;
@@ -766,6 +842,7 @@ class ListPermintaanForm extends Component
                 $this->list[] = [
                     'detail_permintaan_id' => $value->detail_permintaan_id,
                     'detail_permintaan_status' => optional($value->detailPermintaan)->status,
+                    'detail_permintaan_cancel' => optional($value->detailPermintaan)->cancel,
                     'jumlah_approve' => $value->stokDisetujui->sum('jumlah_disetujui'),
                     'status' => $value->status,
                     'user_id' => $value->user_id,
@@ -1006,6 +1083,21 @@ class ListPermintaanForm extends Component
 
         // $this->dispatch('success', "Upload Bukti Berhasil!");
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Voucher Nama Diberikan!');
+    }
+    public function TakeVoucherName($index)
+    {
+        // Simpan perubahan ke database (misalnya, tabel PeminjamanAset)
+        $permintaanStok = PermintaanStok::find($this->list[$index]['id']);
+        if ($permintaanStok->detailPermintaan) {
+            $detail = $permintaanStok->detailPermintaan;
+
+            $detail->update([
+                'cancel' => 0,
+            ]);
+        }
+
+        // $this->dispatch('success', "Upload Bukti Berhasil!");
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Voucher Sudah Diambil!');
     }
 
     public function uploadimg($index)
