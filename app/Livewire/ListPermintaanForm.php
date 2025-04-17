@@ -13,6 +13,7 @@ use App\Models\Kategori;
 use App\Models\MerkStok;
 use App\Models\UnitKerja;
 use App\Models\BarangStok;
+use App\Models\LokasiStok;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Models\StokDisetujui;
@@ -436,6 +437,19 @@ class ListPermintaanForm extends Component
     public function saveData()
     {
 
+        if ($this->kategori_id == 4) {
+            $existing = DetailPermintaanStok::where('kategori_id', 4)
+                ->where('user_id', Auth::id())
+                ->whereNull('file') // file belum diupload
+                ->latest()
+                ->first();
+
+            if ($existing) {
+                $this->dispatch('error', 'Anda masih memiliki permintaan konsumsi yang belum selesai dengan cara melampirkan file SPJ.');
+                return;
+            }
+        }
+
         $latestApprovalConfiguration = OpsiPersetujuan::where('jenis', $this->requestIs == 'permintaan' ? 'umum' : ($this->requestIs == 'spare-part' ? 'spare-part' : 'material'))
             ->where('unit_id', $this->unit_id)
             ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
@@ -566,15 +580,8 @@ class ListPermintaanForm extends Component
         // Notification::send($nextUser, new UserNotification($message, "/permintaan/permintaan/{$detailPermintaan->id}"));
 
         if ($detailPermintaan->kategori_id == 6) {
-            $csUsers = User::whereHas('roles', function ($query) {
-                $query->where('name', 'LIKE', '%Customer Services%');
-            })
-                ->whereHas('unitKerja', function ($query) use ($detailPermintaan) {
-                    $query->where('parent_id', $detailPermintaan->unit_id)
-                        ->orWhere('id', $detailPermintaan->unit_id);
-                })
-                ->where('name', 'like', '%Insan%') // Tambahan filter jika hanya "Insan"
-                ->whereDate('created_at', '<', $detailPermintaan->created_at)
+            $csUsers = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Customer Services%'))
+                ->where('name', 'like', '%Insan%')
                 ->get();
 
             $notifMessage = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
@@ -582,15 +589,10 @@ class ListPermintaanForm extends Component
 
             Notification::send($csUsers, new UserNotification($notifMessage, "/permintaan/permintaan/{$detailPermintaan->id}"));
         } elseif ($detailPermintaan->kategori_id == 5) {
-            $penanggungJawab = User::whereHas('roles', function ($query) {
-                $query->where('name', 'Penanggung Jawab');
-            })
-                ->whereHas('unitKerja', function ($query) use ($detailPermintaan) {
-                    $query->where('parent_id', $detailPermintaan->unit_id)
-                        ->orWhere('id', $detailPermintaan->unit_id);
-                })
-                ->whereDate('created_at', '<', $detailPermintaan->created_at)
-                ->first();
+            $penanggungJawab = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Penanggung Jawab%'))
+                ->where('name', 'like', '%Sugi%')
+                ->get();
+
 
             if ($penanggungJawab) {
                 $notifPJ = 'Permintaan perbaikan dengan kode <span class="font-bold">'
@@ -600,15 +602,8 @@ class ListPermintaanForm extends Component
                 Notification::send($penanggungJawab, new UserNotification($notifPJ, "/permintaan/permintaan/{$detailPermintaan->id}"));
             }
         } elseif ($detailPermintaan->kategori_id == 4) {
-            $csUsers = User::whereHas('roles', function ($query) {
-                $query->where('name', 'LIKE', '%Customer Services%');
-            })
-                ->whereHas('unitKerja', function ($query) use ($detailPermintaan) {
-                    $query->where('parent_id', $detailPermintaan->unit_id)
-                        ->orWhere('id', $detailPermintaan->unit_id);
-                })
-                ->where('name', 'like', '%Nisya%') // atau filter CS sesuai kebutuhan
-                ->whereDate('created_at', '<', $detailPermintaan->created_at)
+            $csUsers = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Customer Services%'))
+                ->where('name', 'like', '%Nisya%')
                 ->get();
 
             $notifMessage = 'Permintaan konsumsi dengan kode <span class="font-bold">'
@@ -616,19 +611,14 @@ class ListPermintaanForm extends Component
 
             Notification::send($csUsers, new UserNotification($notifMessage, "/permintaan/permintaan/{$detailPermintaan->id}"));
         } else {
-            $penjagaGudang = User::whereHas('roles', function ($query) {
-                $query->where('name', 'LIKE', '%Penjaga Gudang%');
-            })
-                ->whereHas('unitKerja', function ($query) use ($detailPermintaan) {
-                    $query->where('parent_id', $detailPermintaan->unit_id)
-                        ->orWhere('id', $detailPermintaan->unit_id);
-                })
-                ->whereHas('lokasiStok', function ($query) {
-                    $query->where('nama', 'Gudang Umum');
-                })
-                ->whereDate('created_at', '<', $detailPermintaan->created_at)
-                ->first();
+            $lokasiId = LokasiStok::where('nama', 'Gudang Umum')->value('id');
 
+            $penjagaGudang = User::with(['roles', 'unitKerja', 'lokasiStok'])
+                ->where('lokasi_id', $lokasiId)
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', 'LIKE', '%Penjaga Gudang%');
+                })
+                ->first();
             if ($penjagaGudang) {
                 $notifGudang = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
                     . $detailPermintaan->kode_permintaan .
@@ -1038,35 +1028,109 @@ class ListPermintaanForm extends Component
             if ($detail->kategori_id == 6) {
                 $detail->update([
                     'proses' => 1,
-                    'cancel' => 0
+                    'keterangan_done' => $message,
                 ]);
+
+                $csUsers = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Customer Services%'))
+                    ->where('name', 'like', '%Insan%')
+                    ->get();
+
+                $notifMessage = 'Permintaan ' . $detail->jenisStok->nama . ' dengan kode <span class="font-bold">'
+                    . $detail->kode_permintaan . '</span> telah Selesai dan membutuhkan perhatian CS.';
+
+                Notification::send($csUsers, new UserNotification($notifMessage, "/permintaan/permintaan/{$detail->id}"));
             } elseif ($detail->kategori_id == 5) {
-                // Ambil semua permintaan stok untuk detail yang sama
+                // Ambil semua permintaan stok untuk detail ini
                 $relatedPermintaan = $detail->permintaanStok;
 
-                // Cek jika current permintaan ini adalah elemen ke-2 (index 1)
-                if ($relatedPermintaan && $relatedPermintaan->count() >= 2) {
-                    $secondItem = $relatedPermintaan[1]; // index ke-1 = row ke-2
-                    if ($secondItem->id == $permintaanStok->id) {
-                        // Update detail
-                        $detail->update([
-                            'proses' => 1,
-                            'cancel' => 0
-                        ]);
+                // Cek apakah ada permintaan dengan status
+                $adaYangSudahDisetujui = $relatedPermintaan->contains(function ($item) {
+                    return $item->status === 1;
+                });
 
-                        // Update aset terkait jika ada
-                        if ($detail->aset) {
-                            $detail->aset->update([
-                                'perbaikan' => true
+                if ($adaYangSudahDisetujui) {
+                    // Update detail jadi selesai
+                    $detail->update([
+                        'proses' => 1,
+                        'cancel' => 0,
+                        'keterangan_done' => $message,
+                    ]);
+
+                    // Update aset jika ada
+                    if ($detail->aset) {
+                        $detail->aset->update([
+                            'perbaikan' => true
+                        ]);
+                    }
+
+                    // Kirim notifikasi ke Penanggung Jawab & User
+                    $notifPJ = 'Permintaan perbaikan dengan kode <span class="font-bold">'
+                        . $detail->kode_permintaan .
+                        '</span> selesai dengan keterangan: ' . $message;
+
+                    $penanggungJawab = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Penanggung Jawab%'))
+                        ->where('name', 'like', '%Sugi%')
+                        ->get();
+
+                    Notification::send($penanggungJawab, new UserNotification($notifPJ, "/permintaan/permintaan/{$detail->id}"));
+
+                    $user = $detail->user;
+                    Notification::send($user, new UserNotification(
+                        $notifPJ,
+                        "/permintaan/permintaan/{$detail->id}"
+                    ));
+                } else {
+                    // Gunakan logika lama (berdasarkan index ke-2)
+                    if ($relatedPermintaan && $relatedPermintaan->count() >= 2) {
+                        $secondItem = $relatedPermintaan[1];
+                        if ($secondItem->id == $permintaanStok->id) {
+                            $detail->update([
+                                'proses' => 1,
+                                'cancel' => 0,
+                                'keterangan_done' => $message,
                             ]);
+
+                            if ($detail->aset) {
+                                $detail->aset->update([
+                                    'perbaikan' => true
+                                ]);
+                            }
+
+                            $notifPJ = 'Permintaan perbaikan dengan kode <span class="font-bold">'
+                                . $detail->kode_permintaan .
+                                '</span> selesai dengan keterangan: ' . $message;
+
+                            $penanggungJawab = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Penanggung Jawab%'))
+                                ->where('name', 'like', '%Sugi%')
+                                ->get();
+
+                            Notification::send($penanggungJawab, new UserNotification($notifPJ, "/permintaan/permintaan/{$detail->id}"));
+
+                            $user = $detail->user;
+                            Notification::send($user, new UserNotification(
+                                $notifPJ,
+                                "/permintaan/permintaan/{$detail->id}"
+                            ));
                         }
                     }
                 }
+            } else {
+                $detail->update([
+                    'proses' => 1,
+                    'keterangan_done' => $message,
+                ]);
+
+                $mess = "Permintaan dengan kode {$detail->kode_permintaan} Selesai dan sudah diambil dengan keterangan {$message}.";
+                $user = $detail->user;
+                Notification::send($user, new UserNotification(
+                    $mess,
+                    "/permintaan/permintaan/{$this->detail->id}"
+                ));
             }
         }
 
         // $this->dispatch('success', "Upload Bukti Berhasil!");
-        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Upload Bukti Berhasil!');
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Upload Berhasil!');
     }
     public function VoucherNameAction($index)
     {
@@ -1121,6 +1185,21 @@ class ListPermintaanForm extends Component
             $this->permintaan->update(['proses' => 1]);
             return redirect()->to('/permintaan/permintaan/' . $this->permintaan->id);
         }
+    }
+
+    public function ApproveItemKDO($index, $message, $status = true)
+    {
+        $permintaanStok = PermintaanStok::find($this->list[$index]['id']);
+
+        if ($permintaanStok) {
+            $permintaanStok->update([
+                'catatan' => $message,
+                'status' => $status,
+            ]);
+        }
+
+        // $this->dispatch('success', "Upload Bukti Berhasil!");
+        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id)->with('success', 'Persetujuan Berhasil!');
     }
 
     public function render()

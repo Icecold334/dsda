@@ -51,13 +51,18 @@
                                     ? 'dibatalkan'
                                     : ($permintaan->cancel === 0 && $permintaan->proses === 1
                                         ? 'selesai'
-                                        : ($permintaan->cancel === 0 && $permintaan->proses === null
-                                            ? 'siap digunakan atau terambil'
-                                            : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
-                                                ? 'diproses'
-                                                : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
-                                                    ? 'disetujui'
-                                                    : 'ditolak')))) }}
+                                        : ($permintaan->cancel === 0 && $permintaan->proses === null && $permintaan->kategori_id != 6
+                                            ? 'siap digunkan atau siap diambil'
+                                            : ($permintaan->cancel === 0 &&
+                                            $permintaan->proses === null &&
+                                            $tipe == 'permintaan' &&
+                                            $permintaan->kategori_id == 6
+                                                ? 'sudah diambil'
+                                                : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                                                    ? 'diproses'
+                                                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                                                        ? 'disetujui'
+                                                        : 'ditolak'))))) }}
                             </span>
 
                         </td>
@@ -100,15 +105,26 @@
                                 {{ optional($permintaan->aset)->nama ?? '-' }}
                             </td>
                         </tr>
-                        <tr class="font-semibold">
-                            <td>Tanggal Masuk</td>
-                            <td>{{ \Carbon\Carbon::parse($permintaan->tanggal_masuk)->translatedFormat('j F Y') }}</td>
-                        </tr>
-                        <tr class="font-semibold">
-                            <td>Tanggal Keluar</td>
-                            <td>{{ \Carbon\Carbon::parse($permintaan->tanggal_keluar)->translatedFormat('j F Y') }}
-                            </td>
-                        </tr>
+                        @if (auth()->user()?->hasRole('Penanggung Jawab'))
+                            {{-- Panggil Livewire --}}
+                            <tr class="font-semibold">
+                                <td colspan="2">
+                                    <livewire:tanggal-k-d-o-form :permintaan-id="$permintaan->id" />
+                                </td>
+                            </tr>
+                        @else
+                            {{-- Tampilkan readonly --}}
+                            <tr class="font-semibold">
+                                <td>Tanggal Masuk</td>
+                                <td>{{ \Carbon\Carbon::parse($permintaan->tanggal_masuk)->translatedFormat('j F Y') }}
+                                </td>
+                            </tr>
+                            <tr class="font-semibold">
+                                <td>Tanggal Keluar</td>
+                                <td>{{ \Carbon\Carbon::parse($permintaan->tanggal_keluar)->translatedFormat('j F Y') }}
+                                </td>
+                            </tr>
+                        @endif
                     @endif
                     <tr class="font-semibold">
                         <td>Unit Kerja</td>
@@ -122,6 +138,39 @@
                         <td>Keterangan</td>
                         <td>{{ $permintaan->keterangan ?? '---' }}</td>
                     </tr>
+                    @if (
+                        $permintaan->kategori_id == 4 &&
+                            $permintaan->status === 1 &&
+                            empty($permintaan->file) &&
+                            $tipe == 'permintaan' &&
+                            auth()->id() == $permintaan->user_id)
+                        <tr>
+                            <livewire:spj-button :permintaan="$permintaan">
+                        </tr>
+                    @endif
+                    @if ($tipe == 'permintaan' && $permintaan->kategori_id == 4 && $permintaan->file)
+                        <tr>
+                            <td colspan="2">
+                                <span class="text-success-600 font-semibold">File SPJ</span><br>
+                                <a href="{{ asset('storage/pengembalianUmum/' . $permintaan->file) }}" target="_blank"
+                                    download class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $permintaan->file }}
+                                </a>
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($permintaan->keterangan_cancel)
+                        <tr class="font-semibold">
+                            <td class="text-red-600"><span>*</span> Note Ditolak</td>
+                            <td>{{ $permintaan->keterangan_cancel ?? '---' }}</td>
+                        </tr>
+                    @endif
+                    @if ($permintaan->keterangan_done)
+                        <tr class="font-semibold">
+                            <td class="text-success-600"><span>*</span> Note Selesai</td>
+                            <td>{{ $permintaan->keterangan_done ?? '---' }}</td>
+                        </tr>
+                    @endif
                     @if ($permintaan->kategori_id == 1 && $tipe == 'peminjaman')
                         <tr class="font-semibold">
                             <td colspan="2" class="py-2">Syarat dan Ketentuan KDO</td>

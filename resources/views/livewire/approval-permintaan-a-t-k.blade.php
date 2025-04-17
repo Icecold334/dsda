@@ -74,7 +74,9 @@
                         {{ $kepalaSubbagian->name ?? 'Tidak Ada Kepala' }}
                     </span>
                     @if ($kepalaSubbagian)
-                        @if ($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses)
+                        @if ($permintaan->status && $permintaan->cancel === null)
+                            <i class="fa-solid fa-circle-check text-success-500"></i>
+                        @elseif ($permintaan->status && !$permintaan->cancel)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
                         @elseif($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses === 0)
                             <i class="fa-solid fa-circle-xmark text-danger-500"></i>

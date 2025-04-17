@@ -33,7 +33,7 @@
                 <div class="block font-semibold text-center mb-2 text-gray-900">
                     {{ ucwords(str_replace('-', ' ', $roleKey)) }}{{ $roleKey == 'kepala-subbagian' ? ' Tata Usaha' : '' }}
                 </div>
-                <table class="w-full mt-3">
+                <table class="w-full">
                     @foreach ($users as $user)
                         <tr class="text-sm border-b-2">
                             <td class="flex justify-between px-3">
@@ -74,7 +74,9 @@
                         {{ $kepalaSubbagian->name ?? 'Tidak Ada Kepala' }}
                     </span>
                     @if ($kepalaSubbagian)
-                        @if ($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses)
+                        @if ($permintaan->status && $permintaan->cancel === null && $permintaan->proses === null)
+                            <i class="fa-solid fa-circle-check text-success-500"></i>
+                        @elseif ($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
                         @elseif($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses === 0)
                             <i class="fa-solid fa-circle-xmark text-danger-500"></i>

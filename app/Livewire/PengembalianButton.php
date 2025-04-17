@@ -68,6 +68,7 @@ class PengembalianButton extends Component
         $unitId = $this->permintaan->sub_unit_id;
         $users = User::role('Customer Services')
             ->where('unit_id', $unitId)
+            ->where('name', 'like', '%Nisya%')
             ->get();
         $alert = 'Peminjaman dengan kode <span class="font-bold">' .  $this->permintaan->kode_peminjaman .
             '</span> Sudah Mengembalikan Peminjaman <span class="font-bold">' .  $kategori->nama .

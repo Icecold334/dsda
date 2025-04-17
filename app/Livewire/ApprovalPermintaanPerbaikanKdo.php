@@ -62,10 +62,13 @@ class ApprovalPermintaanPerbaikanKdo extends Component
                     $query->where('parent_id', $this->unit_id)
                         ->orWhere('id', $this->unit_id);
                 })
+                ->when($role === 'Penanggung Jawab', function ($query) {
+                    $query->where('name', 'like', '%Sugi%');
+                })
+
                 ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'));
-            $users = $role === 'Penanggung Jawab'
-                ? collect([$baseQuery->first()])->filter() // wrap in collection, filter null
-                : $baseQuery->get();
+
+            $users = $baseQuery->get();
 
             $propertyKey = Str::slug($role);
             $this->roleLists[$propertyKey] = $users;
@@ -177,6 +180,9 @@ class ApprovalPermintaanPerbaikanKdo extends Component
                 ));
             }
         } else {
+            $this->permintaan->update([
+                'keterangan_cancel' =>  $message,
+            ]);
             $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} ditolak dengan keterangan: {$message}.";
             $user = $permintaan->user;
             Notification::send($user, new UserNotification(
@@ -209,7 +215,7 @@ class ApprovalPermintaanPerbaikanKdo extends Component
             }
             $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
                 (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
-                '</span> telah Disetujui dengan keterangan <span class="font-bold">' . $message . '</span>';
+                '</span> telah Disetujui dengan keterangan <span class="font-bold">' . $message . '</span> dan Statusnya menjadi <span class="font-bold"> Diperbaiki </span>';
 
             if ($this->kepalaSubbagian) {
                 Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));

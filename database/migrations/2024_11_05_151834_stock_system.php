@@ -240,6 +240,8 @@ return new class extends Migration
 
             $table->integer('jumlah')->nullable();
             $table->text('keterangan')->nullable();
+            $table->text('keterangan_cancel')->nullable();
+            $table->text('keterangan_done')->nullable();
             $table->boolean('proses')->nullable();
             $table->boolean('cancel')->nullable();
             $table->boolean('status')->nullable();
@@ -251,7 +253,7 @@ return new class extends Migration
             $table->foreignId('aset_id')->nullable()->constrained('aset')->onDelete('cascade');
             $table->dateTime('tanggal_masuk')->nullable();
             $table->dateTime('tanggal_keluar')->nullable();
-
+            $table->string('file')->nullable();
             $table->timestamps();
         });
         Schema::create('permintaan_stok', function (Blueprint $table) {

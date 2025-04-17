@@ -29,7 +29,7 @@ class UnitSeeder extends Seeder
             'Sekretariat' => [
                 'kepala' => 'Hendri, ST, MT',
                 'sub_units' => [
-                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST', 'staf' => ['Ahmad Gunadi'], 'cs' => ['Nisya', 'Insan']],
+                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST', 'staf' => ['Ahmad Gunadi'], 'cs' => ['Nisya', 'Insan'], 'pj' => ['Halimah', 'Sugi']],
                     ['nama' => 'Subkelompok Kepegawaian', 'kepala' => 'Ratna Pertiwi, ST'],
                     ['nama' => 'Subkelompok Program dan Pelaporan', 'kepala' => 'Astrid Marzia Damayanti, ST'],
                     ['nama' => 'Subbagian Keuangan', 'kepala' => 'Indra Prabowo, SE'],
@@ -957,6 +957,22 @@ class UnitSeeder extends Seeder
                             'email' => Str::lower(str_replace(' ', '_', $stafCS)) . "@email.com",
                             'password' => bcrypt('123'),
                         ])->roles()->attach($csRole->id);
+                    }
+                }
+                if (isset($subUnit['pj'])) {
+                    $pjRole = Role::firstOrCreate([
+                        'name' => 'Penanggung Jawab',
+                        'guard_name' => 'web',
+                    ]);
+
+                    foreach ($subUnit['pj'] as $stafPJ) {
+                        User::create([
+                            'email_verified_at' => now(),
+                            'name' => $stafPJ, // Gunakan nama yang sudah ada di array staf
+                            'unit_id' => $subUnitEntry->id,
+                            'email' => Str::lower(str_replace(' ', '_', $stafPJ)) . "@email.com",
+                            'password' => bcrypt('123'),
+                        ])->roles()->attach($pjRole->id);
                     }
                 }
             }

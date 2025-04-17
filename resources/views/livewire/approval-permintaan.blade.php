@@ -13,19 +13,17 @@
         </div>
 
         {{-- Kepala Pemohon --}}
-        @if ($kepalaPemohon)
-            <div>
-                <div class="block font-semibold text-center mb-2 text-gray-900">Kepala Pemohon</div>
-                <div class="text-sm border-b-2">
-                    <div class="flex justify-between items-center px-3">
-                        <span class="mr-2 {{ $kepalaPemohon->id == auth()->id() ? 'font-bold' : '' }}">
-                            {{ $kepalaPemohon->name }}
-                        </span>
-                        <i class="fa-solid fa-circle-check text-success-500"></i>
-                    </div>
+        <div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">Kepala Pemohon</div>
+            <div class="text-sm border-b-2">
+                <div class="flex justify-between items-center px-3">
+                    <span class="mr-2 {{ $kepalaPemohon->id == auth()->id() ? 'font-bold' : '' }}">
+                        {{ $kepalaPemohon->name }}
+                    </span>
+                    <i class="fa-solid fa-circle-check text-success-500"></i>
                 </div>
             </div>
-        @endif
+        </div>
 
         {{-- Approval Dinamis Berdasarkan Role --}}
         @foreach ($roleLists as $roleKey => $users)

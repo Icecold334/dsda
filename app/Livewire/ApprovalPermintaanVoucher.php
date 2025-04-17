@@ -177,6 +177,9 @@ class ApprovalPermintaanVoucher extends Component
                 ));
             }
         } else {
+            $this->permintaan->update([
+                'keterangan_cancel' =>  $message,
+            ]);
             $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} ditolak dengan keterangan: {$message}.";
             $user = $permintaan->user;
             Notification::send($user, new UserNotification(
@@ -206,6 +209,12 @@ class ApprovalPermintaanVoucher extends Component
             if ($this->kepalaSubbagian) {
                 Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
+            $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} Disetujui silahkan diambil ke CS";
+            $user = $permintaan->user;
+            Notification::send($user, new UserNotification(
+                $mess,
+                "/permintaan/permintaan/{$this->permintaan->id}"
+            ));
         } else {
             $this->permintaan->update([
                 'status' =>  1,
