@@ -51,18 +51,23 @@
                                     ? 'dibatalkan'
                                     : ($permintaan->cancel === 0 && $permintaan->proses === 1
                                         ? 'selesai'
-                                        : ($permintaan->cancel === 0 && $permintaan->proses === null && $permintaan->kategori_id != 6
+                                        : ($tipe === 'permintaan' &&
+                                        $permintaan->cancel === 0 &&
+                                        $permintaan->proses === null &&
+                                        $permintaan->kategori_id != 6
                                             ? 'siap digunkan atau siap diambil'
                                             : ($permintaan->cancel === 0 &&
                                             $permintaan->proses === null &&
                                             $tipe == 'permintaan' &&
                                             $permintaan->kategori_id == 6
                                                 ? 'sudah diambil'
-                                                : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
-                                                    ? 'diproses'
-                                                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
-                                                        ? 'disetujui'
-                                                        : 'ditolak'))))) }}
+                                                : ($permintaan->cancel === 0 && $permintaan->proses === null && $tipe === 'peminjaman'
+                                                    ? 'dipinjam'
+                                                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                                                        ? 'diproses'
+                                                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                                                            ? 'disetujui'
+                                                            : 'ditolak')))))) }}
                             </span>
 
                         </td>
@@ -281,7 +286,7 @@
             </x-card>
         </div>
         <div class="grid gap-6">
-            @if ($tipe == 'permintaan' && $permintaan->status === 1)
+            @if ($permintaan->status === 1)
                 <x-card title="QR Code" class="mb-3">
                     <div class="flex justify-around">
                         <div
@@ -357,6 +362,14 @@
                                     <livewire:approval-permintaan-a-t-k :permintaan="$permintaan">
                                     @else
                                         <livewire:approval-permintaan :permintaan="$permintaan">
+                    @endif
+                @elseif ($tipe == 'peminjaman')
+                    @if ($permintaan->kategori_id == 1)
+                        <livewire:approval-peminjaman-k-d-o :permintaan="$permintaan">
+                        @elseif($permintaan->kategori_id === 2)
+                            <livewire:approval-peminjaman-ruangan :permintaan="$permintaan">
+                            @else
+                                <livewire:approval-peminjaman-peralatan :permintaan="$permintaan">
                     @endif
                 @else
                     <livewire:approval-permintaan :permintaan="$permintaan">

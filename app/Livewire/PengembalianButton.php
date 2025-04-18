@@ -51,17 +51,24 @@ class PengembalianButton extends Component
         ]);
         // Update data aset terkait
         foreach ($this->permintaan->peminjamanAset as $peminjaman) {
-            if ($peminjaman->aset_id) {
-                if ($kategori->id == 2) {
-                    // Jika kategori == 2, gunakan model Ruang
-                    Ruang::where('id', $peminjaman->aset_id)->update([
-                        'peminjaman' => 1
-                    ]);
-                } else {
-                    // Jika kategori bukan 2, gunakan model Aset
-                    Aset::where('id', $peminjaman->aset_id)->update([
-                        'peminjaman' => 1
-                    ]);
+            if ($peminjaman->approved_aset_id || $peminjaman->aset_id) {
+                // Gunakan approved_aset_id jika berbeda dengan aset_id
+                $asetIdToUse = $peminjaman->approved_aset_id != $peminjaman->aset_id
+                    ? $peminjaman->approved_aset_id
+                    : $peminjaman->aset_id;
+
+                if ($asetIdToUse) {
+                    if ($kategori->id == 2) {
+                        // Jika kategori == 2, gunakan model Ruang
+                        Ruang::where('id', $asetIdToUse)->update([
+                            'peminjaman' => 1
+                        ]);
+                    } else {
+                        // Jika kategori bukan 2, gunakan model Aset
+                        Aset::where('id', $asetIdToUse)->update([
+                            'peminjaman' => 1
+                        ]);
+                    }
                 }
             }
         }

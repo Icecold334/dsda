@@ -7,7 +7,7 @@
                     <tr class="text-white uppercase">
                         <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold rounded-l-lg">NAMA
                             {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }}</th>
-                        @if (!$showNew)
+                        @if (!$showNew && $tipe != 'Peralatan Kantor')
                             <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold ">NAMA
                                 {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }} Disetujui</th>
                         @endif
@@ -55,7 +55,7 @@
                                     </option>
                                 </select>
                             </td>
-                            @if (!$showNew)
+                            @if (!$showNew && $tipe == 'KDO')
                                 <td class="py-3 px-6">
                                     <select wire:model.live="list.{{ $index }}.approved_aset_id"
                                         @disabled(auth()->user()->cannot('peminjaman_persetujuan_peminjaman_aset') ||
@@ -66,7 +66,29 @@
                                         </option>
                                         @foreach ($asets as $aset)
                                             <option value="{{ $aset->id }}">
-                                                {{ $tipe == 'KDO' ? $aset->merk->nama . ' ' . $aset->nama . ' - ' . $aset->noseri : $aset->nama }}
+                                                {{ $aset->merk->nama . ' ' . $aset->nama . ' - ' . $aset->noseri }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('newAsetId')
+                                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    @enderror
+                                </td>
+                            @endif
+                            @if (!$showNew && $tipe == 'Ruangan')
+                                <td class="py-3 px-6">
+                                    @php
+                                        $isPembuat = auth()->id() === $item['user_id'];
+                                        $canApprove = auth()->user()->can('peminjaman_persetujuan_peminjaman_aset');
+                                    @endphp
+                                    <select wire:model.live="list.{{ $index }}.approved_aset_id"
+                                        {{ !$canApprove || $isPembuat ? 'disabled' : '' }}
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                        <option value="">Pilih {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }}
+                                        </option>
+                                        @foreach ($asetsAvail as $aset)
+                                            <option value="{{ $aset->id }}">
+                                                {{ $aset->nama }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -121,7 +143,7 @@
                                             wire:model.live='list.{{ $index }}.approved_jumlah' min="1"
                                             @disabled(auth()->user()->cannot('peminjaman_persetujuan_peminjaman_aset') ||
                                                     $item['fix'] ||
-                                                    !in_array($item['detail_peminjaman_id'], $approvals))
+                                                    in_array($item['detail_peminjaman_id'], $approvals))
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                             placeholder="Jumlah Disetujui">
                                         @if ($item['aset_id'] && $item['avilable_jumlah'] && empty($item['approved_jumlah']))
@@ -144,10 +166,12 @@
                             </td>
                             @if (!$showNew && $tipe == 'Ruangan')
                                 <td class="py-3 px-6">
+                                    @php
+                                        $isPembuat = auth()->id() === $item['user_id'];
+                                        $canApprove = auth()->user()->can('peminjaman_persetujuan_peminjaman_aset');
+                                    @endphp
                                     <select wire:model.live="list.{{ $index }}.approved_waktu_id"
-                                        @disabled(auth()->user()->cannot('peminjaman_persetujuan_peminjaman_aset') ||
-                                                $item['fix'] ||
-                                                !in_array($item['detail_peminjaman_id'], $approvals))
+                                        {{ !$canApprove || $isPembuat ? 'disabled' : '' }}
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                         <option value="">Pilih Waktu Peminjaman</option>
                                         @foreach ($waktus as $waktu)
@@ -172,10 +196,14 @@
                                         </div>
                                     @else
                                         <button
-                                            @if (auth()->id() == $item['user_id']) onclick="openBackItemModal({{ $index }})" @endif
+                                            onclick="{{ auth()->id() == $item['user_id'] && $item['detail_peminjaman_status'] && $item['detail_peminjaman_cancel'] === 0 ? "openBackItemModal($index)" : '' }}"
                                             class="text-primary-700 bg-gray-200 border text-sm border-primary-500 rounded-lg px-3 py-1.5 transition
-                                            @if (auth()->id() != $item['user_id']) opacity-50 cursor-not-allowed pointer-events-none @else hover:bg-primary-600 hover:text-white @endif"
-                                            @if (auth()->id() != $item['user_id']) disabled @endif>
+                                        {{ auth()->id() == $item['user_id'] &&
+                                        $item['detail_peminjaman_status'] &&
+                                        $item['detail_peminjaman_cancel'] === 0
+                                            ? 'hover:bg-primary-600 hover:text-white'
+                                            : 'opacity-50 cursor-not-allowed pointer-events-none' }}"
+                                            {{ auth()->id() != $item['user_id'] || !$item['detail_peminjaman_status'] || $item['detail_peminjaman_cancel'] !== 0 ? 'disabled' : '' }}>
                                             Kembalikan
                                         </button>
                                         <input type="file" id="uploadFoto-{{ $index }}" class="hidden"
@@ -294,7 +322,14 @@
                                         <i class="fa-solid fa-circle-xmark"></i>
                                     </button>
                                 @else
-                                    @if (!$item['fix'] && $item['approved_aset_id'] && $item['img_pengembalian'])
+                                    @if (!$item['fix'] && ($item['approved_aset_id'] || $item['approved_jumlah']))
+                                        <button onclick="confirmItem({{ $index }})"
+                                            class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                        </button>
+                                    @elseif(
+                                        (auth()->id() !== $item['user_id'] && ($item['fix'] && $item['approved_aset_id'] != $item['aset_id'])) ||
+                                            ($item['approved_waktu_id'] != $item['waktu_id'] && $item['approved_aset_id'] && $item['approved_waktu_id']))
                                         <button onclick="confirmItem({{ $index }})"
                                             class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                             <i class="fa-solid fa-circle-check"></i>

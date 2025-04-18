@@ -42,10 +42,10 @@ class DetailPeminjamanAset extends Model
         return $this->belongsTo(Kategori::class);
     }
 
-    public function persetujuan()
-    {
-        return $this->hasMany(PersetujuanPeminjamanAset::class, 'detail_peminjaman_id');
-    }
+    // public function persetujuan()
+    // {
+    //     return $this->hasMany(PersetujuanPeminjamanAset::class, 'detail_peminjaman_id');
+    // }
 
     public function peminjamanAset()
     {
@@ -55,5 +55,10 @@ class DetailPeminjamanAset extends Model
     public function opsiPersetujuan()
     {
         return $this->belongsTo(OpsiPersetujuan::class, 'approval_configuration_id');
+    }
+
+    public function persetujuan()
+    {
+        return $this->morphMany(Persetujuan::class, 'approvable');
     }
 }

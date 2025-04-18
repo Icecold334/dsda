@@ -310,6 +310,7 @@ return new class extends Migration
             $table->foreignId('kategori_id')->nullable()->constrained('kategori');
             $table->foreignId('approval_configuration_id')->nullable()->constrained('opsi_persetujuan')->onDelete('set null');
             $table->text('keterangan')->nullable();
+            $table->text('keterangan_cancel')->nullable();
             $table->boolean('proses')->nullable();
             $table->boolean('cancel')->nullable();
             $table->boolean('status')->nullable();
