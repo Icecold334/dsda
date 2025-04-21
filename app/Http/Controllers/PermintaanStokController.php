@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DetailPeminjamanAset;
-use App\Models\DetailPermintaanMaterial;
-use App\Models\DetailPermintaanStok;
 use App\Models\Kategori;
 use App\Models\KategoriStok;
-use App\Models\PermintaanMaterial;
-use App\Models\PermintaanStok;
 use Illuminate\Http\Request;
+use App\Models\PermintaanStok;
+use App\Models\PermintaanMaterial;
+use App\Models\DetailPeminjamanAset;
+use App\Models\DetailPermintaanStok;
+use Illuminate\Support\Facades\Auth;
+use App\Models\DetailPermintaanMaterial;
 
 class PermintaanStokController extends Controller
 {
@@ -81,26 +82,27 @@ class PermintaanStokController extends Controller
         $permintaan = $tipe === 'permintaan'
             ? DetailPermintaanStok::find($id)
             : ($tipe === 'peminjaman' ? DetailPeminjamanAset::find($id) : null);
-        // dd($tipe, $permintaan);
-        // if ($tipe === 'permintaan_material') {
-        // $permintaan_material = DetailPermintaanMaterial::find($id);
-        // if ($permintaan_material) {
-        //     $permintaan = $permintaan_material;
 
-        //     // Mapping status
-        //     $statusMap = [
-        //         null => ['label' => 'Diproses', 'color' => 'warning'],
-        //         0 => ['label' => 'Ditolak', 'color' => 'danger'],
-        //         1 => ['label' => 'Disetujui', 'color' => 'success'],
-        //         2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
-        //         3 => ['label' => 'Selesai', 'color' => 'primary'],
-        //     ];
+        $type = Auth::user()->unitKerja->hak;
+        if (!$type) {
+            $permintaan_material = DetailPermintaanMaterial::find($id);
+            if ($permintaan_material) {
+                $permintaan = $permintaan_material;
 
-        //     // Tambahkan properti dinamis
-        //     $permintaan->status_teks = $statusMap[$permintaan->status]['label'] ?? 'Tidak diketahui';
-        //     $permintaan->status_warna = $statusMap[$permintaan->status]['color'] ?? 'gray';
-        // }
-        // }
+                // Mapping status
+                $statusMap = [
+                    null => ['label' => 'Diproses', 'color' => 'warning'],
+                    0 => ['label' => 'Ditolak', 'color' => 'danger'],
+                    1 => ['label' => 'Disetujui', 'color' => 'success'],
+                    2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
+                    3 => ['label' => 'Selesai', 'color' => 'primary'],
+                ];
+
+                // Tambahkan properti dinamis
+                $permintaan->status_teks = $statusMap[$permintaan->status]['label'] ?? 'Tidak diketahui';
+                $permintaan->status_warna = $statusMap[$permintaan->status]['color'] ?? 'gray';
+            }
+        }
         return view('permintaan.show', compact('permintaan', 'tipe'));
     }
 
