@@ -2,20 +2,25 @@
 
 namespace App\Livewire;
 
-use App\Models\BarangStok;
-use App\Models\ListRab as ModelsListRab;
-use App\Models\MerkStok;
 use App\Models\Rab;
-use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\On;
+use App\Models\User;
 use Livewire\Component;
+use App\Models\MerkStok;
+use App\Models\BarangStok;
+use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Auth;
+use App\Notifications\UserNotification;
+use App\Models\ListRab as ModelsListRab;
+use Illuminate\Support\Facades\Notification;
 
 class ListRab extends Component
 {
 
-    public $rab_id, $barangs, $dokumenCount, $newMerkId, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
+    public $rab_id, $barangs, $merks = [], $dokumenCount, $newMerkId, $newBarangId, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
     public function mount()
     {
+
+
         if ($this->rab_id) {
             $rab = Rab::find($this->rab_id);
             foreach ($rab->list as $item) {
@@ -37,6 +42,14 @@ class ListRab extends Component
             $this->newUnit = 'Satuan';
         } else {
             $this->newUnit = MerkStok::find($this->newMerkId)->barangStok->satuanBesar->nama;
+        }
+
+        if ($field == 'newBarangId') {
+            $this->newUnit = BarangStok::find($this->newBarangId)->satuanBesar->nama;
+            $this->newMerkId = null;
+            $this->newJumlah = null;
+
+            $this->merks = MerkStok::where('barang_id', $this->newBarangId)->get();
         }
         $this->checkAdd();
     }
@@ -80,7 +93,7 @@ class ListRab extends Component
             'jumlah' => $this->newJumlah
         ];
         $this->dispatch('listCount', count: count($this->list));
-        $this->reset(['newMerkId', 'newJumlah', 'newUnit']);
+        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newUnit']);
         $this->checkAdd();
     }
 
@@ -88,11 +101,16 @@ class ListRab extends Component
     {
         $rab = Rab::create([
             'user_id' => Auth::id(),
+            'program' => $this->dataKegiatan['program'],
             'nama' => $this->dataKegiatan['nama'],
+            'sub_kegiatan' => $this->dataKegiatan['sub_kegiatan'],
+            'rincian_sub_kegiatan' => $this->dataKegiatan['rincian_sub_kegiatan'],
+            'kode_rekening' => $this->dataKegiatan['kode_rekening'],
             'lokasi' => $this->dataKegiatan['lokasi'],
             'mulai' => $this->dataKegiatan['mulai'],
             'selesai' => $this->dataKegiatan['selesai'],
         ]);
+
         $data = [];
         foreach ($this->list as $item) {
             $data[] = [
@@ -105,6 +123,15 @@ class ListRab extends Component
         }
         ModelsListRab::insert($data);
         $this->reset('list');
+        $mess = 'RAB <span class="font-semibold">' . $rab->nama . '</span> membutuhkan persetujuan Anda.';
+
+        $unit_id = $this->unit_id;
+        $user = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+            return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Seksi Perencanaan%');
+        })->whereHas('roles', function ($role) {
+            return $role->where('name', 'like', '%Kepala Seksi%');
+        })->first();
+        Notification::send($user, new UserNotification($mess, "/rab/{$rab->id}"));
         $this->dispatch('saveDokumen', kontrak_id: $rab->id, isRab: true);
     }
     public function render()

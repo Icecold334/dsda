@@ -15,13 +15,37 @@
     <div>
       <x-card title="data umum" class="mb-3">
         <table class="w-full">
+          <!-- Program -->
+          <tr class="font-semibold">
+            <td>Program</td>
+            <td>{{ $rab->program }}</td>
+          </tr>
 
+          <!-- Nama Kegiatan -->
           <tr class="font-semibold">
             <td>Nama Kegiatan</td>
-            <td>
-              {{ $rab->nama }}
-            </td>
+            <td>{{ $rab->nama }}</td>
           </tr>
+
+          <!-- Sub Kegiatan -->
+          <tr class="font-semibold">
+            <td>Sub Kegiatan</td>
+            <td>{{ $rab->sub_kegiatan }}</td>
+          </tr>
+
+          <!-- Rincian Sub Kegiatan -->
+          <tr class="font-semibold">
+            <td>Rincian Sub Kegiatan</td>
+            <td>{{ $rab->rincian_sub_kegiatan }}</td>
+          </tr>
+
+          <!-- Kode Rekening -->
+          <tr class="font-semibold">
+            <td>Kode Rekening</td>
+            <td>{{ $rab->kode_rekening }}</td>
+          </tr>
+
+          <!-- Status -->
           <tr class="font-semibold">
             <td>Status</td>
             <td>
@@ -31,29 +55,29 @@
               </span>
             </td>
           </tr>
-          <tr class="font-semibold {{ $rab->status !== 0 ?'hidden':''  }}">
-            <td>Keterangan </td>
-            <td>
-              {{ $rab->keterangan }}
-            </td>
+
+          <!-- Keterangan (jika status == 0) -->
+          <tr class="font-semibold {{ $rab->status !== 0 ? 'hidden' : '' }}">
+            <td>Keterangan</td>
+            <td>{{ $rab->keterangan }}</td>
           </tr>
+
+          <!-- Tanggal Mulai -->
           <tr class="font-semibold">
             <td>Tanggal Mulai</td>
-            <td>
-              {{ $rab->mulai->format('d F Y') }}
-            </td>
+            <td>{{ $rab->mulai->format('d F Y') }}</td>
           </tr>
+
+          <!-- Tanggal Selesai -->
           <tr class="font-semibold">
             <td>Tanggal Selesai</td>
-            <td>
-              {{ $rab->selesai->format('d F Y') }}
-            </td>
+            <td>{{ $rab->selesai->format('d F Y') }}</td>
           </tr>
+
+          <!-- Lokasi -->
           <tr class="font-semibold">
             <td>Lokasi</td>
-            <td>
-              {{ $rab->lokasi }}
-            </td>
+            <td>{{ $rab->lokasi }}</td>
           </tr>
         </table>
       </x-card>
