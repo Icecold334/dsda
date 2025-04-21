@@ -456,9 +456,10 @@ class ListPermintaanForm extends Component
             ->latest()
             ->first();
         // dd($this->rab_id);
+        $code = $this->generateQRCode();
         // Create Detail Permintaan Stok
         $detailPermintaan = DetailPermintaanStok::create([
-            'kode_permintaan' => $this->generateQRCode(),
+            'kode_permintaan' => $code,
             'tanggal_permintaan' => strtotime($this->tanggal_permintaan),
             'unit_id' => $this->unit_id,
             'rab_id' => $this->rab_id,
@@ -478,6 +479,29 @@ class ListPermintaanForm extends Component
             'tanggal_keluar' => $this->tanggal_keluar,
             'status' => null
         ]);
+        // Tentukan folder dan path target file
+        $qrFolder = "qr_permintaan";
+        $qrTarget = "{$qrFolder}/{$code}.png";
+
+        // Konten QR Code (contohnya URL)
+        $qrContent = url("/permintaan/permintaan/{$detailPermintaan->id}");
+
+        // Pastikan direktori untuk QR Code tersedia
+        if (!Storage::disk('public')->exists($qrFolder)) {
+            Storage::disk('public')->makeDirectory($qrFolder);
+        }
+
+        // Konfigurasi renderer untuk menggunakan GD dengan ukuran 400x400
+        $renderer = new GDLibRenderer(500);
+        $writer = new Writer($renderer);
+
+        // Path absolut untuk menyimpan file
+        $filePath = Storage::disk('public')->path($qrTarget);
+
+        // Hasilkan QR Code ke file
+        $writer->writeFile($qrContent, $filePath);
+
+
         $this->permintaan = $detailPermintaan;
         foreach ($this->list as $item) {
             $storedFilePath = $item['img'] ? str_replace('kondisiKdo/', '', $item['img']->storeAs(
@@ -930,34 +954,13 @@ class ListPermintaanForm extends Component
         $userId = Auth::id(); // Dapatkan ID pengguna yang login
         $qrName = strtoupper(Str::random(16)); // Buat nama file acak untuk QR code
 
-        // Tentukan folder dan path target file
-        $qrFolder = "qr_permintaan";
-        $qrTarget = "{$qrFolder}/{$qrName}.png";
-
-        // Konten QR Code (contohnya URL)
-        $qrContent = url("/qr/permintaan/{$userId}/{$qrName}");
-
-        // Pastikan direktori untuk QR Code tersedia
-        if (!Storage::disk('public')->exists($qrFolder)) {
-            Storage::disk('public')->makeDirectory($qrFolder);
-        }
-
-        // Konfigurasi renderer untuk menggunakan GD dengan ukuran 400x400
-        $renderer = new GDLibRenderer(500);
-        $writer = new Writer($renderer);
-
-        // Path absolut untuk menyimpan file
-        $filePath = Storage::disk('public')->path($qrTarget);
-
-        // Hasilkan QR Code ke file
-        $writer->writeFile($qrContent, $filePath);
 
         // Periksa apakah file berhasil dibuat
-        if (Storage::disk('public')->exists($qrTarget)) {
-            return $qrName; // Kembalikan nama file QR
-        } else {
-            return "0"; // Kembalikan "0" jika gagal
-        }
+        // if (Storage::disk('public')->exists($qrTarget)) {
+        return $qrName; // Kembalikan nama file QR
+        // } else {
+        //     return "0"; // Kembalikan "0" jika gagal
+        // }
     }
     public function removePhoto($index = null)
     {

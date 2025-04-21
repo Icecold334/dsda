@@ -2,7 +2,10 @@
     <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL {{ Str::upper($tipe) }}</h1>
-        <div>
+        <div class="flex gap-2 items-center">
+            @if ($permintaan->status)
+                <livewire:pdf-form :permintaan="$permintaan">
+            @endif
             @if ($tipe == 'peminjaman')
                 <a href="/permintaan-stok"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>

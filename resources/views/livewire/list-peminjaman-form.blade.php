@@ -60,6 +60,7 @@
                                     <select wire:model.live="list.{{ $index }}.approved_aset_id"
                                         @disabled(auth()->user()->cannot('peminjaman_persetujuan_peminjaman_aset') ||
                                                 $item['fix'] ||
+                                                auth()->id() === $item['user_id'] ||
                                                 in_array($item['detail_peminjaman_id'], $approvals))
                                         class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                         <option value="">Pilih {{ $tipe ? Str::ucfirst($tipe) : 'Layanan' }}
