@@ -62,6 +62,7 @@ class ListPeminjamanForm extends Component
     public $barangSuggestions = []; // Suggestions for barang
     public $assetSuggestions = [];
     public $asets = [];
+    public $asetsAvail = [];
     public $ruangs = [];
     public $suggestions = [
         'barang' => [],
@@ -168,6 +169,15 @@ class ListPeminjamanForm extends Component
                     });
                 });
             })->where('peminjaman', 1)->get();
+
+            $this->asetsAvail =  Ruang::when($cond, function ($query) {
+                $query->whereHas('user', function ($query) {
+                    return $query->whereHas('unitKerja', function ($query) {
+                        return $query->where('parent_id', $this->unit_id)
+                            ->orWhere('id', $this->unit_id);
+                    });
+                });
+            })->get();
         } else {
             $this->asets =
                 Aset::when($cond, function ($query) {
@@ -213,12 +223,12 @@ class ListPeminjamanForm extends Component
             ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
             ->latest()
             ->first();
-        $kodepeminjaman = Str::random(10); // Generate a unique code
 
+        $code = $this->generateQRCode();
         // Create Detail peminjaman Stok
         $detailPeminjaman = DetailPeminjamanAset::create([
             // 'kode_peminjaman' => $kodepeminjaman,
-            'kode_peminjaman' => $this->generateQRCode(),
+            'kode_peminjaman' => $code,
             'tanggal_peminjaman' => strtotime(datetime: $this->tanggal_peminjaman),
             'unit_id' => $this->unit_id,
             'sub_unit_id' => $this->sub_unit_id ?? null,
@@ -228,6 +238,29 @@ class ListPeminjamanForm extends Component
             'keterangan' => $this->keterangan,
             'status' => null
         ]);
+
+        // Tentukan folder dan path target file
+        $qrFolder = "qr_peminjaman";
+        $qrTarget = "{$qrFolder}/{$code}.png";
+
+        // Konten QR Code (contohnya URL)
+        $qrContent = url("/permintaan/peminjaman/{$detailPeminjaman->id}");
+
+        // Pastikan direktori untuk QR Code tersedia
+        if (!Storage::disk('public')->exists($qrFolder)) {
+            Storage::disk('public')->makeDirectory($qrFolder);
+        }
+
+        // Konfigurasi renderer untuk menggunakan GD dengan ukuran 400x400
+        $renderer = new GDLibRenderer(500);
+        $writer = new Writer($renderer);
+
+        // Path absolut untuk menyimpan file
+        $filePath = Storage::disk('public')->path($qrTarget);
+
+        // Hasilkan QR Code ke file
+        $writer->writeFile($qrContent, $filePath);
+
         $this->peminjaman = $detailPeminjaman;
         foreach ($this->list as $item) {
             $storedFilePath = $item['img'] ? str_replace('suratPeminjaman/', '', $item['img']->storeAs(
@@ -247,74 +280,84 @@ class ListPeminjamanForm extends Component
                 'jumlah' => $item['jumlah'],
             ]);
         }
-        $message = 'Permintaan ' . $detailPeminjaman->kategori->nama . ' <span class="font-bold">' . $detailPeminjaman->kode_peminjaman . '</span> membutuhkan persetujuan Anda.';
+        $message = 'Peminjaman ' . $detailPeminjaman->kategori->nama . ' <span class="font-bold">' . $detailPeminjaman->kode_peminjaman . '</span> membutuhkan persetujuan Anda.';
 
-        $this->tipe = Str::contains($this->peminjaman->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
+        $csUsers = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Customer Services%'))
+            ->where('name', 'like', '%NIsya%')
+            ->get();
 
-        $user = Auth::user();
-        $roles = $this->peminjaman->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
-        $roleLists = [];
-        $lastRoles = [];
-
-        $date = Carbon::parse($this->peminjaman->created_at);
-
-        foreach ($roles as $role) {
-            $users = User::whereHas('roles', function ($query) use ($role) {
-                $query->where('name', 'LIKE', '%' . $role . '%');
-            })
-                ->where(function ($query) use ($date) {
-                    $query->whereHas('unitKerja', function ($subQuery) {
-                        $subQuery->where('parent_id', $this->peminjaman->unit_id);
-                    })
-                        ->orWhere('unit_id', $this->peminjaman->unit_id);
-                })
-                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
-                ->limit(1)
-                ->get();
-
-            $propertyKey = Str::slug($role); // Generate dynamic key for roles
-            $roleLists[$propertyKey] = $users;
-            $lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
-        }
-
-        // Calculate listApproval dynamically
-        // $tipe = $this->permintaan->jenisStok->nama;
-        // $unit = UnitKerja::find($this->permintaan->unit_id);
-        $allApproval = collect();
-
-        // Hitung jumlah persetujuan yang dibutuhkan
-        $listApproval = collect($roleLists)->flatten(1)->count();
-
-        // Menggabungkan semua approval untuk pengecekan urutan
-        $allApproval = collect($roleLists)->flatten(1);
-        $currentApprovalIndex = $allApproval->filter(function ($user) {
-            $approval = $user->{"persetujuan{$this->tipe}"}()
-                ->where('detail_' . $this->tipe . '_id', $this->peminjaman->id ?? 0)
-                ->first();
-            return $approval && $approval->status === 1; // Hanya hitung persetujuan yang berhasil
-        })->count();
+        Notification::send($csUsers, new UserNotification($message, "/permintaan/peminjaman/{$detailPeminjaman->id}"));
 
 
-        // Pengecekan urutan user dalam daftar persetujuan
-        $index = $allApproval->search(fn($user) => $user->id == Auth::id());
-        // dd($allApproval);
-        $nextUser = $allApproval[$currentApprovalIndex];
-        if (collect($roles)->count() > 1) {
-            if ($index === 0) {
-                // Jika user adalah yang pertama dalam daftar
-                $currentUser = $allApproval[$index];
-            } else {
-                // Jika user berada di tengah atau akhir
-                $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
-                $currentUser = $allApproval[$index];
-                $previousApprovalStatus = optional(optional($previousUser)->{"persetujuan{$this->tipe}"}()
-                    ?->where('detail_' . $this->tipe . '_id', $this->peminjaman->id ?? 0)
-                    ->first())->status;
-            }
-        }
-        // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
-        // $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
-        Notification::send($nextUser, new UserNotification($message, "/permintaan/peminjaman/{$detailPeminjaman->id}"));
+
+        // $this->tipe = Str::contains($this->peminjaman->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
+
+        // $user = Auth::user();
+        // $roles = $this->peminjaman->opsiPersetujuan->jabatanPersetujuan->pluck('jabatan.name')->toArray();
+        // $roleLists = [];
+        // $lastRoles = [];
+
+        // $date = Carbon::parse($this->peminjaman->created_at);
+
+        // foreach ($roles as $role) {
+        //     $users = User::whereHas('roles', function ($query) use ($role) {
+        //         $query->where('name', 'LIKE', '%' . $role . '%');
+        //     })
+        //         ->where(function ($query) use ($date) {
+        //             $query->whereHas('unitKerja', function ($subQuery) {
+        //                 $subQuery->where('parent_id', $this->peminjaman->unit_id);
+        //             })
+        //                 ->orWhere('unit_id', $this->peminjaman->unit_id);
+        //         })
+        //         ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+        //         ->limit(1)
+        //         ->get();
+
+        //     $propertyKey = Str::slug($role); // Generate dynamic key for roles
+        //     $roleLists[$propertyKey] = $users;
+        //     $lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;
+        // }
+
+        // // Calculate listApproval dynamically
+        // // $tipe = $this->permintaan->jenisStok->nama;
+        // // $unit = UnitKerja::find($this->permintaan->unit_id);
+        // $allApproval = collect();
+
+        // // Hitung jumlah persetujuan yang dibutuhkan
+        // $listApproval = collect($roleLists)->flatten(1)->count();
+
+        // // Menggabungkan semua approval untuk pengecekan urutan
+        // $allApproval = collect($roleLists)->flatten(1);
+        // $currentApprovalIndex = $allApproval->filter(function ($user) {
+        //     $approval = $user->{"persetujuan{$this->tipe}"}()
+        //         ->where('detail_' . $this->tipe . '_id', $this->peminjaman->id ?? 0)
+        //         ->first();
+        //     return $approval && $approval->status === 1; // Hanya hitung persetujuan yang berhasil
+        // })->count();
+
+
+        // // Pengecekan urutan user dalam daftar persetujuan
+        // $index = $allApproval->search(fn($user) => $user->id == Auth::id());
+        // // dd($allApproval);
+        // $nextUser = $allApproval[$currentApprovalIndex];
+        // if (collect($roles)->count() > 1) {
+        //     if ($index === 0) {
+        //         // Jika user adalah yang pertama dalam daftar
+        //         $currentUser = $allApproval[$index];
+        //     } else {
+        //         // Jika user berada di tengah atau akhir
+        //         $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
+        //         $currentUser = $allApproval[$index];
+        //         $previousApprovalStatus = optional(optional($previousUser)->{"persetujuan{$this->tipe}"}()
+        //             ?->where('detail_' . $this->tipe . '_id', $this->peminjaman->id ?? 0)
+        //             ->first())->status;
+        //     }
+        // }
+        // // $role_id = $latestApprovalConfiguration->jabatanPersetujuan->first()->jabatan->id;
+        // // $user = Role::where('id', $role_id)->first()?->users->where('unit_id', $this->unit_id)->first();
+        // Notification::send($nextUser, new UserNotification($message, "/permintaan/peminjaman/{$detailPeminjaman->id}"));
+
+
 
         $messageAtasan = 'Permintaan ' . $detailPeminjaman->kategori->nama . ' <span class="font-bold">' . $detailPeminjaman->kode_peminjaman . '</span> telah diajukan oleh staf Anda dan memerlukan perhatian Anda.';
         $pemohon = $this->peminjaman->user;
@@ -373,6 +416,8 @@ class ListPeminjamanForm extends Component
                     'id' => $value->id,
                     'user_id' => $value->user_id,
                     'detail_peminjaman_id' => $value->detail_peminjaman_id,
+                    'detail_peminjaman_status' => optional($value->detailPeminjaman)->status,
+                    'detail_peminjaman_cancel' => optional($value->detailPeminjaman)->cancel,
                     'aset_id' => $value->aset_id,
                     'approved_aset_id' => $value->approved_aset_id ?? null,
                     'aset_name' => $this->tipe == 'Ruangan'
@@ -469,7 +514,7 @@ class ListPeminjamanForm extends Component
         $peminjamanAset = PeminjamanAset::find($this->list[$index]['id']);
         // dd($peminjamanAset, $message);
         if ($peminjamanAset) {
-            $approvedAsetId = $this->list[$index]['approved_aset_id'];
+            $approvedAsetId = $this->list[$index]['approved_aset_id'] ?? $this->list[$index]['aset_id'];
             $approvedJumlah = $this->list[$index]['approved_jumlah'] ?? 1;
             if ($this->tipe == 'Peralatan Kantor') {
                 // Cek stok terlebih dahulu
@@ -494,7 +539,19 @@ class ListPeminjamanForm extends Component
                     'approved_aset_id' => $approvedAsetId,
                     'approved_waktu_id' => $this->list[$index]['approved_waktu_id'],
                     'catatan_approved' => $message,
+                    'status' => false,
                 ];
+
+                if ($this->tipe === 'Ruangan') {
+                    $mess = Str::ucfirst($this->tipe) . 'Ruangan dengan kode <span class="font-bold">' .
+                        $peminjamanAset->detailPeminjaman->kode_peminjaman . '</span> Diubah dengan keterangan  <span class="font-bold">' .
+                        $message . '</span>';
+                    $user = $peminjamanAset->detailPeminjaman->user;
+                    Notification::send($user, new UserNotification(
+                        $mess,
+                        "/permintaan/peminjaman/{$peminjamanAset->detailPeminjaman->id}"
+                    ));
+                }
             }
             $peminjamanAset->update($data);
         }
@@ -508,34 +565,12 @@ class ListPeminjamanForm extends Component
         $userId = Auth::id(); // Dapatkan ID pengguna yang login
         $qrName = strtoupper(Str::random(16)); // Buat nama file acak untuk QR code
 
-        // Tentukan folder dan path target file
-        $qrFolder = "qr_peminjaman";
-        $qrTarget = "{$qrFolder}/{$qrName}.png";
-
-        // Konten QR Code (contohnya URL)
-        $qrContent = url("/qr/peminjaman/{$userId}/{$qrName}");
-
-        // Pastikan direktori untuk QR Code tersedia
-        if (!Storage::disk('public')->exists($qrFolder)) {
-            Storage::disk('public')->makeDirectory($qrFolder);
-        }
-
-        // Konfigurasi renderer untuk menggunakan GD dengan ukuran 400x400
-        $renderer = new GDLibRenderer(500);
-        $writer = new Writer($renderer);
-
-        // Path absolut untuk menyimpan file
-        $filePath = Storage::disk('public')->path($qrTarget);
-
-        // Hasilkan QR Code ke file
-        $writer->writeFile($qrContent, $filePath);
-
         // Periksa apakah file berhasil dibuat
-        if (Storage::disk('public')->exists($qrTarget)) {
-            return $qrName; // Kembalikan nama file QR
-        } else {
-            return "0"; // Kembalikan "0" jika gagal
-        }
+        // if (Storage::disk('public')->exists($qrTarget)) {
+        return $qrName; // Kembalikan nama file QR
+        // } else {
+        //     return "0"; // Kembalikan "0" jika gagal
+        // }
     }
 
     public function backItem($index)
@@ -589,7 +624,8 @@ class ListPeminjamanForm extends Component
 
         $this->fotoPengembalian = null;
         $this->keteranganPengembalian = null;
-        $this->dispatch('success', 'Item berhasil dikembalikan dan stok telah diperbarui.');
+        // $this->dispatch('success', 'Item berhasil dikembalikan dan stok telah diperbarui.');
+        return redirect()->to('permintaan/peminjaman/' . $this->peminjaman->id)->with('success', 'Item berhasil dikembalikan dan stok telah diperbarui.');
     }
 
 

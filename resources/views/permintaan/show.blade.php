@@ -3,7 +3,10 @@
     <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL {{ Str::upper($tipe) }}</h1>
-        <div>
+        <div class="flex gap-2 items-center">
+            @if ($permintaan->status)
+                <livewire:pdf-form :permintaan="$permintaan">
+            @endif
             @if ($tipe == 'peminjaman')
             <a href="/permintaan-stok"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
@@ -54,18 +57,28 @@
                                 : 'danger')))) }}-100
             text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
                                 {{ $permintaan->cancel === 1
-                                ? 'dibatalkan'
-                                : ($permintaan->cancel === 0 && $permintaan->proses === 1
-                                ? 'selesai'
-                                : ($permintaan->cancel === 0 && $permintaan->proses === null
-                                ? 'siap digunakan'
-                                : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status
-                                === null
-                                ? 'diproses'
-                                : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status
-                                === 1
-                                ? 'disetujui'
-                                : 'ditolak')))) }}
+
+                                    ? 'dibatalkan'
+                                    : ($permintaan->cancel === 0 && $permintaan->proses === 1
+                                        ? 'selesai'
+                                        : ($tipe === 'permintaan' &&
+                                        $permintaan->cancel === 0 &&
+                                        $permintaan->proses === null &&
+                                        $permintaan->kategori_id != 6
+                                            ? 'siap digunkan atau siap diambil'
+                                            : ($permintaan->cancel === 0 &&
+                                            $permintaan->proses === null &&
+                                            $tipe == 'permintaan' &&
+                                            $permintaan->kategori_id == 6
+                                                ? 'sudah diambil'
+                                                : ($permintaan->cancel === 0 && $permintaan->proses === null && $tipe === 'peminjaman'
+                                                    ? 'dipinjam'
+                                                    : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                                                        ? 'diproses'
+                                                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                                                            ? 'disetujui'
+                                                            : 'ditolak')))))) }}
+
                             </span>
 
                         </td>
@@ -104,21 +117,34 @@
                     </tr>
                     @endif
                     @if ($permintaan->kategori_id == 5)
-                    <tr class="font-semibold">
-                        <td>KDO</td>
-                        <td>
-                            {{ optional($permintaan->aset)->nama ?? '-' }}
-                        </td>
-                    </tr>
-                    <tr class="font-semibold">
-                        <td>Tanggal Masuk</td>
-                        <td>{{ \Carbon\Carbon::parse($permintaan->tanggal_masuk)->translatedFormat('j F Y') }}</td>
-                    </tr>
-                    <tr class="font-semibold">
-                        <td>Tanggal Keluar</td>
-                        <td>{{ \Carbon\Carbon::parse($permintaan->tanggal_keluar)->translatedFormat('j F Y') }}
-                        </td>
-                    </tr>
+
+                        <tr class="font-semibold">
+                            <td>KDO</td>
+                            <td>
+                                {{ optional($permintaan->aset)->nama ?? '-' }}
+                            </td>
+                        </tr>
+                        @if (auth()->user()?->hasRole('Penanggung Jawab'))
+                            {{-- Panggil Livewire --}}
+                            <tr class="font-semibold">
+                                <td colspan="2">
+                                    <livewire:tanggal-k-d-o-form :permintaan-id="$permintaan->id" />
+                                </td>
+                            </tr>
+                        @else
+                            {{-- Tampilkan readonly --}}
+                            <tr class="font-semibold">
+                                <td>Tanggal Masuk</td>
+                                <td>{{ \Carbon\Carbon::parse($permintaan->tanggal_masuk)->translatedFormat('j F Y') }}
+                                </td>
+                            </tr>
+                            <tr class="font-semibold">
+                                <td>Tanggal Keluar</td>
+                                <td>{{ \Carbon\Carbon::parse($permintaan->tanggal_keluar)->translatedFormat('j F Y') }}
+                                </td>
+                            </tr>
+                        @endif
+
                     @endif
                     <tr class="font-semibold">
                         <td>Unit Kerja</td>
@@ -132,6 +158,39 @@
                         <td>Keterangan</td>
                         <td>{{ $permintaan->keterangan ?? '---' }}</td>
                     </tr>
+                    @if (
+                        $permintaan->kategori_id == 4 &&
+                            $permintaan->status === 1 &&
+                            empty($permintaan->file) &&
+                            $tipe == 'permintaan' &&
+                            auth()->id() == $permintaan->user_id)
+                        <tr>
+                            <livewire:spj-button :permintaan="$permintaan">
+                        </tr>
+                    @endif
+                    @if ($tipe == 'permintaan' && $permintaan->kategori_id == 4 && $permintaan->file)
+                        <tr>
+                            <td colspan="2">
+                                <span class="text-success-600 font-semibold">File SPJ</span><br>
+                                <a href="{{ asset('storage/pengembalianUmum/' . $permintaan->file) }}" target="_blank"
+                                    download class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $permintaan->file }}
+                                </a>
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($permintaan->keterangan_cancel)
+                        <tr class="font-semibold">
+                            <td class="text-red-600"><span>*</span> Note Ditolak</td>
+                            <td>{{ $permintaan->keterangan_cancel ?? '---' }}</td>
+                        </tr>
+                    @endif
+                    @if ($permintaan->keterangan_done)
+                        <tr class="font-semibold">
+                            <td class="text-success-600"><span>*</span> Note Selesai</td>
+                            <td>{{ $permintaan->keterangan_done ?? '---' }}</td>
+                        </tr>
+                    @endif
                     @if ($permintaan->kategori_id == 1 && $tipe == 'peminjaman')
                     <tr class="font-semibold">
                         <td colspan="2" class="py-2">Syarat dan Ketentuan KDO</td>
@@ -242,27 +301,34 @@
             </x-card>
         </div>
         <div class="grid gap-6">
-            @if ($permintaan->cancel === 0)
 
-            <x-card title="QR Code" class="mb-3">
-                <div class="flex justify-around">
-                    <div
-                        class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
-                        @if ($tipe == 'peminjaman')
-                        <a href="{{ route('permintaan.downloadQrImage', ['tipe' => 'peminjaman', 'kode' => $permintaan->id]) }}"
-                            class="w-full h-full">
-                            <img src="{{ asset($permintaan->kode_peminjaman ? 'storage/qr_peminjaman/' . $permintaan->kode_peminjaman . '.png' : 'img/default-pic.png') }}"
-                                data-tooltip-target="tooltip-QR" alt="QR Code"
-                                class="w-full h-full object-cover object-center rounded-sm">
-                        </a>
-                        @else
-                        <a href="{{ route('permintaan.downloadQrImage', ['tipe' => 'permintaan', 'kode' => $permintaan->id]) }}"
-                            class="w-full h-full">
-                            <img src="{{ asset($permintaan->kode_permintaan ? 'storage/qr_permintaan/' . $permintaan->kode_permintaan . '.png' : 'img/default-pic.png') }}"
-                                data-tooltip-target="tooltip-QR" alt="QR Code"
-                                class="w-full h-full object-cover object-center rounded-sm">
-                        </a>
-                        @endif
+            @if ($permintaan->status === 1)
+                <x-card title="QR Code" class="mb-3">
+                    <div class="flex justify-around">
+                        <div
+                            class="w-80 h-80 overflow-hidden relative flex justify-center  p-4 hover:shadow-lg transition duration-200  border-2 rounded-lg bg-white">
+                            @if ($tipe == 'peminjaman')
+                                <a href="{{ route('permintaan.downloadQrImage', ['tipe' => 'peminjaman', 'kode' => $permintaan->id]) }}"
+                                    class="w-full h-full">
+                                    <img src="{{ asset($permintaan->kode_peminjaman ? 'storage/qr_peminjaman/' . $permintaan->kode_peminjaman . '.png' : 'img/default-pic.png') }}"
+                                        data-tooltip-target="tooltip-QR" alt="QR Code"
+                                        class="w-full h-full object-cover object-center rounded-sm">
+                                </a>
+                            @else
+                                <a href="{{ route('permintaan.downloadQrImage', ['tipe' => 'permintaan', 'kode' => $permintaan->id]) }}"
+                                    class="w-full h-full">
+                                    <img src="{{ asset($permintaan->kode_permintaan ? 'storage/qr_permintaan/' . $permintaan->kode_permintaan . '.png' : 'img/default-pic.png') }}"
+                                        data-tooltip-target="tooltip-QR" alt="QR Code"
+                                        class="w-full h-full object-cover object-center rounded-sm">
+                                </a>
+                            @endif
+                        </div>
+                        <div id="tooltip-QR" role="tooltip"
+                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                            Klik Untuk Mengunduh QR-Code Ini
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+
                     </div>
                     <div id="tooltip-QR" role="tooltip"
                         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
@@ -272,13 +338,35 @@
 
                 </div>
         </div>
-        </x-card>
-        @endif
-    </div>
-    <div class="col-span-2">
-        <x-card title="daftar permintaan">
-            @if ($tipe == 'permintaan')
-            <livewire:list-permintaan-form :permintaan="$permintaan">
+
+        <div class="col-span-2">
+            <x-card title="daftar permintaan">
+                @if ($tipe == 'permintaan')
+                    <livewire:list-permintaan-form :permintaan="$permintaan">
+                    @else
+                        <livewire:list-peminjaman-form :peminjaman="$permintaan">
+                @endif
+                @if ($tipe == 'permintaan')
+                    @if ($permintaan->kategori_id === 6)
+                        <livewire:approval-permintaan-voucher :permintaan="$permintaan">
+                        @elseif($permintaan->kategori_id === 5)
+                            <livewire:approval-permintaan-perbaikan-kdo :permintaan="$permintaan">
+                            @elseif($permintaan->kategori_id === 4)
+                                <livewire:approval-permintaan-konsumsi :permintaan="$permintaan">
+                                @elseif(in_array($permintaan->kategori_id, [1, 2, 3]))
+                                    <livewire:approval-permintaan-a-t-k :permintaan="$permintaan">
+                                    @else
+                                        <livewire:approval-permintaan :permintaan="$permintaan">
+                    @endif
+                @elseif ($tipe == 'peminjaman')
+                    @if ($permintaan->kategori_id == 1)
+                        <livewire:approval-peminjaman-k-d-o :permintaan="$permintaan">
+                        @elseif($permintaan->kategori_id === 2)
+                            <livewire:approval-peminjaman-ruangan :permintaan="$permintaan">
+                            @else
+                                <livewire:approval-peminjaman-peralatan :permintaan="$permintaan">
+                    @endif
+
                 @else
                 <livewire:list-peminjaman-form :peminjaman="$permintaan">
                     @endif

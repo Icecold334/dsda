@@ -2,22 +2,24 @@
 
 namespace App\Livewire;
 
-use App\Models\DetailPermintaanStok;
 use Carbon\Carbon;
+use App\Models\Ruang;
 use App\Models\User;
 use Livewire\Component;
 use Illuminate\Support\Str;
+use App\Models\DetailPeminjamanAset;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 
-class ApprovalPermintaanKonsumsi extends Component
+class ApprovalPeminjamanRuangan extends Component
 {
     public $permintaan;
     public $currentApprovalIndex;
     public $penulis;
     public $isPenulis;
     public $showCancelOption;
+    public $showNextOption;
     public $user;
     public $userJabatanId;
     public $userApproval;
@@ -82,7 +84,7 @@ class ApprovalPermintaanKonsumsi extends Component
         $this->currentApprovalIndex = $allApproval->filter(function ($user) {
             $approval = $user->persetujuan()
                 ->where('approvable_id', $this->permintaan->id ?? 0)
-                ->where('approvable_type', DetailPermintaanStok::class)
+                ->where('approvable_type', DetailPeminjamanAset::class)
                 ->first();
             return $approval && $approval->is_approved === 1;
         })->count();
@@ -95,7 +97,7 @@ class ApprovalPermintaanKonsumsi extends Component
 
             $currentApproved = $currentUser->persetujuan()
                 ->where('approvable_id', $this->permintaan->id ?? 0)
-                ->where('approvable_type', DetailPermintaanStok::class)
+                ->where('approvable_type', DetailPeminjamanAset::class)
                 ->exists();
 
             if ($index === 0) {
@@ -104,11 +106,15 @@ class ApprovalPermintaanKonsumsi extends Component
                 $previousUser = $allApproval[$index - 1];
                 $previousApproved = $previousUser->persetujuan()
                     ->where('approvable_id', $this->permintaan->id ?? 0)
-                    ->where('approvable_type', DetailPermintaanStok::class)
+                    ->where('approvable_type', DetailPeminjamanAset::class)
                     ->first();
                 $this->showButton = $previousApproved && $previousApproved->is_approved && !$currentApproved;
             }
         }
+        $cancelAfter = $this->listApproval; // setelah semua approver selesai
+        $this->showCancelOption = $this->currentApprovalIndex >= $cancelAfter && $this->isPenulis;
+        $permintaan = $this->permintaan->peminjamanAset->first();
+        $this->showNextOption = $permintaan->status === 0 && $permintaan->approved_aset_id != $permintaan->aset_id && $this->isPenulis;
 
         $this->userJabatanId = $this->user->roles->first()?->id;
 
@@ -147,10 +153,30 @@ class ApprovalPermintaanKonsumsi extends Component
     public function markAsCompleted($message = null)
     {
         $this->permintaan->update(['cancel' => false]);
+        $this->permintaan->peminjamanAset->each(function ($peminjaman) {
+            $peminjaman->update(['status' => true]);
+        });
+        $permintaan = $this->permintaan->peminjamanAset->first();
+        $approvedAsetId = $permintaan->approved_aset_id;
+        $originalAsetId = $permintaan->aset_id;
 
-        $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
-            (!is_null($this->permintaan->kode_permintaan) ? $this->permintaan->kode_permintaan : $this->permintaan->kode_peminjaman) .
-            '</span> telah Disetujui dan Selesai dengan keterangan <span class="font-bold">' . $message . '</span>';
+        // Jika berbeda
+        if ($approvedAsetId && $approvedAsetId != $originalAsetId) {
+            // Update approved aset → peminjaman = 0
+            $approvedAset = Ruang::find($approvedAsetId);
+            if ($approvedAset) {
+                $approvedAset->update(['peminjaman' => 0]);
+            }
+
+            // Update original aset → peminjaman = 1
+            $originalAset = Ruang::find($originalAsetId);
+            if ($originalAset) {
+                $originalAset->update(['peminjaman' => 1]);
+            }
+        }
+        $alert = Str::ucfirst($this->tipe) . 'Ruangan dengan kode <span class="font-bold">' .
+            (!is_null($this->permintaan->kode_pemintaman) ? $this->permintaan->kode_pemintaman : $this->permintaan->kode_peminjaman) .
+            '</span> telah Dilanjutkan dan Siap Digunakan';
 
         if ($this->kepalaSubbagian) {
             Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
@@ -158,13 +184,12 @@ class ApprovalPermintaanKonsumsi extends Component
 
         return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
-    public function cancelRequest($message)
+    public function cancelRequest()
     {
         // Logika untuk membatalkan permintaan
         $this->permintaan->update(['cancel' => true]);
         return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
-
 
     public function approveConfirmed($status, $message = null)
     {
@@ -175,21 +200,24 @@ class ApprovalPermintaanKonsumsi extends Component
         if ($status) {
             if ($currentIndex !== false && isset($approvers[$currentIndex + 1])) {
                 $nextUser = $approvers[$currentIndex + 1];
-                $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} membutuhkan persetujuan Anda.";
+                $mess = Str::ucfirst($this->tipe) . 'Ruangan dengan kode <span class="font-bold">' .
+                    $permintaan->kode_peminjaman . '</span> membutuhkan persetujuan Anda.';
                 Notification::send($nextUser, new UserNotification(
                     $mess,
-                    "/permintaan/permintaan/{$this->permintaan->id}"
+                    "/permintaan/peminjaman/{$this->permintaan->id}"
                 ));
             }
         } else {
             $this->permintaan->update([
                 'keterangan_cancel' =>  $message,
             ]);
-            $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} ditolak dengan keterangan: {$message}.";
+            $mess = Str::ucfirst($this->tipe) . 'Ruangan dengan kode <span class="font-bold">' .
+                $permintaan->kode_peminjaman . '</span> ditolak dengan keterangan' .
+                $message;
             $user = $permintaan->user;
             Notification::send($user, new UserNotification(
                 $mess,
-                "/permintaan/permintaan/{$this->permintaan->id}"
+                "/permintaan/peminjaman/{$this->permintaan->id}"
             ));
         }
 
@@ -214,7 +242,7 @@ class ApprovalPermintaanKonsumsi extends Component
                 'status' =>  1,
             ]);
 
-            $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+            $alert = Str::ucfirst($this->tipe) . 'Ruangan dengan kode <span class="font-bold">' .
                 (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
                 '</span> telah Disetujui memerlukan perhatian Anda';
 
@@ -222,13 +250,12 @@ class ApprovalPermintaanKonsumsi extends Component
                 Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
 
+            $mess = Str::ucfirst($this->tipe) . 'Ruangan dengan kode <span class="font-bold">' .
+                $permintaan->kode_peminjaman . '</span> Disetujui silahkan cek Ruangan dan Waktu yang Disetujui';
             $user = $permintaan->user;
-            $remember = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
-                (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
-                '</span> telah Disetujui, jangan lupa unggah SPJ untuk penyelesaian';
             Notification::send($user, new UserNotification(
-                $remember,
-                "/permintaan/permintaan/{$this->permintaan->id}"
+                $mess,
+                "/permintaan/peminjaman/{$this->permintaan->id}"
             ));
         } elseif ($nextIndex === $totalApproval && !$status) {
             $this->permintaan->update([
@@ -238,10 +265,10 @@ class ApprovalPermintaanKonsumsi extends Component
             ]);
         }
 
-        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id);
+        return redirect()->to('permintaan/peminjaman/' . $this->permintaan->id);
     }
     public function render()
     {
-        return view('livewire.approval-permintaan-konsumsi');
+        return view('livewire.approval-peminjaman-ruangan');
     }
 }

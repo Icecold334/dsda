@@ -35,7 +35,7 @@
                     @endif
                     @if (!$showAdd && !in_array($kategori_id, [4, 5, 6]))
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH disetujui</th>
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">FOTO STOCK</th>
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">FOTO PENGAMBILAN</th>
                     @endif
                     @if (!$showAdd && $kategori_id == 5)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">KONDISI AKHIR</th>
@@ -261,19 +261,22 @@
                                                 class="hidden" id="upload-list.{{ $index }}.img_done">
                                             @php
                                                 $isPenjagaGudang = auth()->user()?->hasRole('Penjaga Gudang');
+                                                $isStatusAktif = $item['detail_permintaan_status']; // pastikan $status didefinisikan sebelumnya
+                                                $isEnabled = $isPenjagaGudang && $isStatusAktif;
                                             @endphp
 
                                             <button type="button"
                                                 onclick="document.getElementById('upload-list.{{ $index }}.img_done').click()"
                                                 class="text-primary-700 bg-gray-200 border text-sm border-primary-500 rounded-lg px-3 py-1.5 transition
-                                            {{ !$isPenjagaGudang ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary-600 hover:text-white' }}"
-                                                {{ !$isPenjagaGudang ? 'disabled' : '' }}>
+                                                    {{ !$isEnabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary-600 hover:text-white' }}"
+                                                {{ !$isEnabled ? 'disabled' : '' }}>
                                                 Unggah Foto
                                             </button>
                                         @endif
                                     </div>
                                 </td>
                             @endif
+
                             @if (!$showAdd && in_array($kategori_id, [5, 6]))
                                 <td class="px-6 py-3 text-center">
                                     <div class="relative inline-block">
@@ -303,12 +306,18 @@
                                             <input type="file" wire:model.live="list.{{ $index }}.img_done"
                                                 class="hidden" id="upload-list.{{ $index }}.img_done">
                                             @php
-                                                $canUpload =
-                                                    auth()->id() == $item['user_id'] &&
-                                                    $item['detail_permintaan_status'] &&
-                                                    $item['detail_permintaan_cancel'] === 0;
-                                            @endphp
+                                                $isOwner = auth()->id() === $item['user_id'];
+                                                $status = $item['detail_permintaan_status'];
+                                                $cancel = $item['detail_permintaan_cancel'] ?? null;
 
+                                                if ($kategori_id == 5) {
+                                                    $canUpload = $status;
+                                                } elseif ($kategori_id == 6) {
+                                                    $canUpload = $isOwner && $status && $cancel === 0;
+                                                } else {
+                                                    $canUpload = false;
+                                                }
+                                            @endphp
                                             <button
                                                 @if ($canUpload) onclick="document.getElementById('upload-list.{{ $index }}.img_done').click()" @endif
                                                 class="text-primary-700 bg-gray-200 border text-sm border-primary-500 rounded-lg px-3 py-1.5 transition
@@ -323,12 +332,18 @@
                                     <td class="px-6 py-3 text-center">
                                         <div class="relative inline-block">
                                             @can('permintaan_persetujuan_jumlah_barang')
+                                                @php
+                                                    $isDisabled =
+                                                        auth()->id() === $item['user_id'] ||
+                                                        ($item['detail_permintaan_status'] ?? false);
+                                                @endphp
+
                                                 <input type="text"
                                                     wire:model.live="list.{{ $index }}.voucher_name"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:ring-blue-500 focus:border-blue-500
-                                                {{ auth()->id() === $item['user_id'] ? 'cursor-not-allowed bg-gray-200' : '' }}"
+                                                {{ $isDisabled ? 'cursor-not-allowed bg-gray-200' : '' }}"
                                                     placeholder="Nama Voucher"
-                                                    @if (auth()->id() === $item['user_id']) disabled @endif>
+                                                    @if ($isDisabled) disabled @endif>
                                             @endcan
                                         </div>
                                     </td>
@@ -367,58 +382,108 @@
                             @endif
 
                             <td class="py-3 px-6 text-center {{ $kategori_id != 4 ? '' : 'hidden' }}">
-                                @if (!$item['id'])
-                                    <button wire:click="removeFromList({{ $index }})"
-                                        class="text-danger-900 border-danger-600 text-xl border bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                        <i class="fa-solid fa-circle-xmark"></i>
-                                    </button>
-                                @else
-                                    @if (!in_array($kategori_id, [5, 6]))
-                                        @if (isset($item['jumlah_approve']) && $item['jumlah_approve'] > 0)
-                                            <!-- Tombol untuk melihat catatan -->
-                                            <button wire:click="openNoteModal({{ $item['id'] }})"
-                                                class="text-primary-700 border-primary-500 text-sm border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                                Lihat Catatan
-                                            </button>
-                                        @else
-                                            @can('permintaan_persetujuan_jumlah_barang')
-                                                {{-- @if (in_array($item['detail_permintaan_id'], $approvals)) --}}
-                                                <!-- Tombol untuk menyetujui -->
-                                                <button wire:click="openApprovalModal({{ $item['id'] }})"
-                                                    class="text-primary-900 border-primary-600 text-xl border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                                    Detail
-                                                </button>
-                                                {{-- @else --}}
-                                                {{-- <div class="text-sm">Menunggu {{ $approve_after }}</div> --}}
-                                                {{-- @endif --}}
-                                            @endcan
-                                        @endif
-                                    @endif
-                                    @if (is_object($item['img_done']) && method_exists($item['img_done'], 'temporaryUrl'))
-                                        <!-- Jika file baru diunggah (Livewire) -->
-                                        <button onclick="confirmItem({{ $index }})"
-                                            class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                            <i class="fa-solid fa-circle-check"></i>
+                                <div class="flex gap-2 justify-center">
+                                    @if (!$item['id'])
+                                        <button wire:click="removeFromList({{ $index }})"
+                                            class="text-danger-900 border-danger-600 text-xl border bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                            <i class="fa-solid fa-circle-xmark"></i>
                                         </button>
-                                    @endif
-
-                                    @if ($kategori_id == 6)
-                                        @if (auth()->id() !== $item['user_id'])
-                                            <button onclick="confirmVoucherName({{ $index }})"
-                                                class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                                <i class="fa-solid fa-circle-check"></i>
-                                            </button>
-                                        @elseif ($item['detail_permintaan_cancel'] === null)
-                                            <button onclick="takeVoucherName({{ $index }})"
+                                    @else
+                                        @if (!in_array($kategori_id, [5, 6]))
+                                            @if (isset($item['jumlah_approve']) && $item['jumlah_approve'] > 0)
+                                                <!-- Tombol untuk melihat catatan -->
+                                                <button wire:click="openNoteModal({{ $item['id'] }})"
+                                                    class="text-primary-700 border-primary-500 text-sm border bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                    Lihat Catatan
+                                                </button>
+                                            @else
+                                                @can('permintaan_persetujuan_jumlah_barang')
+                                                    {{-- @if (in_array($item['detail_permintaan_id'], $approvals)) --}}
+                                                    <!-- Tombol untuk menyetujui -->
+                                                    @if (auth()->id() !== $item['user_id'])
+                                                        <button wire:click="openApprovalModal({{ $item['id'] }})"
+                                                            class="text-primary-900 border-primary-600 text-xl border bg-primary-100 font-medium rounded-lg px-3 py-1 transition duration-200
+                                                        {{ $item['detail_permintaan_status'] && $item['detail_permintaan_cancel'] == 0 ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary-600 hover:text-white' }}"
+                                                            {{ $item['detail_permintaan_status'] && $item['detail_permintaan_cancel'] == 0 ? 'disabled' : '' }}>
+                                                            Detail
+                                                        </button>
+                                                    @endif
+                                                    {{-- @else --}}
+                                                    {{-- <div class="text-sm">Menunggu {{ $approve_after }}</div> --}}
+                                                    {{-- @endif --}}
+                                                @endcan
+                                            @endif
+                                        @endif
+                                        @if (is_object($item['img_done']) && method_exists($item['img_done'], 'temporaryUrl'))
+                                            <!-- Jika file baru diunggah (Livewire) -->
+                                            <button onclick="confirmItem({{ $index }})"
                                                 class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                                 <i class="fa-solid fa-circle-check"></i>
                                             </button>
                                         @endif
+
+                                        @if ($kategori_id == 5)
+                                            @php
+                                                $status = $item['status'] ?? null;
+                                            @endphp
+
+                                            @if (is_null($status) && auth()->id() !== $item['user_id'] && !$item['detail_permintaan_status'])
+                                                {{-- Belum disetujui atau ditolak, tampilkan tombol aksi --}}
+                                                <button onclick="confirmFixKDO({{ $index }})"
+                                                    class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                    <i class="fa-solid fa-circle-check"></i>
+                                                </button>
+                                                <button onclick="rejectFixKDO({{ $index }})"
+                                                    class="text-danger-900 border-danger-600 text-xl border bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                    <i class="fa-solid fa-circle-xmark"></i>
+                                                </button>
+                                            @elseif ($status === 1)
+                                                {{-- Disetujui --}}
+                                                <span title="Sudah disetujui"
+                                                    class="text-success-900 border-success-600 text-xl border bg-success-100 font-medium rounded-lg px-3 py-1 transition duration-200 opacity-50 cursor-not-allowed">
+                                                    <i class="fa-solid fa-circle-check"></i>
+                                                </span>
+                                            @elseif ($status === 0)
+                                                {{-- Ditolak + klik pada ikon untuk lihat catatan --}}
+                                                <span
+                                                    onclick="viewNoteFixKDO(`{{ addslashes($item['catatan'] ?? '') }}`)"
+                                                    class="text-danger-900 border-danger-600 text-xl border bg-danger-100 font-medium rounded-lg px-3 py-1 transition duration-200 cursor-pointer hover:bg-danger-600 hover:text-white"
+                                                    title="Lihat Catatan">
+                                                    <i class="fa-solid fa-circle-xmark"></i>
+                                                </span>
+                                            @endif
+                                        @endif
+
+                                        @if ($kategori_id == 6)
+                                            @if (auth()->id() !== $item['user_id'])
+                                                @if (!$item['detail_permintaan_status'])
+                                                    <button onclick="confirmVoucherName({{ $index }})"
+                                                        class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                        <i class="fa-solid fa-circle-check"></i>
+                                                    </button>
+                                                @endif
+                                                @if ($item['detail_permintaan_status'] && $item['detail_permintaan_cancel'] === null)
+                                                    <button onclick="takeVoucherName({{ $index }})"
+                                                        class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                        <i class="fa-solid fa-circle-check"></i>
+                                                    </button>
+                                                @endif
+                                            @endif
+                                        @endif
                                     @endif
-                                @endif
+                                </div>
                             </td>
                             @push('scripts')
                                 <script>
+                                    function viewNoteFixKDO(note) {
+                                        Swal.fire({
+                                            title: 'Catatan Penolakan',
+                                            text: note || 'Tidak ada catatan.',
+                                            icon: 'info',
+                                            confirmButtonText: 'Tutup'
+                                        });
+                                    }
+
                                     function confirmItem(index) {
                                         Swal.fire({
                                             title: 'Keterangan',
@@ -436,6 +501,42 @@
                                         }).then((result) => {
                                             if (result.isConfirmed) {
                                                 @this.call('doneItem', index, result.value);
+                                            }
+                                        });
+                                    }
+
+                                    function confirmFixKDO(index) {
+                                        Swal.fire({
+                                            title: 'Konfirmasi',
+                                            text: 'Apakah Anda yakin ingin menyetujui perbaikan ini?',
+                                            icon: 'question',
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Ya',
+                                            cancelButtonText: 'Tidak'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                @this.call('ApproveItemKDO', index, '', true); // Ganti dengan nama method Livewire kamu
+                                            }
+                                        });
+                                    }
+
+                                    function rejectFixKDO(index) {
+                                        Swal.fire({
+                                            title: 'Keterangan',
+                                            input: 'textarea',
+                                            inputPlaceholder: 'Masukkan keterangan (Opsional)',
+                                            inputAttributes: {
+                                                'aria-label': 'Masukkan alasan Anda'
+                                            },
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Kirim',
+                                            cancelButtonText: 'Batal',
+                                            preConfirm: (inputValue) => {
+                                                return inputValue; // Allows submission
+                                            }
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                @this.call('ApproveItemKDO', index, result.value, false);
                                             }
                                         });
                                     }
@@ -943,5 +1044,18 @@
             </div>
         </div>
     @endif
+    @push('scripts')
+        <script type="module">
+            document.addEventListener('success', function(e) {
+                feedback('Berhasil!', e.detail[0],
+                    'success')
 
+            })
+            document.addEventListener('error', function(e) {
+                feedback('Gagal!', e.detail[0],
+                    'error')
+
+            })
+        </script>
+    @endpush
 </div>

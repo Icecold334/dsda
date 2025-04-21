@@ -44,7 +44,7 @@
                                     $status = optional(
                                         $user->persetujuan
                                             ->where('approvable_id', $permintaan->id ?? 0)
-                                            ->where('approvable_type', App\Models\DetailPermintaanStok::class)
+                                            ->where('approvable_type', App\Models\DetailPeminjamanAset::class)
                                             ->first(),
                                     )->is_approved;
                                 @endphp
@@ -76,6 +76,8 @@
                     @if ($kepalaSubbagian)
                         @if ($permintaan->status && $permintaan->cancel === null && $permintaan->proses === null)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
+                        @elseif ($permintaan->status && $permintaan->cancel === 0 && !$permintaan->proses)
+                            <i class="fa-solid fa-circle-check text-success-500"></i>
                         @elseif ($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
                         @elseif($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses === 0)
@@ -104,6 +106,18 @@
 
     {{-- Tombol Lanjutkan / Batalkan --}}
     @if ($isPenulis && $showCancelOption && is_null($permintaan->cancel))
+        <div class="flex justify-center mt-2">
+            <button type="button" onclick="confirmCompletion()"
+                class="text-green-900 bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                Lanjutkan
+            </button>
+            <button type="button" onclick="confirmCancellation()"
+                class="text-danger-900 bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                Batalkan
+            </button>
+        </div>
+    @endif
+    @if ($isPenulis && $showNextOption && $permintaan->status && $permintaan->cancel === 0)
         <div class="flex justify-center mt-2">
             <button type="button" onclick="confirmCompletion()"
                 class="text-green-900 bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">

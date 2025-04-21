@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
+use App\Models\LokasiStok;
 
 class ApprovalPermintaanATK extends Component
 {
@@ -158,16 +159,27 @@ class ApprovalPermintaanATK extends Component
 
     public function markAsCompleted($message = null)
     {
-        $this->permintaan->update(['cancel' => false, 'proses' =>  true]);
+        $this->permintaan->update(['cancel' => false]);
+        $detailPermintaan = $this->permintaan;
+        $lokasiId = LokasiStok::where('nama', 'Gudang Umum')->value('id');
 
-        $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
-            (!is_null($this->permintaan->kode_permintaan) ? $this->permintaan->kode_permintaan : $this->permintaan->kode_peminjaman) .
-            '</span> telah Disetujui dan Selesai dengan keterangan <span class="font-bold">' . $message . '</span>';
+        $penjagaGudang = User::with(['roles', 'unitKerja', 'lokasiStok'])
+            ->where('lokasi_id', $lokasiId)
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'LIKE', '%Penjaga Gudang%');
+            })
+            ->first();
 
-        if ($this->kepalaSubbagian) {
-            Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+        if ($penjagaGudang) {
+            $notifGudang = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
+                . $detailPermintaan->kode_permintaan .
+                '</span> telah dilanjutkan dan perlu ditindaklanjuti oleh Penjaga Gudang.';
+
+            Notification::send($penjagaGudang, new UserNotification(
+                $notifGudang,
+                "/permintaan/permintaan/{$detailPermintaan->id}"
+            ));
         }
-
         return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
     public function cancelRequest()
@@ -184,8 +196,6 @@ class ApprovalPermintaanATK extends Component
         $approvers = collect($this->roleLists)->flatten(1)->values();
         $currentIndex = $approvers->search(fn($user) => $user->id === Auth::id());
 
-
-
         if ($status) {
             if ($currentIndex !== false && isset($approvers[$currentIndex + 1])) {
                 $nextUser = $approvers[$currentIndex + 1];
@@ -196,6 +206,9 @@ class ApprovalPermintaanATK extends Component
                 ));
             }
         } else {
+            $this->permintaan->update([
+                'keterangan_cancel' =>  $message,
+            ]);
             $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} ditolak dengan keterangan: {$message}.";
             $user = $permintaan->user;
             Notification::send($user, new UserNotification(
@@ -213,9 +226,7 @@ class ApprovalPermintaanATK extends Component
         $nextIndex = $this->currentApprovalIndex + 1;
         $totalApproval = $approvers->count();
 
-        if ($nextIndex == 1 && $status) {
-            $this->permintaan->update(['status' => $status]);
-        } elseif ($nextIndex == 1 && !$status) {
+        if ($nextIndex == 1 && !$status) {
             $this->permintaan->update([
                 'status' =>  1,
                 'cancel' =>  0,
@@ -230,11 +241,18 @@ class ApprovalPermintaanATK extends Component
 
             $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
                 (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
-                '</span> telah Disetujui dengan keterangan <span class="font-bold">' . $message . '</span>';
+                '</span> telah Disetujui memerlukan perhatian Anda';
 
             if ($this->kepalaSubbagian) {
                 Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
+
+            $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} Disetujui silahkan cek Jumlah Persetujuan";
+            $user = $permintaan->user;
+            Notification::send($user, new UserNotification(
+                $mess,
+                "/permintaan/permintaan/{$this->permintaan->id}"
+            ));
         } elseif ($nextIndex === $totalApproval && !$status) {
             $this->permintaan->update([
                 'status' =>  1,

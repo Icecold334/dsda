@@ -33,7 +33,7 @@
                 <div class="block font-semibold text-center mb-2 text-gray-900">
                     {{ ucwords(str_replace('-', ' ', $roleKey)) }}{{ $roleKey == 'kepala-subbagian' ? ' Tata Usaha' : '' }}
                 </div>
-                <table class="w-full mt-3">
+                <table class="w-full">
                     @foreach ($users as $user)
                         <tr class="text-sm border-b-2">
                             <td class="flex justify-between px-3">

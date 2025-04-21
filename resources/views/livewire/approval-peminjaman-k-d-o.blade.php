@@ -44,7 +44,7 @@
                                     $status = optional(
                                         $user->persetujuan
                                             ->where('approvable_id', $permintaan->id ?? 0)
-                                            ->where('approvable_type', App\Models\DetailPermintaanStok::class)
+                                            ->where('approvable_type', App\Models\DetailPeminjamanAset::class)
                                             ->first(),
                                     )->is_approved;
                                 @endphp
@@ -75,6 +75,8 @@
                     </span>
                     @if ($kepalaSubbagian)
                         @if ($permintaan->status && $permintaan->cancel === null && $permintaan->proses === null)
+                            <i class="fa-solid fa-circle-check text-success-500"></i>
+                        @elseif ($permintaan->status && $permintaan->cancel === 0 && !$permintaan->proses)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
                         @elseif ($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses)
                             <i class="fa-solid fa-circle-check text-success-500"></i>
