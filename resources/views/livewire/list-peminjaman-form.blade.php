@@ -1,5 +1,5 @@
 <div>
-    <div>
+    <div class="overflow-x-auto w-full">
         @if ($tanggal_peminjaman && $keterangan && $unit_id && $sub_unit_id)
             {{-- @if (true) --}}
             <table class="w-full border-3 border-separate border-spacing-y-4 h-5">

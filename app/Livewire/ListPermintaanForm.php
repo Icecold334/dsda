@@ -826,8 +826,6 @@ class ListPermintaanForm extends Component
     public $tipe;
     public function mount()
     {
-
-
         $this->waktus = WaktuPeminjaman::all();
 
         $this->fillShowRule();

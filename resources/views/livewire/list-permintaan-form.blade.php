@@ -1,5 +1,5 @@
 <div>
-    <div>
+    <div class="overflow-x-auto">
         <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
             <thead>
                 <tr class="text-white uppercase">
@@ -462,7 +462,7 @@
                                                         <i class="fa-solid fa-circle-check"></i>
                                                     </button>
                                                 @endif
-                                                @if ($item['detail_permintaan_status'] && $item['detail_permintaan_cancel'] === null)
+                                                @if ($item['detail_permintaan_status'] && $item['detail_permintaan_cancel'] === null && $item['voucher_name'])
                                                     <button onclick="takeVoucherName({{ $index }})"
                                                         class="text-success-900 border-success-600 text-xl border bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                                                         <i class="fa-solid fa-circle-check"></i>
@@ -559,7 +559,7 @@
                                     function takeVoucherName(index) {
                                         Swal.fire({
                                             title: 'Konfirmasi',
-                                            text: 'Apakah Anda yakin ingin mengambil Nama Voucher ini?',
+                                            text: 'Apakah Anda yakin ingin mengambil Voucher Cuci Mobil ini?',
                                             icon: 'question',
                                             showCancelButton: true,
                                             confirmButtonText: 'Ya',
