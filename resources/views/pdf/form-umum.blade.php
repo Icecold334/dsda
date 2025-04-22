@@ -38,15 +38,32 @@
     $adaBarang = collect($items)->contains(fn($item) => !empty($item['nama_barang']));
     $adaJumlah = collect($items)->contains(fn($item) => !empty($item['jumlah']));
     $adaKeterangan = collect($items)->contains(fn($item) => !empty($item['keterangan']));
-    $adaStatus = collect($items)->contains(fn($item) => !empty($item['status']));
+    $adaStatus = collect($items)->contains(fn($item) => !empty($item['status_kdo']));
     $adaAsetApprove = collect($items)->contains(fn($item) => !empty($item['approved_aset_name']));
     $adaJumlahOrang = collect($items)->contains(fn($item) => !empty($item['jumlah_orang']));
     $adaWaktu = collect($items)->contains(fn($item) => !empty($item['waktu']));
     $adaWaktuApprove = collect($items)->contains(fn($item) => !empty($item['approved_waktu']));
+
+    function getStatusStyle($status)
+    {
+        return match ($status) {
+            'dibatalkan' => 'background-color: #e0e0e0; color: #6c757d;', // Abu-abu
+            'selesai' => 'background-color: #007bff; color: #fff;', // Biru
+            'siap digunakan atau siap diambil' => 'background-color: #17a2b8; color: #fff;', // Biru muda
+            'sudah diambil' => 'background-color: #17a2b8; color: #fff;',
+            'dipinjam' => 'background-color: #17a2b8; color: #fff;',
+            'diproses' => 'background-color: #ffc107; color: #000;', // Kuning
+            'disetujui' => 'background-color: #28a745; color: #fff;', // Hijau
+            'ditolak' => 'background-color: #dc3545; color: #fff;', // Merah
+            default => 'background-color: #ffffff; color: #000;',
+        };
+    }
 @endphp
 <p><strong>No. Surat:</strong> {{ $no_surat }}</p>
 <p><strong>Kategori:</strong> {{ $lokasi }}</p>
 <p><strong>Tanggal:</strong> {{ $tanggal }}</p>
+<p><strong>Status:</strong> <span
+        style="padding: 4px 8px; border-radius: 4px; {{ getStatusStyle($status) }}">{{ $status }}</span></p>
 @if (!empty($kdo_aset))
     <p><strong>KDO:</strong> {{ $kdo_aset }}</p>
     <p><strong>Tanggal Masuk:</strong> {{ $tanggal_masuk }}</p>
@@ -128,7 +145,7 @@
                     <td>{{ $item['keterangan'] ?? '-' }}</td>
                 @endif
                 @if ($adaStatus)
-                    <td>{{ $item['status'] ?? '-' }}</td>
+                    <td>{{ $item['status_kdo'] ?? '-' }}</td>
                 @endif
                 @if ($adaAsetApprove)
                     <td>{{ $item['approved_aset_name'] ?? '-' }}</td>
@@ -152,32 +169,49 @@
 
 {{-- Tanda Tangan --}}
 <table class="no-border" style="margin-top: 50px; width: 100%;">
-
+    {{-- Baris 1: Pemohon & Persetujuan 1 --}}
     <tr>
-        <td style="text-align: center;">
-            Pemohon<br><br>
+        {{-- Pemohon --}}
+        <td style="text-align: center; width: 50%;">
+            Mengetahui,<br>Pemohon<br><br>
             @if (!empty($ttd_pemohon))
                 <img src="{{ $ttd_pemohon }}" height="40"><br>
             @endif
             ({{ $pemohon ?? 'N/A' }})
         </td>
-        <td style="text-align: center;">
-            Persetujuan<br><br>
+
+        {{-- Persetujuan 1 --}}
+        <td style="text-align: center; width: 50%;">
+            Disetujui oleh,<br>{{ $jabatan_persetujuan1 ?? 'Pejabat' }}<br><br>
             @if (!empty($ttd_persetujuan1))
                 <img src="{{ $ttd_persetujuan1 }}" height="40"><br>
             @endif
             ({{ $persetujuan1 ?? 'N/A' }})
         </td>
     </tr>
-    @if (!empty($persetujuan2))
-        <tr>
-            <td colspan="2" style="text-align: center; padding-top: 50px;">
-                Persetujuan <br><br>
+
+    {{-- Baris 2: Persetujuan 2 & Kepala Subbagian --}}
+    <tr>
+        <td style="text-align: center; width: 50%; padding-top: 50px;">
+            @if (!empty($persetujuan2))
+                Disetujui oleh,<br>{{ $jabatan_persetujuan2 ?? 'Persetujuan Tambahan' }}<br><br>
                 @if (!empty($ttd_persetujuan2))
                     <img src="{{ $ttd_persetujuan2 }}" height="40"><br>
                 @endif
                 ({{ $persetujuan2 ?? 'N/A' }})
-            </td>
-        </tr>
-    @endif
+            @else
+                {{-- Bisa kosong atau tulis placeholder --}}
+                <br><br><br>
+            @endif
+        </td>
+
+        {{-- Kepala Subbagian --}}
+        <td style="text-align: center; width: 50%; padding-top: 50px;">
+            Mengetahui,<br>{{ $jabatan_kepala_subbagian_umum ?? 'Kepala Subbagian Umum' }}<br><br>
+            @if (!empty($ttd_kepala_subbagian_umum))
+                <img src="{{ $ttd_kepala_subbagian_umum }}" height="40"><br>
+            @endif
+            ({{ $kepala_subbagian_umum ?? 'N/A' }})
+        </td>
+    </tr>
 </table>

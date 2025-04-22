@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 class PdfForm extends Component
 {
     public $permintaan;
+    public $kepalaSubbagian;
     public $roles = [];
     public $roleLists = [];
 
@@ -24,11 +25,17 @@ class PdfForm extends Component
 
     public function UnduhPDF()
     {
+
         // Determine the type of permintaan and extract data accordingly
         if ($this->permintaan instanceof \App\Models\DetailPermintaanStok) {
             $permintaanStoks = $this->permintaan->permintaanStok;
             $kategori = $this->permintaan->kategoriStok->id;
             $namaFile = "Form-Umum-Permintaan-{$this->permintaan->kategoriStok->nama}.pdf";
+            $this->kepalaSubbagian = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Kepala Subbagian');
+            })
+                ->where('unit_id', $this->permintaan->sub_unit_id)
+                ->first();
             if ($kategori == 4) {
                 $dataItems = [];
 
@@ -77,7 +84,14 @@ class PdfForm extends Component
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
                     'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Customer Services']->first())->ttd),
                     'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Penanggung Jawab']->first())->ttd),
+                    'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
+                    'jabatan_persetujuan1' => 'Customer Services',
+                    'jabatan_persetujuan2' => 'Penanggung Jawab',
+                    'status' => $this->getStatusPermintaan($this->permintaan, 'permintaan'),
                     'items' => $dataItems,
+                    'kepala_subbagian_umum' => optional($this->kepalaSubbagian)->name ?? 'N/A',
+                    'ttd_kepala_subbagian_umum' => $this->getTTDPath(optional($this->kepalaSubbagian)->ttd),
+                    'jabatan_kepala_subbagian_umum' => 'Kepala Subbagian Umum',
                 ];
             } elseif ($kategori == 5) {
                 $dataItems = [];
@@ -86,7 +100,7 @@ class PdfForm extends Component
                     $dataItems[] = [
                         'nama_barang' => $permintaanStok->barangStok->nama ?? 'N/A',
                         'keterangan' => $permintaanStok->deskripsi ?? '',
-                        'status' => $status === 1 ? 'Disetujui' : ($status === 0 ? 'Ditolak' : '-'),
+                        'status_kdo' => $status === 1 ? 'Disetujui' : ($status === 0 ? 'Ditolak' : '-'),
                     ];
                 }
 
@@ -125,7 +139,14 @@ class PdfForm extends Component
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
                     'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Penanggung Jawab']->first())->ttd),
                     'ttd_persetujuan2' => '',
+                    'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
+                    'jabatan_persetujuan1' => 'Penanggung Jawab',
+                    'jabatan_persetujuan2' => '',
+                    'status' => $this->getStatusPermintaan($this->permintaan, 'permintaan'),
                     'items' => $dataItems,
+                    'kepala_subbagian_umum' => optional($this->kepalaSubbagian)->name ?? 'N/A',
+                    'ttd_kepala_subbagian_umum' => $this->getTTDPath(optional($this->kepalaSubbagian)->ttd),
+                    'jabatan_kepala_subbagian_umum' => 'Kepala Subbagian Umum',
                 ];
             } elseif ($kategori === 6) {
                 $permintaanStok = $permintaanStoks->first();
@@ -161,6 +182,10 @@ class PdfForm extends Component
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
                     'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Customer Services']->first())->ttd),
                     'ttd_persetujuan2' => '',
+                    'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
+                    'jabatan_persetujuan1' => 'Customer Services',
+                    'jabatan_persetujuan2' => '',
+                    'status' => $this->getStatusPermintaan($this->permintaan, 'permintaan'),
                     'items' => collect([
                         [
                             'nama_aset' => $permintaanStok->aset->merk->nama . ' ' . $permintaanStok->aset->nama . '-' .  $permintaanStok->aset->noseri  ?? '',
@@ -168,6 +193,9 @@ class PdfForm extends Component
                             'voucher_name' => $permintaanStok->voucher_name ?? '',
                         ]
                     ]),
+                    'kepala_subbagian_umum' => optional($this->kepalaSubbagian)->name ?? 'N/A',
+                    'ttd_kepala_subbagian_umum' => $this->getTTDPath(optional($this->kepalaSubbagian)->ttd),
+                    'jabatan_kepala_subbagian_umum' => 'Kepala Subbagian Umum',
                 ];
             } else {
                 $dataItems = [];
@@ -234,13 +262,25 @@ class PdfForm extends Component
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
                     'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Penjaga Gudang']->first())->ttd),
                     'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Pengurus Barang']->first())->ttd),
+                    'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
+                    'jabatan_persetujuan1' => 'Penjaga Gudang',
+                    'jabatan_persetujuan2' => 'Pengurus Barang',
+                    'status' => $this->getStatusPermintaan($this->permintaan, 'permintaan'),
                     'items' => $dataItems,
+                    'kepala_subbagian_umum' => optional($this->kepalaSubbagian)->name ?? 'N/A',
+                    'ttd_kepala_subbagian_umum' => $this->getTTDPath(optional($this->kepalaSubbagian)->ttd),
+                    'jabatan_kepala_subbagian_umum' => 'Kepala Subbagian Umum',
                 ];
             }
         } elseif ($this->permintaan instanceof \App\Models\DetailPeminjamanAset) {
             $peminjamanAset = $this->permintaan->peminjamanAset;
             $namaFile = "Form-Umum-Peminjaman-{$this->permintaan->kategori->nama}.pdf";
             $kategori = Str::lower($this->permintaan->kategori->nama);
+            $this->kepalaSubbagian = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Kepala Subbagian');
+            })
+                ->where('unit_id', $this->permintaan->sub_unit_id)
+                ->first();
 
             if ($kategori == 'kdo') {
                 $permintaanAset = $peminjamanAset->first();
@@ -280,6 +320,10 @@ class PdfForm extends Component
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
                     'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Customer Services']->first())->ttd),
                     'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Penanggung Jawab']->first())->ttd),
+                    'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
+                    'jabatan_persetujuan1' => 'Customer Services',
+                    'jabatan_persetujuan2' => 'Penanggung Jawab',
+                    'status' => $this->getStatusPermintaan($this->permintaan, 'peminjaman'),
                     'items' => collect([
                         [
                             'nama_aset' => $permintaanAset->aset->merk->nama . ' ' . $permintaanAset->aset->nama . '-' .  $permintaanAset->aset->noseri  ?? '',
@@ -291,6 +335,9 @@ class PdfForm extends Component
                             'waktu' => $permintaanAset->waktu->waktu . ' ' . $permintaanAset->waktu->mulai . '-' . $permintaanAset->waktu->selesai  ?? '',
                         ]
                     ]),
+                    'kepala_subbagian_umum' => optional($this->kepalaSubbagian)->name ?? 'N/A',
+                    'ttd_kepala_subbagian_umum' => $this->getTTDPath(optional($this->kepalaSubbagian)->ttd),
+                    'jabatan_kepala_subbagian_umum' => 'Kepala Subbagian Umum',
                 ];
             } elseif ($kategori == 'ruangan') {
                 $permintaanAset = $peminjamanAset->first();
@@ -330,6 +377,10 @@ class PdfForm extends Component
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
                     'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Customer Services']->first())->ttd),
                     'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Penanggung Jawab']->first())->ttd),
+                    'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
+                    'jabatan_persetujuan1' => 'Customer Services',
+                    'jabatan_persetujuan2' => 'Penanggung Jawab',
+                    'status' => $this->getStatusPermintaan($this->permintaan, 'peminjaman'),
                     'items' => collect([
                         [
                             'nama_aset' => $permintaanAset->ruang->nama,
@@ -341,6 +392,9 @@ class PdfForm extends Component
                             }) ?? '-',
                         ]
                     ]),
+                    'kepala_subbagian_umum' => optional($this->kepalaSubbagian)->name ?? 'N/A',
+                    'ttd_kepala_subbagian_umum' => $this->getTTDPath(optional($this->kepalaSubbagian)->ttd),
+                    'jabatan_kepala_subbagian_umum' => 'Kepala Subbagian Umum',
                 ];
             } else {
                 $dataItems = [];
@@ -405,7 +459,14 @@ class PdfForm extends Component
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
                     'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Customer Services']->first())->ttd),
                     'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Penanggung Jawab']->first())->ttd),
+                    'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
+                    'jabatan_persetujuan1' => 'Customer Services',
+                    'jabatan_persetujuan2' => 'Penanggung Jawab',
+                    'status' => $this->getStatusPermintaan($this->permintaan, 'peminjaman'),
                     'items' => $dataItems,
+                    'kepala_subbagian_umum' => optional($this->kepalaSubbagian)->name ?? 'N/A',
+                    'ttd_kepala_subbagian_umum' => $this->getTTDPath(optional($this->kepalaSubbagian)->ttd),
+                    'jabatan_kepala_subbagian_umum' => 'Kepala Subbagian Umum',
                 ];
             }
         } else {
@@ -431,6 +492,37 @@ class PdfForm extends Component
     private function getTTDPath($filename)
     {
         return $filename ? "storage/usersTTD/{$filename}" : null;
+    }
+
+    private function getStatusPermintaan($permintaan, $tipe = null)
+    {
+        if ($permintaan->cancel === 1) {
+            return 'dibatalkan';
+        }
+
+        if ($permintaan->cancel === 0 && $permintaan->proses === 1) {
+            return 'selesai';
+        }
+
+        if ($permintaan->cancel === 0 && $permintaan->proses === null) {
+            if ($tipe === 'permintaan' && $permintaan->kategori_id != 6) {
+                return 'siap digunakan atau siap diambil';
+            } elseif ($tipe === 'permintaan' && $permintaan->kategori_id == 6) {
+                return 'sudah diambil';
+            } elseif ($tipe === 'peminjaman') {
+                return 'dipinjam';
+            }
+        }
+
+        if ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null) {
+            return 'diproses';
+        }
+
+        if ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1) {
+            return 'disetujui';
+        }
+
+        return 'ditolak';
     }
 
     public function render()
