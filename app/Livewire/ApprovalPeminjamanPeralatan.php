@@ -127,27 +127,29 @@ class ApprovalPeminjamanPeralatan extends Component
 
         $pemohon = $this->permintaan->user; // User yang membuat permintaan
 
-        if ($pemohon->hasRole('Kepala Unit')) {
-            // Jika pemohon adalah Kepala Unit, maka tidak ada atasan di atasnya
+        if ($pemohon->unit_id !== $this->permintaan->sub_unit_id) {
+            // Jika unit pemohon tidak sama dengan sub_unit_id permintaan
             $this->kepalaPemohon = null;
-        } elseif ($pemohon->hasRole('Kepala Subbagian')) {
-            // Jika pemohon adalah Kepala Subbagian, maka cari Kepala Unit di atasnya
-            $this->kepalaPemohon = User::whereHas('roles', function ($query) {
-                $query->where('name', 'Kepala Unit');
-            })
-                ->where(function ($query) use ($pemohon) {
-                    $query->where('unit_id', $pemohon->unitKerja->parent_id);
-                })
-                ->first();
         } else {
-            // Jika pemohon adalah staf, maka cari Kepala Subbagian di unit kerja pemohon
-            $this->kepalaPemohon = User::whereHas('roles', function ($query) {
-                $query->where('name', 'Kepala Subbagian');
-            })
-                ->where(function ($query) use ($pemohon) {
-                    $query->where('unit_id', $pemohon->unit_id);
+            if ($pemohon->hasRole('Kepala Unit')) {
+                $this->kepalaPemohon = null;
+            } elseif ($pemohon->hasRole('Kepala Subbagian')) {
+                $this->kepalaPemohon = User::whereHas('roles', function ($query) {
+                    $query->where('name', 'Kepala Unit');
                 })
-                ->first();
+                    ->where(function ($query) use ($pemohon) {
+                        $query->where('unit_id', $pemohon->unitKerja->parent_id);
+                    })
+                    ->first();
+            } else {
+                $this->kepalaPemohon = User::whereHas('roles', function ($query) {
+                    $query->where('name', 'Kepala Subbagian');
+                })
+                    ->where(function ($query) use ($pemohon) {
+                        $query->where('unit_id', $pemohon->unit_id);
+                    })
+                    ->first();
+            }
         }
 
         $this->kepalaSubbagian = User::whereHas('roles', function ($query) {

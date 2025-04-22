@@ -3,7 +3,7 @@
         <div class="flex justify-between py-2 mb-3">
             <h1 class="text-2xl font-bold text-primary-900 ">DETAIL {{ Str::upper($tipe) }}</h1>
             <div class="flex gap-2 items-center">
-                @if ($permintaan->status || $permintaan->cancel == 0)
+                @if ($permintaan->status || $permintaan->cancel === 0)
                     <livewire:pdf-form :permintaan="$permintaan">
                 @endif
                 @if ($tipe == 'peminjaman')
