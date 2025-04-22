@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('detail_permintaan_material', function (Blueprint $table) {
             $table->id();
             $table->string('ttd_driver')->nullable();
+            $table->string('ttd_security')->nullable();
             $table->string('kode_permintaan')->unique();
             $table->string('nama')->nullable();
             $table->string('nodin')->nullable();

@@ -17,7 +17,7 @@ class ShowPermintaanMaterial extends Component
     use WithFileUploads;
     public $permintaan, $isOut = false;
 
-    public $signature;
+    public $signature, $securitySignature;
     protected $listeners = ['signatureSaved'];
     public $attachments = [];
     public $newAttachments = [];
@@ -28,7 +28,7 @@ class ShowPermintaanMaterial extends Component
     {
         $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
         $pdf->SetCreator('Sistem Permintaan Barang');
-        $pdf->SetAuthor('Dinas SDA Jakbar');
+        $pdf->SetAuthor('Dinas SDA');
         $pdf->SetTitle('Surat Jalan');
 
         $pdf->AddPage();
@@ -37,20 +37,32 @@ class ShowPermintaanMaterial extends Component
         // optional kalau ada ttd atau cap
         $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
 
-        $html = view('pdf.surat-jalan', [
-            'no_surat' => '8201/3.01.01',
-            'lokasi' => 'Jl. Terusan Meruya, Kel Meruya Utara, Kec. Kembangan',
-            'nama_barang' => 'Semen',
-            'volume' => '6 Zak',
-            'tanggal' => now()->format('d-m-Y'),
-            'penerima' => 'Asep Sugara',
-            'pengeluar' => 'Ahmad M.',
-            'pengurus' => 'Sigit Rendang',
-            'ttd_pengeluar' => $ttdPath, // opsional
-        ])->render();
+        $permintaan = $this->permintaan;
+        $unit_id = $this->unit_id;
+        $permintaan->unit = UnitKerja::find($unit_id);
+        $kasatpel =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Kasatpel%');
+            })->first();
+        $penjaga =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Penjaga Gudang%');
+            })->where('lokasi_id', $this->permintaan->gudang_id)->first();
+        $pengurus =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Pengurus Barang%');
+            })->first();
+        $html = view('pdf.surat-jalan', compact('permintaan', 'kasatpel', 'penjaga', 'pengurus', 'ttdPath'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
+        // return 1;
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->Output('', 'S');
         }, 'Surat-Jalan.pdf');
@@ -58,7 +70,7 @@ class ShowPermintaanMaterial extends Component
 
 
 
-    public function signatureSaved($signatureData)
+    public function signatureSaved($signatureData, $type)
     {
         // Decode base64
         $image = str_replace('data:image/png;base64,', '', $signatureData);
@@ -68,17 +80,28 @@ class ShowPermintaanMaterial extends Component
 
         Storage::disk('public')->put('ttdPengiriman/' . $imageName, base64_decode($image));
         // Simpan nama file ke database
-        $this->signature = $imageName;
 
-        // Contoh simpan ke database (misal di tabel permintaan)
-        $this->permintaan->update([
-            'ttd_driver' => $imageName,  // pastikan kolom signature tersedia
-        ]);
+        if ($type == 'driver') {
+            $this->signature = $imageName;
+            $this->permintaan->update([
+                'ttd_driver' => $imageName,  // pastikan kolom signature tersedia
+            ]);
+        } else {
+            $this->securitySignature = $imageName;
+            $this->permintaan->update([
+                'ttd_security' => $imageName,  // pastikan kolom signature tersedia
+            ]);
+        }
     }
 
-    public function resetSignature()
+    public function resetSignature($type)
     {
-        $this->signature = null;
+        if ($type == 'driver') {
+            # code...
+            $this->signature = null;
+        } else {
+            $this->securitySignature = null;
+        }
     }
 
     public function mount()
@@ -89,6 +112,10 @@ class ShowPermintaanMaterial extends Component
         if ($this->permintaan->ttd_driver) {
             # code...
             $this->signature = $this->permintaan->ttd_driver;
+        }
+        if ($this->permintaan->ttd_security) {
+            # code...
+            $this->securitySignature = $this->permintaan->ttd_security;
         }
     }
 
@@ -155,8 +182,19 @@ class ShowPermintaanMaterial extends Component
     }
     public function qrCode()
     {
-        return;
+        $kode = $this->permintaan->kode_permintaan;
+
+        // Path filesystem yang benar
+        $path = storage_path('app/public/qr_permintaan_material/' . $kode . '.png');
+
+        if (!file_exists($path)) {
+            abort(404, 'QR Code not found.');
+        }
+        $this->statusRefresh();
+
+        return response()->download($path, $kode . '.png');
     }
+
     public function spb()
     {
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);

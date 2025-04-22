@@ -40,7 +40,7 @@
   </tr>
   <tr>
     <td>Nomor</td>
-    <td>: 113/SDA-KGU/2024</td>
+    <td>: {{ $permintaan->nodin }}</td>
   </tr>
 </table>
 

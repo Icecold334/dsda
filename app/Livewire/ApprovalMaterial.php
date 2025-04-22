@@ -6,11 +6,14 @@ use Carbon\Carbon;
 use App\Models\Rab;
 use App\Models\Stok;
 use App\Models\User;
+use BaconQrCode\Writer;
 use Livewire\Component;
 use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
+use BaconQrCode\Renderer\GDLibRenderer;
+use Illuminate\Support\Facades\Storage;
 use App\Models\DetailPermintaanMaterial;
 use Illuminate\Support\Facades\Notification;
 
@@ -194,6 +197,27 @@ class ApprovalMaterial extends Component
         }
         if ($this->currentApprovalIndex + 1 == 2 && $status) {
             $this->permintaan->update(['status' => $status]);
+            // Tentukan folder dan path target file
+            $qrFolder = "qr_permintaan_material";
+            $qrTarget = "{$qrFolder}/{$this->permintaan->kode_permintaan}.png";
+
+            // Konten QR Code (contohnya URL)
+            $qrContent = url("/permintaan/permintaan/{$this->permintaan->id}");
+
+            // Pastikan direktori untuk QR Code tersedia
+            if (!Storage::disk('public')->exists($qrFolder)) {
+                Storage::disk('public')->makeDirectory($qrFolder);
+            }
+
+            // Konfigurasi renderer untuk menggunakan GD dengan ukuran 400x400
+            $renderer = new GDLibRenderer(500);
+            $writer = new Writer($renderer);
+
+            // Path absolut untuk menyimpan file
+            $filePath = Storage::disk('public')->path($qrTarget);
+
+            // Hasilkan QR Code ke file
+            $writer->writeFile($qrContent, $filePath);
         }
         if ($this->currentApprovalIndex + 1 == 4 && $status) {
             $this->permintaan->update(['status' => 2]);

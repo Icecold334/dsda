@@ -203,7 +203,7 @@
             @elseif ($canUploadDriver)
             <canvas id="signature-pad-driver" class="border rounded shadow-sm h-25 bg-transparent"
                 height="100"></canvas>
-            <button wire:click="resetSignature" class="btn btn-sm btn-warning mt-2"
+            <button wire:click="resetSignature('driver')" class="btn btn-sm btn-warning mt-2"
                 onclick="resetCanvas('driver')">Hapus</button>
             <button class="btn btn-sm btn-primary mt-2" onclick="saveSignature('driver')">Simpan</button>
             @else
@@ -214,7 +214,7 @@
         <div>
             <h4 class="font-semibold text-sm mb-2">Tanda Tangan Keamanan</h4>
             @php
-            $canUploadSecurity = auth()->user()->can('permintaan_upload_foto_dan_ttd_security');
+            $canUploadSecurity = auth()->user()->can('permintaan_upload_foto_dan_ttd_driver');
             @endphp
 
             @if ($securitySignature)
@@ -223,7 +223,7 @@
             @elseif ($canUploadSecurity)
             <canvas id="signature-pad-security" class="border rounded shadow-sm h-25 bg-transparent"
                 height="100"></canvas>
-            <button wire:click="resetSecuritySignature" class="btn btn-sm btn-warning mt-2"
+            <button wire:click="resetSignature('security')" class="btn btn-sm btn-warning mt-2"
                 onclick="resetCanvas('security')">Hapus</button>
             <button class="btn btn-sm btn-primary mt-2" onclick="saveSignature('security')">Simpan</button>
             @else
@@ -244,7 +244,7 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 <script>
-    let canvas, signaturePad;
+    let canvasDriver, canvasSecurity, signaturePadDriver, signaturePadSecurity;
 
     // document.addEventListener("livewire:load", () => {
         initializeSignaturePad();
@@ -255,24 +255,37 @@
     });
 
     function initializeSignaturePad() {
-        canvas = document.getElementById('signature-pad');
-        if (canvas) {
-            signaturePad = new SignaturePad(canvas);
+        canvasDriver = document.getElementById('signature-pad-driver');
+        if (canvasDriver) {
+            signaturePadDriver = new SignaturePad(canvasDriver);
+        }
+        canvasSecurity = document.getElementById('signature-pad-security');
+        if (canvasSecurity) {
+            signaturePadSecurity = new SignaturePad(canvasSecurity);
         }
     }
 
-    function saveSignature() {
-        if (signaturePad.isEmpty()) {
-            alert("Tanda tangan belum diisi.");
-            return;
-        }
+    function saveSignature(type) {
+        // if (signaturePadDriver.isEmpty()||signaturePadSecurity.isEmpty()) {
+        //     alert("Tanda tangan belum diisi.");
+        //     return;
+        // }
 
-        let signatureData = signaturePad.toDataURL('image/png');
-        @this.call('signatureSaved', signatureData);
+        let signatureDataDriver = signaturePadDriver.toDataURL('image/png');
+        let signatureDataSecurity = signaturePadSecurity.toDataURL('image/png');
+
+        let signatureData = type == 'driver' ? signatureDataDriver:signatureDataSecurity
+        @this.call('signatureSaved', signatureData,type);
     }
 
-    function resetCanvas() {
-        signaturePad.clear();
+    function resetCanvas(type) {
+        if (type == 'driver') {
+            
+            signaturePadDriver.clear();
+        } else {
+            signaturePadSecurity.clear();
+            
+        }
     }
 </script>
 @endpush

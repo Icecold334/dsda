@@ -52,7 +52,8 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(299);
         // Auth::loginUsingId(297);
         Auth::loginUsingId(291);
-        // Auth::loginUsingId(598);
+        Auth::loginUsingId(594);
+        // Auth::loginUsingId(301);
     }
 
     // public function test()
