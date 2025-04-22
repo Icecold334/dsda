@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('ttd_driver')->nullable();
             $table->string('kode_permintaan')->unique();
+            $table->string('nama')->nullable();
+            $table->string('nodin')->nullable();
             $table->date('tanggal_permintaan');
             $table->foreignId('gudang_id')->constrained('lokasi_stok')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

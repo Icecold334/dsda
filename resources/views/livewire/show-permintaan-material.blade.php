@@ -6,7 +6,7 @@
 
             <a wire:click='spb'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
-                SPB</a>
+                {{ $permintaan->rab_id?'Surat Permohonan Barang':'Nota Dinas' }}</a>
             @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2)
             <a wire:click='sppb'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
@@ -34,6 +34,16 @@
                     <tr class="font-semibold ">
                         <td>RAB</td>
                         <td>{{ $permintaan->rab->nama }}</td>
+                    </tr>
+                    @endif
+                    @if (!$permintaan->rab_id)
+                    <tr class="font-semibold ">
+                        <td>Nama Kegiatan</td>
+                        <td>{{ $permintaan->nama }}</td>
+                    </tr>
+                    <tr class="font-semibold ">
+                        <td>Nomor Nota Dinas</td>
+                        <td>{{ $permintaan->nodin }}</td>
                     </tr>
                     @endif
                     <tr class="font-semibold ">
@@ -75,120 +85,160 @@
                         <td>Keterangan</td>
                         <td>{{ $permintaan->keterangan ?? '---' }}</td>
                     </tr>
+                    @if (!$permintaan->rab_id)
+                    <tr class="font-semibold ">
+                        <td>Lokasi Kegiatan</td>
+                        <td>{{ $permintaan->lokasi }}</td>
+                    </tr>
+                    @endif
                 </table>
             </x-card>
         </div>
         <div
             class="grid grid-cols-2 gap-6 {{ $permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 3 ?'':'hidden' }}">
-            <x-card title="Foto Barang" class="mb-3  ">
-                <div wire:loading wire:target="newAttachments">
-                    <livewire:loading>
-                </div>
-                <input type="file" wire:model.live="newAttachments" multiple class="hidden" id="fileUpload">
-                <label for="fileUpload"
-                    class="{{ $permintaan->persetujuan()->where('is_approved',1)->count() <= 4 && !$isOut ?'':'hidden' }}  text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">
-                    + Unggah
-                </label>
-                <a wire:click='saveDoc'
-                    class="cursor-pointer {{ count($this->attachments) ?'':'hidden' }} text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</a>
-                <div class="mt-3 max-h-24 overflow-auto">
-                    @if ($isOut || auth()->user()->can('permintaan_upload_foto_dan_ttd_driver'))
-                    @forelse ($permintaan->lampiran as $attachment)
-                    <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
-                        <span class="flex items-center space-x-3">
-                            @php
-                            $fileType = pathinfo($attachment->path, PATHINFO_EXTENSION);
-                            @endphp
-                            <span class="text-primary-600">
-                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-                                <i class="fa-solid fa-image text-green-500"></i>
-                                @elseif($fileType == 'pdf')
-                                <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                @elseif(in_array($fileType, ['doc', 'docx']))
-                                <i class="fa-solid fa-file-word text-blue-500"></i>
-                                @else
-                                <i class="fa-solid fa-file text-gray-500"></i>
-                                @endif
-                            </span>
+            <x-card title="Foto Barang" class="mb-3">
+                @php
+                $lampiranCount = $permintaan->lampiran->count();
+                $canUpload = auth()->user()->can('permintaan_upload_foto_dan_ttd_driver');
+                @endphp
 
-                            <!-- File name with underline on hover and a link to the saved file -->
-                            <span>
-                                <a href="{{ asset('storage/lampiranRab/' . $attachment->path) }}" target="_blank"
-                                    class="text-gray-800 hover:underline">
-                                    {{ basename($attachment->path) }}
-                                </a>
-                            </span>
-                        </span>
-                    </div>
-                    @empty
-                    <div class="flex justify-center text-xl font-semibold">
-                        Tidak ada lampiran
-                    </div>
-                    @endforelse
-                    @else
-
-                    @foreach ($attachments as $index => $attachment)
-                    <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
-                        <span class="flex items-center space-x-3">
-                            @php
-                            $fileType = $attachment->getClientOriginalExtension();
-                            @endphp
-                            <span class="text-primary-600">
-                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-                                <i class="fa-solid fa-image text-green-500"></i>
-                                @elseif($fileType == 'pdf')
-                                <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                @elseif(in_array($fileType, ['doc', 'docx']))
-                                <i class="fa-solid fa-file-word text-blue-500"></i>
-                                @else
-                                <i class="fa-solid fa-file text-gray-500"></i>
-                                @endif
-                            </span>
-
-                            <!-- File name with underline on hover and a temporary URL -->
-                            <span>
-                                <a href="{{ $attachment->temporaryUrl() }}" target="_blank"
-                                    class="text-gray-800 hover:underline">
-                                    {{ $attachment->getClientOriginalName() }}
-                                </a>
-                            </span>
-                        </span>
-
-                        <!-- Remove Button -->
-                        <button wire:click="removeAttachment({{ $index }})"
-                            class="text-red-500 hover:text-red-700">&times;
-                        </button>
-                    </div>
-                    @endforeach
-                    @endif
-
-                </div>
-            </x-card>
-            <x-card title="Tanda Tangan Driver" class="mb-3">
-                <div>
-                    @if (!$signature && auth()->user()->can('permintaan_upload_foto_dan_ttd_driver'))
-                    <canvas id="signature-pad" class="border rounded shadow-sm h-25 bg-transparent"
-                        height="100"></canvas>
-                    <button wire:click="resetSignature" class="btn btn-sm btn-warning mt-2"
-                        onclick="resetCanvas()">Hapus</button>
-                    <button class="btn btn-sm btn-primary mt-2" onclick="saveSignature()">Simpan</button>
-                    @else
-                    <img src="{{ asset('storage/ttdPengiriman/'.$signature) }}" class="border rounded shadow-sm"
-                        height="100" alt="Signature Preview">
-                    <br>
-                    {{-- <button wire:click="resetSignature" class="btn btn-sm btn-danger mt-2">Reset </button> --}}
-                    @endif
-
-                </div>
-            </x-card>
+                {{-- Tombol unggah & simpan hanya jika boleh upload dan belum ada lampiran --}}
+                @if ($canUpload && $lampiranCount < 1) <div wire:loading wire:target="newAttachments">
+                    <livewire:loading />
         </div>
-        <div class="col-span-2">
-            <x-card title="daftar permintaan">
-                <livewire:list-permintaan-material :permintaan='$permintaan'>
-                    <livewire:approval-material :permintaan='$permintaan'>
-            </x-card>
+        <input type="file" wire:model.live="newAttachments" multiple class="hidden" id="fileUpload">
+        <label for="fileUpload"
+            class="{{ $permintaan->persetujuan()->where('is_approved', 1)->count() <= 4 && !$isOut ? '' : 'hidden' }}
+            text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">
+            + Unggah
+        </label>
+
+        <a wire:click='saveDoc'
+            class="cursor-pointer {{ count($this->attachments) ? '' : 'hidden' }}
+           text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+            Simpan
+        </a>
+        @endif
+
+        {{-- Daftar Lampiran --}}
+        <div class="mt-3 max-h-24 overflow-auto">
+            {{-- Lampiran permanen dari database --}}
+            @if ($lampiranCount > 0)
+            @foreach ($permintaan->lampiran as $attachment)
+            <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
+                <span class="flex items-center space-x-3">
+                    @php $fileType = pathinfo($attachment->path, PATHINFO_EXTENSION); @endphp
+                    <span class="text-primary-600">
+                        @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                        <i class="fa-solid fa-image text-green-500"></i>
+                        @elseif($fileType == 'pdf')
+                        <i class="fa-solid fa-file-pdf text-red-500"></i>
+                        @elseif(in_array($fileType, ['doc', 'docx']))
+                        <i class="fa-solid fa-file-word text-blue-500"></i>
+                        @else
+                        <i class="fa-solid fa-file text-gray-500"></i>
+                        @endif
+                    </span>
+                    <span>
+                        <a href="{{ asset('storage/lampiranRab/' . $attachment->path) }}" target="_blank"
+                            class="text-gray-800 hover:underline">
+                            {{ basename($attachment->path) }}
+                        </a>
+                    </span>
+                </span>
+            </div>
+            @endforeach
+            @endif
+
+            {{-- Lampiran sementara (belum disimpan) --}}
+            @if (count($this->attachments))
+            @foreach ($attachments as $index => $attachment)
+            <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
+                <span class="flex items-center space-x-3">
+                    @php $fileType = $attachment->getClientOriginalExtension(); @endphp
+                    <span class="text-primary-600">
+                        @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                        <i class="fa-solid fa-image text-green-500"></i>
+                        @elseif($fileType == 'pdf')
+                        <i class="fa-solid fa-file-pdf text-red-500"></i>
+                        @elseif(in_array($fileType, ['doc', 'docx']))
+                        <i class="fa-solid fa-file-word text-blue-500"></i>
+                        @else
+                        <i class="fa-solid fa-file text-gray-500"></i>
+                        @endif
+                    </span>
+                    <span>
+                        <a href="{{ $attachment->temporaryUrl() }}" target="_blank"
+                            class="text-gray-800 hover:underline">
+                            {{ $attachment->getClientOriginalName() }}
+                        </a>
+                    </span>
+                </span>
+
+                {{-- Tombol hapus sementara --}}
+                <button wire:click="removeAttachment({{ $index }})" class="text-red-500 hover:text-red-700">&times;
+                </button>
+            </div>
+            @endforeach
+            @endif
+
+            {{-- Jika tidak bisa upload dan tidak ada file sama sekali --}}
+            @if (!$canUpload && $lampiranCount < 1 && count($this->attachments) < 1) <div
+                    class="flex justify-center text-xl font-semibold">
+                    Belum ada unggahan
         </div>
+        @endif
     </div>
+    </x-card>
+    <x-card title="Tanda Tangan Driver & Keamanan" class="mb-3">
+        <div class="mb-6">
+            <h4 class="font-semibold text-sm mb-2">Tanda Tangan Driver</h4>
+            @php
+            $canUploadDriver = auth()->user()->can('permintaan_upload_foto_dan_ttd_driver');
+            @endphp
+
+            @if ($signature)
+            <img src="{{ asset('storage/ttdPengiriman/' . $signature) }}" class="border rounded shadow-sm" height="100"
+                alt="TTD Driver">
+            @elseif ($canUploadDriver)
+            <canvas id="signature-pad-driver" class="border rounded shadow-sm h-25 bg-transparent"
+                height="100"></canvas>
+            <button wire:click="resetSignature" class="btn btn-sm btn-warning mt-2"
+                onclick="resetCanvas('driver')">Hapus</button>
+            <button class="btn btn-sm btn-primary mt-2" onclick="saveSignature('driver')">Simpan</button>
+            @else
+            <div class="text-center text-gray-500 font-medium">Belum ada unggahan</div>
+            @endif
+        </div>
+
+        <div>
+            <h4 class="font-semibold text-sm mb-2">Tanda Tangan Keamanan</h4>
+            @php
+            $canUploadSecurity = auth()->user()->can('permintaan_upload_foto_dan_ttd_security');
+            @endphp
+
+            @if ($securitySignature)
+            <img src="{{ asset('storage/ttdPengiriman/' . $securitySignature) }}" class="border rounded shadow-sm"
+                height="100" alt="TTD Keamanan">
+            @elseif ($canUploadSecurity)
+            <canvas id="signature-pad-security" class="border rounded shadow-sm h-25 bg-transparent"
+                height="100"></canvas>
+            <button wire:click="resetSecuritySignature" class="btn btn-sm btn-warning mt-2"
+                onclick="resetCanvas('security')">Hapus</button>
+            <button class="btn btn-sm btn-primary mt-2" onclick="saveSignature('security')">Simpan</button>
+            @else
+            <div class="text-center text-gray-500 font-medium">Belum ada unggahan</div>
+            @endif
+        </div>
+    </x-card>
+</div>
+<div class="col-span-2">
+    <x-card title="daftar permintaan">
+        <livewire:list-permintaan-material :permintaan='$permintaan'>
+            <livewire:approval-material :permintaan='$permintaan'>
+    </x-card>
+</div>
+</div>
 </div>
 
 @push('scripts')

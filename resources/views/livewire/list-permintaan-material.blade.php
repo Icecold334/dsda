@@ -2,7 +2,8 @@
     <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
         <thead>
             <tr class="text-white uppercase">
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[60%] rounded-l-lg">Nama barang</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[20%] rounded-l-lg">Nama barang</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[40%] ">Spesifikasi</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jumlah</th>
                 @if ($isShow)
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Foto barang</th>
@@ -16,7 +17,22 @@
                 <td class="py-3 px-6 ">
                     <select wire:model.live="list.{{ $index }}.merk" disabled
                         class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                        <option value="{{ $item['merk']->id }}">{{ $item['merk']->barangStok->nama }} - {{
+                        <option value="{{ $item['merk']->id }}">{{ $item['merk']->barangStok->nama }}
+                            {{-- - {{
+                            $item['merk']->nama ?? 'Tanpa merk' }} - {{
+                            $item['merk']->tipe ?? 'Tanpa tipe' }} -
+                            {{ $item['merk']->ukuran?? 'Tanpa ukuran' }} --}}
+                        </option>
+                    </select>
+                    @error('newMerkId')
+                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </td>
+                <td class="py-3 px-6 ">
+                    <select wire:model.live="list.{{ $index }}.merk" disabled
+                        class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        <option value="{{ $item['merk']->id }}">
+                            {{
                             $item['merk']->nama ?? 'Tanpa merk' }} - {{
                             $item['merk']->tipe ?? 'Tanpa tipe' }} -
                             {{ $item['merk']->ukuran?? 'Tanpa ukuran' }}
@@ -103,32 +119,40 @@
             @endforeach
             @if (!$isShow)
             @if ($showRule)
+            {{-- @if (1) --}}
             <tr
                 class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl {{ $isShow ? 'hidden' :'' }}">
                 <td class="py-3 px-6 ">
-                    <select wire:model.live="newMerkId"
+                    <select wire:model.live="newBarangId"
                         class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         <option value="">Pilih Barang
                         </option>
                         @foreach ($barangs as $barang)
-                        <optgroup label="{{ $barang->nama }}">
-                            @foreach ($barang->merkStok()->when($rab_id, function ($query)use($rab_id){
-                            return $query->whereHas('listRab',function ($query) use($rab_id){
-                            $query->where('rab_id', $rab_id);
-                            });
-                            })
-                            ->whereHas('stok',function($stok) use ($gudang_id){
-                            return $stok->where('lokasi_id', $gudang_id);
-                            })
-                            ->get()->unique('merk_id') as $merk)
-                            <option value="{{ $merk->id }}">
-                                {{ $merk->nama ?? 'Tanpa merk' }} - {{
-                                $merk->tipe ?? 'Tanpa tipe' }} -
-                                {{ $merk->ukuran?? 'Tanpa ukuran' }}
-                            </option>
-                            @endforeach
-                        </optgroup>
+                        <option value="{{ $barang->id }}">
+                            {{ $barang->nama }}
+                        </option>
                         @endforeach
+                    </select>
+                    @error('newBarangId')
+                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </td>
+                <td class="py-3 px-6 ">
+                    <select wire:model.live="newMerkId" @disabled(!$newBarangId)
+                        class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg {{ !$newBarangId?'cursor-not-allowed':'' }} focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        <option value="">Pilih Barang
+                        </option>
+                        @php
+                        $disabledIds = collect($list)->pluck('merk.id')->toArray();
+                        @endphp
+                        @foreach ($merks as $merk)
+                        <option value="{{ $merk->id }}" @disabled(in_array($merk->id, $disabledIds))>
+                            {{ $merk->nama ?? 'Tanpa merk' }} - {{
+                            $merk->tipe ?? 'Tanpa tipe' }} -
+                            {{ $merk->ukuran?? 'Tanpa ukuran' }}
+                        </option>
+                        @endforeach
+
                     </select>
                     @error('newMerkId')
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -158,7 +182,7 @@
             </tr>
             @else
             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
-                <td colspan="3" class="text-center text-xl px-3 py-6 font-bold"> Lengkapi Data Kegiatan</td>
+                <td colspan="4" class="text-center text-xl px-3 py-6 font-bold"> Lengkapi Data Kegiatan</td>
             </tr>
             @endif
             @endif

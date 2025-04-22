@@ -2,12 +2,14 @@
 
 namespace App\Livewire;
 
+use TCPDF;
+use App\Models\User;
 use Livewire\Component;
+use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use Livewire\WithFileUploads;
 use App\Models\FotoPermintaanMaterial;
 use Illuminate\Support\Facades\Storage;
-use TCPDF;
 
 class ShowPermintaanMaterial extends Component
 {
@@ -48,7 +50,7 @@ class ShowPermintaanMaterial extends Component
         ])->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
-
+        $this->statusRefresh();
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->Output('', 'S');
         }, 'Surat-Jalan.pdf');
@@ -88,6 +90,21 @@ class ShowPermintaanMaterial extends Component
             # code...
             $this->signature = $this->permintaan->ttd_driver;
         }
+    }
+
+    public function statusRefresh()
+    {
+        $statusMap = [
+            null => ['label' => 'Diproses', 'color' => 'warning'],
+            0 => ['label' => 'Ditolak', 'color' => 'danger'],
+            1 => ['label' => 'Disetujui', 'color' => 'success'],
+            2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
+            3 => ['label' => 'Selesai', 'color' => 'primary'],
+        ];
+
+        // Tambahkan properti dinamis
+        $this->permintaan->status_teks = $statusMap[$this->permintaan->status]['label'] ?? 'Tidak diketahui';
+        $this->permintaan->status_warna = $statusMap[$this->permintaan->status]['color'] ?? 'gray';
     }
 
     public function saveDoc()
@@ -131,6 +148,15 @@ class ShowPermintaanMaterial extends Component
         // Clear the newAttachments to make ready for next files
         $this->reset('newAttachments');
     }
+
+    public function sppb()
+    {
+        return;
+    }
+    public function qrCode()
+    {
+        return;
+    }
     public function spb()
     {
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
@@ -142,25 +168,36 @@ class ShowPermintaanMaterial extends Component
         $pdf->SetFont('helvetica', '', 11);
         $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
 
-        $html = view('pdf.spb', [
-            'tanggal' => now()->translatedFormat('d F Y'),
-            'lokasi' => 'Perbaikan tutup dan pemasangan tutup saluran',
-            'detailLokasi' => 'Jl. Sembilan 3 RT.03 RW.06 Kel. Makasar',
-            'kecamatan' => 'Makasar',
-            'barang' => [
-                ['nama' => 'Semen', 'volume' => 28, 'satuan' => 'Zak'],
-                ['nama' => 'Benang Nylon', 'volume' => 4, 'satuan' => 'Gulungan'],
-            ],
-            'mengetahui' => 'Puryanto Palebangan',
-            'pemohon' => 'Nurdin',
-            'ttd_pemohon' => $ttdPath, // << kirim path tanda tangan
-        ])->render();
+        $permintaan = $this->permintaan;
+        $unit_id = $this->unit_id;
+        $permintaan->unit = UnitKerja::find($unit_id);
+
+        // [
+        //     'tanggal' => now()->translatedFormat('d F Y'),
+        //     'lokasi' => 'Perbaikan tutup dan pemasangan tutup saluran',
+        //     'detailLokasi' => 'Jl. Sembilan 3 RT.03 RW.06 Kel. Makasar',
+        //     'kecamatan' => 'Makasar',
+        //     'barang' => [
+        //         ['nama' => 'Semen', 'volume' => 28, 'satuan' => 'Zak'],
+        //         ['nama' => 'Benang Nylon', 'volume' => 4, 'satuan' => 'Gulungan'],
+        //     ],
+        //     'mengetahui' => 'Puryanto Palebangan',
+        //     'pemohon' => 'Nurdin',
+        //     'ttd_pemohon' => $ttdPath, // << kirim path tanda tangan
+        // ];
+        $kasatpel =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Kasatpel%');
+            })->first();
+        $html = view(!$permintaan->rab_id ? 'pdf.nodin' : 'pdf.spb', compact('permintaan', 'kasatpel'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
-
+        $this->statusRefresh();
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->Output('', 'S');
-        }, 'SPB.pdf');
+        }, !$permintaan->rab_id ? 'Nota Dinas.pdf' : 'Surat Permohonan Barang.pdf');
     }
 
     public function removeAttachment($index)

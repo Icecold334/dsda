@@ -16,7 +16,13 @@
         @foreach ($roleLists as $roleKey => $users)
         <div>
             <div class="block font-semibold text-center mb-2 text-gray-900">
-                {{ ucwords(str_replace('-', ' ', $roleKey)) }}{{ $roleKey == 'kepala-subbagian' ? ' Tata Usaha' : '' }}
+                @if ($roleKey == 'kepala-subbagian')
+                {{ ucwords(str_replace('-', ' ', $roleKey)) }} Tata Usaha
+                @elseif ($roleKey == 'kepala-seksi')
+                {{ ucwords(str_replace('-', ' ', $roleKey)) }} Pemeliharaan
+                @else
+                {{ ucwords(str_replace('-', ' ', $roleKey)) }}
+                @endif
             </div>
             <table class="w-full mt-3">
                 @foreach ($users as $user)

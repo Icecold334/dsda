@@ -17,8 +17,8 @@ use Livewire\WithFileUploads;
 class ListPermintaanMaterial extends Component
 {
     use WithFileUploads;
-    public $permintaan, $tanggalPenggunaan, $keterangan, $isShow, $gudang_id;
-    public  $rab_id,  $barangs, $dokumenCount, $newMerkId, $newMerkMax, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
+    public $permintaan, $tanggalPenggunaan, $keterangan, $isShow, $gudang_id, $withRab = 0, $lokasiMaterial, $nodin, $namaKegiatan;
+    public  $rab_id,  $barangs = [], $merks = [], $dokumenCount, $newBarangId, $newMerkId, $newMerkMax, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
 
     public function mount()
     {
@@ -72,6 +72,22 @@ class ListPermintaanMaterial extends Component
 
         $this->checkShow();
     }
+    #[On('namaKegiatan')]
+    public function fillNamaKegiatan($namaKegiatan)
+    {
+        $this->namaKegiatan = $namaKegiatan;
+        // Cek jika ada nilai yang null atau kosong
+
+        $this->checkShow();
+    }
+    #[On('nodin')]
+    public function fillNodin($nodin)
+    {
+        $this->nodin = $nodin;
+        // Cek jika ada nilai yang null atau kosong
+
+        $this->checkShow();
+    }
     public function resetImage($index)
     {
         $this->list[$index]['img'] = null;
@@ -118,6 +134,24 @@ class ListPermintaanMaterial extends Component
 
         $this->checkShow();
     }
+    #[On('withRab')]
+    public function fillWithRab($withRab)
+    {
+        $this->withRab = $withRab;
+
+        $this->fillBarangs();
+
+        $this->checkShow();
+    }
+    #[On('lokasiMaterial')]
+    public function fillLokasiMaterial($lokasiMaterial)
+    {
+        $this->lokasiMaterial = $lokasiMaterial;
+
+        $this->fillBarangs();
+
+        $this->checkShow();
+    }
     #[On('gudang_id')]
     public function fillGudangId($gudang_id)
     {
@@ -134,7 +168,11 @@ class ListPermintaanMaterial extends Component
 
     public function checkShow()
     {
-        $this->showRule = $this->tanggalPenggunaan && $this->gudang_id;
+        if ($this->withRab) {
+            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && $this->rab_id;
+        } else {
+            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && $this->lokasiMaterial && $this->keterangan && $this->nodin && $this->namaKegiatan;
+        }
     }
     public function updated($field)
     {
@@ -142,11 +180,31 @@ class ListPermintaanMaterial extends Component
             $this->newJumlah = null;
             $this->newUnit = 'Satuan';
         } else {
-            $this->newUnit = MerkStok::find($this->newMerkId)->barangStok->satuanBesar->nama;
+            // $this->newUnit = MerkStok::find($this->newMerkId)->barangStok->satuanBesar->nama;
             $this->newMerkMax = Stok::where('merk_id', $this->newMerkId)->where('lokasi_id', $this->gudang_id)->sum('jumlah');
         }
         if ($field === 'newMerkId') {
             $this->newJumlah = null;
+        } elseif ($field == 'newBarangId') {
+            $rab_id = $this->rab_id;
+            $gudang_id = $this->gudang_id;
+            if ($this->newBarangId) {
+                $this->newUnit = BarangStok::find($this->newBarangId)->satuanBesar->nama;
+
+                $this->merks = BarangStok::find($this->newBarangId)->merkStok()->when($rab_id, function ($query) use ($rab_id) {
+                    return $query->whereHas('listRab', function ($query) use ($rab_id) {
+                        $query->where('rab_id', $rab_id);
+                    });
+                })
+                    ->whereHas('stok', function ($stok) use ($gudang_id) {
+                        return $stok->where('lokasi_id', $gudang_id);
+                    })
+                    ->get();
+            } else {
+                $this->newUnit = 'Satuan';
+                $this->newJumlah = null;
+                $this->merks = [];
+            }
         }
         $this->checkAdd();
     }
@@ -160,7 +218,7 @@ class ListPermintaanMaterial extends Component
             'jumlah' => $this->newJumlah
         ];
         $this->dispatch('listCount', count: count($this->list));
-        $this->reset(['newMerkId', 'newJumlah', 'newUnit']);
+        $this->reset(['newMerkId', 'newJumlah', 'newUnit', 'newBarangId']);
         $this->checkAdd();
     }
 
@@ -175,7 +233,10 @@ class ListPermintaanMaterial extends Component
         $permintaan = DetailPermintaanMaterial::create([
             'kode_permintaan' => fake()->numerify('ABCD#######'),
             'user_id' => $user_id,
+            'nodin' => $this->nodin,
             'gudang_id' => $this->gudang_id,
+            'nama' => $this->namaKegiatan,
+            'lokasi' => $this->lokasiMaterial,
             'keterangan' => $this->keterangan,
             'rab_id' => $this->rab_id,
             'tanggal_permintaan' => strtotime($this->tanggalPenggunaan)

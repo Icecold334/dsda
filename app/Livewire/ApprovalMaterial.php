@@ -63,7 +63,9 @@ class ApprovalMaterial extends Component
                 })
                 ->where(function ($query) use ($role) {
                     $query->whereHas('unitKerja', function ($subQuery) use ($role) {
-                        $subQuery->when($role === 'Kepala Subbagian', function ($query) {
+                        $subQuery->when($role === 'Kepala Seksi', function ($query) {
+                            return $query->where('nama', 'like', '%Pemeliharaan%');
+                        })->when($role === 'Kepala Subbagian', function ($query) {
                             return $query->where('nama', 'like', '%Tata Usaha%');
                         });
                     });
@@ -190,11 +192,11 @@ class ApprovalMaterial extends Component
                 $stok->update(['jumlah' => $stok->jumlah + $item->jumlah]);
             }
         }
-        if ($this->currentApprovalIndex + 1 == 3 && !$status) {
-            $this->permintaan->update(['status' => $status, 'keterangan_ditolak' => $message]);
+        if ($this->currentApprovalIndex + 1 == 2 && $status) {
+            $this->permintaan->update(['status' => $status]);
         }
-        if ($this->currentApprovalIndex + 1 == 4 && !$status) {
-            $this->permintaan->update(['status' => 2, 'keterangan_ditolak' => $message]);
+        if ($this->currentApprovalIndex + 1 == 4 && $status) {
+            $this->permintaan->update(['status' => 2]);
         }
 
 
