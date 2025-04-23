@@ -19,22 +19,22 @@
             <ul
                 class="flex flex-col md:flex-row md:space-x-0 {{ Request::is('scan/*') || Request::is('qr/*') ? 'hidden' : '' }}">
                 {{-- <ul class="grid grid-flow-col gap-0 -my-4 "> --}}
-                    <livewire:nav-item href="/dashboard" title="home" />
-                    <livewire:nav-item title="Rekam Kontrak" :child="[
-                        ['href' => '/kontrak-vendor-stok', 'title' => 'Daftar Kontrak'],
-                        // ['href' => '/transaksi-darurat-stok', 'title' => 'Transaksi Belum Berkontrak'],
-                    ]" />
-                    <livewire:nav-item title="inventaris" :child="[
-                        ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
-                        ['href' => '/pengiriman-stok', 'title' => 'List Inventaris'],
-                        ['href' => '/stok', 'title' => 'List Stok'],
-                    ]" />
-                    @if (auth()->user()->unitKerja?->hak == 1)
+                <livewire:nav-item href="/dashboard" title="home" />
+                <livewire:nav-item title="Rekam Kontrak" :child="[
+                    ['href' => '/kontrak-vendor-stok', 'title' => 'Daftar Kontrak'],
+                    // ['href' => '/transaksi-darurat-stok', 'title' => 'Transaksi Belum Berkontrak'],
+                ]" />
+                <livewire:nav-item title="inventaris" :child="[
+                    ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
+                    ['href' => '/pengiriman-stok', 'title' => 'List Inventaris'],
+                    ['href' => '/stok', 'title' => 'List Stok'],
+                ]" />
+                @if (auth()->user()->unitKerja?->hak == 1)
                     <livewire:nav-item title="Pelayanan Umum" :child="[
-                            ['href' => '/permintaan/umum', 'title' => 'Form Pelayanan Umum'],
-                            ['href' => '/permintaan-stok', 'title' => 'List Pelayanan Umum'],
-                        ]" />
-                    @else
+                        ['href' => '/permintaan/umum', 'title' => 'Form Pelayanan Umum'],
+                        ['href' => '/permintaan-stok', 'title' => 'List Pelayanan Umum'],
+                    ]" />
+                @else
                     <livewire:nav-item title="Daftar RAB" href='/rab' />
                     {{--
                     <livewire:nav-item title="RAB"
@@ -43,40 +43,41 @@
                     {{--
                     <livewire:nav-item href="/permintaan-stok" title="Pelayanan Umum" /> --}}
                     <livewire:nav-item title="Form" :child="[
-                            // ['href' => /route('permintaan-stok.index'), 'title' => 'Form pelayanan Umum'],
-                            // ['href' => '/#', 'title' => 'Form permintaan spare part'],
-                            // ['href' => '/permintaan/umum', 'title' => 'Form pelayanan Umum'],
-                            ['href' => '/permintaan/spare-part', 'title' => 'Form permintaan spare part'],
-                            ['href' => '/permintaan/material', 'title' => 'Form permintaan material'],
-                            // ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
-                        ]" />
-                    @endif
-                    <livewire:nav-item title="aset" :child="[
-                        ['href' => '/aset', 'title' => 'aset aktif'],
-                        ['href' => '/nonaktifaset', 'title' => 'aset non aktif'],
+                        // ['href' => /route('permintaan-stok.index'), 'title' => 'Form pelayanan Umum'],
+                        // ['href' => '/#', 'title' => 'Form permintaan spare part'],
+                        // ['href' => '/permintaan/umum', 'title' => 'Form pelayanan Umum'],
+                        ['href' => '/permintaan/spare-part', 'title' => 'Form permintaan spare part'],
+                        ['href' => '/permintaan/material', 'title' => 'Form permintaan material'],
+                        // ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
                     ]" />
+                @endif
+                <livewire:nav-item title="aset" :child="[
+                    ['href' => '/aset', 'title' => 'aset aktif'],
+                    ['href' => '/nonaktifaset', 'title' => 'aset non aktif'],
+                ]" />
 
-                    <livewire:nav-item title="data" :child="[
-                        ['href' => '/kategori', 'title' => 'kategori'],
-                        ['href' => '/merk', 'title' => 'Merk'],
-                        ['href' => '/barang', 'title' => 'Barang Inventaris'],
-                        ['href' => '/toko', 'title' => 'Toko / distributor'],
-                        ['href' => '/person', 'title' => 'Penanggung jawab'],
-                        ['href' => '/lokasi', 'title' => 'lokasi'],
-                        ['href' => '/lokasi-stok', 'title' => 'lokasi gudang'],
-                        ['href' => '/unit-kerja', 'title' => 'Unit Kerja'],
-                        ['href' => '/kategori-stok', 'title' => 'kategori stok'],
-                        ['href' => '/ruang', 'title' => 'ruang rapat'],
-                    ]" />
-                    <livewire:notification />
-                    <livewire:nav-item href="/kalender-aset" title='                <button data-tooltip-target="tooltipKalenderAset" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-book"></i></button>
+                <livewire:nav-item title="data" :child="[
+                    ['href' => '/kategori', 'title' => 'kategori'],
+                    ['href' => '/merk', 'title' => 'Merk'],
+                    ['href' => '/barang', 'title' => 'Barang Inventaris'],
+                    ['href' => '/toko', 'title' => 'Toko / distributor'],
+                    ['href' => '/person', 'title' => 'Penanggung jawab'],
+                    ['href' => '/lokasi', 'title' => 'lokasi'],
+                    ['href' => '/lokasi-stok', 'title' => 'lokasi gudang'],
+                    ['href' => '/unit-kerja', 'title' => 'Unit Kerja'],
+                    ['href' => '/kategori-stok', 'title' => 'kategori stok'],
+                    ['href' => '/ruang', 'title' => 'ruang rapat'],
+                ]" />
+                <livewire:notification />
+                <livewire:nav-item href="/kalender-aset"
+                    title='                <button data-tooltip-target="tooltipKalenderAset" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-book"></i></button>
 
                 <div id="tooltipKalenderAset" role="tooltip"
                     class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                     Kalender
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                    {{--
+                {{--
                     <livewire:nav-item href="/kalender" title='                <button data-tooltip-target="tooltipKalender" data-tooltip-placement="bottom" type="button"><i
                         class="fa-solid fa-calendar-days"></i></button>
 
@@ -85,21 +86,23 @@
                     Kalender Aset
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' /> --}}
-                    <livewire:nav-item href="/qrprint" title='<button data-tooltip-target="tooltipQR" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-print"></i></button>
+                <livewire:nav-item href="/qrprint"
+                    title='<button data-tooltip-target="tooltipQR" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-print"></i></button>
 
                 <div id="tooltipQR" role="tooltip"
                     class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                     Cetak QR-Code
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                    <livewire:nav-item href="/option" title='<button data-tooltip-target="tooltipPengaturan" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-gear"></i></button>
+                <livewire:nav-item href="/option"
+                    title='<button data-tooltip-target="tooltipPengaturan" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-gear"></i></button>
 
                 <div id="tooltipPengaturan" role="tooltip"
                     class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                     Pengaturan
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                    @if (Auth::user()->unit_id)
+                {{-- @if (Auth::user()->unit_id)
                     <livewire:nav-item href="/option-approval" title='<button data-tooltip-target="tooltipPengaturanApproval" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-list-check"></i></button>
 
                 <div id="tooltipPengaturanApproval" role="tooltip"
@@ -107,23 +110,25 @@
                     Pengaturan Persetujuan
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                    @endif
+                    @endif --}}
 
-                    <livewire:nav-item href="/profil" title='<button data-tooltip-target="tooltipProfil" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-user"></i></button>
+                <livewire:nav-item href="/profil"
+                    title='<button data-tooltip-target="tooltipProfil" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-user"></i></button>
 
                 <div id="tooltipProfil" role="tooltip"
                     class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                     Profil dan Langganan
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                    <livewire:nav-item href="/logout" title='<button data-tooltip-target="tooltipLogout" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-power-off"></i></button>
+                <livewire:nav-item href="/logout"
+                    title='<button data-tooltip-target="tooltipLogout" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-power-off"></i></button>
 
                 <div id="tooltipLogout" role="tooltip"
                     class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                     Keluar
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
-                </ul>
+            </ul>
 
         </div>
     </nav>
