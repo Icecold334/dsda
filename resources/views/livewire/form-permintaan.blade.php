@@ -295,6 +295,7 @@
                             </div>
                         </td>
                     </tr>
+                    @if ($kategori == 'material')
                     <tr class="{{ !$withRab ? '' : 'hidden' }}">
                         <td class="font-semibold"><label for="lokasi">Lokasi Kegiatan</label></td>
                         <td>
@@ -305,6 +306,7 @@
                             </div>
                         </td>
                     </tr>
+                    @endif
                 </table>
             </x-card>
         </div>
