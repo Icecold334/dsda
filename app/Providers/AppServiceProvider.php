@@ -21,16 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // function assignPermissions(string $roleName, array $permissions): void
-        // {
-        //     $role = Role::where('name', $roleName)->first();
-        //     $role->syncPermissions($permissions);
-        // }
 
-
-        // assignPermissions('Perencanaan', [
-        //     'RAB_tambah_rab',
-        // ]);
         // $this->test();
         // Auth::loginUsingId(118); //kepala suku dinas
         // Auth::loginUsingId(16); //penanggung jawab
@@ -42,18 +33,17 @@ class AppServiceProvider extends ServiceProvider
 
         // Auth::loginUsingId(1); //superadmin
         // Auth::loginUsingId(537);
-        // Auth::loginUsingId(529);
-        // Auth::loginUsingId(244);
-        // Auth::loginUsingId(250);
-        // Auth::loginUsingId(275);
-        // Auth::loginUsingId(296);
-        // Auth::loginUsingId(278);
-        // Auth::loginUsingId(282);
         // Auth::loginUsingId(299);
         // Auth::loginUsingId(297);
-        Auth::loginUsingId(291);
-        Auth::loginUsingId(594);
+        // Auth::loginUsingId(291);
+        // Auth::loginUsingId(594);
         // Auth::loginUsingId(301);
+        // Auth::loginUsingId(297);
+        // Auth::loginUsingId(594);
+        // Auth::loginUsingId(279);
+        // Auth::loginUsingId(278);
+        // Auth::loginUsingId(288);
+        // Auth::loginUsingId(289);
     }
 
     // public function test()

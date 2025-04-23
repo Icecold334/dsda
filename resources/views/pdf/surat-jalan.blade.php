@@ -29,9 +29,9 @@
 
 <h4 style="text-align: center;">SURAT JALAN</h4>
 
-<p>No. SDSDA: {{ $permintaan->nodin ?? '-' }}</p>
+<p>Nomor Nota Dinas: {{ $permintaan->nodin ?? '-' }}</p>
 <p><strong>LOKASI:</strong> {{ $permintaan->lokasi }}<br>
-  <strong>No:</strong> {{ $permintaan->nodin }}<br>
+  <strong>Nomor Polisi:</strong> {{ $permintaan->nopol }}<br>
   <strong>Nama:</strong> Barang
 </p>
 
@@ -74,7 +74,7 @@
       @endif
 
       <br>
-      {{-- ({{ $kasatpel->name }}) --}}
+      ({{ $permintaan->driver }})
     </td>
     <td style="text-align: center;">
       Yang Mengeluarkan<br><br><br>
@@ -101,7 +101,7 @@
       @endif
 
       <br>
-      {{-- ({{ $kasatpel->name }}) --}}
+      ({{ $permintaan->security }})
     </td>
     <td style="text-align: center;">
       Yang Menerima<br><br><br>
@@ -117,7 +117,7 @@
 </table>
 <br>
 {{-- Bagian Mengetahui --}}
-{{-- <div style="text-align: center; margin-top: 60px;">
+<div style="text-align: center; margin-top: 60px;">
   Mengetahui<br>
   Pengurus Barang<br>
   Suku Dinas Sumber Daya Air<br><br><br>
@@ -126,4 +126,4 @@
   @endif <br>
   <b>{{ $pengurus->name }}</b><br>
   1997/1101021
-</div> --}}
+</div>

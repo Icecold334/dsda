@@ -40,6 +40,15 @@ class DetailPengirimanStok extends Model
         return $this->hasMany(PersetujuanPengirimanStok::class, 'detail_pengiriman_id');
     }
 
+    public function persetujuanMorph()
+    {
+        return $this->morphMany(Persetujuan::class, 'approvable');
+    }
+    public function fotoPengirimanMaterial()
+    {
+        return $this->hasMany(FotoPengirimanMaterial::class, 'detail_pengiriman_id');
+    }
+
     public function bapfile()
     {
         return $this->morphMany(FileSource::class, 'fileable');

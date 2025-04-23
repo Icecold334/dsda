@@ -1,4 +1,5 @@
 <x-body>
+    @if (auth()->user()->unitKerja->hak)
     <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL PENGIRIMAN</h1>
@@ -24,7 +25,8 @@
                         <td class="">
                             <span
                                 class="bg-{{ $pengiriman->status === null ? 'warning' : ($pengiriman->status ? 'success' : 'danger') }}-400 text-{{ $pengiriman->status === null ? 'black' : 'white' }} text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-{{ $pengiriman->status === null ? 'warning' : ($pengiriman->status === true ? 'success' : 'danger') }}-900 dark:text-{{ $pengiriman->status === null ? 'warning' : ($pengiriman->status === true ? 'success' : 'danger') }}-300">
-                                {{ $pengiriman->status === null ? 'diproses' : ($pengiriman->status ? 'disetujui' : 'ditolak') }}
+                                {{ $pengiriman->status === null ? 'diproses' : ($pengiriman->status ? 'disetujui' :
+                                'ditolak') }}
                             </span>
                         </td>
                     </tr>
@@ -45,29 +47,33 @@
                     <tr>
                         <td class="w-1/3">Penanggung Jawab 1</td>
                         @if (auth()->user()->hasRole('superadmin'))
-                            @if ($pengiriman->super_id === null)
-                                <td><livewire:approval-button :id="$pengiriman->id" /></td>
-                            @else
-                                <td>{{ $pengiriman->super->name ?? 'Sudah Disetujui' }}</td>
-                            @endif
+                        @if ($pengiriman->super_id === null)
+                        <td>
+                            <livewire:approval-button :id="$pengiriman->id" />
+                        </td>
                         @else
-                            <td class="{{ $pengiriman->super_id === null ? 'font-normal' : '' }}">
-                                {{ $pengiriman->super->name ?? 'Menunggu Persetujuan' }}
-                            </td>
+                        <td>{{ $pengiriman->super->name ?? 'Sudah Disetujui' }}</td>
+                        @endif
+                        @else
+                        <td class="{{ $pengiriman->super_id === null ? 'font-normal' : '' }}">
+                            {{ $pengiriman->super->name ?? 'Menunggu Persetujuan' }}
+                        </td>
                         @endif
                     </tr>
                     <tr>
                         <td class="w-1/3">Penanggung Jawab 2</td>
                         @if (auth()->user()->hasRole('admin'))
-                            @if ($pengiriman->admin_id === null)
-                                <td><livewire:approval-button :id="$pengiriman->id" :role="'admin'" /></td>
-                            @else
-                                <td>{{ $pengiriman->admin->name ?? 'Sudah Disetujui' }}</td>
-                            @endif
+                        @if ($pengiriman->admin_id === null)
+                        <td>
+                            <livewire:approval-button :id="$pengiriman->id" :role="'admin'" />
+                        </td>
                         @else
-                            <td class="{{ $pengiriman->admin_id === null ? 'font-normal' : '' }}">
-                                {{ $pengiriman->admin->name ?? 'Menunggu Persetujuan' }}
-                            </td>
+                        <td>{{ $pengiriman->admin->name ?? 'Sudah Disetujui' }}</td>
+                        @endif
+                        @else
+                        <td class="{{ $pengiriman->admin_id === null ? 'font-normal' : '' }}">
+                            {{ $pengiriman->admin->name ?? 'Menunggu Persetujuan' }}
+                        </td>
                         @endif
                     </tr>
                 </table>
@@ -75,9 +81,14 @@
         </div> --}}
     </div>
     <x-card title="Daftar Barang Yang DIterima">
-        <livewire:list-pengiriman-form :vendor_id="$pengiriman->pengirimanStok->first()->kontrakVendorStok->vendorStok->id" :penulis="$pengiriman->penerima" :pj1="$pengiriman->pj1" :pj2="$pengiriman->pj2"
+        <livewire:list-pengiriman-form
+            :vendor_id="$pengiriman->pengirimanStok->first()->kontrakVendorStok->vendorStok->id"
+            :penulis="$pengiriman->penerima" :pj1="$pengiriman->pj1" :pj2="$pengiriman->pj2"
             :old="$pengiriman->pengirimanStok">
             <livewire:approval-pengiriman :pengiriman="$pengiriman">
 
     </x-card>
+    @else
+    <livewire:show-pengiriman-material :pengiriman="$pengiriman">
+        @endif
 </x-body>

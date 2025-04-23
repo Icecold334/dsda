@@ -2,7 +2,7 @@
     <div class="flex w-full justify-evenly border-t-4 py-6">
         <!-- Penulis -->
         <div>
-            <div class="block font-semibold text-center mb-2 text-gray-900">Pemohon</div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">Pendukung PPK</div>
             <div class="text-sm border-b-2">
                 <div class="flex justify-between px-3">
                     <span class="mr-9 {{ $penulis->id == auth()->id() ? 'font-bold' : '' }}">
@@ -34,8 +34,8 @@
                         @php
                         $status = optional(
                         $user->persetujuan
-                        ->where('approvable_id', $permintaan->id ?? 0)
-                        ->where('approvable_type', App\Models\DetailPermintaanMaterial::class)
+                        ->where('approvable_id', $pengiriman->id ?? 0)
+                        ->where('approvable_type', App\Models\DetailPengirimanStok::class)
                         ->first()
                         )->is_approved;
                         @endphp
@@ -72,110 +72,47 @@
 
 @once
 @push('scripts')
-@if ($currentApprovalIndex + 1 == 4)
 <script>
     function confirmApprove() {
-        Swal.fire({
-            title: 'Input Data Persetujuan',
-            html:
-        '<input id="nama_driver" class="swal2-input" placeholder="Nama Driver" autocomplete="off">' +
-        '<input id="nomor_polisi" class="swal2-input" placeholder="Nomor Polisi" autocomplete="off">' +
-        '<input id="nama_security" class="swal2-input" placeholder="Nama Security" autocomplete="off">',
-            focusConfirm: false,
-            showCancelButton: true,
-            confirmButtonText: 'Simpan',
-            cancelButtonText: 'Batal',
-            preConfirm: () => {
-                const driver = document.getElementById('nama_driver').value.trim();
-                const security = document.getElementById('nama_security').value.trim();
-                const nopol = document.getElementById('nomor_polisi').value.trim();
-
-                if (!driver || !security || !nopol) {
-                    Swal.showValidationMessage('Semua kolom harus diisi!');
-                    return false;
-                }
-
-                return {
-                    driver: driver,
-                    security: security,
-                    nopol: nopol
-                };
+                Swal.fire({
+                    title: 'Konfirmasi Persetujuan',
+                    text: 'Apakah Anda yakin ingin menyetujui pengiriman ini?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Setuju',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        @this.call('approveConfirmed', 1);
+                    }
+                });
             }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                @this.call('approveConfirmed', 1, null, result.value.driver, result.value.nopol,result.value.security);
+    
+            function confirmReject() {
+                Swal.fire({
+                    title: 'Keterangan',
+                    input: 'textarea',
+                    inputPlaceholder: 'Masukkan keterangan',
+                    inputAttributes: {
+                        'aria-label': 'Masukkan alasan Anda'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Kirim',
+                    cancelButtonText: 'Batal',
+                    preConfirm: (inputValue) => {
+                        if (!inputValue || inputValue.trim() === '') {
+                            Swal.showValidationMessage('Keterangan tidak boleh kosong!');
+                            return false; // Prevent submission
+                        }
+                        return inputValue; // Allows submission
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        @this.call('approveConfirmed', 0, result.value);
+                    }
+                });
             }
-        });
-    }
-
-    function confirmReject() {
-        Swal.fire({
-            title: 'Keterangan',
-            input: 'textarea',
-            inputPlaceholder: 'Masukkan keterangan',
-            inputAttributes: {
-                'aria-label': 'Masukkan alasan Anda'
-            },
-            showCancelButton: true,
-            confirmButtonText: 'Kirim',
-            cancelButtonText: 'Batal',
-            preConfirm: (inputValue) => {
-                if (!inputValue || inputValue.trim() === '') {
-                    Swal.showValidationMessage('Keterangan tidak boleh kosong!');
-                    return false;
-                }
-                return inputValue;
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                @this.call('approveConfirmed', 0, result.value);
-            }
-        });
-    }
 </script>
-@else
-<script>
-    function confirmApprove() {
-        Swal.fire({
-            title: 'Konfirmasi Persetujuan',
-            text: 'Apakah Anda yakin ingin menyetujui permintaan ini?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Setuju',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                @this.call('approveConfirmed', 1);
-            }
-        });
-    }
-
-    function confirmReject() {
-        Swal.fire({
-            title: 'Keterangan',
-            input: 'textarea',
-            inputPlaceholder: 'Masukkan keterangan',
-            inputAttributes: {
-                'aria-label': 'Masukkan alasan Anda'
-            },
-            showCancelButton: true,
-            confirmButtonText: 'Kirim',
-            cancelButtonText: 'Batal',
-            preConfirm: (inputValue) => {
-                if (!inputValue || inputValue.trim() === '') {
-                    Swal.showValidationMessage('Keterangan tidak boleh kosong!');
-                    return false;
-                }
-                return inputValue;
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                @this.call('approveConfirmed', 0, result.value);
-            }
-        });
-    }
-</script>
-@endif
 @endpush
 
 @push('scripts')
@@ -195,7 +132,7 @@
                         @this.markAsCompleted();
                         Swal.fire(
                             'Berhasil!',
-                            'Permintaan telah ditandai sebagai selesai.',
+                            'Pengiriman telah ditandai sebagai selesai.',
                             'success'
                         );
                     }
@@ -205,7 +142,7 @@
             function confirmCancellation() {
                 Swal.fire({
                     title: 'Konfirmasi',
-                    text: "Apakah Anda yakin ingin membatalkan permintaan ini?",
+                    text: "Apakah Anda yakin ingin membatalkan pengiriman ini?",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -217,7 +154,7 @@
                         @this.cancelRequest();
                         Swal.fire(
                             'Berhasil!',
-                            'Permintaan telah dibatalkan.',
+                            'Pengiriman telah dibatalkan.',
                             'success'
                         );
                         @this.call('approveConfirmed', 0, result.value);

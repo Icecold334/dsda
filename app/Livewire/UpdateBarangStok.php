@@ -7,6 +7,7 @@ use App\Models\MerkStok;
 use App\Models\JenisStok;
 use App\Models\BarangStok;
 use App\Models\KategoriStok;
+use App\Models\SatuanBesar;
 
 class UpdateBarangStok extends Component
 {
@@ -14,7 +15,7 @@ class UpdateBarangStok extends Component
     public $id;
     public $kode_barang;
     public $stok;
-    public $jenis;
+    public $jenis, $satuan, $satuans;
     public $kategori;
     public $kategori_stok;
     public $description;
@@ -34,10 +35,12 @@ class UpdateBarangStok extends Component
             }
         } else {
             $this->jenis_stok = JenisStok::all();
+            $this->satuans = SatuanBesar::all();
             $this->kategori_stok = KategoriStok::all();
             if ($this->id) {
                 $barang = BarangStok::find($this->id);
                 $this->barang = $barang->nama;
+                $this->satuan = $barang->satuanBesar->id;
                 $this->kode_barang = $barang->kode_barang;
                 $this->jenis = $barang->jenis_id;
                 $this->kategori = $barang->kategori_id;
@@ -69,6 +72,7 @@ class UpdateBarangStok extends Component
                     'nama' => $this->barang,
                     'kode_barang' => $this->kode_barang,
                     'jenis_id' => $this->jenis,
+                    'satuan_besar_id' => $this->satuan,
                     'deskripsi' => $this->description,
                     'kategori_id' => $this->kategori ?? null,
                 ]
