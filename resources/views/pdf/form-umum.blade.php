@@ -168,8 +168,8 @@
 
 
 {{-- Tanda Tangan --}}
+{{-- Tabel 1: Pemohon & Persetujuan 1 --}}
 <table class="no-border" style="margin-top: 50px; width: 100%;">
-    {{-- Baris 1: Pemohon & Persetujuan 1 --}}
     <tr>
         {{-- Pemohon --}}
         <td style="text-align: center; width: 50%;">
@@ -189,10 +189,13 @@
             ({{ $persetujuan1 ?? 'N/A' }})
         </td>
     </tr>
-
-    {{-- Baris 2: Persetujuan 2 & Kepala Subbagian --}}
+</table>
+<br><br><br>
+{{-- Tabel 2: Persetujuan 2 & Kepala Subbagian Umum --}}
+<table class="no-border" style="margin-top: 80px; width: 100%;">
     <tr>
-        <td style="text-align: center; width: 50%; padding-top: 50px;">
+        {{-- Persetujuan 2 --}}
+        <td style="text-align: center; width: 50%;">
             @if (!empty($persetujuan2))
                 Disetujui oleh,<br>{{ $jabatan_persetujuan2 ?? 'Persetujuan Tambahan' }}<br><br>
                 @if (!empty($ttd_persetujuan2))
@@ -200,18 +203,19 @@
                 @endif
                 ({{ $persetujuan2 ?? 'N/A' }})
             @else
-                {{-- Bisa kosong atau tulis placeholder --}}
                 <br><br><br>
             @endif
         </td>
 
         {{-- Kepala Subbagian --}}
-        <td style="text-align: center; width: 50%; padding-top: 50px;">
-            Mengetahui,<br>{{ $jabatan_kepala_subbagian_umum ?? 'Kepala Subbagian Umum' }}<br><br>
-            @if (!empty($ttd_kepala_subbagian_umum))
-                <img src="{{ $ttd_kepala_subbagian_umum }}" height="40"><br>
+        <td style="text-align: center; width: 50%;">
+            @if (!empty($kepala_subbagian_umum))
+                Mengetahui,<br>{{ $jabatan_kepala_subbagian_umum ?? 'Kepala Subbagian Umum' }}<br><br>
+                @if (!empty($ttd_kepala_subbagian_umum))
+                    <img src="{{ $ttd_kepala_subbagian_umum }}" height="40"><br>
+                @endif
+                ({{ $kepala_subbagian_umum ?? 'N/A' }})
             @endif
-            ({{ $kepala_subbagian_umum ?? 'N/A' }})
         </td>
     </tr>
 </table>
