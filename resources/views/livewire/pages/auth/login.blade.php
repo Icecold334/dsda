@@ -81,7 +81,7 @@ new #[Layout('layouts.guest')] class extends Component {
                 </div>
 
                 <button type="submit" class="sign-btn">Login</button>
-                <button type="button" class="sign-google" id="google">Registrasi</button>
+                {{-- <button type="button" class="sign-google" id="google">Registrasi</button> --}}
             </div>
         </form>
         <!-- Sign Up Form -->
@@ -99,10 +99,10 @@ new #[Layout('layouts.guest')] class extends Component {
                         <label>Nama</label>
                         <option value="">Pilih Unit Kerja</option>
                         @foreach ($unitkerjas as $parent)
-                            <option value="{{ $parent->id }}">{{ $parent->nama }}</option>
-                            @foreach ($parent->children as $child)
-                                <option value="{{ $child->id }}">--- {{ $child->nama }}</option>
-                            @endforeach
+                        <option value="{{ $parent->id }}">{{ $parent->nama }}</option>
+                        @foreach ($parent->children as $child)
+                        <option value="{{ $child->id }}">--- {{ $child->nama }}</option>
+                        @endforeach
                         @endforeach
                     </select>
                 </div>
@@ -116,16 +116,17 @@ new #[Layout('layouts.guest')] class extends Component {
                         type="text" wire:model="registerForm.email" autocomplete="off">
                     <label>Email</label>
                 </div>
-                {{-- 
+                {{--
                 <div class="input-wrap">
-                    <input class="input-field {{ $errors->any() && strlen($registerForm->name) }} " type="text" name="username"
-                        @if (session('register')) value="{{ old('username') }}" @endif autocomplete="off">
+                    <input class="input-field {{ $errors->any() && strlen($registerForm->name) }} " type="text"
+                        name="username" @if (session('register')) value="{{ old('username') }}" @endif
+                        autocomplete="off">
                     <label>Username</label>
                 </div>
 
                 <div class="input-wrap">
-                    <input class="input-field {{ $errors->any() && strlen($registerForm->name) }} " type="text" name="email" value="{{ old('email') }}"
-                        autocomplete="off">
+                    <input class="input-field {{ $errors->any() && strlen($registerForm->name) }} " type="text"
+                        name="email" value="{{ old('email') }}" autocomplete="off">
                     <label>Email</label>
                 </div> --}}
 
@@ -237,10 +238,10 @@ new #[Layout('layouts.guest')] class extends Component {
                 {{ __('Register?') }}
             </a>
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    href="{{ route('password.request') }}" wire:navigate>
-                    {{ __('Forgot your password?') }}
-                </a>
+            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                href="{{ route('password.request') }}" wire:navigate>
+                {{ __('Forgot your password?') }}
+            </a>
             @endif
 
             <x-primary-button class="ms-3">
