@@ -14,13 +14,13 @@ use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
 use BaconQrCode\Renderer\GDLibRenderer;
 use Illuminate\Support\Facades\Storage;
-use App\Models\DetailPermintaanMaterial;
+use App\Models\DetailPengirimanStok;
 use Illuminate\Support\Facades\Notification;
 
-class ApprovalMaterial extends Component
+class ApprovalPengirimanMaterial extends Component
 {
 
-    public $permintaan;
+    public $pengiriman;
     public $currentApprovalIndex;
     public $penulis;
     public $isPenulis;
@@ -39,23 +39,23 @@ class ApprovalMaterial extends Component
 
     public function mount()
     {
-        $this->isPenulis = $this->permintaan->user_id === Auth::id();
-        $this->penulis = $this->permintaan->user;
+        $this->isPenulis = $this->pengiriman->user_id === Auth::id();
+        $this->penulis = $this->pengiriman->user;
 
-        if ($this->permintaan->persetujuan->where('file')) {
-            $this->files = $this->permintaan->persetujuan->filter(fn($persetujuan) => $persetujuan->file !== null)->pluck('file');
+        if ($this->pengiriman->persetujuan->where('file')) {
+            $this->files = $this->pengiriman->persetujuan->filter(fn($persetujuan) => $persetujuan->file !== null)->pluck('file');
         } else {
             $this->files = [];
         }
         $this->user = Auth::user();
-        $this->roles = ['Kepala Seksi', 'Kepala Subbagian', 'Pengurus Barang', 'Penjaga Gudang'];
+        $this->roles = ['Penjaga Gudang', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
-        $date = Carbon::parse($this->permintaan->created_at);
+        $date = Carbon::parse($this->pengiriman->created_at);
 
         foreach ($this->roles as $role) {
-            // dd($this->permintaan->user->unit_id);
+            // dd($this->pengiriman->user->unit_id);
             $users = User::whereHas('roles', function ($query) use ($role) {
                 $query->where('name', 'LIKE', '%' . $role . '%');
             })
@@ -73,7 +73,7 @@ class ApprovalMaterial extends Component
                         });
                     });
                 })->when($role === 'Penjaga Gudang', function ($query) {
-                    return $query->where('lokasi_id', $this->permintaan->gudang_id);
+                    return $query->where('lokasi_id', $this->pengiriman->pengirimanStok->first()->lokasi_id);
                 })
                 ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
                 ->limit(1)
@@ -87,8 +87,8 @@ class ApprovalMaterial extends Component
         // dd($users);
 
         // Calculate listApproval dynamically
-        // $tipe = $this->permintaan->jenisStok->nama;
-        // $unit = UnitKerja::find($this->permintaan->unit_id);
+        // $tipe = $this->pengiriman->jenisStok->nama;
+        // $unit = UnitKerja::find($this->pengiriman->unit_id);
         $allApproval = collect();
 
         // Hitung jumlah persetujuan yang dibutuhkan
@@ -97,8 +97,8 @@ class ApprovalMaterial extends Component
         $allApproval = collect($this->roleLists)->flatten(1);
         $this->currentApprovalIndex = $allApproval->filter(function ($user) {
             $approval = $user->persetujuan()
-                ->where('approvable_id', $this->permintaan->id ?? 0)
-                ->where('approvable_type', DetailPermintaanMaterial::class)
+                ->where('approvable_id', $this->pengiriman->id ?? 0)
+                ->where('approvable_type', DetailPengirimanStok::class)
                 ->first();
             return $approval && $approval->is_approved === 1; // Hanya hitung persetujuan yang berhasil
         })->count();
@@ -111,33 +111,33 @@ class ApprovalMaterial extends Component
                 // Jika user adalah yang pertama dalam daftar
                 $currentUser = $allApproval[$index];
                 $this->showButton = !$currentUser->persetujuan()
-                    ->where('approvable_id', $this->permintaan->id ?? 0)
-                    ->where('approvable_type', DetailPermintaanMaterial::class)
+                    ->where('approvable_id', $this->pengiriman->id ?? 0)
+                    ->where('approvable_type', DetailPengirimanStok::class)
                     ->exists();
             } else {
                 // Jika user berada di tengah atau akhir
                 $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
                 $currentUser = $allApproval[$index];
                 $previousApprovalStatus = optional(optional($previousUser)->persetujuan()
-                    ?->where('approvable_id', $this->permintaan->id ?? 0)
-                    ->where('approvable_type', DetailPermintaanMaterial::class)
+                    ?->where('approvable_id', $this->pengiriman->id ?? 0)
+                    ->where('approvable_type', DetailPengirimanStok::class)
                     ->first())->is_approved;
                 $this->showButton = $previousUser &&
                     !$currentUser->persetujuan()
-                        ->where('approvable_id', $this->permintaan->id ?? 0)
-                        ->where('approvable_type', DetailPermintaanMaterial::class)
+                        ->where('approvable_id', $this->pengiriman->id ?? 0)
+                        ->where('approvable_type', DetailPengirimanStok::class)
                         ->exists() &&
                     $previousApprovalStatus === 1;
                 // && ($this->currentApprovalIndex + 1 < $this->listApproval);
             }
         }
-        // $cancelAfter = $this->permintaan->opsiPersetujuan->cancel_persetujuan;
+        // $cancelAfter = $this->pengiriman->opsiPersetujuan->cancel_persetujuan;
         // $this->showCancelOption = $this->currentApprovalIndex >= $cancelAfter;
 
         $this->userJabatanId = $this->user->roles->first()->id; // Ambil jabatan_id user
-        // dd($this->permintaan->opsiPersetujuan->jabatanPersetujuan);
+        // dd($this->pengiriman->opsiPersetujuan->jabatanPersetujuan);
         // Cek apakah ada persetujuan untuk salah satu jabatan user
-        // $this->userApproval = $this->permintaan->opsiPersetujuan
+        // $this->userApproval = $this->pengiriman->opsiPersetujuan
         //     ->jabatanPersetujuan
         //     ->whereIn('jabatan_id', $this->userJabatanId)
         //     ->pluck('approval')
@@ -149,38 +149,38 @@ class ApprovalMaterial extends Component
 
     public function markAsCompleted()
     {
-        $this->permintaan->update(['cancel' => false]);
-        return redirect()->to('permintaan/' . $this->tipe . '/' . $this->rab->id);
+        $this->pengiriman->update(['cancel' => false]);
+        return redirect()->to('pengiriman/' . $this->tipe . '/' . $this->rab->id);
     }
     public function cancelRequest()
     {
-        // Logika untuk membatalkan permintaan
-        $this->permintaan->update(['cancel' => true]);
-        return redirect()->to('permintaan/' . $this->tipe . '/' . $this->rab->id);
+        // Logika untuk membatalkan pengiriman
+        $this->pengiriman->update(['cancel' => true]);
+        return redirect()->to('pengiriman/' . $this->tipe . '/' . $this->rab->id);
     }
 
-    public function approveConfirmed($status, $message = null, $driver = null, $nopol = null, $security = null)
+    public function approveConfirmed($status, $message = null)
     {
-        $permintaan  = $this->permintaan;
+        $pengiriman  = $this->pengiriman;
         if ($status) {
             $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
             if ($currentIndex != count($this->roleLists) - 1) {
-                $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} membutuhkan persetujuan Anda.";
+                $mess = "pengiriman dengan kode {$pengiriman->kode_pengiriman} membutuhkan persetujuan Anda.";
 
 
                 $user = User::find(collect($this->roleLists)->flatten(1)[$currentIndex + 1]->id);
-                Notification::send($user, new UserNotification($mess, "/permintaan/permintaan/{$this->permintaan->id}"));
+                Notification::send($user, new UserNotification($mess, "/pengiriman-stok/{$this->pengiriman->id}"));
             }
         } else {
-            $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} ditolak dengan keterangan {$message}.";
+            $mess = "pengiriman dengan kode {$pengiriman->kode_pengiriman} ditolak dengan keterangan {$message}.";
 
 
-            $user = $permintaan->user;
-            Notification::send($user, new UserNotification($mess, "/permintaan/permintaan/{$this->permintaan->id}"));
+            $user = $pengiriman->user;
+            Notification::send($user, new UserNotification($mess, "/pengiriman-stok/{$this->pengiriman->id}"));
         }
 
 
-        $this->permintaan->persetujuan()->create([
+        $this->pengiriman->persetujuanMorph()->create([
             'user_id' => $this->user->id,
             'is_approved' => $status, // Atur status menjadi disetujui
             'keterangan' => $message
@@ -188,48 +188,63 @@ class ApprovalMaterial extends Component
 
 
         if (!$status) {
-            $this->permintaan->update(['status' => 0, 'keterangan_ditolak' => $message]);
-            foreach ($this->permintaan->permintaanMaterial as $item) {
-                $stok = Stok::where('merk_id', $item->merk_id)->where('lokasi_id', $this->permintaan->gudang_id)->first();
+            $this->pengiriman->update(['status' => 0, 'keterangan_ditolak' => $message]);
+            foreach ($this->pengiriman->pengirimanMaterial as $item) {
+                $stok = Stok::where('merk_id', $item->merk_id)->where('lokasi_id', $this->pengiriman->gudang_id)->first();
 
                 $stok->update(['jumlah' => $stok->jumlah + $item->jumlah]);
             }
         }
-        if ($this->currentApprovalIndex + 1 == 2 && $status) {
-            $this->permintaan->update(['status' => $status]);
-            // Tentukan folder dan path target file
-            $qrFolder = "qr_permintaan_material";
-            $qrTarget = "{$qrFolder}/{$this->permintaan->kode_permintaan}.png";
+        // if ($this->currentApprovalIndex + 1 == 2 && $status) {
+        //     $this->pengiriman->update(['status' => $status]);
+        //     // Tentukan folder dan path target file
+        //     $qrFolder = "qr_pengiriman_material";
+        //     $qrTarget = "{$qrFolder}/{$this->pengiriman->kode_pengiriman}.png";
 
-            // Konten QR Code (contohnya URL)
-            $qrContent = url("/permintaan/permintaan/{$this->permintaan->id}");
+        //     // Konten QR Code (contohnya URL)
+        //     $qrContent = url("/pengiriman-stok/{$this->pengiriman->id}");
 
-            // Pastikan direktori untuk QR Code tersedia
-            if (!Storage::disk('public')->exists($qrFolder)) {
-                Storage::disk('public')->makeDirectory($qrFolder);
+        //     // Pastikan direktori untuk QR Code tersedia
+        //     if (!Storage::disk('public')->exists($qrFolder)) {
+        //         Storage::disk('public')->makeDirectory($qrFolder);
+        //     }
+
+        //     // Konfigurasi renderer untuk menggunakan GD dengan ukuran 400x400
+        //     $renderer = new GDLibRenderer(500);
+        //     $writer = new Writer($renderer);
+
+        //     // Path absolut untuk menyimpan file
+        //     $filePath = Storage::disk('public')->path($qrTarget);
+
+        //     // Hasilkan QR Code ke file
+        //     $writer->writeFile($qrContent, $filePath);
+        // }
+        if ($this->currentApprovalIndex + 1 == 3 && $status) {
+            $this->pengiriman->update(['status' => 1]);
+            $pengirimanItems = $this->pengiriman->pengirimanStok;
+            foreach ($pengirimanItems as $pengiriman) {
+                $stok = Stok::firstOrCreate(
+                    [
+                        'merk_id' => $pengiriman->merk_id,
+                        'lokasi_id' => $pengiriman->lokasi_id,
+                        'bagian_id' => $pengiriman->bagian_id,
+                        'posisi_id' => $pengiriman->posisi_id,
+                    ],
+                    ['jumlah' => 0]  // Atur stok awal jika belum ada
+                );
+
+                $stok->jumlah += $pengiriman->jumlah;
+                $stok->save();
             }
-
-            // Konfigurasi renderer untuk menggunakan GD dengan ukuran 400x400
-            $renderer = new GDLibRenderer(500);
-            $writer = new Writer($renderer);
-
-            // Path absolut untuk menyimpan file
-            $filePath = Storage::disk('public')->path($qrTarget);
-
-            // Hasilkan QR Code ke file
-            $writer->writeFile($qrContent, $filePath);
-        }
-        if ($this->currentApprovalIndex + 1 == 4 && $status) {
-            $this->permintaan->update(['status' => 2, 'driver' => $driver, 'nopol' => $nopol, 'security' => $security]);
         }
 
 
 
 
-        return redirect()->to('permintaan/permintaan/' . $this->permintaan->id);
+        return redirect()->to('pengiriman-stok/' . $this->pengiriman->id);
     }
     public function render()
     {
-        return view('livewire.approval-material');
+        return view('livewire.approval-pengiriman-material');
     }
 }

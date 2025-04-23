@@ -152,6 +152,7 @@ class PermissionSeeder extends Seeder
         ]);
         syncPermissions('Penjaga Gudang', [
             'permintaan_upload_foto_dan_ttd_driver',
+            'inventaris_unggah_foto_barang_datang'
         ]);
         revokePermissions('Kepala Suku Dinas', [
             'RAB_tambah_rab',

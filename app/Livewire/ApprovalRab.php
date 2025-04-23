@@ -157,14 +157,15 @@ class ApprovalRab extends Component
         if ($status) {
             $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
             if ($currentIndex != count($this->roleLists) - 1) {
-                $mess = "RAB {$rab->nama} membutuhkan persetujuan Anda.";
+                $mess =
+                    'RAB <span class="font-semibold">' . $rab->nama . '</span> membutuhkan persetujuan Anda.';
 
 
                 $user = User::find(collect($this->roleLists)->flatten(1)[$currentIndex + 1]->id);
                 Notification::send($user, new UserNotification($mess, "/rab/{$this->rab->id}"));
             }
         } else {
-            $mess = "RAB {$rab->nama} ditolak dengan keterangan {$message}.";
+            $mess = 'RAB <span class="font-semibold">' . $rab->nama . '</span> ditolak dengan keterangan {$message}.';
 
 
             $user = $rab->user;

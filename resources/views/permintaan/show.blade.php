@@ -1,5 +1,6 @@
 <x-body>
     @if (auth()->user()->unitKerja->hak)
+
         <div class="flex justify-between py-2 mb-3">
             <h1 class="text-2xl font-bold text-primary-900 ">DETAIL {{ Str::upper($tipe) }}</h1>
             <div class="flex gap-2 items-center">
@@ -50,6 +51,7 @@
                             ? 'success'
                             : 'danger')))) }}-100
         text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
+
                                     {{ $permintaan->cancel === 1
                                         ? 'dibatalkan'
                                         : ($permintaan->cancel === 0 && $permintaan->proses === 1
@@ -389,3 +391,4 @@
         <livewire:show-permintaan-material :permintaan='$permintaan'>
     @endif
 </x-body>
+

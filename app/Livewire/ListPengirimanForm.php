@@ -252,7 +252,11 @@ class ListPengirimanForm extends Component
                 })->first();
                 Notification::send($user, new UserNotification($message, "/pengiriman-stok/{$detailPengiriman->id}"));
             }
-            return redirect()->route('pengiriman-stok.index');
+            if (Auth::user()->unitKerja->hak) {
+                return redirect()->route('pengiriman-stok.index');
+            } else {
+                return $this->dispatch('saveDoc', id: $detailPengiriman->id);
+            }
         }
     }
 

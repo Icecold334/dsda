@@ -34,11 +34,15 @@
                     <td>Jenis Barang</td>
                     <td>{{ $barang->jenisStok->nama }}</td>
                 </tr>
+                <tr class="font-semibold">
+                    <td>Satuan</td>
+                    <td>{{ $barang->satuanBesar->nama }}</td>
+                </tr>
                 @if ($barang->jenisStok->id == 3)
-                    <tr class="font-semibold">
-                        <td>Kategori Stok</td>
-                        <td>{{ $barang->kategoriStok->nama }}</td>
-                    </tr>
+                <tr class="font-semibold">
+                    <td>Kategori Stok</td>
+                    <td>{{ $barang->kategoriStok->nama }}</td>
+                </tr>
                 @endif
                 <tr class="font-semibold">
                     <td>Deskripsi Barang</td>
@@ -58,33 +62,32 @@
             </thead>
             <tbody>
                 @foreach ($barang->merkStok as $merk)
-                    <tr class=" border-b-2 border-primary-500 ">
-                        <td>
-                            <table class="w-full">
-                                <tr>
-                                    <td class="w-1/3 px-3  {{ $merk->nama ?? ('-' ?? 'text-center') }}">
-                                        {{ $merk->nama ?? ('-' ?? '-') }}</td>
-                                    <td
-                                        class="w-1/3 px-3 border-x-2 border-primary-500 {{ $merk->tipe ?? 'text-center' }}">
-                                        {{ $merk->tipe ?? '-' }}</td>
-                                    <td class="w-1/3 px-3 {{ $merk->ukuran ?? 'text-center' }}">
-                                        {{ $merk->ukuran ?? '-' }}</td>
-                                    <td class="py-3 px-6 text-center">
-                                        <a href="stok/{{ $merk->id }}"
-                                            class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
-                                            data-tooltip-target="tooltip-merk-{{ $merk['id'] }}">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </a>
-                                        <div id="tooltip-merk-{{ $merk['id'] }}" role="tooltip"
-                                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                            Ubah Data
-                                            <div class="tooltip-arrow" data-popper-arrow></div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
+                <tr class=" border-b-2 border-primary-500 ">
+                    <td>
+                        <table class="w-full">
+                            <tr>
+                                <td class="w-1/3 px-3  {{ $merk->nama ?? ('-' ?? 'text-center') }}">
+                                    {{ $merk->nama ?? ('-' ?? '-') }}</td>
+                                <td class="w-1/3 px-3 border-x-2 border-primary-500 {{ $merk->tipe ?? 'text-center' }}">
+                                    {{ $merk->tipe ?? '-' }}</td>
+                                <td class="w-1/3 px-3 {{ $merk->ukuran ?? 'text-center' }}">
+                                    {{ $merk->ukuran ?? '-' }}</td>
+                                <td class="py-3 px-6 text-center">
+                                    <a href="stok/{{ $merk->id }}"
+                                        class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
+                                        data-tooltip-target="tooltip-merk-{{ $merk['id'] }}">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    <div id="tooltip-merk-{{ $merk['id'] }}" role="tooltip"
+                                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                        Ubah Data
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
                 @endforeach
             </tbody>
         </table>

@@ -54,6 +54,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            if (empty($user->nip)) {
+                $user->nip = str_pad(mt_rand(1, 9999999999), 10, '0', STR_PAD_LEFT);
+            }
+        });
+    }
+
+
     public function lokasiStok()
     {
         return $this->belongsTo(LokasiStok::class, 'lokasi_id');

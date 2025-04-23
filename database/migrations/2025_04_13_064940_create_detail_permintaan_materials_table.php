@@ -13,8 +13,14 @@ return new class extends Migration
     {
         Schema::create('detail_permintaan_material', function (Blueprint $table) {
             $table->id();
+            $table->string('driver')->nullable();
+            $table->string('nopol')->nullable();
             $table->string('ttd_driver')->nullable();
+            $table->string('ttd_security')->nullable();
+            $table->string('security')->nullable();
             $table->string('kode_permintaan')->unique();
+            $table->string('nama')->nullable();
+            $table->string('nodin')->nullable();
             $table->date('tanggal_permintaan');
             $table->foreignId('gudang_id')->constrained('lokasi_stok')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

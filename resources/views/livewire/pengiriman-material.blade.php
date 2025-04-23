@@ -1,5 +1,4 @@
-<x-body>
-    @if (auth()->user()->unitKerja->hak)
+<div>
     <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">FORM BARANG DATANG</h1>
@@ -10,15 +9,16 @@
         </div>
     </div>
 
-    <div class="grid grid-col-1 lg:grid-cols-2 gap-6 mb-3">
+    <div class="grid grid-col-1 lg:grid-cols-3 gap-6 mb-3">
         {{-- <div> --}}
             <x-card title="Data Umum" class="mb-3 ">
                 <livewire:vendor-kontrak-form :vendors="$vendors" />
             </x-card>
-            <x-card {{--
-                title='Daftar Barang <span class=" text-sm normal-case font-medium">(Tekan ikon "+" untuk menambahkan barang)</span>'>
-                --}} title='Daftar Barang'>
+            <x-card title='Daftar Barang'>
                 <livewire:list-kontrak-barang>
+            </x-card>
+            <x-card title='Unggah Surat jalan'>
+                <livewire:upload-surat-jalan-material>
             </x-card>
             {{--
         </div> --}}
@@ -26,8 +26,4 @@
     <x-card title="Detail item barang">
         <livewire:list-pengiriman-form>
     </x-card>
-    @else
-    <livewire:pengiriman-material :vendors="$vendors">
-        @endif
-
-</x-body>
+</div>

@@ -23,7 +23,7 @@ class FormPermintaan extends Component
 {
     public $permintaan, $kategori;
     public $units;
-    public $last;
+    public $last, $withRab = 0, $lokasiMaterial, $namaKegiatan, $nodin;
     public $unit_id, $rab_id, $rabs, $gudang_id, $gudangs;
     public $kategoris;
     public $kategori_id;
@@ -69,6 +69,19 @@ class FormPermintaan extends Component
     public function updatedRabId()
     {
         $this->dispatch('rab_id', rab_id: $this->rab_id);
+    }
+    public function updatedNodin()
+    {
+        $this->dispatch('nodin', nodin: $this->nodin);
+    }
+    public function updatedNamaKegiatan()
+    {
+        $this->dispatch('namaKegiatan', namaKegiatan: $this->namaKegiatan);
+    }
+
+    public function updatedLokasiMaterial()
+    {
+        $this->dispatch('lokasiMaterial', lokasiMaterial: $this->lokasiMaterial);
     }
     public function updatedTanggalPermintaan()
     {
@@ -118,6 +131,13 @@ class FormPermintaan extends Component
     public function updatedGudangId()
     {
         $this->dispatch('gudang_id', gudang_id: $this->gudang_id);
+    }
+    public function updatedWithRab()
+    {
+        if (!$this->withRab) {
+            $this->rab_id = null;
+        }
+        $this->dispatch('withRab', withRab: $this->withRab);
     }
 
     public $showKategori;
