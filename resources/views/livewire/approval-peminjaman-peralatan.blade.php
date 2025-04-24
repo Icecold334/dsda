@@ -64,6 +64,32 @@
         @endforeach
 
 
+        {{-- Koordinator Gudang --}}
+        <div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">Koordinator Gudang</div>
+            <div class="text-sm border-b-2">
+                <div class="flex justify-between items-center px-3">
+                    <span
+                        class="mr-2 {{ $penanggungjawab && $penanggungjawab->id == auth()->id() ? 'font-bold' : '' }}">
+                        {{ $penanggungjawab->name ?? 'Tidak Ada Kepala' }}
+                    </span>
+                    @if ($penanggungjawab)
+                        @if ($permintaan->status && $permintaan->cancel === null && $permintaan->proses === null)
+                            <i class="fa-solid fa-circle-check text-success-500"></i>
+                        @elseif ($permintaan->status && $permintaan->cancel === 0 && !$permintaan->proses)
+                            <i class="fa-solid fa-circle-check text-success-500"></i>
+                        @elseif ($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses)
+                            <i class="fa-solid fa-circle-check text-success-500"></i>
+                        @elseif($permintaan->status && $permintaan->cancel === 0 && $permintaan->proses === 0)
+                            <i class="fa-solid fa-circle-xmark text-danger-500"></i>
+                        @else
+                            <i class="fa-solid fa-circle-question text-secondary-600"></i>
+                        @endif
+                    @endif
+                </div>
+            </div>
+        </div>
+
         {{-- Kepala Subbagian --}}
         <div>
             <div class="block font-semibold text-center mb-2 text-gray-900">Kepala Subbagian</div>

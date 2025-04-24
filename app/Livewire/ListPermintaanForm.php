@@ -605,7 +605,7 @@ class ListPermintaanForm extends Component
                 ->where('name', 'like', '%Insan%')
                 ->get();
 
-            $notifMessage = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
+            $notifMessage = 'Permintaan ' . $detailPermintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">'
                 . $detailPermintaan->kode_permintaan . '</span> telah diajukan dan membutuhkan perhatian CS.';
 
             Notification::send($csUsers, new UserNotification($notifMessage, "/permintaan/permintaan/{$detailPermintaan->id}"));
@@ -616,7 +616,7 @@ class ListPermintaanForm extends Component
 
 
             if ($penanggungJawab) {
-                $notifPJ = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
+                $notifPJ = 'Permintaan ' . $detailPermintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">'
                     . $detailPermintaan->kode_permintaan .
                     '</span> memerlukan persetujuan Anda sebagai Koordinator KDO.';
 
@@ -627,7 +627,7 @@ class ListPermintaanForm extends Component
                 ->where('name', 'like', '%Nisya%')
                 ->get();
 
-            $notifMessage = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
+            $notifMessage = 'Permintaan ' . $detailPermintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">'
                 . $detailPermintaan->kode_permintaan . '</span> telah diajukan dan memerlukan perhatian Anda.';
 
             Notification::send($csUsers, new UserNotification($notifMessage, "/permintaan/permintaan/{$detailPermintaan->id}"));
@@ -645,7 +645,7 @@ class ListPermintaanForm extends Component
                 ->get();
 
             if ($penjagaGudang) {
-                $notifGudang = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
+                $notifGudang = 'Permintaan ' . $detailPermintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">'
                     . $detailPermintaan->kode_permintaan .
                     '</span> telah diajukan dan perlu ditindaklanjuti oleh Pengurus Barang.';
 

@@ -179,7 +179,7 @@ class ApprovalPermintaanATK extends Component
             ->get();
 
         if ($penjagaGudang) {
-            $notifGudang = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
+            $notifGudang = 'Permintaan ' . $detailPermintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">'
                 . $detailPermintaan->kode_permintaan .
                 '</span> telah dilanjutkan dan perlu ditindaklanjuti oleh Koordinator Gudang.';
 
@@ -203,11 +203,12 @@ class ApprovalPermintaanATK extends Component
         $permintaan = $this->permintaan;
         $approvers = collect($this->roleLists)->flatten(1)->values();
         $currentIndex = $approvers->search(fn($user) => $user->id === Auth::id());
+        $detailPermintaan = $this->permintaan;
 
         if ($status) {
             if ($currentIndex !== false && isset($approvers[$currentIndex + 1])) {
                 $nextUser = $approvers[$currentIndex + 1];
-                $mess = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                $mess = Str::ucfirst($this->tipe) . ' ' . $detailPermintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">' .
                     $permintaan->kode_permintaan .
                     '</span> telah membutuhkan perhatian Anda';
                 Notification::send($nextUser, new UserNotification(
@@ -219,7 +220,7 @@ class ApprovalPermintaanATK extends Component
             $this->permintaan->update([
                 'keterangan_cancel' =>  $message,
             ]);
-            $mess = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+            $mess = Str::ucfirst($this->tipe) . ' ' . $detailPermintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">' .
                 $permintaan->kode_permintaan .
                 '</span> ditolak dengan keterangan <span class="font-bold">' .
                 $message .
@@ -253,7 +254,7 @@ class ApprovalPermintaanATK extends Component
                 'status' =>  1,
             ]);
 
-            $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+            $alert = Str::ucfirst($this->tipe) . ' ' . $detailPermintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">' .
                 (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
                 '</span> telah Disetujui memerlukan perhatian Anda';
 
@@ -261,7 +262,9 @@ class ApprovalPermintaanATK extends Component
                 Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
 
-            $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} Disetujui silahkan cek Jumlah Persetujuan";
+            $mess = Str::ucfirst($this->tipe) . ' ' . $detailPermintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">' .
+                (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
+                '</span> Disetujui silahkan cek Jumlah Persetujuan';
             $user = $permintaan->user;
             Notification::send($user, new UserNotification(
                 $mess,

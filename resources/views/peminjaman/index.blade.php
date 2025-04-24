@@ -39,7 +39,11 @@
 
         // Fungsi untuk memformat tanggal sesuai keinginan (j F Y)
         function formatDate(date) {
-            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const options = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            };
             return date.toLocaleDateString('id-ID', options);
         }
 
@@ -48,7 +52,10 @@
             const daysInMonth = 32 - new Date(year, month, 32).getDate();
 
             calendarDays.innerHTML = '';
-            currentMonthHeader.textContent = new Date(year, month).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            currentMonthHeader.textContent = new Date(year, month).toLocaleDateString('id-ID', {
+                month: 'long',
+                year: 'numeric'
+            });
 
             for (let i = 0; i < firstDay; i++) {
                 const emptyDay = document.createElement('div');
@@ -77,14 +84,15 @@
 
                 // Jika ada peminjaman, tambahkan badge di bawah tanggal
                 if (bookedAssets.length > 0) {
-                    
+
                     // Menampilkan badge dengan nama aset yang dipinjam
                     const badgesContainer = document.createElement('div');
                     badgesContainer.classList.add('mt-2', 'flex', 'flex-wrap', 'gap-1');
 
                     bookedAssets.forEach(asset => {
                         const badge = document.createElement('span');
-                        badge.classList.add('badge', 'bg-green-500', 'text-white', 'text-xs', 'px-2', 'py-1', 'rounded');
+                        badge.classList.add('badge', 'bg-green-500', 'text-white', 'text-xs', 'px-2', 'py-1',
+                            'rounded');
                         badge.textContent = "Peminjaman " + asset.nama; // Menampilkan nama aset
                         badgesContainer.appendChild(badge);
                     });

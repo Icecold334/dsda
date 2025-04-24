@@ -144,13 +144,13 @@ class ApprovalPermintaanVoucher extends Component
     {
         $this->permintaan->update(['cancel' => false]);
 
-        $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
-            (!is_null($this->permintaan->kode_permintaan) ? $this->permintaan->kode_permintaan : $this->permintaan->kode_peminjaman) .
-            '</span> telah Disetujui dan Selesai dengan keterangan <span class="font-bold">' . $message . '</span>';
+        // $alert = Str::ucfirst($this->tipe) . 'Voucher dengan kode <span class="font-bold">' .
+        //     (!is_null($this->permintaan->kode_permintaan) ? $this->permintaan->kode_permintaan : $this->permintaan->kode_peminjaman) .
+        //     '</span> telah Disetujui dan Selesai dengan keterangan <span class="font-bold">' . $message . '</span>';
 
-        if ($this->kepalaSubbagian) {
-            Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
-        }
+        // if ($this->kepalaSubbagian) {
+        //     Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+        // }
 
         return redirect()->to('permintaan/' . $this->tipe . '/' . $this->permintaan->id);
     }
@@ -171,7 +171,7 @@ class ApprovalPermintaanVoucher extends Component
         if ($status) {
             if ($currentIndex !== false && isset($approvers[$currentIndex + 1])) {
                 $nextUser = $approvers[$currentIndex + 1];
-                $mess = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                $mess = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategoriStok->nama . '  dengan kode <span class="font-bold">' .
                     $permintaan->kode_permintaan .
                     '</span> telah membutuhkan perhatian Anda';
                 Notification::send($nextUser, new UserNotification(
@@ -183,7 +183,7 @@ class ApprovalPermintaanVoucher extends Component
             $this->permintaan->update([
                 'keterangan_cancel' =>  $message,
             ]);
-            $mess = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+            $mess = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">' .
                 $permintaan->kode_permintaan .
                 '</span> ditolak dengan keterangan <span class="font-bold">' .
                 $message .
@@ -209,14 +209,16 @@ class ApprovalPermintaanVoucher extends Component
                 'status' =>  1,
             ]);
 
-            $alert = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+            $alert = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">' .
                 (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
                 '</span> telah Disetujui dengan keterangan <span class="font-bold">' . $message . '</span>';
 
             if ($this->kepalaSubbagian) {
                 Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
-            $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} Disetujui silahkan diambil ke CS";
+            $mess = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategoriStok->nama . ' dengan kode <span class="font-bold">' .
+                $permintaan->kode_permintaan  .
+                '</span> telah Disetujui silahkan ambil di CS';
             $user = $permintaan->user;
             Notification::send($user, new UserNotification(
                 $mess,

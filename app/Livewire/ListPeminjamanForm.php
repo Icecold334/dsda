@@ -283,7 +283,7 @@ class ListPeminjamanForm extends Component
         $message = 'Peminjaman ' . $detailPeminjaman->kategori->nama . ' <span class="font-bold">' . $detailPeminjaman->kode_peminjaman . '</span> membutuhkan persetujuan Anda.';
 
         $csUsers = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Customer Services%'))
-            ->where('name', 'like', '%NIsya%')
+            ->where('name', 'like', '%Nisya%')
             ->get();
 
         Notification::send($csUsers, new UserNotification($message, "/permintaan/peminjaman/{$detailPeminjaman->id}"));

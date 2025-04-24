@@ -14,6 +14,7 @@ class PdfForm extends Component
 {
     public $permintaan;
     public $kepalaSubbagian;
+    public $penanggungjawab;
     public $roles = [];
     public $roleLists = [];
 
@@ -46,7 +47,7 @@ class PdfForm extends Component
                     ];
                 }
                 // === Ambil user berdasarkan role ===
-                $this->roles = ['Customer Services', 'Penanggung Jawab'];
+                $this->roles = ['Customer Services', 'Koordinator Konsumsi'];
                 $this->roleLists = [];
 
                 foreach ($this->roles as $role) {
@@ -60,13 +61,13 @@ class PdfForm extends Component
                         ->when($role === 'Customer Services', function ($query) {
                             $query->where('name', 'like', '%Nisya%');
                         })
-                        ->when($role === 'Penanggung Jawab', function ($query) {
+                        ->when($role === 'Koordinator Konsumsi', function ($query) {
                             $query->where('name', 'like', '%Halimah%');
                         });
                     $this->roleLists[$role] = $baseQuery->get();
                 }
                 $CSkonsumsi = optional($this->roleLists['Customer Services']->first())->name ?? 'N/A';
-                $PJkonsumsi = optional($this->roleLists['Penanggung Jawab']->first())->name ?? 'N/A';
+                $PJkonsumsi = optional($this->roleLists['Koordinator Konsumsi']->first())->name ?? 'N/A';
 
                 $data = [
                     'judul' => 'FORMULIR PERMINTAAN UMUM',
@@ -83,10 +84,10 @@ class PdfForm extends Component
                     'persetujuan2' => $PJkonsumsi,
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
                     'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Customer Services']->first())->ttd),
-                    'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Penanggung Jawab']->first())->ttd),
+                    'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Koordinator Konsumsi']->first())->ttd),
                     'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
                     'jabatan_persetujuan1' => 'Customer Services',
-                    'jabatan_persetujuan2' => 'Penanggung Jawab',
+                    'jabatan_persetujuan2' => 'Koordinator Konsumsi',
                     'status' => $this->getStatusPermintaan($this->permintaan, 'permintaan'),
                     'items' => $dataItems,
                     'kepala_subbagian_umum' => optional($this->kepalaSubbagian)->name ?? 'N/A',
@@ -104,7 +105,7 @@ class PdfForm extends Component
                     ];
                 }
 
-                $this->roles = ['Penanggung Jawab'];
+                $this->roles = ['Koordinator KDO'];
                 $this->roleLists = [];
 
                 foreach ($this->roles as $role) {
@@ -115,13 +116,13 @@ class PdfForm extends Component
                             $q->where('id', $this->permintaan->unit_id)
                                 ->orWhere('parent_id', $this->permintaan->unit_id)
                         )
-                        ->when($role === 'Penanggung Jawab', function ($query) {
+                        ->when($role === 'Koordinator KDO', function ($query) {
                             $query->where('name', 'like', '%Sugi%');
                         });
                     $this->roleLists[$role] = $baseQuery->get();
                 }
 
-                $PJ = optional($this->roleLists['Penanggung Jawab']->first())->name ?? 'N/A';
+                $PJ = optional($this->roleLists['Koordinator KDO']->first())->name ?? 'N/A';
                 $data = [
                     'judul' => 'FORMULIR PERMINTAAN UMUM',
                     'no_surat' => $this->permintaan->kode_permintaan,
@@ -137,10 +138,10 @@ class PdfForm extends Component
                     'persetujuan1' => $PJ,
                     'persetujuan2' => '',
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
-                    'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Penanggung Jawab']->first())->ttd),
+                    'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Koordinator KDO']->first())->ttd),
                     'ttd_persetujuan2' => '',
                     'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
-                    'jabatan_persetujuan1' => 'Penanggung Jawab',
+                    'jabatan_persetujuan1' => 'Koordinator KDO',
                     'jabatan_persetujuan2' => '',
                     'status' => $this->getStatusPermintaan($this->permintaan, 'permintaan'),
                     'items' => $dataItems,
@@ -209,7 +210,7 @@ class PdfForm extends Component
                     ];
                 }
                 // === Ambil user berdasarkan role ===
-                $this->roles = ['Penjaga Gudang', 'Pengurus Barang'];
+                $this->roles = ['Pengurus Barang', 'Koordinator Gudang'];
                 $this->roleLists = [];
 
                 foreach ($this->roles as $role) {
@@ -220,10 +221,13 @@ class PdfForm extends Component
                             $q->where('id', $this->permintaan->unit_id)
                                 ->orWhere('parent_id', $this->permintaan->unit_id)
                         )
-                        ->when($role === 'Penjaga Gudang', function ($query) {
-                            $query->whereHas('lokasiStok', function ($lokasi) {
-                                $lokasi->where('nama', 'Gudang Umum');
-                            });
+                        // ->when($role === 'Penjaga Gudang', function ($query) {
+                        //     $query->whereHas('lokasiStok', function ($lokasi) {
+                        //         $lokasi->where('nama', 'Gudang Umum');
+                        //     });
+                        // });
+                        ->when($role === 'Koordinator Gudang', function ($query) {
+                            $query->where('name', 'like', '%Barkah%');
                         });
 
                     // === Pengurus Barang logika khusus ===
@@ -245,7 +249,7 @@ class PdfForm extends Component
                         $this->roleLists[$role] = $baseQuery->get();
                     }
                 }
-                $penjagaGudang = optional($this->roleLists['Penjaga Gudang']->first())->name ?? 'N/A';
+                $penjagaGudang = optional($this->roleLists['Koordinator Gudang']->first())->name ?? 'N/A';
                 $pengurusBarang = optional($this->roleLists['Pengurus Barang']->first())->name ?? 'N/A';
 
                 $data = [
@@ -257,14 +261,14 @@ class PdfForm extends Component
                     'keterangan' => $this->permintaan->keterangan ?? '',
                     'tanggal' => Carbon::createFromTimestamp($this->permintaan->tanggal_permintaan)->format('d-m-Y'),
                     'pemohon' => $this->permintaan->user->name ?? 'N/A',
-                    'persetujuan1' => $penjagaGudang,
-                    'persetujuan2' => $pengurusBarang,
+                    'persetujuan2' => $penjagaGudang,
+                    'persetujuan1' => $pengurusBarang,
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
-                    'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Penjaga Gudang']->first())->ttd),
-                    'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Pengurus Barang']->first())->ttd),
+                    'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Koordinator Gudang']->first())->ttd),
+                    'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Pengurus Barang']->first())->ttd),
                     'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
-                    'jabatan_persetujuan1' => 'Penjaga Gudang',
-                    'jabatan_persetujuan2' => 'Pengurus Barang',
+                    'jabatan_persetujuan2' => 'Koordinator Gudang',
+                    'jabatan_persetujuan1' => 'Pengurus Barang',
                     'status' => $this->getStatusPermintaan($this->permintaan, 'permintaan'),
                     'items' => $dataItems,
                     'kepala_subbagian_umum' => optional($this->kepalaSubbagian)->name ?? 'N/A',
@@ -284,7 +288,7 @@ class PdfForm extends Component
 
             if ($kategori == 'kdo') {
                 $permintaanAset = $peminjamanAset->first();
-                $this->roles = ['Customer Services', 'Penanggung Jawab'];
+                $this->roles = ['Customer Services', 'Koordinator KDO'];
                 $this->roleLists = [];
 
                 foreach ($this->roles as $role) {
@@ -298,14 +302,14 @@ class PdfForm extends Component
                         ->when($role === 'Customer Services', function ($query) {
                             $query->where('name', 'like', '%Nisya%');
                         })
-                        ->when($role === 'Penanggung Jawab', function ($query) {
+                        ->when($role === 'Koordinator KDO', function ($query) {
                             $query->where('name', 'like', '%Sugi%');
                         });
                     $this->roleLists[$role] = $baseQuery->get();
                 }
 
                 $CSkdo = optional($this->roleLists['Customer Services']->first())->name ?? 'N/A';
-                $PJkdo = optional($this->roleLists['Penanggung Jawab']->first())->name ?? 'N/A';
+                $PJkdo = optional($this->roleLists['Koordinator KDO']->first())->name ?? 'N/A';
                 $data = [
                     'judul' => 'FORMULIR PEMINJAMAN UMUM',
                     'no_surat' => $this->permintaan->kode_peminjaman,
@@ -319,10 +323,10 @@ class PdfForm extends Component
                     'persetujuan2' =>  $PJkdo,
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
                     'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Customer Services']->first())->ttd),
-                    'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Penanggung Jawab']->first())->ttd),
+                    'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Koordinator KDO']->first())->ttd),
                     'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
                     'jabatan_persetujuan1' => 'Customer Services',
-                    'jabatan_persetujuan2' => 'Penanggung Jawab',
+                    'jabatan_persetujuan2' => 'Koordinator KDO',
                     'status' => $this->getStatusPermintaan($this->permintaan, 'peminjaman'),
                     'items' => collect([
                         [
@@ -340,7 +344,7 @@ class PdfForm extends Component
                 ];
             } elseif ($kategori == 'ruangan') {
                 $permintaanAset = $peminjamanAset->first();
-                $this->roles = ['Customer Services', 'Penanggung Jawab'];
+                $this->roles = ['Customer Services', 'Koordinator Konsumsi'];
                 $this->roleLists = [];
 
                 foreach ($this->roles as $role) {
@@ -354,14 +358,14 @@ class PdfForm extends Component
                         ->when($role === 'Customer Services', function ($query) {
                             $query->where('name', 'like', '%Nisya%');
                         })
-                        ->when($role === 'Penanggung Jawab', function ($query) {
+                        ->when($role === 'Koordinator Konsumsi', function ($query) {
                             $query->where('name', 'like', '%Halimah%');
                         });
                     $this->roleLists[$role] = $baseQuery->get();
                 }
 
                 $CSkdo = optional($this->roleLists['Customer Services']->first())->name ?? 'N/A';
-                $PJkdo = optional($this->roleLists['Penanggung Jawab']->first())->name ?? 'N/A';
+                $PJkdo = optional($this->roleLists['Koordinator Konsumsi']->first())->name ?? 'N/A';
                 $data = [
                     'judul' => 'FORMULIR PEMINJAMAN UMUM',
                     'no_surat' => $this->permintaan->kode_peminjaman,
@@ -375,10 +379,10 @@ class PdfForm extends Component
                     'persetujuan2' =>  $PJkdo,
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
                     'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Customer Services']->first())->ttd),
-                    'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Penanggung Jawab']->first())->ttd),
+                    'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Koordinator Konsumsi']->first())->ttd),
                     'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
                     'jabatan_persetujuan1' => 'Customer Services',
-                    'jabatan_persetujuan2' => 'Penanggung Jawab',
+                    'jabatan_persetujuan2' => 'Koordinator Ruangan',
                     'status' => $this->getStatusPermintaan($this->permintaan, 'peminjaman'),
                     'items' => collect([
                         [
@@ -407,7 +411,7 @@ class PdfForm extends Component
                     ];
                 }
                 // === Ambil user berdasarkan role ===
-                $this->roles = ['Customer Services', 'Penanggung Jawab'];
+                $this->roles = ['Customer Services', 'Koordinator Gudang'];
                 $this->roleLists = [];
 
                 foreach ($this->roles as $role) {
@@ -420,34 +424,38 @@ class PdfForm extends Component
                         )
                         ->when($role === 'Customer Services', function ($query) {
                             $query->where('name', 'like', '%Nisya%');
+                        })
+                        ->when($role === 'Koordinator Gudang', function ($query) {
+                            $query->where('name', 'like', '%Barkah%');
                         });
+                    $this->roleLists[$role] = $baseQuery->get();
 
                     // === Penanggung Jawab logika khusus ===
-                    if ($role === 'Penanggung Jawab') {
-                        $user = $baseQuery
-                            ->when(
-                                optional($this->permintaan->unitKerja)->parent_id !== null,
-                                fn($q) => $q->where('unit_id', $this->permintaan->unit_id),
-                                fn($q) => $q->whereHas(
-                                    'unitKerja',
-                                    fn($q2) =>
-                                    $q2->where('parent_id', $this->permintaan->unit_id)
-                                )
-                            )
-                            ->first();
+                    // if ($role === 'Penanggung Jawab') {
+                    //     $user = $baseQuery
+                    //         ->when(
+                    //             optional($this->permintaan->unitKerja)->parent_id !== null,
+                    //             fn($q) => $q->where('unit_id', $this->permintaan->unit_id),
+                    //             fn($q) => $q->whereHas(
+                    //                 'unitKerja',
+                    //                 fn($q2) =>
+                    //                 $q2->where('parent_id', $this->permintaan->unit_id)
+                    //             )
+                    //         )
+                    //         ->first();
 
-                        $this->roleLists[$role] = collect([$user])->filter(); // jika null, tetap aman
-                    } else {
-                        $this->roleLists[$role] = $baseQuery->get();
-                    }
+                    //     $this->roleLists[$role] = collect([$user])->filter(); // jika null, tetap aman
+                    // } else {
+                    //     $this->roleLists[$role] = $baseQuery->get();
+                    // }
                 }
                 $CSperalatan = optional($this->roleLists['Customer Services']->first())->name ?? 'N/A';
-                $PJperalatan = optional($this->roleLists['Penanggung Jawab']->first())->name ?? 'N/A';
+                $PJperalatan = optional($this->roleLists['Koordinator Gudang']->first())->name ?? 'N/A';
 
                 $data = [
                     'judul' => 'FORMULIR PEMINJAMAN UMUM',
                     'no_surat' => $this->permintaan->kode_peminjaman,
-                    'lokasi' => $this->permintaan->kategoriStok->nama ?? '',
+                    'lokasi' => $this->permintaan->kategori->nama ?? '',
                     'unit' => $this->permintaan->unit->nama ?? '',
                     'sub_unit' => $this->permintaan->subUnit->nama ?? '',
                     'keterangan' => $this->permintaan->keterangan ?? '',
@@ -457,10 +465,10 @@ class PdfForm extends Component
                     'persetujuan2' => $PJperalatan,
                     'ttd_pemohon' => $this->getTTDPath(optional($this->permintaan->user)->ttd),
                     'ttd_persetujuan1' => $this->getTTDPath(optional($this->roleLists['Customer Services']->first())->ttd),
-                    'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Penanggung Jawab']->first())->ttd),
+                    'ttd_persetujuan2' => $this->getTTDPath(optional($this->roleLists['Koordinator Gudang']->first())->ttd),
                     'jabatan_pemohon' => optional($this->permintaan->user->roles->first())->name ?? '',
                     'jabatan_persetujuan1' => 'Customer Services',
-                    'jabatan_persetujuan2' => 'Penanggung Jawab',
+                    'jabatan_persetujuan2' => 'Koordinator Gudang',
                     'status' => $this->getStatusPermintaan($this->permintaan, 'peminjaman'),
                     'items' => $dataItems,
                     'kepala_subbagian_umum' => optional($this->kepalaSubbagian)->name ?? 'N/A',

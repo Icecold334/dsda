@@ -33,6 +33,8 @@ class ApprovalPeminjamanPeralatan extends Component
     public $unit_id;
     public $kepalaPemohon;
     public $kepalaSubbagian;
+    public $penanggungjawab;
+
     public $tipe;
 
     public function mount()
@@ -48,7 +50,7 @@ class ApprovalPeminjamanPeralatan extends Component
             ->pluck('file')
             ->toArray();
 
-        $this->roles = ['Customer Services', 'Penanggung Jawab'];
+        $this->roles = ['Customer Services'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
@@ -67,21 +69,21 @@ class ApprovalPeminjamanPeralatan extends Component
                 })
 
                 ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'));
+            $users = $baseQuery->get();
 
-
-            $users = $role === 'Penanggung Jawab'
-                ? collect([
-                    $baseQuery
-                        ->when(
-                            // Jika permintaan berasal dari unit anak, cari berdasarkan unit_id-nya langsung
-                            optional($this->permintaan->unitKerja)->parent_id !== null,
-                            fn($query) => $query->where('unit_id', $this->permintaan->unit_id),
-                            // Jika permintaan berasal dari unit parent, cari dari anak-anak unitnya
-                            fn($query) => $query->whereHas('unitKerja', fn($q) => $q->where('parent_id', $this->permintaan->unit_id))
-                        )
-                        ->first()
-                ])->filter()
-                : $baseQuery->get();
+            // $users = $role === 'Penanggung Jawab'
+            //     ? collect([
+            //         $baseQuery
+            //             ->when(
+            //                 // Jika permintaan berasal dari unit anak, cari berdasarkan unit_id-nya langsung
+            //                 optional($this->permintaan->unitKerja)->parent_id !== null,
+            //                 fn($query) => $query->where('unit_id', $this->permintaan->unit_id),
+            //                 // Jika permintaan berasal dari unit parent, cari dari anak-anak unitnya
+            //                 fn($query) => $query->whereHas('unitKerja', fn($q) => $q->where('parent_id', $this->permintaan->unit_id))
+            //             )
+            //             ->first()
+            //     ])->filter()
+            //     : $baseQuery->get();
 
             $propertyKey = Str::slug($role);
             $this->roleLists[$propertyKey] = $users;
@@ -151,6 +153,11 @@ class ApprovalPeminjamanPeralatan extends Component
                     ->first();
             }
         }
+
+        $this->penanggungjawab = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Koordinator Gudang%'))
+            ->where('name', 'like', '%Barkah%')
+            ->first();
+
         $this->kepalaSubbagian = User::whereHas('roles', function ($query) {
             $query->where('name', 'Kepala Subbagian');
         })
@@ -172,7 +179,7 @@ class ApprovalPeminjamanPeralatan extends Component
                 'peminjaman' => 0
             ]);
         }
-        $alert = Str::ucfirst($this->tipe) . 'Peralatan Kantor dengan kode <span class="font-bold">' .
+        $alert = Str::ucfirst($this->tipe) . ' ' . $this->permintaan->kategori->nama . ' dengan kode <span class="font-bold">' .
             (!is_null($this->permintaan->kode_pemintaman) ? $this->permintaan->kode_pemintaman : $this->permintaan->kode_peminjaman) .
             '</span> telah Dilanjutkan dan Siap Digunakan';
 
@@ -198,7 +205,7 @@ class ApprovalPeminjamanPeralatan extends Component
         if ($status) {
             if ($currentIndex !== false && isset($approvers[$currentIndex + 1])) {
                 $nextUser = $approvers[$currentIndex + 1];
-                $mess = Str::ucfirst($this->tipe) . 'Peralatan Kantor dengan kode <span class="font-bold">' .
+                $mess = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategori->nama . ' dengan kode <span class="font-bold">' .
                     $permintaan->kode_peminjaman . '</span> membutuhkan persetujuan Anda.';
                 Notification::send($nextUser, new UserNotification(
                     $mess,
@@ -209,7 +216,7 @@ class ApprovalPeminjamanPeralatan extends Component
             $this->permintaan->update([
                 'keterangan_cancel' =>  $message,
             ]);
-            $mess = Str::ucfirst($this->tipe) . 'Peralatan Kantor dengan kode <span class="font-bold">' .
+            $mess = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategori->nama . ' dengan kode <span class="font-bold">' .
                 $permintaan->kode_peminjaman . '</span> ditolak dengan keterangan' .
                 $message;
             $user = $permintaan->user;
@@ -227,20 +234,20 @@ class ApprovalPeminjamanPeralatan extends Component
         $nextIndex = $this->currentApprovalIndex + 1;
         $totalApproval = $approvers->count();
 
-        if ($nextIndex == 1 && !$status) {
-            $this->permintaan->update([
-                'status' =>  1,
-                'cancel' =>  0,
-                'proses' =>  0,
-            ]);
-        }
+        // if ($nextIndex == 1 && !$status) {
+        //     $this->permintaan->update([
+        //         'status' =>  1,
+        //         'cancel' =>  0,
+        //         'proses' =>  0,
+        //     ]);
+        // }
 
         if ($nextIndex === $totalApproval && $status) {
             $this->permintaan->update([
                 'status' =>  1,
             ]);
 
-            $alert = Str::ucfirst($this->tipe) . 'Peralatan Kantor dengan kode <span class="font-bold">' .
+            $alert = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategori->nama . ' dengan kode <span class="font-bold">' .
                 (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
                 '</span> telah Disetujui memerlukan perhatian Anda';
 
@@ -248,21 +255,24 @@ class ApprovalPeminjamanPeralatan extends Component
                 Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
 
-            $mess = Str::ucfirst($this->tipe) . 'Peralatan Kantor dengan kode <span class="font-bold">' .
+            if ($this->penanggungjawab) {
+                Notification::send($this->penanggungjawab, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+            }
+
+            $mess = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategori->nama . ' dengan kode <span class="font-bold">' .
                 $permintaan->kode_peminjaman . '</span> Disetujui silahkan cek Peralatan Kantor yang Disetujui';
             $user = $permintaan->user;
             Notification::send($user, new UserNotification(
                 $mess,
                 "/permintaan/peminjaman/{$this->permintaan->id}"
             ));
-        } elseif ($nextIndex === $totalApproval && !$status) {
+        } else {
             $this->permintaan->update([
                 'status' =>  1,
                 'cancel' =>  0,
                 'proses' =>  0,
             ]);
         }
-
         return redirect()->to('permintaan/peminjaman/' . $this->permintaan->id);
     }
     public function render()

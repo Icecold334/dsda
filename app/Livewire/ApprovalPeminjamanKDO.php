@@ -33,6 +33,7 @@ class ApprovalPeminjamanKDO extends Component
     public $unit_id;
     public $kepalaPemohon;
     public $kepalaSubbagian;
+    public $penanggungjawab;
     public $tipe;
 
     public function mount()
@@ -48,7 +49,7 @@ class ApprovalPeminjamanKDO extends Component
             ->pluck('file')
             ->toArray();
 
-        $this->roles = ['Customer Services', 'Penanggung Jawab'];
+        $this->roles = ['Customer Services'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
@@ -65,9 +66,9 @@ class ApprovalPeminjamanKDO extends Component
                 ->when($role === 'Customer Services', function ($query) {
                     $query->where('name', 'like', '%Nisya%');
                 })
-                ->when($role === 'Penanggung Jawab', function ($query) {
-                    $query->where('name', 'like', '%Sugi%');
-                })
+                // ->when($role === 'Penanggung Jawab', function ($query) {
+                //     $query->where('name', 'like', '%Sugi%');
+                // })
 
                 ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'));
 
@@ -140,6 +141,10 @@ class ApprovalPeminjamanKDO extends Component
                 ->first();
         }
 
+        $this->penanggungjawab = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Koordinator KDO%'))
+            ->where('name', 'like', '%Sugi%')
+            ->first();
+
         $this->kepalaSubbagian = User::whereHas('roles', function ($query) {
             $query->where('name', 'Kepala Subbagian');
         })
@@ -161,7 +166,7 @@ class ApprovalPeminjamanKDO extends Component
                 'peminjaman' => 0
             ]);
         }
-        $alert = Str::ucfirst($this->tipe) . 'KDO dengan kode <span class="font-bold">' .
+        $alert = Str::ucfirst($this->tipe) . ' ' . $this->permintaan->kategori->nama . ' dengan kode <span class="font-bold">' .
             (!is_null($this->permintaan->kode_pemintaman) ? $this->permintaan->kode_pemintaman : $this->permintaan->kode_peminjaman) .
             '</span> telah Dilanjutkan dan Siap Digunakan';
 
@@ -187,7 +192,7 @@ class ApprovalPeminjamanKDO extends Component
         if ($status) {
             if ($currentIndex !== false && isset($approvers[$currentIndex + 1])) {
                 $nextUser = $approvers[$currentIndex + 1];
-                $mess = Str::ucfirst($this->tipe) . 'KDO dengan kode <span class="font-bold">' .
+                $mess = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategori->nama . ' dengan kode <span class="font-bold">' .
                     $permintaan->kode_peminjaman . '</span> membutuhkan persetujuan Anda.';
                 Notification::send($nextUser, new UserNotification(
                     $mess,
@@ -198,7 +203,7 @@ class ApprovalPeminjamanKDO extends Component
             $this->permintaan->update([
                 'keterangan_cancel' =>  $message,
             ]);
-            $mess = Str::ucfirst($this->tipe) . 'KDO dengan kode <span class="font-bold">' .
+            $mess = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategori->nama . '  dengan kode <span class="font-bold">' .
                 $permintaan->kode_peminjaman . '</span> ditolak dengan keterangan' .
                 $message;
             $user = $permintaan->user;
@@ -216,41 +221,45 @@ class ApprovalPeminjamanKDO extends Component
         $nextIndex = $this->currentApprovalIndex + 1;
         $totalApproval = $approvers->count();
 
-        if ($nextIndex == 1 && !$status) {
-            $this->permintaan->update([
-                'status' =>  1,
-                'cancel' =>  0,
-                'proses' =>  0,
-            ]);
-        }
+        // if ($nextIndex == 1 && !$status) {
+        //     $this->permintaan->update([
+        //         'status' =>  1,
+        //         'cancel' =>  0,
+        //         'proses' =>  0,
+        //     ]);
+        // }
 
         if ($nextIndex === $totalApproval && $status) {
             $this->permintaan->update([
                 'status' =>  1,
             ]);
 
-            $alert = Str::ucfirst($this->tipe) . 'KDO dengan kode <span class="font-bold">' .
+            $alert = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategori->nama . ' dengan kode <span class="font-bold">' .
                 (!is_null($permintaan->kode_permintaan) ? $permintaan->kode_permintaan : $permintaan->kode_peminjaman) .
                 '</span> telah Disetujui memerlukan perhatian Anda';
 
             if ($this->kepalaSubbagian) {
                 Notification::send($this->kepalaSubbagian, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
             }
+            if ($this->penanggungjawab) {
+                Notification::send($this->penanggungjawab, new UserNotification($alert, "/permintaan/{$this->tipe}/{$this->permintaan->id}"));
+            }
 
-            $mess = Str::ucfirst($this->tipe) . 'KDO dengan kode <span class="font-bold">' .
+            $mess = Str::ucfirst($this->tipe) . ' ' . $permintaan->kategori->nama . ' dengan kode <span class="font-bold">' .
                 $permintaan->kode_peminjaman . '</span> Disetujui silahkan cek KDO yang Disetujui';
             $user = $permintaan->user;
             Notification::send($user, new UserNotification(
                 $mess,
                 "/permintaan/peminjaman/{$this->permintaan->id}"
             ));
-        } elseif ($nextIndex === $totalApproval && !$status) {
+        } else {
             $this->permintaan->update([
                 'status' =>  1,
                 'cancel' =>  0,
                 'proses' =>  0,
             ]);
         }
+
 
         return redirect()->to('permintaan/peminjaman/' . $this->permintaan->id);
     }
