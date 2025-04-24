@@ -151,11 +151,12 @@ class ApprovalPeminjamanPeralatan extends Component
                     ->first();
             }
         }
-
         $this->kepalaSubbagian = User::whereHas('roles', function ($query) {
             $query->where('name', 'Kepala Subbagian');
         })
-            ->where('unit_id', $this->permintaan->sub_unit_id)
+            ->whereHas('unitKerja', function ($query) {
+                $query->where('nama', 'like', '%umum%');
+            })
             ->first();
     }
 

@@ -42,7 +42,7 @@
                     @endif
                     @if (!$showAdd && $kategori_id == 6)
                         <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">FOTO PROSES</th>
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">NAMA VOUCHER</th>
+                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">NO SERI VOUCHER</th>
                     @endif
                     @if (
                         $requestIs == 'spare-part' ||
@@ -260,9 +260,10 @@
                                             <input type="file" wire:model.live="list.{{ $index }}.img_done"
                                                 class="hidden" id="upload-list.{{ $index }}.img_done">
                                             @php
-                                                $isPenjagaGudang = auth()->user()?->hasRole('Penjaga Gudang');
+                                                $isPenjagaGudang = auth()->user()?->hasRole('Koordinator Gudang');
                                                 $isStatusAktif = $item['detail_permintaan_status']; // pastikan $status didefinisikan sebelumnya
-                                                $isEnabled = $isPenjagaGudang && $isStatusAktif;
+                                                $isCancelFalse = $item['detail_permintaan_cancel'] === 0;
+                                                $isEnabled = $isPenjagaGudang && $isStatusAktif && $isCancelFalse;
                                             @endphp
 
                                             <button type="button"
@@ -307,11 +308,12 @@
                                                 class="hidden" id="upload-list.{{ $index }}.img_done">
                                             @php
                                                 $isOwner = auth()->id() === $item['user_id'];
+                                                $isPenanggungJawab = auth()->user()?->hasRole('Koordinator KDO');
                                                 $status = $item['detail_permintaan_status'];
                                                 $cancel = $item['detail_permintaan_cancel'] ?? null;
 
                                                 if ($kategori_id == 5) {
-                                                    $canUpload = $status;
+                                                    $canUpload = ($isOwner || $isPenanggungJawab) && $status;
                                                 } elseif ($kategori_id == 6) {
                                                     $canUpload = $isOwner && $status && $cancel === 0;
                                                 } else {
@@ -342,7 +344,7 @@
                                                     wire:model.live="list.{{ $index }}.voucher_name"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:ring-blue-500 focus:border-blue-500
                                                 {{ $isDisabled ? 'cursor-not-allowed bg-gray-200' : '' }}"
-                                                    placeholder="Nama Voucher"
+                                                    placeholder="No Seri Voucher"
                                                     @if ($isDisabled) disabled @endif>
                                             @endcan
                                         </div>

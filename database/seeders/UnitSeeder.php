@@ -29,7 +29,7 @@ class UnitSeeder extends Seeder
             'Sekretariat' => [
                 'kepala' => 'Hendri, ST, MT',
                 'sub_units' => [
-                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST', 'staf' => ['Ahmad Gunadi'], 'cs' => ['Nisya', 'Insan'], 'pj' => ['Halimah', 'Sugi']],
+                    ['nama' => 'Subbagian Umum', 'kepala' => 'Putu Riska Komala Putri, ST', 'staf' => ['Ahmad Gunadi'], 'cs' => ['Nisya', 'Insan'], 'koordinator konsumsi' => ['Nur Halimah'], 'koordinator kdo' => ['Moch Sugiono'], 'koordinator gudang' => ['Barkah Bustaman']],
                     ['nama' => 'Subkelompok Kepegawaian', 'kepala' => 'Ratna Pertiwi, ST'],
                     ['nama' => 'Subkelompok Program dan Pelaporan', 'kepala' => 'Astrid Marzia Damayanti, ST'],
                     ['nama' => 'Subbagian Keuangan', 'kepala' => 'Indra Prabowo, SE'],
@@ -731,7 +731,7 @@ class UnitSeeder extends Seeder
         $units = $this->units;
 
 
-        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kasatpel', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang',  'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver'];
+        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kasatpel', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang',  'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver', 'Koordinator Gudang', 'Koordinator Konsumsi', 'Koordinator KDO'];
 
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
@@ -959,20 +959,52 @@ class UnitSeeder extends Seeder
                         ])->roles()->attach($csRole->id);
                     }
                 }
-                if (isset($subUnit['pj'])) {
-                    $pjRole = Role::firstOrCreate([
-                        'name' => 'Penanggung Jawab',
+                if (isset($subUnit['koordinator gudang'])) {
+                    $gudangRole = Role::firstOrCreate([
+                        'name' => 'Koordinator Gudang',
                         'guard_name' => 'web',
                     ]);
 
-                    foreach ($subUnit['pj'] as $stafPJ) {
+                    foreach ($subUnit['koordinator gudang'] as $stafgudang) {
                         User::create([
                             'email_verified_at' => now(),
-                            'name' => $stafPJ, // Gunakan nama yang sudah ada di array staf
+                            'name' => $stafgudang, // Gunakan nama yang sudah ada di array staf
                             'unit_id' => $subUnitEntry->id,
-                            'email' => Str::lower(str_replace(' ', '_', $stafPJ)) . "@email.com",
+                            'email' => Str::lower(str_replace(' ', '_', $stafgudang)) . "@email.com",
                             'password' => bcrypt('123'),
-                        ])->roles()->attach($pjRole->id);
+                        ])->roles()->attach($gudangRole->id);
+                    }
+                }
+                if (isset($subUnit['koordinator konsumsi'])) {
+                    $konsumsiRole = Role::firstOrCreate([
+                        'name' => 'Koordinator Konsumsi',
+                        'guard_name' => 'web',
+                    ]);
+
+                    foreach ($subUnit['koordinator konsumsi'] as $stafkonsumsi) {
+                        User::create([
+                            'email_verified_at' => now(),
+                            'name' => $stafkonsumsi, // Gunakan nama yang sudah ada di array staf
+                            'unit_id' => $subUnitEntry->id,
+                            'email' => Str::lower(str_replace(' ', '_', $stafkonsumsi)) . "@email.com",
+                            'password' => bcrypt('123'),
+                        ])->roles()->attach($konsumsiRole->id);
+                    }
+                }
+                if (isset($subUnit['koordinator kdo'])) {
+                    $kdoRole = Role::firstOrCreate([
+                        'name' => 'Koordinator KDO',
+                        'guard_name' => 'web',
+                    ]);
+
+                    foreach ($subUnit['koordinator kdo'] as $stafkdo) {
+                        User::create([
+                            'email_verified_at' => now(),
+                            'name' => $stafkdo, // Gunakan nama yang sudah ada di array staf
+                            'unit_id' => $subUnitEntry->id,
+                            'email' => Str::lower(str_replace(' ', '_', $stafkdo)) . "@email.com",
+                            'password' => bcrypt('123'),
+                        ])->roles()->attach($kdoRole->id);
                     }
                 }
             }

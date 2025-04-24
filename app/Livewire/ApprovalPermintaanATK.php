@@ -48,7 +48,7 @@ class ApprovalPermintaanATK extends Component
             ->pluck('file')
             ->toArray();
 
-        $this->roles = ['Penjaga Gudang', 'Pengurus Barang'];
+        $this->roles = ['Pengurus Barang', 'Koordinator Gudang'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
@@ -62,10 +62,13 @@ class ApprovalPermintaanATK extends Component
                     $query->where('parent_id', $this->unit_id)
                         ->orWhere('id', $this->unit_id);
                 })
-                ->when($role === 'Penjaga Gudang', function ($query) {
-                    $query->whereHas('lokasiStok', function ($lokasi) {
-                        $lokasi->where('nama', 'Gudang Umum');
-                    });
+                // ->when($role === 'Penjaga Gudang', function ($query) {
+                //     $query->whereHas('lokasiStok', function ($lokasi) {
+                //         $lokasi->where('nama', 'Gudang Umum');
+                //     });
+                // })
+                ->when($role === 'Koordinator Gudang', function ($query) {
+                    $query->where('name', 'like', '%Barkah%');
                 })
                 ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'));
 
@@ -153,7 +156,9 @@ class ApprovalPermintaanATK extends Component
         $this->kepalaSubbagian = User::whereHas('roles', function ($query) {
             $query->where('name', 'Kepala Subbagian');
         })
-            ->where('unit_id', $this->permintaan->sub_unit_id)
+            ->whereHas('unitKerja', function ($query) {
+                $query->where('nama', 'like', '%umum%');
+            })
             ->first();
     }
 
@@ -161,19 +166,22 @@ class ApprovalPermintaanATK extends Component
     {
         $this->permintaan->update(['cancel' => false]);
         $detailPermintaan = $this->permintaan;
-        $lokasiId = LokasiStok::where('nama', 'Gudang Umum')->value('id');
+        // $lokasiId = LokasiStok::where('nama', 'Gudang Umum')->value('id');
 
-        $penjagaGudang = User::with(['roles', 'unitKerja', 'lokasiStok'])
-            ->where('lokasi_id', $lokasiId)
-            ->whereHas('roles', function ($query) {
-                $query->where('name', 'LIKE', '%Penjaga Gudang%');
-            })
-            ->first();
+        // $penjagaGudang = User::with(['roles', 'unitKerja', 'lokasiStok'])
+        //     ->where('lokasi_id', $lokasiId)
+        //     ->whereHas('roles', function ($query) {
+        //         $query->where('name', 'LIKE', '%Koordinator Gudang%');
+        //     })
+        //     ->first();
+        $penjagaGudang = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Koordinator Gudang%'))
+            ->where('name', 'like', '%Barkah%')
+            ->get();
 
         if ($penjagaGudang) {
             $notifGudang = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
                 . $detailPermintaan->kode_permintaan .
-                '</span> telah dilanjutkan dan perlu ditindaklanjuti oleh Penjaga Gudang.';
+                '</span> telah dilanjutkan dan perlu ditindaklanjuti oleh Koordinator Gudang.';
 
             Notification::send($penjagaGudang, new UserNotification(
                 $notifGudang,
@@ -199,7 +207,9 @@ class ApprovalPermintaanATK extends Component
         if ($status) {
             if ($currentIndex !== false && isset($approvers[$currentIndex + 1])) {
                 $nextUser = $approvers[$currentIndex + 1];
-                $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} membutuhkan persetujuan Anda.";
+                $mess = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                    $permintaan->kode_permintaan .
+                    '</span> telah membutuhkan perhatian Anda';
                 Notification::send($nextUser, new UserNotification(
                     $mess,
                     "/permintaan/permintaan/{$this->permintaan->id}"
@@ -209,7 +219,11 @@ class ApprovalPermintaanATK extends Component
             $this->permintaan->update([
                 'keterangan_cancel' =>  $message,
             ]);
-            $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} ditolak dengan keterangan: {$message}.";
+            $mess = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                $permintaan->kode_permintaan .
+                '</span> ditolak dengan keterangan <span class="font-bold">' .
+                $message .
+                '</span>';
             $user = $permintaan->user;
             Notification::send($user, new UserNotification(
                 $mess,

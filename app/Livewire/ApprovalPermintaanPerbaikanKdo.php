@@ -48,7 +48,7 @@ class ApprovalPermintaanPerbaikanKdo extends Component
             ->pluck('file')
             ->toArray();
 
-        $this->roles = ['Penanggung Jawab'];
+        $this->roles = ['Koordinator KDO'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
@@ -62,7 +62,7 @@ class ApprovalPermintaanPerbaikanKdo extends Component
                     $query->where('parent_id', $this->unit_id)
                         ->orWhere('id', $this->unit_id);
                 })
-                ->when($role === 'Penanggung Jawab', function ($query) {
+                ->when($role === 'Koordinator KDO', function ($query) {
                     $query->where('name', 'like', '%Sugi%');
                 })
 
@@ -138,7 +138,9 @@ class ApprovalPermintaanPerbaikanKdo extends Component
         $this->kepalaSubbagian = User::whereHas('roles', function ($query) {
             $query->where('name', 'Kepala Subbagian');
         })
-            ->where('unit_id', $this->permintaan->sub_unit_id)
+            ->whereHas('unitKerja', function ($query) {
+                $query->where('nama', 'like', '%umum%');
+            })
             ->first();
     }
 
@@ -173,7 +175,9 @@ class ApprovalPermintaanPerbaikanKdo extends Component
         if ($status) {
             if ($currentIndex !== false && isset($approvers[$currentIndex + 1])) {
                 $nextUser = $approvers[$currentIndex + 1];
-                $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} membutuhkan persetujuan Anda.";
+                $mess = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                    $permintaan->kode_permintaan .
+                    '</span> telah membutuhkan perhatian Anda';
                 Notification::send($nextUser, new UserNotification(
                     $mess,
                     "/permintaan/permintaan/{$this->permintaan->id}"
@@ -183,7 +187,11 @@ class ApprovalPermintaanPerbaikanKdo extends Component
             $this->permintaan->update([
                 'keterangan_cancel' =>  $message,
             ]);
-            $mess = "Permintaan dengan kode {$permintaan->kode_permintaan} ditolak dengan keterangan: {$message}.";
+            $mess = Str::ucfirst($this->tipe) . ' dengan kode <span class="font-bold">' .
+                $permintaan->kode_permintaan .
+                '</span> ditolak dengan keterangan <span class="font-bold">' .
+                $message .
+                '</span>';
             $user = $permintaan->user;
             Notification::send($user, new UserNotification(
                 $mess,

@@ -206,8 +206,6 @@ class ListPermintaanForm extends Component
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id);
     }
 
-
-
     public function removeNewDokumen()
     {
         if ($this->newDokumen && Storage::exists($this->newDokumen)) {
@@ -365,7 +363,6 @@ class ListPermintaanForm extends Component
             ->get();
     }
 
-
     #[On('sub_unit_id')]
     public function fillSubUnitId($sub_unit_id)
     {
@@ -379,6 +376,7 @@ class ListPermintaanForm extends Component
         $this->tanggal_permintaan = $tanggal_permintaan;
         $this->fillShowRule();
     }
+
     #[On('peserta')]
     public function fillPeserta($peserta)
     {
@@ -433,7 +431,6 @@ class ListPermintaanForm extends Component
         $this->fillShowRule();
     }
 
-
     public function saveData()
     {
 
@@ -466,7 +463,7 @@ class ListPermintaanForm extends Component
             'user_id' => Auth::id(),
             'jenis_id' => $this->requestIs == 'permintaan' ? 3 : ($this->requestIs == 'spare-part' ? 2 : 1),
             'kategori_id' => $this->kategori_id,
-            'sub_unit_id' => $this->sub_unit_id ?? null,
+            'sub_unit_id' => $this->sub_unit_id,
             'keterangan' => $this->keterangan,
             'jumlah_peserta' => $this->peserta,
             'approval_configuration_id' => $latestApprovalConfiguration->id,
@@ -613,15 +610,15 @@ class ListPermintaanForm extends Component
 
             Notification::send($csUsers, new UserNotification($notifMessage, "/permintaan/permintaan/{$detailPermintaan->id}"));
         } elseif ($detailPermintaan->kategori_id == 5) {
-            $penanggungJawab = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Penanggung Jawab%'))
+            $penanggungJawab = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Koordinator KDO%'))
                 ->where('name', 'like', '%Sugi%')
                 ->get();
 
 
             if ($penanggungJawab) {
-                $notifPJ = 'Permintaan perbaikan dengan kode <span class="font-bold">'
+                $notifPJ = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
                     . $detailPermintaan->kode_permintaan .
-                    '</span> memerlukan persetujuan Anda sebagai Penanggung Jawab.';
+                    '</span> memerlukan persetujuan Anda sebagai Koordinator KDO.';
 
                 Notification::send($penanggungJawab, new UserNotification($notifPJ, "/permintaan/permintaan/{$detailPermintaan->id}"));
             }
@@ -630,23 +627,27 @@ class ListPermintaanForm extends Component
                 ->where('name', 'like', '%Nisya%')
                 ->get();
 
-            $notifMessage = 'Permintaan konsumsi dengan kode <span class="font-bold">'
+            $notifMessage = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
                 . $detailPermintaan->kode_permintaan . '</span> telah diajukan dan memerlukan perhatian Anda.';
 
             Notification::send($csUsers, new UserNotification($notifMessage, "/permintaan/permintaan/{$detailPermintaan->id}"));
         } else {
-            $lokasiId = LokasiStok::where('nama', 'Gudang Umum')->value('id');
+            // $lokasiId = LokasiStok::where('nama', 'Gudang Umum')->value('id');
+            // $penjagaGudang = User::with(['roles', 'unitKerja', 'lokasiStok'])
+            //     ->where('lokasi_id', $lokasiId)
+            //     ->whereHas('roles', function ($query) {
+            //         $query->where('name', 'LIKE', '%Koordinator Gudang%');
+            //     })
+            //     ->first();
 
-            $penjagaGudang = User::with(['roles', 'unitKerja', 'lokasiStok'])
-                ->where('lokasi_id', $lokasiId)
-                ->whereHas('roles', function ($query) {
-                    $query->where('name', 'LIKE', '%Penjaga Gudang%');
-                })
-                ->first();
+            $penjagaGudang = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Pengurus Barang%'))
+                ->where('name', 'like', '%Ahmad Gunadi%')
+                ->get();
+
             if ($penjagaGudang) {
                 $notifGudang = 'Permintaan ' . $detailPermintaan->jenisStok->nama . ' dengan kode <span class="font-bold">'
                     . $detailPermintaan->kode_permintaan .
-                    '</span> telah diajukan dan perlu ditindaklanjuti oleh Penjaga Gudang.';
+                    '</span> telah diajukan dan perlu ditindaklanjuti oleh Pengurus Barang.';
 
                 Notification::send($penjagaGudang, new UserNotification(
                     $notifGudang,
@@ -661,22 +662,31 @@ class ListPermintaanForm extends Component
         // Reset atasan langsung
         $this->atasanLangsung = null;
 
-        // 1. Jika pemohon adalah Kepala Unit → Atasan langsung null
-        if ($pemohon->hasRole('Kepala Unit') && $this->permintaan->unit_id) {
+        $pemohon = $this->permintaan->user; // User yang membuat permintaan
+
+        if ($pemohon->hasRole('Kepala Unit')) {
+            // Jika pemohon adalah Kepala Unit, maka tidak ada atasan di atasnya
             $this->atasanLangsung = null;
-        }
-        // 2. Jika pemohon adalah Kepala Subbagian, cari Kepala Unit di unit utama
-        elseif ($pemohon->hasRole('Kepala Subbagian') && $this->permintaan->sub_unit_id) {
-            $this->atasanLangsung = User::role('Kepala Unit')
-                ->where('unit_id', $this->permintaan->unit->id) // Cari Kepala Unit di unit utama
+        } elseif ($pemohon->hasRole('Kepala Subbagian')) {
+            // Jika pemohon adalah Kepala Subbagian, maka cari Kepala Unit di atasnya
+            $this->atasanLangsung = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Kepala Unit');
+            })
+                ->where(function ($query) use ($pemohon) {
+                    $query->where('unit_id', $pemohon->unitKerja->parent_id);
+                })
+                ->first();
+        } else {
+            // Jika pemohon adalah staf, maka cari Kepala Subbagian di unit kerja pemohon
+            $this->atasanLangsung = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Kepala Subbagian');
+            })
+                ->where(function ($query) use ($pemohon) {
+                    $query->where('unit_id', $pemohon->unit_id);
+                })
                 ->first();
         }
-        // 3. Jika pemohon BUKAN Kepala Unit dan ada sub unit → Cari Kepala Subbagian di sub unit
-        elseif ($this->permintaan->sub_unit_id) {
-            $this->atasanLangsung = User::role('Kepala Subbagian')
-                ->where('unit_id', $this->permintaan->sub_unit_id)
-                ->first();
-        }
+
         // Kirim notifikasi ke atasan langsung jika ditemukan
         if ($this->atasanLangsung) {
             // Kirim notifikasi ke atasan langsung
@@ -799,11 +809,17 @@ class ListPermintaanForm extends Component
     public function fillShowRule()
     {
         // $this->ruleShow = Request::is('permintaan/add/permintaan') ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id : $this->tanggal_permintaan && $this->keterangan && $this->unit_id && $this->sub_unit_id;
+        // dd($this->RuangId);
         $this->ruleShow =
             $this->requestIs == 'permintaan'
-            ? (($this->kategori_id == 5 || $this->kategori_id == 6)
-                ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id && $this->keterangan
-                : $this->tanggal_permintaan && $this->unit_id && $this->kategori_id)
+            ? (
+                $this->kategori_id == 5
+                ? $this->tanggal_permintaan && $this->KDOId && $this->unit_id && $this->sub_unit_id && $this->kategori_id && $this->keterangan
+                : ($this->kategori_id == 4
+                    ? $this->tanggal_permintaan && $this->RuangId && $this->peserta && $this->unit_id && $this->sub_unit_id && $this->kategori_id && $this->keterangan
+                    : $this->tanggal_permintaan && $this->unit_id && $this->sub_unit_id && $this->kategori_id && $this->keterangan
+                )
+            )
             : ($this->requestIs == 'spare-part'
                 ? $this->tanggal_permintaan && $this->unit_id && $this->kategori_id && $this->sub_unit_id && $this->keterangan
                 : $this->tanggal_permintaan && $this->unit_id && $this->sub_unit_id && $this->keterangan);
@@ -843,7 +859,10 @@ class ListPermintaanForm extends Component
         if ($this->permintaan) {
             $tipe = $this->permintaan->jenisStok->nama;
             $this->tipe = $tipe;
-
+            $this->sub_unit_id = $this->permintaan->sub_unit_id;
+            $this->KDOId = $this->permintaan->aset_id;
+            $this->RuangId = $this->permintaan->lokasi_id;
+            $this->peserta = $this->permintaan->jumlah_peserta;
             foreach ($this->permintaan->permintaanStok as $key => $value) {
                 $this->unit_id = $this->permintaan->unit_id;
                 $this->keterangan = $this->permintaan->keterangan;
@@ -963,7 +982,7 @@ class ListPermintaanForm extends Component
     public function removePhoto($index = null)
     {
         if ($index) {
-            dd('asdasd');
+            // dd('asdasd');
             $this->list[$index]['img'] = null;
         }
         $this->newBukti = null;
@@ -1069,7 +1088,7 @@ class ListPermintaanForm extends Component
                         . $detail->kode_permintaan .
                         '</span> selesai dengan keterangan: ' . $message;
 
-                    $penanggungJawab = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Penanggung Jawab%'))
+                    $penanggungJawab = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Koordinator KDO%'))
                         ->where('name', 'like', '%Sugi%')
                         ->get();
 
@@ -1101,7 +1120,7 @@ class ListPermintaanForm extends Component
                                 . $detail->kode_permintaan .
                                 '</span> selesai dengan keterangan: ' . $message;
 
-                            $penanggungJawab = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Penanggung Jawab%'))
+                            $penanggungJawab = User::whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Koordinator KDO%'))
                                 ->where('name', 'like', '%Sugi%')
                                 ->get();
 

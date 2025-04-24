@@ -289,7 +289,6 @@ class ListPeminjamanForm extends Component
         Notification::send($csUsers, new UserNotification($message, "/permintaan/peminjaman/{$detailPeminjaman->id}"));
 
 
-
         // $this->tipe = Str::contains($this->peminjaman->getTable(), 'permintaan') ? 'permintaan' : 'peminjaman';
 
         // $user = Auth::user();
@@ -372,15 +371,26 @@ class ListPeminjamanForm extends Component
         if ($isSameUnit && $isSameSubUnit) {
             $this->atasanLangsung = null;
 
-            if ($pemohon->hasRole('Kepala Unit') && $this->peminjaman->unit_id) {
+            if ($pemohon->hasRole('Kepala Unit')) {
+                // Jika pemohon adalah Kepala Unit, maka tidak ada atasan di atasnya
                 $this->atasanLangsung = null;
-            } elseif ($pemohon->hasRole('Kepala Subbagian') && $this->peminjaman->sub_unit_id) {
-                $this->atasanLangsung = User::role('Kepala Unit')
-                    ->where('unit_id', $this->peminjaman->unit->id)
+            } elseif ($pemohon->hasRole('Kepala Subbagian')) {
+                // Jika pemohon adalah Kepala Subbagian, maka cari Kepala Unit di atasnya
+                $this->atasanLangsung = User::whereHas('roles', function ($query) {
+                    $query->where('name', 'Kepala Unit');
+                })
+                    ->where(function ($query) use ($pemohon) {
+                        $query->where('unit_id', $pemohon->unitKerja->parent_id);
+                    })
                     ->first();
-            } elseif ($this->peminjaman->sub_unit_id) {
-                $this->atasanLangsung = User::role('Kepala Subbagian')
-                    ->where('unit_id', $this->peminjaman->sub_unit_id)
+            } else {
+                // Jika pemohon adalah staf, maka cari Kepala Subbagian di unit kerja pemohon
+                $this->atasanLangsung = User::whereHas('roles', function ($query) {
+                    $query->where('name', 'Kepala Subbagian');
+                })
+                    ->where(function ($query) use ($pemohon) {
+                        $query->where('unit_id', $pemohon->unit_id);
+                    })
                     ->first();
             }
 

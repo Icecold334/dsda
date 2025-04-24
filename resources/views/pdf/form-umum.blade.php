@@ -32,6 +32,7 @@
 <h4 style="text-align: center;">{{ $judul }}</h4>
 @php
     $adaAset = collect($items)->contains(fn($item) => !empty($item['nama_aset']));
+    $adaKdo = collect($items)->contains(fn($item) => !empty($item['nama_kdo']));
     $adaApprove = collect($items)->contains(fn($item) => !empty($item['jumlah_approve']));
     $adaDriver = collect($items)->contains(fn($item) => !empty($item['driver_name']));
     $adaVoucher = collect($items)->contains(fn($item) => !empty($item['voucher_name']));
@@ -40,6 +41,8 @@
     $adaKeterangan = collect($items)->contains(fn($item) => !empty($item['keterangan']));
     $adaStatus = collect($items)->contains(fn($item) => !empty($item['status_kdo']));
     $adaAsetApprove = collect($items)->contains(fn($item) => !empty($item['approved_aset_name']));
+    $adaRuangApprove = collect($items)->contains(fn($item) => !empty($item['approved_ruang_name']));
+    $adaKdoApprove = collect($items)->contains(fn($item) => !empty($item['approved_Kdo_name']));
     $adaJumlahOrang = collect($items)->contains(fn($item) => !empty($item['jumlah_orang']));
     $adaWaktu = collect($items)->contains(fn($item) => !empty($item['waktu']));
     $adaWaktuApprove = collect($items)->contains(fn($item) => !empty($item['approved_waktu']));
@@ -85,7 +88,10 @@
                 <th>Barang</th>
             @endif
             @if ($adaAset)
-                <th>Aset/KDO</th>
+                <th>Aset</th>
+            @endif
+            @if ($adaKdo)
+                <th>KDO</th>
             @endif
             @if ($adaJumlah)
                 <th>Jumlah</th>
@@ -106,7 +112,13 @@
                 <th>Status</th>
             @endif
             @if ($adaAsetApprove)
-                <th>Aset/KDO Disetujui</th>
+                <th>Aset Disetujui</th>
+            @endif
+            @if ($adaRuangApprove)
+                <th>Ruang Disetujui</th>
+            @endif
+            @if ($adaKdoApprove)
+                <th>KDO Disetujui</th>
             @endif
             @if ($adaWaktu)
                 <th>Waktu</th>
@@ -129,6 +141,9 @@
                 @if ($adaAset)
                     <td>{{ $item['nama_aset'] ?? '-' }}</td>
                 @endif
+                @if ($adaKdo)
+                    <td>{{ $item['nama_kdo'] ?? '-' }}</td>
+                @endif
                 @if ($adaJumlah)
                     <td>{{ $item['jumlah'] ?? '-' }}</td>
                 @endif
@@ -150,10 +165,16 @@
                 @if ($adaAsetApprove)
                     <td>{{ $item['approved_aset_name'] ?? '-' }}</td>
                 @endif
+                @if ($adaRuangApprove)
+                    <td>{{ $item['approved_ruang_name'] ?? '-' }}</td>
+                @endif
+                @if ($adaKdoApprove)
+                    <td>{{ $item['approved_kdo_name'] ?? '-' }}</td>
+                @endif
                 @if ($adaWaktu)
                     <td>{{ $item['waktu'] ?? '-' }}</td>
                 @endif
-                @if ($adaWaktu)
+                @if ($adaWaktuApprove)
                     <td>{{ $item['approved_waktu'] ?? '-' }}</td>
                 @endif
                 @if ($adaJumlahOrang)

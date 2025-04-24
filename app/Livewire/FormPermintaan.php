@@ -257,6 +257,7 @@ class FormPermintaan extends Component
             $this->dispatch('keterangan', keterangan: $this->keterangan);
             $this->dispatch('sub_unit_id', sub_unit_id: $this->sub_unit_id);
             $this->dispatch('RuangId', RuangId: $this->RuangId);
+            $this->dispatch('peserta', peserta: $this->peserta);
             $this->dispatch('LokasiLain', LokasiLain: $this->LokasiLain);
             $this->dispatch('AlamatLokasi', AlamatLokasi: $this->AlamatLokasi);
             $this->dispatch('KontakPerson', KontakPerson: $this->KontakPerson);

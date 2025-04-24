@@ -115,7 +115,7 @@
                                     {{ optional($permintaan->aset)->nama ?? '-' }}
                                 </td>
                             </tr>
-                            @if (auth()->user()?->hasRole('Penanggung Jawab'))
+                            @if (auth()->user()?->hasRole('Koordinator KDO'))
                                 {{-- Panggil Livewire --}}
                                 <tr class="font-semibold">
                                     <td colspan="2">
@@ -167,6 +167,12 @@
                                         {{ $permintaan->file }}
                                     </a>
                                 </td>
+                            </tr>
+                        @endif
+                        @if ($permintaan->kategori_id == 5)
+                            <tr class="font-semibold">
+                                <td colspan="2" class="text-yellow-400"><span>*</span> Note tanggal keluar bisa
+                                    berubah sesuai dengan selesainya pekerjaan dari bengkel.</td>
                             </tr>
                         @endif
                         @if ($permintaan->keterangan_cancel)
@@ -238,7 +244,7 @@
                             </tr>
                         @elseif($tipe == 'permintaan' && $permintaan->kategori_id == 6)
                             <tr class="font-semibold">
-                                <td colspan="2" class="py-2">Syarat dan Ketentuan Permintaan Vocher Carwash</td>
+                                <td colspan="2" class="py-2">Syarat dan Ketentuan Permintaan Voucher Carwash</td>
                             </tr>
                             <tr>
                                 <td class="pl-4 align-top text-right">1.</td>
@@ -247,11 +253,11 @@
                             </tr>
                             <tr>
                                 <td class="pl-4 align-top text-right">2.</td>
-                                <td>Vocher bisa diambil ke CS Umum atau Insan (081386995922).</td>
+                                <td>Voucher bisa diambil ke CS Umum atau Insan (081386995922).</td>
                             </tr>
                             <tr>
                                 <td class="pl-4 align-top text-right">3.</td>
-                                <td>Pengambilan vocher maksimal 2 hari setalah input di form, lewat dari 2 hari maka
+                                <td>Pengambilan voucher maksimal 2 hari setalah input di form, lewat dari 2 hari maka
                                     dianggap batal dan harus mengajukan ulang.</td>
                             </tr>
                             <tr>
@@ -391,4 +397,3 @@
         <livewire:show-permintaan-material :permintaan='$permintaan'>
     @endif
 </x-body>
-

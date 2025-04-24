@@ -188,7 +188,7 @@ class PdfForm extends Component
                     'status' => $this->getStatusPermintaan($this->permintaan, 'permintaan'),
                     'items' => collect([
                         [
-                            'nama_aset' => $permintaanStok->aset->merk->nama . ' ' . $permintaanStok->aset->nama . '-' .  $permintaanStok->aset->noseri  ?? '',
+                            'nama_kdo' => $permintaanStok->aset->merk->nama . ' ' . $permintaanStok->aset->nama . '-' .  $permintaanStok->aset->noseri  ?? '',
                             'driver_name' => $permintaanStok->driver_name ?? '',
                             'voucher_name' => $permintaanStok->voucher_name ?? '',
                         ]
@@ -204,7 +204,7 @@ class PdfForm extends Component
                     $dataItems[] = [
                         'nama_barang' => optional($permintaanStok->barangStok)->nama ?? 'N/A',
                         'nama_aset' => optional($permintaanStok->aset)->nama ?? '',
-                        'jumlah' => $permintaanStok->jumlah . ' ' . $permintaanStok->barangStok->satuanBesar->nama,
+                        // 'jumlah' => $permintaanStok->jumlah . ' ' . $permintaanStok->barangStok->satuanBesar->nama,
                         'jumlah_approve' => $permintaanStok->stokDisetujui->sum('jumlah_disetujui') . ' ' . $permintaanStok->barangStok->satuanBesar->nama,
                     ];
                 }
@@ -326,9 +326,8 @@ class PdfForm extends Component
                     'status' => $this->getStatusPermintaan($this->permintaan, 'peminjaman'),
                     'items' => collect([
                         [
-                            'nama_aset' => $permintaanAset->aset->merk->nama . ' ' . $permintaanAset->aset->nama . '-' .  $permintaanAset->aset->noseri  ?? '',
-                            'approved_aset_id' => $permintaanAset->approved_aset_id ?? null,
-                            'approved_aset_name' => optional(Aset::with('merk')->find($permintaanAset->approved_aset_id), function ($aset) {
+                            // 'nama_aset' => $permintaanAset->aset->merk->nama . ' ' . $permintaanAset->aset->nama . '-' .  $permintaanAset->aset->noseri  ?? '',
+                            'approved_kdo_name' => optional(Aset::with('merk')->find($permintaanAset->approved_aset_id), function ($aset) {
                                 return $aset->merk->nama . ' ' . $aset->nama . '-' . $aset->noseri;
                             }) ?? '-',
                             'jumlah_orang' => $permintaanAset->jumlah_orang ?? '',
@@ -383,10 +382,10 @@ class PdfForm extends Component
                     'status' => $this->getStatusPermintaan($this->permintaan, 'peminjaman'),
                     'items' => collect([
                         [
-                            'nama_aset' => $permintaanAset->ruang->nama,
-                            'approved_aset_name' => Ruang::find($permintaanAset->approved_aset_id)?->nama,
+                            // 'nama_aset' => $permintaanAset->ruang->nama,
+                            'approved_ruang_name' => Ruang::find($permintaanAset->approved_aset_id)?->nama,
                             'jumlah_orang' => $permintaanAset->jumlah_orang ?? '',
-                            'waktu' => $permintaanAset->waktu->waktu . ' ' . $permintaanAset->waktu->mulai . '-' . $permintaanAset->waktu->selesai  ?? '',
+                            // 'waktu' => $permintaanAset->waktu->waktu . ' ' . $permintaanAset->waktu->mulai . '-' . $permintaanAset->waktu->selesai  ?? '',
                             'approved_waktu' => optional(WaktuPeminjaman::find($permintaanAset->approved_waktu_id), function ($waktu) {
                                 return "{$waktu->waktu} {$waktu->mulai}-{$waktu->selesai}";
                             }) ?? '-',
@@ -402,7 +401,7 @@ class PdfForm extends Component
                 foreach ($peminjamanAset as $permintaanAset) {
                     $dataItems[] = [
                         'nama_aset' => $permintaanAset->aset->nama ?? '',
-                        'jumlah' => $permintaanAset->jumlah,
+                        // 'jumlah' => $permintaanAset->jumlah,
                         'jumlah_approve' => $permintaanAset->jumlah_approve,
                         'waktu' => $permintaanAset->waktu->waktu . ' ' . $permintaanAset->waktu->mulai . '-' . $permintaanAset->waktu->selesai  ?? '',
                     ];
