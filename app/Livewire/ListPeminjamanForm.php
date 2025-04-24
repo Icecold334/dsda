@@ -438,6 +438,8 @@ class ListPeminjamanForm extends Component
                     'approved_aset_name' => $this->tipe == 'Ruangan'
                         ? Ruang::find($value->approved_aset_id)?->nama
                         : Aset::find($value->approved_aset_id)?->nama,
+                    'approved_kdo_merk' => Aset::find($value->approved_aset_id)?->merk->nama,
+                    'approved_kdo_noseri' => Aset::find($value->approved_aset_id)?->noseri,
                     'waktu_id' => $value->waktu_id,
                     'approved_waktu_id' => $value->approved_waktu_id ?? null,
                     'waktu' => WaktuPeminjaman::find($value->waktu_id),

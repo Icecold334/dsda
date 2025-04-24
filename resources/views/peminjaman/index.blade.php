@@ -47,6 +47,17 @@
             return date.toLocaleDateString('id-ID', options);
         }
 
+        function getBadgeColor(statusLabel) {
+            switch (statusLabel) {
+                case 'disetujui':
+                    return 'bg-green-500';
+                case 'dipinjam':
+                    return 'bg-blue-500';
+                default:
+                    return 'bg-red-400';
+            }
+        }
+
         function generateCalendar(year, month) {
             const firstDay = (new Date(year, month)).getDay();
             const daysInMonth = 32 - new Date(year, month, 32).getDate();
@@ -84,21 +95,22 @@
 
                 // Jika ada peminjaman, tambahkan badge di bawah tanggal
                 if (bookedAssets.length > 0) {
-
-                    // Menampilkan badge dengan nama aset yang dipinjam
                     const badgesContainer = document.createElement('div');
                     badgesContainer.classList.add('mt-2', 'flex', 'flex-wrap', 'gap-1');
 
                     bookedAssets.forEach(asset => {
                         const badge = document.createElement('span');
-                        badge.classList.add('badge', 'bg-green-500', 'text-white', 'text-xs', 'px-2', 'py-1',
-                            'rounded');
-                        badge.textContent = "Peminjaman " + asset.nama; // Menampilkan nama aset
+                        badge.classList.add('badge', getBadgeColor(asset.status_label), 'text-white', 'text-xs',
+                            'px-2', 'py-1', 'rounded');
+                        badge.textContent = `Peminjaman ${asset.nama}`;
+                        badge.title =
+                            `Status: ${asset.status_label.charAt(0).toUpperCase() + asset.status_label.slice(1)}`;
                         badgesContainer.appendChild(badge);
                     });
 
                     day.appendChild(badgesContainer);
                 }
+
 
                 calendarDays.appendChild(day);
             }

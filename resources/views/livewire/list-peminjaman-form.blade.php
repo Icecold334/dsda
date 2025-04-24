@@ -70,6 +70,11 @@
                                                 {{ $aset->merk->nama . ' ' . $aset->nama . ' - ' . $aset->noseri }}
                                             </option>
                                         @endforeach
+                                        @if (!collect($asets)->pluck('id')->contains($item['approved_aset_id']) && $item['approved_aset_id'])
+                                            <option value="{{ $item['approved_aset_id'] }}" selected>
+                                                {{ $item['approved_kdo_merk'] . ' ' . $item['approved_aset_name'] . ' - ' . $item['approved_kdo_noseri'] ?? 'Aset Disetujui (Tidak ditemukan di daftar)' }}
+                                            </option>
+                                        @endif
                                     </select>
                                     @error('newAsetId')
                                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>

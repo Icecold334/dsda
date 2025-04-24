@@ -276,14 +276,47 @@ class DashboardDisplayUmum extends Component
     ];
 
     // Fungsi untuk menentukan status berdasarkan data
-    public function getStatus($permintaan)
+    public function getStatus($permintaan, $tipe)
     {
         if ($permintaan['cancel'] === 1) return 'dibatalkan';
+
         if ($permintaan['cancel'] === 0 && $permintaan['proses'] === 1) return 'selesai';
-        if ($permintaan['cancel'] === 0 && is_null($permintaan['proses'])) return 'siap_digunakan';
-        if (is_null($permintaan['cancel']) && is_null($permintaan['proses']) && is_null($permintaan['status'])) return 'diproses';
-        if (is_null($permintaan['cancel']) && is_null($permintaan['proses']) && $permintaan['status'] === 1) return 'disetujui';
+
+        if ($permintaan['cancel'] === 0 && is_null($permintaan['proses'])) {
+            if ($tipe === 'permintaan' && $permintaan['kategori_id'] != 6) {
+                return 'siap_digunakan';
+            }
+
+            if ($tipe === 'permintaan' && $permintaan['kategori_id'] == 6) {
+                return 'sudah_diambil';
+            }
+
+            if ($tipe === 'peminjaman') {
+                return 'dipinjam';
+            }
+        }
+
+        if (is_null($permintaan['cancel']) && is_null($permintaan['proses']) && is_null($permintaan['status'])) {
+            return 'diproses';
+        }
+
+        if (is_null($permintaan['cancel']) && is_null($permintaan['proses']) && $permintaan['status'] === 1) {
+            return 'disetujui';
+        }
+
         return 'ditolak';
+    }
+
+    public function getStatusColor($status)
+    {
+        return match ($status) {
+            'dibatalkan' => 'secondary',
+            'selesai' => 'primary',
+            'siap_digunakan', 'sudah_diambil', 'dipinjam' => 'info',
+            'diproses' => 'warning',
+            'disetujui' => 'success',
+            default => 'danger',
+        };
     }
 
     public function getChartData()

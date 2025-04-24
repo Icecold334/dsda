@@ -37,13 +37,12 @@
                                         <div class="flex justify-between py-3">
                                             <div>
                                                 @php
-                                                    $statusKey = $this->getStatus($layanan);
-                                                    $statusText = $statusMapping[$statusKey]['text'];
-                                                    $statusColor = $statusMapping[$statusKey]['color'];
+                                                    $status = $this->getStatus($layanan, $layanan['tipe']);
+                                                    $color = $this->getStatusColor($status);
                                                 @endphp
                                                 <span
-                                                    class="bg-{{ $statusColor }}-600 text-{{ $statusColor }}-100 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                                    {{ $statusText }}
+                                                    class="bg-{{ $color }}-600 text-{{ $color }}-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
+                                                    {{ str_replace('_', ' ', $status) }}
                                                 </span>
                                             </div>
                                             <div class="px-3">

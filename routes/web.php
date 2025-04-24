@@ -2,12 +2,15 @@
 
 use App\Models\Aset;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use App\Models\Ruang;
 use App\Models\Persetujuan;
 use App\Models\PermintaanStok;
 use App\Livewire\AssetCalendar;
+use Illuminate\Support\Facades\DB;
+use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RabController;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\AsetController;
 use App\Http\Controllers\BankController;
@@ -17,6 +20,7 @@ use App\Http\Controllers\StokController;
 use App\Http\Controllers\TokoController;
 use App\Http\Controllers\HargaController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\RuangController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\DiskonController;
 use App\Http\Controllers\JurnalController;
@@ -54,9 +58,6 @@ use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\PengaturanPersetujuanController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
-use App\Http\Controllers\RabController;
-use App\Http\Controllers\RuangController;
-use App\Models\DetailPermintaanStok;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -135,13 +136,52 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('history', HistoryController::class);
     Route::resource('jurnal', JurnalController::class);
     Route::get('kalender-aset', function () {
-        $peminjaman = DB::table('peminjaman_aset')
-            ->join('detail_peminjaman_aset', 'peminjaman_aset.detail_peminjaman_id', '=', 'detail_peminjaman_aset.id')
+        $peminjaman = DB::table('detail_peminjaman_aset')
+            ->join('peminjaman_aset', 'peminjaman_aset.detail_peminjaman_id', '=', 'detail_peminjaman_aset.id')
             ->join('aset', 'peminjaman_aset.aset_id', '=', 'aset.id')
+            ->join('kategori', 'detail_peminjaman_aset.kategori_id', '=', 'kategori.id')
             ->where('detail_peminjaman_aset.status', 1)
-            ->select('peminjaman_aset.*', 'detail_peminjaman_aset.tanggal_peminjaman', 'aset.nama')
-            ->get();
-        return view('peminjaman.index', ['peminjaman' => $peminjaman]);
+            ->where(function ($query) {
+                $query->where(function ($q) {
+                    // Disetujui: status = 1, cancel IS NULL, proses IS NULL
+                    $q->whereNull('detail_peminjaman_aset.cancel')
+                        ->whereNull('detail_peminjaman_aset.proses');
+                })->orWhere(function ($q) {
+                    // Dipinjam: status = 1, cancel = 0, proses IS NULL
+                    $q->where('detail_peminjaman_aset.cancel', 0)
+                        ->whereNull('detail_peminjaman_aset.proses');
+                });
+            })
+            ->select(
+                'peminjaman_aset.*',
+                'detail_peminjaman_aset.tanggal_peminjaman',
+                'detail_peminjaman_aset.status',
+                'detail_peminjaman_aset.cancel',
+                'detail_peminjaman_aset.proses',
+                'detail_peminjaman_aset.kategori_id',
+                'aset.nama as aset_nama',
+                'kategori.nama as kategori_nama'
+            )
+            ->get()
+            ->map(function ($item) {
+                if (strtolower($item->kategori_nama) === 'ruangan') {
+                    $ruang = Ruang::find($item->aset_id);
+                    $item->nama = $ruang ? $ruang->nama : 'Ruangan Tidak Ditemukan';
+                } else {
+                    $item->nama = $item->aset_nama;
+                }
+                // Opsional: label status
+                if (is_null($item->cancel) && is_null($item->proses)) {
+                    $item->status_label = 'disetujui';
+                } elseif ($item->cancel == 0 && is_null($item->proses)) {
+                    $item->status_label = 'dipinjam';
+                } else {
+                    $item->status_label = 'lainnya';
+                }
+
+                return $item;
+            });
+        return view('peminjaman.index', data: ['peminjaman' => $peminjaman]);
     });
     Route::get('kategori/{tipe}', [KategoriController::class, 'create']);
     Route::get('kategori/{tipe}/{kategori}', [KategoriController::class, 'create'])->middleware('can:data_kategori');
