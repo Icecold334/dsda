@@ -378,64 +378,6 @@ class UnitSeeder extends Seeder
             'Pallet 9',
             'Pallet 10',
         ];
-        // $this->kecamatanJakarta = [
-        //     'Jakarta Pusat' => [
-        //         'Gambir',
-        //         'Tanah Abang',
-        //         'Menteng',
-        //         'Senen',
-        //         'Cempaka Putih',
-        //         'Johar Baru',
-        //         'Kemayoran',
-        //         'Sawah Besar'
-        //     ],
-        //     'Jakarta Utara' => [
-        //         'Penjaringan',
-        //         'Pademangan',
-        //         'Tanjung Priok',
-        //         'Koja',
-        //         'Cilincing',
-        //         'Kelapa Gading'
-        //     ],
-        //     'Jakarta Barat' => [
-        //         'Cengkareng',
-        //         'Grogol Petamburan',
-        //         'Taman Sari',
-        //         'Tambora',
-        //         'Kalideres',
-        //         'Kebon Jeruk',
-        //         'Palmerah',
-        //         'Kembangan'
-        //     ],
-        //     'Jakarta Selatan' => [
-        //         'Kebayoran Baru',
-        //         'Kebayoran Lama',
-        //         'Cilandak',
-        //         'Pesanggrahan',
-        //         'Pasar Minggu',
-        //         'Jagakarsa',
-        //         'Mampang Prapatan',
-        //         'Pancoran',
-        //         'Tebet',
-        //         'Setiabudi'
-        //     ],
-        //     'Jakarta Timur' => [
-        //         'Matraman',
-        //         'Pulogadung',
-        //         'Jatinegara',
-        //         'Duren Sawit',
-        //         'Kramat Jati',
-        //         'Makasar',
-        //         'Cipayung',
-        //         'Ciracas',
-        //         'Pasar Rebo',
-        //         'Cakung'
-        //     ],
-        //     'Kepulauan Seribu' => [
-        //         'Kepulauan Seribu Utara',
-        //         'Kepulauan Seribu Selatan'
-        //     ]
-        // ];
     }
     public function run(): void
     {
@@ -731,7 +673,7 @@ class UnitSeeder extends Seeder
         $units = $this->units;
 
 
-        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kasatpel', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang',  'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver'];
+        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kepala Satuan Pelaksana', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang',  'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver', 'P3K'];
 
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
@@ -771,6 +713,8 @@ class UnitSeeder extends Seeder
         }
 
         foreach ($units as $unitName => $unitData) {
+            $sudin = Str::lower(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi Jakarta ', '', $unitName));
+
             // Simpan unit
             $hak = (Str::contains($unitName, ['Sekretariat', 'Bidang', 'Unit', 'Pusat Data'])) ? 1 : 0;
             $unit = UnitKerja::create([
@@ -798,17 +742,35 @@ class UnitSeeder extends Seeder
                     'guard_name' => 'web',
                 ]);
             }
-            $unitUser = User::create([
-                'email_verified_at' => now(),
-                'name' => $unitData['kepala'],
-                'unit_id' => $unit->id,
-                'email' => Str::lower(str_replace(' ', '_', $unitRole->name)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $unitRole->name)) . "%")->count() + 1 . "@email.com",
-                'password' => bcrypt('123'), // Password default
-            ]);
+            if (Str::contains($unitName, 'Suku Dinas Sumber Daya Air')) {
+                $unitUser = User::create([
+                    'email_verified_at' => now(),
+                    'name' => $unitData['kepala'],
+                    'unit_id' => $unit->id,
+                    'email' => "kasudin.{$sudin}@test.com",
+                    'password' => bcrypt('test@123'), // Password default
+                ]);
+            } else {
+                $unitUser = User::create([
+                    'email_verified_at' => now(),
+                    'name' => $unitData['kepala'],
+                    'unit_id' => $unit->id,
+                    'email' => Str::lower(str_replace(' ', '_', $unitRole->name)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $unitRole->name)) . "%")->count() + 1 . "@email.com",
+                    'password' => bcrypt('123'), // Password default
+                ]);
+            }
+
             $unitUser->roles()->attach($unitRole->id);
-            $roleMulti = ['Pejabat Pelaksana Teknis Kegiatan', 'Pemeriksa Barang', 'Perencanaan'];
+            $roleMulti = ['Pejabat Pelaksana Teknis Kegiatan', 'Perencanaan', 'P3K'];
             foreach ($roleMulti as $role) {
-                for ($i = 1; $i <= 3; $i++) {
+                $name = $role;
+                if ($role == 'Pejabat Pelaksana Teknis Kegiatan') {
+                    $name = 'pptk';
+                } elseif ($role == 'Pejabat Pembuat Komitmen') {
+                    $name = 'ppk';
+                }
+                // for ($i = 1; $i <= 1; $i++) {
+                if ($unit->hak) {
                     User::create([
                         'email_verified_at' => now(),
                         'name' => $this->faker->name(),
@@ -816,7 +778,17 @@ class UnitSeeder extends Seeder
                         'email' => Str::lower(str_replace(' ', '_', $role)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $role)) . "%")->count() + 1 . "@email.com",
                         'password' => bcrypt('123'), // Password default
                     ])->roles()->attach(Role::where('name', $role)->first()->id);
+                } else {
+                    User::firstOrCreate([
+                        'email' => Str::lower($name) . ".{$sudin}@test.com",
+                    ], [
+                        'email_verified_at' => now(),
+                        'name' => $this->faker->name(),
+                        'unit_id' => $unit->id,
+                        'password' => bcrypt('test@123'), // Password default
+                    ])->roles()->attach(Role::where('name', $role)->first()->id);
                 }
+                // }
             }
 
 
@@ -843,8 +815,7 @@ class UnitSeeder extends Seeder
 
             $defaultRoles = [
                 'Pejabat Pembuat Komitmen',
-                'Kasatpel',
-                'Pemeriksa Barang',
+                // 'Kepala Satuan Pelaksana',
                 'Pengurus Barang',
             ];
 
@@ -852,13 +823,35 @@ class UnitSeeder extends Seeder
 
 
             foreach ($roleOnce as $item) {
-                User::create([
-                    'email_verified_at' => now(),
-                    'name' => $this->faker->name(),
-                    'unit_id' => $unit->id,
-                    'email' => Str::lower(str_replace(' ', '_', $item)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $item)) . "%")->count() + 1 . "@email.com",
-                    'password' => bcrypt('123'), // Password default
-                ])->roles()->attach(Role::where('name', $item)->first()->id);
+                $name = $item;
+                if ($item == 'Pejabat Pelaksana Teknis Kegiatan') {
+                    $name = 'pptk';
+                } elseif ($item == 'Pejabat Pembuat Komitmen') {
+                    $name = 'ppk';
+                } elseif ($item == 'Pengurus Barang') {
+                    $name = 'pb';
+                }
+                if ($unit->hak) {
+                    # code...
+                    User::create([
+                        'email_verified_at' => now(),
+                        'name' => $this->faker->name(),
+                        'unit_id' => $unit->id,
+                        'email' => Str::lower(str_replace(' ', '_', $role)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $role)) . "%")->count() + 1 . "@email.com",
+                        'password' => bcrypt('123'), // Password default
+                    ])->roles()->attach(Role::where('name', $role)->first()->id);
+                } else {
+                    # code...
+                    User::create([
+                        'email_verified_at' => now(),
+                        'name' => $this->faker->name(),
+                        'unit_id' => $unit->id,
+                        'email' => Str::lower($name) . ".{$sudin}@test.com",
+
+                        'password' => bcrypt('test@123'), // Password default
+
+                    ])->roles()->attach(Role::where('name', $item)->first()->id);
+                }
             }
 
             $roleName = 'Penanggung Jawab'; // Role yang akan digunakan
@@ -942,6 +935,7 @@ class UnitSeeder extends Seeder
                         ])->roles()->attach($pengurusBarangRole->id);
                     }
                 }
+
                 // Tambahkan Customer Service dari CS Jika Ada
                 if (isset($subUnit['cs'])) {
                     $csRole = Role::firstOrCreate([
