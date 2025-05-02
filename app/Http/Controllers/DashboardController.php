@@ -17,7 +17,7 @@ class DashboardController extends Controller
     {
         if (!Auth::user()->unitKerja->hak) {
             $roleRedirectMap = [
-                'Kepala Suku Dinas' => 'dashboard',
+                // 'Kepala Suku Dinas' => 'dashboard',
                 'Kepala Satuan Pelaksana' => 'permintaan/material',
                 'Perencanaan' => 'rab',
                 'Kepala Seksi' => 'permintaan/material',
@@ -31,8 +31,10 @@ class DashboardController extends Controller
                     break;
                 }
             }
-
-            return redirect()->to($to);
+            if (!Auth::user()->hasRole(['Kepala Suku Dinas'])) {
+                # code...
+                return redirect()->to($to);
+            }
         }
 
         $agendas = Agenda::with('aset')
