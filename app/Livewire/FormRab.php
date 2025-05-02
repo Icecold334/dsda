@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Models\Kegiatan;
+use App\Models\Program;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -10,14 +12,22 @@ class FormRab extends Component
     public $listCount;
 
     // Semua field yang dipakai di form
-    public $program;
-    public $nama;
-    public $sub_kegiatan;
-    public $rincian_sub_kegiatan;
-    public $kode_rekening;
+    public $program, $programs = [];
+    public $nama, $namas = [];
+    public $sub_kegiatan, $sub_kegiatans = [];
+    public $rincian_sub_kegiatan, $rincian_sub_kegiatans = [];
+    public $kode_rekening, $kode_rekenings = [];
     public $mulai;
     public $selesai;
     public $lokasi;
+    public function mount()
+    {
+        $this->programs = Program::where('bidang_id', $this->unit_id)->get();
+        // $this->namas = $this->programs->children;
+        // $this->sub_kegiatans = $this->namas->children;
+        // $this->rincian_sub_kegiatans = $this->sub_kegiatans->children;
+        // $this->kode_rekenings = $this->rincian_sub_kegiatans->children;
+    }
 
     #[On('listCount')]
     public function fillCount($count)
@@ -27,7 +37,38 @@ class FormRab extends Component
 
     public function updated($field)
     {
-        // Kirim semua data yang relevan saat field berubah
+        if ($field === 'program') {
+            $this->namas = \App\Models\Kegiatan::where('program_id', $this->program)->get();
+            $this->nama = null;
+            $this->sub_kegiatan = null;
+            $this->sub_kegiatans = [];
+            $this->rincian_sub_kegiatan = null;
+            $this->rincian_sub_kegiatans = [];
+            $this->kode_rekening = null;
+            $this->kode_rekenings = [];
+        }
+
+        if ($field === 'nama') {
+            $this->sub_kegiatans = \App\Models\SubKegiatan::where('kegiatan_id', $this->nama)->get();
+            $this->sub_kegiatan = null;
+            $this->rincian_sub_kegiatan = null;
+            $this->rincian_sub_kegiatans = [];
+            $this->kode_rekening = null;
+            $this->kode_rekenings = [];
+        }
+
+        if ($field === 'sub_kegiatan') {
+            $this->rincian_sub_kegiatans = \App\Models\AktivitasSubKegiatan::where('sub_kegiatan_id', $this->sub_kegiatan)->get();
+            $this->rincian_sub_kegiatan = null;
+            $this->kode_rekening = null;
+            $this->kode_rekenings = [];
+        }
+
+        if ($field === 'rincian_sub_kegiatan') {
+            $this->kode_rekenings = \App\Models\UraianRekening::where('aktivitas_sub_kegiatan_id', $this->rincian_sub_kegiatan)->get();
+            $this->kode_rekening = null;
+        }
+
         $this->dispatch('dataKegiatan', data: [
             'program' => $this->program,
             'nama' => $this->nama,
@@ -39,6 +80,7 @@ class FormRab extends Component
             'lokasi' => $this->lokasi,
         ]);
     }
+
 
     public function render()
     {

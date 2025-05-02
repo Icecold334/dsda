@@ -9,68 +9,85 @@
                             <label for="program" class="block mb-2">Program *</label>
                         </td>
                         <td>
-                            <input type="text" id="program" wire:model.live="program" @disabled($listCount)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 {{ $listCount ? 'cursor-not-allowed opacity-50' : '' }}">
-                            @error('program')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                            <select id="program" wire:model.live="program" @disabled($listCount) class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                               focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
+                               dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                               dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value="">-- Pilih Program --</option>
+                                @foreach($programs as $item)
+                                <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->program }}</option>
+                                @endforeach
+                            </select>
                         </td>
                     </tr>
 
-                    <!-- Nama Kegiatan -->
+                    <!-- Kegiatan -->
                     <tr>
-                        <td class="font-semibold">
-                            <label for="nama_kegiatan" class="block mb-2">Nama Kegiatan *</label>
-                        </td>
+                        <td class="font-semibold"><label for="nama" class="block mb-2">Kegiatan *</label></td>
                         <td>
-                            <input type="text" id="nama_kegiatan" wire:model.live="nama" @disabled($listCount)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 {{ $listCount ? 'cursor-not-allowed opacity-50' : '' }}">
-                            @error('nama_kegiatan')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                            <select id="nama" wire:model.live="nama" @disabled(!$program || $listCount) class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                               focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
+                               dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                               dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value="">-- Pilih Kegiatan --</option>
+                                @foreach($namas as $item)
+                                <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->kegiatan }}</option>
+                                @endforeach
+                            </select>
                         </td>
                     </tr>
 
                     <!-- Sub Kegiatan -->
                     <tr>
-                        <td class="font-semibold">
-                            <label for="sub_kegiatan" class="block mb-2">Sub Kegiatan *</label>
+                        <td class="font-semibold"><label for="sub_kegiatan" class="block mb-2">Sub Kegiatan *</label>
                         </td>
                         <td>
-                            <input type="text" id="sub_kegiatan" wire:model.live="sub_kegiatan" @disabled($listCount)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 {{ $listCount ? 'cursor-not-allowed opacity-50' : '' }}">
-                            @error('sub_kegiatan')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                            <select id="sub_kegiatan" wire:model.live="sub_kegiatan" @disabled(!$nama || $listCount)
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                               focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
+                               dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                               dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value="">-- Pilih Sub Kegiatan --</option>
+                                @foreach($sub_kegiatans as $item)
+                                <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->sub_kegiatan }}</option>
+                                @endforeach
+                            </select>
                         </td>
                     </tr>
 
                     <!-- Rincian Sub Kegiatan -->
                     <tr>
-                        <td class="font-semibold">
-                            <label for="rincian_sub_kegiatan" class="block mb-2">Rincian Sub Kegiatan *</label>
-                        </td>
+                        <td class="font-semibold"><label for="rincian_sub_kegiatan" class="block mb-2">Rincian Sub
+                                Kegiatan *</label></td>
                         <td>
-                            <input type="text" id="rincian_sub_kegiatan" wire:model.live="rincian_sub_kegiatan"
-                                @disabled($listCount)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 {{ $listCount ? 'cursor-not-allowed opacity-50' : '' }}">
-                            @error('rincian_sub_kegiatan')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                            <select id="rincian_sub_kegiatan" wire:model.live="rincian_sub_kegiatan"
+                                @disabled(!$sub_kegiatan || $listCount) class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                               focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
+                               dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                               dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value="">-- Pilih Rincian --</option>
+                                @foreach($rincian_sub_kegiatans as $item)
+                                <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->aktivitas }}</option>
+                                @endforeach
+                            </select>
                         </td>
                     </tr>
 
                     <!-- Kode Rekening -->
                     <tr>
-                        <td class="font-semibold">
-                            <label for="kode_rekening" class="block mb-2">Kode Rekening *</label>
+                        <td class="font-semibold"><label for="kode_rekening" class="block mb-2">Kode Rekening *</label>
                         </td>
                         <td>
-                            <input type="text" id="kode_rekening" wire:model.live="kode_rekening" @disabled($listCount)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 {{ $listCount ? 'cursor-not-allowed opacity-50' : '' }}">
-                            @error('kode_rekening')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                            <select id="kode_rekening" wire:model.live="kode_rekening" @disabled(!$rincian_sub_kegiatan
+                                || $listCount) class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                               focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
+                               dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                               dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value="">-- Pilih Kode Rekening --</option>
+                                @foreach($kode_rekenings as $item)
+                                <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->uraian }}</option>
+                                @endforeach
+                            </select>
                         </td>
                     </tr>
 

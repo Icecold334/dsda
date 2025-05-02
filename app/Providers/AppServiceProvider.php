@@ -32,19 +32,12 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(245);
 
         // Auth::loginUsingId(1); //superadmin
-        // Auth::loginUsingId(537);
-        // Auth::loginUsingId(299);
-        // Auth::loginUsingId(297);
-        // Auth::loginUsingId(291);
-        // Auth::loginUsingId(594);
-        // Auth::loginUsingId(301);
-        // Auth::loginUsingId(297);
-        // Auth::loginUsingId(594);
-        // Auth::loginUsingId(279);
-        // Auth::loginUsingId(278);
-        // Auth::loginUsingId(288);
-        Auth::loginUsingId(289);
-        // Auth::loginUsingId(1);
+        // Auth::loginUsingId(175); //kasudin
+        // Auth::loginUsingId(177); // perencanaan
+        // Auth::loginUsingId(553); // kasatpel
+        // Auth::loginUsingId(190); // kasipemel drain
+        // Auth::loginUsingId(186); // kasubag tu
+        // Auth::loginUsingId(180); // pb
     }
 
     // public function test()

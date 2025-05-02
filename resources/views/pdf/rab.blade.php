@@ -22,28 +22,28 @@
   }
 </style>
 
-<h4 style="text-align:center;">REKAPITULASI KEBUTUHAN BAHAN MATERIAL</h4>
+<h4 style="text-align:center;">RENCANA ANGGARAN BIAYA</h4>
 
 <table border="0" cellspacing="2" cellpadding="2" width="100%">
   <tr>
     <td width="30%">PROGRAM</td>
     <td width="2%">:</td>
-    <td width="68%">{{ $rab->program }}</td>
+    <td width="68%">{{ $rab->program->kode }} {{ $rab->program->program }}</td>
   </tr>
   <tr>
     <td>NAMA KEGIATAN</td>
     <td>:</td>
-    <td>{{ $rab->nama }}</td>
+    <td>{{ $rab->kegiatan->kode }} {{ $rab->kegiatan->kegiatan }}</td>
   </tr>
   <tr>
     <td>SUB KEGIATAN</td>
     <td>:</td>
-    <td>{{ $rab->sub_kegiatan }}</td>
+    <td>{{ $rab->subKegiatan->kode }} {{ $rab->subKegiatan->sub_kegiatan }}</td>
   </tr>
   <tr>
     <td style="white-space: normal;">{!! nl2br(e('RINCIAN SUB KEGIATAN')) !!}</td>
     <td>:</td>
-    <td>{{ $rab->rincian_sub_kegiatan }}</td>
+    <td>{{ $rab->aktivitasSubKegiatan->kode }} {{ $rab->aktivitasSubKegiatan->aktivitas }}</td>
   </tr>
   <tr>
     <td>UNIT</td>
@@ -53,7 +53,7 @@
   <tr>
     <td>KODE REKENING</td>
     <td>:</td>
-    <td>{{ $rab->kode_rekening }}</td>
+    <td>{{ $rab->uraianRekening->kode }} {{ $rab->uraianRekening->uraian }}</td>
   </tr>
   <tr>
     <td>TAHUN ANGGARAN</td>

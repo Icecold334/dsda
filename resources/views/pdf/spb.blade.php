@@ -1,93 +1,126 @@
 <style>
   body {
-    font-family: DejaVu Sans, sans-serif;
+    font-family: helvetica, sans-serif;
     font-size: 11px;
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
+  table.meta td {
+    padding: 2px 4px;
+    vertical-align: top;
   }
 
-  th,
-  td {
+  table.bahan {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  table.bahan,
+  .bahan th,
+  .bahan td {
     border: 1px solid #000;
-    padding: 4px;
+    padding: 6px;
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  .header-text {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    /* line-height: 1.6; */
+  }
+
+  .tembusan {
+    font-size: 10px;
+    margin-top: 30px;
   }
 </style>
+{{-- HEADER + LOGO --}}
+<table class="header-table">
+  <tr>
+    <td class="header-logo" width="28%">
+      <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI" width="80">
+    </td>
+    <td class="header-text">
+      PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
+      DINAS SUMBER DAYA AIR<br>
+      SUKU DINAS SUMBER DAYA AIR<br>
+      KOTA ADMINISTRASI {{ strtoupper(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
+      $permintaan->unit->nama)) }}<br>
+      <div style="font-weight: normal; font-size: 11px; ">
+        {{ $permintaan->unit->alamat }}
+      </div>
+      <div>
+        J A K A R T A
+      </div>
+    </td>
+  </tr>
+</table>
 
-<p style="text-align:right">Jakarta, {{ $tanggal }}</p>
+<br>
 
-<p><strong>Nomor:</strong> 091/PBM/MKS/III/2025<br>
-  <strong>Hal:</strong> Permohonan Bahan Material
-</p>
+{{-- NOMOR --}}
+<p class="meta"><strong>No</strong> : nomor</p>
 
-<p>Kepada<br>
-  Yth. Kepala Suku Dinas Sumber Daya Air<br>
-  Kota Administrasi Jakarta Timur</p>
+{{-- JUDUL --}}
+<h3 class="center">SURAT PERMINTAAN BARANG</h3>
 
+{{-- PARAGRAF UTAMA --}}
 <p>
-  Sehubungan dengan Sub Kegiatan Operasi dan Pemeliharaan Sistem Drainase Perkotaan Tahun Anggaran 2025 di Wilayah Kota
-  Administrasi Jakarta Timur, bersama ini saya mengajukan Permohonan Bahan Material untuk lokasi sebagai berikut:
+  Berdasarkan dengan RAB kegiatan Nomor <strong>{{ $permintaan->rab->kegiatan->kode }}</strong>,
+  <strong>{{ $permintaan->rab->kegiatan->kegiatan }}</strong> di <strong>{{ $permintaan->rab->lokasi }}</strong>,
+  dengan ini saya mengajukan permohonan penyediaan bahan material dengan rincian sebagai berikut:
 </p>
 
-<p><strong>Lokasi Pekerjaan:</strong> {{ $lokasi }}<br>
-  <strong>Detail Lokasi:</strong> {{ $detailLokasi }}<br>
-  <strong>Kecamatan:</strong> {{ $kecamatan }}
-</p>
-
-<table>
+{{-- TABEL --}}
+<table class="bahan">
   <thead>
     <tr>
-      <th style="width: 40px;">No</th>
-      <th>Nama Barang</th>
-      <th>Volume</th>
-      <th>Satuan</th>
+      <th width="30" align="center">NO</th>
+      <th width="100" align="center">NAMA</th>
+      <th width="300" align="center">SPESIFIKASI</th>
+      <th width="100" align="center">VOLUME</th>
     </tr>
   </thead>
   <tbody>
-    @foreach ($barang as $i => $b)
+    @foreach ($permintaan->permintaanMaterial as $item)
     <tr>
-      <td align="center" style="width: 40px;">{{ $i + 1 }}</td>
-      <td>{{ $b['nama'] }}</td>
-      <td align="center">{{ $b['volume'] }}</td>
-      <td align="center">{{ $b['satuan'] }}</td>
+      <td width="30" class="center">{{ $loop->iteration }}</td>
+      <td width="100">{{ $item->merkStok->barangStok->nama }}</td>
+      <td width="300">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
+        $item->merkStok->tipe ?? 'Tanpa tipe' }} -
+        {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
+      <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
     </tr>
     @endforeach
   </tbody>
 </table>
 
+{{-- FOOTER + TTD --}}
 <br><br>
-<table style="border:none">
+<table width="100%">
   <tr>
-    <td style="border:none; width:50%; text-align:center">
+    <td align="center">
       Mengetahui,<br>
-      Kepala Seksi Pemeliharaan Drainase<br><br><br><br>
-      <strong>{{ $mengetahui }}</strong>
-    </td>
-    <td style="border:none; width:50%; text-align:center;">
-      <strong>Pemohon,</strong><br>
-      Kepala Satuan Pelaksana<br>
-      Kecamatan Makasar<br>
-      Suku Dinas Sumber Daya Air<br>
-      Kota Administrasi Jakarta Timur<br><br>
+      Kepala Seksi Pemeliharaan<br><br><br>
 
-      {{-- Blok tanda tangan + nama --}}
-      <table align="center" style="border:none; margin-top: 10px;">
-        <tr>
-          <td style="border:none; text-align:center;">
-            @if(file_exists($ttd_pemohon))
-            <img src="{{ $ttd_pemohon }}" width="120" style="margin-bottom: 5px;" alt="TTD">
-            @endif
-          </td>
-        </tr>
-        <tr>
-          <td style="border:none; text-align:center;">
-            <strong>{{ $pemohon }}</strong><br>
-            NIP 46546465
-          </td>
-        </tr>
-      </table>
+      <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
+
+      <b>{{ $pemel->name }}</b><br>
+      NIP. {{ $pemel->nip }}
+    </td>
+    <td align="center">
+      Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}<br>
+      Kepala Satuan Pelaksana<br>
+      Kecamatan {{ $kasatpel->kecamatan->kecamatan }}<br><br>
+
+      <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
+
+      <b>{{ $kasatpel->name }}</b><br>
+      NIP. {{ $kasatpel->nip }}
     </td>
   </tr>
 </table>

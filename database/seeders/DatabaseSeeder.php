@@ -51,6 +51,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UnitSeeder::class,
             PermissionSeeder::class,
+            KasatpelSeeder::class,
             KategoriAsetSeeder::class,
             LokasiAsetSeeder::class,
             MerkAsetSeeder::class,
@@ -204,11 +205,11 @@ class DatabaseSeeder extends Seeder
                 'tanggal_permintaan' => strtotime(Carbon::now()),
                 'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
                 'kategori_id' => $f ? KategoriStok::inRandomOrder()->first()->id : null,
-                'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')
-                    ->where('unit_id', $parentUnit->id)
-                    ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
-                    ->latest()
-                    ->first()->id,
+                // 'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')
+                //     ->where('unit_id', $parentUnit->id)
+                //     ->where('created_at', '<=', now()) // Pastikan data sebelum waktu saat ini
+                //     ->latest()
+                //     ->first()->id,
                 'jenis_id' => $f ? 3 : $faker->randomElement([1, 2]), // unit_id diambil dari unit induk
                 'unit_id' => $parentUnit->id, // unit_id diambil dari unit induk
                 'keterangan' => $faker->paragraph(),

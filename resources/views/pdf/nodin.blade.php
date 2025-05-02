@@ -25,28 +25,85 @@
   .center {
     text-align: center;
   }
+
+  .header-text {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    /* line-height: 1.6; */
+  }
+
+  .tembusan {
+    font-size: 10px;
+    margin-top: 30px;
+  }
 </style>
 
-<h3 class="center">NOTA DINAS</h3>
+<table class="header-table">
+  <tr>
+    <td class="header-logo" width="28%">
+      <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI" width="80">
+    </td>
+    <td class="header-text">
+      PEMERINTAH PROVINSI DAERAH KHUSUS<br>
+      IBUKOTA JAKARTA<br>
+      DINAS SUMBER DAYA AIR<br>
+      SUKU DINAS SUMBER DAYA AIR<br>
+      KOTA ADMINISTRASI {{ strtoupper(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
+      $permintaan->unit->nama)) }}<br>
+      <div style="font-weight: normal; font-size: 11px; ">
+        {{ $permintaan->unit->alamat }}
+      </div>
+      <div>
+        J A K A R T A
+      </div>
+    </td>
+  </tr>
+</table>
+<table width="100%" style="margin-top: 20px;">
+  <tr>
+    <!-- Kiri: metadata -->
+    <td style="width: 60%; vertical-align: top;">
+      <table class="meta-table">
+        <tr>
+          <td width="20%">Nomor</td>
+          <td>: {{ $permintaan->nodin }}</td>
+        </tr>
+        <tr>
+          <td>Sifat</td>
+          <td>: Penting</td>
+        </tr>
+        <tr>
+          <td>Lampiran</td>
+          <td>: {{ count($permintaan->lampiran) ? count($permintaan->lampiran) . ' (satu) berkas' : '-' }}</td>
+        </tr>
+        <tr>
+          <td>Hal</td>
+          <td>: Surat Permintaan Barang</td>
+        </tr>
+      </table>
+    </td>
 
-<table class="meta" width="100%">
-  <tr>
-    <td width="10%">Kepada</td>
-    <td width="90%">: Kepala Suku Dinas {{ str_replace('Suku Dinas','',$permintaan->unit->nama) }}</td>
-  </tr>
-  <tr>
-    <td>Dari</td>
-    <td>: Kepala Satuan Pelaksana {{ $permintaan->unit->nama }}</td>
-  </tr>
-  <tr>
-    <td>Nomor</td>
-    <td>: {{ $permintaan->nodin }}</td>
+    <!-- Kanan: alamat tujuan -->
+    <td style="width: 40%; vertical-align: top; text-align: left;">
+      <p style="margin-left: 30px;">
+        Yth.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Kepala Suku Dinas Sumber Daya Air<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;{{ str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
+        $permintaan->unit->nama) }} <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;di <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Jakarta
+      </p>
+    </td>
   </tr>
 </table>
 
+<br>
+
+
 <p>
-  Sehubungan dengan {{$permintaan->nama}} dalam rangka {{ $permintaan->keterangan }}
-  di {{$permintaan->lokasi}} maka dimohonkan untuk diberikannya material sebagai
+  Sehubungan dengan kebutuhan pelaksanaan kegiatan {{ $permintaan->nama }}, dalam rangka {{ $permintaan->keterangan }}
+  di {{ $permintaan->lokasi }}, dengan ini saya mengajukan permohonan penyediaan bahan material dengan rincian sebagai
   berikut:
 </p>
 
@@ -72,19 +129,26 @@
     @endforeach
   </tbody>
 </table>
-
 <p>
-  Demikian Nota Dinas ini disampaikan. Atas arahan dan perhatiannya diucapkan terima kasih.
+  Adapun bahan material tersebut diperlukan untuk keperluan tersebut di atas. Demikian permohonan ini kami sampaikan.
+  Atas perhatian dan kerjasamanya, saya ucapkan terima kasih.
 </p>
-
 <br><br>
 <table width="100%">
   <tr>
-    <td></td>
+    <td align="center">
+      Mengetahui,<br>
+      Kepala Seksi Pemeliharaan<br><br><br>
+
+      <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
+
+      <b>{{ $pemel->name }}</b><br>
+      NIP. {{ $pemel->nip }}
+    </td>
     <td align="center">
       Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}<br>
       Kepala Satuan Pelaksana<br>
-      {{ $permintaan->unit->nama }}<br><br>
+      Kecamatan {{ $kasatpel->kecamatan->kecamatan }}<br><br>
 
       <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
 
@@ -93,3 +157,10 @@
     </td>
   </tr>
 </table>
+
+<div class="tembusan">
+  Tembusan:<br>
+  Kepala Subbagian Tata Usaha Suku Dinas Sumber Daya Air{{ str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ',
+  '',
+  $permintaan->unit->nama) }}
+</div>

@@ -44,7 +44,7 @@ class ShowPermintaanMaterial extends Component
             User::whereHas('unitKerja', function ($unit) use ($unit_id) {
                 return $unit->where('id', $unit_id);
             })->whereHas('roles', function ($role) {
-                return $role->where('name', 'like', '%Kasatpel%');
+                return $role->where('name', 'like', '%Kepala Satuan Pelaksana%');
             })->first();
         $penjaga =
             User::whereHas('unitKerja', function ($unit) use ($unit_id) {
@@ -227,9 +227,15 @@ class ShowPermintaanMaterial extends Component
             User::whereHas('unitKerja', function ($unit) use ($unit_id) {
                 return $unit->where('id', $unit_id);
             })->whereHas('roles', function ($role) {
-                return $role->where('name', 'like', '%Kasatpel%');
+                return $role->where('name', 'like', '%Kepala Satuan Pelaksana%');
             })->first();
-        $html = view(!$permintaan->rab_id ? 'pdf.nodin' : 'pdf.spb', compact('permintaan', 'kasatpel'))->render();
+        $pemel =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Pemeliharaan%');
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Kepala Seksi%');
+            })->first();
+        $html = view(!$permintaan->rab_id ? 'pdf.nodin' : 'pdf.spb', compact('permintaan', 'kasatpel', 'pemel'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();

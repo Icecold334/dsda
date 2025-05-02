@@ -39,7 +39,7 @@
                                 dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 <option value="">Pilih RAB</option>
                                 @foreach ($rabs as $rab)
-                                <option value="{{ $rab->id }}">{{ $rab->nama }}</option>
+                                <option value="{{ $rab->id }}">{{ $rab->kegiatan->kegiatan }}</option>
                                 @endforeach
                             </select>
                             @error('rab_id')

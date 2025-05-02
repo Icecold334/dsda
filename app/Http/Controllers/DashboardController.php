@@ -9,12 +9,31 @@ use App\Models\Jurnal;
 use App\Models\History;
 use App\Models\Kategori;
 use App\Models\Keuangan;
-
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        if (!Auth::user()->unitKerja->hak) {
+            $roleRedirectMap = [
+                'Kepala Suku Dinas' => 'dashboard',
+                'Kepala Satuan Pelaksana' => 'permintaan/material',
+                'Perencanaan' => 'rab',
+                'Kepala Seksi' => 'permintaan/material',
+                'Kepala Subbagian' => 'permintaan/material',
+                'Pengurus Barang' => 'permintaan/material',
+            ];
+
+            foreach ($roleRedirectMap as $role => $target) {
+                if (Auth::user()->hasRole($role)) {
+                    $to = $target;
+                    break;
+                }
+            }
+
+            return redirect()->to($to);
+        }
 
         $agendas = Agenda::with('aset')
             ->where([['status', 1], ['tipe', 'mingguan']])

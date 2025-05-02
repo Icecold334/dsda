@@ -2,7 +2,7 @@
     <div class="flex w-full justify-evenly border-t-4 py-6">
         <!-- Penulis -->
         <div>
-            <div class="block font-semibold text-center mb-2 text-gray-900">Pemohon</div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">Perencanaan</div>
             <div class="text-sm border-b-2">
                 <div class="flex justify-between px-3">
                     <span class="mr-9 {{ $penulis->id == auth()->id() ? 'font-bold' : '' }}">

@@ -147,10 +147,10 @@ class PermissionSeeder extends Seeder
             'RAB_tambah_rab',
         ]);
 
-        syncPermissions('Kasatpel', [
+        syncPermissions('Kepala Satuan Pelaksana', [
             'permintaan_tambah_permintaan',
         ]);
-        syncPermissions('Penjaga Gudang', [
+        syncPermissions('Pengurus Barang', [
             'permintaan_upload_foto_dan_ttd_driver',
             'inventaris_unggah_foto_barang_datang'
         ]);

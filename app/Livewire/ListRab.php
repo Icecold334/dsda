@@ -101,11 +101,11 @@ class ListRab extends Component
     {
         $rab = Rab::create([
             'user_id' => Auth::id(),
-            'program' => $this->dataKegiatan['program'],
-            'nama' => $this->dataKegiatan['nama'],
-            'sub_kegiatan' => $this->dataKegiatan['sub_kegiatan'],
-            'rincian_sub_kegiatan' => $this->dataKegiatan['rincian_sub_kegiatan'],
-            'kode_rekening' => $this->dataKegiatan['kode_rekening'],
+            'program_id' => $this->dataKegiatan['program'],
+            'kegiatan_id' => $this->dataKegiatan['nama'],
+            'sub_kegiatan_id' => $this->dataKegiatan['sub_kegiatan'],
+            'aktivitas_sub_kegiatan_id' => $this->dataKegiatan['rincian_sub_kegiatan'],
+            'uraian_rekening_id' => $this->dataKegiatan['kode_rekening'],
             'lokasi' => $this->dataKegiatan['lokasi'],
             'mulai' => $this->dataKegiatan['mulai'],
             'selesai' => $this->dataKegiatan['selesai'],

@@ -18,31 +18,31 @@
           <!-- Program -->
           <tr class="font-semibold">
             <td>Program</td>
-            <td>{{ $rab->program }}</td>
+            <td>{{ $rab->program->program }}</td>
           </tr>
 
           <!-- Nama Kegiatan -->
           <tr class="font-semibold">
             <td>Nama Kegiatan</td>
-            <td>{{ $rab->nama }}</td>
+            <td>{{ $rab->kegiatan->kegiatan }}</td>
           </tr>
 
           <!-- Sub Kegiatan -->
           <tr class="font-semibold">
             <td>Sub Kegiatan</td>
-            <td>{{ $rab->sub_kegiatan }}</td>
+            <td>{{ $rab->subKegiatan->sub_kegiatan }}</td>
           </tr>
 
           <!-- Rincian Sub Kegiatan -->
           <tr class="font-semibold">
             <td>Rincian Sub Kegiatan</td>
-            <td>{{ $rab->rincian_sub_kegiatan }}</td>
+            <td>{{ $rab->aktivitasSubKegiatan->aktivitas }}</td>
           </tr>
 
           <!-- Kode Rekening -->
           <tr class="font-semibold">
             <td>Kode Rekening</td>
-            <td>{{ $rab->kode_rekening }}</td>
+            <td>{{ $rab->uraianRekening->uraian }}</td>
           </tr>
 
           <!-- Status -->

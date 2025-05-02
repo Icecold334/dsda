@@ -73,6 +73,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id');
     }
+    public function kecamatan()
+    {
+        return $this->belongsTo(Kecamatan::class, 'kecamatan_id');
+    }
     public function persetujuankontrak()
     {
         return $this->hasMany(PersetujuanKontrakStok::class, 'user_id');

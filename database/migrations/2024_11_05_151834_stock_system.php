@@ -361,6 +361,7 @@ return new class extends Migration
             $table->string('kode', 50)->nullable();
             $table->integer('hak')->nullable();
             $table->text('keterangan')->nullable();
+            $table->text('alamat')->nullable();
             $table->timestamps();
         });
     }

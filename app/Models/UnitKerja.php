@@ -12,6 +12,7 @@ class UnitKerja extends Model
         'nama',
         'parent_id',
         'kode',
+        'alamat',
         'keterangan',
     ];
 

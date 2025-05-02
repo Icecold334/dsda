@@ -48,7 +48,7 @@ class ApprovalMaterial extends Component
             $this->files = [];
         }
         $this->user = Auth::user();
-        $this->roles = ['Kepala Seksi', 'Kepala Subbagian', 'Pengurus Barang', 'Penjaga Gudang'];
+        $this->roles = ['Kepala Seksi', 'Kepala Subbagian', 'Pengurus Barang'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
@@ -219,7 +219,7 @@ class ApprovalMaterial extends Component
             // Hasilkan QR Code ke file
             $writer->writeFile($qrContent, $filePath);
         }
-        if ($this->currentApprovalIndex + 1 == 4 && $status) {
+        if ($this->currentApprovalIndex + 1 == 3 && $status) {
             $this->permintaan->update(['status' => 2, 'driver' => $driver, 'nopol' => $nopol, 'security' => $security]);
         }
 

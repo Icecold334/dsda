@@ -8,9 +8,9 @@
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
                 {{ $permintaan->rab_id?'Surat Permohonan Barang':'Nota Dinas' }}</a>
             @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2)
-            <a wire:click='sppb'
+            {{-- <a wire:click='sppb'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
-                SPPB</a>
+                SPPB</a> --}}
 
             <a wire:click='qrCode'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
@@ -33,7 +33,7 @@
                     @if ($permintaan->rab_id)
                     <tr class="font-semibold ">
                         <td>RAB</td>
-                        <td>{{ $permintaan->rab->nama }}</td>
+                        <td>{{ $permintaan->rab->program->program }}</td>
                     </tr>
                     @endif
                     @if (!$permintaan->rab_id)
@@ -95,7 +95,7 @@
             </x-card>
         </div>
         <div
-            class="grid grid-cols-2 gap-6 {{ $permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 3 ?'':'hidden' }}">
+            class="grid grid-cols-2 gap-6 {{ $permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2 ?'':'hidden' }}">
             <x-card title="Foto Barang" class="mb-3">
                 @php
                 $lampiranCount = $permintaan->lampiran->count();
@@ -108,7 +108,7 @@
         </div>
         <input type="file" wire:model.live="newAttachments" multiple class="hidden" id="fileUpload">
         <label for="fileUpload"
-            class="{{ $permintaan->persetujuan()->where('is_approved', 1)->count() <= 4 && !$isOut ? '' : 'hidden' }}
+            class="{{ $permintaan->persetujuan()->where('is_approved', 1)->count() <= 2 && !$isOut ? '' : 'hidden' }}
             text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">
             + Unggah
         </label>

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->foreignId('unit_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
+            $table->foreignId('kecamatan_id')->nullable()->constrained('kecamatans')->onDelete('cascade');
             $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('cascade');
             $table->string('name');
             $table->integer('nip')->nullable()
