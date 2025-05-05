@@ -6,7 +6,7 @@
 
             <a wire:click='spb'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
-                {{ $permintaan->rab_id?'Surat Permohonan Barang':'Nota Dinas' }}</a>
+                Surat Permohonan Barang</a>
             @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2)
             {{-- <a wire:click='sppb'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh

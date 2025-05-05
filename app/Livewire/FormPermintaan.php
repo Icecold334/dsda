@@ -146,7 +146,14 @@ class FormPermintaan extends Component
     {
         $kategori = Request::segment(4);
         $this->kategori = $kategori;
-        $this->gudangs = LokasiStok::where('unit_id', $this->unit_id)->get();
+        $this->gudangs = LokasiStok::where('unit_id', $this->unit_id)
+            ->whereHas('stok', function ($query) {
+                $query->whereHas('merkStok.barangStok', function ($q) {
+                    $q->where('jenis_id', 1);
+                })->where('jumlah', '>', 0);
+            })
+            ->get();
+
         // dd($this->last);
         // 2024 - 12 - 04
         if ($this->last) {

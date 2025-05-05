@@ -35,4 +35,9 @@ class Lokasi extends Model
     {
         return $this->hasMany(History::class, 'lokasi_id');
     }
+
+    public function stok()
+    {
+        return $this->hasMany(Stok::class, 'lokasi_id');
+    }
 }

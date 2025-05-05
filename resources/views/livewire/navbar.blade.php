@@ -19,7 +19,7 @@
             <ul
                 class="flex flex-col md:flex-row md:space-x-0 {{ Request::is('scan/*') || Request::is('qr/*') ? 'hidden' : '' }}">
                 {{-- <ul class="grid grid-flow-col gap-0 -my-4 "> --}}
-                    @if (auth()->user()->hasRole(['Kepala Suku Dinas']))
+                    @if (auth()->user()->hasRole(['Kepala Suku Dinas','P3K']))
                     <livewire:nav-item href="/dashboard" title="home" />
                     <livewire:nav-item title="Rekam Kontrak" :child="[
                     ['href' => '/kontrak-vendor-stok', 'title' => 'Daftar Kontrak'],
