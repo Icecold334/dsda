@@ -133,7 +133,7 @@
             </tr>
             @else
             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
-                <td colspan="3" class="text-center text-xl px-3 py-6 font-bold"> Lengkapi Data Kegiatan</td>
+                <td colspan="4" class="text-center text-xl px-3 py-6 font-bold"> Lengkapi Data Kegiatan</td>
             </tr>
             @endif
             @endif

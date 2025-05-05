@@ -91,10 +91,10 @@
                         </td>
                     </tr>
 
-                    <!-- Tahun Anggarab -->
+                    <!-- Tahun Anggaran -->
                     <tr>
                         <td class="">
-                            <label class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                            <label class="block mb-2 cursor-not-allowed font-semibold text-gray-900 dark:text-white">
                                 Tahun Anggaran *</label>
                         </td>
                         <td>
