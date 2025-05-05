@@ -57,16 +57,16 @@
 
                     <!-- Rincian Sub Kegiatan -->
                     <tr>
-                        <td class="font-semibold"><label for="rincian_sub_kegiatan" class="block mb-2">Rincian Sub
+                        <td class="font-semibold"><label for="aktivitas_sub_kegiatan" class="block mb-2">Aktivitas Sub
                                 Kegiatan *</label></td>
                         <td>
-                            <select id="rincian_sub_kegiatan" wire:model.live="rincian_sub_kegiatan"
+                            <select id="aktivitas_sub_kegiatan" wire:model.live="aktivitas_sub_kegiatan"
                                 @disabled(!$sub_kegiatan || $listCount) class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                                focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
                                dark:bg-gray-700 dark:border-gray-600 dark:text-white
                                dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option value="">-- Pilih Rincian --</option>
-                                @foreach($rincian_sub_kegiatans as $item)
+                                <option value="">-- Pilih Aktivitas --</option>
+                                @foreach($aktivitas_sub_kegiatans as $item)
                                 <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->aktivitas }}</option>
                                 @endforeach
                             </select>
@@ -78,8 +78,8 @@
                         <td class="font-semibold"><label for="kode_rekening" class="block mb-2">Kode Rekening *</label>
                         </td>
                         <td>
-                            <select id="kode_rekening" wire:model.live="kode_rekening" @disabled(!$rincian_sub_kegiatan
-                                || $listCount) class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                            <select id="kode_rekening" wire:model.live="kode_rekening"
+                                @disabled(!$aktivitas_sub_kegiatan || $listCount) class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                                focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
                                dark:bg-gray-700 dark:border-gray-600 dark:text-white
                                dark:focus:ring-primary-500 dark:focus:border-primary-500">
@@ -91,6 +91,30 @@
                         </td>
                     </tr>
 
+                    <!-- Tahun Anggarab -->
+                    <tr>
+                        <td class="">
+                            <label class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Tahun Anggaran *</label>
+                        </td>
+                        <td>
+                            <input type="text" disabled
+                                class="bg-gray-50 border  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                placeholder="Tahun Anggaran" value="{{ Carbon\Carbon::now()->format('Y') }}">
+                        </td>
+                    </tr>
+                    <!-- Jenis Pekerjaan -->
+                    <tr>
+                        <td class="">
+                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Jenis Pekerjaan *</label>
+                        </td>
+                        <td>
+                            <input type="text" wire:model.live="jenis"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                placeholder="Jenis Pekerjaan">
+                        </td>
+                    </tr>
                     <!-- Tanggal Mulai -->
                     <tr>
                         <td class="font-semibold">

@@ -15,8 +15,9 @@ class FormRab extends Component
     public $program, $programs = [];
     public $nama, $namas = [];
     public $sub_kegiatan, $sub_kegiatans = [];
-    public $rincian_sub_kegiatan, $rincian_sub_kegiatans = [];
+    public $aktivitas_sub_kegiatan, $aktivitas_sub_kegiatans = [];
     public $kode_rekening, $kode_rekenings = [];
+    public $jenis;
     public $mulai;
     public $selesai;
     public $lokasi;
@@ -42,8 +43,8 @@ class FormRab extends Component
             $this->nama = null;
             $this->sub_kegiatan = null;
             $this->sub_kegiatans = [];
-            $this->rincian_sub_kegiatan = null;
-            $this->rincian_sub_kegiatans = [];
+            $this->aktivitas_sub_kegiatan = null;
+            $this->aktivitas_sub_kegiatans = [];
             $this->kode_rekening = null;
             $this->kode_rekenings = [];
         }
@@ -51,21 +52,21 @@ class FormRab extends Component
         if ($field === 'nama') {
             $this->sub_kegiatans = \App\Models\SubKegiatan::where('kegiatan_id', $this->nama)->get();
             $this->sub_kegiatan = null;
-            $this->rincian_sub_kegiatan = null;
-            $this->rincian_sub_kegiatans = [];
+            $this->aktivitas_sub_kegiatan = null;
+            $this->aktivitas_sub_kegiatans = [];
             $this->kode_rekening = null;
             $this->kode_rekenings = [];
         }
 
         if ($field === 'sub_kegiatan') {
-            $this->rincian_sub_kegiatans = \App\Models\AktivitasSubKegiatan::where('sub_kegiatan_id', $this->sub_kegiatan)->get();
-            $this->rincian_sub_kegiatan = null;
+            $this->aktivitas_sub_kegiatans = \App\Models\AktivitasSubKegiatan::where('sub_kegiatan_id', $this->sub_kegiatan)->get();
+            $this->aktivitas_sub_kegiatan = null;
             $this->kode_rekening = null;
             $this->kode_rekenings = [];
         }
 
-        if ($field === 'rincian_sub_kegiatan') {
-            $this->kode_rekenings = \App\Models\UraianRekening::where('aktivitas_sub_kegiatan_id', $this->rincian_sub_kegiatan)->get();
+        if ($field === 'aktivitas_sub_kegiatan') {
+            $this->kode_rekenings = \App\Models\UraianRekening::where('aktivitas_sub_kegiatan_id', $this->aktivitas_sub_kegiatan)->get();
             $this->kode_rekening = null;
         }
 
@@ -73,8 +74,9 @@ class FormRab extends Component
             'program' => $this->program,
             'nama' => $this->nama,
             'sub_kegiatan' => $this->sub_kegiatan,
-            'rincian_sub_kegiatan' => $this->rincian_sub_kegiatan,
+            'aktivitas_sub_kegiatan' => $this->aktivitas_sub_kegiatan,
             'kode_rekening' => $this->kode_rekening,
+            'jenis' => $this->jenis,
             'mulai' => $this->mulai,
             'selesai' => $this->selesai,
             'lokasi' => $this->lokasi,

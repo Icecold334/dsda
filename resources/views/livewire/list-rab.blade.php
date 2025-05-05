@@ -1,4 +1,5 @@
 <div>
+
     <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
         <thead>
             <tr class="text-white uppercase">

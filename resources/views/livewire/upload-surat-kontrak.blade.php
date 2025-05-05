@@ -1,6 +1,11 @@
 <div>
-    <div class="font-medium mb-3">Anda bisa mengunggah dokumen, invoice, sertifikat, atau foto tambahan di sini.</div>
+    <div class="font-medium mb-3 {{ $isRab?'hidden':'mt-3' }}">Anda bisa mengunggah dokumen, invoice, sertifikat, atau
+        foto
+        tambahan di sini.</div>
     <div wire:loading wire:target="newAttachments">
+        <livewire:loading>
+    </div>
+    <div wire:loading wire:target="saveAttachments">
         <livewire:loading>
     </div>
     <input type="file" wire:model.live="newAttachments" multiple class="hidden" id="fileUpload">

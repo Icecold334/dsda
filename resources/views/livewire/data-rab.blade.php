@@ -24,12 +24,13 @@
     </div>
     <table class="w-full  border-3 border-separate border-spacing-y-4 ">
         <thead>
-            <tr class="text-white">
+            <tr class="text-white uppercase">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">MULAI </th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SELESAI</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jenis Pekerjaan</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">tahun Anggaran </th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">lokasi</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">tanggal pelaksanaan</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">status</th>
                 <th class="py-3 px-6 bg-primary-950 text-center w-[8%] font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
@@ -38,13 +39,17 @@
             <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                 <td class="py-3 px-6"></td>
                 <td class="py-3 px-6 font-semibold">
-                    <div>{{ $rab->nama }}</div>
+                    <div>{{ $rab->jenis_pekerjaan }}</div>
+                </td>
+                <td class="py-3 px-6 font-semibold text-center">
+                    <div>{{ $rab->created_at->format('Y') }}</div>
                 </td>
                 <td class="py-3 px-6 font-semibold">
-                    <div>{{ $rab->mulai->format('d F Y') }}</div>
+                    <div>{{ $rab->lokasi }}</div>
+
                 </td>
-                <td class="py-3 px-6 font-semibold">
-                    <div>{{ $rab->selesai->format('d F Y') }}</div>
+                <td class="py-3 px-6 font-semibold text-center">
+                    <div>{{ $rab->selesai->format('d F Y') }} - {{ $rab->mulai->format('d F Y') }}</div>
                 </td>
                 <td class="py-3 px-6 font-semibold text-center">
                     <span
@@ -67,7 +72,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="text-center">Tidak ada data barang yang memiliki stok</td>
+                <td colspan="7" class="text-center">Tidak ada data rencana anggaran biaya</td>
             </tr>
             @endforelse
 

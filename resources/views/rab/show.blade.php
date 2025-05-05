@@ -17,7 +17,7 @@
         <table class="w-full">
           <!-- Program -->
           <tr class="font-semibold">
-            <td>Program</td>
+            <td class="w-1/3">Program</td>
             <td>{{ $rab->program->program }}</td>
           </tr>
 
@@ -35,7 +35,7 @@
 
           <!-- Rincian Sub Kegiatan -->
           <tr class="font-semibold">
-            <td>Rincian Sub Kegiatan</td>
+            <td>Aktivitas Sub Kegiatan</td>
             <td>{{ $rab->aktivitasSubKegiatan->aktivitas }}</td>
           </tr>
 
@@ -43,6 +43,11 @@
           <tr class="font-semibold">
             <td>Kode Rekening</td>
             <td>{{ $rab->uraianRekening->uraian }}</td>
+          </tr>
+          <!-- Jenis Pekerjaan -->
+          <tr class="font-semibold">
+            <td>Jenis Pekerjaan</td>
+            <td>{{ $rab->jenis_pekerjaan }}</td>
           </tr>
 
           <!-- Status -->
@@ -64,15 +69,17 @@
 
           <!-- Tanggal Mulai -->
           <tr class="font-semibold">
-            <td>Tanggal Mulai</td>
-            <td>{{ $rab->mulai->format('d F Y') }}</td>
+            <td>Waktu Pengerjaan</td>
+            <td>{{ $rab->mulai->format('d F Y') }} - {{ $rab->selesai->format('d F Y') }} ({{ $rab->lamaPengerjaan }})
+            </td>
           </tr>
 
+          {{--
           <!-- Tanggal Selesai -->
           <tr class="font-semibold">
             <td>Tanggal Selesai</td>
-            <td>{{ $rab->selesai->format('d F Y') }}</td>
-          </tr>
+            <td></td>
+          </tr> --}}
 
           <!-- Lokasi -->
           <tr class="font-semibold">

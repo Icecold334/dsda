@@ -104,8 +104,9 @@ class ListRab extends Component
             'program_id' => $this->dataKegiatan['program'],
             'kegiatan_id' => $this->dataKegiatan['nama'],
             'sub_kegiatan_id' => $this->dataKegiatan['sub_kegiatan'],
-            'aktivitas_sub_kegiatan_id' => $this->dataKegiatan['rincian_sub_kegiatan'],
+            'aktivitas_sub_kegiatan_id' => $this->dataKegiatan['aktivitas_sub_kegiatan'],
             'uraian_rekening_id' => $this->dataKegiatan['kode_rekening'],
+            'jenis_pekerjaan' => $this->dataKegiatan['jenis'],
             'lokasi' => $this->dataKegiatan['lokasi'],
             'mulai' => $this->dataKegiatan['mulai'],
             'selesai' => $this->dataKegiatan['selesai'],
@@ -123,7 +124,7 @@ class ListRab extends Component
         }
         ModelsListRab::insert($data);
         $this->reset('list');
-        $mess = 'RAB <span class="font-semibold">' . $rab->nama . '</span> membutuhkan persetujuan Anda.';
+        $mess = 'RAB <span class="font-semibold">' . $rab->jenis_pekerjaan . '</span> membutuhkan persetujuan Anda.';
 
         $unit_id = $this->unit_id;
         $user = User::whereHas('unitKerja', function ($unit) use ($unit_id) {

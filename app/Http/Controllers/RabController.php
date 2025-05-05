@@ -49,6 +49,24 @@ class RabController extends Controller
         $rab->status_teks = $statusMap[$rab->status]['label'] ?? 'Tidak diketahui';
         $rab->status_warna = $statusMap[$rab->status]['color'] ?? 'gray';
 
+        // Hitung selisih hari
+        $totalHari = $rab->mulai->diffInDays($rab->selesai);
+
+        // Hitung bulan dan sisa hari
+        $bulan = floor($totalHari / 30);
+        $hari  = $totalHari % 30;
+
+        // Buat string durasi
+        $lamaPengerjaan = '';
+        if ($bulan > 0) {
+            $lamaPengerjaan .= $bulan . ' bulan';
+        }
+        if ($hari > 0) {
+            $lamaPengerjaan .= ($lamaPengerjaan ? ' ' : '') . $hari . ' hari';
+        }
+
+        $rab->lamaPengerjaan = $lamaPengerjaan ?: '0 hari';
+
         return view('rab.show', compact('rab'));
     }
 

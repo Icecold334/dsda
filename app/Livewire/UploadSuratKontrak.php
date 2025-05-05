@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\DokumenKontrakStok;
 use App\Models\LampiranRab;
+use Illuminate\Support\Facades\Request;
 use Livewire\Attributes\On;
 
 class UploadSuratKontrak extends Component
@@ -14,10 +15,14 @@ class UploadSuratKontrak extends Component
     use WithFileUploads;
 
 
-    public $attachments = [];
+    public $attachments = [], $isRab;
     public $newAttachments = [];
 
-    public function mount() {}
+    public function mount()
+    {
+        $this->isRab = Request::is('rab/create');
+        // $this->text = $this->isRab ? "" : "Anda bisa mengunggah dokumen, invoice, sertifikat, atau foto tambahan di sini.";
+    }
 
     #[On('saveDokumen')]
     public function saveAttachments($kontrak_id, $isRab = false)
