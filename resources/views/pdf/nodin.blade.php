@@ -212,7 +212,7 @@
 <br>
 <div class="tembusan">
   Tembusan:<br>
-  Kepala Subbagian Tata Usaha Suku Dinas Sumber Daya Air{{ str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ',
+  Kepala Subbagian Tata Usaha Suku Dinas Sumber Daya Air {{ str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ',
   '',
   $permintaan->unit->nama) }}
 </div>

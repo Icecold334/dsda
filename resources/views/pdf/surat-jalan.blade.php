@@ -236,7 +236,7 @@
 
     <td width="50%">
       Mengetahui,<br>
-      Pengurus Barang Suku Dinas {{ Str::lower(strtoupper(str_replace('Suku Dinas ', '',
+      Pengurus Barang Suku Dinas {{ Str::ucfirst(strtoupper(str_replace('Suku Dinas ', '',
       $permintaan->unit->nama))) }}<br><br>
       @if(file_exists($ttdPath ?? ''))
       <img src="{{ $ttdPath }}" height="40"><br>
