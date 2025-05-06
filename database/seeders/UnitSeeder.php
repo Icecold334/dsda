@@ -682,7 +682,7 @@ class UnitSeeder extends Seeder
         $units = $this->units;
 
 
-        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kepala Satuan Pelaksana', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang',  'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver', 'P3K'];
+        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kepala Satuan Pelaksana', 'Admin Sudin', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang',  'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver', 'P3K'];
 
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
@@ -759,6 +759,14 @@ class UnitSeeder extends Seeder
                     'email' => "kasudin.{$sudin}@test.com",
                     'password' => bcrypt('test@123'), // Password default
                 ]);
+                User::firstOrCreate([
+                    'email' => "admin.{$sudin}@test.com",
+                ], [
+                    'email_verified_at' => now(),
+                    'name' => $this->faker->name(),
+                    'unit_id' => $unit->id,
+                    'password' => bcrypt('test@123'), // Password default
+                ])->roles()->attach(Role::where('name', 'Admin Sudin')->first()->id);
             } else {
                 $unitUser = User::create([
                     'email_verified_at' => now(),

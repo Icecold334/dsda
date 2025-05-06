@@ -102,6 +102,10 @@
     </script>
     @endif
 
+    @if (auth()->user()->unitKerja->hak)
     <livewire:data-permintaan>
-        @endif
+        @else
+        <livewire:data-permintaan-material>
+            @endif
+            @endif
 </x-body>

@@ -38,39 +38,81 @@
     margin-top: 30px;
   }
 </style>
-{{-- HEADER + LOGO --}}
+<style>
+  body {
+    font-family: helvetica, sans-serif;
+    font-size: 11px;
+  }
+
+  .header-table {
+    width: 100%;
+    /* border-bottom: 2px solid #000; */
+    padding-top: 8px;
+    padding-bottom: 8px;
+    margin-bottom: 6px;
+  }
+
+  .header-logo img {
+    width: 80px;
+  }
+
+  .header-text {
+    text-align: center;
+    /* font-weight: bold; */
+    font-size: 13px;
+  }
+
+  .header-subtext {
+    font-weight: normal;
+    font-size: 11px;
+    /* margin-top: 4px; */
+  }
+
+  .header-kodepos {
+    text-align: right;
+    font-size: 10px;
+    /* margin-top: -10px; */
+  }
+
+  .underline {
+    border-top: 2px solid black;
+    width: 100%;
+    margin-top: 2px;
+  }
+</style>
+
 <table class="header-table">
   <tr>
-    <td class="header-logo" width="28%">
-      <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI" width="80">
+    <td class="header-logo" width="20%">
+      <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI">
     </td>
-    <td class="header-text">
+    <td class="header-text" width="80%">
       PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
-      DINAS SUMBER DAYA AIR<br>
-      SUKU DINAS SUMBER DAYA AIR<br>
-      KOTA ADMINISTRASI {{ strtoupper(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
-      $permintaan->unit->nama)) }}<br>
-      <div style="font-weight: normal; font-size: 11px; ">
+      <strong>DINAS SUMBER DAYA AIR <br>
+        SUKU DINAS SUMBER DAYA AIR <br></strong>
+      <strong>KOTA ADMINISTRASI {{ strtoupper(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
+        $permintaan->unit->nama)) }}</strong>
+      <div class="header-subtext">
         {{ $permintaan->unit->alamat }}
-      </div>
-      <div>
+        <br>
         J A K A R T A
       </div>
+      {{-- <div>J A K A R T A</div> --}}
     </td>
   </tr>
 </table>
-
-<br>
+<div class="underline"></div>
 
 {{-- NOMOR --}}
-<p class="meta"><strong>No</strong> : nomor</p>
+<div style="text-align: right"><strong>No</strong> : {{ $permintaan->nodin }}</div>
 
 {{-- JUDUL --}}
 <h3 class="center">SURAT PERMINTAAN BARANG</h3>
 
 {{-- PARAGRAF UTAMA --}}
 <p>
-  Berdasarkan dengan RAB kegiatan Nomor <strong>{{ $permintaan->rab->kegiatan->kode }}</strong>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Berdasarkan dengan RAB kegiatan Nomor <strong>{{ $permintaan->rab->kegiatan->kode
+    }}</strong>,
   <strong>{{ $permintaan->rab->kegiatan->kegiatan }}</strong> di <strong>{{ $permintaan->rab->lokasi }}</strong>,
   dengan ini saya mengajukan permohonan penyediaan bahan material dengan rincian sebagai berikut:
 </p>
@@ -100,7 +142,7 @@
 </table>
 
 {{-- FOOTER + TTD --}}
-<br><br>
+<br><br><br><br>
 <table width="100%">
   <tr>
     <td align="center">

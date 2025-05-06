@@ -23,6 +23,7 @@ class DashboardController extends Controller
                 'Kepala Seksi' => 'permintaan/material',
                 'Kepala Subbagian' => 'permintaan/material',
                 'Pengurus Barang' => 'permintaan/material',
+                'P3K' => 'pengiriman-stok',
             ];
 
             foreach ($roleRedirectMap as $role => $target) {

@@ -41,7 +41,7 @@ class ApprovalMaterial extends Component
     {
         $this->isPenulis = $this->permintaan->user_id === Auth::id();
         $this->penulis = $this->permintaan->user;
-
+        $permintaan = $this->permintaan;
         if ($this->permintaan->persetujuan->where('file')) {
             $this->files = $this->permintaan->persetujuan->filter(fn($persetujuan) => $persetujuan->file !== null)->pluck('file');
         } else {
@@ -122,12 +122,22 @@ class ApprovalMaterial extends Component
                     ?->where('approvable_id', $this->permintaan->id ?? 0)
                     ->where('approvable_type', DetailPermintaanMaterial::class)
                     ->first())->is_approved;
-                $this->showButton = $previousUser &&
-                    !$currentUser->persetujuan()
-                        ->where('approvable_id', $this->permintaan->id ?? 0)
-                        ->where('approvable_type', DetailPermintaanMaterial::class)
-                        ->exists() &&
-                    $previousApprovalStatus === 1;
+
+                if ($this->currentApprovalIndex + 1 == 3) {
+                    $this->showButton = $previousUser &&
+                        !$currentUser->persetujuan()
+                            ->where('approvable_id', $this->permintaan->id ?? 0)
+                            ->where('approvable_type', DetailPermintaanMaterial::class)
+                            ->exists() &&
+                        $previousApprovalStatus === 1 && ($permintaan->ttd_driver && $permintaan->ttd_security) && $permintaan->lampiran->count() > 0;
+                } else {
+                    $this->showButton = $previousUser &&
+                        !$currentUser->persetujuan()
+                            ->where('approvable_id', $this->permintaan->id ?? 0)
+                            ->where('approvable_type', DetailPermintaanMaterial::class)
+                            ->exists() &&
+                        $previousApprovalStatus === 1;
+                }
                 // && ($this->currentApprovalIndex + 1 < $this->listApproval);
             }
         }

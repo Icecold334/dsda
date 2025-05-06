@@ -32,20 +32,20 @@
                 <table class="w-full">
                     @if ($permintaan->rab_id)
                     <tr class="font-semibold ">
-                        <td>RAB</td>
-                        <td>{{ $permintaan->rab->program->program }}</td>
+                        <td>Jenis Pekerjaan</td>
+                        <td>{{ $permintaan->rab->jenis_pekerjaan }}</td>
                     </tr>
                     @endif
                     @if (!$permintaan->rab_id)
                     <tr class="font-semibold ">
-                        <td>Nama Kegiatan</td>
+                        <td>Jenis Pekerjaan</td>
                         <td>{{ $permintaan->nama }}</td>
                     </tr>
+                    @endif
                     <tr class="font-semibold ">
-                        <td>Nomor Nota Dinas</td>
+                        <td>Nomor SPB</td>
                         <td>{{ $permintaan->nodin }}</td>
                     </tr>
-                    @endif
                     <tr class="font-semibold ">
                         <td class="w-[40%]">Lokasi Gudang</td>
                         <td>{{ $permintaan->lokasiStok->nama }}</td>
@@ -85,18 +85,52 @@
                         <td>Keterangan</td>
                         <td>{{ $permintaan->keterangan ?? '---' }}</td>
                     </tr>
-                    @if (!$permintaan->rab_id)
+                    {{-- @if (!$permintaan->rab_id) --}}
                     <tr class="font-semibold ">
                         <td>Lokasi Kegiatan</td>
-                        <td>{{ $permintaan->lokasi }}</td>
+                        <td>{{ !$permintaan->rab_id ? $permintaan->lokasi : $permintaan->rab->lokasi }}</td>
                     </tr>
-                    @endif
+                    {{-- @endif --}}
                 </table>
+                <div class="font-semibold">Lampiran</div>
+                @forelse ($permintaan->lampiranDokumen as $attachment)
+                <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
+                    <span class="flex items-center space-x-3">
+                        @php
+                        $fileType = pathinfo($attachment->path, PATHINFO_EXTENSION);
+                        @endphp
+                        <span class="text-primary-600">
+                            @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                            <i class="fa-solid fa-image text-green-500"></i>
+                            @elseif($fileType == 'pdf')
+                            <i class="fa-solid fa-file-pdf text-red-500"></i>
+                            @elseif(in_array($fileType, ['doc', 'docx']))
+                            <i class="fa-solid fa-file-word text-blue-500"></i>
+                            @else
+                            <i class="fa-solid fa-file text-gray-500"></i>
+                            @endif
+                        </span>
+
+                        <!-- File name with underline on hover and a link to the saved file -->
+                        <span>
+                            <a href="{{ asset('storage/lampiranRab/' . $attachment->path) }}" target="_blank"
+                                class="text-gray-800 hover:underline">
+                                {{ basename($attachment->path) }}
+                            </a>
+                        </span>
+                    </span>
+                </div>
+                @empty
+                <div class="flex justify-center text-xl font-semibold">
+                    Tidak ada lampiran
+                </div>
+                @endforelse
+
             </x-card>
         </div>
         <div
             class="grid grid-cols-2 gap-6 {{ $permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2 ?'':'hidden' }}">
-            <x-card title="Foto Barang" class="mb-3">
+            <x-card title="Foto Pengiriman" class="mb-3">
                 @php
                 $lampiranCount = $permintaan->lampiran->count();
                 $canUpload = auth()->user()->can('permintaan_upload_foto_dan_ttd_driver');
@@ -121,7 +155,7 @@
         @endif
 
         {{-- Daftar Lampiran --}}
-        <div class="mt-3 max-h-24 overflow-auto">
+        <div class="mt-3 max-h-52 overflow-auto">
             {{-- Lampiran permanen dari database --}}
             @if ($lampiranCount > 0)
             @foreach ($permintaan->lampiran as $attachment)
@@ -203,9 +237,11 @@
             @elseif ($canUploadDriver)
             <canvas id="signature-pad-driver" class="border rounded shadow-sm h-25 bg-transparent"
                 height="100"></canvas>
-            <button wire:click="resetSignature('driver')" class="btn btn-sm btn-warning mt-2"
+            <button wire:click="resetSignature('driver')"
+                class="bg-danger-600 text-danger-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full"
                 onclick="resetCanvas('driver')">Hapus</button>
-            <button class="btn btn-sm btn-primary mt-2" onclick="saveSignature('driver')">Simpan</button>
+            <button class="bg-success-600 text-success-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full"
+                onclick="saveSignature('driver')">Simpan</button>
             @else
             <div class="text-center text-gray-500 font-medium">Belum ada unggahan</div>
             @endif
@@ -223,9 +259,10 @@
             @elseif ($canUploadSecurity)
             <canvas id="signature-pad-security" class="border rounded shadow-sm h-25 bg-transparent"
                 height="100"></canvas>
-            <button wire:click="resetSignature('security')" class="btn btn-sm btn-warning mt-2"
+            <button class="bg-danger-600 text-danger-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full"
                 onclick="resetCanvas('security')">Hapus</button>
-            <button class="btn btn-sm btn-primary mt-2" onclick="saveSignature('security')">Simpan</button>
+            <button class="bg-success-600 text-success-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full"
+                onclick="saveSignature('security')">Simpan</button>
             @else
             <div class="text-center text-gray-500 font-medium">Belum ada unggahan</div>
             @endif

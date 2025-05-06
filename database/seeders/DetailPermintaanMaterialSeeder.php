@@ -19,18 +19,18 @@ class DetailPermintaanMaterialSeeder extends Seeder
 
         $data = [];
 
-        for ($i = 0; $i < 15; $i++) {
-            $data[] = [
-                'kode_permintaan' => fake()->numerify('ABCD#######'),
-                'tanggal_permintaan' => strtotime(fake()->date()),
-                'user_id' => 244,
-                'gudang_id' => LokasiStok::inRandomOrder()->first()->id,
-                'keterangan' => fake()->paragraph(),
-                'lokasi' => fake()->address(),
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
-        }
+        // for ($i = 0; $i < 15; $i++) {
+        //     $data[] = [
+        //         'kode_permintaan' => fake()->numerify('ABCD#######'),
+        //         'tanggal_permintaan' => strtotime(fake()->date()),
+        //         'user_id' => 244,
+        //         'gudang_id' => LokasiStok::inRandomOrder()->first()->id,
+        //         'keterangan' => fake()->paragraph(),
+        //         'lokasi' => fake()->address(),
+        //         'created_at' => now(),
+        //         'updated_at' => now()
+        //     ];
+        // }
         DetailPermintaanMaterial::insert($data);
     }
 }

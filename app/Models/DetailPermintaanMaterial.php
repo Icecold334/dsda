@@ -29,6 +29,10 @@ class DetailPermintaanMaterial extends Model
     {
         return $this->hasMany(FotoPermintaanMaterial::class, 'detail_permintaan_id');
     }
+    public function lampiranDokumen()
+    {
+        return $this->hasMany(LampiranPermintaan::class, 'permintaan_id');
+    }
 
     public function persetujuan()
     {

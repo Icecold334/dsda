@@ -54,46 +54,123 @@
     margin-bottom: 4px;
   }
 </style>
+<style>
+  body {
+    font-family: helvetica, sans-serif;
+    font-size: 11px;
+  }
 
-{{-- HEADER --}}
-<table class="header-table" style="width: 100%;">
+  .header-table {
+    width: 100%;
+    /* border-bottom: 2px solid #000; */
+    padding-top: 8px;
+    padding-bottom: 8px;
+    margin-bottom: 6px;
+  }
+
+  .header-logo img {
+    width: 80px;
+  }
+
+  .header-text {
+    text-align: center;
+    /* font-weight: bold; */
+    font-size: 13px;
+  }
+
+  .header-subtext {
+    font-weight: normal;
+    font-size: 11px;
+    /* margin-top: 4px; */
+  }
+
+  .header-kodepos {
+    text-align: right;
+    font-size: 10px;
+    /* margin-top: -10px; */
+  }
+
+  .underline {
+    border-top: 2px solid black;
+    width: 100%;
+    margin-top: 2px;
+  }
+</style>
+
+<table class="header-table">
   <tr>
-    <td class="header-logo" width="28%">
-      <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI" width="80">
+    <td class="header-logo" width="20%">
+      <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI">
     </td>
-    <td class="header-text">
+    <td class="header-text" width="80%">
       PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
-      DINAS SUMBER DAYA AIR<br>
-      SUKU DINAS SUMBER DAYA AIR<br>
-      KOTA ADMINISTRASI {{ strtoupper(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
-      $permintaan->unit->nama)) }}<br>
-      <div style="font-weight: normal; font-size: 11px;">
+      <strong>DINAS SUMBER DAYA AIR <br>
+        SUKU DINAS SUMBER DAYA AIR <br></strong>
+      <strong>KOTA ADMINISTRASI {{ strtoupper(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
+        $permintaan->unit->nama)) }}</strong>
+      <div class="header-subtext">
         {{ $permintaan->unit->alamat }}
+        <br>
+        J A K A R T A
       </div>
-      <div>J A K A R T A</div>
+      {{-- <div>J A K A R T A</div> --}}
     </td>
   </tr>
 </table>
-
-<hr style="margin: 10px 0;">
-
-<h3 class="center" style="text-decoration: underline;">SURAT JALAN</h3>
-
-<p>
+<div class="underline"></div>
+<h3 class="center">SURAT JALAN</h3>
+<div class="center"><strong>Nomor</strong> : {{ $permintaan->nodin ??
+  '846846866' }}<br></div>
+<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
   @if ($permintaan->rab)
-  <strong>Nomor</strong> : {{ $permintaan->rab->program->kode ?? '846846866' }}<br>
-  <strong>Jenis Pekerjaan</strong> : {{ $permintaan->rab->kegiatan->kegiatan ?? '……………..……' }}<br>
-  <strong>Lokasi Pekerjaan</strong> : {{ $permintaan->rab->lokasi ?? '……………….' }}<br>
+  <tr>
+    <td style="width: 25%; vertical-align: top;"><strong>Jenis Pekerjaan</strong></td>
+    <td style="width: 2%; vertical-align: top;">:</td>
+    <td style="white-space: normal; vertical-align: top;">
+      {{ $permintaan->rab->jenis_pekerjaan ?? '……………..……' }}
+    </td>
+  </tr>
+  <tr>
+    <td style="vertical-align: top;"><strong>Lokasi Pekerjaan</strong></td>
+    <td style="vertical-align: top;">:</td>
+    <td style="white-space: normal; vertical-align: top;">
+      {{ $permintaan->rab->lokasi ?? '……………….' }}
+    </td>
+  </tr>
   @else
-  <strong>Nomor</strong> : {{ $permintaan->nodin ?? '846846866' }}<br>
-  <strong>Jenis Pekerjaan</strong> : {{ $permintaan->nama ?? '……………..……' }}<br>
-  <strong>Lokasi Pekerjaan</strong> : {{ $permintaan->lokasi ?? '……………….' }}<br>
+  <tr>
+    <td style="width: 25%; vertical-align: top;"><strong>Jenis Pekerjaan</strong></td>
+    <td style="width: 2%; vertical-align: top;">:</td>
+    <td style="white-space: normal; vertical-align: top;">
+      {{ $permintaan->nama ?? '……………..……' }}
+    </td>
+  </tr>
+  <tr>
+    <td style="vertical-align: top;"><strong>Lokasi Pekerjaan</strong></td>
+    <td style="vertical-align: top;">:</td>
+    <td style="white-space: normal; vertical-align: top;">
+      {{ $permintaan->lokasi ?? '……………….' }}
+    </td>
+  </tr>
   @endif
-  <strong>Pemohon</strong> : {{ $kasatpel->name ?? '…………..' }} <em>Selaku Ketua Satuan Pelaksana Kecamatan {{
-    $permintaan->user->kecamatan->kecamatan ?? '-' }}</em><br>
-  <strong>Nopol Kendaraan</strong> : {{ $permintaan->nopol ?? '………….' }}
-</p>
 
+  <tr>
+    <td style="vertical-align: top;"><strong>Pemohon</strong></td>
+    <td style="vertical-align: top;">:</td>
+    <td style="white-space: nowrap; vertical-align: top;">
+      {{ $kasatpel->name ?? '…………..' }}
+      <em>Selaku Ketua Satuan Pelaksana Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '-' }}</em>
+    </td>
+  </tr>
+  <tr>
+    <td style="vertical-align: top;"><strong>Nopol Kendaraan</strong></td>
+    <td style="vertical-align: top;">:</td>
+    <td style="white-space: normal; vertical-align: top;">
+      {{ $permintaan->nopol ?? '………….' }}
+    </td>
+  </tr>
+</table>
+<br><br><br>
 {{-- TABEL --}}
 <table class="bahan">
   <thead>
@@ -118,7 +195,7 @@
   </tbody>
 </table>
 
-<p style="margin-top: 20px;">
+<p style="margin-top: 20px;text-align: right">
   Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }}
 </p>
 

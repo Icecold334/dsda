@@ -262,8 +262,8 @@ class ListPermintaanMaterial extends Component
 
         PermintaanMaterial::insert($data);
         $this->reset('list');
-
-        return redirect()->to('permintaan/material');
+        $this->dispatch('saveDokumen', kontrak_id: $permintaan->id, isRab: false, isMaterial: true);
+        // return redirect()->to('permintaan/material');
     }
 
     public function removeFromList($index)

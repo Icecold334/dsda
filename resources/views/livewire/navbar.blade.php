@@ -19,15 +19,15 @@
             <ul
                 class="flex flex-col md:flex-row md:space-x-0 {{ Request::is('scan/*') || Request::is('qr/*') ? 'hidden' : '' }}">
                 {{-- <ul class="grid grid-flow-col gap-0 -my-4 "> --}}
-                    @if (auth()->user()->hasRole(['Kepala Suku Dinas','P3K']))
+                    @if (auth()->user()->hasRole(['Admin Sudin','Kepala Suku Dinas','P3K']))
                     <livewire:nav-item href="/dashboard" title="home" />
                     <livewire:nav-item title="Rekam Kontrak" :child="[
                     ['href' => '/kontrak-vendor-stok', 'title' => 'Daftar Kontrak'],
                     // ['href' => '/transaksi-darurat-stok', 'title' => 'Transaksi Belum Berkontrak'],
                 ]" />
                     @endif
-                    @if (auth()->user()->hasRole(['Penjaga Gudang','Kepal Suku Dinas','Pejabat Pelaksana Teknis
-                    Kegiatan', 'Pejabat Pembuat Komitmen','P3K']))
+                    @if (auth()->user()->hasRole(['Admin Sudin','Penjaga Gudang','Kepal Suku Dinas',
+                    'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen','P3K','Kepala Satuan Pelaksana']))
 
                     <livewire:nav-item title="inventaris" :child="[
                     ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
@@ -42,7 +42,7 @@
                         ['href' => '/permintaan-stok', 'title' => 'List Pelayanan Umum'],
                     ]" />
                     @else
-                    @if (auth()->user()->hasRole(['Kepala Seksi', 'Kepala Suku Dinas','Perencanaan']))
+                    @if (auth()->user()->hasRole(['Admin Sudin','Kepala Seksi', 'Kepala Suku Dinas','Perencanaan']))
                     <livewire:nav-item title="Daftar RAB" href='/rab' />
                     @endif
                     {{--
@@ -51,8 +51,9 @@
                     --}}
                     {{--
                     <livewire:nav-item href="/permintaan-stok" title="Pelayanan Umum" /> --}}
-                    @if (auth()->user()->hasRole(['Kepala Seksi', 'Kepala Subbagian', 'Pengurus Barang','Kepala Suku
-                    Dinas', 'Kepala Satuan Pelaksana' ]))
+                    @if (auth()->user()->hasRole(['Admin Sudin','Kepala Seksi', 'Kepala Subbagian',
+                    'Pengurus Barang',
+                    'Kepala Suku Dinas', 'Kepala Satuan Pelaksana' ]))
                     <livewire:nav-item title="Form" :child="[
                         // ['href' => /route('permintaan-stok.index'), 'title' => 'Form pelayanan Umum'],
                         // ['href' => '/#', 'title' => 'Form permintaan spare part'],

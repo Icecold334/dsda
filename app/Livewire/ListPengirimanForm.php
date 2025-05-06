@@ -98,6 +98,7 @@ class ListPengirimanForm extends Component
 
     public function savePengiriman()
     {
+        $isMaterial = collect($this->list)->first()['merk']->barangStok->jenisStok->id == 1;
         // Validate that all items have required data
         foreach ($this->list as $index => $item) {
             if (!$item['jumlah'] || !$item['lokasi_id']) {
@@ -153,7 +154,7 @@ class ListPengirimanForm extends Component
             [
                 'kode_pengiriman_stok' => fake()->bothify('KP#######'),
                 'kontrak_id' => 2,
-                'approval_configuration_id' => $latestApprovalConfiguration->id,
+                'approval_configuration_id' => $isMaterial ? null : $latestApprovalConfiguration->id,
                 'tanggal' => strtotime(date('Y-m-d H:i:s')),
                 'user_id' => Auth::id(),
                 'penerima' => $this->penulis,
@@ -288,33 +289,35 @@ class ListPengirimanForm extends Component
             $this->authLokasi = Auth::user()->lokasi_id ?? 0;
             //////////////////////////////////////////
             $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
+            // as
+            //             // $optionLastPemeriksa =  $this->pengiriman->opsiPersetujuan->userPenyelesai;
 
-            $optionLastPemeriksa = $this->pengiriman->opsiPersetujuan->userPenyelesai;
+            //             $pemeriksa = User::role('Pemeriksa Barang')->whereHas('unitKerja', function ($subQuery) {
+            //                 $subQuery->where('unit_id', $this->pengiriman->user->unit_id);
+            //             })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
+            //             // Cari dan hapus $optionLastPemeriksa dari collection $pemeriksa jika ada
+            //             // $filteredPemeriksa = $pemeriksa->reject(function ($user) use ($optionLastPemeriksa) {
+            //             //     return $user->id === $optionLastPemeriksa->id;
+            //             // });
 
-            $pemeriksa = User::role('Pemeriksa Barang')->whereHas('unitKerja', function ($subQuery) {
-                $subQuery->where('unit_id', $this->pengiriman->user->unit_id);
-            })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
-            // Cari dan hapus $optionLastPemeriksa dari collection $pemeriksa jika ada
-            $filteredPemeriksa = $pemeriksa->reject(function ($user) use ($optionLastPemeriksa) {
-                return $user->id === $optionLastPemeriksa->id;
-            });
+            //             // // Tambahkan $optionLastPemeriksa kembali ke akhir collection
+            //             // $pemeriksa = $filteredPemeriksa->push($optionLastPemeriksa);
+            //             // $allApproval = $pemeriksa->values();
+            //             // $index = $allApproval->search(function ($user) {
+            //             //     return $user->id == Auth::id();
+            //             // });
+            //             // if ($index === 0) {
+            //             //     $currentUser = $allApproval[$index];
+            //             //     $this->showButtonPemeriksa = !$currentUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
+            //             // } else {
+            //             //     $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
+            //             //     $currentUser = $allApproval[$index];
+            //             //     $this->showButtonPemeriksa =
+            //             //         $previousUser && !$currentUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists() &&
+            //             //         $previousUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
+            //             // }
 
-            // Tambahkan $optionLastPemeriksa kembali ke akhir collection
-            $pemeriksa = $filteredPemeriksa->push($optionLastPemeriksa);
-            $allApproval = $pemeriksa->values();
-            $index = $allApproval->search(function ($user) {
-                return $user->id == Auth::id();
-            });
-            if ($index === 0) {
-                $currentUser = $allApproval[$index];
-                $this->showButtonPemeriksa = !$currentUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
-            } else {
-                $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
-                $currentUser = $allApproval[$index];
-                $this->showButtonPemeriksa =
-                    $previousUser && !$currentUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists() &&
-                    $previousUser->persetujuanPengiriman()->where('detail_pengiriman_id', $this->pengiriman->id ?? 0)->exists();
-            }
+            //             saas
             // dd($this->list);
             // $this->openApprovalModal(1);
         }
@@ -569,20 +572,20 @@ class ListPengirimanForm extends Component
         if ($checkPenerimaDone) {
             $date = Carbon::createFromTimestamp($this->pengiriman->tanggal);
 
-            $optionLastPemeriksa = $this->pengiriman->opsiPersetujuan->userPenyelesai;
+            // $optionLastPemeriksa = $this->pengiriman->opsiPersetujuan->userPenyelesai;
 
             $pemeriksa = User::role('Pemeriksa Barang')->whereHas('unitKerja', function ($subQuery) {
                 $subQuery->where('unit_id', $this->pengiriman->user->unit_id);
             })->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->get();
             // Cari dan hapus $optionLastPemeriksa dari collection $pemeriksa jika ada
-            $filteredPemeriksa = $pemeriksa->reject(function ($user) use ($optionLastPemeriksa) {
-                return $user->id === $optionLastPemeriksa->id;
-            });
+            // $filteredPemeriksa = $pemeriksa->reject(function ($user) use ($optionLastPemeriksa) {
+            //     return $user->id === $optionLastPemeriksa->id;
+            // });
 
             // Tambahkan $optionLastPemeriksa kembali ke akhir collection
-            $user = $filteredPemeriksa->push($optionLastPemeriksa)->first();
-            $message = 'Pengirimaan <span class="font-bold">' . $detailPengiriman->kode_pengiriman_stok . '</span> membutuhkan persetujuan Anda.';
-            Notification::send($user, new UserNotification($message, "/pengiriman-stok/{$detailPengiriman->id}"));
+            // $user = $filteredPemeriksa->push($optionLastPemeriksa)->first();
+            // $message = 'Pengirimaan <span class="font-bold">' . $detailPengiriman->kode_pengiriman_stok . '</span> membutuhkan persetujuan Anda.';
+            // Notification::send($user, new UserNotification($message, "/pengiriman-stok/{$detailPengiriman->id}"));
         }
         return $this->list[$index] = $newList;
         // return redirect()->route('pengiriman-stok.show', ['pengiriman_stok' => $this->pengiriman->id]);

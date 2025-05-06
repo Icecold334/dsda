@@ -241,7 +241,7 @@ class ShowPermintaanMaterial extends Component
         $this->statusRefresh();
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->Output('', 'S');
-        }, !$permintaan->rab_id ? 'Nota Dinas.pdf' : 'Surat Permohonan Barang.pdf');
+        }, 0 ? 'Nota Dinas.pdf' : 'Surat Permohonan Barang.pdf');
     }
 
     public function removeAttachment($index)

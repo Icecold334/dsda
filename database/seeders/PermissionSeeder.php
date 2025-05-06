@@ -143,6 +143,7 @@ class PermissionSeeder extends Seeder
         }
 
 
+
         syncPermissions('Perencanaan', [
             'RAB_tambah_rab',
         ]);
@@ -157,6 +158,11 @@ class PermissionSeeder extends Seeder
         revokePermissions('Kepala Suku Dinas', [
             'RAB_tambah_rab',
             'permintaan_upload_foto_dan_ttd_driver',
+        ]);
+        revokePermissions('Kepala Subbagian', [
+            'RAB_tambah_rab',
+            'permintaan_upload_foto_dan_ttd_driver',
+            ''
         ]);
     }
 }

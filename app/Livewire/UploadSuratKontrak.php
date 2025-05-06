@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\DokumenKontrakStok;
+use App\Models\LampiranPermintaan;
 use App\Models\LampiranRab;
 use Illuminate\Support\Facades\Request;
 use Livewire\Attributes\On;
@@ -25,18 +26,23 @@ class UploadSuratKontrak extends Component
     }
 
     #[On('saveDokumen')]
-    public function saveAttachments($kontrak_id, $isRab = false)
+    public function saveAttachments($kontrak_id, $isRab = false, $isMaterial = false)
     {
         $this->validate([
             'attachments.*' => 'file|max:5024',  // Validate before saving
         ]);
 
         foreach ($this->attachments as $file) {
-            $path = str_replace($isRab ? 'lampiranRab' : 'dokumenKontrak' . '/', '', $file->storeAs($isRab ? 'lampiranRab' : 'dokumenKontrak' . '', $file->getClientOriginalName(), 'public'));  // Store the file
+            $path = str_replace($isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak') . '/', '', $file->storeAs($isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak') . '', $file->getClientOriginalName(), 'public'));  // Store the file
 
             if ($isRab) {
                 LampiranRab::create([
                     'rab_id' => $kontrak_id,  // Associate with kontrak
+                    'path' => $path,
+                ]);
+            } elseif ($isMaterial) {
+                LampiranPermintaan::create([
+                    'permintaan_id' => $kontrak_id,  // Associate with kontrak
                     'path' => $path,
                 ]);
             } else {
@@ -49,7 +55,7 @@ class UploadSuratKontrak extends Component
 
         // Optionally reset the attachments after saving
         $this->reset('attachments');
-        return redirect()->route(!$isRab ? 'kontrak-vendor-stok.index' : 'rab.index');
+        return redirect()->to($isRab ? 'rab' : ($isMaterial ? 'permintaan/material' : 'kontrak-vendor-stok'));
     }
 
 

@@ -6,6 +6,8 @@ use App\Models\Stok;
 use Livewire\Component;
 use App\Models\StokDisetujui;
 use App\Models\PengirimanStok;
+use App\Models\PermintaanMaterial;
+use App\Models\PermintaanStok;
 use App\Models\TransaksiStok;
 use Illuminate\Support\Facades\DB;
 
@@ -84,7 +86,7 @@ class ShowStok extends Component
                 'id' => $data->id,
                 'merk_id' => $data->merk_id,
                 'merk' => $data,
-                'jumlah' => $data->jumlah_diterima,
+                'jumlah' => $data->jumlah,
                 'tanggal' => $data->created_at->format('Y-m-d H:i:s'),
                 'type' => 'in',
             ];
@@ -144,8 +146,47 @@ class ShowStok extends Component
             ];
         }) : collect([]);
 
+        // Ambil data dari model StokDisetujui
+        $permintaan = PermintaanMaterial::where('merk_id', $stok->merk_id)
+            ->whereHas('detailPermintaan', function ($detail) use ($stok) {
+                return $detail->where('gudang_id', $stok->lokasi_id);
+            })
+            ->whereHas('detailPermintaan', function ($query) {
+                return $query->where('status', '>=', 1);
+            })
+            ->get();
+        $permintaan = $permintaan->isNotEmpty() ? $permintaan->map(function ($data) {
+            return [
+                'id' => $data->id,
+                'merk_id' => $data->merk_id,
+                'merk' => $data,
+                'jumlah' => $data->jumlah,
+                'tanggal' => $data->created_at->format('Y-m-d H:i:s'),
+                'type' => 'out',
+            ];
+        }) : collect([]);
+        // Ambil data dari model StokDisetujui
+        $permintaanMaterialPending = PermintaanMaterial::where('merk_id', $stok->merk_id)
+            ->whereHas('detailPermintaan', function ($detail) use ($stok) {
+                return $detail->where('gudang_id', $stok->lokasi_id);
+            })
+            ->whereHas('detailPermintaan', function ($query) {
+                return $query->whereNull('status');
+            })
+            ->get();
+        $permintaanMaterialPending = $permintaanMaterialPending->isNotEmpty() ? $permintaanMaterialPending->map(function ($data) {
+            return [
+                'id' => $data->id,
+                'merk_id' => $data->merk_id,
+                'merk' => $data,
+                'jumlah' => $data->jumlah,
+                'tanggal' => $data->created_at->format('Y-m-d H:i:s'),
+                'type' => 'pending',
+            ];
+        }) : collect([]);
+
         // Gabungkan data
-        $history = $pengiriman->merge($stokDisetujui)->merge($permintaan_pending);
+        $history = $pengiriman->merge($stokDisetujui)->merge($permintaan_pending)->merge($permintaan)->merge($permintaanMaterialPending);
 
 
         // dd($history);

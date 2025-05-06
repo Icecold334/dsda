@@ -22,7 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Carbon::setLocale('id');
         // $this->test();
         // Auth::loginUsingId(118); //kepala suku dinas
         // Auth::loginUsingId(16); //penanggung jawab
@@ -34,12 +33,16 @@ class AppServiceProvider extends ServiceProvider
 
         // Auth::loginUsingId(1); //superadmin
         // Auth::loginUsingId(175); //kasudin
-        // Auth::loginUsingId(177); // perencanaan
-        Auth::loginUsingId(178); // p3k
-        // Auth::loginUsingId(553); // kasatpel
-        // Auth::loginUsingId(190); // kasipemel drain
-        // Auth::loginUsingId(186); // kasubag tu
-        // Auth::loginUsingId(180); // pb
+        // Auth::loginUsingId(176); //admin
+        // Auth::loginUsingId(177); // pptk
+        // Auth::loginUsingId(180); // ppk
+        // Auth::loginUsingId(178); // perencanaan
+        // Auth::loginUsingId(179); // p3k
+        // Auth::loginUsingId(561); // kasatpel
+        // Auth::loginUsingId(191); // kasipemel drain
+        // Auth::loginUsingId(187); // kasubag tu
+        Auth::loginUsingId(181); // pb
+        // Auth::loginUsingId(462);
     }
 
     // public function test()

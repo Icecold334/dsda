@@ -75,7 +75,6 @@ class UploadSuratJalanMaterial extends Component
 
 
         $this->uploaded = true;
-
         return redirect()->route('pengiriman-stok.index');
     }
 

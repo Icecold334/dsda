@@ -39,28 +39,76 @@
   }
 </style>
 
+<style>
+  body {
+    font-family: helvetica, sans-serif;
+    font-size: 11px;
+  }
+
+  .header-table {
+    width: 100%;
+    /* border-bottom: 2px solid #000; */
+    padding-top: 8px;
+    padding-bottom: 8px;
+    margin-bottom: 6px;
+  }
+
+  .header-logo img {
+    width: 80px;
+  }
+
+  .header-text {
+    text-align: center;
+    /* font-weight: bold; */
+    font-size: 13px;
+  }
+
+  .header-subtext {
+    font-weight: normal;
+    font-size: 11px;
+    /* margin-top: 4px; */
+  }
+
+  .header-kodepos {
+    text-align: right;
+    font-size: 10px;
+    /* margin-top: -10px; */
+  }
+
+  .underline {
+    border-top: 2px solid black;
+    width: 100%;
+    margin-top: 2px;
+  }
+</style>
+
 <table class="header-table">
   <tr>
-    <td class="header-logo" width="28%">
-      <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI" width="80">
+    <td class="header-logo" width="20%">
+      <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI">
     </td>
-    <td class="header-text">
-      PEMERINTAH PROVINSI DAERAH KHUSUS<br>
-      IBUKOTA JAKARTA<br>
-      DINAS SUMBER DAYA AIR<br>
-      SUKU DINAS SUMBER DAYA AIR<br>
-      KOTA ADMINISTRASI {{ strtoupper(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
-      $permintaan->unit->nama)) }}<br>
-      <div style="font-weight: normal; font-size: 11px; ">
+    <td class="header-text" width="80%">
+      PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
+      <strong>DINAS SUMBER DAYA AIR <br>
+        SUKU DINAS SUMBER DAYA AIR <br></strong>
+      <strong>KOTA ADMINISTRASI {{ strtoupper(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
+        $permintaan->unit->nama)) }}</strong>
+      <div class="header-subtext">
         {{ $permintaan->unit->alamat }}
-      </div>
-      <div>
+        <br>
         J A K A R T A
       </div>
+      {{-- <div>J A K A R T A</div> --}}
     </td>
   </tr>
 </table>
+<div class="underline"></div>
+
 <table width="100%" style="margin-top: 20px;">
+  <tr>
+    <td style="width: 100%; vertical-align: top;text-align: right">Jakarta, {{
+      \Carbon\Carbon::parse($permintaan->tanggal)->translatedFormat('d F Y') }}</td>
+  </tr>
   <tr>
     <!-- Kiri: metadata -->
     <td style="width: 60%; vertical-align: top;">
@@ -87,6 +135,7 @@
     <!-- Kanan: alamat tujuan -->
     <td style="width: 40%; vertical-align: top; text-align: left;">
       <p style="margin-left: 30px;">
+        Kepada <br>
         Yth.<br>
         &nbsp;&nbsp;&nbsp;&nbsp;Kepala Suku Dinas Sumber Daya Air<br>
         &nbsp;&nbsp;&nbsp;&nbsp;{{ str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
@@ -157,7 +206,10 @@
     </td>
   </tr>
 </table>
-
+<br>
+<br>
+<br>
+<br>
 <div class="tembusan">
   Tembusan:<br>
   Kepala Subbagian Tata Usaha Suku Dinas Sumber Daya Air{{ str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ',

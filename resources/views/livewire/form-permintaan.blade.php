@@ -28,7 +28,7 @@
                     <tr class="{{ $withRab?'':'hidden' }}">
                         <td class="w-1/3">
                             <label for="rab_id" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Pilih RAB *</label>
+                                Pilih Jenis Pekerjaan *</label>
                         </td>
                         <td>
                             <select wire:model.live="rab_id" @disabled($listCount> 0)
@@ -37,9 +37,9 @@
                                 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600
                                 dark:text-white
                                 dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option value="">Pilih RAB</option>
+                                <option value="">Pilih Jenis Pekerjaan</option>
                                 @foreach ($rabs as $rab)
-                                <option value="{{ $rab->id }}">{{ $rab->kegiatan->kegiatan }}</option>
+                                <option value="{{ $rab->id }}">{{ $rab->jenis_pekerjaan }}</option>
                                 @endforeach
                             </select>
                             @error('rab_id')
@@ -50,23 +50,23 @@
                     <tr class="{{ !$withRab?'':'hidden' }}">
                         <td class="w-1/3">
                             <label for="namaKegiatan" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Nama Kegiatan *</label>
+                                Jenis Pekerjaan *</label>
                         </td>
                         <td>
                             <input type="text" wire:model.live="namaKegiatan"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                placeholder="Nama Kegiatan">
+                                placeholder="Jenis Pekerjaan">
                         </td>
                     </tr>
-                    <tr class="{{ !$withRab?'':'hidden' }}">
+                    <tr class="">
                         <td class="w-1/3">
                             <label for="nodin" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Nomor Nota Dinas *</label>
+                                Nomor SPB *</label>
                         </td>
                         <td>
                             <input type="text" wire:model.live="nodin"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                placeholder="Nomor Nota Dinas">
+                                placeholder="Nomor SPB">
                         </td>
                     </tr>
                     <tr>
@@ -99,7 +99,7 @@
                                 *</label>
                             @else
                             <label for="tanggal_permintaan" class="block mb-2 ">Tanggal
-                                Permintaan
+                                Pekerjaan
                                 *</label>
                             @endif
                         </td>
@@ -310,7 +310,13 @@
                 </table>
             </x-card>
         </div>
-        <div {{ $tipe=='material' ? 'hidden' : '' }}>
+        <div>
+            @if ($tipe=='material' )
+            <x-card title="Lampiran Permintaan">
+                <livewire:upload-surat-kontrak>
+            </x-card>
+            @else
+
             <x-card title="unit kerja dan bagian">
                 <table class="w-full border-separate border-spacing-y-4">
                     <tr>
@@ -358,6 +364,7 @@
                     </tr>
                 </table>
             </x-card>
+            @endif
         </div>
     </div>
     @if ($tipe == 'peminjaman')
