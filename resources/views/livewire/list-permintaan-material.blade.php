@@ -6,7 +6,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[40%] ">Spesifikasi</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jumlah</th>
                 @if ($isShow)
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Foto barang</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Foto barang diterima</th>
                 @endif
                 <th class="py-3 px-6 bg-primary-950 w-1/12 text-center font-semibold rounded-r-lg "></th>
             </tr>
@@ -96,7 +96,9 @@
                             class="w-16 h-16 object-cover rounded border inline-block" />
                     </a>
                     @else
-                    <span class="text-gray-400 text-sm italic">Belum ada gambar</span>
+                    <span
+                        class="bg-secondary-600 text-{{ $permintaan->status_warna }}-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full italic ">Belum
+                        ada unggahan</span>
                     @endif
                 </td>
 

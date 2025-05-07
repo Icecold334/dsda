@@ -50,10 +50,10 @@
                         <td class="w-[40%]">Lokasi Gudang</td>
                         <td>{{ $permintaan->lokasiStok->nama }}</td>
                     </tr>
-                    <tr class="font-semibold ">
+                    {{-- <tr class="font-semibold ">
                         <td class="w-[40%]">Kode Permintaan</td>
                         <td>{{ $permintaan->kode_permintaan }}</td>
-                    </tr>
+                    </tr> --}}
                     <tr class="font-semibold">
                         <td>Status</td>
                         <td>

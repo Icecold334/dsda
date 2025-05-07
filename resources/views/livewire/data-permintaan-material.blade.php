@@ -25,9 +25,9 @@
                     <option value="">Semua Status</option>
                     <option value="diproses">diproses</option>
                     <option value="ditolak">ditolak</option>
-                    <option value="dibatalkan">dibatalkan</option>
+                    {{-- <option value="dibatalkan">dibatalkan</option> --}}
                     <option value="disetujui">disetujui</option>
-                    <option value="siap diambil">siap diambil</option>
+                    {{-- <option value="siap diambil">siap diambil</option> --}}
                     <option value="sedang dikirim">sedang dikirim</option>
                     <option value="selesai">selesai</option>
                 </select>
@@ -64,10 +64,10 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NOMOR SPB</span>
                 </th>
                 <th class=" py-3 px-6 bg-primary-950 text-center font-semibold">JENIS
-                    PEKERJAAN & RAB
+                    PEKERJAAN
                 </th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NOMOR RAB</th> --}}
-                {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">BARANG</th> --}}
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">LOKASI</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">
                     TANGGAL PEKERJAAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th>
@@ -90,7 +90,7 @@
                         {{ $permintaan['nomor_rab'] }}
                     </div>
                 </td>
-                {{-- <td class="px-6 py-3 font-semibold text-center">{{ $permintaan['nomor_rab'] }}</td> --}}
+                <td class="px-6 py-3 font-semibold text-center">{{ $permintaan['lokasi'] }}</td>
                 <td class="px-6 py-3 font-semibold text-center">{{ date('j F Y', $permintaan['tanggal']) }}</td>
                 <td class="px-6 py-3 font-semibold {{ $tipe == 'material' ? 'hidden' : '' }}">
                     <div class="text-gray-600 text-sm">

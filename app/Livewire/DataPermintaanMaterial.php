@@ -83,25 +83,24 @@ class DataPermintaanMaterial extends Component
 
 
         if (!empty($this->status)) {
-            $s = $this->status;
-            $query = $query->filter(function ($item) use ($s) {
-                if ($s === 'diproses') {
-                    return is_null($item['cancel']) && is_null($item['proses']) && is_null($item['status']);
-                } elseif ($s === 'disetujui') {
-                    return is_null($item['cancel']) && is_null($item['proses']) && $item['status'] == 1;
-                } elseif ($s === 'ditolak') {
-                    return ($item['cancel'] == 1 && is_null($item['proses']))
-                        || (is_null($item['cancel']) && is_null($item['proses']) && $item['status'] == 0);
-                } elseif ($s === 'selesai') {
-                    return $item['cancel'] == 0 && $item['proses'] == 1;
-                } elseif ($s === 'siap diambil') {
-                    return $item['cancel'] == 0 && is_null($item['proses']);
-                } elseif ($s === 'dibatalkan') {
-                    return $item['cancel'] == 1;
+            $query = $query->filter(function ($item) {
+                $statusFilter = $this->status;
+
+                if ($statusFilter === 'diproses') {
+                    return is_null($item['status']);
                 }
-                return false;
+
+                $statusMap = [
+                    'ditolak' => 0,
+                    'disetujui' => 1,
+                    'sedang dikirim' => 2,
+                    'selesai' => 3,
+                ];
+
+                return isset($statusMap[$statusFilter]) && $item['status'] === $statusMap[$statusFilter];
             });
         }
+
 
 
 
@@ -180,11 +179,12 @@ class DataPermintaanMaterial extends Component
         return [
             'id' => $item->id,
             'kode' => $item->nodin,
-            'nomor_rab' => $item->rab->aktivitasSubKegiatan->kode ??  'Tanpa RAB',
+            'nomor_rab' => $item->rab_id ? 'Dengan RAB' :  'Tanpa RAB',
             'tanggal' => $item->tanggal_permintaan,
             'kategori_id' => $item->kategori_id,
             'kategori' => $tipe === 'permintaan' ? $item->kategoriStok : $item->kategori,
             'unit_id' => $item->unit_id,
+            'lokasi' => $item->rab_id ? $item->rab->lokasi :  $item->lokasi,
             'unit' => $item->unit,
             'sub_unit_id' => $item->sub_unit_id,
             'jenis_pekerjaan' => $item->rab_id ? $item->rab->jenis_pekerjaan : $item->nama,

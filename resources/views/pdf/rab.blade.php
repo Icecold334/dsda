@@ -105,7 +105,7 @@
       NIP. {{ $kasudin->nip }}
     </td>
     <td width="50%" align="center">
-      Ketua Seksi Perencanaan<br>
+      Kepala Seksi Perencanaan<br>
       Suku Dinas Sumber Daya Air<br>
       {{ str_replace('Suku Dinas Sumber Daya Air ', '', $rab->unit->nama) }}<br><br>
       <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
