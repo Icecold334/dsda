@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Aset;
 use App\Models\UnitKerja;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
@@ -11,14 +12,23 @@ use Illuminate\Support\Facades\Request;
 abstract class Controller
 {
 
-    public $unit_id;
+    public $unit_id, $isSeribu, $Rkb, $RKB, $sudin;
 
     public function __construct()
     {
         $unitId = Auth::user()->unit_id;
         $unit = UnitKerja::find($unitId);
         $this->unit_id = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
-
+        $parent = UnitKerja::find($this->unit_id);
+        $isSeribu = Str::contains($parent->nama, 'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu');
+        $this->isSeribu = $isSeribu;
+        $this->Rkb = $isSeribu ? 'RKB' : 'RAB';
+        $this->RKB = $isSeribu ? 'Rencana Kegiatan Bulanan' : 'Rencanan Anggaran Biaya';
+        $sudin = Str::contains($unit->nama, 'Kepulauan')
+            ? 'Kepulauan Seribu'
+            : Str::of($unit->nama)->after('Administrasi ');
+        // dd($sudin);
+        $this->sudin = $sudin;
         // Pastikan user dalam keadaan login
         if (Auth::check()) {
             $user = Auth::user();

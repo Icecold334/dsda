@@ -9,14 +9,14 @@ use Livewire\Component;
 
 class DownloadRab extends Component
 {
-    public $rab;
+    public $rab, $Rkb, $RAB, $sudin;
 
     public function download()
     {
         $pdf = new \TCPDF('P', 'mm', 'F4', true, 'UTF-8', false);
         $pdf->SetCreator('Dinas SDA');
         $pdf->SetAuthor('Dinas SDA');
-        $pdf->SetTitle('REKAPITULASI KEBUTUHAN BAHAN MATERIAL');
+        $pdf->SetTitle($this->RKB);
 
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 12);
@@ -24,8 +24,8 @@ class DownloadRab extends Component
         $rab = $this->rab;
         $unit_id = $this->unit_id;
         $rab->unit = UnitKerja::find($unit_id);
-        $rab->kota =
-            $kasudin =
+        // $rab->kota =
+        $kasudin =
             User::whereHas('unitKerja', function ($unit) use ($unit_id) {
                 return $unit->where('id', $unit_id);
             })->whereHas('roles', function ($role) {
@@ -37,14 +37,15 @@ class DownloadRab extends Component
             })->whereHas('roles', function ($role) {
                 return $role->where('name', 'like', '%Kepala Seksi%');
             })->first();
+        $RKB = $this->RKB;
 
-        $html = view('pdf.rab', compact('rab', 'kasudin', 'kasi'))->render();
+        $html = view('pdf.rab', compact('rab', 'kasudin', 'kasi', 'RKB'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->Output('', 'S');
-        }, 'RAB.pdf');
+        }, $this->Rkb . '.pdf');
     }
 
 

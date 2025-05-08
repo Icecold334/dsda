@@ -16,8 +16,8 @@
                                 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600
                                 dark:text-white
                                 dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option value="0">Tanpa RAB</option>
-                                <option value="1">Menggunakan RAB</option>
+                                <option value="0">Tanpa {{ $Rkb }}</option>
+                                <option value="1">Menggunakan {{ $Rkb }}</option>
 
                             </select>
                             @error('withRab')
@@ -25,7 +25,7 @@
                             @enderror
                         </td>
                     </tr>
-                    <tr class="{{ $withRab?'':'hidden' }}">
+                    <tr class="{{ $withRab && !$isSeribu ?'':'hidden' }}">
                         <td class="w-1/3">
                             <label for="rab_id" class="block mb-2  font-semibold text-gray-900 dark:text-white">
                                 Pilih Jenis Pekerjaan *</label>

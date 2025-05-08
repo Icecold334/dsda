@@ -230,7 +230,7 @@ class DataPermintaanMaterial extends Component
 
             return isset($statusMap[$statusFilter]) && $item['status'] === $statusMap[$statusFilter];
         });
-        if ($query) {
+        if ($query->count()) {
             # code...
             return $this->dispatch('gagal', pesan: 'Anda masih memiliki permintaan dengan status "Sedang Dikirim". Harap selesaikan terlebih dahulu.');
         } else {

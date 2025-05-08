@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('detail_permintaan_id')->constrained('detail_permintaan_material')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('rab_id')->nullable()->constrained('rab')->onDelete('cascade');
             $table->text('deskripsi')->nullable();
             $table->text('catatan')->nullable();
             $table->string('img')->nullable();

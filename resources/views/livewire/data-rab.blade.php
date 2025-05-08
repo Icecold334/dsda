@@ -4,11 +4,11 @@
     </div>
     <div class="flex justify-between py-2 mb-3">
 
-        <h1 class="text-2xl font-bold text-primary-900 ">Daftar Rencana Anggaran Biaya
+        <h1 class="text-2xl font-bold text-primary-900 ">Daftar {{ $RKB }}
             @if (auth()->user()->unitKerja)
             {{-- {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama :
             auth()->user()->unitKerja->nama }} --}}
-            {{ auth()->user()->unitKerja->nama }}
+            {{ $sudin }}
             @endif
 
 
@@ -17,7 +17,7 @@
             @can('RAB_tambah_rab')
             <a href="{{ route('rab.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                Tambah RAB</a>
+                Tambah {{ $Rkb }}</a>
             @endcan
 
         </div>
@@ -72,7 +72,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="7" class="text-center">Tidak ada data rencana anggaran biaya</td>
+                <td colspan="7" class="text-center">Tidak ada data {{ Str::lower($RKB) }}</td>
             </tr>
             @endforelse
 

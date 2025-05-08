@@ -66,8 +66,9 @@ class RabController extends Controller
         }
 
         $rab->lamaPengerjaan = $lamaPengerjaan ?: '0 hari';
+        $RKB = $this->RKB;
 
-        return view('rab.show', compact('rab'));
+        return view('rab.show', compact('rab', 'RKB'));
     }
 
 

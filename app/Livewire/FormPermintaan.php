@@ -23,7 +23,7 @@ class FormPermintaan extends Component
 {
     public $permintaan, $kategori;
     public $units;
-    public $last, $withRab = 0, $lokasiMaterial, $namaKegiatan, $nodin;
+    public $last, $withRab = 0, $lokasiMaterial, $namaKegiatan, $nodin, $isSeribu, $Rkb;
     public $unit_id, $rab_id, $rabs, $gudang_id, $gudangs;
     public $kategoris;
     public $kategori_id;

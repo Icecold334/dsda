@@ -1,7 +1,7 @@
 <x-body>
   <div class="flex justify-between py-2 mb-3">
 
-    <h1 class="text-2xl font-bold text-primary-900 uppercase">DETAIL Rencana Anggaran Biaya</h1>
+    <h1 class="text-2xl font-bold text-primary-900 uppercase">DETAIL {{ $RKB }}</h1>
     <div>
       @if (!is_null($rab->status) && $rab->status !== 0)
       <livewire:download-rab :rab='$rab'>

@@ -18,7 +18,7 @@ class FormRab extends Component
     public $aktivitas_sub_kegiatan, $aktivitas_sub_kegiatans = [];
     public $kode_rekening, $kode_rekenings = [];
     public $jenis;
-    public $mulai;
+    public $mulai, $Rkb, $RKB, $sudin;
     public $selesai;
     public $lokasi;
     public function mount()

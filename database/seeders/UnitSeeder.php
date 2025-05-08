@@ -722,7 +722,10 @@ class UnitSeeder extends Seeder
         }
 
         foreach ($units as $unitName => $unitData) {
-            $sudin = Str::lower(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi Jakarta ', '', $unitName));
+            $sudin = Str::contains($unitName, 'Kepulauan')
+                ? 'seribu'
+                : Str::of($unitName)->after('Jakarta ')->lower();
+
             // Simpan unit
             $hak = (Str::contains($unitName, ['Sekretariat', 'Bidang', 'Unit', 'Pusat Data'])) ? 1 : 0;
             $unit = UnitKerja::create([
@@ -922,7 +925,11 @@ class UnitSeeder extends Seeder
                     ]);
                     $user->roles()->attach($role->id);
                 } else {
-                    $sudin = Str::lower(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi Jakarta ', '', $unitName));
+                    $sudin = Str::contains($unitName, 'Kepulauan')
+                        ? 'seribu'
+                        : Str::of($unitName)->after('Jakarta ')->lower();
+
+
                     $role_name = $role->name == 'Kepala Seksi' ? 'kasie' : 'kasubag';
                     $sub = Str::lower(str_replace(' ', '', str_replace($role->name == 'Kepala Seksi' ? 'Seksi' : 'Subbagian', '', $subUnitEntry->nama)));
                     $user = User::create([

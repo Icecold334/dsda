@@ -11,8 +11,13 @@ class DataRab extends Component
 {
     use WithPagination, WithoutUrlPagination;
 
+    public $Rkb, $RKB, $sudin;
 
-    public function mount() {}
+
+    public function mount()
+    {
+        // dd($this->Rkb);
+    }
 
     public function fetchData()
     {

@@ -2,9 +2,16 @@
     <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
         <thead>
             <tr class="text-white uppercase">
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[20%] rounded-l-lg">Nama barang</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[40%] ">Spesifikasi</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jumlah</th>
+                <th
+                    class="py-3 px-6 bg-primary-950 text-center font-semibold w-[15%] {{ $isSeribu ?'rounded-l-lg':'hidden' }}">
+                    RKB</th>
+                <th
+                    class="py-3 px-6 bg-primary-950 text-center font-semibold w-[15%] {{ $isSeribu ?'':'rounded-l-lg' }}">
+                    Nama barang</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[25%] ">Spesifikasi</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[20%]">Volume</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold  {{ $isSeribu ?'':'hidden' }}">
+                    Keterangan</th>
                 @if ($isShow)
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Foto barang diterima</th>
                 @endif
@@ -14,6 +21,21 @@
         <tbody>
             @foreach ($list as $index => $item)
             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
+                <td class="py-3 px-6 ">
+                    <select wire:model.live="rab_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                        focus:ring-primary-500
+                        focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600
+                        dark:text-white
+                        dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        <option value="">Pilih Jenis Pekerjaan</option>
+                        @foreach ($rabs as $rab)
+                        <option value="{{ $rab->id }}">{{ $rab->jenis_pekerjaan }}</option>
+                        @endforeach
+                    </select>
+                    @error('newMerkId')
+                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </td>
                 <td class="py-3 px-6 ">
                     <select wire:model.live="list.{{ $index }}.merk" disabled
                         class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
@@ -52,6 +74,11 @@
                             {{ $item['merk']->barangStok->satuanBesar->nama }}
                         </span>
                     </div>
+                </td>
+                <td class="px-6 py-3">
+                    <textarea id="jumlah" wire:model.live="list.{{ $index }}.keterangan" disabled rows="2"
+                        class="w-full border  border-gray-300 {{ $isSeribu ?'':'hidden' }} cursor-not-allowed rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Keterangan (opsional)"></textarea>
                 </td>
                 @if ($isShow)
                 <td class="py-3 px-6 text-center align-top">
@@ -125,7 +152,22 @@
             <tr
                 class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl {{ $isShow ? 'hidden' :'' }}">
                 <td class="py-3 px-6 ">
-                    <select wire:model.live="newBarangId"
+                    <select wire:model.live="newRabId" class="bg-gray-50 border {{ $isSeribu ?'':'hidden' }} border-gray-300 text-gray-900 text-sm rounded-lg
+                        focus:ring-primary-500
+                        focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600
+                        dark:text-white
+                        dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        <option value="">Pilih Jenis Pekerjaan</option>
+                        @foreach ($rabs as $rab)
+                        <option value="{{ $rab->id }}">{{ $rab->jenis_pekerjaan }}</option>
+                        @endforeach
+                    </select>
+                    @error('newMerkId')
+                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </td>
+                <td class="py-3 px-6 ">
+                    <select wire:model.live="newBarangId" @disabled($isSeribu && !$newRabId)
                         class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         <option value="">Pilih Barang
                         </option>
@@ -172,7 +214,11 @@
                         </span>
                     </div>
                 </td>
-
+                <td class="px-6 py-3">
+                    <textarea id="jumlah" wire:model.live="newKeterangan" rows="2"
+                        class="w-full border  border-gray-300 {{ $isSeribu ?'':'hidden' }} rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Keterangan (opsional)"></textarea>
+                </td>
                 <td class="py-3 px-6">
                     @if ($ruleAdd)
                     <button wire:click="addToList"
@@ -184,7 +230,8 @@
             </tr>
             @else
             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
-                <td colspan="4" class="text-center text-xl px-3 py-6 font-bold"> Lengkapi Data Kegiatan</td>
+                <td colspan="{{ $isSeribu ?'6':'4' }}" class="text-center text-xl px-3 py-6 font-bold"> Lengkapi Data
+                    Kegiatan</td>
             </tr>
             @endif
             @endif

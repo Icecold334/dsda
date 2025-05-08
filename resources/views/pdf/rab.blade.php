@@ -22,7 +22,7 @@
   }
 </style>
 
-<h4 style="text-align:center;">RENCANA ANGGARAN BIAYA</h4>
+<h4 style="text-align:center;">{{ Str::upper($RKB) }}</h4>
 
 <table border="0" cellspacing="2" cellpadding="2" width="100%">
   <tr>
@@ -49,6 +49,11 @@
     <td>UNIT</td>
     <td>:</td>
     <td style="white-space: normal;">{!! nl2br(e($rab->unit->nama)) !!}</td>
+  </tr>
+  <tr>
+    <td>JENIS PEKERJAAN</td>
+    <td>:</td>
+    <td>{{ $rab->jenis_pekerjaan }}</td>
   </tr>
   <tr>
     <td>KODE REKENING</td>
