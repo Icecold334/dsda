@@ -196,7 +196,7 @@ class DataPermintaanMaterial extends Component
             'proses' => $item->proses,
             'jenis_id' => $tipe === 'permintaan' ? $item->jenis_id : null,
             'tipe' => $tipe,
-            'created_at' => $item->created_at->format('Y-m-d H:i:s')
+            'created_at' => $item->created_at->format('Y ')
         ];
     }
 
@@ -210,6 +210,33 @@ class DataPermintaanMaterial extends Component
         return $this->tipe === 'material' ? 1 : ($this->tipe === 'spare-part' ? 2 : 3);
     }
 
+    public function tambahPermintaan()
+    {
+        $href = "/permintaan/add/material/material";
+        $data = $this->getPermintaanQuery();
+        $query = $data->filter(function ($item) {
+            $statusFilter = 'sedang dikirim';
+
+            if ($statusFilter === 'diproses') {
+                return is_null($item['status']);
+            }
+
+            $statusMap = [
+                'ditolak' => 0,
+                'disetujui' => 1,
+                'sedang dikirim' => 2,
+                'selesai' => 3,
+            ];
+
+            return isset($statusMap[$statusFilter]) && $item['status'] === $statusMap[$statusFilter];
+        });
+        if ($query) {
+            # code...
+            return $this->dispatch('gagal', pesan: 'Anda masih memiliki permintaan dengan status "Sedang Dikirim". Harap selesaikan terlebih dahulu.');
+        } else {
+            return redirect()->to($href);
+        }
+    }
     public function updated($propertyName)
     {
         $this->applyFilters();

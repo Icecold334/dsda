@@ -178,7 +178,53 @@ class ShowPermintaanMaterial extends Component
 
     public function sppb()
     {
-        return;
+        $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator('Sistem Permintaan Barang');
+        $pdf->SetAuthor('Dinas SDA');
+        $pdf->SetTitle('SPPB');
+
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', '', 11);
+
+        // optional kalau ada ttd atau cap
+        $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
+
+        $permintaan = $this->permintaan;
+        $unit_id = $this->unit_id;
+        $permintaan->unit = UnitKerja::find($unit_id);
+        $kasatpel =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Kepala Satuan Pelaksana%');
+            })->first();
+        $penjaga =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Penjaga Gudang%');
+            })->where('lokasi_id', $this->permintaan->gudang_id)->first();
+        $pengurus =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Pengurus Barang%');
+            })->first();
+
+        $kasubag =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Tata Usaha%');
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Kepala Subbagian%');
+            })->first();
+        $html = view('pdf.sppb', compact('permintaan', 'kasatpel', 'penjaga', 'pengurus', 'ttdPath', 'kasubag'))->render();
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $this->statusRefresh();
+        // return 1;
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->Output('', 'S');
+        }, 'SPPB.pdf');
     }
     public function qrCode()
     {

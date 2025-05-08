@@ -118,10 +118,47 @@
   </tr>
 </table>
 <div class="underline"></div>
-<h3 class="center">SURAT JALAN</h3>
+<h3 class="center">SURAT PERINTAH PENYALURAN BARANG <br> (SPPB)</h3>
 <div class="center"><strong>Nomor</strong> : {{ $permintaan->nodin ??
   '846846866' }}<br></div>
-<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+<div style="text-align: justify;line-height: 20px">
+  Pada hari ini {{ $permintaan->created_at->translatedFormat('l') }} tanggal {{
+  $permintaan->created_at->translatedFormat('j') }} bulan
+  {{
+  $permintaan->created_at->translatedFormat('M') }} tahun {{
+  $permintaan->created_at->translatedFormat('Y') }}, yang bertanda tangan di bawah ini: <br>
+  <table>
+    <tr>
+      <td width="60">Nama</td>
+      <td width="8">:</td>
+      <td width="1000">{{ $kasubag->name }}</td>
+    </tr>
+    <tr>
+      <td>Jabatan</td>
+      <td>:</td>
+      <td>Pejabat Penatausahaan Barang (PPB) Suku Dinas Sumber Daya Air</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>Kota Administrasi {{ str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
+        $permintaan->unit->nama) }}</td>
+    </tr>
+  </table>
+  Berdasarkan Surat Permintaan Barang (SPB) dari Kepala Satuan Pelaksana Kecamatan {{
+  $permintaan->user->kecamatan->kecamatan ?? '-' }} Nomor {{ $permintaan->nodin }}
+  tanggal {{ $permintaan->created_at->translatedFormat('j') }} bulan {{
+  $permintaan->created_at->translatedFormat('M') }} tahun {{
+  $permintaan->created_at->translatedFormat('Y') }} dengan ini diperintahkan kepada Pengurus
+  Barang
+  Pembantu Suku Dinas Sumber Daya Air Kota
+  Administrasi {{ str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
+  $permintaan->unit->nama) }} untuk mendistribusikan/mengeluarkan barang persediaan, sebagaimana daftar terlampir.
+</div>
+<div>
+  Daftar barang persediaan yang didistribusikan/dikeluarkan sebagai berikut:
+</div>
+{{-- <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
   @if ($permintaan->rab)
   <tr>
     <td style="width: 25%; vertical-align: top;"><strong>Jenis Pekerjaan</strong></td>
@@ -169,8 +206,8 @@
       {{ $permintaan->nopol ?? '………….' }}
     </td>
   </tr>
-</table>
-<br><br><br>
+</table> --}}
+<br>
 {{-- TABEL --}}
 <table class="bahan">
   <thead>
@@ -194,13 +231,16 @@
     @endforeach
   </tbody>
 </table>
+<br>
+<div>
+  Demikian Surat Perintah Penyaluran Barang ini dibuat dalam rangkap 2 (dua) untuk digunakan sebagaimana mestinya.
+</div>
 
 <p style="margin-top: 20px;text-align: right">
-  Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }}
 </p>
 
 {{-- TANDA TANGAN --}}
-<table class="no-border footer-ttd">
+{{-- <table class="no-border footer-ttd">
 
   <tr>
     <td width="50%">
@@ -220,23 +260,23 @@
     </td>
 
   </tr>
-</table>
+</table> --}}
 <br><br>
 <br><br>
 <table class="no-border footer-ttd">
 
   <tr>
     <td width="50%">
-      Keamanan<br><br><br><br>
+      {{-- Keamanan<br><br><br><br>
       @if(file_exists(public_path('storage/ttdPengiriman/' . $permintaan->ttd_security)))
       <img src="{{ public_path('storage/ttdPengiriman/' . $permintaan->ttd_security) }}" height="40"><br>
       @endif
-      <strong>{{ $permintaan->security }}</strong>
+      <strong>{{ $permintaan->security }}</strong> --}}
     </td>
 
     <td width="50%">
-      Mengetahui,<br>
-      Pengurus Barang Suku Dinas {{ Str::ucfirst(str_replace('Suku Dinas ', '',
+      Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }} <br>
+      Pejabat Penatausahaan Barang Suku Dinas {{ Str::ucfirst(str_replace('Suku Dinas ', '',
       $permintaan->unit->nama)) }}<br><br>
       @if(file_exists($ttdPath ?? ''))
       <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br>

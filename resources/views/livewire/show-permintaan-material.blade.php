@@ -6,11 +6,11 @@
 
             <a wire:click='spb'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
-                Surat Permohonan Barang</a>
+                SPB</a>
             @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2)
-            {{-- <a wire:click='sppb'
+            <a wire:click='sppb'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
-                SPPB</a> --}}
+                SPPB</a>
 
             <a wire:click='qrCode'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
@@ -70,8 +70,12 @@
                     </tr>
                     @endif
                     <tr class="font-semibold">
-                        <td>Tanggal Permintaan</td>
+                        <td>Tanggal Pekerjaan</td>
                         <td> {{date('j F Y', $permintaan->tanggal_permintaan) }}</td>
+                    </tr>
+                    <tr class="font-semibold">
+                        <td>Tahun Permintaan</td>
+                        <td> {{$permintaan->created_at->format('Y') }}</td>
                     </tr>
                     {{-- <tr class="font-semibold">
                         <td>Unit Kerja</td>

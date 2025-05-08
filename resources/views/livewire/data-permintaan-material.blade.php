@@ -46,12 +46,10 @@
                 </div>
                 @endcan
                 @endif
-                @if ($nonUmum)
-                <a href="/permintaan/add/{{ request()->segment(2) }}/{{ request()->segment(2) }}"
-                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 transition duration-200">
+                <div wire:click='tambahPermintaan'
+                    class="text-primary-900 cursor-pointer bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 transition duration-200">
                     + Tambah Permintaan
-                </a>
-                @endif
+                </div>
             </div>
 
         </div>
@@ -70,6 +68,8 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">LOKASI</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">
                     TANGGAL PEKERJAAN</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">
+                    TAHUN PERMINTAAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
@@ -92,6 +92,7 @@
                 </td>
                 <td class="px-6 py-3 font-semibold text-center">{{ $permintaan['lokasi'] }}</td>
                 <td class="px-6 py-3 font-semibold text-center">{{ date('j F Y', $permintaan['tanggal']) }}</td>
+                <td class="px-6 py-3 font-semibold text-center">{{$permintaan['created_at'] }}</td>
                 <td class="px-6 py-3 font-semibold {{ $tipe == 'material' ? 'hidden' : '' }}">
                     <div class="text-gray-600 text-sm">
                         {{ $permintaan['sub_unit']?->nama ?? $permintaan['unit']?->nama }}
@@ -132,4 +133,11 @@
 
     </table>
     {{-- {{ $permintaans->onEachSide(1)->links() }} --}}
+    @push('scripts')
+    <script type="module">
+        document.addEventListener('gagal', function ({detail}) {
+            feedback('Akses Ditolak!', detail.pesan, 'error');
+            });
+    </script>
+    @endpush
 </div>
