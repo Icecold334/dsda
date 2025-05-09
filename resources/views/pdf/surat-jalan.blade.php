@@ -206,7 +206,7 @@
       Pemohon<br>
       Ketua Satuan Pelaksana<br>
       Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '-' }}<br><br>
-      <img src="{{ $permintaan->status === 3 ? '/storage/ttdPengiriman/nurdin.png':'' }}" height="40"><br>
+      <img src="{{ $permintaan->status === 3 || true ? '/storage/ttdPengiriman/nurdin.png':'' }}" height="40"><br>
       <strong>{{ $kasatpel->name }}</strong><br>
       NIP {{ $kasatpel->nip ?? '....................' }}
     </td>
