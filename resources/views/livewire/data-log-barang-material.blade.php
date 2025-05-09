@@ -94,12 +94,15 @@
 
     {{-- Modal Riwayat Barang --}}
     @if($modalVisible)
+    {{-- @foreach ($detailList as $entry)
+    @dd($entry)
+    @endforeach --}}
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white w-full max-w-4xl rounded-lg shadow-lg overflow-hidden">
             <!-- Header -->
             <div class="flex justify-between items-center px-6 py-4 border-b">
                 <h2 class="text-lg font-semibold">
-                    Riwayat Barang {{ $jenisDipilih ? 'Masuk' : 'Keluar' }} – {{ $tanggalDipilih }}
+                    Riwayat Barang {{ $jenisDipilih ? 'Masuk' : 'Keluar' }} {{ $tanggalDipilih }}
                 </h2>
                 <button wire:click="$set('modalVisible', false)" class="text-gray-500 hover:text-gray-800">
                     ✕
@@ -114,19 +117,22 @@
                             <th class="px-3 py-2 text-left">Barang</th>
                             <th class="px-3 py-2 text-left">Merk</th>
                             <th class="px-3 py-2 text-left">Tipe</th>
+                            <th class="px-3 py-2 text-left">Ukuran</th>
                             <th class="px-3 py-2 text-center">Jumlah</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($detailList as $entry)
-                        @foreach ($jenisDipilih == 0 ? $entry->detailPermintaan : $entry->detailPengirimanStok as $item)
+                        @forelse ($detailList as $item)
+                        {{-- @foreach ($jenisDipilih == 0 ? $entry->detailPermintaan : $entry->detailPengirimanStok as
+                        $item) --}}
                         <tr class="border-b hover:bg-gray-50">
                             <td class="px-3 py-2">{{ $item->merkStok->barangStok->nama ?? '-' }}</td>
                             <td class="px-3 py-2">{{ $item->merkStok->nama ?? '-' }}</td>
                             <td class="px-3 py-2">{{ $item->merkStok->tipe ?? '-' }}</td>
-                            {{-- <td class="px-3 py-2 text-center">{{ $item->jumlah }}</td> --}}
+                            <td class="px-3 py-2">{{ $item->merkStok->ukuran ?? '-' }}</td>
+                            <td class="px-3 py-2 text-center">{{ $item->jumlah }}</td>
                         </tr>
-                        @endforeach
+                        {{-- @endforeach --}}
                         @empty
                         <tr>
                             <td colspan="4" class="text-center text-gray-500 py-4">Tidak ada data ditemukan</td>

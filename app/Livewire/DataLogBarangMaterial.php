@@ -6,6 +6,7 @@ use App\Models\Stok;
 use Livewire\Component;
 use App\Models\PengirimanStok;
 use App\Models\PermintaanMaterial;
+use Carbon\Carbon;
 
 class DataLogBarangMaterial extends Component
 {
@@ -54,12 +55,14 @@ class DataLogBarangMaterial extends Component
 
 
         $this->list = $permintaan->merge($pengiriman);
+        // $this->selectedTanggal();;
     }
 
-    public function selectedTanggal($tanggal, $jenis)
+    public function selectedTanggal($tanggal = null, $jenis = null)
     {
+        // dd($tanggal);
         $this->modalVisible = true;
-        $this->tanggalDipilih = $tanggal;
+        $this->tanggalDipilih = Carbon::parse($tanggal)->translatedFormat('l, d F Y');
         $this->jenisDipilih = $jenis;
 
         if ($jenis == 0) {
