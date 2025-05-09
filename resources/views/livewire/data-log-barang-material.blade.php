@@ -18,25 +18,47 @@
             {{-- <a href="{{ route('aset.create') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Tambah Aset</a> --}}
-            <div class="flex gap-4">
-                <!-- Search Input -->
-                <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2 w-full"
-                    placeholder="Cari Kode / Barang" />
+            <div class="flex flex-wrap gap-4 mb-4 items-end">
+                {{-- Filter Tanggal --}}
+                <div class="w-48">
+                    <label class="block text-sm font-semibold mb-1">Dari Tanggal:</label>
+                    <input type="date" wire:model.live="filterFromDate" class="border rounded-lg px-4 py-2 w-full" />
+                </div>
+                <div class="w-48">
+                    <label class="block text-sm font-semibold mb-1">Sampai Tanggal:</label>
+                    <input type="date" wire:model.live="filterToDate" class="border rounded-lg px-4 py-2 w-full" />
+                </div>
 
-                <!-- Dropdown untuk Memilih Jenis -->
-                {{-- <select wire:model.live="jenis"
-                    class="border rounded-lg px-4 py-2 w-full {{ $isSeribu ? 'hidden':'' }}">
-                    <option value="">Pilih Jenis</option>
-                    @foreach ($jenisOptions as $jenis)
-                    <option value="{{ $jenis }}">{{ $jenis }}</option>
-                    @endforeach
-                </select>
-                <select wire:model.live="lokasi" wire:change="applyFilters" class="border rounded-lg px-4 py-2 w-full">
-                    <option value="">Pilih Lokasi</option>
-                    @foreach ($lokasiOptions as $lokasi)
-                    <option value="{{ $lokasi }}">{{ $lokasi }}</option>
-                    @endforeach
-                </select> --}}
+                {{-- Filter Bulan --}}
+                <div class="w-48">
+                    <label class="block text-sm font-semibold mb-1">Bulan:</label>
+                    <select wire:model.live="filterMonth" class="border rounded-lg px-4 py-2 w-full">
+                        <option value="">-- Semua Bulan --</option>
+                        @foreach(range(1,12) as $m)
+                        <option value="{{ $m }}">{{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Filter Tahun --}}
+                <div class="w-48">
+                    <label class="block text-sm font-semibold mb-1">Tahun:</label>
+                    <select wire:model.live="filterYear" class="border rounded-lg px-4 py-2 w-full">
+                        <option value="">-- Semua Tahun --</option>
+                        @foreach(range(now()->year, now()->year - 5) as $y)
+                        <option value="{{ $y }}">{{ $y }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Tombol Reset --}}
+                <div>
+                    <button type="button" wire:click="resetFilters"
+                        class="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-400 transition">
+                        <i class="fa fa-sync-alt"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

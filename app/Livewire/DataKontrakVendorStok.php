@@ -4,8 +4,9 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\JenisStok;
-use App\Models\KontrakVendorStok;
 use App\Models\MetodePengadaan;
+use App\Models\KontrakVendorStok;
+use Illuminate\Support\Facades\Auth;
 
 class DataKontrakVendorStok extends Component
 {
@@ -13,13 +14,16 @@ class DataKontrakVendorStok extends Component
     public $jenis = '';
     public $metode = '';
     public $tanggal = '';
-    public $groupedTransactions;
+    public $groupedTransactions, $sudin;
     public $unit_id;
     public $jenisOptions = [];
     public $metodeOptions = [];
 
     public function mount()
     {
+        if (!Auth::user()->unitKerja->hak) {
+            $this->jenis = 'Material';
+        }
         $this->jenisOptions = JenisStok::pluck('nama')->toArray(); // Fetch all jenis
         $this->metodeOptions = MetodePengadaan::pluck('nama')->toArray(); // Fetch all jenis
         // Initial data fetch
