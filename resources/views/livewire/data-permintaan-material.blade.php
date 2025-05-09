@@ -61,11 +61,11 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NOMOR SPB</span>
                 </th>
-                <th class=" py-3 px-6 bg-primary-950 text-center font-semibold">JENIS
+                <th class=" py-3 px-6 bg-primary-950 text-center font-semibold {{ $isSeribu ?'hidden':'' }}">JENIS
                     PEKERJAAN
                 </th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NOMOR RAB</th> --}}
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">LOKASI</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold {{ $isSeribu ?'hidden':'' }}">LOKASI</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">
                     TANGGAL PEKERJAAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold ">
@@ -79,9 +79,15 @@
             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                 <td class="px-6 py-3"></td>
                 <td class="px-6 py-3 font-semibold">
-                    {{ $permintaan['kode'] }}
+                    <div>
+                        {{ Str::ucfirst($permintaan['kode']) }}
+                    </div>
+                    <div class="text-gray-500 text-sm {{ !$isSeribu ?'hidden':'' }}">
+                        {{-- {{ $permintaan['kategori']?->nama }} --}}
+                        {{ $permintaan['nomor_rab'] }}
+                    </div>
                 </td>
-                <td class="px-6 py-3 font-semibold ">
+                <td class="px-6 py-3 font-semibold {{ $isSeribu ?'hidden':'' }} ">
                     <div>
                         {{ Str::ucfirst($permintaan['jenis_pekerjaan']) }}
                     </div>
@@ -90,7 +96,8 @@
                         {{ $permintaan['nomor_rab'] }}
                     </div>
                 </td>
-                <td class="px-6 py-3 font-semibold text-center">{{ $permintaan['lokasi'] }}</td>
+                <td class="px-6 py-3 font-semibold text-center {{ $isSeribu ?'hidden':'' }}">{{ $permintaan['lokasi'] }}
+                </td>
                 <td class="px-6 py-3 font-semibold text-center">{{ date('j F Y', $permintaan['tanggal']) }}</td>
                 <td class="px-6 py-3 font-semibold text-center">{{$permintaan['created_at'] }}</td>
                 <td class="px-6 py-3 font-semibold {{ $tipe == 'material' ? 'hidden' : '' }}">

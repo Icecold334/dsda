@@ -15,7 +15,7 @@ class ShowPermintaanMaterial extends Component
 {
 
     use WithFileUploads;
-    public $permintaan, $isOut = false;
+    public $permintaan, $isOut = false, $Rkb, $RKB, $sudin, $isSeribu, $withRab;
 
     public $signature, $securitySignature;
     protected $listeners = ['signatureSaved'];
@@ -58,7 +58,11 @@ class ShowPermintaanMaterial extends Component
             })->whereHas('roles', function ($role) {
                 return $role->where('name', 'like', '%Pengurus Barang%');
             })->first();
-        $html = view('pdf.surat-jalan', compact('permintaan', 'kasatpel', 'penjaga', 'pengurus', 'ttdPath'))->render();
+        $Rkb = $this->Rkb;
+        $RKB = $this->RKB;
+        $sudin = $this->sudin;
+        $isSeribu = $this->isSeribu;
+        $html = view('pdf.surat-jalan', compact('permintaan', 'kasatpel', 'penjaga', 'pengurus', 'ttdPath', 'Rkb', 'RKB', 'sudin', 'isSeribu'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
@@ -132,6 +136,12 @@ class ShowPermintaanMaterial extends Component
         // Tambahkan properti dinamis
         $this->permintaan->status_teks = $statusMap[$this->permintaan->status]['label'] ?? 'Tidak diketahui';
         $this->permintaan->status_warna = $statusMap[$this->permintaan->status]['color'] ?? 'gray';
+
+        if ($this->isSeribu) {
+            $this->withRab = $this->permintaan->permintaanMaterial->first()->rab_id;
+        } else {
+            $this->withRab = $this->permintaan->rab_id;
+        }
     }
 
     public function saveDoc()
@@ -217,7 +227,11 @@ class ShowPermintaanMaterial extends Component
             })->whereHas('roles', function ($role) {
                 return $role->where('name', 'like', '%Kepala Subbagian%');
             })->first();
-        $html = view('pdf.sppb', compact('permintaan', 'kasatpel', 'penjaga', 'pengurus', 'ttdPath', 'kasubag'))->render();
+        $Rkb = $this->Rkb;
+        $RKB = $this->RKB;
+        $sudin = $this->sudin;
+        $isSeribu = $this->isSeribu;
+        $html = view('pdf.sppb', compact('permintaan', 'kasatpel', 'penjaga', 'pengurus', 'ttdPath', 'kasubag', 'Rkb', 'RKB', 'sudin', 'isSeribu'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
@@ -246,29 +260,16 @@ class ShowPermintaanMaterial extends Component
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
         $pdf->SetCreator('Sistem Permintaan Bahan');
         $pdf->SetAuthor('Dinas SDA Jaktim');
-        $pdf->SetTitle('Surat Permohonan Bahan Material');
+        $pdf->SetTitle('Surat Permintaan Barang Material');
 
         $pdf->AddPage();
-        $pdf->SetFont('helvetica', '', 11);
+        $pdf->SetFont('helvetica', '', 10);
         $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
 
         $permintaan = $this->permintaan;
         $unit_id = $this->unit_id;
         $permintaan->unit = UnitKerja::find($unit_id);
 
-        // [
-        //     'tanggal' => now()->translatedFormat('d F Y'),
-        //     'lokasi' => 'Perbaikan tutup dan pemasangan tutup saluran',
-        //     'detailLokasi' => 'Jl. Sembilan 3 RT.03 RW.06 Kel. Makasar',
-        //     'kecamatan' => 'Makasar',
-        //     'barang' => [
-        //         ['nama' => 'Semen', 'volume' => 28, 'satuan' => 'Zak'],
-        //         ['nama' => 'Benang Nylon', 'volume' => 4, 'satuan' => 'Gulungan'],
-        //     ],
-        //     'mengetahui' => 'Puryanto Palebangan',
-        //     'pemohon' => 'Nurdin',
-        //     'ttd_pemohon' => $ttdPath, // << kirim path tanda tangan
-        // ];
         $kasatpel =
             User::whereHas('unitKerja', function ($unit) use ($unit_id) {
                 return $unit->where('id', $unit_id);
@@ -281,13 +282,26 @@ class ShowPermintaanMaterial extends Component
             })->whereHas('roles', function ($role) {
                 return $role->where('name', 'like', '%Kepala Seksi%');
             })->first();
-        $html = view(!$permintaan->rab_id ? 'pdf.nodin' : 'pdf.spb', compact('permintaan', 'kasatpel', 'pemel'))->render();
+
+        $Rkb = $this->Rkb;
+        $RKB = $this->RKB;
+        $sudin = $this->sudin;
+        $isSeribu = $this->isSeribu;
+        if ($isSeribu) {
+            $withRab = $this->permintaan->permintaanMaterial->first()->rab_id;
+        } else {
+            $withRab = $this->permintaan->rab_id;
+        }
+        // dd(
+        //     !$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb')
+        // );
+        $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact('permintaan', 'kasatpel', 'pemel', 'Rkb', 'RKB', 'sudin', 'isSeribu'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->Output('', 'S');
-        }, 0 ? 'Nota Dinas.pdf' : 'Surat Permohonan Barang.pdf');
+        }, 0 ? 'Nota Dinas.pdf' : 'Surat Permintaan Barang.pdf');
     }
 
     public function removeAttachment($index)

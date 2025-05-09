@@ -34,12 +34,17 @@ class ListPermintaanMaterial extends Component
         })->orderBy('created_at', 'desc')->get();
 
         if ($this->permintaan) {
+            if ($this->isSeribu) {
+                $this->withRab = $this->permintaan->permintaanMaterial->first()->rab_id;
+            }
             foreach ($this->permintaan->permintaanMaterial as $item) {
                 $this->list[] = [
                     'id' => $item->id,
+                    'rab_id' => $item->rab_id,
                     'merk' => $item->merkStok,
                     'img' => $item->img,
                     'jumlah' => $item->jumlah,
+                    'keterangan' => $item->deskripsi,
                     'editable' => is_null($item->img),
                 ];
             }
@@ -175,7 +180,7 @@ class ListPermintaanMaterial extends Component
     public function checkShow()
     {
         if ($this->withRab) {
-            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && ($this->isSeribu || $this->rab_id);
+            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && ($this->isSeribu && $this->withRab || $this->rab_id);
         } else {
             $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && $this->lokasiMaterial && $this->keterangan && $this->nodin && $this->namaKegiatan;
         }
@@ -197,15 +202,25 @@ class ListPermintaanMaterial extends Component
             if ($this->newBarangId) {
                 $this->newUnit = BarangStok::find($this->newBarangId)->satuanBesar->nama;
 
-                $this->merks = BarangStok::find($this->newBarangId)->merkStok()->when($rab_id, function ($query) use ($rab_id) {
-                    return $query->whereHas('listRab', function ($query) use ($rab_id) {
-                        $query->where('rab_id', $rab_id);
-                    });
-                })
-                    ->whereHas('stok', function ($stok) use ($gudang_id) {
+                if ($this->newRabId && $this->withRab) {
+                    $rab_id = $this->newRabId;
+
+                    $this->merks = BarangStok::find($this->newBarangId)->merkStok()->when($rab_id, function ($query) use ($rab_id) {
+                        return $query->whereHas('listRab', function ($query) use ($rab_id) {
+                            $query->where('rab_id', $rab_id);
+                        });
+                    })->whereHas('stok', function ($stok) use ($gudang_id) {
                         return $stok->where('lokasi_id', $gudang_id);
-                    })
-                    ->get();
+                    })->get();
+                } else {
+                    $this->merks = BarangStok::find($this->newBarangId)->merkStok()->when($rab_id, function ($query) use ($rab_id) {
+                        return $query->whereHas('listRab', function ($query) use ($rab_id) {
+                            $query->where('rab_id', $rab_id);
+                        });
+                    })->whereHas('stok', function ($stok) use ($gudang_id) {
+                        return $stok->where('lokasi_id', $gudang_id);
+                    })->get();
+                }
             } else {
                 $this->newUnit = 'Satuan';
                 $this->newJumlah = null;
@@ -268,6 +283,7 @@ class ListPermintaanMaterial extends Component
                 'merk_id' => $item['merk']->id,
                 'rab_id' => $this->isSeribu ? $item['rab_id']  : null,
                 'jumlah' => $item['jumlah'],
+                'deskripsi' => $item['keterangan'],
                 'created_at' => now(),
                 'updated_at' => now()
             ];

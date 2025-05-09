@@ -106,8 +106,7 @@
       PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
       <strong>DINAS SUMBER DAYA AIR <br>
         SUKU DINAS SUMBER DAYA AIR <br></strong>
-      <strong>KOTA ADMINISTRASI {{ strtoupper(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
-        $permintaan->unit->nama)) }}</strong>
+      <strong>{{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
         {{ $permintaan->unit->alamat }}
         <br>
@@ -207,7 +206,7 @@
       Pemohon<br>
       Ketua Satuan Pelaksana<br>
       Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '-' }}<br><br>
-      <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br>
+      <img src="{{ $permintaan->status === 3 ? '/storage/ttdPengiriman/nurdin.png':'' }}" height="40"><br>
       <strong>{{ $kasatpel->name }}</strong><br>
       NIP {{ $kasatpel->nip ?? '....................' }}
     </td>

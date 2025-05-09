@@ -92,4 +92,8 @@ class StokController extends Controller
     {
         //
     }
+    public function logBarang()
+    {
+        return view('stok.log');
+    }
 }

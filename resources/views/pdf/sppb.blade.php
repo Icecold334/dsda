@@ -106,8 +106,7 @@
       PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
       <strong>DINAS SUMBER DAYA AIR <br>
         SUKU DINAS SUMBER DAYA AIR <br></strong>
-      <strong>KOTA ADMINISTRASI {{ strtoupper(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
-        $permintaan->unit->nama)) }}</strong>
+      <strong>{{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
         {{ $permintaan->unit->alamat }}
         <br>
@@ -141,19 +140,19 @@
     <tr>
       <td></td>
       <td></td>
-      <td>Kota Administrasi {{ str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
-        $permintaan->unit->nama) }}</td>
+      <td>{{ $isSeribu ?'Kabupaten':'Kota' }} Administrasi {{ $sudin }}</td>
     </tr>
   </table>
-  Berdasarkan Surat Permintaan Barang (SPB) dari Kepala Satuan Pelaksana Kecamatan {{
-  $permintaan->user->kecamatan->kecamatan ?? '-' }} Nomor {{ $permintaan->nodin }}
-  tanggal {{ $permintaan->created_at->translatedFormat('j') }} bulan {{
-  $permintaan->created_at->translatedFormat('M') }} tahun {{
-  $permintaan->created_at->translatedFormat('Y') }} dengan ini diperintahkan kepada Pengurus
-  Barang
-  Pembantu Suku Dinas Sumber Daya Air Kota
-  Administrasi {{ str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
-  $permintaan->unit->nama) }} untuk mendistribusikan/mengeluarkan barang persediaan, sebagaimana daftar terlampir.
+  <div style="text-align: justify">
+    Berdasarkan Surat Permintaan Barang (SPB) dari Kepala Satuan Pelaksana Kecamatan {{
+    $permintaan->user->kecamatan->kecamatan ?? '-' }} Nomor {{ $permintaan->nodin }}
+    tanggal {{ $permintaan->created_at->translatedFormat('j') }} bulan {{
+    $permintaan->created_at->translatedFormat('M') }} tahun {{
+    $permintaan->created_at->translatedFormat('Y') }} dengan ini diperintahkan kepada Pengurus
+    Barang
+    Pembantu Suku Dinas Sumber Daya Air {{ $isSeribu ?'Kabupaten':'Kota' }}
+    Administrasi {{ $sudin }} untuk mendistribusikan/mengeluarkan barang persediaan, sebagaimana daftar terlampir.
+  </div>
 </div>
 <div>
   Daftar barang persediaan yang didistribusikan/dikeluarkan sebagai berikut:

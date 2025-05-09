@@ -32,10 +32,10 @@ class DashboardController extends Controller
                     break;
                 }
             }
-            if (!Auth::user()->hasRole(['Kepala Suku Dinas', 'Admin Sudin'])) {
-                # code...
-                return redirect()->to($to);
-            }
+            // if (!Auth::user()->hasRole(['Kepala Suku Dinas', 'Admin Sudin'])) {
+            //     # code...
+            //     return redirect()->to($to);
+            // }
         }
 
         $agendas = Agenda::with('aset')

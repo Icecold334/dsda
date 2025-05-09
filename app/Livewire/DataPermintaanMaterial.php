@@ -18,7 +18,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class DataPermintaanMaterial extends Component
 {
-    public $nonUmum;
+    public $nonUmum, $isSeribu;
     public $search; // Search term
     public $jenis; // Selected jenis
     public $lokasi; // Selected jenis
@@ -124,9 +124,15 @@ class DataPermintaanMaterial extends Component
                     $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                 });
             })->get();
+        // dd($this->unit_id);
 
         if ($this->getJenisId() == 1) {
-            $permintaan = DetailPermintaanMaterial::all()->map(function ($perm) {
+
+            $permintaan = DetailPermintaanMaterial::when($this->unit_id, function ($query) {
+                $query->whereHas('user.unitKerja', function ($unit) {
+                    $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                });
+            })->get()->map(function ($perm) {
                 $statusMap = [
                     null => ['label' => 'Diproses', 'color' => 'warning'],
                     0 => ['label' => 'Ditolak', 'color' => 'danger'],
@@ -176,10 +182,17 @@ class DataPermintaanMaterial extends Component
      */
     private function mapData($item, $tipe)
     {
+        if ($this->isSeribu) {
+            # code...
+            $withRab = $item->permintaanMaterial->first()->rab_id;
+        } else {
+            $withRab = $item->rab_id;
+        }
+
         return [
             'id' => $item->id,
             'kode' => $item->nodin,
-            'nomor_rab' => $item->rab_id ? 'Dengan RAB' :  'Tanpa RAB',
+            'nomor_rab' => $withRab ? 'Dengan ' . $this->Rkb :  'Tanpa ' . $this->Rkb,
             'tanggal' => $item->tanggal_permintaan,
             'kategori_id' => $item->kategori_id,
             'kategori' => $tipe === 'permintaan' ? $item->kategoriStok : $item->kategori,

@@ -13,7 +13,10 @@ class PermintaanMaterial extends Model
     {
         return $this->belongsTo(DetailPermintaanMaterial::class, 'detail_permintaan_id');
     }
-
+    public function rab()
+    {
+        return $this->belongsTo(Rab::class, 'rab_id');
+    }
 
     public function user()
     {

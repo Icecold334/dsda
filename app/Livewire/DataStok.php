@@ -8,6 +8,7 @@ use App\Models\JenisStok;
 use App\Models\UnitKerja;
 use App\Models\BarangStok;
 use App\Models\LokasiStok;
+use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -22,7 +23,7 @@ class DataStok extends Component
     public $search = ''; // Search term
     public $jenis = ''; // Selected jenis
     public $lokasi = ''; // Selected jenis
-    public $unit_id; // Current user's unit ID
+    public $unit_id, $isSeribu, $sudin; // Current user's unit ID
     // public $barangs = []; Filtered barangs
     public $stoks  = [];
     public $jenisOptions = []; // List of jenis options
@@ -31,6 +32,9 @@ class DataStok extends Component
     public function mount()
     {
         $this->jenisOptions = JenisStok::pluck('nama')->toArray(); // Fetch all available jenis
+        if (!Auth::user()->unitKerja->hak) {
+            $this->jenis = "Material";
+        }
         $this->lokasiOptions = LokasiStok::whereHas('unitKerja', function ($unit) {
             $unit->where('parent_id', $this->unit_id)
                 ->orWhere('id', $this->unit_id);

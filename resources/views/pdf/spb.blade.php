@@ -90,8 +90,7 @@
       PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
       <strong>DINAS SUMBER DAYA AIR <br>
         SUKU DINAS SUMBER DAYA AIR <br></strong>
-      <strong>KOTA ADMINISTRASI {{ strtoupper(str_replace('Suku Dinas Sumber Daya Air Kota Administrasi ', '',
-        $permintaan->unit->nama)) }}</strong>
+      <strong>{{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
         {{ $permintaan->unit->alamat }}
         <br>

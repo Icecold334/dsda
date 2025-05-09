@@ -24,7 +24,7 @@ abstract class Controller
         $this->isSeribu = $isSeribu;
         $this->Rkb = $isSeribu ? 'RKB' : 'RAB';
         $this->RKB = $isSeribu ? 'Rencana Kegiatan Bulanan' : 'Rencanan Anggaran Biaya';
-        $sudin = Str::contains($unit->nama, 'Kepulauan')
+        $sudin = Str::contains($parent->nama, 'Kepulauan')
             ? 'Kepulauan Seribu'
             : Str::of($unit->nama)->after('Administrasi ');
         // dd($sudin);

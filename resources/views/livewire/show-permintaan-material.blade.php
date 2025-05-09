@@ -30,13 +30,13 @@
         <div>
             <x-card title="data umum" class="mb-3">
                 <table class="w-full">
-                    @if ($permintaan->rab_id)
+                    @if ($withRab && !$isSeribu)
                     <tr class="font-semibold ">
                         <td>Jenis Pekerjaan</td>
                         <td>{{ $permintaan->rab->jenis_pekerjaan }}</td>
                     </tr>
                     @endif
-                    @if (!$permintaan->rab_id)
+                    @if (!$permintaan->rab_id && !$isSeribu)
                     <tr class="font-semibold ">
                         <td>Jenis Pekerjaan</td>
                         <td>{{ $permintaan->nama }}</td>

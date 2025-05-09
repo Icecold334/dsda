@@ -26,9 +26,9 @@
                     // ['href' => '/transaksi-darurat-stok', 'title' => 'Transaksi Belum Berkontrak'],
                 ]" />
                     @endif
-                    @if (auth()->user()->hasRole(['Admin Sudin','Penjaga Gudang','Kepal Suku Dinas',
+                    @if (auth()->user()->hasRole(['Admin Sudin','Penjaga Gudang','Kepala Suku Dinas','Pengurus Barang',
                     'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen','P3K','Kepala Satuan Pelaksana']))
-
+                    <livewire:nav-item href="/log-barang" title="Riwayat Barang" />
                     <livewire:nav-item title="inventaris" :child="[
                     ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
                     ['href' => '/pengiriman-stok', 'title' => 'List Inventaris'],

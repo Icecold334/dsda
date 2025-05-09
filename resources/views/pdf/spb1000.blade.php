@@ -38,7 +38,6 @@
     margin-top: 30px;
   }
 </style>
-
 <style>
   body {
     font-family: helvetica, sans-serif;
@@ -103,64 +102,30 @@
 </table>
 <div class="underline"></div>
 
-<table width="100%" style="margin-top: 20px;">
-  <tr>
-    <td style="width: 100%; vertical-align: top;text-align: right">Jakarta, {{
-      \Carbon\Carbon::parse($permintaan->tanggal)->translatedFormat('d F Y') }}</td>
-  </tr>
-  <tr>
-    <!-- Kiri: metadata -->
-    <td style="width: 60%; vertical-align: top;">
-      <table class="meta-table">
-        <tr>
-          <td width="20%">Nomor</td>
-          <td>: {{ $permintaan->nodin }}</td>
-        </tr>
-        <tr>
-          <td>Sifat</td>
-          <td>: Penting</td>
-        </tr>
-        <tr>
-          <td>Lampiran</td>
-          <td>: {{ count($permintaan->lampiran) ? count($permintaan->lampiran) . ' (satu) berkas' : '-' }}</td>
-        </tr>
-        <tr>
-          <td>Hal</td>
-          <td>: Surat Permintaan Barang</td>
-        </tr>
-      </table>
-    </td>
+{{-- NOMOR --}}
+<div style="text-align: right"><strong>No</strong> : {{ $permintaan->nodin }}</div>
 
-    <!-- Kanan: alamat tujuan -->
-    <td style="width: 40%; vertical-align: top; text-align: left;">
-      <p style="margin-left: 30px;">
-        Kepada <br>
-        Yth.<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;Kepala Suku Dinas Sumber Daya Air<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;{{ $sudin }} <br>
-        &nbsp;&nbsp;&nbsp;&nbsp;di <br>
-        &nbsp;&nbsp;&nbsp;&nbsp;Jakarta
-      </p>
-    </td>
-  </tr>
-</table>
+{{-- JUDUL --}}
+<h3 class="center">SURAT PERMINTAAN BARANG</h3>
 
-<br>
-
-
+{{-- PARAGRAF UTAMA --}}
 <p>
-  Sehubungan dengan kebutuhan pelaksanaan kegiatan {{ $permintaan->nama }}, dengan ini saya mengajukan permohonan
-  penyediaan bahan material dengan rincian sebagai
-  berikut:
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Sehubungan dengan kebutuhan pelaksanaan pada Seksi Pemeliharaan Suku Dinas Sumber Daya
+  Air
+  Kabupaten Administrasi Kepulauan
+  Seribu, dengan ini saya mengajukan permohonan penyediaan bahan material dengan rincian sebagai berikut:
 </p>
 
+{{-- TABEL --}}
 <table class="bahan">
   <thead>
     <tr>
       <th width="30" align="center">NO</th>
       <th width="100" align="center">NAMA</th>
-      <th width="300" align="center">SPESIFIKASI</th>
-      <th width="100" align="center">VOLUME</th>
+      <th width="180" align="center">SPESIFIKASI</th>
+      <th width="80" align="center">VOLUME</th>
+      <th width="45" align="center">RKB</th>
+      <th width="100" align="center">KETERANGAN</th>
     </tr>
   </thead>
   <tbody>
@@ -168,20 +133,20 @@
     <tr>
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="100">{{ $item->merkStok->barangStok->nama }}</td>
-      <td width="300">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
+      <td width="180">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
         $item->merkStok->tipe ?? 'Tanpa tipe' }} -
-        {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
-      <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
+        {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}
+      </td>
+      <td width="80" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
+      <td width="45">{{ $item->rab->jenis_pekerjaan }}</td>
+      <td width="100">{{ $item->deskripsi ??'-' }}</td>
     </tr>
     @endforeach
   </tbody>
 </table>
-<p>
-  Adapun bahan material tersebut diperlukan untuk {{ $permintaan->keterangan }} di {{ $permintaan->lokasi }}.
-  Demikian
-  permohonan ini kami sampaikan.
-  Atas perhatian dan kerjasamanya, saya ucapkan terima kasih.</p>
-<br><br>
+
+{{-- FOOTER + TTD --}}
+<br><br><br><br>
 <table width="100%">
   <tr>
     <td align="center">
@@ -205,11 +170,3 @@
     </td>
   </tr>
 </table>
-<br>
-<br>
-<br>
-<br>
-<div class="tembusan">
-  Tembusan:<br>
-  Kepala Subbagian Tata Usaha Suku Dinas Sumber Daya Air {{ $sudin }}
-</div>
