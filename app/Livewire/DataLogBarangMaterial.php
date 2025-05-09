@@ -10,6 +10,10 @@ use App\Models\PermintaanMaterial;
 class DataLogBarangMaterial extends Component
 {
     public $sudin, $Rkb, $RKB, $isSeribu, $noteModalVisible, $selectedItemHistory, $list;
+    public $modalVisible = false;
+    public $detailList = [];
+    public $tanggalDipilih;
+    public $jenisDipilih;
 
     public function mount()
     {
@@ -52,90 +56,31 @@ class DataLogBarangMaterial extends Component
         $this->list = $permintaan->merge($pengiriman);
     }
 
-    public function historyStok($id)
+    public function selectedTanggal($tanggal, $jenis)
     {
-        $stok = Stok::find($id);
-        // dd($stok);
+        $this->modalVisible = true;
+        $this->tanggalDipilih = $tanggal;
+        $this->jenisDipilih = $jenis;
 
-        // Ambil data dari model Pengiriman
-        $pengiriman = PengirimanStok::query()
-            ->where('merk_id', $stok->merk_id)
-            ->where('lokasi_id', $stok->lokasi_id)
-            ->when($stok->bagian_id, function ($query) use ($stok) {
-                return $query->where('bagian_id', $stok->bagian_id);
-            })
-            ->when($stok->posisi_id, function ($query) use ($stok) {
-                return $query->where('posisi_id', $stok->posisi_id);
-            })
-            ->whereHas('detailPengirimanStok', function ($query) {
-                return $query->where('status', 1);
-            })
-            ->get();
-
-        $pengiriman = $pengiriman->isNotEmpty() ? $pengiriman->map(function ($data) {
-            return [
-                'id' => $data->id,
-                'merk_id' => $data->merk_id,
-                'merk' => $data,
-                'jumlah' => $data->jumlah,
-                'tanggal' => $data->created_at->format('Y-m-d H:i:s'),
-                'type' => 'in',
-            ];
-        }) : collect([]);
-
-
-
-
-
-
-
-
-        // Ambil data dari model StokDisetujui
-        $permintaan = PermintaanMaterial::where('merk_id', $stok->merk_id)
-            ->whereHas('detailPermintaan', function ($detail) use ($stok) {
-                return $detail->where('gudang_id', $stok->lokasi_id);
-            })
-            ->whereHas('detailPermintaan', function ($query) {
-                return $query->where('status', '>=', 1);
-            })
-            ->get();
-        $permintaan = $permintaan->isNotEmpty() ? $permintaan->map(function ($data) {
-            return [
-                'id' => $data->id,
-                'merk_id' => $data->merk_id,
-                'merk' => $data,
-                'jumlah' => $data->jumlah,
-                'tanggal' => $data->created_at->format('Y-m-d H:i:s'),
-                'type' => 'out',
-            ];
-        }) : collect([]);
-        // Ambil data dari model StokDisetujui
-        $permintaanMaterialPending = PermintaanMaterial::where('merk_id', $stok->merk_id)
-            ->whereHas('detailPermintaan', function ($detail) use ($stok) {
-                return $detail->where('gudang_id', $stok->lokasi_id);
-            })
-            ->whereHas('detailPermintaan', function ($query) {
-                return $query->whereNull('status');
-            })
-            ->get();
-        $permintaanMaterialPending = $permintaanMaterialPending->isNotEmpty() ? $permintaanMaterialPending->map(function ($data) {
-            return [
-                'id' => $data->id,
-                'merk_id' => $data->merk_id,
-                'merk' => $data,
-                'jumlah' => $data->jumlah,
-                'tanggal' => $data->created_at->format('Y-m-d H:i:s'),
-                'type' => 'pending',
-            ];
-        }) : collect([]);
-
-        // Gabungkan data
-        $history = $pengiriman->merge($permintaan)->merge($permintaanMaterialPending);
-
-
-        // dd($history);
-        $this->selectedItemHistory = $history;
-        $this->noteModalVisible = true;
+        if ($jenis == 0) {
+            // KELUAR = permintaan material
+            $this->detailList = PermintaanMaterial::whereDate('created_at', $tanggal)
+                ->whereHas('detailPermintaan', function ($query) {
+                    $query->where('status', '>=', 2)
+                        ->whereHas('user.unitKerja', function ($unit) {
+                            $unit->where('parent_id', $this->unit_id)
+                                ->orWhere('id', $this->unit_id);
+                        });
+                })
+                ->get();
+        } else {
+            // MASUK = pengiriman
+            $this->detailList = PengirimanStok::whereDate('created_at', $tanggal)
+                ->whereHas('detailPengirimanStok', function ($query) {
+                    $query->where('status', 1);
+                })
+                ->get();
+        }
     }
     public function render()
     {
