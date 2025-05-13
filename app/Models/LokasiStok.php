@@ -10,6 +10,10 @@ class LokasiStok extends Model
     protected $table = 'lokasi_stok';
     protected $guarded = ['id'];
 
+    public function transaksiStok()
+    {
+        return $this->hasMany(TransaksiStok::class, 'lokasi_id');
+    }
     public function bagianStok()
     {
         return $this->hasMany(BagianStok::class, 'lokasi_id');

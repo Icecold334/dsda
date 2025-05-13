@@ -38,6 +38,18 @@ class DataBarangStok extends Component
                     $query->where('nama', 'like', '%' . $this->search . '%');
                 });
         })->paginate(3);
+
+        if (!auth()->user()->unitKerja->hak) {
+            $lists = BarangStok::whereHas('jenisStok', function ($query) {
+                $query->where('nama', 'Material');
+            })->when($this->search, function ($query) {
+                $query->where('nama', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('merkStok', function ($query) {
+                        $query->where('nama', 'like', '%' . $this->search . '%');
+                    });
+            })->paginate(3);
+            # code...
+        }
         // $this->barangs = $lists;
         return $lists;
     }

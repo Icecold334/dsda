@@ -134,7 +134,7 @@ return new class extends Migration
             $table->id();
             $table->string('nomor_kontrak')->nullable();
             $table->integer('nominal_kontrak')->nullable();
-            $table->foreignId('vendor_id')->constrained('toko', 'id'); // Explicitly set column
+            $table->foreignId('vendor_id')->nullable()->constrained('toko', 'id'); // Explicitly set column
             $table->date('tanggal_kontrak');
             $table->foreignId('metode_id')->nullable()->constrained('metode_pengadaan')->onDelete('set null');
             $table->foreignId('jenis_id')->nullable()->constrained('jenis_stok')->onDelete('cascade'); // Link to unit_kerja table
@@ -174,19 +174,20 @@ return new class extends Migration
             $table->id();
             $table->boolean('status')->nullable();
             $table->string('keterangan_status')->nullable();
-
             $table->string('kode_transaksi_stok')->nullable();
             $table->integer('harga')->nullable();
             $table->integer('ppn')->nullable();
             $table->string('img')->nullable();
             $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']);
-            $table->foreignId('merk_id')->constrained('merk_stok');
+            $table->foreignId('merk_id')->nullable()->constrained('merk_stok');
             $table->foreignId('vendor_id')->nullable()->constrained('toko');
             $table->foreignId('pj_id')->nullable()->constrained('users');
             $table->foreignId('pptk_id')->nullable()->constrained('users');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')->nullable()->constrained('users');
             $table->foreignId('ppk_id')->nullable()->constrained('users');
             $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('cascade');
+            $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade');
+            $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade');
             $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
             $table->integer('tanggal');
             $table->integer('jumlah');

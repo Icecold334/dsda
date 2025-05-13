@@ -603,7 +603,7 @@ class UnitSeeder extends Seeder
         $units = UnitKerja::whereNull('parent_id')->get();
         foreach ($units as $unit) {
             foreach ($kecamatanJakarta->random(8)->all() as $kecamatan) {
-                $lokasi = LokasiStok::create([
+                $lokasi = LokasiStok::firstOrCreate([
                     'unit_id' => $unit->id,
                     'nama' => 'Gudang ' . $kecamatan,
                     'slug' => Str::slug('Gudang ' . $kecamatan),
@@ -715,17 +715,17 @@ class UnitSeeder extends Seeder
         $superUser->roles()->attach($superRole->id);
         $guestUser->roles()->attach($guestRole->id);
         foreach ($roles as $role) {
-            Role::firstOrCreate([
+            $roless[] = [
                 'name' => $role,
                 'guard_name' => 'web',
-            ]);
+            ];
         }
+        Role::insert($roless);
 
         foreach ($units as $unitName => $unitData) {
             $sudin = Str::contains($unitName, 'Kepulauan')
                 ? 'seribu'
                 : Str::of($unitName)->after('Jakarta ')->lower();
-
             // Simpan unit
             $hak = (Str::contains($unitName, ['Sekretariat', 'Bidang', 'Unit', 'Pusat Data'])) ? 1 : 0;
             $unit = UnitKerja::create([
@@ -736,9 +736,6 @@ class UnitSeeder extends Seeder
                 'hak' => $hak, // 
                 'keterangan' => "Unit $unitName.",
             ]);
-
-
-
             if (Str::contains($unitName, 'Suku Dinas Sumber Daya Air')) {
                 // Buat kepala unit utama
                 $unitRole = Role::firstOrCreate([
@@ -779,7 +776,6 @@ class UnitSeeder extends Seeder
                     'password' => bcrypt('123'), // Password default
                 ]);
             }
-
             $unitUser->roles()->attach($unitRole->id);
             $roleMulti = ['Pejabat Pelaksana Teknis Kegiatan', 'Perencanaan', 'P3K'];
             foreach ($roleMulti as $role) {

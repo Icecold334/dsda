@@ -92,29 +92,53 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        $trans = [];
 
-        for ($i = 0; $i < 1598; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $kontrak = KontrakVendorStok::inRandomOrder()->first();
-            $f = $faker->boolean;
+            $lokasi = LokasiStok::inRandomOrder()->first();
+            if (!$kontrak || !$lokasi) continue;
+
+            $user = $kontrak->user;
+            if (!$user) continue;
+
+            $bagian = fake()->boolean() ? BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first() : null;
+            $posisi = ($bagian && fake()->boolean()) ? PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first() : null;
+
             $jenis_id = $kontrak->jenis_id;
-            TransaksiStok::create([
-                'kode_transaksi_stok' => $faker->unique()->numerify('TRX#####'),
-                // 'tipe' => $faker->randomElement(['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']),
-                'tipe' => $f ? 'Pemasukan' : 'Penggunaan Langsung',
-                'merk_id' => MerkStok::whereHas('barangStok.jenisStok', function ($jenis) use ($jenis_id) {
-                    return $jenis->where('id', $jenis_id);
-                })->inRandomOrder()->first()->id,
-                'vendor_id' => $kontrak->vendor_id,
-                'harga' => $faker->numberBetween(200000, 1000000),
-                'ppn' => $faker->randomElement([0, 11, 12]),
-                'user_id' => User::inRandomOrder()->first()->id,
+            $merk = MerkStok::whereHas('barangStok.jenisStok', function ($jenis) use ($jenis_id) {
+                return $jenis->where('id', $jenis_id);
+            })->inRandomOrder()->first();
+
+            if (!$merk) continue;
+
+            $f = fake()->boolean();
+
+            $trans[] = [
+                'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
+                'tipe' => $f ? 'Pemasukan' : 'Pengeluaran',
+                'merk_id' => $merk->id,
+                'vendor_id' => !$f ? $kontrak->vendorStok->id : null,
+                'lokasi_id' => $lokasi->id,
+                'bagian_id' => $bagian?->id,
+                'posisi_id' => $posisi?->id,
+                'harga' => fake()->numberBetween(100, 1000) * 1000,
+                'ppn' => fake()->randomElement([0, 11, 12]),
+                'user_id' => $user->id,
                 'kontrak_id' => $f ? $kontrak->id : null,
-                'tanggal' => strtotime(date('Y-m-d H:i:s')),
-                'jumlah' => $faker->numberBetween(890000, 98725000),
-                'deskripsi' => $f ? null : $faker->sentence(),
-                'lokasi_penerimaan' => $f ? null : $faker->address(),
-            ]);
+                'tanggal' => now()->timestamp,
+                'jumlah' => fake()->numberBetween(1, 10000) * 100,
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
         }
+
+        // Lakukan bulk insert hanya jika tidak kosong
+        if (!empty($trans)) {
+            // dd($trans);
+            TransaksiStok::insert($trans);
+        }
+
 
 
         // Seed for Stok

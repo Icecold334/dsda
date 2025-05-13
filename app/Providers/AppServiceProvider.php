@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
 
         // pusat
         // Auth::loginUsingId(1); //superadmin
-        // Auth::loginUsingId(175); //kasudin
+        Auth::loginUsingId(175); //kasudin
         // Auth::loginUsingId(176); //admin
         // Auth::loginUsingId(177); // pptk
         // Auth::loginUsingId(180); // ppk
