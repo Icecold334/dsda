@@ -110,9 +110,8 @@
 
 {{-- PARAGRAF UTAMA --}}
 <p>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Berdasarkan dengan RAB kegiatan Nomor <strong>{{ $permintaan->rab->kegiatan->kode
-    }}</strong>,
-  <strong>{{ $permintaan->rab->kegiatan->kegiatan }}</strong> di <strong>{{ $permintaan->rab->lokasi }}</strong>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Berdasarkan dengan RAB kegiatan <strong>{{ $permintaan->rab->jenis_pekerjaan
+    }}</strong> di <strong>{{ $permintaan->rab->lokasi }}</strong>,
   dengan ini saya mengajukan permohonan penyediaan bahan material dengan rincian sebagai berikut:
 </p>
 
@@ -122,7 +121,7 @@
     <tr>
       <th width="30" align="center">NO</th>
       <th width="100" align="center">NAMA</th>
-      <th width="300" align="center">SPESIFIKASI</th>
+      <th width="200" align="center">SPESIFIKASI</th>
       <th width="100" align="center">VOLUME</th>
     </tr>
   </thead>
@@ -131,7 +130,7 @@
     <tr>
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="100">{{ $item->merkStok->barangStok->nama }}</td>
-      <td width="300">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
+      <td width="200">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
         $item->merkStok->tipe ?? 'Tanpa tipe' }} -
         {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
       <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
@@ -147,9 +146,11 @@
     <td align="center">
       Mengetahui,<br>
       Kepala Seksi Pemeliharaan<br><br><br>
-
-      <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
-
+      @if ($sign)
+      <img src="{{ $ttdPath }}" width="100" height="50"><br><br>
+      @else
+      <br><br><br><br>
+      @endif
       <b>{{ $pemel->name }}</b><br>
       NIP. {{ $pemel->nip }}
     </td>
@@ -157,9 +158,11 @@
       Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}<br>
       Kepala Satuan Pelaksana<br>
       Kecamatan {{ $kasatpel->kecamatan->kecamatan }}<br><br>
-
-      <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
-
+      @if ($sign)
+      <img src="{{ $ttdPath }}" width="100" height="50"><br><br>
+      @else
+      <br><br><br><br>
+      @endif
       <b>{{ $kasatpel->name }}</b><br>
       NIP. {{ $kasatpel->nip }}
     </td>

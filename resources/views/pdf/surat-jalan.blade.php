@@ -120,7 +120,7 @@
 <h3 class="center">SURAT JALAN</h3>
 <div class="center"><strong>Nomor</strong> : {{ $permintaan->nodin ??
   '846846866' }}<br></div>
-<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+<table style="width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 10px;">
   @if ($permintaan->rab)
   <tr>
     <td style="width: 25%; vertical-align: top;"><strong>Jenis Pekerjaan</strong></td>
@@ -154,13 +154,15 @@
   @endif
 
   <tr>
-    <td style="vertical-align: top;"><strong>Pemohon</strong></td>
-    <td style="vertical-align: top;">:</td>
-    <td style="white-space: nowrap; vertical-align: top;">
-      {{ $kasatpel->name ?? '…………..' }}
-      <em>Selaku Ketua Satuan Pelaksana Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '-' }}</em>
+    <td style="vertical-align: top; white-space: nowrap; width: 25%;"><strong>Pemohon</strong></td>
+    <td style="vertical-align: top; width: 2%;">:</td>
+    <td style="vertical-align: top; white-space: nowrap; width: 73%;">
+      <span>{{ $kasatpel->name ?? '…………..' }} <span style="font-style: italic;">Selaku Ketua Satuan Pelaksana Kecamatan
+          {{
+          $permintaan->user->kecamatan->kecamatan ?? '-' }}</span></span>
     </td>
   </tr>
+
   <tr>
     <td style="vertical-align: top;"><strong>Nopol Kendaraan</strong></td>
     <td style="vertical-align: top;">:</td>
@@ -176,7 +178,7 @@
     <tr>
       <th width="30" align="center">NO</th>
       <th width="100" align="center">NAMA</th>
-      <th width="300" align="center">SPESIFIKASI</th>
+      <th width="220" align="center">SPESIFIKASI</th>
       <th width="100" align="center">VOLUME</th>
     </tr>
   </thead>
@@ -185,7 +187,7 @@
     <tr>
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="100">{{ $item->merkStok->barangStok->nama }}</td>
-      <td width="300">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
+      <td width="220">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
         $item->merkStok->tipe ?? 'Tanpa tipe' }} -
         {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
       <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
@@ -204,16 +206,24 @@
   <tr>
     <td width="50%">
       Pemohon<br>
-      Ketua Satuan Pelaksana<br>
+      Kepala Satuan Pelaksana<br>
       Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '-' }}<br><br>
+      @if ($sign)
       <img src="{{ $permintaan->status === 3 || true ? '/storage/ttdPengiriman/nurdin.png':'' }}" height="40"><br>
+      @else
+      <br><br><br>
+      @endif
       <strong>{{ $kasatpel->name }}</strong><br>
       NIP {{ $kasatpel->nip ?? '....................' }}
     </td>
     <td width="50%">
       Driver<br><br><br><br>
       @if(file_exists(public_path('storage/ttdPengiriman/' . $permintaan->ttd_driver)))
+      @if ($sign)
       <img src="{{ public_path('storage/ttdPengiriman/' . $permintaan->ttd_driver) }}" height="40"><br>
+      @else
+      <br><br><br>
+      @endif
       @endif
       <strong>{{ $permintaan->driver }}</strong>
     </td>
@@ -228,7 +238,11 @@
     <td width="50%">
       Keamanan<br><br><br><br>
       @if(file_exists(public_path('storage/ttdPengiriman/' . $permintaan->ttd_security)))
+      @if ($sign)
       <img src="{{ public_path('storage/ttdPengiriman/' . $permintaan->ttd_security) }}" height="40"><br>
+      @else
+      <br><br><br>
+      @endif
       @endif
       <strong>{{ $permintaan->security }}</strong>
     </td>
@@ -237,8 +251,10 @@
       Mengetahui,<br>
       Pengurus Barang Suku Dinas {{ Str::ucfirst(str_replace('Suku Dinas ', '',
       $permintaan->unit->nama)) }}<br><br>
-      @if(file_exists($ttdPath ?? ''))
+      @if ($sign)
       <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br>
+      @else
+      <br><br><br>
       @endif
       <strong>{{ $pengurus->name }}</strong><br>
       NIP {{ $pengurus->nip ?? '....................' }}

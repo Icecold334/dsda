@@ -23,7 +23,7 @@ abstract class Controller
         $isSeribu = Str::contains($parent->nama, 'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu');
         $this->isSeribu = $isSeribu;
         $this->Rkb = $isSeribu ? 'RKB' : 'RAB';
-        $this->RKB = $isSeribu ? 'Rencana Kegiatan Bulanan' : 'Rencanan Anggaran Biaya';
+        $this->RKB = $isSeribu ? 'Rencana Kegiatan Bulanan' : 'Rencana Anggaran Biaya';
         $sudin = Str::contains($parent->nama, 'Kepulauan')
             ? 'Kepulauan Seribu'
             : Str::of($unit->nama)->after('Administrasi ');

@@ -152,9 +152,11 @@
     <td align="center">
       Mengetahui,<br>
       Kepala Seksi Pemeliharaan<br><br><br>
-
+      @if ($sign)
       <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
-
+      @else
+      <br><br><br><br>
+      @endif
       <b>{{ $pemel->name }}</b><br>
       NIP. {{ $pemel->nip }}
     </td>
@@ -162,9 +164,11 @@
       Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}<br>
       Kepala Satuan Pelaksana<br>
       Kecamatan {{ $kasatpel->kecamatan->kecamatan }}<br><br>
-
+      @if ($sign)
       <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
-
+      @else
+      <br><br><br><br>
+      @endif
       <b>{{ $kasatpel->name }}</b><br>
       NIP. {{ $kasatpel->nip }}
     </td>

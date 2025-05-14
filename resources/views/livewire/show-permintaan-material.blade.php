@@ -4,11 +4,11 @@
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL PERMINTAAN</h1>
         <div>
 
-            <a wire:click='spb'
+            <a onclick="confirmDownload('spb')"
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
                 SPB</a>
             @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2)
-            <a wire:click='sppb'
+            <a onclick="confirmDownload('sppb')"
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
                 SPPB</a>
 
@@ -17,7 +17,7 @@
                 QR-Code</a>
             @endif
             @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 3)
-            <a wire:click='suratJalan'
+            <a onclick="confirmDownload('suratJalan')"
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
                 Surat Jalan</a>
             @endif
@@ -284,6 +284,26 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script>
+    function confirmDownload(docType) {
+        Swal.fire({
+            title: 'Gunakan TTD Elektronik (e-TTD)?',
+            text: "Apakah Anda ingin menyertakan tanda tangan elektronik pada dokumen?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, gunakan TTD',
+            cancelButtonText: 'Tanpa TTD',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                @this.call('downloadDoc',{ type: docType, withSign: true });
+                // Livewire.dispatch('downloadDoc', { type: docType, withSign: true });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                @this.call('downloadDoc',{ type: docType, withSign: false });
+            }
+        });
+    }
+</script>
 <script>
     let canvasDriver, canvasSecurity, signaturePadDriver, signaturePadSecurity;
 

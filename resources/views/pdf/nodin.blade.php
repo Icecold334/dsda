@@ -110,7 +110,7 @@
   </tr>
   <tr>
     <!-- Kiri: metadata -->
-    <td style="width: 60%; vertical-align: top;">
+    <td style="width: 55%; vertical-align: top;">
       <table class="meta-table">
         <tr>
           <td width="20%">Nomor</td>
@@ -122,7 +122,7 @@
         </tr>
         <tr>
           <td>Lampiran</td>
-          <td>: {{ count($permintaan->lampiran) ? count($permintaan->lampiran) . ' (satu) berkas' : '-' }}</td>
+          <td>: {{ count($permintaan->lampiran) && 0 ? count($permintaan->lampiran) . ' (satu) berkas' : '-' }}</td>
         </tr>
         <tr>
           <td>Hal</td>
@@ -132,14 +132,14 @@
     </td>
 
     <!-- Kanan: alamat tujuan -->
-    <td style="width: 40%; vertical-align: top; text-align: left;">
+    <td style="width: 45%; vertical-align: top; text-align: left;">
       <p style="margin-left: 30px;">
         Kepada <br>
         Yth.<br>
         &nbsp;&nbsp;&nbsp;&nbsp;Kepala Suku Dinas Sumber Daya Air<br>
         &nbsp;&nbsp;&nbsp;&nbsp;{{ $sudin }} <br>
         &nbsp;&nbsp;&nbsp;&nbsp;di <br>
-        &nbsp;&nbsp;&nbsp;&nbsp;Jakarta
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jakarta
       </p>
     </td>
   </tr>
@@ -159,7 +159,7 @@
     <tr>
       <th width="30" align="center">NO</th>
       <th width="100" align="center">NAMA</th>
-      <th width="300" align="center">SPESIFIKASI</th>
+      <th width="220" align="center">SPESIFIKASI</th>
       <th width="100" align="center">VOLUME</th>
     </tr>
   </thead>
@@ -168,7 +168,7 @@
     <tr>
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="100">{{ $item->merkStok->barangStok->nama }}</td>
-      <td width="300">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
+      <td width="220">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
         $item->merkStok->tipe ?? 'Tanpa tipe' }} -
         {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
       <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
@@ -187,9 +187,11 @@
     <td align="center">
       Mengetahui,<br>
       Kepala Seksi Pemeliharaan<br><br><br>
-
-      <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
-
+      @if ($sign)
+      <img src="{{ $ttdPath }}" width="100" height="50"><br><br>
+      @else
+      <br><br><br><br>
+      @endif
       <b>{{ $pemel->name }}</b><br>
       NIP. {{ $pemel->nip }}
     </td>
@@ -197,9 +199,11 @@
       Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}<br>
       Kepala Satuan Pelaksana<br>
       Kecamatan {{ $kasatpel->kecamatan->kecamatan }}<br><br>
-
-      <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
-
+      @if ($sign)
+      <img src="{{ $ttdPath }}" width="100" height="50"><br><br>
+      @else
+      <br><br><br><br>
+      @endif
       <b>{{ $kasatpel->name }}</b><br>
       NIP. {{ $kasatpel->nip }}
     </td>

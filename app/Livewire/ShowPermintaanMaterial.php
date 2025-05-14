@@ -24,9 +24,11 @@ class ShowPermintaanMaterial extends Component
 
 
 
-    public function suratJalan()
+    public function suratJalan($sign)
     {
         $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->SetMargins(30, 25, 20);
+
         $pdf->SetCreator('Sistem Permintaan Barang');
         $pdf->SetAuthor('Dinas SDA');
         $pdf->SetTitle('Surat Jalan');
@@ -62,7 +64,7 @@ class ShowPermintaanMaterial extends Component
         $RKB = $this->RKB;
         $sudin = $this->sudin;
         $isSeribu = $this->isSeribu;
-        $html = view('pdf.surat-jalan', compact('permintaan', 'kasatpel', 'penjaga', 'pengurus', 'ttdPath', 'Rkb', 'RKB', 'sudin', 'isSeribu'))->render();
+        $html = view('pdf.surat-jalan', compact('permintaan', 'kasatpel', 'penjaga', 'pengurus', 'ttdPath', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'sign'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
@@ -186,15 +188,17 @@ class ShowPermintaanMaterial extends Component
         $this->reset('newAttachments');
     }
 
-    public function sppb()
+    public function sppb($sign)
     {
         $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->SetMargins(30, 25, 20);
+
         $pdf->SetCreator('Sistem Permintaan Barang');
         $pdf->SetAuthor('Dinas SDA');
         $pdf->SetTitle('SPPB');
 
         $pdf->AddPage();
-        $pdf->SetFont('helvetica', '', 11);
+        $pdf->SetFont('helvetica', '', 10);
 
         // optional kalau ada ttd atau cap
         $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
@@ -231,7 +235,7 @@ class ShowPermintaanMaterial extends Component
         $RKB = $this->RKB;
         $sudin = $this->sudin;
         $isSeribu = $this->isSeribu;
-        $html = view('pdf.sppb', compact('permintaan', 'kasatpel', 'penjaga', 'pengurus', 'ttdPath', 'kasubag', 'Rkb', 'RKB', 'sudin', 'isSeribu'))->render();
+        $html = view('pdf.sppb', compact('permintaan', 'kasatpel', 'penjaga', 'sign', 'pengurus', 'ttdPath', 'kasubag', 'Rkb', 'RKB', 'sudin', 'isSeribu'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
@@ -255,15 +259,17 @@ class ShowPermintaanMaterial extends Component
         return response()->download($path, $kode . '.png');
     }
 
-    public function spb()
+    public function spb($sign = false)
     {
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+        // Set margin (Left, Top, Right)
+        $pdf->SetMargins(30, 25, 20);
         $pdf->SetCreator('Sistem Permintaan Bahan');
-        $pdf->SetAuthor('Dinas SDA Jaktim');
+        $pdf->SetAuthor('Dinas SDA');
         $pdf->SetTitle('Surat Permintaan Barang Material');
 
         $pdf->AddPage();
-        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetFont('helvetica', '', 10, '', '',);
         $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
 
         $permintaan = $this->permintaan;
@@ -295,7 +301,7 @@ class ShowPermintaanMaterial extends Component
         // dd(
         //     !$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb')
         // );
-        $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact('permintaan', 'kasatpel', 'pemel', 'Rkb', 'RKB', 'sudin', 'isSeribu'))->render();
+        $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact('ttdPath', 'permintaan', 'kasatpel', 'pemel', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'sign'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
@@ -314,6 +320,20 @@ class ShowPermintaanMaterial extends Component
             // Reindex array
             $this->attachments = array_values($this->attachments);
             $this->dispatch('dokumenCount', count: count($this->attachments));
+        }
+    }
+
+    public function downloadDoc($params)
+    {
+        $type = $params['type'];
+        $withSign = $params['withSign'];
+        switch ($type) {
+            case 'spb':
+                return $this->spb($withSign);
+            case 'sppb':
+                return $this->sppb($withSign);
+            case 'suratJalan':
+                return $this->suratJalan($withSign);
         }
     }
     public function render()

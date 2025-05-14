@@ -28,7 +28,7 @@
 
                 <!-- Dropdown untuk Memilih Jenis -->
                 <select wire:model.live="jenis"
-                    class="border rounded-lg px-4 py-2 w-full {{ $isSeribu ? 'hidden':'' }}">
+                    class="border rounded-lg px-4 py-2 w-full {{ !auth()->user()->unitKerja->hak ? 'hidden':'' }}">
                     <option value="">Pilih Jenis</option>
                     @foreach ($jenisOptions as $jenis)
                     <option value="{{ $jenis }}">{{ $jenis }}</option>
