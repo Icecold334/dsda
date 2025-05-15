@@ -1,3 +1,7 @@
-    <x-body>
-        <livewire:show-stok :barang="$barang" :stok="$stok" />
-    </x-body>
+<x-body>
+    @if (auth()->user()->unitKerja->hak)
+    <livewire:show-stok :barang="$barang" :stok="$stok" />
+    @else
+    <livewire:show-stok-material :lokasi_id="$id" />
+    @endif
+</x-body>

@@ -1,6 +1,6 @@
 <x-body>
     <div>
-        @if (auth()->user()->unitKerja->hak || 1)
+        @if (auth()->user()->unitKerja->hak)
         <livewire:data-stok />
         @else
         <livewire:data-stok-material />

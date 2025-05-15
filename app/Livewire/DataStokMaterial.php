@@ -149,7 +149,6 @@ class DataStokMaterial extends Component
             }
         }
 
-        $this->stoks = $gudangs;
         return $gudangs;
     }
 
@@ -306,9 +305,7 @@ class DataStokMaterial extends Component
 
     public function render()
     {
-        $barangs = $this->fetchBarangs();
         $gudangs = $this->fetchStoks();
-        $stoks = $this->stoks;
-        return view('livewire.data-stok-material', compact('barangs', 'stoks', 'gudangs'));
+        return view('livewire.data-stok-material', compact('gudangs'));
     }
 }

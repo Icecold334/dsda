@@ -94,7 +94,7 @@ class DatabaseSeeder extends Seeder
 
         $trans = [];
 
-        for ($i = 0; $i < 1; $i++) {
+        for ($i = 0; $i < 8000; $i++) {
             $kontrak = KontrakVendorStok::inRandomOrder()->first();
             $lokasi = LokasiStok::inRandomOrder()->first();
             if (!$kontrak || !$lokasi) continue;
@@ -126,7 +126,7 @@ class DatabaseSeeder extends Seeder
                 'ppn' => fake()->randomElement([0, 11, 12]),
                 'user_id' => $user->id,
                 'kontrak_id' => $f ? $kontrak->id : null,
-                'tanggal' => now()->timestamp,
+                'tanggal' => fake()->dateTimeBetween('-2 year', 'now')->getTimestamp(),
                 'jumlah' => fake()->numberBetween(1, 10000) * 100,
                 'created_at' => now(),
                 'updated_at' => now()
@@ -135,8 +135,11 @@ class DatabaseSeeder extends Seeder
 
         // Lakukan bulk insert hanya jika tidak kosong
         if (!empty($trans)) {
-            // dd($trans);
-            TransaksiStok::insert($trans);
+            $chunks = array_chunk($trans, 500);
+
+            foreach ($chunks as $chunk) {
+                TransaksiStok::insert($chunk);
+            }
         }
 
 

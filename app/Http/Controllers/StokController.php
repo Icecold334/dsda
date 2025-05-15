@@ -66,7 +66,7 @@ class StokController extends Controller
                 return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
             });
         })->get();
-        return view('stok.show', compact('barang', 'stok'));
+        return view('stok.show', compact('barang', 'stok', 'id'));
     }
 
     /**
