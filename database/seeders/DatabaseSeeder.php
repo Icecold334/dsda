@@ -63,84 +63,13 @@ class DatabaseSeeder extends Seeder
             WaktuPeminjamanSeeder::class,
             RuangSeeder::class,
             RabSeeder::class,
-            DetailPermintaanMaterialSeeder::class
+            DetailPermintaanMaterialSeeder::class,
+            KontrakSeeder::class,
+            TransaksiSeeder::class,
         ]);
-        $methods = [
-            'Pengadaan Langsung',
-            'Penunjukan Langsung',
-            'Tender',
-            'E-Purchasing / E-Katalog',
-            'Tender Cepat',
-            'Swakelola',
-        ];
-        foreach ($methods as $method) {
-            MetodePengadaan::create(['nama' => $method]);
-        }
 
-        // Seed for KontrakVendorStok
-        for ($i = 1; $i <= 354; $i++) {
-            KontrakVendorStok::create([
-                'nomor_kontrak' => $faker->unique()->bothify('KV#####'),
-                'metode_id' => MetodePengadaan::inRandomOrder()->first()->id,
-                'jenis_id' => $faker->numberBetween(1, 3),
-                'vendor_id' => Toko::inRandomOrder()->first()->id,
-                'tanggal_kontrak' => strtotime($faker->date()),
-                // 'merk_id' => MerkStok::inRandomOrder()->first()->id,
-                'user_id' => User::inRandomOrder()->first()->id,
-                'type' => 1,
-                'status' => 1,
-            ]);
-        }
 
-        $trans = [];
 
-        for ($i = 0; $i < 8000; $i++) {
-            $kontrak = KontrakVendorStok::inRandomOrder()->first();
-            $lokasi = LokasiStok::inRandomOrder()->first();
-            if (!$kontrak || !$lokasi) continue;
-
-            $user = $kontrak->user;
-            if (!$user) continue;
-
-            $bagian = fake()->boolean() ? BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first() : null;
-            $posisi = ($bagian && fake()->boolean()) ? PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first() : null;
-
-            $jenis_id = $kontrak->jenis_id;
-            $merk = MerkStok::whereHas('barangStok.jenisStok', function ($jenis) use ($jenis_id) {
-                return $jenis->where('id', $jenis_id);
-            })->inRandomOrder()->first();
-
-            if (!$merk) continue;
-
-            $f = fake()->boolean();
-
-            $trans[] = [
-                'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
-                'tipe' => $f ? 'Pemasukan' : 'Pengeluaran',
-                'merk_id' => $merk->id,
-                'vendor_id' => !$f ? $kontrak->vendorStok->id : null,
-                'lokasi_id' => $lokasi->id,
-                'bagian_id' => $bagian?->id,
-                'posisi_id' => $posisi?->id,
-                'harga' => fake()->numberBetween(100, 1000) * 1000,
-                'ppn' => fake()->randomElement([0, 11, 12]),
-                'user_id' => $user->id,
-                'kontrak_id' => $f ? $kontrak->id : null,
-                'tanggal' => fake()->dateTimeBetween('-2 year', 'now')->getTimestamp(),
-                'jumlah' => fake()->numberBetween(1, 10000) * 100,
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
-        }
-
-        // Lakukan bulk insert hanya jika tidak kosong
-        if (!empty($trans)) {
-            $chunks = array_chunk($trans, 500);
-
-            foreach ($chunks as $chunk) {
-                TransaksiStok::insert($chunk);
-            }
-        }
 
 
 

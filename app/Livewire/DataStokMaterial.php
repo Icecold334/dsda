@@ -80,77 +80,58 @@ class DataStokMaterial extends Component
 
     public function fetchStoks()
     {
-        $in = TransaksiStok::where('tipe', 'Pemasukan')->whereHas('lokasiStok.unitKerja', function ($unit) {
-            $unit->where('parent_id', $this->unit_id)
-                ->orWhere('id', $this->unit_id);
-        })->sum('jumlah');
-        $out = TransaksiStok::where('tipe', 'Pengeluaran')->whereHas('lokasiStok.unitKerja', function ($unit) {
-            $unit->where('parent_id', $this->unit_id)
-                ->orWhere('id', $this->unit_id);
-        })->sum('jumlah');
-
         $gudangs = LokasiStok::whereHas('unitKerja', function ($unit) {
             $unit->where('parent_id', $this->unit_id)
                 ->orWhere('id', $this->unit_id);
         })->whereHas('transaksiStok', function ($trxQuery) {
             $trxQuery->whereHas('merkStok.barangStok', function ($barangQuery) {
-                $barangQuery->where('jenis_id', 1); // ✅ hanya barang jenis_id = 1
+                $barangQuery->where('jenis_id', 1);
             });
-        })->with(['transaksiStok.merkStok.barangStok' => function ($query) {
-            $query->where('jenis_id', 1); // ✅ pastikan eager load juga hanya jenis_id = 1
-        }])->get()
-            ->filter(function ($lokasi) {
-                $barangTotals = [];
-
-                foreach ($lokasi->transaksiStok as $trx) {
-                    $barang = $trx->merkStok->barangStok ?? null;
-                    if (!$barang || $barang->jenis_id !== 1) continue;
-
-                    $barangId = $barang->id;
-                    $jumlah = $trx->jumlah * ($trx->tipe === 'Pemasukan' ? 1 : -1);
-                    $barangTotals[$barangId] = ($barangTotals[$barangId] ?? 0) + $jumlah;
-                }
-
-                $lokasi->barangStokSisa = collect($barangTotals)
-                    ->filter(fn($total) => $total > 0);
-
-                return $lokasi->barangStokSisa->isNotEmpty();
-            });
-
-
-        $stoks = Stok::where('jumlah', '>', 0)
-            ->whereHas('lokasiStok.unitKerja', function ($unit) {
-                $unit->where('parent_id', $this->unit_id)
-                    ->orWhere('id', $this->unit_id);
-            })
-            ->when($this->lokasi, function ($query) {
-
-                $query->whereHas('lokasiStok', function ($lokasiQuery) {
-                    $lokasiQuery->where('nama', $this->lokasi);
-                });
-            })
-            ->with(['merkStok', 'merkStok.barangStok']) // Eager load necessary relationships
+        })
+            ->with(['transaksiStok.merkStok.barangStok' => function ($query) {
+                $query->where('jenis_id', 1);
+            }])
             ->get();
 
-        // Transform the collection into a grouped array
-        $groupedStoks = [];
-        foreach ($stoks as $stok) {
-            if ($stok->merkStok && $stok->merkStok->barangStok) {
-                $barangId = $stok->merkStok->barangStok->id;
-                $groupedStoks[$barangId][] = [
-                    'id' => $stok->id,
-                    'jumlah' => $stok->jumlah,
-                    'merk' => $stok->merkStok->nama ?? null,
-                    'tipe' => $stok->merkStok->tipe ?? null,
-                    'ukuran' => $stok->merkStok->ukuran ?? null,
-                    'lokasi' => $stok->lokasiStok->nama ?? null,
-                    'satuan' => $stok->merkStok->barangStok->satuanBesar->nama ?? null,
-                ];
+        $gudangs->filter(function ($lokasi) {
+            $barangTotals = [];
+
+            foreach ($lokasi->transaksiStok as $trx) {
+                $barang = $trx->merkStok->barangStok ?? null;
+                $merkId = $trx->merkStok->id ?? null;
+                if (!$barang || $barang->jenis_id !== 1 || !$merkId) continue;
+
+                $barangId = $barang->id;
+
+                // Hitung jumlah
+                $jumlah = match ($trx->tipe) {
+                    'Pemasukan' => (int) $trx->jumlah,
+                    'Pengeluaran' => - ((int) $trx->jumlah),
+                    'Penyesuaian' => (int) $trx->jumlah, // karena sudah string seperti '+50' atau '-30'
+                    default => 0,
+                };
+
+                // Simpan berdasarkan barang + merk
+                $barangTotals[$barangId][$merkId] = ($barangTotals[$barangId][$merkId] ?? 0) + $jumlah;
             }
-        }
+
+            // Hitung total per barang ID hanya dari merk yang positif saja
+            $stokPerBarang = [];
+            foreach ($barangTotals as $barangId => $perMerk) {
+                foreach ($perMerk as $jumlah) {
+                    if ($jumlah > 0) {
+                        $stokPerBarang[$barangId] = ($stokPerBarang[$barangId] ?? 0) + $jumlah;
+                    }
+                }
+            }
+
+            $lokasi->barangStokSisa = collect($stokPerBarang)->filter(fn($val) => $val > 0);
+            return $lokasi->barangStokSisa->isNotEmpty();
+        });
 
         return $gudangs;
     }
+
 
     public function applyFilters()
     {

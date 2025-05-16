@@ -178,7 +178,7 @@ return new class extends Migration
             $table->integer('harga')->nullable();
             $table->integer('ppn')->nullable();
             $table->string('img')->nullable();
-            $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penggunaan Langsung']);
+            $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penyesuaian']);
             $table->foreignId('merk_id')->nullable()->constrained('merk_stok');
             $table->foreignId('vendor_id')->nullable()->constrained('toko');
             $table->foreignId('pj_id')->nullable()->constrained('users');
@@ -190,7 +190,7 @@ return new class extends Migration
             $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade');
             $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
             $table->integer('tanggal');
-            $table->integer('jumlah');
+            $table->string('jumlah');
             $table->text('deskripsi')->nullable();
             $table->string('lokasi_penerimaan')->nullable();
             $table->timestamps();

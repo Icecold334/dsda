@@ -60,7 +60,7 @@
                         @endforeach
                         @if ($gudang->barangStokSisa->count() > 2)
                         <div class="flex items-center justify-center border-b pb-1 text-sm">
-                            <div class="font-semibold">{{ $gudang->barangStokSisa->count()- 2 }} Barang Lain</div>
+                            <div class="font-semibold">{{ $gudang->barangStokSisa->count() - 2 }} Barang Lain</div>
                         </div>
                         @endif
                     </div>

@@ -16,17 +16,15 @@ class ShowStokMaterial extends Component
     public function mount()
     {
         $this->lokasi = LokasiStok::with('unitKerja')->findOrFail($this->lokasi_id);
-        $test = TransaksiStok::whereHas('lokasiStok.unitKerja', function ($unit) {
-            return $unit->where('id', $this->unit_id);
-        })->where('merk_id', 195);
         // dd($test);
     }
 
     public function getBarangStokProperty()
     {
-        $transaksis = TransaksiStok::with(['merkStok.barangStok'])->whereHas('merkStok.barangStok', function ($barang) {
-            return $barang->where('jenis_id', 1);
-        })
+        $transaksis = TransaksiStok::with(['merkStok.barangStok'])
+            ->whereHas('merkStok.barangStok', function ($barang) {
+                return $barang->where('jenis_id', 1);
+            })
             ->where('lokasi_id', $this->lokasi_id)
             ->get();
 
@@ -40,24 +38,34 @@ class ShowStokMaterial extends Component
             $merk = $trx->merkStok->nama ?? 'Tanpa Merk';
             $tipe = $trx->merkStok->tipe ?? 'Tanpa Tipe';
             $ukuran = $trx->merkStok->ukuran ?? 'Tanpa Ukuran';
-
             $spec = "{$merk} - {$tipe} - {$ukuran}";
 
-            $jumlah = $trx->tipe === 'Pemasukan' ? $trx->jumlah : -$trx->jumlah;
+            // Hitung jumlah berdasarkan tipe
+            $jumlah = 0;
+            if ($trx->tipe === 'Penyesuaian') {
+                // Penyesuaian bisa bernilai "+100" atau "-500"
+                $jumlah = (int) $trx->jumlah;
+            } elseif ($trx->tipe === 'Pemasukan') {
+                $jumlah = (int) $trx->jumlah;
+            } elseif ($trx->tipe === 'Pengeluaran') {
+                $jumlah = -(int) $trx->jumlah;
+            }
+
             if (!isset($result[$key])) {
                 $result[$key] = [
                     'id' => $barang->id,
+                    'kode' => $barang->kode_barang,
                     'nama' => $barang->nama,
                     'satuan' => $barang->satuanBesar->nama,
                     'spesifikasi' => [],
-                    'jumlah' => [],
+                    'jumlah' => [], // opsional kalau mau breakdown per merk
                 ];
             }
 
             $result[$key]['spesifikasi'][$spec] = ($result[$key]['spesifikasi'][$spec] ?? 0) + $jumlah;
         }
 
-        // Filter hanya stok > 0
+        // Filter hanya spesifikasi dengan stok > 0
         foreach ($result as $barangId => &$data) {
             $data['spesifikasi'] = collect($data['spesifikasi'])
                 ->filter(fn($jumlah) => $jumlah > 0)
@@ -69,6 +77,7 @@ class ShowStokMaterial extends Component
 
         return $result;
     }
+
     public function showRiwayat($barangId, $namaBarang)
     {
         $this->modalBarangNama = $namaBarang;
@@ -80,7 +89,7 @@ class ShowStokMaterial extends Component
                     ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $this->lokasi_id));
             })
             ->whereHas('merkStok', fn($q) => $q->where('barang_id', $barangId))
-            ->orderByDesc('tanggal')
+            ->orderBy('tanggal')
             ->get()
             ->map(function ($trx) {
                 return [

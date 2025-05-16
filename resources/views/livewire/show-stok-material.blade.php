@@ -29,16 +29,18 @@
     <x-card title="Daftar Barang">
         <table class="min-w-full divide-y divide-gray-200">
             <thead>
-                <tr class="bg-primary-700 text-white">
-                    <th class="px-4 py-2 text-left">Nama Barang</th>
-                    <th class="px-4 py-2 text-left">Spesifikasi</th>
+                <tr class="bg-primary-700 text-white ">
+                    <th class="px-4 py-2 text-center">Kode Barang</th>
+                    <th class="px-4 py-2 text-center">Nama Barang</th>
+                    <th class="px-4 py-2 text-center">Spesifikasi</th>
                     <th class="px-4 py-2 text-center">Jumlah</th>
                     <th class="px-4 py-2 text-center"></th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @forelse($barangStok as $item)
-                <tr>
+                <tr class="bg-gray-50 hover:bg-gray-200">
+                    <td class="px-4 py-2">{{ $item['kode'] }}</td>
                     <td class="px-4 py-2">{{ $item['nama'] }}</td>
                     <td class="px-4 py-2">
                         <ul class="list-disc list-inside text-sm">
@@ -81,6 +83,7 @@
             <table class="w-full border">
                 <thead class="bg-gray-200">
                     <tr>
+                        <th class="px-4 py-2">Kode Transaksi</th>
                         <th class="px-4 py-2">Tanggal</th>
                         <th class="px-4 py-2">Tipe</th>
                         <th class="px-4 py-2">Jumlah</th>
@@ -94,17 +97,25 @@
                 <tbody>
                     @forelse($modalRiwayat as $item)
                     <tr>
-                        <td class="px-4 py-2 text-center">{{ \Carbon\Carbon::parse($item['tanggal'])->format('d-m-Y') }}
+                        <td class="px-4 py-2 text-center">{{ $item['kode'] }} </td>
+                        <td class="px-4 py-2 text-center">
+                            {{ \Carbon\Carbon::parse($item['tanggal'])->translatedFormat('l, d F Y') }}
                         </td>
                         <td class="px-4 py-2 text-center">
-                            <span class="
-                                bg-{{ $item['tipe'] === 'Pemasukan'?'primary' : 'secondary' }}-600 text-{{
-                                $item['tipe']==='Pemasukan' ?'primary':'secondary' }}-100 text-xs font-medium me-2
-                                px-2.5 py-0.5 rounded-full">
+                            @php
+                            $bgColor = match($item['tipe']) {
+                            'Pemasukan' => 'bg-blue-600 text-white',
+                            'Pengeluaran' => 'bg-gray-600 text-white',
+                            'Penyesuaian' => 'bg-yellow-400 text-black',
+                            default => 'bg-slate-300 text-black',
+                            };
+                            @endphp
+
+                            <span class="{{ $bgColor }} text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
                                 {{ $item['tipe'] }}
                             </span>
                         </td>
-                        <td class="px-4 py-2 text-center">{{ $item['jumlah'] }} </td>
+                        <td class="px-4 py-2 text-center">{{ $item['jumlah'] }}</td>
                         <td class="px-4 py-2">{{ $item['merk'] }} </td>
                         <td class="px-4 py-2">{{ $item['tipe_merk'] }}</td>
                         <td class="px-4 py-2">{{ $item['ukuran'] }}</td>
