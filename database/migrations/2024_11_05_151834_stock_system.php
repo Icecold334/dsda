@@ -178,7 +178,7 @@ return new class extends Migration
             $table->integer('harga')->nullable();
             $table->integer('ppn')->nullable();
             $table->string('img')->nullable();
-            $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penyesuaian']);
+            $table->enum('tipe', ['Pemasukan', 'Pengeluaran', 'Penyesuaian', 'Pengajuan']);
             $table->foreignId('merk_id')->nullable()->constrained('merk_stok');
             $table->foreignId('vendor_id')->nullable()->constrained('toko');
             $table->foreignId('pj_id')->nullable()->constrained('users');

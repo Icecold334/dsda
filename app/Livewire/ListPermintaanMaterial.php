@@ -58,13 +58,47 @@ class ListPermintaanMaterial extends Component
     {
         $rabId = $this->rab_id;
         $gudang_id = $this->gudang_id;
-        $this->barangs = BarangStok::where('jenis_id', 1)->whereHas('merkStok.stok', function ($stok) use ($gudang_id) {
-            return $stok->where('lokasi_id', $gudang_id);
-        })->when($rabId > 0, function ($query) use ($rabId) { // Filter hanya jika $rabId > 0
-            $query->whereHas('merkStok.listRab', function ($query) use ($rabId) {
-                $query->where('rab_id', $rabId);
-            });
-        })->get();
+
+        $transaksis = \App\Models\TransaksiStok::with('merkStok.barangStok')
+            ->where(function ($q) use ($gudang_id) {
+                $q->where('lokasi_id', $gudang_id)
+                    ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id))
+                    ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id));
+            })
+            ->whereHas('merkStok.barangStok', function ($q) {
+                $q->where('jenis_id', 1); // hanya material
+            })
+            ->get();
+
+        // Hitung total per barang ID
+        $barangTotals = [];
+
+        foreach ($transaksis as $trx) {
+            $barang = $trx->merkStok->barangStok;
+            if (!$barang) continue;
+
+            $barangId = $barang->id;
+
+            $jumlah = match ($trx->tipe) {
+                'Penyesuaian' => (int) $trx->jumlah,
+                'Pemasukan' => (int) $trx->jumlah,
+                'Pengeluaran' => -(int) $trx->jumlah,
+                default => 0,
+            };
+
+            $barangTotals[$barangId] = ($barangTotals[$barangId] ?? 0) + $jumlah;
+        }
+
+        // Ambil hanya barang yang stok totalnya > 0
+        $ids = collect($barangTotals)->filter(fn($val) => $val > 0)->keys();
+
+        $this->barangs = \App\Models\BarangStok::whereIn('id', $ids)
+            ->when($rabId > 0, function ($query) use ($rabId) {
+                $query->whereHas('merkStok.listRab', function ($q) use ($rabId) {
+                    $q->where('rab_id', $rabId);
+                });
+            })
+            ->get();
     }
 
     #[On('tanggal_permintaan')]
@@ -192,40 +226,78 @@ class ListPermintaanMaterial extends Component
             $this->newUnit = 'Satuan';
         } else {
             // $this->newUnit = MerkStok::find($this->newMerkId)->barangStok->satuanBesar->nama;
-            $this->newMerkMax = Stok::where('merk_id', $this->newMerkId)->where('lokasi_id', $this->gudang_id)->sum('jumlah');
+            // $this->newMerkMax = Stok::where('merk_id', $this->newMerkId)->where('lokasi_id', $this->gudang_id)->sum('jumlah');
+
+            $trxList = \App\Models\TransaksiStok::where('merk_id', $this->newMerkId)
+                ->where(function ($q) {
+                    $q->where('lokasi_id', $this->gudang_id)
+                        ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $this->gudang_id))
+                        ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $this->gudang_id));
+                })->get();
+
+            $this->newMerkMax = $trxList->reduce(function ($carry, $trx) {
+                $jumlah = match ($trx->tipe) {
+                    'Penyesuaian' => (int) $trx->jumlah,
+                    'Pemasukan' => (int) $trx->jumlah,
+                    'Pengeluaran' => -(int) $trx->jumlah,
+                    default => 0,
+                };
+                return $carry + $jumlah;
+            }, 0);
         }
         if ($field === 'newMerkId') {
             $this->newJumlah = null;
         } elseif ($field == 'newBarangId') {
-            $rab_id = $this->rab_id;
+            $this->newJumlah = null;
+            $barang = BarangStok::find($this->newBarangId);
+            $this->newUnit = $barang?->satuanBesar->nama ?? 'Satuan';
+
+            $rab_id = $this->newRabId;
             $gudang_id = $this->gudang_id;
-            if ($this->newBarangId) {
-                $this->newUnit = BarangStok::find($this->newBarangId)->satuanBesar->nama;
 
-                if ($this->newRabId && $this->withRab) {
-                    $rab_id = $this->newRabId;
+            // Ambil semua transaksi untuk barang terpilih
+            $transaksis = \App\Models\TransaksiStok::with('merkStok')
+                ->whereHas('merkStok', function ($q) use ($rab_id) {
+                    $q->whereHas('barangStok', function ($b) {
+                        $b->where('jenis_id', 1); // hanya material
+                    });
 
-                    $this->merks = BarangStok::find($this->newBarangId)->merkStok()->when($rab_id, function ($query) use ($rab_id) {
-                        return $query->whereHas('listRab', function ($query) use ($rab_id) {
-                            $query->where('rab_id', $rab_id);
+                    // Jika pakai RAB, filter merk-merk dalam RAB
+                    if ($this->withRab && $rab_id) {
+                        $q->whereHas('listRab', function ($qr) use ($rab_id) {
+                            $qr->where('rab_id', $rab_id);
                         });
-                    })->whereHas('stok', function ($stok) use ($gudang_id) {
-                        return $stok->where('lokasi_id', $gudang_id);
-                    })->get();
-                } else {
-                    $this->merks = BarangStok::find($this->newBarangId)->merkStok()->when($rab_id, function ($query) use ($rab_id) {
-                        return $query->whereHas('listRab', function ($query) use ($rab_id) {
-                            $query->where('rab_id', $rab_id);
-                        });
-                    })->whereHas('stok', function ($stok) use ($gudang_id) {
-                        return $stok->where('lokasi_id', $gudang_id);
-                    })->get();
-                }
-            } else {
-                $this->newUnit = 'Satuan';
-                $this->newJumlah = null;
-                $this->merks = [];
+                    }
+                })
+                ->where(function ($q) use ($gudang_id) {
+                    $q->where('lokasi_id', $gudang_id)
+                        ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id))
+                        ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id));
+                })
+                ->get();
+
+            $merkTotals = [];
+
+            foreach ($transaksis as $trx) {
+                $merkId = $trx->merk_id;
+                $jumlah = match ($trx->tipe) {
+                    'Penyesuaian' => (int) $trx->jumlah,
+                    'Pemasukan' => (int) $trx->jumlah,
+                    'Pengeluaran' => -(int) $trx->jumlah,
+                    default => 0,
+                };
+                $merkTotals[$merkId] = ($merkTotals[$merkId] ?? 0) + $jumlah;
             }
+
+            $availableMerkIds = collect($merkTotals)->filter(fn($val) => $val > 0)->keys();
+
+            $this->merks = MerkStok::whereIn('id', $availableMerkIds)
+                ->where('barang_id', $this->newBarangId)
+                ->when($this->withRab && $rab_id, function ($q) use ($rab_id) {
+                    $q->whereHas('listRab', function ($qr) use ($rab_id) {
+                        $qr->where('rab_id', $rab_id);
+                    });
+                })->get();
         } elseif ($field == 'newRabId') {
             $rabId = $this->newRabId;
             $gudang_id = $this->gudang_id;
@@ -257,11 +329,7 @@ class ListPermintaanMaterial extends Component
 
     public function saveData()
     {
-
-
-        $data = [];
         $user_id = Auth::id();
-
 
         $permintaan = DetailPermintaanMaterial::create([
             'kode_permintaan' => fake()->numerify('ABCD#######'),
@@ -276,30 +344,38 @@ class ListPermintaanMaterial extends Component
         ]);
 
         foreach ($this->list as $item) {
-
-            $data[] = [
+            // 1. Simpan ke permintaan_material
+            $pm = PermintaanMaterial::create([
                 'detail_permintaan_id' => $permintaan->id,
                 'user_id' => $user_id,
                 'merk_id' => $item['merk']->id,
-                'rab_id' => $this->isSeribu ? $item['rab_id']  : null,
+                'rab_id' => $this->isSeribu ? $item['rab_id'] : null,
                 'jumlah' => $item['jumlah'],
                 'deskripsi' => $item['keterangan'],
                 'created_at' => now(),
                 'updated_at' => now()
-            ];
+            ]);
 
-            $stok = Stok::where('merk_id', $item['merk']->id)->where('lokasi_id', $this->gudang_id)->first();
-
-            $stok->update(['jumlah' => $stok->jumlah - $item['jumlah']]);
+            // 2. Simpan ke transaksi_stok (tipe: Pengajuan)
+            \App\Models\TransaksiStok::create([
+                'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
+                'tipe' => 'Pengajuan',
+                'merk_id' => $item['merk']->id,
+                'jumlah' => $item['jumlah'],
+                'lokasi_id' => $this->gudang_id,
+                'bagian_id' => null,
+                'posisi_id' => null,
+                'user_id' => $user_id,
+                'tanggal' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
 
-
-
-        PermintaanMaterial::insert($data);
         $this->reset('list');
         $this->dispatch('saveDokumen', kontrak_id: $permintaan->id, isRab: false, isMaterial: true);
-        // return redirect()->to('permintaan/material');
     }
+
 
     public function removeFromList($index)
     {

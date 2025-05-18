@@ -47,7 +47,7 @@ class ShowStokMaterial extends Component
                 $jumlah = (int) $trx->jumlah;
             } elseif ($trx->tipe === 'Pemasukan') {
                 $jumlah = (int) $trx->jumlah;
-            } elseif ($trx->tipe === 'Pengeluaran') {
+            } elseif ($trx->tipe === 'Pengeluaran' || $trx->tipe === 'Pengajuan') {
                 $jumlah = -(int) $trx->jumlah;
             }
 

@@ -107,9 +107,9 @@
                             'Pemasukan' => 'bg-blue-600 text-white',
                             'Pengeluaran' => 'bg-gray-600 text-white',
                             'Penyesuaian' => 'bg-yellow-400 text-black',
+                            'Pengajuan' => 'bg-red-400 text-white',
                             default => 'bg-slate-300 text-black',
-                            };
-                            @endphp
+                            }; @endphp
 
                             <span class="{{ $bgColor }} text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
                                 {{ $item['tipe'] }}

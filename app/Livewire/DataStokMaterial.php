@@ -106,7 +106,7 @@ class DataStokMaterial extends Component
                 // Hitung jumlah
                 $jumlah = match ($trx->tipe) {
                     'Pemasukan' => (int) $trx->jumlah,
-                    'Pengeluaran' => - ((int) $trx->jumlah),
+                    'Pengeluaran', 'Pengajuan' => - ((int) $trx->jumlah),
                     'Penyesuaian' => (int) $trx->jumlah, // karena sudah string seperti '+50' atau '-30'
                     default => 0,
                 };
