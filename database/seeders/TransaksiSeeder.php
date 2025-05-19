@@ -17,7 +17,7 @@ class TransaksiSeeder extends Seeder
         $trans = [];
         $existingCombos = [];
 
-        for ($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 8000; $i++) {
             $kontrak = KontrakVendorStok::inRandomOrder()->first();
             $lokasi = LokasiStok::inRandomOrder()->first();
             if (!$kontrak || !$lokasi) continue;
@@ -47,8 +47,8 @@ class TransaksiSeeder extends Seeder
             $isFirst = !isset($existingCombos[$comboKey]);
             $tipe = $isFirst ? 'Pemasukan' : fake()->randomElement(['Pemasukan', 'Pengeluaran', 'Penyesuaian', 'Pengajuan']);
             $jumlah = match ($tipe) {
-                'Penyesuaian' => fake()->randomElement(['+', '-']) . fake()->numberBetween(1, 10000),
-                default => fake()->numberBetween(1, 10000) * 100,
+                'Penyesuaian' => fake()->randomElement(['+', '-']) . fake()->numberBetween(1, 10),
+                default => fake()->numberBetween(1, 10) * 100,
             };
 
             $trans[] = [
@@ -59,7 +59,7 @@ class TransaksiSeeder extends Seeder
                 'lokasi_id' => $lokasi->id,
                 'bagian_id' => $bagian?->id,
                 'posisi_id' => $posisi?->id,
-                'harga' => fake()->numberBetween(10, 100) * 100,
+                'harga' => fake()->numberBetween(1, 10) * 100,
                 'ppn' => fake()->randomElement([0, 11, 12]),
                 'user_id' => $user->id,
                 'kontrak_id' => $tipe === 'Penyesuaian' ? null : $kontrak->id,

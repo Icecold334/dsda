@@ -129,7 +129,11 @@ class ApprovalMaterial extends Component
                             ->where('approvable_id', $this->permintaan->id ?? 0)
                             ->where('approvable_type', DetailPermintaanMaterial::class)
                             ->exists() &&
-                        $previousApprovalStatus === 1 && ($permintaan->ttd_driver && $permintaan->ttd_security) && $permintaan->lampiran->count() > 0;
+                        $previousApprovalStatus === 1 &&
+                        $permintaan->ttd_driver &&
+                        $permintaan->ttd_security &&
+                        $permintaan->lampiran->count() > 0 &&
+                        $this->permintaan->permintaanMaterial()->where('alocated', '!=', 1)->count() === 0;
                 } else {
                     $this->showButton = $previousUser &&
                         !$currentUser->persetujuan()

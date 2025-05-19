@@ -14,6 +14,14 @@ class StokDisetujui extends Model
     {
         return $this->belongsTo(LokasiStok::class, 'lokasi_id');
     }
+    public function bagianStok()
+    {
+        return $this->belongsTo(BagianStok::class, 'bagian_id');
+    }
+    public function posisiStok()
+    {
+        return $this->belongsTo(PosisiStok::class, 'posisi_id');
+    }
     public function merkStok()
     {
         return $this->belongsTo(MerkStok::class, 'merk_id');
@@ -21,5 +29,9 @@ class StokDisetujui extends Model
     public function permintaan()
     {
         return $this->belongsTo(PermintaanStok::class, 'permintaan_id');
+    }
+    public function permintaanMaterial()
+    {
+        return $this->belongsTo(PermintaanMaterial::class, 'permintaan_id');
     }
 }

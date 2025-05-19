@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('jumlah');
             $table->integer('jumlah_approve')->nullable();
             $table->boolean('status')->nullable();
+            $table->boolean('alocated')->nullable()->default(0);
             $table->timestamps();
         });
     }

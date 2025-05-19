@@ -3,22 +3,29 @@
 namespace App\Livewire;
 
 use Carbon\Carbon;
+use App\Models\Rab;
 use App\Models\Stok;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
-use App\Models\DetailPermintaanMaterial;
+use Livewire\Attributes\On;
+use App\Models\StokDisetujui;
+use Livewire\WithFileUploads;
 use App\Models\PermintaanMaterial;
-use App\Models\Rab;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
-use Livewire\Attributes\On;
-use Livewire\WithFileUploads;
+use App\Models\DetailPermintaanMaterial;
 
 class ListPermintaanMaterial extends Component
 {
     use WithFileUploads;
+    public $readonlyAlokasiMerkId = null;
     public $permintaan, $tanggalPenggunaan, $keterangan, $isShow, $gudang_id, $withRab = 0, $lokasiMaterial, $nodin, $namaKegiatan, $isSeribu;
+    public $distribusiModalIndex = null;
+    public $alokasiInput = []; // key: posisi_id, value: jumlah
+    public $alokasiSisa = 0;
+    public $stokDistribusiList = [];
+
     public  $rabs, $rab_id,  $barangs = [], $merks = [], $dokumenCount, $newBarangId, $newRabId, $newMerkId, $newMerkMax, $newKeterangan, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
 
     public function mount()
@@ -53,6 +60,10 @@ class ListPermintaanMaterial extends Component
         $this->fillBarangs();
     }
 
+    public function openReadonlyAlokasiModal($merkId)
+    {
+        $this->readonlyAlokasiMerkId = $merkId;
+    }
 
     private function fillBarangs()
     {
@@ -239,7 +250,7 @@ class ListPermintaanMaterial extends Component
                 $jumlah = match ($trx->tipe) {
                     'Penyesuaian' => (int) $trx->jumlah,
                     'Pemasukan' => (int) $trx->jumlah,
-                    'Pengeluaran' => -(int) $trx->jumlah,
+                    'Pengeluaran', 'Pengajuan' => -(int) $trx->jumlah,
                     default => 0,
                 };
                 return $carry + $jumlah;
@@ -249,6 +260,8 @@ class ListPermintaanMaterial extends Component
             $this->newJumlah = null;
         } elseif ($field == 'newBarangId') {
             $this->newJumlah = null;
+            $this->newMerkMax = null;
+            $this->newMerkId = null;
             $barang = BarangStok::find($this->newBarangId);
             $this->newUnit = $barang?->satuanBesar->nama ?? 'Satuan';
 
@@ -283,7 +296,7 @@ class ListPermintaanMaterial extends Component
                 $jumlah = match ($trx->tipe) {
                     'Penyesuaian' => (int) $trx->jumlah,
                     'Pemasukan' => (int) $trx->jumlah,
-                    'Pengeluaran' => -(int) $trx->jumlah,
+                    'Pengeluaran', 'Pengajuan' => -(int) $trx->jumlah,
                     default => 0,
                 };
                 $merkTotals[$merkId] = ($merkTotals[$merkId] ?? 0) + $jumlah;
@@ -327,6 +340,7 @@ class ListPermintaanMaterial extends Component
         $this->checkAdd();
     }
 
+
     public function saveData()
     {
         $user_id = Auth::id();
@@ -344,13 +358,16 @@ class ListPermintaanMaterial extends Component
         ]);
 
         foreach ($this->list as $item) {
+            $merkId = $item['merk']->id;
+
             // 1. Simpan ke permintaan_material
             $pm = PermintaanMaterial::create([
                 'detail_permintaan_id' => $permintaan->id,
                 'user_id' => $user_id,
-                'merk_id' => $item['merk']->id,
+                'merk_id' => $merkId,
                 'rab_id' => $this->isSeribu ? $item['rab_id'] : null,
                 'jumlah' => $item['jumlah'],
+                'alocated' => !$this->isMerkTersebar($merkId) ? 1 : 0,
                 'deskripsi' => $item['keterangan'],
                 'created_at' => now(),
                 'updated_at' => now()
@@ -360,7 +377,7 @@ class ListPermintaanMaterial extends Component
             \App\Models\TransaksiStok::create([
                 'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
                 'tipe' => 'Pengajuan',
-                'merk_id' => $item['merk']->id,
+                'merk_id' => $merkId,
                 'jumlah' => $item['jumlah'],
                 'lokasi_id' => $this->gudang_id,
                 'bagian_id' => null,
@@ -370,11 +387,25 @@ class ListPermintaanMaterial extends Component
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            // 3. Cek jika stok tidak tersebar → langsung buat StokDisetujui
+            if (!$this->isMerkTersebar($merkId)) {
+                StokDisetujui::create([
+                    'permintaan_id' => $permintaan->id,
+                    'merk_id' => $merkId,
+                    'lokasi_id' => $this->gudang_id,
+                    'bagian_id' => null,
+                    'posisi_id' => null,
+                    'catatan' => 'Stok hanya tersedia di lokasi utama',
+                    'jumlah_disetujui' => $item['jumlah'],
+                ]);
+            }
         }
 
         $this->reset('list');
         $this->dispatch('saveDokumen', kontrak_id: $permintaan->id, isRab: false, isMaterial: true);
     }
+
 
 
     public function removeFromList($index)
@@ -388,6 +419,164 @@ class ListPermintaanMaterial extends Component
     {
         $this->ruleAdd = $this->newMerkId && $this->newJumlah && $this->newJumlah <= $this->newMerkMax;
     }
+
+    public function openDistribusiModal($index)
+    {
+        $item = $this->list[$index];
+        $this->distribusiModalIndex = $index;
+
+        $merkId = $item['merk']->id;
+        $jumlahDiminta = $item['jumlah'];
+        $lokasiId = $this->permintaan->gudang_id;
+
+        $transaksis = \App\Models\TransaksiStok::where('merk_id', $merkId)
+            ->where(function ($q) use ($lokasiId) {
+                $q->where('lokasi_id', $lokasiId)
+                    ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $lokasiId))
+                    ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $lokasiId));
+            })
+            ->get();
+
+        $alokasiData = [];
+
+        foreach ($transaksis as $trx) {
+            $jumlah = match ($trx->tipe) {
+                'Pemasukan' => (int) $trx->jumlah,
+                'Pengeluaran' => - ((int) $trx->jumlah),
+                'Penyesuaian' => (int) $trx->jumlah,
+                default => 0,
+            };
+
+            $key = null;
+
+            if ($trx->posisi_id) {
+                $key = 'posisi:' . $trx->posisi_id;
+            } elseif ($trx->bagian_id) {
+                $key = 'bagian:' . $trx->bagian_id;
+            } elseif ($trx->lokasi_id) {
+                $key = 'lokasi:' . $trx->lokasi_id;
+            }
+
+            if ($key) {
+                $alokasiData[$key] = ($alokasiData[$key] ?? 0) + $jumlah;
+            }
+        }
+
+        $this->stokDistribusiList = collect($alokasiData)->filter(fn($val) => $val > 0);
+        $this->alokasiInput = [];
+        $this->alokasiSisa = $jumlahDiminta;
+    }
+
+
+
+    public function updatedAlokasiInput()
+    {
+        $total = array_sum(array_map('intval', $this->alokasiInput));
+        $this->alokasiSisa = $this->list[$this->distribusiModalIndex]['jumlah'] - $total;
+    }
+    public function submitDistribusi()
+    {
+        if ($this->alokasiSisa != 0) return;
+
+        $item = $this->list[$this->distribusiModalIndex];
+        $user_id = Auth::id();
+
+        foreach ($this->alokasiInput as $key => $jumlah) {
+            if ((int) $jumlah <= 0) continue;
+
+            [$tipe, $id] = explode(':', $key);
+
+            $bagian_id = null;
+            $posisi_id = null;
+
+            if ($tipe === 'posisi') {
+                $posisi = \App\Models\PosisiStok::find($id);
+                if (!$posisi) continue;
+                $posisi_id = $posisi->id;
+                $bagian_id = $posisi->bagian_id;
+            } elseif ($tipe === 'bagian') {
+                $bagian = \App\Models\BagianStok::find($id);
+                if (!$bagian) continue;
+                $bagian_id = $bagian->id;
+            }
+
+            StokDisetujui::create([
+                'permintaan_id' => $this->permintaan->id,
+                'merk_id' => $item['merk']->id,
+                'lokasi_id' => $this->permintaan->gudang_id,
+                'bagian_id' => $bagian_id,
+                'posisi_id' => $posisi_id,
+                'catatan' => null,
+                'jumlah_disetujui' => (int) $jumlah,
+            ]);
+        }
+        // Ambil id permintaan_material berdasarkan merk
+        $merkId = $this->list[$this->distribusiModalIndex]['merk']->id;
+
+        $pm = PermintaanMaterial::where('detail_permintaan_id', $this->permintaan->id)
+            ->where('merk_id', $merkId)
+            ->first();
+
+        if ($pm) {
+            $pm->update(['alocated' => 1]);
+        }
+
+        $this->distribusiModalIndex = null;
+        $this->dispatch('alert', [
+            'type' => 'success',
+            'message' => 'Alokasi disimpan ke stok_disetujui.'
+        ]);
+    }
+
+    public function isMerkTersebar($merkId)
+    {
+        if ($this->isShow) {
+            # code...
+            $lokasiId = $this->permintaan->gudang_id;
+        } else {
+            $lokasiId = $this->gudang_id;
+        }
+
+        $transaksis = \App\Models\TransaksiStok::where('merk_id', $merkId)
+            ->where(function ($q) use ($lokasiId) {
+                $q->where('lokasi_id', $lokasiId)
+                    ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $lokasiId))
+                    ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $lokasiId));
+            })
+            ->get();
+
+        $stokBagian = $transaksis->whereNull('posisi_id')->whereNotNull('bagian_id');
+        $stokPosisi = $transaksis->whereNotNull('posisi_id');
+
+        $jumlahBagian = $stokBagian->reduce(function ($carry, $trx) {
+            return $carry + match ($trx->tipe) {
+                'Pemasukan' => (int) $trx->jumlah,
+                'Pengeluaran' => -(int) $trx->jumlah,
+                'Penyesuaian' => (int) $trx->jumlah,
+                default => 0,
+            };
+        }, 0);
+
+        $jumlahPosisi = $stokPosisi->reduce(function ($carry, $trx) {
+            return $carry + match ($trx->tipe) {
+                'Pemasukan' => (int) $trx->jumlah,
+                'Pengeluaran', 'Pengajuan' => -(int) $trx->jumlah,
+                'Penyesuaian' => (int) $trx->jumlah,
+                default => 0,
+            };
+        }, 0);
+
+        return ($jumlahBagian + $jumlahPosisi) > 0;
+    }
+
+    public function getAlokasiByMerk($merkId)
+    {
+        return \App\Models\StokDisetujui::with(['lokasiStok', 'bagianStok', 'posisiStok'])
+            ->where('permintaan_id', $this->permintaan->id)
+            ->where('merk_id', $merkId)
+            ->get();
+    }
+
     public function render()
     {
         return view('livewire.list-permintaan-material');

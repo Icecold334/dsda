@@ -147,12 +147,34 @@ class FormPermintaan extends Component
         $kategori = Request::segment(4);
         $this->kategori = $kategori;
         $this->gudangs = LokasiStok::where('unit_id', $this->unit_id)
-            ->whereHas('stok', function ($query) {
+            ->whereHas('transaksiStok', function ($query) {
                 $query->whereHas('merkStok.barangStok', function ($q) {
                     $q->where('jenis_id', 1);
-                })->where('jumlah', '>', 0);
+                });
             })
-            ->get();
+            ->with(['transaksiStok.merkStok.barangStok' => function ($q) {
+                $q->where('jenis_id', 1);
+            }])
+            ->get()
+            ->filter(function ($lokasi) {
+                $jumlah = 0;
+
+                foreach ($lokasi->transaksiStok as $trx) {
+                    $barang = $trx->merkStok->barangStok ?? null;
+                    if (!$barang || $barang->jenis_id !== 1) continue;
+
+                    $jumlah += match ($trx->tipe) {
+                        'Pemasukan' => (int) $trx->jumlah,
+                        'Pengeluaran', 'Pengajuan' => - ((int) $trx->jumlah),
+                        'Penyesuaian' => (int) $trx->jumlah,
+                        default => 0,
+                    };
+                }
+
+                return $jumlah > 0;
+            })
+            ->values(); // optional: reindex collection
+
 
         // dd($this->last);
         // 2024 - 12 - 04

@@ -208,7 +208,7 @@ return new class extends Migration
 
         Schema::create('stok_disetujui', function (Blueprint $table) {
             $table->id(); // Primary Key
-            $table->foreignId('permintaan_id')->constrained('permintaan_stok')->onDelete('cascade'); // Relasi ke permintaan_barang
+            $table->foreignId('permintaan_id')->constrained('permintaan_material')->onDelete('cascade'); // Relasi ke permintaan_barang
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('cascade'); // Relasi ke lokasi
             $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade'); // Relasi ke bagian
