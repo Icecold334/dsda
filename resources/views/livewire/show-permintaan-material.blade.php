@@ -20,6 +20,13 @@
             <a onclick="confirmDownload('suratJalan')"
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
                 Surat Jalan</a>
+
+            @endif
+            @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 4)
+
+            <a onclick="confirmDownload('BAST')"
+                class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
+                BAST</a>
             @endif
             <a href="/permintaan/material"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>

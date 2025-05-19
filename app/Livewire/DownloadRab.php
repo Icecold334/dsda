@@ -14,12 +14,14 @@ class DownloadRab extends Component
     public function download()
     {
         $pdf = new \TCPDF('P', 'mm', 'F4', true, 'UTF-8', false);
+        // Set margin (Left, Top, Right)
+        $pdf->SetMargins(20, 5, 20);
         $pdf->SetCreator('Dinas SDA');
         $pdf->SetAuthor('Dinas SDA');
         $pdf->SetTitle($this->RKB);
 
         $pdf->AddPage();
-        $pdf->SetFont('helvetica', '', 12);
+        $pdf->SetFont('helvetica', '', 10);
 
         $rab = $this->rab;
         $unit_id = $this->unit_id;
@@ -39,7 +41,10 @@ class DownloadRab extends Component
             })->first();
         $RKB = $this->RKB;
 
-        $html = view('pdf.rab', compact('rab', 'kasudin', 'kasi', 'RKB'))->render();
+        $isSeribu = $this->isSeribu;
+        $sudin = $this->sudin;
+
+        $html = view('pdf.rab', compact('rab', 'kasudin', 'kasi', 'RKB', 'isSeribu', 'sudin'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
 

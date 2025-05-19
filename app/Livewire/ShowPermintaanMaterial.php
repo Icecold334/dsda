@@ -27,7 +27,7 @@ class ShowPermintaanMaterial extends Component
     public function suratJalan($sign)
     {
         $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-        $pdf->SetMargins(30, 25, 20);
+        $pdf->SetMargins(20, 5, 20);
 
         $pdf->SetCreator('Sistem Permintaan Barang');
         $pdf->SetAuthor('Dinas SDA');
@@ -72,6 +72,55 @@ class ShowPermintaanMaterial extends Component
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->Output('', 'S');
         }, 'Surat-Jalan.pdf');
+    }
+    public function BAST($sign)
+    {
+        $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->SetMargins(20, 5, 20);
+
+        $pdf->SetCreator('Sistem Permintaan Barang');
+        $pdf->SetAuthor('Dinas SDA');
+        $pdf->SetTitle('Berita Acara Serah Terima Barang');
+
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', '', 10);
+
+        // optional kalau ada ttd atau cap
+        $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
+
+        $permintaan = $this->permintaan;
+        $unit_id = $this->unit_id;
+        $permintaan->unit = UnitKerja::find($unit_id);
+        $kasatpel =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Kepala Satuan Pelaksana%');
+            })->first();
+        $penjaga =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Penjaga Gudang%');
+            })->where('lokasi_id', $this->permintaan->gudang_id)->first();
+        $pengurus =
+            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('id', $unit_id);
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Pengurus Barang%');
+            })->first();
+        $Rkb = $this->Rkb;
+        $RKB = $this->RKB;
+        $sudin = $this->sudin;
+        $isSeribu = $this->isSeribu;
+        $html = view('pdf.bastKeluar', compact('permintaan', 'kasatpel', 'penjaga', 'pengurus', 'ttdPath', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'sign'))->render();
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $this->statusRefresh();
+        // return 1;
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->Output('', 'S');
+        }, 'BAST.pdf');
     }
 
 
@@ -191,7 +240,7 @@ class ShowPermintaanMaterial extends Component
     public function sppb($sign)
     {
         $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-        $pdf->SetMargins(30, 25, 20);
+        $pdf->SetMargins(20, 5, 20);
 
         $pdf->SetCreator('Sistem Permintaan Barang');
         $pdf->SetAuthor('Dinas SDA');
@@ -263,7 +312,7 @@ class ShowPermintaanMaterial extends Component
     {
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
         // Set margin (Left, Top, Right)
-        $pdf->SetMargins(30, 25, 20);
+        $pdf->SetMargins(20, 5, 20);
         $pdf->SetCreator('Sistem Permintaan Bahan');
         $pdf->SetAuthor('Dinas SDA');
         $pdf->SetTitle('Surat Permintaan Barang Material');
@@ -334,6 +383,8 @@ class ShowPermintaanMaterial extends Component
                 return $this->sppb($withSign);
             case 'suratJalan':
                 return $this->suratJalan($withSign);
+            case 'BAST':
+                return $this->BAST($withSign);
         }
     }
     public function render()

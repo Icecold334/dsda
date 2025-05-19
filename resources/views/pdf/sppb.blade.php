@@ -213,7 +213,7 @@
     <tr>
       <th width="30" align="center">NO</th>
       <th width="100" align="center">NAMA</th>
-      <th width="220" align="center">SPESIFIKASI</th>
+      <th width="250" align="center">SPESIFIKASI</th>
       <th width="100" align="center">VOLUME</th>
     </tr>
   </thead>
@@ -222,7 +222,7 @@
     <tr>
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="100">{{ $item->merkStok->barangStok->nama }}</td>
-      <td width="220">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
+      <td width="250">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
         $item->merkStok->tipe ?? 'Tanpa tipe' }} -
         {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
       <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
