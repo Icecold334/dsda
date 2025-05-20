@@ -29,16 +29,31 @@
   .header-text {
     text-align: center;
     font-weight: bold;
-    font-size: 14px;
-    /* line-height: 1.6; */
+    font-size: 13px;
   }
 
   .tembusan {
     font-size: 10px;
     margin-top: 30px;
   }
-</style>
 
+  .no-border {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .no-border td {
+    border: none;
+    text-align: center;
+    vertical-align: top;
+    padding: 10px;
+  }
+
+  .footer-ttd img {
+    margin-bottom: 4px;
+  }
+</style>
 <style>
   body {
     font-family: helvetica, sans-serif;
@@ -102,58 +117,48 @@
   </tr>
 </table>
 <div class="underline"></div>
+<h3 class="center">BERITA ACARA SERAH TERIMA BARANG <br>
+  DISTRIBUSI/PENGELUARAN </h3>
+<div class="center"><strong>Nomor</strong> : {{ $permintaan->nodin ??
+  '846846866' }}<br></div>
 
-<table width="100%" style="margin-top: 20px;">
-  <tr>
-    <td style="width: 100%; vertical-align: top;text-align: right">Jakarta, {{
-      \Carbon\Carbon::parse($permintaan->tanggal)->translatedFormat('d F Y') }}</td>
-  </tr>
-  <tr>
-    <!-- Kiri: metadata -->
-    <td style="width: 55%; vertical-align: top;">
-      <table class="meta-table">
-        <tr>
-          <td width="20%">Nomor</td>
-          <td>: {{ $permintaan->nodin }}</td>
-        </tr>
-        <tr>
-          <td>Sifat</td>
-          <td>: Penting</td>
-        </tr>
-        <tr>
-          <td>Lampiran</td>
-          <td>: {{ count($permintaan->lampiran) && 0 ? count($permintaan->lampiran) . ' (satu) berkas' : '-' }}</td>
-        </tr>
-        <tr>
-          <td>Hal</td>
-          <td>: Surat Permintaan Barang</td>
-        </tr>
-      </table>
-    </td>
-
-    <!-- Kanan: alamat tujuan -->
-    <td style="width: 45%; vertical-align: top; text-align: left;">
-      <p style="margin-left: 30px;">
-        Kepada <br>
-        Yth.<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;Kepala Suku Dinas Sumber Daya Air<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;{{ $sudin }} <br>
-        &nbsp;&nbsp;&nbsp;&nbsp;di <br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jakarta
-      </p>
-    </td>
-  </tr>
-</table>
-
-<br>
-
-
-<p>
-  Sehubungan dengan kebutuhan pelaksanaan kegiatan {{ $permintaan->nama }}, dengan ini saya mengajukan permohonan
-  penyediaan bahan material dengan rincian sebagai
-  berikut:
-</p>
-
+<div style="text-align: justify;line-height: 20px">
+  Pada hari ini {{ $permintaan->created_at->translatedFormat('l') }} tanggal {{
+  $permintaan->created_at->translatedFormat('j') }} bulan
+  {{
+  $permintaan->created_at->translatedFormat('M') }} tahun {{
+  $permintaan->created_at->translatedFormat('Y') }}, yang bertanda tangan di bawah ini: <br>
+  <table>
+    <tr>
+      <td width="60">Nama</td>
+      <td width="8">:</td>
+      <td width="1000">{{ $pengurus->name }}</td>
+    </tr>
+    <tr>
+      <td>Jabatan</td>
+      <td>:</td>
+      <td>Pengurus Barang Pembantu</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>{{ $isSeribu ?'Kabupaten':'Kota' }} Administrasi {{ $sudin }}</td>
+    </tr>
+  </table>
+  <div style="text-align: justify">
+    Berdasarkan Surat Perintah Penyaluran Barang (SPPB) dari Pejabat Penatausahaan Barang Suku Dinas Sumber Daya Air {{
+    $isSeribu ?'Kabupaten':'Kota' }} Administrasi {{$sudin }} Nomor {{ $permintaan->nodin }}
+    tanggal {{ $permintaan->created_at->translatedFormat('j') }} bulan {{
+    $permintaan->created_at->translatedFormat('M') }} tahun {{
+    $permintaan->created_at->translatedFormat('Y') }} telah diserahkan oleh Pengurus Barang Pembantu kepada Pemakai
+    Barang Persediaan, sebagaimana daftar terlampir.
+  </div>
+</div>
+<div>
+  Daftar barang persediaan yang didistribusikan/dikeluarkan sebagai berikut:
+</div>
+<br><br><br>
+{{-- TABEL --}}
 <table class="bahan">
   <thead>
     <tr>
@@ -176,44 +181,38 @@
     @endforeach
   </tbody>
 </table>
-<p>
-  Adapun bahan material tersebut diperlukan untuk {{ $permintaan->keterangan }} di {{ $permintaan->lokasi }}.
-  Demikian
-  permohonan ini kami sampaikan.
-  Atas perhatian dan kerjasamanya, saya ucapkan terima kasih.</p>
-<br><br>
-<table width="100%">
+
+<p style="margin-top: 20px;text-align: right">
+  Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }}
+</p>
+
+{{-- TANDA TANGAN --}}
+<table class="no-border footer-ttd">
+
   <tr>
-    <td align="center">
-      Mengetahui,<br>
-      Kepala Seksi Pemeliharaan<br><br><br>
+    <td width="50%">
+      Yang Menyerahkan<br>
+      Pengurus Barang Pembantu <br><br>
       @if ($sign)
-      <img src="{{ $ttdPath }}" width="100" height="50"><br><br>
+      <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br>
       @else
-      <br><br><br><br>
+      <br><br><br>
       @endif
-      <b>{{ $pemel->name }}</b><br>
-      NIP. {{ $pemel->nip }}
+      <strong>{{ $pengurus->name }}</strong><br>
+      NIP {{ $pengurus->nip ?? '....................' }}
     </td>
-    <td align="center">
-      Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}<br>
-      Kepala Satuan Pelaksana<br>
-      Kecamatan {{ $kasatpel->kecamatan->kecamatan }}<br><br>
+    <td width="50%">
+      Yang Menerima<br>
+      Pemakai Persediaan<br><br>
       @if ($sign)
-      <img src="{{ $ttdPath }}" width="100" height="50"><br><br>
+      <img src="{{ $permintaan->status === 3 || true ? '/storage/ttdPengiriman/nurdin.png':'' }}" height="40"><br>
       @else
-      <br><br><br><br>
+      <br><br><br>
       @endif
-      <b>{{ $kasatpel->name }}</b><br>
-      NIP. {{ $kasatpel->nip }}
+      <strong>{{ $permintaan->user->name }}</strong><br>
+      NIP {{ $permintaan->user->nip ?? '....................' }}
     </td>
+
+
   </tr>
 </table>
-<br>
-<br>
-<br>
-<br>
-<div class="tembusan">
-  Tembusan:<br>
-  Kepala Subbagian Tata Usaha Suku Dinas Sumber Daya Air {{ $sudin }}
-</div>
