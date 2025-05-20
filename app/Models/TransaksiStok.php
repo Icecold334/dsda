@@ -42,6 +42,10 @@ class TransaksiStok extends Model
     {
         return $this->belongsTo(PengirimanStok::class, 'pengiriman_id');
     }
+    public function permintaanMaterial()
+    {
+        return $this->belongsTo(PermintaanMaterial::class, 'permintaan_id');
+    }
 
     public function user()
     {

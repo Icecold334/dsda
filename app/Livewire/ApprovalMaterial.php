@@ -15,6 +15,7 @@ use App\Notifications\UserNotification;
 use BaconQrCode\Renderer\GDLibRenderer;
 use Illuminate\Support\Facades\Storage;
 use App\Models\DetailPermintaanMaterial;
+use App\Models\TransaksiStok;
 use Illuminate\Support\Facades\Notification;
 
 class ApprovalMaterial extends Component
@@ -194,11 +195,7 @@ class ApprovalMaterial extends Component
         }
 
 
-        $this->permintaan->persetujuan()->create([
-            'user_id' => $this->user->id,
-            'is_approved' => $status, // Atur status menjadi disetujui
-            'keterangan' => $message
-        ]);
+
 
 
         if (!$status) {
@@ -233,13 +230,38 @@ class ApprovalMaterial extends Component
             // Hasilkan QR Code ke file
             $writer->writeFile($qrContent, $filePath);
         }
+        $transaksi = new TransaksiStok;
         if ($this->currentApprovalIndex + 1 == 3 && $status) {
+            foreach ($this->permintaan->permintaanMaterial as $key => $item) {
+                foreach ($item->stokDisetujui as $value) {
+                    $data = [
+                        'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
+                        'tipe' => 'Pengeluaran',
+                        'merk_id' => $value->merk_id,
+                        'vendor_id' => null,
+                        'lokasi_id' => $value->lokasi_id ?? null,
+                        'bagian_id' => $value->bagian_id ?? null,
+                        'posisi_id' => $value->posisi_id ?? null,
+                        'harga' => fake()->numberBetween(1, 10) * 100,
+                        'user_id' => $value->permintaanMaterial->detailPermintaan->user_id,
+                        // 'kontrak_id' => $tipe === 'Penyesuaian' ? null : $kontrak->id,
+                        'tanggal' => Carbon::now()->format('Y-m-d'),
+                        'jumlah' => $value->jumlah_disetujui,
+                    ];
+                    $transaksi->create($data);
+                }
+                $item->transaksi->first()->delete();
+            }
             $this->permintaan->update(['status' => 2, 'driver' => $driver, 'nopol' => $nopol, 'security' => $security]);
         }
 
 
 
-
+        $this->permintaan->persetujuan()->create([
+            'user_id' => $this->user->id,
+            'is_approved' => $status, // Atur status menjadi disetujui
+            'keterangan' => $message
+        ]);
         return redirect()->to('permintaan/permintaan/' . $this->permintaan->id);
     }
     public function render()

@@ -152,10 +152,10 @@
                     ->where('alocated', 1)
                     ->exists();
                     @endphp
-
-                    @if ( $isAlocated)
+                    @if (auth()->user()->can('permintaan_persetujuan_jumlah_barang'))
+                    @if ( $isAlocated )
                     {{-- Detail Alokasi (readonly) --}}
-                    <button wire:click="openReadonlyAlokasiModal({{ $item['merk']->id }})"
+                    <button wire:click="openReadonlyAlokasiModal({{ $item['merk']->id }},{{ $index }})"
                         class="text-green-800 border-green-600 text-sm border bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
                         <i class="fa-solid fa-circle-info"></i> Lihat Alokasi </button>
                     @elseif ($isTersebar && auth()->user()->can('permintaan_persetujuan_jumlah_barang'))
@@ -166,6 +166,8 @@
                     @else
                     <span class="text-xs text-gray-500 italic">Tidak Tersebar</span>
                     @endif
+                    @endif
+
                     @endif
                     @endif
                 </td>
@@ -358,7 +360,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($this->getAlokasiByMerk($readonlyAlokasiMerkId) as $alok)
+                    @foreach ($this->getAlokasiByMerk($readonlyAlokasiMerkId,$readonlyAlokasiIndex) as $alok)
                     <tr>
                         <td class="px-4 py-2">{{ $alok->lokasiStok->nama ?? '-' }}</td>
                         <td class="px-4 py-2">{{ $alok->bagianStok->nama ?? '-' }}</td>

@@ -20,6 +20,7 @@ class ListPermintaanMaterial extends Component
 {
     use WithFileUploads;
     public $readonlyAlokasiMerkId = null;
+    public $readonlyAlokasiIndex = null;
     public $permintaan, $tanggalPenggunaan, $keterangan, $isShow, $gudang_id, $withRab = 0, $lokasiMaterial, $nodin, $namaKegiatan, $isSeribu;
     public $distribusiModalIndex = null;
     public $alokasiInput = []; // key: posisi_id, value: jumlah
@@ -60,9 +61,10 @@ class ListPermintaanMaterial extends Component
         $this->fillBarangs();
     }
 
-    public function openReadonlyAlokasiModal($merkId)
+    public function openReadonlyAlokasiModal($merkId, $index)
     {
         $this->readonlyAlokasiMerkId = $merkId;
+        $this->readonlyAlokasiIndex = $index;
     }
 
     private function fillBarangs()
@@ -376,6 +378,7 @@ class ListPermintaanMaterial extends Component
             // 2. Simpan ke transaksi_stok (tipe: Pengajuan)
             \App\Models\TransaksiStok::create([
                 'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
+                'permintaan_id' => $pm->id,
                 'tipe' => 'Pengajuan',
                 'merk_id' => $merkId,
                 'jumlah' => $item['jumlah'],
@@ -391,7 +394,7 @@ class ListPermintaanMaterial extends Component
             // 3. Cek jika stok tidak tersebar → langsung buat StokDisetujui
             if (!$this->isMerkTersebar($merkId)) {
                 StokDisetujui::create([
-                    'permintaan_id' => $permintaan->id,
+                    'permintaan_id' => $pm->id,
                     'merk_id' => $merkId,
                     'lokasi_id' => $this->gudang_id,
                     'bagian_id' => null,
@@ -501,7 +504,7 @@ class ListPermintaanMaterial extends Component
             }
 
             StokDisetujui::create([
-                'permintaan_id' => $this->permintaan->id,
+                'permintaan_id' => $item['id'],
                 'merk_id' => $item['merk']->id,
                 'lokasi_id' => $this->permintaan->gudang_id,
                 'bagian_id' => $bagian_id,
@@ -569,10 +572,11 @@ class ListPermintaanMaterial extends Component
         return ($jumlahBagian + $jumlahPosisi) > 0;
     }
 
-    public function getAlokasiByMerk($merkId)
+    public function getAlokasiByMerk($merkId, $index)
     {
+        $item = $this->list[$index];
         return \App\Models\StokDisetujui::with(['lokasiStok', 'bagianStok', 'posisiStok'])
-            ->where('permintaan_id', $this->permintaan->id)
+            ->where('permintaan_id', $item['id'])
             ->where('merk_id', $merkId)
             ->get();
     }

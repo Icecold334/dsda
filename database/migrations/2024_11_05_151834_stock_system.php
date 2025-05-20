@@ -179,6 +179,7 @@ return new class extends Migration
             $table->integer('ppn')->nullable();
             $table->string('img')->nullable();
             $table->enum('tipe', ['Pemasukan', 'Pengeluaran', 'Penyesuaian', 'Pengajuan']);
+            $table->foreignId('permintaan_id')->nullable()->constrained('permintaan_material')->onDelete('cascade'); // Relasi ke permintaan_barang
             $table->foreignId('merk_id')->nullable()->constrained('merk_stok');
             $table->foreignId('vendor_id')->nullable()->constrained('toko');
             $table->foreignId('pj_id')->nullable()->constrained('users');
