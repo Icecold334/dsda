@@ -218,12 +218,14 @@
     </td>
     <td width="50%">
       Driver<br><br><br><br>
-      @if(file_exists(public_path('storage/ttdPengiriman/' . $permintaan->ttd_driver)))
+      @if(!is_null($permintaan->ttd_driver))
       @if ($sign)
       <img src="{{ public_path('storage/ttdPengiriman/' . $permintaan->ttd_driver) }}" height="40"><br>
       @else
       <br><br><br>
       @endif
+      @else
+      <br><br><br>
       @endif
       <strong>{{ $permintaan->driver }}</strong>
     </td>
@@ -237,12 +239,14 @@
   <tr>
     <td width="50%">
       Keamanan<br><br><br><br>
-      @if(file_exists(public_path('storage/ttdPengiriman/' . $permintaan->ttd_security)))
+      @if(!is_null($permintaan->ttd_security))
       @if ($sign)
       <img src="{{ public_path('storage/ttdPengiriman/' . $permintaan->ttd_security) }}" height="40"><br>
       @else
       <br><br><br>
       @endif
+      @else
+      <br><br><br>
       @endif
       <strong>{{ $permintaan->security }}</strong>
     </td>

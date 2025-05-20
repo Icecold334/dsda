@@ -159,11 +159,12 @@ class PermissionSeeder extends Seeder
         revokePermissions('Kepala Suku Dinas', [
             'RAB_tambah_rab',
             'permintaan_upload_foto_dan_ttd_driver',
+            'permintaan_persetujuan_jumlah_barang'
         ]);
         revokePermissions('Kepala Subbagian', [
             'RAB_tambah_rab',
             'permintaan_upload_foto_dan_ttd_driver',
-            ''
+            'permintaan_persetujuan_jumlah_barang'
         ]);
     }
 }

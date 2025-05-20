@@ -5,13 +5,14 @@ namespace App\Livewire;
 use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\UnitKerja;
+use App\Models\Persetujuan;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailPeminjamanAset;
-use App\Models\DetailPermintaanMaterial;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Models\DetailPermintaanMaterial;
 use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -29,8 +30,12 @@ class DataPermintaanMaterial extends Component
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
 
+    public $approvalTimeline = [];
+    public $showTimelineModal = false;
     public $tipe;
     // public $permintaans;
+
+
 
     public function mount()
     {
@@ -374,6 +379,39 @@ class DataPermintaanMaterial extends Component
         return Response::streamDownload(function () use ($writer) {
             $writer->save('php://output');
         }, $fileName);
+    }
+
+    public function openApprovalTimeline($id, $tipe)
+    {
+        $model =  \App\Models\DetailPermintaanMaterial::class;
+
+        $this->approvalTimeline = Persetujuan::where('approvable_id', $id)
+            ->where('approvable_type', $model)
+            ->with('user')
+            ->orderBy('created_at')
+            ->get()
+            ->map(function ($item) {
+                $role = '';
+                switch ($item->user->roles->first()->name) {
+                    case 'Kepala Seksi':
+                        $role = 'Kepala Seksi Pemeliharaan';
+                        break;
+
+                    default:
+                        $role = 'Admin';
+                        break;
+                }
+                return [
+                    'user' => $item->user->name,
+                    'role' => $role,
+                    'status' => $item->is_approved ? 'Disetujui' : 'Menunggu',
+                    'img' => $item->img,
+                    'tanggal' => $item->created_at->format('d M Y H:i'),
+                ];
+            })
+            ->toArray();
+
+        $this->showTimelineModal = true;
     }
     public function render()
     {

@@ -4,31 +4,58 @@
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL PERMINTAAN</h1>
         <div>
 
-            <a onclick="confirmDownload('spb')"
-                class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
-                SPB</a>
+            @if ($permintaan->spb_path)
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                href="{{ asset('storage/spb/' . $permintaan->spb_path) }}" target="_blank" class="...">Unduh SPB</a>
+            @else
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="confirmDownload('spb')" class="...">Unduh SPB</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="showUploadModal('spb')" class="... text-blue-500">Unggah SPB</a>
+            @endif
             @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2)
-            <a onclick="confirmDownload('sppb')"
-                class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
-                SPPB</a>
+            @if ($permintaan->sppb_path)
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                href="{{ asset('storage/sppb/' . $permintaan->sppb_path) }}" target="_blank" class="...">Unduh SPPB</a>
+            @else
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="confirmDownload('sppb')" class="...">Unduh SPPB</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="showUploadModal('sppb')" class="... text-blue-500">Unggah SPPB</a>
+            @endif
 
-            <a wire:click='qrCode'
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                wire:click='qrCode'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
                 QR-Code</a>
             @endif
             @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 3)
-            <a onclick="confirmDownload('suratJalan')"
-                class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
-                Surat Jalan</a>
+            @if ($permintaan->suratJalan_path)
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                href="{{ asset('storage/suratJalan/' . $permintaan->suratJalan_path) }}" target="_blank"
+                class="...">Unduh Surat Jalan</a>
+            @else
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="confirmDownload('suratJalan')" class="...">Unduh Surat Jalan</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="showUploadModal('suratJalan')" class="... text-blue-500">Unggah Surat Jalan</a>
+            @endif
 
             @endif
-            @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 4)
+            @if ($permintaan->status == 3)
 
-            <a onclick="confirmDownload('BAST')"
-                class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
-                BAST</a>
+            @if ($permintaan->bast_path)
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                href="{{ asset('storage/bast/' . $permintaan->bast_path) }}" target="_blank" class="...">Unduh BAST</a>
+            @else
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="confirmDownload('bast')" class="...">Unduh BAST</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="showUploadModal('bast')" class="... text-blue-500">Unggah BAST</a>
             @endif
-            <a href="/permintaan/material"
+            @endif
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                href="/permintaan/material"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
 
         </div>
@@ -140,7 +167,7 @@
             </x-card>
         </div>
         <div
-            class="grid grid-cols-2 gap-6 {{ $permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2 ?'':'hidden' }}">
+            class="grid grid-cols-{{ $permintaan->suratJalan_path && $permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 3  ? '1' : '2' }} gap-6 {{ $permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2 ?'':'hidden' }}">
             <x-card title="Foto Pengiriman" class="mb-3">
                 @php
                 $lampiranCount = $permintaan->lampiran->count();
@@ -235,7 +262,7 @@
         @endif
     </div>
     </x-card>
-    <x-card title="Tanda Tangan Driver & Keamanan" class="mb-3">
+    <x-card title="Tanda Tangan Driver & Keamanan" class="mb-3 {{ $permintaan->suratJalan_path ?'hidden':'' }}">
         <div class="mb-6">
             <h4 class="font-semibold text-sm mb-2">Tanda Tangan Driver</h4>
             @php
@@ -346,6 +373,28 @@
         @this.call('signatureSaved', signatureData,type);
     }
 
+    function showUploadModal(type) {
+    Swal.fire({
+        title: 'Unggah ' + type.toUpperCase(),
+        html: '<input type="file" id="uploadFile" multiple accept=".pdf,.jpg,.jpeg,.png" class="swal2-file">',
+        confirmButtonText: 'Upload',
+        preConfirm: () => {
+            const files = document.getElementById('uploadFile').files;
+            if (files.length === 0) {
+                Swal.showValidationMessage('Minimal 1 file harus dipilih');
+            } else if (files.length > 2) {
+                Swal.showValidationMessage('Maksimal 2 file diperbolehkan');
+            }
+            return files;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            @this.call('uploadDokumen', type, Array.from(result.value));
+        }
+    });
+}
+
+
     function resetCanvas(type) {
         if (type == 'driver') {
             
@@ -354,6 +403,56 @@
             signaturePadSecurity.clear();
             
         }
+    }
+
+    function showUploadModal(type) {
+        console.log(type);
+
+        let title = '';
+
+        switch (type) {
+            case 'spb':
+                title = 'SPB'
+                break;
+            case 'sppb':
+                title = 'SPPB'
+                break;
+            case 'suratJalan':
+                title = 'Surat Jalan'
+                break;
+            case 'bast':
+                title = 'BAST'
+                break;
+        
+            default:
+                break;
+        }
+        
+        Swal.fire({
+            title: 'Unggah ' + title,
+            html: '<input type="file" id="uploadFile" multiple accept=".pdf,.jpg,.jpeg,.png" class="swal2-file">',
+            confirmButtonText: 'Upload',
+            preConfirm: () => {
+                const files = document.getElementById('uploadFile').files;
+                if (files.length === 0) {
+                    Swal.showValidationMessage('Minimal 1 file harus dipilih');
+                } else if (files.length > 2) {
+                    Swal.showValidationMessage('Maksimal 2 file diperbolehkan');
+                }
+                return files;
+                }
+        }).then((result) => {
+            if (result.isConfirmed && result.value) {
+                const file = result.value[0];
+                
+                // Bikin file jadi blob agar bisa dikirim ke Livewire
+                const reader = new FileReader();
+                reader.onload = () => {
+                    @this.call('uploadDokumen', type, reader.result, file.name);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     }
 </script>
 @endpush

@@ -127,6 +127,16 @@
                         Lihat Detail Permintaan
                         <div class="tooltip-arrow" data-popper-arrow></div>
                     </div>
+                    <button wire:click="openApprovalTimeline({{ $permintaan['id'] }}, '{{ $permintaan['tipe'] }}')"
+                        class="ml-2 text-green-600 hover:text-white hover:bg-green-600 px-3 py-2 rounded border border-green-600"
+                        data-tooltip-target="tooltip-timeline-{{ $permintaan['id'] }}">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </button>
+                    <div id="tooltip-timeline-{{ $permintaan['id'] }}" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                        Lihat Riwayat Approval
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
                 </td>
             </tr>
             @empty
@@ -139,6 +149,8 @@
         </tbody>
 
     </table>
+
+
     {{-- {{ $permintaans->onEachSide(1)->links() }} --}}
     @push('scripts')
     <script type="module">
@@ -147,4 +159,46 @@
             });
     </script>
     @endpush
+
+    @if ($showTimelineModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Timeline Persetujuan</h2>
+
+            <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                @forelse ($approvalTimeline as $item)
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
+                        @if ($item['img'])
+                        <img src="{{ asset('storage/' . $item['img']) }}" class="w-full h-full object-cover">
+                        @else
+                        <div
+                            class="w-full h-full flex items-center justify-center bg-gray-400 text-white text-sm font-bold">
+                            {{ strtoupper(substr($item['user'], 0, 1)) }}
+                        </div>
+                        @endif
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold">{{ $item['user'] }} ({{ $item['role'] }})</p>
+                        <p class="text-xs text-gray-500">{{ $item['tanggal'] }}</p>
+                        <span
+                            class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-{{ $item['status'] === 'Disetujui' ? 'green' : 'yellow' }}-100 text-{{ $item['status'] === 'Disetujui' ? 'green' : 'yellow' }}-800">
+                            {{ $item['status'] }}
+                        </span>
+                    </div>
+                </div>
+                @empty
+                <p class="text-gray-500 text-sm">Belum ada riwayat persetujuan.</p>
+                @endforelse
+            </div>
+
+            <div class="flex justify-end mt-6">
+                <button wire:click="$set('showTimelineModal', false)"
+                    class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-500">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>

@@ -73,7 +73,7 @@ class ShowPermintaanMaterial extends Component
             echo $pdf->Output('', 'S');
         }, 'Surat-Jalan.pdf');
     }
-    public function BAST($sign)
+    public function bast($sign)
     {
         $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
         $pdf->SetMargins(20, 5, 20);
@@ -147,6 +147,7 @@ class ShowPermintaanMaterial extends Component
                 'ttd_security' => $imageName,  // pastikan kolom signature tersedia
             ]);
         }
+        $this->statusRefresh();
     }
 
     public function resetSignature($type)
@@ -383,10 +384,41 @@ class ShowPermintaanMaterial extends Component
                 return $this->sppb($withSign);
             case 'suratJalan':
                 return $this->suratJalan($withSign);
-            case 'BAST':
-                return $this->BAST($withSign);
+            case 'bast':
+                return $this->bast($withSign);
         }
     }
+
+    public function uploadDokumen($type, $fileDataUrl, $originalName)
+    {
+        // Ambil extension
+        $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+        // Validasi ekstensi
+        if (!in_array($extension, ['pdf', 'jpg', 'jpeg', 'png'])) {
+            session()->flash('error', 'Format file tidak diperbolehkan.');
+            return;
+        }
+
+        // Decode base64 data
+        $fileData = explode(',', $fileDataUrl);
+        if (count($fileData) < 2) {
+            session()->flash('error', 'File tidak valid.');
+            return;
+        }
+
+        $filename = $type . '_' . time() . '.' . $extension;
+        $filePath = "{$type}/{$filename}";
+        Storage::disk('public')->put($filePath, base64_decode($fileData[1]));
+        $this->permintaan->update([
+            "{$type}_path" => $filename
+        ]);
+        $this->statusRefresh();
+
+        session()->flash('success', strtoupper($type) . ' berhasil diunggah.');
+    }
+
+
     public function render()
     {
         return view('livewire.show-permintaan-material');

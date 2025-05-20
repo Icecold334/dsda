@@ -131,8 +131,8 @@ class ApprovalMaterial extends Component
                             ->where('approvable_type', DetailPermintaanMaterial::class)
                             ->exists() &&
                         $previousApprovalStatus === 1 &&
-                        $permintaan->ttd_driver &&
-                        $permintaan->ttd_security &&
+                        // $permintaan->ttd_driver &&
+                        // $permintaan->ttd_security &&
                         $permintaan->lampiran->count() > 0 &&
                         $this->permintaan->permintaanMaterial()->where('alocated', '!=', 1)->count() === 0;
                 } else {

@@ -127,9 +127,9 @@
                     <div class="flex">
                         <input
                             class="bg-gray-50 border {{ empty($specifications['merek']) && empty($specifications['tipe']) && empty($specifications['ukuran']) ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
-                            type="number" wire:model.live="jumlah" placeholder="Jumlah" @if
-                            (empty($specifications['merek']) && empty($specifications['tipe']) &&
-                            empty($specifications['ukuran'])) disabled @endif>
+                            type="number" wire:model.live="jumlah" placeholder="Jumlah" @if (
+                            empty($specifications['merek']) && empty($specifications['tipe']) &&
+                            empty($specifications['ukuran']) ) disabled @endif>
                         <div
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
                             {{ !$barang_id ? 'Satuan' : App\Models\BarangStok::find($barang_id)->satuanBesar->nama }}
