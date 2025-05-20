@@ -47,7 +47,7 @@ class ShowStokMaterial extends Component
                 $jumlah = (int) $trx->jumlah;
             } elseif ($trx->tipe === 'Pemasukan') {
                 $jumlah = (int) $trx->jumlah;
-            } elseif ($trx->tipe === 'Pengeluaran') {
+            } elseif ($trx->tipe === 'Pengeluaran' || $trx->tipe === 'Pengajuan') {
                 $jumlah = -(int) $trx->jumlah;
             }
 
@@ -89,7 +89,7 @@ class ShowStokMaterial extends Component
                     ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $this->lokasi_id));
             })
             ->whereHas('merkStok', fn($q) => $q->where('barang_id', $barangId))
-            ->orderBy('tanggal')
+            ->orderByDesc('tanggal')
             ->get()
             ->map(function ($trx) {
                 return [

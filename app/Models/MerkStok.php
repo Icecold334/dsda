@@ -33,6 +33,10 @@ class MerkStok extends Model
     {
         return $this->hasMany(PengirimanStok::class, 'merk_id');
     }
+    public function permintaanMaterial()
+    {
+        return $this->hasMany(PermintaanMaterial::class, 'merk_id');
+    }
     public function transaksiStok()
     {
         return $this->hasMany(TransaksiStok::class, 'merk_id');

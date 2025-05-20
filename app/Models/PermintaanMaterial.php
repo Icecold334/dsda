@@ -13,6 +13,14 @@ class PermintaanMaterial extends Model
     {
         return $this->belongsTo(DetailPermintaanMaterial::class, 'detail_permintaan_id');
     }
+    public function transaksi()
+    {
+        return $this->hasMany(TransaksiStok::class, 'permintaan_id');
+    }
+    public function stokDisetujui()
+    {
+        return $this->hasMany(StokDisetujui::class, 'permintaan_id');
+    }
     public function rab()
     {
         return $this->belongsTo(Rab::class, 'rab_id');

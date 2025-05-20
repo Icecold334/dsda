@@ -178,7 +178,8 @@ return new class extends Migration
             $table->integer('harga')->nullable();
             $table->integer('ppn')->nullable();
             $table->string('img')->nullable();
-            $table->enum('tipe', ['Pengeluaran', 'Pemasukan', 'Penyesuaian']);
+            $table->enum('tipe', ['Pemasukan', 'Pengeluaran', 'Penyesuaian', 'Pengajuan']);
+            $table->foreignId('permintaan_id')->nullable()->constrained('permintaan_material')->onDelete('cascade'); // Relasi ke permintaan_barang
             $table->foreignId('merk_id')->nullable()->constrained('merk_stok');
             $table->foreignId('vendor_id')->nullable()->constrained('toko');
             $table->foreignId('pj_id')->nullable()->constrained('users');
@@ -208,7 +209,7 @@ return new class extends Migration
 
         Schema::create('stok_disetujui', function (Blueprint $table) {
             $table->id(); // Primary Key
-            $table->foreignId('permintaan_id')->constrained('permintaan_stok')->onDelete('cascade'); // Relasi ke permintaan_barang
+            $table->foreignId('permintaan_id')->constrained('permintaan_material')->onDelete('cascade'); // Relasi ke permintaan_barang
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('cascade'); // Relasi ke lokasi
             $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade'); // Relasi ke bagian

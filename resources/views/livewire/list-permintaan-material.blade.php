@@ -14,7 +14,7 @@
                     class="py-3 px-6 bg-primary-950 text-center font-semibold  {{ $isSeribu && $withRab ?'':'hidden' }}">
                     Keterangan</th>
                 @if ($isShow)
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Foto barang diterima</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[10%] ">Foto barang diterima</th>
                 @endif
                 <th class="py-3 px-6 bg-primary-950 w-1/12 text-center font-semibold rounded-r-lg "></th>
             </tr>
@@ -143,6 +143,33 @@
                         <i class="fa-solid fa-circle-check"></i>
                     </button>
                     @endif
+                    @if ($isShow)
+                    @if ($permintaan->persetujuan()->where('is_approved', 1)->get()->unique('user_id')->count() >= 2)
+                    @php
+                    $isTersebar = $this->isMerkTersebar($item['merk']->id);
+                    $isAlocated = $item['merk']->permintaanMaterial()
+                    ->where('detail_permintaan_id', $permintaan->id)
+                    ->where('alocated', 1)
+                    ->exists();
+                    @endphp
+                    @if (auth()->user()->can('permintaan_persetujuan_jumlah_barang'))
+                    @if ( $isAlocated )
+                    {{-- Detail Alokasi (readonly) --}}
+                    <button wire:click="openReadonlyAlokasiModal({{ $item['merk']->id }},{{ $index }})"
+                        class="text-green-800 border-green-600 text-sm border bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                        <i class="fa-solid fa-circle-info"></i> Lihat Alokasi </button>
+                    @elseif ($isTersebar && auth()->user()->can('permintaan_persetujuan_jumlah_barang'))
+                    <button wire:click="openDistribusiModal({{ $index }})"
+                        class="text-blue-900 border-blue-600 text-sm border bg-blue-100 hover:bg-blue-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                        <i class="fa-solid fa-boxes-stacked"></i> Alokasi
+                    </button>
+                    @else
+                    <span class="text-xs text-gray-500 italic">Tidak Tersebar</span>
+                    @endif
+                    @endif
+
+                    @endif
+                    @endif
                 </td>
             </tr>
             @endforeach
@@ -248,4 +275,102 @@
         {{-- @endrole --}}
 
     </div>
+    @if (!is_null($distribusiModalIndex))
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl relative">
+            <button wire:click="$set('distribusiModalIndex', null)"
+                class="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl font-bold">&times;</button>
+            <h2 class="text-lg font-bold mb-4">Alokasikan Stok</h2>
+            <p class="mb-2 text-sm text-gray-700">Sisa yang harus dialokasikan: <strong>{{ $alokasiSisa }}</strong></p>
+            <table class="w-full border text-sm mb-4">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="px-4 py-2">Lokasi</th>
+                                <th class="px-4 py-2">Bagian</th>
+                                <th class="px-4 py-2">Posisi</th>
+                                <th class="px-4 py-2 text-center">Stok Tersedia</th>
+                                <th class="px-4 py-2 text-center">Jumlah</th>
+                            </tr>
+                        </thead>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($stokDistribusiList as $lokasiKey => $jumlahTersedia)
+                    @php
+                    [$type, $id] = explode(':', $lokasiKey);
+                    $lokasi = '-';
+                    $bagian = '-';
+                    $posisi = '-';
+
+                    if ($type === 'lokasi') {
+                    $lokasiModel = \App\Models\LokasiStok::find($id);
+                    $lokasi = $lokasiModel->nama ?? '-';
+                    } elseif ($type === 'bagian') {
+                    $bagianModel = \App\Models\BagianStok::find($id);
+                    $lokasi = $bagianModel->lokasiStok->nama ?? '-';
+                    $bagian = $bagianModel->nama ?? '-';
+                    } elseif ($type === 'posisi') {
+                    $posisiModel = \App\Models\PosisiStok::find($id);
+                    $lokasi = $posisiModel->bagianStok->lokasiStok->nama ?? '-';
+                    $bagian = $posisiModel->bagianStok->nama ?? '-';
+                    $posisi = $posisiModel->nama ?? '-';
+                    }
+                    @endphp
+
+                    <tr>
+                        <td class="px-4 py-2">{{ $lokasi }}</td>
+                        <td class="px-4 py-2">{{ $bagian }}</td>
+                        <td class="px-4 py-2">{{ $posisi }}</td>
+                        <td class="px-4 py-2 text-center">{{ $jumlahTersedia }}</td>
+                        <td class="px-4 py-2 text-center">
+                            <input type="number" min="0" max="{{ $jumlahTersedia }}"
+                                wire:model.live="alokasiInput.{{ $lokasiKey }}"
+                                class="w-20 border rounded px-2 py-1 text-center" />
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <div class="flex justify-end">
+                <button wire:click="submitDistribusi"
+                    class=" {{ $alokasiSisa !=0 ?'bg-primary-400 cursor-not-allowed':'bg-primary-600 hover:bg-primary-700' }} transition duration-100 text-white font-semibold px-4 py-2 rounded "
+                    @disabled($alokasiSisa !=0)>
+                    Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+    @if ($readonlyAlokasiMerkId)
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-xl relative">
+            <button wire:click="$set('readonlyAlokasiMerkId', null)"
+                class="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl font-bold">&times;</button>
+            <h2 class="text-lg font-bold mb-4">Detail Alokasi Stok</h2>
+            <table class="w-full text-sm border rounded">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2">Lokasi</th>
+                        <th class="px-4 py-2">Bagian</th>
+                        <th class="px-4 py-2">Posisi</th>
+                        <th class="px-4 py-2 text-center">Jumlah</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($this->getAlokasiByMerk($readonlyAlokasiMerkId,$readonlyAlokasiIndex) as $alok)
+                    <tr>
+                        <td class="px-4 py-2">{{ $alok->lokasiStok->nama ?? '-' }}</td>
+                        <td class="px-4 py-2">{{ $alok->bagianStok->nama ?? '-' }}</td>
+                        <td class="px-4 py-2">{{ $alok->posisiStok->nama ?? '-' }}</td>
+                        <td class="px-4 py-2 text-center">{{ $alok->jumlah_disetujui }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
 </div>
