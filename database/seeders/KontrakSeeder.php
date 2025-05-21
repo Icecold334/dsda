@@ -41,7 +41,7 @@ class KontrakSeeder extends Seeder
         $users = User::all();
         $kontraks = [];
         // Seed for KontrakVendorStok
-        for ($i = 1; $i <= 1000; $i++) {
+        for ($i = 1; $i <= 500; $i++) {
             $kontraks[] = [
                 'nomor_kontrak' => fake()->unique()->bothify('KV#####'),
                 'metode_id' => $metodes->random()->id,

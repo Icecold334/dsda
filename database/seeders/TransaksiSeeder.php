@@ -17,7 +17,7 @@ class TransaksiSeeder extends Seeder
         $trans = [];
         $existingCombos = [];
 
-        for ($i = 0; $i < 8000; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
             $kontrak = KontrakVendorStok::inRandomOrder()->first();
             $lokasi = LokasiStok::inRandomOrder()->first();
             if (!$kontrak || !$lokasi) continue;
