@@ -41,7 +41,7 @@ class KontrakSeeder extends Seeder
         $users = User::all();
         $kontraks = [];
         // Seed for KontrakVendorStok
-        for ($i = 1; $i <= 500; $i++) {
+        for ($i = 1; $i <= 1000; $i++) {
             $kontraks[] = [
                 'nomor_kontrak' => fake()->unique()->bothify('KV#####'),
                 'metode_id' => $metodes->random()->id,
@@ -55,7 +55,9 @@ class KontrakSeeder extends Seeder
                 'updated_at' => now()
             ];
         }
-        KontrakVendorStok::insert($kontraks);
+        foreach (array_chunk($kontraks, 50) as $chunk) {
+            KontrakVendorStok::insert($chunk);
+        }
 
         $kontraks = KontrakVendorStok::all();
 
@@ -93,7 +95,7 @@ class KontrakSeeder extends Seeder
             }
         }
 
-        $chunks = array_chunk($list, 1000);
+        $chunks = array_chunk($list, 50);
         foreach ($chunks as $chunk) {
             ListKontrakStok::insert($chunk);
         }

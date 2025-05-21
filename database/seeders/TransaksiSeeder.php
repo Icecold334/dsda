@@ -17,7 +17,7 @@ class TransaksiSeeder extends Seeder
         $trans = [];
         $existingCombos = [];
 
-        for ($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 8000; $i++) {
             $kontrak = KontrakVendorStok::inRandomOrder()->first();
             $lokasi = LokasiStok::inRandomOrder()->first();
             if (!$kontrak || !$lokasi) continue;
@@ -75,7 +75,7 @@ class TransaksiSeeder extends Seeder
         }
 
         if (!empty($trans)) {
-            foreach (array_chunk($trans, 500) as $chunk) {
+            foreach (array_chunk($trans, 50) as $chunk) {
                 TransaksiStok::insert($chunk);
             }
         }
