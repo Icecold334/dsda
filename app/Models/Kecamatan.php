@@ -9,4 +9,9 @@ class Kecamatan extends Model
 {
     /** @use HasFactory<\Database\Factories\KecamatanFactory> */
     use HasFactory;
+
+    public function kelurahans()
+    {
+        return $this->hasMany(Kelurahan::class);
+    }
 }

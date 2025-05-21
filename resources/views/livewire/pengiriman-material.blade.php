@@ -21,7 +21,6 @@
         </div> --}}
     </div>
     <x-card title="Detail item barang">
-        <livewire:list-pengiriman-form>
-            <livewire:list-pengiriman-material />
+        <livewire:list-pengiriman-material />
     </x-card>
 </div>

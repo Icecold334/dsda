@@ -21,7 +21,7 @@ class ListPermintaanMaterial extends Component
     use WithFileUploads;
     public $readonlyAlokasiMerkId = null;
     public $readonlyAlokasiIndex = null;
-    public $permintaan, $tanggalPenggunaan, $keterangan, $isShow, $gudang_id, $withRab = 0, $lokasiMaterial, $nodin, $namaKegiatan, $isSeribu;
+    public $permintaan, $tanggalPenggunaan, $keterangan, $isShow, $gudang_id, $withRab = 0, $kelurahanId, $lokasiMaterial, $nodin, $namaKegiatan, $isSeribu;
     public $distribusiModalIndex = null;
     public $alokasiInput = []; // key: posisi_id, value: jumlah
     public $alokasiSisa = 0;
@@ -126,6 +126,14 @@ class ListPermintaanMaterial extends Component
     public function fillKeterangan($keterangan)
     {
         $this->keterangan = $keterangan;
+        // Cek jika ada nilai yang null atau kosong
+
+        $this->checkShow();
+    }
+    #[On('kelurahanId')]
+    public function fillKelurahanID($id)
+    {
+        $this->kelurahanId = $id;
         // Cek jika ada nilai yang null atau kosong
 
         $this->checkShow();
@@ -353,6 +361,7 @@ class ListPermintaanMaterial extends Component
             'nodin' => $this->nodin,
             'gudang_id' => $this->gudang_id,
             'nama' => $this->namaKegiatan,
+            'kelurahan_id' => $this->kelurahanId,
             'lokasi' => $this->lokasiMaterial,
             'keterangan' => $this->keterangan,
             'rab_id' => $this->rab_id ?? null,

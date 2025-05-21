@@ -25,6 +25,11 @@ class DetailPermintaanMaterial extends Model
     {
         return $this->hasMany(PermintaanMaterial::class, 'detail_permintaan_id');
     }
+
+    public function kelurahan()
+    {
+        return $this->belongsTo(Kelurahan::class);
+    }
     public function lampiran()
     {
         return $this->hasMany(FotoPermintaanMaterial::class, 'detail_permintaan_id');

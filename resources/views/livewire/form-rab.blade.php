@@ -158,12 +158,29 @@
                             <label for="lokasi" class="block mb-2">Lokasi *</label>
                         </td>
                         <td>
-                            <textarea id="lokasi" wire:model.live="lokasi" @disabled($listCount)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 {{ $listCount ? 'cursor-not-allowed opacity-50' : '' }}"
-                                rows="3"></textarea>
-                            @error('lokasi')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                            <div class="flex flex-col gap-2">
+                                <select wire:model.live="kecamatan_id" @disabled($listCount)
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="">-- Pilih Kecamatan --</option>
+                                    @foreach($kecamatans as $item)
+                                    <option value="{{ $item->id }}">{{ $item->kecamatan }}</option>
+                                    @endforeach
+                                </select>
+
+                                <select wire:model.live="kelurahan_id" @disabled(!$kecamatan_id || $listCount)
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="">-- Pilih Kelurahan --</option>
+                                    @foreach($kelurahans as $item)
+                                    <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                                    @endforeach
+                                </select>
+
+                                <textarea id="lokasi" wire:model.live="lokasi" @disabled($listCount)
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    rows="2"
+                                    placeholder="Detail lokasi tambahan (misal: Jl. ABC No. 123, samping lapangan)">
+                                                    </textarea>
+                            </div>
                         </td>
                     </tr>
                 </table>

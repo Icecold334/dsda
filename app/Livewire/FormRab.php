@@ -2,14 +2,19 @@
 
 namespace App\Livewire;
 
-use App\Models\Kegiatan;
 use App\Models\Program;
-use Livewire\Attributes\On;
 use Livewire\Component;
+use App\Models\Kegiatan;
+use App\Models\Kecamatan;
+use App\Models\Kelurahan;
+use Livewire\Attributes\On;
 
 class FormRab extends Component
 {
     public $listCount;
+
+    public $kecamatan_id, $kelurahan_id;
+    public $kecamatans = [], $kelurahans = [];
 
     // Semua field yang dipakai di form
     public $program, $programs = [];
@@ -24,12 +29,17 @@ class FormRab extends Component
     public function mount()
     {
         $this->programs = Program::where('bidang_id', $this->unit_id)->get();
+        $this->kecamatans = Kecamatan::where('unit_id', $this->unit_id)->get();
         // $this->namas = $this->programs->children;
         // $this->sub_kegiatans = $this->namas->children;
         // $this->rincian_sub_kegiatans = $this->sub_kegiatans->children;
         // $this->kode_rekenings = $this->rincian_sub_kegiatans->children;
     }
-
+    public function updatedKecamatanId()
+    {
+        $this->kelurahans = Kelurahan::where('kecamatan_id', $this->kecamatan_id)->get();
+        $this->kelurahan_id = null;
+    }
     #[On('listCount')]
     public function fillCount($count)
     {
@@ -76,6 +86,7 @@ class FormRab extends Component
             'sub_kegiatan' => $this->sub_kegiatan,
             'aktivitas_sub_kegiatan' => $this->aktivitas_sub_kegiatan,
             'kode_rekening' => $this->kode_rekening,
+            'kelurahan_id' => $this->kelurahan_id,
             'jenis' => $this->jenis,
             'mulai' => $this->mulai,
             'selesai' => $this->selesai,

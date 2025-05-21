@@ -9,11 +9,13 @@ use App\Models\Ruang;
 use BaconQrCode\Writer;
 use Livewire\Component;
 use App\Models\Kategori;
+use App\Models\Kecamatan;
+use App\Models\Kelurahan;
 use App\Models\UnitKerja;
+use App\Models\LokasiStok;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Models\KategoriStok;
-use App\Models\LokasiStok;
 use Illuminate\Support\Facades\Auth;
 use BaconQrCode\Renderer\GDLibRenderer;
 use Illuminate\Support\Facades\Request;
@@ -44,6 +46,8 @@ class FormPermintaan extends Component
     public $LokasiLain;
     public $AlamatLokasi;
     public $KontakPerson;
+    public $kecamatan_id, $kelurahan_id;
+    public $kecamatans = [], $kelurahans = [];
 
     #[On('listCount')]
     public function updateListCount($count)
@@ -298,6 +302,20 @@ class FormPermintaan extends Component
             $unit->where('parent_id', $this->unit_id)
                 ->orWhere('id', $this->unit_id);
         })->orderBy('created_at', 'desc')->get();
+
+        $this->kecamatans = Kecamatan::where('unit_id', $this->unit_id)->get();
+    }
+
+    public function updatedKecamatanId()
+    {
+        $this->kelurahans = Kelurahan::where('kecamatan_id', $this->kecamatan_id)->get();
+        $this->kelurahan_id = null;
+    }
+
+    public function updatedKelurahanId()
+    {
+        $kelurahanId = $this->kelurahan_id;
+        $this->dispatch('kelurahanId', id: $kelurahanId);
     }
 
 

@@ -69,6 +69,11 @@ class Rab extends Model
         return $this->belongsTo(AktivitasSubKegiatan::class, 'aktivitas_sub_kegiatan_id');
     }
 
+    public function kelurahan()
+    {
+        return $this->belongsTo(Kelurahan::class);
+    }
+
     // Relasi ke Uraian Rekening
     public function uraianRekening()
     {

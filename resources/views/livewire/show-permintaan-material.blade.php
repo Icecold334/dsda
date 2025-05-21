@@ -126,7 +126,16 @@
                     {{-- @if (!$permintaan->rab_id) --}}
                     <tr class="font-semibold ">
                         <td>Lokasi Kegiatan</td>
-                        <td>{{ !$permintaan->rab_id ? $permintaan->lokasi : $permintaan->rab->lokasi }}</td>
+                        <td>
+                            @if (!$permintaan->rab_id)
+                            @if ($permintaan->kelurahan)
+                            Kelurahan {{ $permintaan->kelurahan->nama }},
+                            Kecamatan {{ $permintaan->kelurahan->kecamatan->kecamatan }} –
+                            @endif
+                            {{ $permintaan->lokasi }}
+                            @else
+                            {{ $permintaan->rab->lokasi }}
+                            @endif
                     </tr>
                     {{-- @endif --}}
                 </table>

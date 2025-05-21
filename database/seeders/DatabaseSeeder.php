@@ -52,6 +52,7 @@ class DatabaseSeeder extends Seeder
             UnitSeeder::class,
             PermissionSeeder::class,
             KasatpelSeeder::class,
+            KelurahanSeeder::class,
             KategoriAsetSeeder::class,
             LokasiAsetSeeder::class,
             MerkAsetSeeder::class,
@@ -66,6 +67,7 @@ class DatabaseSeeder extends Seeder
             DetailPermintaanMaterialSeeder::class,
             KontrakSeeder::class,
             TransaksiSeeder::class,
+
         ]);
 
 

@@ -299,10 +299,26 @@
                     <tr class="{{ !$withRab ? '' : 'hidden' }}">
                         <td class="font-semibold"><label for="lokasi">Lokasi Kegiatan</label></td>
                         <td>
-                            <div class="flex mb-3">
-                                <textarea id="lokasi" wire:model.live="lokasiMaterial" @disabled($listCount> 0)
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                    placeholder="Masukkan Lokasi" rows="4"></textarea>
+                            <div class="flex flex-col gap-2 mb-3">
+                                <select wire:model.live="kecamatan_id"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="">Pilih Kecamatan</option>
+                                    @foreach ($kecamatans as $kec)
+                                    <option value="{{ $kec->id }}">{{ $kec->kecamatan }}</option>
+                                    @endforeach
+                                </select>
+
+                                <select wire:model.live="kelurahan_id" @disabled(!$kecamatan_id)
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="">Pilih Kelurahan</option>
+                                    @foreach ($kelurahans as $kel)
+                                    <option value="{{ $kel->id }}">{{ $kel->nama }}</option>
+                                    @endforeach
+                                </select>
+
+                                <textarea wire:model.live="lokasiMaterial" rows="2"
+                                    placeholder="Detail lokasi tambahan (misal: Jl. ABC No. 123, dekat Lapangan)"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
                             </div>
                         </td>
                     </tr>

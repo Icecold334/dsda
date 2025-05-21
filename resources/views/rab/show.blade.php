@@ -84,7 +84,13 @@
           <!-- Lokasi -->
           <tr class="font-semibold">
             <td>Lokasi</td>
-            <td>{{ $rab->lokasi }}</td>
+            <td>
+              @if ($rab->kelurahan)
+              Kelurahan {{ $rab->kelurahan->nama }},
+              Kecamatan {{ $rab->kelurahan->kecamatan->kecamatan }} –
+              @endif
+              {{ $rab->lokasi }}
+            </td>
           </tr>
         </table>
       </x-card>
