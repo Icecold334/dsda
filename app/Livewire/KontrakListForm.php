@@ -15,6 +15,7 @@ use Livewire\Attributes\On;
 use App\Models\KategoriStok;
 use App\Models\TransaksiStok;
 use App\Models\KontrakVendorStok;
+use App\Models\ListKontrakStok;
 use Illuminate\Support\Facades\Auth;
 
 class KontrakListForm extends Component
@@ -356,17 +357,27 @@ class KontrakListForm extends Component
                 ],
                 [] // Tidak ada kolom tambahan untuk diperbarui
             );
-            TransaksiStok::create([
+
+            ListKontrakStok::create([
+                'kontrak_id' => $kontrak->id,
                 'merk_id' => $merk->id,
-                'vendor_id' => $this->vendor_id,
-                'user_id' => Auth::user()->id,
                 'jumlah' => $item['jumlah'],
                 'harga' => (int)str_replace('.', '', $item['harga']),
                 'ppn' => $item['ppn'],
-                'kontrak_id' => $kontrak->id,
-                'tanggal' => strtotime(now()),
-                'tipe' => 'Pemasukan',
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
+            // TransaksiStok::create([
+            //     'merk_id' => $merk->id,
+            //     'vendor_id' => $this->vendor_id,
+            //     'user_id' => Auth::user()->id,
+            //     'jumlah' => $item['jumlah'],
+            //     'harga' => (int)str_replace('.', '', $item['harga']),
+            //     'ppn' => $item['ppn'],
+            //     'kontrak_id' => $kontrak->id,
+            //     'tanggal' => strtotime(now()),
+            //     'tipe' => 'Pemasukan',
+            // ]);
         }
         return $this->dispatch('saveDokumen', kontrak_id: $kontrak->id);
     }
