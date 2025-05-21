@@ -51,10 +51,10 @@ class UploadSuratJalanMaterial extends Component
     public function saveDoc($id)
     {
         $pengiriman = DetailPengirimanStok::find($id);
-        $this->validate([
-            'surat_jalan' => 'required|image|max:2048',
-            'foto_barang.*' => 'image|max:2048',
-        ]);
+        // $this->validate([
+        //     'surat_jalan' => 'required|image|max:2048',
+        //     'foto_barang.*' => 'image|max:2048',
+        // ]);
 
         // Simpan Surat Jalan dengan nama asli
         $originalName = $this->surat_jalan->getClientOriginalName();
@@ -72,7 +72,6 @@ class UploadSuratJalanMaterial extends Component
         $pengiriman->update(['surat_jalan' => $this->storedSuratJalan]);
 
         $pengiriman->fotoPengirimanMaterial()->insert($data);
-
 
         $this->uploaded = true;
         return redirect()->route('pengiriman-stok.index');

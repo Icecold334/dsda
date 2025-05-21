@@ -221,22 +221,24 @@ class ApprovalPengirimanMaterial extends Component
         // }
         if ($this->currentApprovalIndex + 1 == 3 && $status) {
             $this->pengiriman->update(['status' => 1]);
-            $pengirimanItems = $this->pengiriman->pengirimanStok;
-            foreach ($pengirimanItems as $pengiriman) {
-                $stok = Stok::firstOrCreate(
-                    [
-                        'merk_id' => $pengiriman->merk_id,
-                        'lokasi_id' => $pengiriman->lokasi_id,
-                        'bagian_id' => $pengiriman->bagian_id,
-                        'posisi_id' => $pengiriman->posisi_id,
-                    ],
-                    ['jumlah' => 0]  // Atur stok awal jika belum ada
-                );
 
-                $stok->jumlah += $pengiriman->jumlah;
-                $stok->save();
+            $pengirimanItems = $this->pengiriman->pengirimanStok;
+
+            foreach ($pengirimanItems as $item) {
+                \App\Models\TransaksiStok::create([
+                    'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
+                    'tipe' => 'Pemasukan',
+                    'merk_id' => $item->merk_id,
+                    'jumlah' => $item->jumlah,
+                    'lokasi_id' => $item->lokasi_id,
+                    'bagian_id' => $item->bagian_id,
+                    'posisi_id' => $item->posisi_id,
+                    'user_id' => Auth::id(),
+                    'tanggal' => now(),
+                ]);
             }
         }
+
 
 
 

@@ -50,7 +50,7 @@ class DataKontrakVendorStok extends Component
                 });
             })
             ->when($this->jenis, function ($query) {
-                $query->whereHas('transaksiStok.merkStok.barangStok.jenisStok', function ($jenisQuery) {
+                $query->whereHas('listKontrak.merkStok.barangStok.jenisStok', function ($jenisQuery) {
                     $jenisQuery->where('nama', $this->jenis);
                 });
             })

@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Carbon\Carbon;
+use App\Models\User;
 use Livewire\Component;
 use App\Models\UnitKerja;
 use App\Models\Persetujuan;
@@ -30,7 +31,7 @@ class DataPermintaanMaterial extends Component
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
 
-    public $approvalTimeline = [];
+    public $approvalTimeline = [], $roleList, $selectedId;
     public $showTimelineModal = false;
     public $tipe;
     // public $permintaans;
@@ -383,28 +384,100 @@ class DataPermintaanMaterial extends Component
 
     public function openApprovalTimeline($id, $tipe)
     {
+        $this->selectedId = $id;
         $model =  \App\Models\DetailPermintaanMaterial::class;
+        $permintaan = DetailPermintaanMaterial::find($id);
+        $roles = ['Kepala Seksi', 'Kepala Subbagian', 'Pengurus Barang'];
+
+
+        $date = Carbon::parse($permintaan->created_at);
+
+        foreach ($roles as $role) {
+            // dd($this->permintaan->user->unit_id);
+            $users = User::whereHas('roles', function ($query) use ($role) {
+                $query->where('name', 'LIKE', '%' . $role . '%');
+            })
+                ->where(function ($query) {
+                    $query->whereHas('unitKerja', function ($subQuery) {
+                        $subQuery->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                    });
+                })
+                ->where(function ($query) use ($role) {
+                    $query->whereHas('unitKerja', function ($subQuery) use ($role) {
+                        $subQuery->when($role === 'Kepala Seksi', function ($query) {
+                            return $query->where('nama', 'like', '%Pemeliharaan%');
+                        })->when($role === 'Kepala Subbagian', function ($query) {
+                            return $query->where('nama', 'like', '%Tata Usaha%');
+                        });
+                    });
+                })->when($role === 'Penjaga Gudang', function ($query) {
+                    return $query->where('lokasi_id', $this->permintaan->gudang_id);
+                })
+                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+                ->limit(1)
+                ->get();
+
+
+            $propertyKey = Str::slug($role); // Generate dynamic key for roles
+            $this->roleList[$propertyKey] = $users;
+        }
 
         $this->approvalTimeline = Persetujuan::where('approvable_id', $id)
             ->where('approvable_type', $model)
             ->with('user')
-            ->orderBy('created_at')
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($item) {
                 $role = '';
+                $desc = '';
                 switch ($item->user->roles->first()->name) {
                     case 'Kepala Seksi':
                         $role = 'Kepala Seksi Pemeliharaan';
+                        $desc = '';
+                        break;
+                    case 'Kepala Subbagian':
+                        $role = 'Kepala Subbagian Tata Usaha';
+                        $desc = 'SPPB & QR-Code';
+                        break;
+                    case 'Pengurus Barang':
+                        $role = 'Pengurus Barang';
+                        $desc = 'Barang dalam pengiriman';
                         break;
 
                     default:
                         $role = 'Admin';
                         break;
                 }
+                $isApproved = $item->is_approved;
+
+                $status = match (true) {
+                    is_null($isApproved) => 'Diproses',
+                    $isApproved == true => 'Disetujui',
+                    $isApproved == false => 'Ditolak',
+                };
+
+
+                if ($status === 'Disetujui') {
+                    $desc = $desc; // ini nilai catatan approval
+                } elseif ($status === 'Ditolak') {
+                    $desc = $item->approvable->keterangan_ditolak ?? 'Tidak ada keterangan';
+                }
+
                 return [
                     'user' => $item->user->name,
                     'role' => $role,
-                    'status' => $item->is_approved ? 'Disetujui' : 'Menunggu',
+                    'desc' => $desc,
+                    'status' => is_null($item->is_approved)
+                        ? 'Diproses'
+                        : ($item->is_approved
+                            ? 'Disetujui'
+                            : 'Ditolak'),
+                    'status_warna' => is_null($item->is_approved)
+                        ? 'yellow'
+                        : ($item->is_approved
+                            ? 'green'
+                            : 'red'),
+
                     'img' => $item->img,
                     'tanggal' => $item->created_at->format('d M Y H:i'),
                 ];

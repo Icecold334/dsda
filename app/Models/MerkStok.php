@@ -45,4 +45,9 @@ class MerkStok extends Model
     {
         return $this->hasMany(ListRab::class, 'merk_id');
     }
+
+    public function kontrak()
+    {
+        return $this->hasMany(KontrakVendorStok::class, 'merk_id');
+    }
 }

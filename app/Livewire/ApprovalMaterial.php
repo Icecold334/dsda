@@ -201,9 +201,7 @@ class ApprovalMaterial extends Component
         if (!$status) {
             $this->permintaan->update(['status' => 0, 'keterangan_ditolak' => $message]);
             foreach ($this->permintaan->permintaanMaterial as $item) {
-                $stok = Stok::where('merk_id', $item->merk_id)->where('lokasi_id', $this->permintaan->gudang_id)->first();
-
-                $stok->update(['jumlah' => $stok->jumlah + $item->jumlah]);
+                $item->transaksi->first()->delete();
             }
         }
         if ($this->currentApprovalIndex + 1 == 2 && $status) {

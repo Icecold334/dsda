@@ -104,10 +104,9 @@ class TokoSeeder extends Seeder
 
         for ($i = 0; $i < 179; $i++) {
             $nama = $faker->company;
-            Toko::create([
+            Toko::firstOrCreate(['nama_nospace' => Str::slug($nama),], [
                 'user_id' => User::inRandomOrder()->first()->id,
                 'nama' => $nama,
-                'nama_nospace' => Str::slug($nama),
                 'alamat' => $faker->address,
                 'telepon' => $faker->phoneNumber,
                 'email' => $faker->companyEmail,

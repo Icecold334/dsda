@@ -9,13 +9,10 @@
         </div>
     </div>
 
-    <div class="grid grid-col-1 lg:grid-cols-3 gap-6 mb-3">
+    <div class="grid grid-col-1 lg:grid-cols-2 gap-6 mb-3">
         {{-- <div> --}}
             <x-card title="Data Umum" class="mb-3 ">
-                <livewire:vendor-kontrak-form :vendors="$vendors" />
-            </x-card>
-            <x-card title='Daftar Barang'>
-                <livewire:list-kontrak-barang>
+                <livewire:vendor-kirim-form />
             </x-card>
             <x-card title='Unggah Surat jalan'>
                 <livewire:upload-surat-jalan-material>
@@ -25,5 +22,6 @@
     </div>
     <x-card title="Detail item barang">
         <livewire:list-pengiriman-form>
+            <livewire:list-pengiriman-material />
     </x-card>
 </div>

@@ -112,7 +112,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($transaction->transaksiStok->take(3) as $tran)
+                            @foreach ($transaction->listKontrak->take(3) as $tran)
                             <tr class="border-b-[1px] border-primary-800">
                                 <td class="border-r-4 px-2">
                                     {{ $tran->merkStok->barangStok->nama }}

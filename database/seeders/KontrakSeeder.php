@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Toko;
 use App\Models\User;
 use App\Models\MerkStok;
+use App\Models\ListKontrakStok;
 use App\Models\MetodePengadaan;
 use Illuminate\Database\Seeder;
 use App\Models\KontrakVendorStok;
@@ -40,14 +41,14 @@ class KontrakSeeder extends Seeder
         $users = User::all();
         $kontraks = [];
         // Seed for KontrakVendorStok
-        for ($i = 1; $i <= 354; $i++) {
+        for ($i = 1; $i <= 1000; $i++) {
             $kontraks[] = [
                 'nomor_kontrak' => fake()->unique()->bothify('KV#####'),
-                'metode_id' => $metodes->random()->first()->id,
+                'metode_id' => $metodes->random()->id,
                 'jenis_id' => fake()->numberBetween(1, 3),
-                'vendor_id' => $tokos->random()->first()->id,
+                'vendor_id' => $tokos->random()->id,
                 'tanggal_kontrak' => strtotime(fake()->date()),
-                'user_id' => $users->random()->first()->id,
+                'user_id' => $users->random()->id,
                 'type' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -55,5 +56,46 @@ class KontrakSeeder extends Seeder
             ];
         }
         KontrakVendorStok::insert($kontraks);
+
+        $kontraks = KontrakVendorStok::all();
+
+        $list = [];
+
+        foreach ($kontraks as $kontrak) {
+            $jumlahItem = rand(3, 10);
+            // Pilih satu jenis_id random
+            $jenisId = fake()->numberBetween(1, 3);
+
+            // Ambil merk-merk yang sesuai jenis
+            $merkList = MerkStok::with('barangStok')
+                ->get()
+                ->filter(fn($merk) => $merk->barangStok?->jenis_id === $jenisId)
+                ->values();
+            if ($merkList->isEmpty()) continue;
+
+            // Pilih merk random dari jenis tersebut
+            $jumlahItem = rand(3, 7);
+            $selectedMerks = $merkList->random(min($jumlahItem, $merkList->count()));
+            foreach ($selectedMerks as $merk) {
+                $jumlah = fake()->numberBetween(10, 500);
+                $harga = fake()->numberBetween(100, 1000) * 100;
+                $ppn = fake()->randomElement([null, '11', '12']);
+
+                $list[] = [
+                    'kontrak_id' => $kontrak->id,
+                    'merk_id' => $merk->id,
+                    'jumlah' => $jumlah,
+                    'harga' => $harga,
+                    'ppn' => $ppn,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+        }
+
+        $chunks = array_chunk($list, 1000);
+        foreach ($chunks as $chunk) {
+            ListKontrakStok::insert($chunk);
+        }
     }
 }
