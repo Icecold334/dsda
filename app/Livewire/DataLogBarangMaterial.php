@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\LokasiStok;
 use App\Models\Stok;
 use Livewire\Component;
 use App\Models\PengirimanStok;
@@ -40,48 +41,85 @@ class DataLogBarangMaterial extends Component
                         ->orWhere('id', $this->unit_id);
                 });
         });
+
+        // Konversi filter tanggal ke timestamp untuk dicocokkan
         if ($this->filterFromDate && $this->filterToDate) {
-            $permintaan->whereBetween('created_at', [$this->filterFromDate, $this->filterToDate]);
+            $from = strtotime($this->filterFromDate);
+            $to = strtotime($this->filterToDate . ' 23:59:59');
+            $permintaan->whereHas(
+                'detailPermintaan',
+                fn($q) =>
+                $q->whereBetween('tanggal_permintaan', [$from, $to])
+            );
         } elseif ($this->filterMonth && $this->filterYear) {
-            $permintaan->whereMonth('created_at', $this->filterMonth)
-                ->whereYear('created_at', $this->filterYear);
+            $start = strtotime("{$this->filterYear}-{$this->filterMonth}-01");
+            $end = strtotime(date("Y-m-t", $start) . ' 23:59:59');
+            $permintaan->whereHas(
+                'detailPermintaan',
+                fn($q) =>
+                $q->whereBetween('tanggal_permintaan', [$start, $end])
+            );
         } elseif ($this->filterYear) {
-            $permintaan->whereYear('created_at', $this->filterYear);
+            $start = strtotime("{$this->filterYear}-01-01");
+            $end = strtotime("{$this->filterYear}-12-31 23:59:59");
+            $permintaan->whereHas(
+                'detailPermintaan',
+                fn($q) =>
+                $q->whereBetween('tanggal_permintaan', [$start, $end])
+            );
         }
 
         $permintaan = $permintaan->get()
-            ->groupBy(fn($item) => $item->created_at->format('Y-m-d'))
-            ->map(fn($items, $tanggal) => [
-                'tanggal' => $tanggal,
-                'uuid' => fake()->uuid,
-                'jenis' => 0,
-                'jumlah' => $items->sum('jumlah'),
-            ])
+            ->groupBy(function ($item) {
+                $timestamp = optional($item->detailPermintaan->first())->tanggal_permintaan;
+                return $timestamp ? Carbon::createFromTimestamp($timestamp)->format('Y-m-d') . '|' . $item->detailPermintaan->gudang_id : null;
+            })
+            ->map(function ($items, $key) {
+                [$tanggal, $gudang_id] = explode('|', $key);
+                return [
+                    'tanggal' => $tanggal,
+                    'uuid' => fake()->uuid,
+                    'jenis' => 0,
+                    'gudang_id' => $gudang_id,
+                    'gudang_nama' => LokasiStok::find($gudang_id)->nama,
+                    'jumlah' => $items->sum('jumlah'),
+                ];
+            })
             ->values();
 
         $pengiriman = PengirimanStok::whereHas('detailPengirimanStok', fn($q) => $q->where('status', 1));
 
         if ($this->filterFromDate && $this->filterToDate) {
-            $pengiriman->whereBetween('created_at', [$this->filterFromDate, $this->filterToDate]);
+            $pengiriman->whereBetween('tanggal', [$this->filterFromDate, $this->filterToDate]);
         } elseif ($this->filterMonth && $this->filterYear) {
-            $pengiriman->whereMonth('created_at', $this->filterMonth)
-                ->whereYear('created_at', $this->filterYear);
+            $pengiriman->whereMonth('tanggal', $this->filterMonth)
+                ->whereYear('tanggal', $this->filterYear);
         } elseif ($this->filterYear) {
-            $pengiriman->whereYear('created_at', $this->filterYear);
+            $pengiriman->whereYear('tanggal', $this->filterYear);
         }
 
         $pengiriman = $pengiriman->get()
-            ->groupBy(fn($item) => $item->created_at->format('Y-m-d'))
-            ->map(fn($items, $tanggal) => [
-                'tanggal' => $tanggal,
-                'uuid' => fake()->uuid,
-                'jenis' => 1,
-                'jumlah' => $items->sum('jumlah'),
-            ])
+            ->groupBy(function ($item) {
+                $timestamp = optional($item->detailPengirimanStok->first())->tanggal;
+
+                return $timestamp ? Carbon::createFromTimestamp($timestamp)->format('Y-m-d') . '|' . $item->lokasi_id : null;
+            })
+            ->map(function ($items, $key) {
+                [$tanggal, $lokasi_id] = explode('|', $key);
+                return [
+                    'tanggal' => $tanggal,
+                    'uuid' => fake()->uuid,
+                    'jenis' => 1,
+                    'gudang_id' => $lokasi_id,
+                    'gudang_nama' => LokasiStok::find($lokasi_id)->nama,
+                    'jumlah' => $items->sum('jumlah'),
+                ];
+            })
             ->values();
 
-        $this->list = $permintaan->merge($pengiriman);
+        $this->list = collect($permintaan)->merge($pengiriman)->sortByDesc('tanggal')->values();
     }
+
     public function resetFilters()
     {
         $this->filterFromDate = null;
@@ -91,16 +129,17 @@ class DataLogBarangMaterial extends Component
 
         $this->applyFilters();
     }
-    public function selectedTanggal($tanggal = null, $jenis = null)
+    public function selectedTanggal($tanggal = null, $jenis = null, $gudangId = null)
     {
-        // dd($tanggal);
         $this->modalVisible = true;
         $this->tanggalDipilih = Carbon::parse($tanggal)->translatedFormat('l, d F Y');
         $this->jenisDipilih = $jenis;
+        // dd($tanggal);
 
         if ($jenis == 0) {
-            // KELUAR = permintaan material
-            $this->detailList = PermintaanMaterial::whereDate('created_at', $tanggal)
+            $this->detailList = PermintaanMaterial::whereHas('detailPermintaan', function ($dp) use ($gudangId) {
+                return $dp->where('gudang_id', $gudangId);
+            })
                 ->whereHas('detailPermintaan', function ($query) {
                     $query->where('status', '>=', 2)
                         ->whereHas('user.unitKerja', function ($unit) {
@@ -110,14 +149,16 @@ class DataLogBarangMaterial extends Component
                 })
                 ->get();
         } else {
-            // MASUK = pengiriman
-            $this->detailList = PengirimanStok::whereDate('created_at', $tanggal)
+            $this->detailList = PengirimanStok::whereHas('detailPengirimanStok', function ($dp) use ($gudangId) {
+                return $dp->where('lokasi_id', $gudangId);
+            })
                 ->whereHas('detailPengirimanStok', function ($query) {
                     $query->where('status', 1);
                 })
                 ->get();
         }
     }
+
     public function render()
     {
         return view('livewire.data-log-barang-material');

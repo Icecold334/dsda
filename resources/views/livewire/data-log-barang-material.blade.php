@@ -68,6 +68,7 @@
             <tr class="text-white uppercase">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Tanggal</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Gudang</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS</th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI (MERK/TIPE/UKURAN)</th>
                 --}}
@@ -83,6 +84,7 @@
                 <td class="py-3 px-6 font-semibold">
                     <div>{{ $barang['tanggal'] }}</div>
                 </td>
+                <td class="py-3 px-6 text-center">{{ $barang['gudang_nama'] }}</td>
                 <td class="py-3 px-6 font-semibold text-center">
                     <span
                         class="bg-{{ $barang['jenis'] ? 'primary':'secondary' }}-600 text-{{ $barang['jenis'] ? 'primary':'secondary' }}-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
@@ -93,9 +95,9 @@
                     {{ $barang['jumlah'] }}
                 </td>
                 <td class="py-3 px-6">
-                    <button class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
-                        wire:click="selectedTanggal('{{ \Carbon\Carbon::parse($barang['tanggal'])->format('Y-m-d') }}',{{ $barang['jenis'] }})"
-                        data-tooltip-target=" tooltip-stok-{{ $barang['uuid'] }}">
+                    <button class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
+                        wire:click="selectedTanggal('{{ \Carbon\Carbon::parse($barang['tanggal'])->format('Y-m-d') }}', {{ $barang['jenis'] }}, {{ $barang['gudang_id'] }})"
+                        data-tooltip-target="tooltip-stok-{{ $barang['uuid'] }}">
                         <i class="fa-solid fa-eye"></i>
                     </button>
                     <div id="tooltip-stok-{{ $barang['uuid'] }}" role="tooltip"
@@ -152,7 +154,8 @@
                             <td class="px-3 py-2">{{ $item->merkStok->nama ?? '-' }}</td>
                             <td class="px-3 py-2">{{ $item->merkStok->tipe ?? '-' }}</td>
                             <td class="px-3 py-2">{{ $item->merkStok->ukuran ?? '-' }}</td>
-                            <td class="px-3 py-2 text-center">{{ $item->jumlah }}</td>
+                            <td class="px-3 py-2 text-center">{{ $item->jumlah }} {{
+                                $item->merkStok->barangStok->satuanBesar->nama }}</td>
                         </tr>
                         {{-- @endforeach --}}
                         @empty
