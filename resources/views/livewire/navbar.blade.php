@@ -57,6 +57,8 @@
                     @if (auth()->user()->hasRole(['Admin Sudin','Kepala Seksi', 'Kepala Subbagian',
                     'Pengurus Barang',
                     'Kepala Suku Dinas', 'Kepala Satuan Pelaksana' ]))
+                    <livewire:nav-item href="/permintaan/material" title="Permintaan Barang" />
+                    {{--
                     <livewire:nav-item title="Form" :child="[
                         // ['href' => /route('permintaan-stok.index'), 'title' => 'Form pelayanan Umum'],
                         // ['href' => '/#', 'title' => 'Form permintaan spare part'],
@@ -64,7 +66,7 @@
                         ['href' => '/permintaan/spare-part', 'title' => 'Form permintaan spare part'],
                         ['href' => '/permintaan/material', 'title' => 'Form permintaan material'],
                         // ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
-                    ]" />
+                    ]" /> --}}
                     @endif
                     @endif
                     @if (auth()->user()->unitKerja->hak)

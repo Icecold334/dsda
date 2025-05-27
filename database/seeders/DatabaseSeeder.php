@@ -67,6 +67,7 @@ class DatabaseSeeder extends Seeder
             DetailPermintaanMaterialSeeder::class,
             KontrakSeeder::class,
             TransaksiSeeder::class,
+            GudangSeeder::class
 
         ]);
 

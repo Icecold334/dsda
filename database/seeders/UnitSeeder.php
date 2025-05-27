@@ -599,31 +599,33 @@ class UnitSeeder extends Seeder
 
     private function lokasiSeed()
     {
-        $kecamatanJakarta = collect($this->kecamatanJakarta);
+        // $kecamatanJakarta = collect($this->kecamatanJakarta);
         $units = UnitKerja::whereNull('parent_id')->get();
         foreach ($units as $unit) {
-            foreach ($kecamatanJakarta->random(8)->all() as $kecamatan) {
-                $lokasi = LokasiStok::firstOrCreate([
-                    'unit_id' => $unit->id,
-                    'nama' => 'Gudang ' . $kecamatan,
-                    'slug' => Str::slug('Gudang ' . $kecamatan),
-                    'alamat' => $this->faker->address,
-                ]);
+            // if ($unit->hak) {
+            //     foreach ($kecamatanJakarta->random(8)->all() as $kecamatan) {
+            //         $lokasi = LokasiStok::firstOrCreate([
+            //             'unit_id' => $unit->id,
+            //             'nama' => 'Gudang ' . $kecamatan,
+            //             'slug' => Str::slug('Gudang ' . $kecamatan),
+            //             'alamat' => $this->faker->address,
+            //         ]);
 
-                $roleOnce = ['Penerima Barang', 'Penjaga Gudang'];
-                foreach ($roleOnce as $item) {
-                    User::create([
-                        'email_verified_at' => now(),
-                        'name' => $this->faker->name(),
-                        'unit_id' => $unit->id,
-                        'lokasi_id' => $lokasi->id,
-                        'email' => Str::lower(str_replace(' ', '_', $item)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $item)) . "%")->count() + 1 . "@email.com",
-                        'password' => bcrypt('123'), // Password default
-                    ])->roles()->attach(Role::where('name', $item)->first()->id);
-                }
+            //         $roleOnce = ['Penerima Barang', 'Penjaga Gudang'];
+            //         foreach ($roleOnce as $item) {
+            //             User::create([
+            //                 'email_verified_at' => now(),
+            //                 'name' => $this->faker->name(),
+            //                 'unit_id' => $unit->id,
+            //                 'lokasi_id' => $lokasi->id,
+            //                 'email' => Str::lower(str_replace(' ', '_', $item)) . User::where('email', 'LIKE', Str::lower(str_replace(' ', '_', $item)) . "%")->count() + 1 . "@email.com",
+            //                 'password' => bcrypt('123'), // Password default
+            //             ])->roles()->attach(Role::where('name', $item)->first()->id);
+            //         }
 
-                $this->bagianSeed($lokasi);
-            }
+            //         $this->bagianSeed($lokasi);
+            //     }
+            // }
             // Tambahkan Gudang Umum jika unit adalah Sekretariat dan punya anak Subbagian Umum
             if ($unit->nama === 'Sekretariat') {
                 $subbagianUmum = $unit->children()->where('nama', 'Subbagian Umum')->first();
