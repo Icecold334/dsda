@@ -98,6 +98,7 @@ class KontrakListForm extends Component
 
     {
         $this->barang_id = null;
+        $this->fillJenis(1);
         $this->newBarang = null;
         $this->penulis = Auth::user()->name;
         $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');

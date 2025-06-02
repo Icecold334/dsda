@@ -1,10 +1,11 @@
 <header class="">
-    <nav class="bg-[#d9faff] border-gray-200 shadow-2xl dark:bg-gray-800 flex flex-wrap justify-between items-center">
+    <nav
+        class="bg-[#d9faff] border-gray-200 shadow-2xl dark:bg-gray-800 flex flex-nowrap justify-between items-center ">
         <div class="flex items-center">
             <a href="/" class="flex">
-                <img src="{{ asset('img/material.png') }}" alt="Logo" class="h-[4.5rem] w-auto bg-[#003569]
+                <img src="{{ asset('img/material.png') }}" alt="Logo" class="h-[4.5rem] max-w-[23rem] object-contain bg-[#003569]
  p-1">
-                <img src="{{ asset('img/header-bg.jpg') }}" alt="Logo" class="h-[4.5rem] w-auto bg-[#003569]
+                <img src="{{ asset('img/header-bg.jpg') }}" alt="Logo" class="h-[4.5rem] max-w-[23rem] object-contain bg-[#003569]
  ">
             </a>
         </div>
@@ -18,7 +19,7 @@
             </svg>
         </button> --}}
 
-        <div class="flex justify-between items-center " id="menu">
+        <div class="flex" id="menu">
             <ul
                 class="flex flex-col md:flex-row md:space-x-0 {{ Request::is('scan/*') || Request::is('qr/*') ? 'hidden' : '' }}">
                 {{-- <ul class="grid grid-flow-col gap-0 -my-4 "> --}}
