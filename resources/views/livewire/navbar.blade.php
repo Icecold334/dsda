@@ -31,7 +31,7 @@
                     @endif
                     @if (auth()->user()->hasRole(['Admin Sudin','Penjaga Gudang','Kepala Suku Dinas','Pengurus Barang',
                     'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen','P3K','Kepala Satuan
-                    Pelaksana','Kepala Seksi','Kepala Subbagian',]))
+                    Pelaksana','Kepala Seksi','Kepala Subbagian','Kepala Satuan Pelaksana']))
                     <livewire:nav-item title="Form Barang" :child="[
                         // ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
                         ['href' => '/permintaan/material', 'title' => 'Permintaan Barang'],
