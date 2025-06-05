@@ -100,6 +100,13 @@
                     Kalender
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' />
+                    <livewire:nav-item href="/qrprint" title='<button data-tooltip-target="tooltipQR" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-print"></i></button>
+                
+                                <div id="tooltipQR" role="tooltip"
+                                    class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Cetak QR-Code
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>' />
                     @endif
                     {{--
                     <livewire:nav-item href="/kalender" title='                <button data-tooltip-target="tooltipKalender" data-tooltip-placement="bottom" type="button"><i
@@ -110,13 +117,7 @@
                     Kalender Aset
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>' /> --}}
-                    <livewire:nav-item href="/qrprint" title='<button data-tooltip-target="tooltipQR" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-print"></i></button>
 
-                <div id="tooltipQR" role="tooltip"
-                    class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                    Cetak QR-Code
-                    <div class="tooltip-arrow" data-popper-arrow></div>
-                </div>' />
                     <livewire:nav-item href="/option" title='<button data-tooltip-target="tooltipPengaturan" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-gear"></i></button>
 
                 <div id="tooltipPengaturan" role="tooltip"
