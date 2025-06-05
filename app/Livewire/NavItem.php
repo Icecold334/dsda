@@ -31,7 +31,7 @@ class NavItem extends Component
             })->count();
 
             // Jika tidak ada permission, sembunyikan nav item
-            if ($listcountpermission === 0) {
+            if ($listcountpermission === 0 && 0) {
                 $this->showNav = false;
                 return;
             }

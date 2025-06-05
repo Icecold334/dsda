@@ -23,21 +23,20 @@
             <ul
                 class="flex flex-col md:flex-row md:space-x-0 {{ Request::is('scan/*') || Request::is('qr/*') ? 'hidden' : '' }}">
                 {{-- <ul class="grid grid-flow-col gap-0 -my-4 "> --}}
-                    @if (auth()->user()->hasRole(['Admin Sudin','Kepala Suku Dinas','P3K']))
                     <livewire:nav-item href="/dashboard" title="home" />
-                    <livewire:nav-item title="Rekam Kontrak" :child="[
-                    ['href' => '/kontrak-vendor-stok', 'title' => 'Daftar Kontrak'],
-                    // ['href' => '/transaksi-darurat-stok', 'title' => 'Transaksi Belum Berkontrak'],
-                ]" />
+                    @if (auth()->user()->hasRole(['Admin Sudin','Kepala Suku Dinas','P3K','Kepala Seksi', 'Kepala Suku
+                    Dinas','Perencanaan']))
+                    <livewire:nav-item href="/kontrak-vendor-stok" title="Daftar Kontrak" />
+                    <livewire:nav-item title="Daftar RAB" href='/rab' />
                     @endif
                     @if (auth()->user()->hasRole(['Admin Sudin','Penjaga Gudang','Kepala Suku Dinas','Pengurus Barang',
                     'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen','P3K','Kepala Satuan Pelaksana']))
+                    <livewire:nav-item title="Form Barang" :child="[
+                        // ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
+                        ['href' => '/permintaan/material', 'title' => 'Permintaan Barang'],
+                        ['href' => '/pengiriman-stok', 'title' => 'Pengiriman Barang'],
+                        ]" />
                     <livewire:nav-item href="/log-barang" title="Riwayat Barang" />
-                    <livewire:nav-item title="inventaris" :child="[
-                    ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
-                    ['href' => '/pengiriman-stok', 'title' => 'List Inventaris'],
-                    ['href' => '/stok', 'title' => 'List Stok'],
-                ]" />
                     @endif
                     @if (auth()->user()->unitKerja?->hak == 1)
                     <livewire:nav-item href="/dashboard" title="home" />
@@ -47,7 +46,8 @@
                     ]" />
                     @else
                     @if (auth()->user()->hasRole(['Admin Sudin','Kepala Seksi', 'Kepala Suku Dinas','Perencanaan']))
-                    <livewire:nav-item title="Daftar RAB" href='/rab' />
+                    {{--
+                    <livewire:nav-item title="Daftar RAB" href='/rab' /> --}}
                     @endif
                     {{--
                     <livewire:nav-item title="RAB"
@@ -58,7 +58,8 @@
                     @if (auth()->user()->hasRole(['Admin Sudin','Kepala Seksi', 'Kepala Subbagian',
                     'Pengurus Barang',
                     'Kepala Suku Dinas', 'Kepala Satuan Pelaksana' ]))
-                    <livewire:nav-item href="/permintaan/material" title="Permintaan Barang" />
+                    {{--
+                    <livewire:nav-item href="/permintaan/material" title="Permintaan Barang" /> --}}
                     {{--
                     <livewire:nav-item title="Form" :child="[
                         // ['href' => /route('permintaan-stok.index'), 'title' => 'Form pelayanan Umum'],
@@ -78,16 +79,17 @@
                     @endif
 
                     <livewire:nav-item title="data" :child="[
+                    ['href' => '/stok', 'title' => 'Stok'],
                     ['href' => '/kategori', 'title' => 'kategori'],
-                    ['href' => '/merk', 'title' => 'Merk'],
-                    ['href' => '/barang', 'title' => 'Barang Inventaris'],
+                    ['href' => '/barang', 'title' => 'Barang'],
+                    // ['href' => '/merk', 'title' => 'Merk'],
                     ['href' => '/toko', 'title' => 'Toko / distributor'],
-                    ['href' => '/person', 'title' => 'Penanggung jawab'],
-                    ['href' => '/lokasi', 'title' => 'lokasi'],
+                    // ['href' => '/person', 'title' => 'Penanggung jawab'],
+                    // ['href' => '/lokasi', 'title' => 'lokasi'],
                     ['href' => '/lokasi-stok', 'title' => 'lokasi gudang'],
                     ['href' => '/unit-kerja', 'title' => 'Unit Kerja'],
-                    ['href' => '/kategori-stok', 'title' => 'kategori stok'],
-                    ['href' => '/ruang', 'title' => 'ruang rapat'],
+                    // ['href' => '/kategori-stok', 'title' => 'kategori stok'],
+                    // ['href' => '/ruang', 'title' => 'ruang rapat'],
                 ]" />
                     <livewire:notification />
                     @if (auth()->user()->unitKerja->hak)

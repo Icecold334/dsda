@@ -61,6 +61,7 @@ class DatabaseSeeder extends Seeder
             BaseInventaSeeder::class,
             BarangStokSeeder::class,
             MerkStokSeeder::class,
+            DataMaterialSeeder::class,
             WaktuPeminjamanSeeder::class,
             RuangSeeder::class,
             RabSeeder::class,

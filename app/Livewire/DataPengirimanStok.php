@@ -9,7 +9,7 @@ use App\Models\DetailPengirimanStok;
 
 class DataPengirimanStok extends Component
 {
-    public $search = ''; // Add a search property
+    public $search = '', $sudin; // Add a search property
     public $jenis = '';
     public $tanggal = '';
     public $datangs;
