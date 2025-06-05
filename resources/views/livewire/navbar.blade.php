@@ -30,7 +30,8 @@
                     <livewire:nav-item title="Daftar RAB" href='/rab' />
                     @endif
                     @if (auth()->user()->hasRole(['Admin Sudin','Penjaga Gudang','Kepala Suku Dinas','Pengurus Barang',
-                    'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen','P3K','Kepala Satuan Pelaksana']))
+                    'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen','P3K','Kepala Satuan
+                    Pelaksana','Kepala Seksi','Kepala Subbagian',]))
                     <livewire:nav-item title="Form Barang" :child="[
                         // ['href' => route('pengiriman-stok.create'), 'title' => 'Form barang datang'],
                         ['href' => '/permintaan/material', 'title' => 'Permintaan Barang'],
