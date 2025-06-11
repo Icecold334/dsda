@@ -11,7 +11,7 @@ class Card extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct(public $title)
+    public function __construct(public $title, public $maxH = false)
     {
         //
     }
@@ -31,7 +31,7 @@ class Card extends Component
                 {!! $title !!}</h1>
         </div>
         <div>
-            <div class=" p-5 bg-white rounded-lg  dark:bg-gray-800">
+            <div class=" p-5 bg-white rounded-lg  dark:bg-gray-800 {{ $maxH ?'max-h-72 overflow-y-auto':'' }}">
                 {{ $slot }}
             </div>
         </div>

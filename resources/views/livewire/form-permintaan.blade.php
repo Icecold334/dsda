@@ -1,7 +1,7 @@
 <div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
-            <x-card title="data umum">
+            <x-card title="data umum" maxH="1">
                 <table class="w-full border-separate border-spacing-y-4">
                     @if ($kategori == 'material')
                     <tr>
@@ -23,6 +23,8 @@
                             @error('withRab')
                             <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
+
+
                         </td>
                     </tr>
                     <tr class="{{ $withRab && !$isSeribu ?'':'hidden' }}">
@@ -31,20 +33,9 @@
                                 Pilih Jenis Pekerjaan *</label>
                         </td>
                         <td>
-                            <select wire:model.live="rab_id" @disabled($listCount> 0)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                                focus:ring-primary-500
-                                focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600
-                                dark:text-white
-                                dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option value="">Pilih Jenis Pekerjaan</option>
-                                @foreach ($rabs as $rab)
-                                <option value="{{ $rab->id }}">{{ $rab->jenis_pekerjaan }}</option>
-                                @endforeach
-                            </select>
-                            @error('rab_id')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                            <livewire:searchable-select wire:model.live="rab_id" :options="$rabs"
+                                label="jenis_pekerjaan" />
+
                         </td>
                     </tr>
                     <tr class="{{ !$withRab?'':'hidden' }}">
@@ -75,20 +66,8 @@
                                 Pilih Lokasi Gudang *</label>
                         </td>
                         <td>
-                            <select wire:model.live="gudang_id" @disabled($listCount> 0)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                                focus:ring-primary-500
-                                focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600
-                                dark:text-white
-                                dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option value="">Pilih Gudang</option>
-                                @foreach ($gudangs as $gudang)
-                                <option value="{{ $gudang->id }}">{{ $gudang->nama }}</option>
-                                @endforeach
-                            </select>
-                            @error('gudang_id')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                            <livewire:searchable-select wire:model.live="gudang_id" :options="$gudangs" label='nama' />
+
                         </td>
                     </tr>
                     @endif
@@ -301,26 +280,15 @@
 
                         <td class="font-semibold"><label for="lokasi">Lokasi Kegiatan</label></td>
                         <td>
-                            <select wire:model.live="kecamatan_id"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="">Pilih Kecamatan</option>
-                                @foreach ($kecamatans as $kec)
-                                <option value="{{ $kec->id }}">{{ $kec->kecamatan }}</option>
-                                @endforeach
-                            </select>
+                            <livewire:searchable-select wire:model.live="kecamatan_id" :options="$kecamatans"
+                                label='kecamatan' />
+
                         </td>
                     </tr>
                     <tr class="{{ !$withRab ? '' : 'hidden' }}">
                         <td></td>
                         <td>
-                            <select wire:model.live="kelurahan_id" @disabled(!$kecamatan_id)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="">Pilih Kelurahan</option>
-                                @foreach ($kelurahans as $kel)
-                                <option value="{{ $kel->id }}">{{ $kel->nama }}</option>
-                                @endforeach
-                            </select>
-
+                            <livewire:searchable-select wire:model.live="kelurahan_id" :options="$kelurahans" />
                         </td>
                     </tr>
                     <tr class="{{ !$withRab ? '' : 'hidden' }}">
