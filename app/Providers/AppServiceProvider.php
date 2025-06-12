@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +16,38 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+
+        ini_set('max_execution_time', 240);
+
+        $this->app->singleton('JakartaDataset', function () {
+            return Cache::remember('saluran_data', now()->addHours(6), function () {
+                $endpoints = [
+                    'mikro' => 'https://portaldatadsda.jakarta.go.id/micro/list/get/0/namakec/ASC',
+                    'tersier' => 'https://portaldatadsda.jakarta.go.id/phb/list/get/0/namakec/ASC/0',
+                    'sekunder' => 'https://portaldatadsda.jakarta.go.id/aliran/list/get/namaSungai/ASC',
+                    'primer' => 'https://portaldatadsda.jakarta.go.id/primer/list/get/namaSungai/ASC',
+                ];
+
+                $data = [];
+
+                foreach ($endpoints as $key => $url) {
+                    try {
+                        $response = Http::timeout(180)->withOptions([
+                            'verify' => public_path('cacert.pem'),
+                        ])->get($url);
+
+                        $data[$key] = $response->successful()
+                            ? collect($response->json()['data'] ?? [])
+                            : collect([]);
+                    } catch (\Exception $e) {
+                        Log::error("Gagal fetch $key: " . $e->getMessage());
+                        $data[$key] = collect([]);
+                    }
+                }
+
+                return $data;
+            });
+        });
     }
     /**
      * Bootstrap any application services.
@@ -28,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(176); //admin
         // Auth::loginUsingId(177); // pptk
         // Auth::loginUsingId(180); // ppk
-        // Auth::loginUsingId(178); // perencanaan
+        Auth::loginUsingId(178); // perencanaan
         // Auth::loginUsingId(179); // p3k
         // Auth::loginUsingId(319); // kasatpel
         // Auth::loginUsingId(191); // kasipemel drain

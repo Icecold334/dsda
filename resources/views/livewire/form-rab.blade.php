@@ -10,7 +10,7 @@
     </div>
     <div class="grid grid-cols-2 gap-6">
         <div>
-            <x-card title="Data Kegiatan">
+            <x-card title="Data Kegiatan" maxH="true">
                 <table class="w-full border-separate border-spacing-y-4">
                     <!-- Program -->
                     <tr>

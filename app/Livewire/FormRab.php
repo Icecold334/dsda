@@ -8,6 +8,8 @@ use App\Models\Kegiatan;
 use App\Models\Kecamatan;
 use App\Models\Kelurahan;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 
 class FormRab extends Component
 {
@@ -28,6 +30,9 @@ class FormRab extends Component
     public $lokasi;
     public function mount()
     {
+        $saluran = app('JakartaDataset');
+
+
         $this->programs = Program::where('bidang_id', $this->unit_id)->get();
         $this->kecamatans = Kecamatan::where('unit_id', $this->unit_id)->get();
         // $this->namas = $this->programs->children;
