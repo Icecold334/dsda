@@ -3,7 +3,7 @@
         class="bg-[#d9faff] border-gray-200 shadow-2xl dark:bg-gray-800 flex flex-nowrap justify-between items-center ">
         <div class="flex items-center">
             <a href="/" class="flex">
-                <img src="{{ asset('img/material.png') }}" alt="Logo" class="h-[4.5rem] max-w-[25rem] object-contain bg-[#003569]
+                <img src="{{ asset('img/inventa-logo.png') }}" alt="Logo" class="h-[4.5rem] max-w-[25rem] object-contain bg-[#003569]
  p-1">
                 <img src="{{ asset('img/header-bg.jpg') }}" alt="Logo" class="h-[4.5rem] max-w-[25rem] object-contain bg-[#003569]
  ">
