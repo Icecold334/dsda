@@ -427,7 +427,7 @@ class DataPermintaanMaterial extends Component
             ->with('user')
             ->orderByDesc('created_at')
             ->get()
-            ->map(function ($item) {
+            ->map(function ($item) use ($permintaan) {
                 $role = '';
                 $desc = '';
                 switch ($item->user->roles->first()->name) {
@@ -441,7 +441,21 @@ class DataPermintaanMaterial extends Component
                         break;
                     case 'Pengurus Barang':
                         $role = 'Pengurus Barang';
-                        $desc = 'Barang dalam pengiriman';
+                        $desc = 'Barang dalam pengiriman
+                        <table class="text-sm text-gray-500 italic">
+                            <tr>
+                                <td>Nama Driver</td>
+                                <td>' . $permintaan->driver . '</td>
+                            </tr>
+                            <tr>
+                                <td>Nomor Polisi</td>
+                                <td>' . $permintaan->nopol . '</td>
+                            </tr>
+                            <tr>
+                                <td>Nama Security</td>
+                                <td>' . $permintaan->security . '</td>
+                            </tr>
+                        </table>';
                         break;
 
                     default:

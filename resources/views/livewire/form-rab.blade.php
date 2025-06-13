@@ -166,6 +166,14 @@
                                     <option value="{{ $item->id }}">{{ $item->kecamatan }}</option>
                                     @endforeach
                                 </select>
+                                {{-- <select wire:model.live="kecamatan_id" @disabled($listCount)
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="">-- Pilih Kecamatan --</option>
+                                    @foreach($saluran as $item)
+                                    <option value="{{ $item['nama'] }}">{{ $item['nama'] }}
+                                    </option>
+                                    @endforeach
+                                </select> --}}
 
                                 <select wire:model.live="kelurahan_id" @disabled(!$kecamatan_id || $listCount)
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">

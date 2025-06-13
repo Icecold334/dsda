@@ -170,7 +170,7 @@
     @if ($showTimelineModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl py-4 px-2">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Timeline Persetujuan</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 ms-6">Riwayat Permintaan</h2>
 
             <div class="overflow-y-auto max-h-[65vh] pe-2">
                 <ol class="relative border-s border-gray-500 dark:border-gray-700 m-6 ps-4">
@@ -254,7 +254,9 @@
                         <p class="text-sm  font-semibold text-gray-600">{{ $user ?? '-' }}</p>
 
                         @if (!empty($desc))
-                        <p class="text-sm text-gray-500  italic">{{ $desc }}</p>
+                        <p class="text-sm text-gray-500  italic">{!! $desc !!}
+
+                        </p>
                         @endif
 
                         <span class="inline-block  px-2 py-0.5 text-xs rounded-full {{ $badgeColor }}">

@@ -9,7 +9,7 @@ use App\Models\TransaksiStok;
 class ShowStokMaterial extends Component
 {
     public $lokasi_id;
-    public $lokasi;
+    public $lokasi, $search;
     public $showModal = false;
     public $modalBarangNama;
     public $modalRiwayat = [];
@@ -75,7 +75,21 @@ class ShowStokMaterial extends Component
         // Hapus barang yang semua spesifikasinya kosong
         $result = array_filter($result, fn($data) => count($data['spesifikasi']) > 0);
 
-        return $result;
+        $search = strtolower($this->search);
+        if ($search) {
+            $result = array_filter($result, function ($item) use ($search) {
+                $kode = strtolower($item['kode']);
+                $nama = strtolower($item['nama']);
+                $specs = implode(' ', array_keys($item['spesifikasi']));
+                $specs = strtolower($specs);
+
+                return str_contains($kode, $search) ||
+                    str_contains($nama, $search) ||
+                    str_contains($specs, $search);
+            });
+        }
+
+        return $result; // <-- pindahkan ke luar blok if
     }
 
     public function showRiwayat($barangId, $namaBarang)

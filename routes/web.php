@@ -123,6 +123,7 @@ Route::get('dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('agenda', AgendaController::class);
     Route::get('/nonaktifaset/export', [AsetNonAktifController::class, 'exportExcel'])->name('nonaktifaset.export');
+    Route::get('/material/{id}/qrDownload', function ($id) {});
     Route::get('/nonaktifaset/downlaod-qr/{assetId}', [AsetNonAktifController::class, 'downloadQrImage'])->name('nonaktifaset.downloadQrImage');
     Route::resource('nonaktifaset', AsetNonAktifController::class);
     // Route::patch('/nonaktifaset/{nonaktifaset}/activate', [AsetNonAktifController::class, 'activate'])->name('nonaktifaset.activate');

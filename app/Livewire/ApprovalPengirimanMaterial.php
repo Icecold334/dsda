@@ -48,7 +48,7 @@ class ApprovalPengirimanMaterial extends Component
             $this->files = [];
         }
         $this->user = Auth::user();
-        $this->roles = ['Penjaga Gudang', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen'];
+        $this->roles = ['Pengurus Barang', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
@@ -113,7 +113,7 @@ class ApprovalPengirimanMaterial extends Component
                 $this->showButton = !$currentUser->persetujuan()
                     ->where('approvable_id', $this->pengiriman->id ?? 0)
                     ->where('approvable_type', DetailPengirimanStok::class)
-                    ->exists();
+                    ->exists() || Auth::user()->hasRole(['Admin Sudin']);
             } else {
                 // Jika user berada di tengah atau akhir
                 $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
@@ -127,9 +127,13 @@ class ApprovalPengirimanMaterial extends Component
                         ->where('approvable_id', $this->pengiriman->id ?? 0)
                         ->where('approvable_type', DetailPengirimanStok::class)
                         ->exists() &&
-                    $previousApprovalStatus === 1;
+                    $previousApprovalStatus === 1 || Auth::user()->hasRole(['Admin Sudin']);
                 // && ($this->currentApprovalIndex + 1 < $this->listApproval);
             }
+        }
+
+        if ($this->currentApprovalIndex + 1 == 4) {
+            $this->showButton = false;
         }
         // $cancelAfter = $this->pengiriman->opsiPersetujuan->cancel_persetujuan;
         // $this->showCancelOption = $this->currentApprovalIndex >= $cancelAfter;
@@ -161,6 +165,7 @@ class ApprovalPengirimanMaterial extends Component
 
     public function approveConfirmed($status, $message = null)
     {
+
         $pengiriman  = $this->pengiriman;
         if ($status) {
             $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
@@ -178,10 +183,10 @@ class ApprovalPengirimanMaterial extends Component
             $user = $pengiriman->user;
             Notification::send($user, new UserNotification($mess, "/pengiriman-stok/{$this->pengiriman->id}"));
         }
-
-
+        $allApproval = collect($this->roleLists)->flatten(1);
+        $userRR = $allApproval[$this->currentApprovalIndex];
         $this->pengiriman->persetujuanMorph()->create([
-            'user_id' => $this->user->id,
+            'user_id' => $userRR->id,
             'is_approved' => $status, // Atur status menjadi disetujui
             'keterangan' => $message
         ]);

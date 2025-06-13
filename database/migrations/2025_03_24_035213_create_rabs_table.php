@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('rab', function (Blueprint $table) {
             $table->id();
+            $table->integer('saluran_jenis')->nullable();
+            $table->integer('saluran_id')->nullable();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('program_id')->nullable()->constrained('programs');
             $table->foreignId('kegiatan_id')->nullable()->constrained('kegiatans');

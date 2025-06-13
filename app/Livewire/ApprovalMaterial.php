@@ -114,7 +114,7 @@ class ApprovalMaterial extends Component
                 $this->showButton = !$currentUser->persetujuan()
                     ->where('approvable_id', $this->permintaan->id ?? 0)
                     ->where('approvable_type', DetailPermintaanMaterial::class)
-                    ->exists();
+                    ->exists() || Auth::user()->hasRole(['Admin Sudin']);
             } else {
                 // Jika user berada di tengah atau akhir
                 $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
@@ -134,14 +134,18 @@ class ApprovalMaterial extends Component
                         // $permintaan->ttd_driver &&
                         // $permintaan->ttd_security &&
                         $permintaan->lampiran->count() > 0 &&
-                        $this->permintaan->permintaanMaterial()->where('alocated', '!=', 1)->count() === 0;
+                        $this->permintaan->permintaanMaterial()->where('alocated', '!=', 1)->count() === 0 || Auth::user()->hasRole(['Admin Sudin']);
                 } else {
                     $this->showButton = $previousUser &&
                         !$currentUser->persetujuan()
                             ->where('approvable_id', $this->permintaan->id ?? 0)
                             ->where('approvable_type', DetailPermintaanMaterial::class)
                             ->exists() &&
-                        $previousApprovalStatus === 1;
+                        $previousApprovalStatus === 1 || Auth::user()->hasRole(['Admin Sudin']);
+                }
+
+                if ($this->currentApprovalIndex + 1 == 4) {
+                    $this->showButton = false;
                 }
                 // && ($this->currentApprovalIndex + 1 < $this->listApproval);
             }
@@ -211,7 +215,7 @@ class ApprovalMaterial extends Component
             $qrTarget = "{$qrFolder}/{$this->permintaan->kode_permintaan}.png";
 
             // Konten QR Code (contohnya URL)
-            $qrContent = url("/permintaan/permintaan/{$this->permintaan->id}");
+            $qrContent = url("material/{$this->permintaan->id}/qrDownload");
 
             // Pastikan direktori untuk QR Code tersedia
             if (!Storage::disk('public')->exists($qrFolder)) {
@@ -253,10 +257,16 @@ class ApprovalMaterial extends Component
             $this->permintaan->update(['status' => 2, 'driver' => $driver, 'nopol' => $nopol, 'security' => $security]);
         }
 
+        $allApproval = collect();
 
+        // Hitung jumlah persetujuan yang dibutuhkan
+        $this->listApproval = collect($this->roleLists)->flatten(1)->count();
+        // Menggabungkan semua approval untuk pengecekan urutan
+        $allApproval = collect($this->roleLists)->flatten(1);
+        $user = $allApproval[$this->currentApprovalIndex];
 
         $this->permintaan->persetujuan()->create([
-            'user_id' => $this->user->id,
+            'user_id' => $user->id,
             'is_approved' => $status, // Atur status menjadi disetujui
             'keterangan' => $message
         ]);

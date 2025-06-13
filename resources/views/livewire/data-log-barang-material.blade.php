@@ -68,6 +68,7 @@
             <tr class="text-white uppercase">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Tanggal</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Nomor </th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Gudang</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS</th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI (MERK/TIPE/UKURAN)</th>
@@ -84,6 +85,7 @@
                 <td class="py-3 px-6 font-semibold">
                     <div>{{ $barang['tanggal'] }}</div>
                 </td>
+                <td class="py-3 px-6 text-center">{{ $barang['nomor'] }}</td>
                 <td class="py-3 px-6 text-center">{{ $barang['gudang_nama'] }}</td>
                 <td class="py-3 px-6 font-semibold text-center">
                     <span
@@ -135,6 +137,39 @@
 
             <!-- Body -->
             <div class="p-6 overflow-y-auto max-h-[70vh]">
+                <div class="flex my-3">
+                    @if (!$jenisDipilih)
+
+                    @if ($dataSelected->spb_path)
+                    <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                        href="{{ asset('storage/spb/' . $dataSelected->spb_path) }}" target="_blank" class="...">Unduh
+                        SPB</a>
+                    @else
+                    <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                        onclick="confirmDownload('spb','{{ $dataSelected->nodin }}')" class="...">Unduh SPB</a>
+
+                    @endif
+
+                    @if ($dataSelected->sppb_path)
+                    <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                        href="{{ asset('storage/sppb/' . $dataSelected->sppb_path) }}" target="_blank" class="...">Unduh
+                        SPPB</a>
+                    @else
+                    <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                        onclick="confirmDownload('sppb','{{ $dataSelected->nodin }}')" class="...">Unduh SPPB</a>
+                    @endif
+                    @if ($dataSelected->suratJalan_path)
+                    <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                        href="{{ asset('storage/suratJalan/' . $dataSelected->suratJalan_path) }}" target="_blank"
+                        class="...">Unduh Surat
+                        Jalan</a>
+                    @else
+                    <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                        onclick="confirmDownload('suratJalan','{{ $dataSelected->nodin }}')" class="...">Unduh Surat
+                        Jalan</a>
+                    @endif
+                    @endif
+                </div>
                 <table class="w-full table-auto text-sm">
                     <thead class="bg-gray-100">
                         <tr>
@@ -178,3 +213,26 @@
     </div>
     @endif
 </div>
+
+@pushOnce('scripts')
+<script>
+    function confirmDownload(docType,nomor) {
+        Swal.fire({
+            title: 'Gunakan TTD Elektronik (e-TTD)?',
+            text: "Apakah Anda ingin menyertakan tanda tangan elektronik pada dokumen?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, gunakan TTD',
+            cancelButtonText: 'Tanpa TTD',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                @this.call('downloadDoc',{ type: docType, withSign: true,no:nomor });
+                // Livewire.dispatch('downloadDoc', { type: docType, withSign: true });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                @this.call('downloadDoc',{ type: docType, withSign: false,no:nomor });
+            }
+        });
+    }
+</script>
+@endPushOnce

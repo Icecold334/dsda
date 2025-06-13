@@ -26,6 +26,21 @@
         </x-card>
 
     </div>
+    <div class="flex justify-end mb-4">
+        <div class="relative w-full max-w-sm">
+            <input type="text" wire:model.live="search"
+                class="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="Cari kode/nama/spesifikasi...">
+            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                        d="M9 3a6 6 0 014.472 10.028l4.25 4.25a1 1 0 01-1.414 1.414l-4.25-4.25A6 6 0 119 3zM5 9a4 4 0 118 0 4 4 0 01-8 0z"
+                        clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
     <x-card title="Daftar Barang">
         <table class="min-w-full divide-y divide-gray-200">
             <thead>
