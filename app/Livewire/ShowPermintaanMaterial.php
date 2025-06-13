@@ -173,6 +173,7 @@ class ShowPermintaanMaterial extends Component
             # code...
             $this->securitySignature = $this->permintaan->ttd_security;
         }
+        $this->statusRefresh();
     }
 
     public function statusRefresh()
@@ -319,7 +320,7 @@ class ShowPermintaanMaterial extends Component
         $pdf->SetTitle('Surat Permintaan Barang Material');
 
         $pdf->AddPage();
-        $pdf->SetFont('helvetica', '', 10, '', '',);
+        $pdf->SetFont('helvetica', '', 11, '', '',);
         $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
 
         $permintaan = $this->permintaan;

@@ -38,6 +38,91 @@
 
                         </td>
                     </tr>
+                    @if ($rab_id && !$isSeribu)
+                    <tr class="">
+                        <td class="w-1/3">
+                            <label for="rab_id" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Program *</label>
+                        </td>
+                        <td>
+                            <input type="text" disabled
+                                class="bg-gray-50 border  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                placeholder="Jenis Pekerjaan" value="{{ $rab->program->program }}">
+
+                        </td>
+                    </tr>
+                    <tr class="">
+                        <td class="w-1/3">
+                            <label for="rab_id" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Kegiatan *</label>
+                        </td>
+                        <td>
+                            <input type="text" disabled
+                                class="bg-gray-50 border  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                placeholder="Jenis Pekerjaan" value="{{ $rab->kegiatan->kegiatan }}">
+
+                        </td>
+                    </tr>
+                    <tr class="">
+                        <td class="w-1/3">
+                            <label for="rab_id" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Sub Kegiatan *</label>
+                        </td>
+                        <td>
+                            <input type="text" disabled
+                                class="bg-gray-50 border  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                placeholder="Jenis Pekerjaan" value="{{ $rab->subKegiatan->sub_kegiatan }}">
+
+                        </td>
+                    </tr>
+                    <tr class="">
+                        <td class="w-1/3">
+                            <label for="rab_id" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Aktivitas Sub Kegiatan *</label>
+                        </td>
+                        <td>
+                            <input type="text" disabled
+                                class="bg-gray-50 border  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                placeholder="Jenis Pekerjaan" value="{{ $rab->aktivitasSubKegiatan->aktivitas }}">
+
+                        </td>
+                    </tr>
+                    <tr class="">
+
+                        <td class="font-semibold"><label for="lokasi">Lokasi Kegiatan</label></td>
+                        <td>
+                            <select disabled
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+
+                                <option>
+                                    {{ $rab->kelurahan->kecamatan->kecamatan }}
+                                </option>
+                            </select>
+
+                        </td>
+                    </tr>
+                    <tr class="">
+                        <td></td>
+                        <td>
+                            <select disabled
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+
+                                <option>
+                                    {{ $rab->kelurahan->nama }}
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="">
+                        <td></td>
+                        <td>
+                            <textarea rows="2" disabled
+                                placeholder="Detail lokasi tambahan (misal: Jl. ABC No. 123, dekat Lapangan)"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">{{ $rab->lokasi }}</textarea>
+
+                        </td>
+                    </tr>
+                    @endif
                     <tr class="{{ !$withRab?'':'hidden' }}">
                         <td class="w-1/3">
                             <label for="namaKegiatan" class="block mb-2  font-semibold text-gray-900 dark:text-white">

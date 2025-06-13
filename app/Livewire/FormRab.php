@@ -30,33 +30,33 @@ class FormRab extends Component
     public $lokasi;
     public function mount()
     {
-        $saluran = collect(app('JakartaDataset'))
-            ->flatten(1);
-        $saluran = $saluran->map(function ($sall) {
-            if (collect($sall)->has('jenissaluran')) {
-                $jenisSaluran = $sall['jenissaluran'] ?? null;
-                $jenis = explode(' ', $jenisSaluran)[2] ?? 'Mikro';
-                if ($jenis == 'Mikro') {
-                    $nama = $sall['namaMicro'];
-                } else {
-                    $nama = $sall['namaPhb'];
-                }
-            } else {
-                $jenisSungai = $sall['jenisSungai'] ?? null;
-                $jenis = explode(' ', $jenisSungai)[2];
-                $nama = $sall['namaSungai'];
-            }
-            $sall = [
-                'id' => 8,
-                'nama' => "{$nama} ({$jenis})",
-                'jenis' => $jenis
-            ];
+        // $saluran = collect(app('JakartaDataset'))
+        //     ->flatten(1);
+        // $saluran = $saluran->map(function ($sall) {
+        //     if (collect($sall)->has('jenissaluran')) {
+        //         $jenisSaluran = $sall['jenissaluran'] ?? null;
+        //         $jenis = explode(' ', $jenisSaluran)[2] ?? 'Mikro';
+        //         if ($jenis == 'Mikro') {
+        //             $nama = $sall['namaMicro'];
+        //         } else {
+        //             $nama = $sall['namaPhb'];
+        //         }
+        //     } else {
+        //         $jenisSungai = $sall['jenisSungai'] ?? null;
+        //         $jenis = explode(' ', $jenisSungai)[2];
+        //         $nama = $sall['namaSungai'];
+        //     }
+        //     $sall = [
+        //         'id' => 8,
+        //         'nama' => "{$nama} ({$jenis})",
+        //         'jenis' => $jenis
+        //     ];
 
-            return $sall;
-        })->filter(function ($sall) {
-            return $sall['nama'] !== '';
-        });
-        $this->saluran = $saluran;
+        //     return $sall;
+        // })->filter(function ($sall) {
+        //     return $sall['nama'] !== '';
+        // });
+        // $this->saluran = $saluran;
         $this->programs = Program::where('bidang_id', $this->unit_id)->get();
         $this->kecamatans = Kecamatan::where('unit_id', $this->unit_id)->get();
         // $this->namas = $this->programs->children;

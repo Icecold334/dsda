@@ -16,6 +16,18 @@
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Tambah Aset</a> --}}
             <div class="flex gap-4">
+                @if ($all)
+                <div class=" w-full max-w-lg">
+
+                    <select id="unitKerjaSelect" wire:model.live="unit_id"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="">-- Pilih Unit --</option>
+                        @foreach ($sudins as $sudin)
+                        <option value="{{ $sudin->id }}">{{ $sudin->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
                 <!-- Search Input -->
                 {{-- <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2 w-full"
                     placeholder="Cari Kode / Barang" />

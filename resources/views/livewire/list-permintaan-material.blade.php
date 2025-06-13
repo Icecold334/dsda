@@ -194,7 +194,8 @@
                     @enderror
                 </td>
                 <td class="py-3 px-6 ">
-                    {{-- <select wire:model.live="newBarangId" @disabled($isSeribu && !$newRabId && $withRab)
+                    @if ($rab_id)
+                    <select wire:model.live="newBarangId" @disabled($isSeribu && !$newRabId && $withRab)
                         class="bg-gray-50 border border-gray-300   text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         <option value="">Pilih Barang
                         </option>
@@ -203,8 +204,11 @@
                             {{ $barang->nama }}
                         </option>
                         @endforeach
-                    </select> --}}
+                    </select>
+                    @else
                     <livewire:searchable-select wire:model.live="newBarangId" :options="$barangs" />
+                    @endif
+
 
                 </td>
                 <td class="py-3 px-6 ">

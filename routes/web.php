@@ -2,12 +2,17 @@
 
 use App\Models\Aset;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use Livewire\Component;
+use App\Models\UnitKerja;
 use App\Models\Persetujuan;
+use Illuminate\Support\Str;
 use App\Models\PermintaanStok;
 use App\Livewire\AssetCalendar;
+use Illuminate\Support\Facades\DB;
+use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RabController;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\AsetController;
 use App\Http\Controllers\BankController;
@@ -15,8 +20,10 @@ use App\Http\Controllers\KotaController;
 use App\Http\Controllers\MerkController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\TokoController;
+use App\Models\DetailPermintaanMaterial;
 use App\Http\Controllers\HargaController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\RuangController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\DiskonController;
 use App\Http\Controllers\JurnalController;
@@ -54,9 +61,6 @@ use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\PengaturanPersetujuanController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
-use App\Http\Controllers\RabController;
-use App\Http\Controllers\RuangController;
-use App\Models\DetailPermintaanStok;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -123,7 +127,88 @@ Route::get('dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('agenda', AgendaController::class);
     Route::get('/nonaktifaset/export', [AsetNonAktifController::class, 'exportExcel'])->name('nonaktifaset.export');
-    Route::get('/material/{id}/qrDownload', function ($id) {});
+    Route::get('/material/{id}/qrDownload', function ($id) {
+        $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->SetMargins(20, 5, 20);
+        $pdf->SetCreator('Sistem Permintaan');
+        $pdf->SetAuthor('Dinas SDA');
+        $pdf->SetTitle('SPB dan SPPB');
+        $pdf->SetFont('helvetica', '', 10);
+
+        // ========== Data Umum ==========
+        $permintaan = DetailPermintaanMaterial::findOrFail($id);
+        $unit_id = $permintaan->user->unitKerja->id;
+        $permintaan->unit = UnitKerja::find($unit_id);
+        $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
+
+        $kasatpel = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
+            ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Satuan Pelaksana%'))
+            ->first();
+
+        $pemel = User::whereHas('unitKerja', fn($q) => $q->where('parent_id', $unit_id)->where('nama', 'like', '%Pemeliharaan%'))
+            ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Seksi%'))
+            ->first();
+
+        $penjaga = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
+            ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Penjaga Gudang%'))
+            ->where('lokasi_id', $permintaan->gudang_id)
+            ->first();
+
+        $pengurus = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
+            ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Pengurus Barang%'))
+            ->first();
+
+        $kasubag = User::whereHas('unitKerja', fn($q) => $q->where('parent_id', $unit_id)->where('nama', 'like', '%Tata Usaha%'))
+            ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Subbagian%'))
+            ->first();
+
+        $Rkb = 1;
+        $RKB = 1;
+        $sign = true;
+        $sudin = Str::contains($permintaan->unit->nama, 'Kepulauan')
+            ? 'Kepulauan Seribu'
+            : Str::of($permintaan->unit->nama)->after('Administrasi ');
+        $isSeribu = 0;
+        $withRab = $isSeribu ? $permintaan->permintaanMaterial->first()->rab_id : $permintaan->rab_id;
+
+        // ========== Halaman 1: SPB ==========
+        $htmlSpb = view(!$withRab ? 'pdf.nodin' : ($isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact(
+            'ttdPath',
+            'permintaan',
+            'kasatpel',
+            'pemel',
+            'Rkb',
+            'RKB',
+            'sudin',
+            'isSeribu',
+            'sign'
+        ))->render();
+
+        $pdf->AddPage();
+        $pdf->writeHTML($htmlSpb, true, false, true, false, '');
+
+        // ========== Halaman 2: SPPB ==========
+        $htmlSppb = view('pdf.sppb', compact(
+            'ttdPath',
+            'permintaan',
+            'kasatpel',
+            'penjaga',
+            'pengurus',
+            'kasubag',
+            'Rkb',
+            'RKB',
+            'sudin',
+            'isSeribu',
+            'sign'
+        ))->render();
+
+        $pdf->AddPage();
+        $pdf->writeHTML($htmlSppb, true, false, true, false, '');
+        // Output gabungan
+        return response($pdf->Output('', 'S'))
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="SPB_SPPB.pdf"');
+    });
     Route::get('/nonaktifaset/downlaod-qr/{assetId}', [AsetNonAktifController::class, 'downloadQrImage'])->name('nonaktifaset.downloadQrImage');
     Route::resource('nonaktifaset', AsetNonAktifController::class);
     // Route::patch('/nonaktifaset/{nonaktifaset}/activate', [AsetNonAktifController::class, 'activate'])->name('nonaktifaset.activate');
@@ -194,6 +279,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('option-approval/{tipe}/{jenis}', [PengaturanPersetujuanController::class, 'edit']);
     Route::get('permintaan/{tipe}/{id}', [PermintaanStokController::class, 'show'])->name('showPermintaan');
     Route::get('/log-barang', [StokController::class, 'logBarang'])->name('log-index');
+    Route::get('/stok/sudin/{sudin}', [StokController::class, 'index']);
 
     Route::resources([
         'jenis-stok' => JenisStokController::class,

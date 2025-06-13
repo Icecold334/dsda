@@ -1,7 +1,14 @@
 <div>
-    <div class="flex justify-between py-2 mb-3">
+    <div class="flex justify-between ">
 
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL PERMINTAAN</h1>
+        <div>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                href="/permintaan/material"
+                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
+        </div>
+    </div>
+    <div class="flex py-2 mb-3 justify-end">
         <div>
 
             @if ($permintaan->spb_path)
@@ -33,7 +40,8 @@
             @if ($permintaan->suratJalan_path)
             <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
                 href="{{ asset('storage/suratJalan/' . $permintaan->suratJalan_path) }}" target="_blank"
-                class="...">Unduh Surat Jalan</a>
+                class="...">Unduh Surat
+                Jalan</a>
             @else
             <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
                 onclick="confirmDownload('suratJalan')" class="...">Unduh Surat Jalan</a>
@@ -54,9 +62,7 @@
                 onclick="showUploadModal('bast')" class="... text-blue-500">Unggah BAST</a>
             @endif
             @endif
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                href="/permintaan/material"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
+
 
         </div>
     </div>
@@ -65,9 +71,49 @@
             <x-card title="data umum" class="mb-3">
                 <table class="w-full">
                     @if ($withRab && !$isSeribu)
-                    <tr class="font-semibold ">
+                    <!-- Program -->
+                    <tr class="font-semibold">
+                        <td class="w-1/3">Program</td>
+                        <td>{{ $permintaan->rab->program->program }}</td>
+                    </tr>
+
+                    <!-- Nama Kegiatan -->
+                    <tr class="font-semibold">
+                        <td>Nama Kegiatan</td>
+                        <td>{{ $permintaan->rab->kegiatan->kegiatan }}</td>
+                    </tr>
+
+                    <!-- Sub Kegiatan -->
+                    <tr class="font-semibold">
+                        <td>Sub Kegiatan</td>
+                        <td>{{ $permintaan->rab->subKegiatan->sub_kegiatan }}</td>
+                    </tr>
+
+                    <!-- Rincian Sub Kegiatan -->
+                    <tr class="font-semibold">
+                        <td>Aktivitas Sub Kegiatan</td>
+                        <td>{{ $permintaan->rab->aktivitasSubKegiatan->aktivitas }}</td>
+                    </tr>
+
+                    <!-- Kode Rekening -->
+                    <tr class="font-semibold">
+                        <td>Kode Rekening</td>
+                        <td>{{ $permintaan->rab->uraianRekening->uraian }}</td>
+                    </tr>
+                    <!-- Jenis Pekerjaan -->
+                    <tr class="font-semibold">
                         <td>Jenis Pekerjaan</td>
                         <td>{{ $permintaan->rab->jenis_pekerjaan }}</td>
+                    </tr>
+                    <tr class="font-semibold">
+                        <td>Lokasi</td>
+                        <td>
+                            @if ($permintaan->rab->kelurahan)
+                            Kelurahan {{ $permintaan->rab->kelurahan->nama }},
+                            Kecamatan {{ $permintaan->rab->kelurahan->kecamatan->kecamatan }} –
+                            @endif
+                            {{ $permintaan->rab->lokasi }}
+                        </td>
                     </tr>
                     @endif
                     @if (!$permintaan->rab_id && !$isSeribu)
@@ -124,7 +170,7 @@
                         <td>{{ $permintaan->keterangan ?? '---' }}</td>
                     </tr>
                     {{-- @if (!$permintaan->rab_id) --}}
-                    <tr class="font-semibold ">
+                    <tr class="font-semibold {{ $withRab?'hidden':'' }}">
                         <td>Lokasi Kegiatan</td>
                         <td>
                             @if (!$permintaan->rab_id)

@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
 
@@ -256,33 +256,49 @@
             width: 55%;
             left: 45%;
             top: 0;
-            background-color: #74abff;
+            background-color: #0066ff;
             border-radius: 2rem;
-            display: grid;
-            grid-template-rows: auto 1fr;
-            padding-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
             overflow: hidden;
             transition: 0.8s ease-in-out;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .carousel .image {
+            max-width: 500px;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 2rem;
+        }
+
+        .welcome-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #222;
         }
 
         .images-wrapper {
-            display: grid;
-            grid-template-columns: 1fr;
-            grid-template-rows: 1fr;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 2rem;
         }
 
         .image {
-            width: 90%;
-            grid-column: 1/2;
-            grid-row: 1/2;
-            opacity: 0;
-            transition: opacity 0.3s, transform 0.5s;
-            margin: 0 auto;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
-        .img-1 {
+        /* .img-1 {
             transform: translate(0, -50px);
-        }
+        } */
 
         .img-2 {
             transform: scale(0.4, 0.5);

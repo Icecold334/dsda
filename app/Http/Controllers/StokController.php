@@ -11,29 +11,11 @@ class StokController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($sudin = false)
     {
-        $barangs = BarangStok::whereHas('merkStok', function ($merkQuery) {
-            $merkQuery->whereHas('stok', function ($stokQuery) {
-                $stokQuery->where('jumlah', '>', 0)->whereHas('lokasiStok', function ($stokQuery) {
-                    $stokQuery->whereHas('unitKerja', function ($unit) {
-                        return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-                    });
-                });
-            });
-        })->get();
-
-        $stoks = Stok::where('jumlah', '>', 0)->whereHas('lokasiStok', function ($stokQuery) {
-            $stokQuery->whereHas('unitKerja', function ($unit) {
-                return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-            });
-        })
-            ->with('merkStok') // Ensure we load related merk information for display
-            ->get()
-            ->groupBy('merkStok.barang_id'); // Group stocks by barang_id
-
-        return view('stok.index', compact('barangs', 'stoks'));
+        return view('stok.index', ['sudin' => $sudin]);
     }
+
 
     /**
      * Show the form for creating a new resource.

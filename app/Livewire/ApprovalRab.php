@@ -105,7 +105,7 @@ class ApprovalRab extends Component
                 $this->showButton = !$currentUser->persetujuan()
                     ->where('approvable_id', $this->rab->id ?? 0)
                     ->where('approvable_type', Rab::class)
-                    ->exists();
+                    ->exists() || Auth::user()->hasRole(['Admin Sudin']);
             } else {
                 // Jika user berada di tengah atau akhir
                 $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
@@ -119,9 +119,13 @@ class ApprovalRab extends Component
                         ->where('approvable_id', $this->rab->id ?? 0)
                         ->where('approvable_type', Rab::class)
                         ->exists() &&
-                    $previousApprovalStatus === 1;
+                    $previousApprovalStatus === 1 || Auth::user()->hasRole(['Admin Sudin']);
                 // && ($this->currentApprovalIndex + 1 < $this->listApproval);
             }
+        }
+
+        if ($this->currentApprovalIndex + 1 == 3) {
+            $this->showButton = false;
         }
         // $cancelAfter = $this->rab->opsiPersetujuan->cancel_persetujuan;
         // $this->showCancelOption = $this->currentApprovalIndex >= $cancelAfter;
@@ -171,9 +175,12 @@ class ApprovalRab extends Component
             $user = $rab->user;
             Notification::send($user, new UserNotification($mess, "/rab/{$this->rab->id}"));
         }
-
+        $this->listApproval = collect($this->roleLists)->flatten(1)->count();
+        // Menggabungkan semua approval untuk pengecekan urutan
+        $allApproval = collect($this->roleLists)->flatten(1);
+        $userrr = $allApproval[$this->currentApprovalIndex];
         $this->rab->persetujuan()->create([
-            'user_id' => $this->user->id,
+            'user_id' => $userrr->id,
             'is_approved' => $status, // Atur status menjadi disetujui
             'keterangan' => $message
         ]);

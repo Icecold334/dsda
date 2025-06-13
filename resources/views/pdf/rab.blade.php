@@ -42,12 +42,12 @@
   .header-text {
     text-align: center;
     /* font-weight: bold; */
-    font-size: 13px;
+    font-size: 10px;
   }
 
   .header-subtext {
     font-weight: normal;
-    font-size: 11px;
+    font-size: 10px;
     /* margin-top: 4px; */
   }
 
@@ -70,12 +70,12 @@
       <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI">
     </td>
     <td class="header-text" width="80%">
-      PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
-      <strong>DINAS SUMBER DAYA AIR <br>
-        SUKU DINAS SUMBER DAYA AIR <br></strong>
-      <strong>{{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
+      <span style="font-size: 12px">PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
+        DINAS SUMBER DAYA AIR <br></span>
+      <strong style="font-size: 14px">SUKU DINAS SUMBER DAYA AIR <br>
+        {{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
-        {{ $rab->user->unitKerja->alamat }}
+        {{ $permintaan->unit->alamat }}
         <br>
         J A K A R T A
       </div>

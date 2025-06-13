@@ -2,26 +2,28 @@
 
 namespace App\Livewire;
 
+use Carbon\Unit;
 use App\Models\Stok;
 use Livewire\Component;
 use App\Models\JenisStok;
 use App\Models\UnitKerja;
 use App\Models\BarangStok;
 use App\Models\LokasiStok;
+use Illuminate\Support\Str;
+use Livewire\WithPagination;
 use App\Models\TransaksiStok;
+use Livewire\WithoutUrlPagination;
 use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use Livewire\WithoutUrlPagination;
-use Livewire\WithPagination;
 
 
 class DataStokMaterial extends Component
 {
     use WithPagination, WithoutUrlPagination;
-    public $search = ''; // Search term
+    public $search = '', $all, $sudins; // Search term
     public $jenis = ''; // Selected jenis
     public $lokasi = ''; // Selected jenis
     public $unit_id, $isSeribu, $sudin; // Current user's unit ID
@@ -32,6 +34,7 @@ class DataStokMaterial extends Component
 
     public function mount()
     {
+        $this->sudins = UnitKerja::whereNull('parent_id')->where('hak', 0)->get();
         $this->jenisOptions = JenisStok::pluck('nama')->toArray(); // Fetch all available jenis
         if (!Auth::user()->unitKerja->hak) {
             $this->jenis = "Material";
@@ -45,6 +48,15 @@ class DataStokMaterial extends Component
         $this->applyFilters(); // Fetch initial data
         // $this->fetchBarangs();
         // $this->fetchStoks();
+    }
+    public function updatedUnitId()
+    {
+        $parent = UnitKerja::find($this->unit_id);
+        $sudin = Str::contains($parent->nama, 'Kepulauan')
+            ? 'Kepulauan Seribu'
+            : Str::of($parent->nama)->after('Administrasi ');
+        $this->sudin = $sudin;
+        $this->applyFilters();
     }
 
     public function fetchBarangs($excel = false)
