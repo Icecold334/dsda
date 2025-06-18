@@ -25,38 +25,22 @@ class FormRab extends Component
     public $aktivitas_sub_kegiatan, $aktivitas_sub_kegiatans = [];
     public $kode_rekening, $kode_rekenings = [];
     public $jenis;
-    public $mulai, $Rkb, $RKB, $sudin;
+    public $mulai, $Rkb, $RKB, $sudin, $withSaluran = null, $saluran_id, $saluranSelected = [];
     public $selesai;
     public $lokasi;
     public function mount()
     {
-        // $saluran = collect(app('JakartaDataset'))
-        //     ->flatten(1);
-        // $saluran = $saluran->map(function ($sall) {
-        //     if (collect($sall)->has('jenissaluran')) {
-        //         $jenisSaluran = $sall['jenissaluran'] ?? null;
-        //         $jenis = explode(' ', $jenisSaluran)[2] ?? 'Mikro';
-        //         if ($jenis == 'Mikro') {
-        //             $nama = $sall['namaMicro'];
-        //         } else {
-        //             $nama = $sall['namaPhb'];
-        //         }
-        //     } else {
-        //         $jenisSungai = $sall['jenisSungai'] ?? null;
-        //         $jenis = explode(' ', $jenisSungai)[2];
-        //         $nama = $sall['namaSungai'];
-        //     }
-        //     $sall = [
-        //         'id' => 8,
-        //         'nama' => "{$nama} ({$jenis})",
-        //         'jenis' => $jenis
-        //     ];
+        $saluran = collect(app('JakartaDataset'));
+        $mapping = [
+            'tersier' => 'namaPhb',
+            'sekunder' => 'namaSungai',
+            'primer' => 'namaSungai',
+        ];
 
-        //     return $sall;
-        // })->filter(function ($sall) {
-        //     return $sall['nama'] !== '';
-        // });
-        // $this->saluran = $saluran;
+        $hasil = collect($mapping)->mapWithKeys(function ($uniqueKey, $tipe) use ($saluran) {
+            return [$tipe => collect($saluran[$tipe])->unique($uniqueKey)];
+        });
+        $this->saluran = $hasil;
         $this->programs = Program::where('bidang_id', $this->unit_id)->get();
         $this->kecamatans = Kecamatan::where('unit_id', $this->unit_id)->get();
         // $this->namas = $this->programs->children;
@@ -107,6 +91,16 @@ class FormRab extends Component
         if ($field === 'aktivitas_sub_kegiatan') {
             $this->kode_rekenings = \App\Models\UraianRekening::where('aktivitas_sub_kegiatan_id', $this->aktivitas_sub_kegiatan)->get();
             $this->kode_rekening = null;
+        }
+        if ($field === 'withSaluran') {
+            if ($this->withSaluran) {
+                $this->saluranSelected = $this->saluran[$this->withSaluran];
+            } else {
+                $this->withSaluran = null;
+                $this->saluranSelected = [];
+            }
+            $this->saluran_id = null;
+            // $this->kode_rekening = null;
         }
 
         $this->dispatch('dataKegiatan', data: [

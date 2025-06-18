@@ -136,6 +136,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $pdf->SetFont('helvetica', '', 10);
 
         // ========== Data Umum ==========
+        dd($id);
         $permintaan = DetailPermintaanMaterial::findOrFail($id);
         $unit_id = $permintaan->user->unitKerja->id;
         $permintaan->unit = UnitKerja::find($unit_id);
@@ -201,6 +202,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'isSeribu',
             'sign'
         ))->render();
+        dd('asd');
 
         $pdf->AddPage();
         $pdf->writeHTML($htmlSppb, true, false, true, false, '');

@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('JakartaDataset', function () {
             return Cache::remember('saluran_data', now()->addHours(6), function () {
                 $endpoints = [
-                    'mikro' => 'https://portaldatadsda.jakarta.go.id/micro/list/get/0/namakec/ASC',
+                    // 'mikro' => 'https://portaldatadsda.jakarta.go.id/micro/list/get/0/namakec/ASC',
                     'tersier' => 'https://portaldatadsda.jakarta.go.id/phb/list/get/0/namakec/ASC/0',
                     'sekunder' => 'https://portaldatadsda.jakarta.go.id/aliran/list/get/namaSungai/ASC',
                     'primer' => 'https://portaldatadsda.jakarta.go.id/primer/list/get/namaSungai/ASC',
@@ -59,7 +59,7 @@ class AppServiceProvider extends ServiceProvider
         // pusat
         // Auth::loginUsingId(1); //superadmin
         // Auth::loginUsingId(175); //kasudin
-        // Auth::loginUsingId(176); //admin
+        Auth::loginUsingId(176); //admin
         // Auth::loginUsingId(177); // pptk
         // Auth::loginUsingId(180); // ppk
         // Auth::loginUsingId(178); // perencanaan

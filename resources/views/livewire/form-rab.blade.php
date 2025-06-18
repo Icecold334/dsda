@@ -124,6 +124,41 @@
                                 placeholder="Jenis Pekerjaan">
                         </td>
                     </tr>
+                    <!-- Pake saluran g -->
+                    <tr>
+                        <td class="">
+                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Saluran *</label>
+                        </td>
+                        <td>
+                            <select wire:model.live="withSaluran" @disabled($listCount)
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="">-- Tidak pada saluran --</option>
+                                {{-- <option value="mikro">-- Tidak pada saluran --</option> --}}
+                                <option value="tersier">Saluran Drainase Tersier</option>
+                                <option value="sekunder">Saluran Drainase Sekunder</option>
+                                <option value="primer">Saluran Drainase Primer</option>
+
+                            </select>
+                        </td>
+                    </tr>
+                    <!-- pilih saluran  -->
+                    <tr class="{{ is_null($withSaluran) ? 'hidden':'' }}">
+                        <td>
+                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Pilih Saluran *</label>
+                        </td>
+                        <td>
+                            <select wire:model.live="saluran_id" @disabled($listCount)
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="">-- Pilih Saluran --</option>
+                                @foreach ($saluranSelected as $item)
+                                <option value="mikro">{{$item['namaPhb'] ?? $item['namaSungai']}}</option>
+                                @endforeach
+
+                            </select>
+                        </td>
+                    </tr>
                     <!-- Tanggal Mulai -->
                     <tr>
                         <td class="font-semibold">
