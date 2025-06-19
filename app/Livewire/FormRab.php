@@ -110,6 +110,8 @@ class FormRab extends Component
             'aktivitas_sub_kegiatan' => $this->aktivitas_sub_kegiatan,
             'kode_rekening' => $this->kode_rekening,
             'kelurahan_id' => $this->kelurahan_id,
+            'saluran_jenis' => $this->withSaluran,
+            'saluran_id' => $this->saluran_id,
             'jenis' => $this->jenis,
             'mulai' => $this->mulai,
             'selesai' => $this->selesai,

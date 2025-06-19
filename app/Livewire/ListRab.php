@@ -107,6 +107,8 @@ class ListRab extends Component
             'aktivitas_sub_kegiatan_id' => $this->dataKegiatan['aktivitas_sub_kegiatan'],
             'uraian_rekening_id' => $this->dataKegiatan['kode_rekening'],
             'jenis_pekerjaan' => $this->dataKegiatan['jenis'],
+            'saluran_jenis' => $this->dataKegiatan['saluran_jenis'],
+            'saluran_id' => $this->dataKegiatan['saluran_id'],
             'kelurahan_id' => $this->dataKegiatan['kelurahan_id'],
             'lokasi' => $this->dataKegiatan['lokasi'],
             'mulai' => $this->dataKegiatan['mulai'],

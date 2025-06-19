@@ -44,6 +44,16 @@ class RabController extends Controller
             2 => ['label' => 'Disetujui', 'color' => 'success'],
             3 => ['label' => 'Selesai', 'color' => 'primary'],
         ];
+        $saluran = collect(app('JakartaDataset'));
+        $mapping = [
+            'tersier' => 'namaPhb',
+            'sekunder' => 'namaSungai',
+            'primer' => 'namaSungai',
+        ];
+
+        $hasil = collect($mapping)->mapWithKeys(function ($uniqueKey, $tipe) use ($saluran) {
+            return [$tipe => collect($saluran[$tipe])->unique($uniqueKey)];
+        });
 
         // Tambahkan properti dinamis ke dalam object
         $rab->status_teks = $statusMap[$rab->status]['label'] ?? 'Tidak diketahui';
@@ -66,6 +76,26 @@ class RabController extends Controller
         }
 
         $rab->lamaPengerjaan = $lamaPengerjaan ?: '0 hari';
+        switch ($rab->saluran_jenis) {
+            case 'tersier':
+                $keySaluran = 'idPhb';
+                $namaSaluran = 'namaPhb';
+                break;
+            case 'sekunder':
+                $keySaluran = 'idAliran';
+                $namaSaluran = 'namaSungai';
+                break;
+            case 'primer':
+                $keySaluran = 'idPrimer';
+                $namaSaluran = 'namaSungai';
+                break;
+
+            default:
+                $keySaluran = 'null';
+                break;
+        }
+
+        $rab->saluran_nama = collect($hasil[$rab->saluran_jenis])->where($keySaluran, $rab->saluran_id)->first()[$namaSaluran];
         $RKB = $this->RKB;
 
         return view('rab.show', compact('rab', 'RKB'));

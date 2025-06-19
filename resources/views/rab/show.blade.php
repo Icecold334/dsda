@@ -16,7 +16,7 @@
       <x-card title="data umum" class="mb-3">
         <table class="w-full">
           <!-- Program -->
-          <tr class="font-semibold">
+          <tr class="font-semibold ">
             <td class="w-1/3">Program</td>
             <td>{{ $rab->program->program }}</td>
           </tr>
@@ -49,6 +49,17 @@
             <td>Jenis Pekerjaan</td>
             <td>{{ $rab->jenis_pekerjaan }}</td>
           </tr>
+          @if ($rab->saluran_jenis)
+          <tr class="font-semibold">
+            <td>Jenis Saluran</td>
+            <td class="capitalize">{{ $rab->saluran_jenis }}</td>
+          </tr>
+          <tr class="font-semibold">
+            <td>Nama Saluran</td>
+            <td>{{ $rab->saluran_nama }}</td>
+          </tr>
+
+          @endif
 
           <!-- Status -->
           <tr class="font-semibold">

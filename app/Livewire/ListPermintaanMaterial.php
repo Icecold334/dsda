@@ -21,7 +21,7 @@ class ListPermintaanMaterial extends Component
     use WithFileUploads;
     public $readonlyAlokasiMerkId = null;
     public $readonlyAlokasiIndex = null;
-    public $permintaan, $tanggalPenggunaan, $keterangan, $isShow, $gudang_id, $withRab = 0, $kelurahanId, $lokasiMaterial, $nodin, $namaKegiatan, $isSeribu;
+    public $permintaan, $tanggalPenggunaan, $keterangan, $isShow, $gudang_id, $withRab = 0, $kelurahanId, $lokasiMaterial, $nodin, $namaKegiatan, $isSeribu, $saluran_jenis, $saluran_id;
     public $distribusiModalIndex = null;
     public $alokasiInput = []; // key: posisi_id, value: jumlah
     public $alokasiSisa = 0;
@@ -60,7 +60,18 @@ class ListPermintaanMaterial extends Component
 
         $this->fillBarangs();
     }
+    #[On('saluranJenis')]
+    public function setSaluranJenis($saluran_jenis)
+    {
+        $this->saluran_jenis = $saluran_jenis;
+    }
+    #[On('saluran_id')]
+    public function setSaluranId($saluran_id)
+    {
+        // dd($saluran_id);
 
+        $this->saluran_id = $saluran_id;
+    }
     public function openReadonlyAlokasiModal($merkId, $index)
     {
         $this->readonlyAlokasiMerkId = $merkId;
@@ -360,6 +371,8 @@ class ListPermintaanMaterial extends Component
             'user_id' => $user_id,
             'nodin' => $this->nodin,
             'gudang_id' => $this->gudang_id,
+            'saluran_jenis' => $this->saluran_jenis,
+            'saluran_id' => $this->saluran_id,
             'nama' => $this->namaKegiatan,
             'kelurahan_id' => $this->kelurahanId,
             'lokasi' => $this->lokasiMaterial,

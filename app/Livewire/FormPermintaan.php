@@ -25,7 +25,7 @@ class FormPermintaan extends Component
 {
     public $permintaan, $kategori;
     public $units;
-    public $last, $withRab = 0, $lokasiMaterial, $namaKegiatan, $nodin, $isSeribu, $Rkb;
+    public $last, $withRab = 0, $lokasiMaterial, $namaKegiatan, $nodin, $isSeribu, $Rkb, $saluran, $withSaluran, $saluran_id, $saluranSelected = [];
     public $unit_id, $rab_id, $rabs, $rab, $gudang_id, $gudangs;
     public $kategoris;
     public $kategori_id;
@@ -141,8 +141,29 @@ class FormPermintaan extends Component
     {
         if (!$this->withRab) {
             $this->rab_id = null;
+        } else {
+            $this->withSaluran = null;
         }
         $this->dispatch('withRab', withRab: $this->withRab);
+    }
+
+    public function updatedWithSaluran()
+    {
+        // if ($field === 'withSaluran') {
+        if ($this->withSaluran) {
+            $this->saluranSelected = $this->saluran[$this->withSaluran];
+        } else {
+            $this->withSaluran = null;
+            $this->saluranSelected = [];
+        }
+        $this->saluran_id = null;
+        return $this->dispatch('saluranJenis', saluran_jenis: $this->withSaluran);
+    }
+
+    public function updatedSaluranId()
+    {
+
+        $this->dispatch('saluran_id', saluran_id: $this->saluran_id);
     }
 
     public $showKategori;
@@ -150,6 +171,7 @@ class FormPermintaan extends Component
     public function mount()
     {
         $kategori = Request::segment(4);
+
         $this->kategori = $kategori;
         $this->gudangs = LokasiStok::where('unit_id', $this->unit_id)
             ->whereHas('transaksiStok', function ($query) {
@@ -303,7 +325,17 @@ class FormPermintaan extends Component
             $unit->where('parent_id', $this->unit_id)
                 ->orWhere('id', $this->unit_id);
         })->orderBy('created_at', 'desc')->get();
+        $saluran = collect(app('JakartaDataset'));
+        $mapping = [
+            'tersier' => 'namaPhb',
+            'sekunder' => 'namaSungai',
+            'primer' => 'namaSungai',
+        ];
 
+        $hasil = collect($mapping)->mapWithKeys(function ($uniqueKey, $tipe) use ($saluran) {
+            return [$tipe => collect($saluran[$tipe])->unique($uniqueKey)];
+        });
+        $this->saluran = $hasil;
         $this->kecamatans = Kecamatan::where('unit_id', $this->unit_id)->get();
     }
 

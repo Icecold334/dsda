@@ -16,7 +16,7 @@ class ListPengirimanMaterial extends Component
     public $bagians = [];
     public $posisis = [];
 
-    public $newBarangId, $newMerkId, $newJumlah, $newBagianId, $newPosisiId;
+    public $newBarangId, $newMerkId, $newJumlah, $newBagianId, $newPosisiId, $saluran_jenis, $saluran_id;
     public $maxJumlah = 0;
     public $list = [];
     #[On('kontrakId')]
@@ -42,6 +42,7 @@ class ListPengirimanMaterial extends Component
         $this->gudang_id = $gudangId;
         $this->bagians = \App\Models\BagianStok::where('lokasi_id', $gudangId)->get();
     }
+
 
     public function updatedNewBarangId()
     {
@@ -108,6 +109,7 @@ class ListPengirimanMaterial extends Component
 
         $detailPengiriman = \App\Models\DetailPengirimanStok::create([
             'kode_pengiriman_stok' => fake()->bothify('KP#######'),
+
             'kontrak_id' => $this->kontrak_id,
             'tanggal' => strtotime(now()),
             'user_id' => Auth::id(),
