@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamps();
             $table->id();
             $table->string('kode_barang');
+            $table->integer('minimal')->default(5);
             $table->integer('konversi')->nullable();
             $table->foreignId('jenis_id')->constrained('jenis_stok');
             $table->foreignId('kategori_id')->nullable()->constrained('kategori_stok');

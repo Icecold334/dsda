@@ -23,7 +23,7 @@
             <ul
                 class="flex flex-col md:flex-row md:space-x-0 {{ Request::is('scan/*') || Request::is('qr/*') ? 'hidden' : '' }}">
                 {{-- <ul class="grid grid-flow-col gap-0 -my-4 "> --}}
-                    <livewire:nav-item href="/dashboard" title="home" />
+                    <livewire:nav-item href="/dashboard" title="dashboard" />
 
                     @if (auth()->user()->hasRole(['Admin Sudin','Kepala Suku Dinas','P3K','Kepala Seksi', 'Kepala Suku
                     Dinas','Perencanaan']))
@@ -80,7 +80,7 @@
                                     ]" />
                     @endif
 
-                    <livewire:nav-item title="data" :child="[
+                    <livewire:nav-item title="master data" :child="[
                     ['href' => '/stok', 'title' => 'Stok'],
                     ['href' => '/stok/sudin/sudin', 'title' => 'Stok Sudin'],
                     ['href' => '/kategori', 'title' => 'kategori'],

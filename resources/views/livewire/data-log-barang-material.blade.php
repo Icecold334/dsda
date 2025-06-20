@@ -68,7 +68,7 @@
             <tr class="text-white uppercase">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Tanggal</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Nomor </th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Nomor SPPB / Surat Jalan</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Gudang</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS</th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">SPESIFIKASI (MERK/TIPE/UKURAN)</th>

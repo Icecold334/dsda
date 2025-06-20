@@ -1,7 +1,7 @@
 <div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
-            <x-card title="data umum" maxH="1">
+            <x-card title="data umum">
                 <table class="w-full border-separate border-spacing-y-4">
                     @if ($kategori == 'material')
                     <tr>

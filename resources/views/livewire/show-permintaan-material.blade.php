@@ -116,6 +116,7 @@
                         </td>
                     </tr>
                     @endif
+
                     @if (!$permintaan->rab_id && !$isSeribu)
                     <tr class="font-semibold ">
                         <td>Jenis Pekerjaan</td>
@@ -149,6 +150,30 @@
                         <td>{{$permintaan->keterangan_ditolak }}</td>
                     </tr>
                     @endif
+                    @if ($permintaan->rab_id)
+
+                    @if ($permintaan->rab->saluran_jenis)
+                    <tr class="font-semibold">
+                        <td>Jenis Saluran</td>
+                        <td class="capitalize">{{ $permintaan->rab->saluran_jenis }}</td>
+                    </tr>
+                    <tr class="font-semibold">
+                        <td>Nama Saluran</td>
+                        <td class="capitalize">{{ $permintaan->saluran_nama }}</td>
+                    </tr>
+                    @endif
+                    @else
+                    @if ($permintaan->saluran_jenis)
+                    <tr class="font-semibold">
+                        <td>Jenis Saluran</td>
+                        <td class="capitalize">{{ $permintaan->saluran_jenis }}</td>
+                    </tr>
+                    <tr class="font-semibold">
+                        <td>Nama Saluran</td>
+                        <td class="capitalize">{{ $permintaan->saluran_nama }}</td>
+                    </tr>
+                    @endif
+                    @endif
                     <tr class="font-semibold">
                         <td>Tanggal Pekerjaan</td>
                         <td> {{date('j F Y', $permintaan->tanggal_permintaan) }}</td>
@@ -157,14 +182,6 @@
                         <td>Tahun Permintaan</td>
                         <td> {{$permintaan->created_at->format('Y') }}</td>
                     </tr>
-                    {{-- <tr class="font-semibold">
-                        <td>Unit Kerja</td>
-                        <td>{{ $permintaan->unit->nama }}</td>
-                    </tr>
-                    <tr class="font-semibold">
-                        <td>Sub-Unit</td>
-                        <td>{{ $permintaan->subUnit->nama ?? '---' }}</td>
-                    </tr> --}}
                     <tr class="font-semibold {{ !$permintaan->rab_id?'':'hidden' }}">
                         <td>Keterangan</td>
                         <td>{{ $permintaan->keterangan ?? '---' }}</td>

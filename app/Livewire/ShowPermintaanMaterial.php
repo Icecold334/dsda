@@ -173,6 +173,49 @@ class ShowPermintaanMaterial extends Component
             # code...
             $this->securitySignature = $this->permintaan->ttd_security;
         }
+        if ($this->permintaan->saluran_jenis) {
+            switch ($this->permintaan->saluran_jenis) {
+                case 'tersier':
+                    $keySaluran = 'idPhb';
+                    $namaSaluran = 'namaPhb';
+                    break;
+                case 'sekunder':
+                    $keySaluran = 'idAliran';
+                    $namaSaluran = 'namaSungai';
+                    break;
+                case 'primer':
+                    $keySaluran = 'idPrimer';
+                    $namaSaluran = 'namaSungai';
+                    break;
+
+                default:
+                    $keySaluran = 'null';
+                    break;
+            }
+
+            $this->permintaan->saluran_nama = collect(app('JakartaDataset')[$this->permintaan->saluran_jenis])->where($keySaluran, $this->permintaan->saluran_id)->first()[$namaSaluran];
+        }
+        if ($this->permintaan->rab_id && $this->permintaan->rab->saluran_jenis) {
+            switch ($this->permintaan->rab->saluran_jenis) {
+                case 'tersier':
+                    $keySaluran = 'idPhb';
+                    $namaSaluran = 'namaPhb';
+                    break;
+                case 'sekunder':
+                    $keySaluran = 'idAliran';
+                    $namaSaluran = 'namaSungai';
+                    break;
+                case 'primer':
+                    $keySaluran = 'idPrimer';
+                    $namaSaluran = 'namaSungai';
+                    break;
+
+                default:
+                    $keySaluran = 'null';
+                    break;
+            }
+            $this->permintaan->saluran_nama = collect(app('JakartaDataset')[$this->permintaan->rab->saluran_jenis])->where($keySaluran, $this->permintaan->rab->saluran_id)->first()[$namaSaluran];
+        }
         $this->statusRefresh();
     }
 
