@@ -38,24 +38,24 @@ class MerkStokSeeder extends Seeder
         ];
 
         $merkData = [
-            'Material' => [
-                'Semen Gresik',
-                'Holcim',
-                'Bima',
-                'Jayamix',
-                'Adhimix',
-                'Tiga Roda',
-                'Nippon Paint',
-                'Betonmix',
-            ],
-            'Spare Part' => [
-                'Denso',
-                'Bosch',
-                'Onda',
-                'NGK',
-                'Osram',
-                'Sumitomo',
-            ],
+            // 'Material' => [
+            //     'Semen Gresik',
+            //     'Holcim',
+            //     'Bima',
+            //     'Jayamix',
+            //     'Adhimix',
+            //     'Tiga Roda',
+            //     'Nippon Paint',
+            //     'Betonmix',
+            // ],
+            // 'Spare Part' => [
+            //     'Denso',
+            //     'Bosch',
+            //     'Onda',
+            //     'NGK',
+            //     'Osram',
+            //     'Sumitomo',
+            // ],
             'Umum' => [
                 'Pilot',
                 'Faber-Castell',

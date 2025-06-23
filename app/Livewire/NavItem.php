@@ -9,12 +9,23 @@ use Illuminate\Support\Facades\Auth;
 class NavItem extends Component
 {
     public $href = null;
-    public $title;
+    public $title, $active;
     public $child = [];
     public $showNav = true; // Flag untuk menentukan apakah item ditampilkan
 
     public function mount()
     {
+        if (!count($this->child) > 0) {
+            $this->active = request()->getPathInfo() == $this->href;
+        } else {
+            foreach ($this->child as $key => $value) {
+                // dump($value['href']);
+                if (request()->getPathInfo() == $value['href']) {
+                    $this->active = request()->getPathInfo() == $value['href'];
+                    break;
+                }
+            }
+        }
         if ($this->title == 'Form') {
             if (Auth::user()->cannot('inventaris_tambah_barang_datang')) {
                 $this->child =  collect($this->child)->filter(function ($child) {

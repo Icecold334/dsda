@@ -27,7 +27,7 @@ class BarangStokSeeder extends Seeder
     {
         $this->jenis();
         $this->barangUmum();
-        $this->barangNonUmum();
+        // $this->barangNonUmum();
     }
     private function barangUmum()
     {
