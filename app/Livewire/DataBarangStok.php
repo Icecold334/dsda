@@ -5,8 +5,9 @@ namespace App\Livewire;
 use App\Models\Aset;
 use Livewire\Component;
 use App\Models\BarangStok;
-use Livewire\WithoutUrlPagination;
 use Livewire\WithPagination;
+use Livewire\WithoutUrlPagination;
+use Illuminate\Support\Facades\Auth;
 
 class DataBarangStok extends Component
 {
@@ -39,8 +40,13 @@ class DataBarangStok extends Component
                 });
         })->paginate(3);
 
-        if (!auth()->user()->unitKerja->hak) {
-            $lists = BarangStok::whereHas('jenisStok', function ($query) {
+        if (!Auth::user()->unitKerja->hak) {
+            $lists = BarangStok::when($this->search, function ($query) {
+                $query->where('nama', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('merkStok', function ($query) {
+                        $query->where('nama', 'like', '%' . $this->search . '%');
+                    });
+            })->whereHas('jenisStok', function ($query) {
                 $query->where('nama', 'Material');
             })->when($this->search, function ($query) {
                 $query->where('nama', 'like', '%' . $this->search . '%')

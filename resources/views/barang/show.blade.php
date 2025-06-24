@@ -38,6 +38,10 @@
                     <td>Satuan</td>
                     <td>{{ $barang->satuanBesar->nama }}</td>
                 </tr>
+                <tr class="font-semibold">
+                    <td>Jumlah Minimal</td>
+                    <td>{{ $barang->minimal }} {{ $barang->satuanBesar->nama }}</td>
+                </tr>
                 @if ($barang->jenisStok->id == 3)
                 <tr class="font-semibold">
                     <td>Kategori Stok</td>

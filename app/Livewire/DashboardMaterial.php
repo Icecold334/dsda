@@ -143,7 +143,13 @@ class DashboardMaterial extends Component
 
         $this->stokMenipisList = $data->filter(function ($row) use ($barangList) {
             $barang = $barangList[$row->barang_id] ?? null;
-            return $barang && $row->stok < $barang->minimal;
+
+            // Jangan tampilkan jika minimal = 0 (anggap tidak perlu warning)
+            if (!$barang || $barang->minimal === 0) {
+                return false;
+            }
+
+            return $row->stok <= $barang->minimal;
         })->map(function ($row) use ($barangList, $gudangList) {
             $barang = $barangList[$row->barang_id];
             $gudang = $gudangList[$row->lokasi_id] ?? null;

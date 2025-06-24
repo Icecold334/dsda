@@ -16,7 +16,7 @@ class UpdateBarangStok extends Component
     public $kode_barang;
     public $stok;
     public $jenis, $satuan, $satuans;
-    public $kategori;
+    public $kategori, $minimal;
     public $kategori_stok;
     public $description;
     public $tipe;
@@ -41,6 +41,7 @@ class UpdateBarangStok extends Component
                 $barang = BarangStok::find($this->id);
                 $this->barang = $barang->nama;
                 $this->satuan = $barang->satuanBesar->id;
+                $this->minimal = $barang->minimal;
                 $this->kode_barang = $barang->kode_barang;
                 $this->jenis = $barang->jenis_id;
                 $this->kategori = $barang->kategori_id;
@@ -73,6 +74,7 @@ class UpdateBarangStok extends Component
                     'kode_barang' => $this->kode_barang,
                     'jenis_id' => $this->jenis,
                     'satuan_besar_id' => $this->satuan,
+                    'minimal' => $this->minimal,
                     'deskripsi' => $this->description,
                     'kategori_id' => $this->kategori ?? null,
                 ]
