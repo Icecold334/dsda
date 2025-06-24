@@ -24,6 +24,7 @@ class DataLogBarangMaterial extends Component
     public $filterToDate;
     public $filterMonth;
     public $filterYear;
+    public $filterJenis;
     public function downloadDoc($params)
     {
         $type = $params['type'];
@@ -138,7 +139,23 @@ class DataLogBarangMaterial extends Component
             })
             ->values();
 
-        $this->list = collect($permintaan)->merge($pengiriman)->sortByDesc('tanggal')->values();
+        $permintaan = collect($permintaan)->map(function ($item) {
+            $item['jenis'] = 0;
+            return $item;
+        });
+
+        $pengiriman = collect($pengiriman)->map(function ($item) {
+            $item['jenis'] = 1;
+            return $item;
+        });
+
+        $list = $permintaan->merge($pengiriman);
+
+        if ($this->filterJenis !== null && $this->filterJenis !== '') {
+            $list = $list->filter(fn($item) => $item['jenis'] == $this->filterJenis);
+        }
+
+        $this->list = $list->sortByDesc('tanggal')->values();
     }
 
     public function resetFilters()

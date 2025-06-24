@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\JenisStok;
 use App\Models\MetodePengadaan;
 use App\Models\KontrakVendorStok;
+use App\Models\UnitKerja;
 use Illuminate\Support\Facades\Auth;
 
 class DataKontrakVendorStok extends Component
@@ -32,8 +33,13 @@ class DataKontrakVendorStok extends Component
 
     public function fetchData()
     {
+        $unit_id = $this->unit_id;
+        $unit = UnitKerja::find($unit_id)->hak;
+
+        $jenis = $unit ? 3 : 1;
+
         // Fetch data based on unitKerja and optional search filtering
-        $this->groupedTransactions = KontrakVendorStok::whereHas('transaksiStok')->when($this->unit_id, function ($kontrak) {
+        $this->groupedTransactions = KontrakVendorStok::where('jenis_id', $jenis)->whereHas('transaksiStok')->when($this->unit_id, function ($kontrak) {
             return $kontrak->whereHas('user', function ($user) {
                 return $user->whereHas('unitKerja', function ($unit) {
                     return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);

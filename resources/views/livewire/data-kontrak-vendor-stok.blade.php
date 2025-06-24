@@ -73,7 +73,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA VENDOR</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NOMOR KONTRAK</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KATEGORI BARANG</th>
+                {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KATEGORI BARANG</th> --}}
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL KONTRAK</th>
                 <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">DETAIL TRANSAKSI</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">METODE PENGADAAN</th>
@@ -94,10 +94,10 @@
                     <p class="font-semibold text-gray-800">
                         {{ $transaction->nomor_kontrak }}</p>
                 </td>
-                <td class="py-3 px-6">
+                {{-- <td class="py-3 px-6">
                     <p class="font-semibold text-gray-800">
                         {{ $transaction->transaksiStok->first()->merkStok->barangStok->jenisStok->nama }}</p>
-                </td>
+                </td> --}}
                 <td class="py-3 px-6">
                     <p class="font-semibold text-gray-800">
                         {{ $transaction->tanggal_kontrak ? date('j F Y', $transaction->tanggal_kontrak) : '---' }}

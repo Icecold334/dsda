@@ -30,6 +30,9 @@ return new class extends Migration
             $table->string('suratJalan_path')->nullable();
             $table->string('bast')->nullable();
             $table->string('bast_path')->nullable();
+            $table->string('p')->nullable();
+            $table->string('l')->nullable();
+            $table->string('k')->nullable();
             $table->date('tanggal_permintaan');
             $table->foreignId('kelurahan_id')->nullable()->constrained('kelurahans')->onDelete('cascade');
             $table->foreignId('gudang_id')->constrained('lokasi_stok')->onDelete('cascade');

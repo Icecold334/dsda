@@ -19,9 +19,8 @@ class DashboardMaterial extends Component
 
     public function mount()
     {
-        $this->unit_id = auth()->user()->unit_kerja_id;
+        $this->unit_id = auth()->user()->unit_id;
         $this->filterDate = now()->format('Y-m-d'); // default: hari ini
-
         $this->preparePemasukan();
         $this->preparePengeluaran();
 
@@ -39,28 +38,31 @@ class DashboardMaterial extends Component
     {
         $tanggal = $this->filterDate;
 
-        $this->pemasukanList = TransaksiStok::selectRaw('merk_stok.barang_id, SUM(transaksi_stok.jumlah) as total')
+        $this->pemasukanList = TransaksiStok::selectRaw('merk_stok.barang_id, transaksi_stok.lokasi_id, SUM(transaksi_stok.jumlah) as total')
             ->join('merk_stok', 'transaksi_stok.merk_id', '=', 'merk_stok.id')
             ->join('lokasi_stok', 'transaksi_stok.lokasi_id', '=', 'lokasi_stok.id')
             ->join('unit_kerja', 'lokasi_stok.unit_id', '=', 'unit_kerja.id')
             ->where('transaksi_stok.tipe', 'Pemasukan')
-            ->whereRaw("strftime('%Y-%m-%d', transaksi_stok.tanggal) = ?", [$tanggal]) // 👈 FIX
+            ->whereRaw("strftime('%Y-%m-%d', transaksi_stok.tanggal) = ?", [$tanggal])
             ->where(function ($q) {
                 $q->where('unit_kerja.parent_id', $this->unit_id)
                     ->orWhere('unit_kerja.id', $this->unit_id);
             })
-            ->groupBy('merk_stok.barang_id')
+            ->groupBy('merk_stok.barang_id', 'transaksi_stok.lokasi_id')
             ->get()
             ->map(function ($row) {
                 $barang = BarangStok::with('satuanBesar')->find($row->barang_id);
+                $gudang = \App\Models\LokasiStok::find($row->lokasi_id);
                 return (object)[
                     'nama' => $barang->nama ?? '-',
                     'satuan' => $barang->satuanBesar->nama ?? '',
                     'jumlah' => $row->total,
-                    'tanggal' => \Carbon\Carbon::parse($this->filterDate)->translatedFormat('d M Y'),
+                    'nama_gudang' => $gudang->nama ?? '-',
+                    'tanggal' => Carbon::parse($this->filterDate)->translatedFormat('d M Y'),
                 ];
             });
     }
+
 
 
     public function preparePengeluaran()
@@ -84,11 +86,14 @@ class DashboardMaterial extends Component
             ->map(function ($permintaan) {
                 $detail = $permintaan->detailPermintaan;
                 $barang = optional(optional($permintaan->merkStok)->barangStok);
+                $gudang = \App\Models\LokasiStok::find($detail->gudang_id ?? null);
+
                 return [
                     'barang_id' => $barang->id,
                     'nama' => $barang->nama ?? '-',
                     'satuan' => $barang->satuanBesar->nama ?? '',
                     'jumlah' => $permintaan->jumlah ?? 0,
+                    'nama_gudang' => $gudang->nama ?? '-',
                 ];
             })
             ->groupBy('barang_id')
@@ -98,7 +103,8 @@ class DashboardMaterial extends Component
                     'nama' => $first['nama'],
                     'satuan' => $first['satuan'],
                     'jumlah' => collect($items)->sum('jumlah'),
-                    'tanggal' => \Carbon\Carbon::parse($this->filterDate)->translatedFormat('d M Y'),
+                    'nama_gudang' => $first['nama_gudang'],
+                    'tanggal' => Carbon::parse($this->filterDate)->translatedFormat('d M Y'),
                 ];
             })
             ->values();
@@ -111,37 +117,46 @@ class DashboardMaterial extends Component
 
     public function prepareStokMenipis()
     {
-        $data = TransaksiStok::selectRaw('merk_stok.barang_id,
+        $data = TransaksiStok::selectRaw('
+                merk_stok.barang_id,
+                transaksi_stok.lokasi_id,
                 SUM(CASE WHEN transaksi_stok.tipe = "Pemasukan" THEN jumlah ELSE 0 END) as masuk,
-                SUM(CASE WHEN transaksi_stok.tipe = "Pengeluaran" THEN jumlah ELSE 0 END) as keluar')
+                SUM(CASE WHEN transaksi_stok.tipe = "Pengeluaran" THEN jumlah ELSE 0 END) as keluar
+            ')
             ->join('merk_stok', 'transaksi_stok.merk_id', '=', 'merk_stok.id')
-            ->join('users', 'transaksi_stok.user_id', '=', 'users.id')
-            ->join('unit_kerja', 'users.unit_id', '=', 'unit_kerja.id')
+            ->join('lokasi_stok', 'transaksi_stok.lokasi_id', '=', 'lokasi_stok.id')
+            ->join('unit_kerja', 'lokasi_stok.unit_id', '=', 'unit_kerja.id')
             ->where(function ($q) {
                 $q->where('unit_kerja.parent_id', $this->unit_id)
                     ->orWhere('unit_kerja.id', $this->unit_id);
             })
-            ->groupBy('merk_stok.barang_id')
+            ->groupBy('merk_stok.barang_id', 'transaksi_stok.lokasi_id')
             ->get()
             ->map(function ($row) {
                 $row->stok = $row->masuk - $row->keluar;
                 return $row;
             });
 
-        $barangs = BarangStok::whereIn('id', $data->pluck('barang_id'))->get()->keyBy('id');
 
-        $this->stokMenipisList = $data->filter(function ($row) use ($barangs) {
-            $barang = $barangs[$row->barang_id] ?? null;
+        $barangList = BarangStok::whereIn('id', $data->pluck('barang_id'))->get()->keyBy('id');
+        $gudangList = \App\Models\LokasiStok::whereIn('id', $data->pluck('lokasi_id'))->get()->keyBy('id');
+
+        $this->stokMenipisList = $data->filter(function ($row) use ($barangList) {
+            $barang = $barangList[$row->barang_id] ?? null;
             return $barang && $row->stok < $barang->minimal;
-        })->map(function ($row) use ($barangs) {
-            $barang = $barangs[$row->barang_id];
+        })->map(function ($row) use ($barangList, $gudangList) {
+            $barang = $barangList[$row->barang_id];
+            $gudang = $gudangList[$row->lokasi_id] ?? null;
+
             return (object)[
-                'nama' => $barang->nama,
+                'nama_gudang' => $gudang->nama ?? '-',
+                'barang' => $barang->nama,
                 'stok' => $row->stok,
-                'minimal' => $barang->minimal,
             ];
         })->values();
     }
+
+
 
     public function preparePermintaanTerbaru()
     {

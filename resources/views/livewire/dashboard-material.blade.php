@@ -19,6 +19,7 @@
             <table class="w-full text-sm">
                 <thead class="bg-gray-100 text-gray-800 text-sm uppercase">
                     <tr>
+                        <th class="px-2 py-2">Nama Gudang</th>
                         <th class="px-2 py-2">Nama Barang</th>
                         <th class="px-2 py-2 text-right">Jumlah</th>
                     </tr>
@@ -26,12 +27,13 @@
                 <tbody>
                     @forelse ($pemasukanList as $log)
                     <tr class="border-t">
+                        <td class="px-2 py-1">{{ $log->nama_gudang }}</td>
                         <td class="px-2 py-1">{{ $log->nama }}</td>
                         <td class="px-2 py-1 text-right">{{ $log->jumlah }} {{ $log->satuan }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="2" class="text-center py-3">Tidak ada pemasukan</td>
+                        <td colspan="3" class="text-center py-3">Tidak ada pemasukan</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -43,6 +45,7 @@
             <table class="w-full text-sm">
                 <thead class="bg-gray-100 text-gray-800 text-sm uppercase">
                     <tr>
+                        <th class="px-2 py-2">Nama Gudang</th>
                         <th class="px-2 py-2">Nama Barang</th>
                         <th class="px-2 py-2 text-right">Jumlah</th>
                     </tr>
@@ -50,12 +53,13 @@
                 <tbody>
                     @forelse ($pengeluaranList as $log)
                     <tr class="border-t">
+                        <td class="px-2 py-1">{{ $log->nama_gudang }}</td>
                         <td class="px-2 py-1">{{ $log->nama }}</td>
                         <td class="px-2 py-1 text-right">{{ $log->jumlah }} {{ $log->satuan }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="2" class="text-center py-3">Tidak ada pengeluaran</td>
+                        <td colspan="3" class="text-center py-3">Tidak ada pengeluaran</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -64,23 +68,25 @@
 
         {{-- Stok Menipis --}}
         <div class="col-span-1">
-            <x-card title="Barang Dengan Persediaan Rendah" class="mb-4">
+            <x-card title="Persediaan Hampir Habis" class="mb-4">
                 <table class="w-full text-sm">
                     <thead class="bg-gray-100 text-gray-800 text-sm uppercase">
                         <tr>
+                            <th class="px-2 py-2">Nama Gudang</th>
                             <th class="px-2 py-2">Nama Barang</th>
-                            <th class="px-2 py-2 text-right">Stok</th>
+                            <th class="px-2 py-2 text-right">Sisa/Stok</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($stokMenipisList as $item)
                         <tr class="border-t">
-                            <td class="px-2 py-1">{{ $item->nama }}</td>
+                            <td class="px-2 py-1">{{ $item->nama_gudang }}</td>
+                            <td class="px-2 py-1">{{ $item->barang }}</td>
                             <td class="px-2 py-1 text-right">{{ max($item->stok, 0) }}</td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="2" class="text-center py-3">Semua stok aman</td>
+                            <td colspan="3" class="text-center py-3">Semua stok aman</td>
                         </tr>
                         @endforelse
                     </tbody>

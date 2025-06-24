@@ -27,7 +27,7 @@ class ListPermintaanMaterial extends Component
     public $alokasiSisa = 0;
     public $stokDistribusiList = [];
 
-    public  $rabs, $rab_id,  $barangs = [], $merks = [], $dokumenCount, $newBarangId, $newRabId, $newMerkId, $newMerkMax, $newKeterangan, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
+    public  $rabs, $rab_id, $vol = [],  $barangs = [], $merks = [], $dokumenCount, $newBarangId, $newRabId, $newMerkId, $newMerkMax, $newKeterangan, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
 
     public function mount()
     {
@@ -64,6 +64,11 @@ class ListPermintaanMaterial extends Component
     public function setSaluranJenis($saluran_jenis)
     {
         $this->saluran_jenis = $saluran_jenis;
+    }
+    #[On('vol')]
+    public function setVol($vol)
+    {
+        $this->vol = $vol;
     }
     #[On('saluran_id')]
     public function setSaluranId($saluran_id)
@@ -373,6 +378,9 @@ class ListPermintaanMaterial extends Component
             'gudang_id' => $this->gudang_id,
             'saluran_jenis' => $this->saluran_jenis,
             'saluran_id' => $this->saluran_id,
+            'p' => $this->vol['p'],
+            'l' => $this->vol['l'],
+            'k' => $this->vol['k'],
             'nama' => $this->namaKegiatan,
             'kelurahan_id' => $this->kelurahanId,
             'lokasi' => $this->lokasiMaterial,

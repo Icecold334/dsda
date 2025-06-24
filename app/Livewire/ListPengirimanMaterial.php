@@ -109,8 +109,8 @@ class ListPengirimanMaterial extends Component
 
         $detailPengiriman = \App\Models\DetailPengirimanStok::create([
             'kode_pengiriman_stok' => fake()->bothify('KP#######'),
-
             'kontrak_id' => $this->kontrak_id,
+            'gudang_id' => $this->gudang_id,
             'tanggal' => strtotime(now()),
             'user_id' => Auth::id(),
         ]);

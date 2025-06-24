@@ -19,18 +19,27 @@
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                 Tambah Aset</a> --}}
             <div class="flex flex-wrap gap-4 mb-4 items-end">
+                {{-- Filter Jenis --}}
+                <div class="w-32">
+                    <label class="block text-sm font-semibold mb-1">Jenis:</label>
+                    <select wire:model.live="filterJenis" class="border rounded-lg px-4 py-2 w-full">
+                        <option value="">-- Semua Jenis --</option>
+                        <option value="0">Keluar</option>
+                        <option value="1">Masuk</option>
+                    </select>
+                </div>
                 {{-- Filter Tanggal --}}
-                <div class="w-48">
+                <div class="w-32">
                     <label class="block text-sm font-semibold mb-1">Dari Tanggal:</label>
                     <input type="date" wire:model.live="filterFromDate" class="border rounded-lg px-4 py-2 w-full" />
                 </div>
-                <div class="w-48">
+                <div class="w-32">
                     <label class="block text-sm font-semibold mb-1">Sampai Tanggal:</label>
                     <input type="date" wire:model.live="filterToDate" class="border rounded-lg px-4 py-2 w-full" />
                 </div>
 
                 {{-- Filter Bulan --}}
-                <div class="w-48">
+                <div class="w-32">
                     <label class="block text-sm font-semibold mb-1">Bulan:</label>
                     <select wire:model.live="filterMonth" class="border rounded-lg px-4 py-2 w-full">
                         <option value="">-- Semua Bulan --</option>
@@ -42,7 +51,7 @@
                 </div>
 
                 {{-- Filter Tahun --}}
-                <div class="w-48">
+                <div class="w-32">
                     <label class="block text-sm font-semibold mb-1">Tahun:</label>
                     <select wire:model.live="filterYear" class="border rounded-lg px-4 py-2 w-full">
                         <option value="">-- Semua Tahun --</option>

@@ -25,7 +25,7 @@ class FormPermintaan extends Component
 {
     public $permintaan, $kategori;
     public $units;
-    public $last, $withRab = 0, $lokasiMaterial, $namaKegiatan, $nodin, $isSeribu, $Rkb, $saluran, $withSaluran, $saluran_id, $saluranSelected = [];
+    public $last, $withRab = 0, $lokasiMaterial, $namaKegiatan, $nodin, $isSeribu, $Rkb, $saluran, $withSaluran, $saluran_id, $saluranSelected = [], $p_saluran, $l_saluran, $k_saluran, $vol = [];
     public $unit_id, $rab_id, $rabs, $rab, $gudang_id, $gudangs;
     public $kategoris;
     public $kategori_id;
@@ -146,6 +146,10 @@ class FormPermintaan extends Component
         }
         $this->dispatch('withRab', withRab: $this->withRab);
     }
+    public function updatedVol()
+    {
+        $this->dispatch('vol', vol: $this->vol);
+    }
 
     public function updatedWithSaluran()
     {
@@ -164,6 +168,28 @@ class FormPermintaan extends Component
     {
 
         $this->dispatch('saluran_id', saluran_id: $this->saluran_id);
+        switch ($this->withSaluran) {
+            case 'tersier':
+                $keySaluran = 'idPhb';
+                $namaSaluran = 'namaPhb';
+                break;
+            case 'sekunder':
+                $keySaluran = 'idAliran';
+                $namaSaluran = 'namaSungai';
+                break;
+            case 'primer':
+                $keySaluran = 'idPrimer';
+                $namaSaluran = 'namaSungai';
+                break;
+
+            default:
+                $keySaluran = 'null';
+                break;
+        }
+        $saluran = collect(app('JakartaDataset')[$this->withSaluran])->where($keySaluran, $this->saluran_id)->first();
+        $this->p_saluran = $saluran['panjang'];
+        $this->l_saluran = $saluran['lebar'];
+        $this->k_saluran = $saluran['kedalaman'];
     }
 
     public $showKategori;
