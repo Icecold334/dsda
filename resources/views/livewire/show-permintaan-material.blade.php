@@ -70,6 +70,14 @@
         <div>
             <x-card title="data umum" class="mb-3">
                 <table class="w-full">
+                    <tr class="font-semibold ">
+                        <td>Nomor SPB</td>
+                        <td>{{ $permintaan->nodin }}</td>
+                    </tr>
+                    <tr class="font-semibold ">
+                        <td class="w-[40%]">Lokasi Gudang</td>
+                        <td>{{ $permintaan->lokasiStok->nama }}</td>
+                    </tr>
                     @if ($withRab && !$isSeribu)
                     <!-- Program -->
                     <tr class="font-semibold">
@@ -123,14 +131,8 @@
                         <td>{{ $permintaan->nama }}</td>
                     </tr>
                     @endif
-                    <tr class="font-semibold ">
-                        <td>Nomor SPB</td>
-                        <td>{{ $permintaan->nodin }}</td>
-                    </tr>
-                    <tr class="font-semibold ">
-                        <td class="w-[40%]">Lokasi Gudang</td>
-                        <td>{{ $permintaan->lokasiStok->nama }}</td>
-                    </tr>
+
+
                     {{-- <tr class="font-semibold ">
                         <td class="w-[40%]">Kode Permintaan</td>
                         <td>{{ $permintaan->kode_permintaan }}</td>
@@ -150,6 +152,30 @@
                         <td>{{$permintaan->keterangan_ditolak }}</td>
                     </tr>
                     @endif
+
+                    <tr class="font-semibold">
+                        <td>Tanggal Pekerjaan</td>
+                        <td> {{date('j F Y', $permintaan->tanggal_permintaan) }}</td>
+                    </tr>
+                    <tr class="font-semibold">
+                        <td>Tahun Permintaan</td>
+                        <td> {{$permintaan->created_at->format('Y') }}</td>
+                    </tr>
+
+                    {{-- @if (!$permintaan->rab_id) --}}
+                    <tr class="font-semibold {{ $withRab?'hidden':'' }}">
+                        <td>Lokasi Kegiatan</td>
+                        <td>
+                            @if (!$permintaan->rab_id)
+                            @if ($permintaan->kelurahan)
+                            Kelurahan {{ $permintaan->kelurahan->nama }},
+                            Kecamatan {{ $permintaan->kelurahan->kecamatan->kecamatan }} –
+                            @endif
+                            {{ $permintaan->lokasi }}
+                            @else
+                            {{ $permintaan->rab->lokasi }}
+                            @endif
+                    </tr>
                     @if ($permintaan->rab_id)
 
                     @if ($permintaan->rab->saluran_jenis)
@@ -172,33 +198,20 @@
                         <td>Nama Saluran</td>
                         <td class="capitalize">{{ $permintaan->saluran_nama }}</td>
                     </tr>
-                    @endif
-                    @endif
                     <tr class="font-semibold">
-                        <td>Tanggal Pekerjaan</td>
-                        <td> {{date('j F Y', $permintaan->tanggal_permintaan) }}</td>
+                        <td>Informasi Saluran (Panjang, Lebar, Kedalaman)</td>
+                        <td class="capitalize">{{ $permintaan->p_saluran }}, {{ $permintaan->l_saluran }}, {{
+                            $permintaan->k_saluran }}</td>
                     </tr>
                     <tr class="font-semibold">
-                        <td>Tahun Permintaan</td>
-                        <td> {{$permintaan->created_at->format('Y') }}</td>
+                        <td>Volume Pekerjaan (Panjang, Lebar, Kedalaman)</td>
+                        <td class="capitalize">{{ $permintaan->p }}, {{ $permintaan->l }}, {{ $permintaan->k }}</td>
                     </tr>
+                    @endif
+                    @endif
                     <tr class="font-semibold {{ !$permintaan->rab_id?'':'hidden' }}">
                         <td>Keterangan</td>
                         <td>{{ $permintaan->keterangan ?? '---' }}</td>
-                    </tr>
-                    {{-- @if (!$permintaan->rab_id) --}}
-                    <tr class="font-semibold {{ $withRab?'hidden':'' }}">
-                        <td>Lokasi Kegiatan</td>
-                        <td>
-                            @if (!$permintaan->rab_id)
-                            @if ($permintaan->kelurahan)
-                            Kelurahan {{ $permintaan->kelurahan->nama }},
-                            Kecamatan {{ $permintaan->kelurahan->kecamatan->kecamatan }} –
-                            @endif
-                            {{ $permintaan->lokasi }}
-                            @else
-                            {{ $permintaan->rab->lokasi }}
-                            @endif
                     </tr>
                     {{-- @endif --}}
                 </table>

@@ -193,7 +193,11 @@ class ShowPermintaanMaterial extends Component
                     break;
             }
 
-            $this->permintaan->saluran_nama = collect(app('JakartaDataset')[$this->permintaan->saluran_jenis])->where($keySaluran, $this->permintaan->saluran_id)->first()[$namaSaluran];
+            $saluran = collect(app('JakartaDataset')[$this->permintaan->saluran_jenis])->where($keySaluran, $this->permintaan->saluran_id)->first();
+            $this->permintaan->saluran_nama = $saluran[$namaSaluran];
+            $this->permintaan->p_saluran = $saluran['panjang'];
+            $this->permintaan->l_saluran = $saluran['lebar'];
+            $this->permintaan->k_saluran = $saluran['kedalaman'];
         }
         if ($this->permintaan->rab_id && $this->permintaan->rab->saluran_jenis) {
             switch ($this->permintaan->rab->saluran_jenis) {
