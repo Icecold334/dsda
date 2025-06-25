@@ -52,7 +52,7 @@
           @if ($rab->saluran_jenis)
           <tr class="font-semibold">
             <td>Jenis Saluran</td>
-            <td class="capitalize">{{ $rab->saluran_jenis }}</td>
+            <td class="capitalize">Saluran Drainase {{ $rab->saluran_jenis }}</td>
           </tr>
           <tr class="font-semibold">
             <td>Nama Saluran</td>

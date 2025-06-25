@@ -54,10 +54,17 @@ class ListRab extends Component
         $this->checkAdd();
     }
 
+    // public function checkShow()
+    // {
+    //     $this->showRule = count(array_filter($this->dataKegiatan, fn($value) => $value !== null && $value !== '')) === count($this->dataKegiatan);
+    // }
     public function checkShow()
     {
-        $this->showRule = count(array_filter($this->dataKegiatan, fn($value) => $value !== null && $value !== '')) === count($this->dataKegiatan);
+        $this->showRule = collect($this->dataKegiatan)
+            ->except(['saluran_jenis', 'saluran_id']) // dikecualikan dari validasi
+            ->every(fn($value) => $value !== null && $value !== '');
     }
+
     public function checkAdd()
     {
         $this->ruleAdd = $this->newMerkId && $this->newJumlah;

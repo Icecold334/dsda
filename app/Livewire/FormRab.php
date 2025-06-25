@@ -25,7 +25,7 @@ class FormRab extends Component
     public $aktivitas_sub_kegiatan, $aktivitas_sub_kegiatans = [];
     public $kode_rekening, $kode_rekenings = [];
     public $jenis;
-    public $mulai, $Rkb, $RKB, $sudin, $withSaluran = null, $saluran_id, $saluranSelected = [];
+    public $mulai, $Rkb, $RKB, $sudin, $withSaluran = null, $saluran_id, $saluranSelected = [], $p_saluran, $l_saluran, $k_saluran;
     public $selesai;
     public $lokasi;
     public function mount()
@@ -101,6 +101,30 @@ class FormRab extends Component
             }
             $this->saluran_id = null;
             // $this->kode_rekening = null;
+        }
+        if ($field == 'saluran_id') {
+            switch ($this->withSaluran) {
+                case 'tersier':
+                    $keySaluran = 'idPhb';
+                    $namaSaluran = 'namaPhb';
+                    break;
+                case 'sekunder':
+                    $keySaluran = 'idAliran';
+                    $namaSaluran = 'namaSungai';
+                    break;
+                case 'primer':
+                    $keySaluran = 'idPrimer';
+                    $namaSaluran = 'namaSungai';
+                    break;
+
+                default:
+                    $keySaluran = 'null';
+                    break;
+            }
+            $saluran = collect(app('JakartaDataset')[$this->withSaluran])->where($keySaluran, $this->saluran_id)->first();
+            $this->p_saluran = $saluran['panjang'];
+            $this->l_saluran = $saluran['lebar'];
+            $this->k_saluran = $saluran['kedalaman'];
         }
 
         $this->dispatch('dataKegiatan', data: [

@@ -69,6 +69,7 @@ class ListPermintaanMaterial extends Component
     public function setVol($vol)
     {
         $this->vol = $vol;
+        $this->checkShow();
     }
     #[On('saluran_id')]
     public function setSaluranId($saluran_id)
@@ -251,9 +252,9 @@ class ListPermintaanMaterial extends Component
     public function checkShow()
     {
         if ($this->withRab) {
-            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && ($this->isSeribu && $this->withRab || $this->rab_id);
+            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && ($this->isSeribu && $this->withRab || $this->rab_id) && $this->isVolFilled();
         } else {
-            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && $this->lokasiMaterial && $this->keterangan && $this->nodin && $this->namaKegiatan;
+            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && $this->lokasiMaterial && $this->keterangan && $this->nodin && $this->namaKegiatan && $this->isVolFilled();
         }
     }
     public function updated($field)
@@ -452,7 +453,20 @@ class ListPermintaanMaterial extends Component
     {
         $this->ruleAdd = $this->newMerkId && $this->newJumlah && $this->newJumlah <= $this->newMerkMax;
     }
+    public function isVolFilled()
+    {
+        $requiredKeys = ['p', 'l', 'k'];
 
+        // Pastikan semua key ada dan nilainya tidak kosong
+        foreach ($requiredKeys as $key) {
+            // dump($this->vol[$key]);
+            if (!array_key_exists($key, $this->vol) || $this->vol[$key] === null || $this->vol[$key] === '') {
+                return false;
+            }
+        }
+
+        return true;
+    }
     public function openDistribusiModal($index)
     {
         $item = $this->list[$index];

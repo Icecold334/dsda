@@ -24,6 +24,39 @@ class DownloadRab extends Component
         $pdf->SetFont('helvetica', '', 10);
 
         $rab = $this->rab;
+        $saluran = collect(app('JakartaDataset'));
+
+        $mapping = [
+            'tersier' => 'namaPhb',
+            'sekunder' => 'namaSungai',
+            'primer' => 'namaSungai',
+        ];
+        $hasil = collect($mapping)->mapWithKeys(function ($uniqueKey, $tipe) use ($saluran) {
+            return [$tipe => collect($saluran[$tipe])->unique($uniqueKey)];
+        });
+        switch ($rab->saluran_jenis) {
+            case 'tersier':
+                $keySaluran = 'idPhb';
+                $namaSaluran = 'namaPhb';
+                break;
+            case 'sekunder':
+                $keySaluran = 'idAliran';
+                $namaSaluran = 'namaSungai';
+                break;
+            case 'primer':
+                $keySaluran = 'idPrimer';
+                $namaSaluran = 'namaSungai';
+                break;
+
+            default:
+                $keySaluran = 'null';
+                break;
+        }
+
+        if ($rab->saluran_jenis) {
+            $rab->saluran_nama = collect($hasil[$rab->saluran_jenis])->where($keySaluran, $rab->saluran_id)->first()[$namaSaluran];
+            // dd($rab->saluran_nama)
+        }
         $unit_id = $this->unit_id;
         $rab->unit = UnitKerja::find($unit_id);
         // $rab->kota =
@@ -44,7 +77,7 @@ class DownloadRab extends Component
         $isSeribu = $this->isSeribu;
         $sudin = $this->sudin;
 
-        $html = view('pdf.rab', compact('rab', 'kasudin', 'kasi', 'RKB', 'isSeribu', 'sudin'))->render();
+        $html = view('pdf.rab', compact('rab', 'kasudin', 'kasi', 'RKB', 'isSeribu', 'sudin',))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
 

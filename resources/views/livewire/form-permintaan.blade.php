@@ -389,10 +389,11 @@
 
                         </td>
                     </tr>
+                    @if (!$rab)
                     <tr class="{{ $withRab && !$isSeribu ?'hidden':'' }}">
                         <td class="">
                             <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Saluran *</label>
+                            </label>
                         </td>
                         <td>
                             <select wire:model.live="withSaluran" @disabled($listCount)
@@ -410,7 +411,7 @@
                     <tr class="{{ !(!$withRab  && !$isSeribu) || is_null($withSaluran) ? 'hidden':'' }}">
                         <td>
                             <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Pilih Saluran *</label>
+                            </label>
                         </td>
                         <td>
                             <select wire:model.live="saluran_id" @disabled($listCount)
@@ -445,6 +446,61 @@
                             </div>
                         </td>
                     </tr>
+                    @else
+                    <tr class="">
+                        <td class="">
+                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                            </label>
+                        </td>
+                        <td>
+                            <select @disabled(true)
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="">-- Tidak pada saluran --</option>
+                                {{-- <option value="mikro">-- Tidak pada saluran --</option> --}}
+                                <option value="tersier" @selected($rab->saluran_jenis == 'tersier')>Saluran Drainase
+                                    Tersier</option>
+                                <option value="sekunder" @selected($rab->saluran_jenis == 'sekunder')>Saluran Drainase
+                                    Sekunder</option>
+                                <option value="primer" @selected($rab->saluran_jenis == 'primer')>Saluran Drainase
+                                    Primer</option>
+
+                            </select>
+                        </td>
+                    </tr>
+                    {{-- @dump(!(!$withRab && !$isSeribu) || is_null($withSaluran)) --}}
+                    <tr class="{{ !$rab->saluran_jenis ? 'hidden':'' }}">
+                        <td>
+                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                            </label>
+                        </td>
+                        <td>
+                            <select @disabled(true)
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="">{{$rab->saluran_nama}}</option>
+
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="{{ !$rab->saluran_id ? 'hidden':'' }}">
+                        <td>
+                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Informasi Saluran (Panjang, Lebar, & Kedalaman)*</label>
+                        </td>
+                        <td>
+                            <div class="flex gap-x-2">
+                                <input type="text" value="{{ $rab->p_saluran }}" readonly
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                                    placeholder="{{ $rab->p_saluran }}">
+                                <input type="text" value="{{ $rab->l_saluran }}" readonly
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                                    placeholder="{{ $rab->l_saluran }}">
+                                <input type="text" value="{{ $rab->k_saluran }}" readonly
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                                    placeholder="{{ $rab->k_saluran }}">
+                            </div>
+                        </td>
+                    </tr>
+                    @endif
                     <tr class="">
                         <td>
                             <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">

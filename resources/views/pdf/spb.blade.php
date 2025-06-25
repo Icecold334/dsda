@@ -83,16 +83,17 @@
 
 <table class="header-table">
   <tr>
-    <td class="header-logo" width="20%">
+    <td class="header-logo" width="5%">
       <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI">
     </td>
-    <td class="header-text" width="80%">
+    <td class="header-text" width="90%">
       <span style="font-size: 12px">PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
         DINAS SUMBER DAYA AIR <br></span>
       <strong style="font-size: 14px">SUKU DINAS SUMBER DAYA AIR <br>
         {{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
-        {{ $permintaan->unit->alamat }}
+        <span style="font-size: 10px;">
+          {{ $permintaan->unit->alamat }} </span>
         <br>
         J A K A R T A
       </div>
@@ -130,10 +131,10 @@
     <tr>
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="100">{{ $item->merkStok->barangStok->nama }}</td>
-      <td width="200">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
+      <td width="280">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
         $item->merkStok->tipe ?? 'Tanpa tipe' }} -
         {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
-      <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
+      <td width="180" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
     </tr>
     @endforeach
   </tbody>

@@ -203,11 +203,11 @@
                         <td class="capitalize">{{ $permintaan->p_saluran }}, {{ $permintaan->l_saluran }}, {{
                             $permintaan->k_saluran }}</td>
                     </tr>
+                    @endif
                     <tr class="font-semibold">
                         <td>Volume Pekerjaan (Panjang, Lebar, Kedalaman)</td>
                         <td class="capitalize">{{ $permintaan->p }}, {{ $permintaan->l }}, {{ $permintaan->k }}</td>
                     </tr>
-                    @endif
                     @endif
                     <tr class="font-semibold {{ !$permintaan->rab_id?'':'hidden' }}">
                         <td>Keterangan</td>

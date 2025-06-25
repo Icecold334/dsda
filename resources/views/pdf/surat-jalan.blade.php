@@ -99,10 +99,10 @@
 
 <table class="header-table">
   <tr>
-    <td class="header-logo" width="20%">
+    <td class="header-logo" width="13%">
       <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI">
     </td>
-    <td class="header-text" width="80%">
+    <td class="header-text" width="87%">
       <span style="font-size: 12px">PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
         DINAS SUMBER DAYA AIR <br></span>
       <strong style="font-size: 14px">SUKU DINAS SUMBER DAYA AIR <br>
@@ -116,7 +116,7 @@
     </td>
   </tr>
 </table>
-<div class="underline"></div>
+<hr style="border-top: 4px solid black; margin: 2px 0;">
 <h3 class="center">SURAT JALAN</h3>
 <div class="center"><strong>Nomor</strong> : {{ $permintaan->nodin ??
   '846846866' }}<br></div>
@@ -177,8 +177,8 @@
   <thead>
     <tr>
       <th width="30" align="center">NO</th>
-      <th width="100" align="center">NAMA</th>
-      <th width="250" align="center">SPESIFIKASI</th>
+      <th width="120" align="center">NAMA</th>
+      <th width="280" align="center">SPESIFIKASI</th>
       <th width="100" align="center">VOLUME</th>
     </tr>
   </thead>
@@ -186,8 +186,8 @@
     @foreach ($permintaan->permintaanMaterial as $item)
     <tr>
       <td width="30" class="center">{{ $loop->iteration }}</td>
-      <td width="100">{{ $item->merkStok->barangStok->nama }}</td>
-      <td width="250">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
+      <td width="120">{{ $item->merkStok->barangStok->nama }}</td>
+      <td width="280">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
         $item->merkStok->tipe ?? 'Tanpa tipe' }} -
         {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
       <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>

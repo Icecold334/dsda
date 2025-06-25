@@ -95,7 +95,9 @@ class RabController extends Controller
                 break;
         }
 
-        $rab->saluran_nama = collect($hasil[$rab->saluran_jenis])->where($keySaluran, $rab->saluran_id)->first()[$namaSaluran];
+        if ($rab->saluran_jenis) {
+            $rab->saluran_nama = collect($hasil[$rab->saluran_jenis])->where($keySaluran, $rab->saluran_id)->first()[$namaSaluran];
+        }
         $RKB = $this->RKB;
 
         return view('rab.show', compact('rab', 'RKB'));

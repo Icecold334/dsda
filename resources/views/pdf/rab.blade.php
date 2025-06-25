@@ -66,7 +66,7 @@
 
 <table class="header-table">
   <tr>
-    <td class="header-logo" width="20%">
+    <td class="header-logo" width="18%">
       <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI">
     </td>
     <td class="header-text" width="80%">
@@ -75,7 +75,7 @@
       <strong style="font-size: 14px">SUKU DINAS SUMBER DAYA AIR <br>
         {{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
-        {{ $permintaan->unit->alamat }}
+        {{ $rab->unit->alamat }}
         <br>
         J A K A R T A
       </div>
@@ -130,8 +130,26 @@
   <tr>
     <td>LOKASI KEGIATAN</td>
     <td>:</td>
-    <td>{{ $rab->lokasi }}</td>
+    <td>
+      @if ($rab->kelurahan)
+      Kelurahan {{ $rab->kelurahan->nama }},
+      Kecamatan {{ $rab->kelurahan->kecamatan->kecamatan }} –
+      @endif
+      {{ $rab->lokasi }}
+    </td>
   </tr>
+  @if ($rab->saluran_jenis)
+  <tr>
+    <td>JENIS SALURAN</td>
+    <td>:</td>
+    <td style="text-transform: capitalize">Saluran Drainase {{ $rab->saluran_jenis }}</td>
+  </tr>
+  <tr>
+    <td>NAMA SALURAN</td>
+    <td>:</td>
+    <td>{{ $rab->saluran_nama }}</td>
+  </tr>
+  @endif
 </table>
 
 <br><br>

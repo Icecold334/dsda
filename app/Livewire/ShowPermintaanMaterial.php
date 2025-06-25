@@ -27,7 +27,7 @@ class ShowPermintaanMaterial extends Component
     public function suratJalan($sign)
     {
         $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-        $pdf->SetMargins(20, 5, 20);
+        $pdf->SetMargins(10, 5, 10);
 
         $pdf->SetCreator('Sistem Permintaan Barang');
         $pdf->SetAuthor('Dinas SDA');
@@ -289,7 +289,7 @@ class ShowPermintaanMaterial extends Component
     public function sppb($sign)
     {
         $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-        $pdf->SetMargins(20, 5, 20);
+        $pdf->SetMargins(10, 5, 10);
 
         $pdf->SetCreator('Sistem Permintaan Barang');
         $pdf->SetAuthor('Dinas SDA');
@@ -361,7 +361,7 @@ class ShowPermintaanMaterial extends Component
     {
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
         // Set margin (Left, Top, Right)
-        $pdf->SetMargins(20, 5, 20);
+        $pdf->SetMargins(10, 5, 10);
         $pdf->SetCreator('Sistem Permintaan Bahan');
         $pdf->SetAuthor('Dinas SDA');
         $pdf->SetTitle('Surat Permintaan Barang Material');

@@ -74,6 +74,43 @@ class FormPermintaan extends Component
     {
         $this->dispatch('rab_id', rab_id: $this->rab_id);
         $this->rab = Rab::find($this->rab_id);
+        $saluran = collect(app('JakartaDataset'));
+        $mapping = [
+            'tersier' => 'namaPhb',
+            'sekunder' => 'namaSungai',
+            'primer' => 'namaSungai',
+        ];
+
+        $hasil = collect($mapping)->mapWithKeys(function ($uniqueKey, $tipe) use ($saluran) {
+            return [$tipe => collect($saluran[$tipe])->unique($uniqueKey)];
+        });
+        $rab = $this->rab;
+        switch ($rab->saluran_jenis) {
+            case 'tersier':
+                $keySaluran = 'idPhb';
+                $namaSaluran = 'namaPhb';
+                break;
+            case 'sekunder':
+                $keySaluran = 'idAliran';
+                $namaSaluran = 'namaSungai';
+                break;
+            case 'primer':
+                $keySaluran = 'idPrimer';
+                $namaSaluran = 'namaSungai';
+                break;
+
+            default:
+                $keySaluran = 'null';
+                break;
+        }
+
+        if ($rab->saluran_jenis) {
+            $sal = collect($hasil[$rab->saluran_jenis])->where($keySaluran, $rab->saluran_id)->first();
+            $rab->saluran_nama = $sal[$namaSaluran];
+            $rab->p_saluran = $sal['panjang'];
+            $rab->l_saluran = $sal['lebar'];
+            $rab->k_saluran = $sal['kedalaman'];
+        }
     }
     public function updatedNodin()
     {
