@@ -36,19 +36,23 @@ class DashboardMaterial extends Component
 
     public function preparePemasukan()
     {
-        $tanggal = $this->filterDate;
-
-        $this->pemasukanList = TransaksiStok::selectRaw('merk_stok.barang_id, transaksi_stok.lokasi_id, SUM(transaksi_stok.jumlah) as total')
+        $this->pemasukanList = TransaksiStok::selectRaw('
+                merk_stok.barang_id,
+                transaksi_stok.lokasi_id,
+                transaksi_stok.tanggal,
+                SUM(transaksi_stok.jumlah) as total
+            ')
             ->join('merk_stok', 'transaksi_stok.merk_id', '=', 'merk_stok.id')
             ->join('lokasi_stok', 'transaksi_stok.lokasi_id', '=', 'lokasi_stok.id')
             ->join('unit_kerja', 'lokasi_stok.unit_id', '=', 'unit_kerja.id')
             ->where('transaksi_stok.tipe', 'Pemasukan')
-            ->whereRaw("strftime('%Y-%m-%d', transaksi_stok.tanggal) = ?", [$tanggal])
             ->where(function ($q) {
                 $q->where('unit_kerja.parent_id', $this->unit_id)
                     ->orWhere('unit_kerja.id', $this->unit_id);
             })
-            ->groupBy('merk_stok.barang_id', 'transaksi_stok.lokasi_id')
+            ->groupBy('merk_stok.barang_id', 'transaksi_stok.lokasi_id', 'transaksi_stok.tanggal')
+            ->orderByDesc('transaksi_stok.tanggal')
+            ->limit(10)
             ->get()
             ->map(function ($row) {
                 $barang = BarangStok::with('satuanBesar')->find($row->barang_id);
@@ -58,28 +62,26 @@ class DashboardMaterial extends Component
                     'satuan' => $barang->satuanBesar->nama ?? '',
                     'jumlah' => $row->total,
                     'nama_gudang' => $gudang->nama ?? '-',
-                    'tanggal' => Carbon::parse($this->filterDate)->translatedFormat('d M Y'),
+                    'tanggal' => Carbon::parse($row->tanggal)->translatedFormat('d M Y '),
                 ];
             });
     }
 
 
 
+
     public function preparePengeluaran()
     {
-        $tanggal = $this->filterDate;
-        $timestampStart = strtotime($tanggal . ' 00:00:00');
-        $timestampEnd = strtotime($tanggal . ' 23:59:59');
-
-        $permintaan = PermintaanMaterial::whereHas('detailPermintaan', function ($detail) use ($timestampStart, $timestampEnd) {
-            $detail->where('status', '>=', 2)
-                ->whereBetween('tanggal_permintaan', [$timestampStart, $timestampEnd])
-                ->whereHas('user.unitKerja', function ($unit) {
-                    $unit->where('parent_id', $this->unit_id)
-                        ->orWhere('id', $this->unit_id);
-                });
-        })
-            // ->with('detailPermintaan.merk.barang.satuanBesar')
+        $permintaan = PermintaanMaterial::with(['detailPermintaan', 'merkStok.barangStok.satuanBesar'])
+            ->whereHas('detailPermintaan', function ($detail) {
+                $detail->where('status', '>=', 2)
+                    ->whereHas('user.unitKerja', function ($unit) {
+                        $unit->where('parent_id', $this->unit_id)
+                            ->orWhere('id', $this->unit_id);
+                    });
+            })
+            ->latest()
+            ->limit(10)
             ->get();
 
         $this->pengeluaranList = $permintaan
@@ -89,26 +91,29 @@ class DashboardMaterial extends Component
                 $gudang = \App\Models\LokasiStok::find($detail->gudang_id ?? null);
 
                 return [
-                    'barang_id' => $barang->id,
+                    'barang_id' => $barang->id ?? null,
                     'nama' => $barang->nama ?? '-',
                     'satuan' => $barang->satuanBesar->nama ?? '',
                     'jumlah' => $permintaan->jumlah ?? 0,
                     'nama_gudang' => $gudang->nama ?? '-',
+                    'tanggal' => \Carbon\Carbon::parse($permintaan->created_at)->translatedFormat('d M Y '),
                 ];
             })
-            ->groupBy('barang_id')
+            ->groupBy(fn($item) => $item['barang_id'] . '-' . $item['nama_gudang'])
             ->map(function ($items) {
-                $first = $items->first();
+                $first = collect($items)->first();
                 return (object)[
                     'nama' => $first['nama'],
                     'satuan' => $first['satuan'],
                     'jumlah' => collect($items)->sum('jumlah'),
                     'nama_gudang' => $first['nama_gudang'],
-                    'tanggal' => Carbon::parse($this->filterDate)->translatedFormat('d M Y'),
+                    'tanggal' => $first['tanggal'],
                 ];
             })
             ->values();
     }
+
+
 
 
 
