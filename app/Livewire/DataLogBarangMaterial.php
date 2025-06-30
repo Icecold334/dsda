@@ -163,6 +163,7 @@ class DataLogBarangMaterial extends Component
         $this->filterFromDate = null;
         $this->filterToDate = null;
         $this->filterMonth = null;
+        $this->filterJenis = null;
         $this->filterYear = null;
 
         $this->applyFilters();

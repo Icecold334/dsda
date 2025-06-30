@@ -21,7 +21,7 @@
             <div class="flex flex-wrap gap-4 mb-4 items-end">
                 {{-- Filter Jenis --}}
                 <div class="w-32">
-                    <label class="block text-sm font-semibold mb-1">Jenis:</label>
+                    {{-- <label class="block text-sm font-semibold mb-1">Jenis:</label> --}}
                     <select wire:model.live="filterJenis" class="border rounded-lg px-4 py-2 w-full">
                         <option value="">-- Semua Jenis --</option>
                         <option value="0">Keluar</option>
@@ -30,17 +30,17 @@
                 </div>
                 {{-- Filter Tanggal --}}
                 <div class="w-32">
-                    <label class="block text-sm font-semibold mb-1">Dari Tanggal:</label>
+                    {{-- <label class="block text-sm font-semibold mb-1">Dari Tanggal:</label> --}}
                     <input type="date" wire:model.live="filterFromDate" class="border rounded-lg px-4 py-2 w-full" />
                 </div>
                 <div class="w-32">
-                    <label class="block text-sm font-semibold mb-1">Sampai Tanggal:</label>
+                    {{-- <label class="block text-sm font-semibold mb-1">Sampai Tanggal:</label> --}}
                     <input type="date" wire:model.live="filterToDate" class="border rounded-lg px-4 py-2 w-full" />
                 </div>
 
                 {{-- Filter Bulan --}}
                 <div class="w-32">
-                    <label class="block text-sm font-semibold mb-1">Bulan:</label>
+                    {{-- <label class="block text-sm font-semibold mb-1">Bulan:</label> --}}
                     <select wire:model.live="filterMonth" class="border rounded-lg px-4 py-2 w-full">
                         <option value="">-- Semua Bulan --</option>
                         @foreach(range(1,12) as $m)
@@ -52,7 +52,7 @@
 
                 {{-- Filter Tahun --}}
                 <div class="w-32">
-                    <label class="block text-sm font-semibold mb-1">Tahun:</label>
+                    {{-- <label class="block text-sm font-semibold mb-1">Tahun:</label> --}}
                     <select wire:model.live="filterYear" class="border rounded-lg px-4 py-2 w-full">
                         <option value="">-- Semua Tahun --</option>
                         @foreach(range(now()->year, now()->year - 5) as $y)

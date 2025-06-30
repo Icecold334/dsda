@@ -55,11 +55,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
-
         // pusat
         // Auth::loginUsingId(1); //superadmin
         // Auth::loginUsingId(175); //kasudin
-        // Auth::loginUsingId(176); //admin
+        Auth::loginUsingId(176); //admin
         // Auth::loginUsingId(177); // pptk
         // Auth::loginUsingId(180); // ppk
         // Auth::loginUsingId(178); // perencanaan
@@ -86,4 +85,59 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(301); // pb
         // Auth::loginUsingId(462);
     }
+
+    // public function generateInsightGemini($userId)
+    // {
+
+
+    //     // Ringkasan data budgeting 3 periode terakhir
+    //     $summary = [
+    //         [
+    //             'periode' => '10 April 2025 - 9 Mei 2025',
+    //             'total_spent' => 1720000,
+    //             'by_category' => [
+    //                 'makan' => 900000,
+    //                 'bensin' => 500000,
+    //                 'jajan' => 180000,
+    //                 'lain-lain' => 140000,
+    //             ],
+    //         ],
+    //         [
+    //             'periode' => '10 Mei 2025 - 9 Juni 2025',
+    //             'total_spent' => 1880000,
+    //             'by_category' => [
+    //                 'makan' => 1000000,
+    //                 'bensin' => 480000,
+    //                 'jajan' => 250000,
+    //                 'lain-lain' => 150000,
+    //             ],
+    //         ],
+    //         [
+    //             'periode' => '10 Juni 2025 - 9 Juli 2025',
+    //             'total_spent' => 1600000,
+    //             'by_category' => [
+    //                 'makan' => 850000,
+    //                 'bensin' => 450000,
+    //                 'jajan' => 200000,
+    //                 'lain-lain' => 100000,
+    //             ],
+    //         ],
+    //     ];
+
+
+    //     // $prompt = "Berikan insight keuangan dari data budgeting berikut: " . json_encode($summary) . ". Insight bisa berupa pola pengeluaran, saran hemat, dan prediksi target saving yang cocok.";
+    //     $prompt = "Kasih saran untuk data budgeting berikut: " . json_encode($summary) . ". buat dalam 1 kalimat 7-10 kata aja dalam bahasa yang agak santai";
+    //     $key = 'AIzaSyCpHjrP3gDAlnMMmQS_QLj9c2z9E8Mm2y4';
+    //     $response = Http::withHeaders([
+    //         'Content-Type' => 'application/json',
+    //     ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $key, [
+    //         'contents' => [[
+    //             'parts' => [['text' => $prompt]]
+    //         ]]
+    //     ]);
+
+    //     // dd($response->json());
+    //     dd($response->json('candidates.0.content.parts.0.text') ?? 'Tidak ada insight ditemukan.');
+    //     return $response->json('candidates.0.content.parts.0.text') ?? 'Tidak ada insight ditemukan.';
+    // }
 }
