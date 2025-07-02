@@ -68,7 +68,9 @@
                         <i class="fa fa-sync-alt"></i>
                     </button>
                 </div>
+
             </div>
+
         </div>
     </div>
 

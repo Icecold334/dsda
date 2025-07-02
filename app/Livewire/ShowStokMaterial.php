@@ -5,18 +5,47 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\LokasiStok;
 use App\Models\TransaksiStok;
+use App\Models\MerkStok;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ShowStokMaterial extends Component
 {
     public $lokasi_id;
     public $lokasi, $search;
     public $showModal = false;
+    public $showFormPenyesuaian = false;
     public $modalBarangNama;
     public $modalRiwayat = [];
+    public $penyesuaian = [
+        'merk_id' => null,
+        'jumlah' => null,
+        'deskripsi' => null,
+    ];
+    public $stokAwal = null;
+
+
     public function mount()
     {
         $this->lokasi = LokasiStok::with('unitKerja')->findOrFail($this->lokasi_id);
-        // dd($test);
+    }
+    public function updatedPenyesuaianMerkId($value)
+    {
+        $this->stokAwal = $this->getStokByMerkId($value);
+    }
+    protected function getStokByMerkId($merkId)
+    {
+        $stok = 0;
+
+        foreach ($this->barangStok as $barang) {
+            foreach ($barang['spesifikasi'] as $spec => $info) {
+                if ($info['merk_id'] == $merkId) {
+                    return $info['jumlah'];
+                }
+            }
+        }
+
+        return $stok;
     }
 
     public function getBarangStokProperty()
@@ -40,10 +69,8 @@ class ShowStokMaterial extends Component
             $ukuran = $trx->merkStok->ukuran ?? 'Tanpa Ukuran';
             $spec = "{$merk} - {$tipe} - {$ukuran}";
 
-            // Hitung jumlah berdasarkan tipe
             $jumlah = 0;
             if ($trx->tipe === 'Penyesuaian') {
-                // Penyesuaian bisa bernilai "+100" atau "-500"
                 $jumlah = (int) $trx->jumlah;
             } elseif ($trx->tipe === 'Pemasukan') {
                 $jumlah = (int) $trx->jumlah;
@@ -58,21 +85,22 @@ class ShowStokMaterial extends Component
                     'nama' => $barang->nama,
                     'satuan' => $barang->satuanBesar->nama,
                     'spesifikasi' => [],
-                    'jumlah' => [], // opsional kalau mau breakdown per merk
+                    'jumlah' => [],
                 ];
             }
 
-            $result[$key]['spesifikasi'][$spec] = ($result[$key]['spesifikasi'][$spec] ?? 0) + $jumlah;
+            $result[$key]['spesifikasi'][$spec] = [
+                'jumlah' => ($result[$key]['spesifikasi'][$spec]['jumlah'] ?? 0) + $jumlah,
+                'merk_id' => $trx->merkStok->id,
+            ];
         }
 
-        // Filter hanya spesifikasi dengan stok > 0
         foreach ($result as $barangId => &$data) {
             $data['spesifikasi'] = collect($data['spesifikasi'])
-                ->filter(fn($jumlah) => $jumlah > 0)
+                ->filter(fn($spec) => $spec['jumlah'] > 0)
                 ->all();
         }
 
-        // Hapus barang yang semua spesifikasinya kosong
         $result = array_filter($result, fn($data) => count($data['spesifikasi']) > 0);
 
         $search = strtolower($this->search);
@@ -89,8 +117,63 @@ class ShowStokMaterial extends Component
             });
         }
 
-        return $result; // <-- pindahkan ke luar blok if
+        return $result;
     }
+
+    public function getMerkStokSiapPenyesuaianProperty()
+    {
+        $list = [];
+
+        foreach ($this->barangStok as $barang) {
+            foreach ($barang['spesifikasi'] as $spec => $info) {
+                $list[] = [
+                    'id' => $info['merk_id'],
+                    'label' => "{$barang['nama']} - {$spec}",
+                ];
+            }
+        }
+
+        return collect($list)->unique('id')->values();
+    }
+
+    public function simpanPenyesuaian()
+    {
+        $this->validate([
+            'penyesuaian.merk_id' => 'required|exists:merk_stok,id',
+            'penyesuaian.jumlah' => 'required|numeric|min:0',
+            'penyesuaian.deskripsi' => 'nullable|string',
+        ]);
+
+        $stokBaru = (int) $this->penyesuaian['jumlah'];
+        $selisih = $stokBaru - (int) $this->stokAwal;
+
+        if ($selisih === 0) {
+            session()->flash('info', 'Tidak ada perubahan stok.');
+            return;
+        }
+
+        TransaksiStok::create([
+            'tipe' => 'Penyesuaian',
+            'merk_id' => $this->penyesuaian['merk_id'],
+            'jumlah' => $selisih,
+            'deskripsi' => $this->penyesuaian['deskripsi'],
+            'lokasi_id' => $this->lokasi_id,
+            'user_id' => Auth::id(),
+            'tanggal' => now()->timestamp,
+            'kode_transaksi_stok' => 'PNY-' . now()->format('YmdHis'),
+        ]);
+        $this->dispatch('toast', [
+            // 'title' => 'Berhasil',
+            'message' => 'Penyesuaian stok berhasil disimpan.',
+            'type' => 'success'
+        ]);
+
+        $this->reset('penyesuaian', 'stokAwal', 'showFormPenyesuaian');
+
+        $this->reset('penyesuaian', 'stokAwal', 'showFormPenyesuaian');
+        // session()->flash('success', 'Penyesuaian stok berhasil disimpan.');
+    }
+
 
     public function showRiwayat($barangId, $namaBarang)
     {
@@ -117,12 +200,12 @@ class ShowStokMaterial extends Component
                     'lokasi' => $trx->lokasiStok?->nama ?? '-',
                     'bagian' => $trx->bagianStok?->nama ?? '-',
                     'posisi' => $trx->posisiStok?->nama ?? '-',
+                    'deskripsi' => $trx->deskripsi ?? '-',
                 ];
             })->toArray();
 
         $this->showModal = true;
     }
-
 
     public function closeModal()
     {
@@ -130,10 +213,12 @@ class ShowStokMaterial extends Component
         $this->modalBarangNama = null;
         $this->modalRiwayat = [];
     }
+
     public function render()
     {
         return view('livewire.show-stok-material', [
             'barangStok' => $this->barangStok,
+            'merkStokSiapPenyesuaian' => $this->merkStokSiapPenyesuaian,
         ]);
     }
 }

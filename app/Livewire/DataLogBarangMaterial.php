@@ -108,16 +108,28 @@ class DataLogBarangMaterial extends Component
             })
             ->values();
 
-        $pengiriman = PengirimanStok::whereHas('detailPengirimanStok', fn($q) => $q->where('status', 1));
+        $pengiriman = PengirimanStok::whereHas('detailPengirimanStok', function ($q) {
+            $q->where('status', 1);
 
-        if ($this->filterFromDate && $this->filterToDate) {
-            $pengiriman->whereBetween('tanggal', [$this->filterFromDate, $this->filterToDate]);
-        } elseif ($this->filterMonth && $this->filterYear) {
-            $pengiriman->whereMonth('tanggal', $this->filterMonth)
-                ->whereYear('tanggal', $this->filterYear);
-        } elseif ($this->filterYear) {
-            $pengiriman->whereYear('tanggal', $this->filterYear);
-        }
+            if ($this->filterFromDate && $this->filterToDate) {
+                $from = strtotime($this->filterFromDate);
+                $to = strtotime($this->filterToDate . ' 23:59:59');
+
+                $q->whereBetween('tanggal', [$from, $to]);
+            } elseif ($this->filterMonth && $this->filterYear) {
+                $start = strtotime("{$this->filterYear}-{$this->filterMonth}-01");
+                $end = strtotime("last day of {$this->filterYear}-{$this->filterMonth}") + 86399;
+
+                $q->whereBetween('tanggal', [$start, $end]);
+            } elseif ($this->filterYear) {
+                $start = strtotime("{$this->filterYear}-01-01");
+                $end = strtotime("{$this->filterYear}-12-31 23:59:59");
+
+                $q->whereBetween('tanggal', [$start, $end]);
+            }
+        });
+
+
 
         $pengiriman = $pengiriman->get()
             ->groupBy(function ($item) {
@@ -187,7 +199,7 @@ class DataLogBarangMaterial extends Component
             })
                 ->get();
 
-            $this->dataSelected = $this->detailList->first()->detailPermintaan;
+            $this->dataSelected = collect($this->detailList)->first()->detailPermintaan;
         } else {
             $this->detailList = PengirimanStok::whereHas('detailPengirimanStok', function ($dp) use ($gudangId) {
                 return $dp->where('lokasi_id', $gudangId);
