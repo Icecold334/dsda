@@ -204,7 +204,23 @@
                                 {{ $item['tipe'] }}
                             </span>
                         </td>
-                        <td class="px-4 py-2 text-center">{{ $item['jumlah'] }}</td>
+                        @php
+                        $jumlah = $item['jumlah'];
+
+                        if ($item['tipe'] === 'Pemasukan') {
+                        $jumlah = '+' . $jumlah;
+                        } elseif ($item['tipe'] === 'Pengeluaran') {
+                        $jumlah = '-' . $jumlah;
+                        } elseif ($item['tipe'] === 'Penyesuaian') {
+                        $jumlah = $jumlah >= 0 ? '+' . $jumlah : $jumlah;
+                        }
+
+                        $textColor = str_starts_with($jumlah, '+') ? 'text-success-700' : 'text-danger-700';
+                        @endphp
+
+                        <td class="px-4 py-2 text-center font-semibold {{ $textColor }}">
+                            {{ $jumlah }}
+                        </td>
                         <td class="px-4 py-2">{{ $item['merk'] }} </td>
                         <td class="px-4 py-2">{{ $item['tipe_merk'] }}</td>
                         <td class="px-4 py-2">{{ $item['ukuran'] }}</td>

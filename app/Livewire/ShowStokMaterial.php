@@ -124,7 +124,60 @@ class ShowStokMaterial extends Component
     {
         $list = [];
 
-        foreach ($this->barangStok as $barang) {
+        $transaksis = TransaksiStok::with(['merkStok.barangStok'])
+            ->whereHas('merkStok.barangStok', function ($barang) {
+                return $barang->where('jenis_id', 1);
+            })
+            ->where('lokasi_id', $this->lokasi_id)
+            ->get();
+
+        $result = [];
+
+        foreach ($transaksis as $trx) {
+            $barang = $trx->merkStok->barangStok;
+            if (!$barang) continue;
+
+            $key = $barang->id;
+            $merk = $trx->merkStok->nama ?? 'Tanpa Merk';
+            $tipe = $trx->merkStok->tipe ?? 'Tanpa Tipe';
+            $ukuran = $trx->merkStok->ukuran ?? 'Tanpa Ukuran';
+            $spec = "{$merk} - {$tipe} - {$ukuran}";
+
+            $jumlah = 0;
+            if ($trx->tipe === 'Penyesuaian') {
+                $jumlah = (int) $trx->jumlah;
+            } elseif ($trx->tipe === 'Pemasukan') {
+                $jumlah = (int) $trx->jumlah;
+            } elseif ($trx->tipe === 'Pengeluaran' || $trx->tipe === 'Pengajuan') {
+                $jumlah = -(int) $trx->jumlah;
+            }
+
+            if (!isset($result[$key])) {
+                $result[$key] = [
+                    'id' => $barang->id,
+                    'kode' => $barang->kode_barang,
+                    'nama' => $barang->nama,
+                    'satuan' => $barang->satuanBesar->nama,
+                    'spesifikasi' => [],
+                    'jumlah' => [],
+                ];
+            }
+
+            $result[$key]['spesifikasi'][$spec] = [
+                'jumlah' => ($result[$key]['spesifikasi'][$spec]['jumlah'] ?? 0) + $jumlah,
+                'merk_id' => $trx->merkStok->id,
+            ];
+        }
+
+        foreach ($result as $barangId => &$data) {
+            $data['spesifikasi'] = collect($data['spesifikasi'])
+                ->filter(fn($spec) => $spec['jumlah'] > 0)
+                ->all();
+        }
+
+        $result = array_filter($result, fn($data) => count($data['spesifikasi']) > 0);
+
+        foreach ($result as $barang) {
             foreach ($barang['spesifikasi'] as $spec => $info) {
                 $list[] = [
                     'id' => $info['merk_id'],
@@ -159,9 +212,10 @@ class ShowStokMaterial extends Component
             'deskripsi' => $this->penyesuaian['deskripsi'],
             'lokasi_id' => $this->lokasi_id,
             'user_id' => Auth::id(),
-            'tanggal' => now()->timestamp,
-            'kode_transaksi_stok' => 'PNY-' . now()->format('YmdHis'),
+            'tanggal' => now()->format('Y-m-d'),
+            'kode_transaksi_stok' => 'SO-' . now()->format('Ymd'),
         ]);
+
         $this->dispatch('toast', [
             // 'title' => 'Berhasil',
             'message' => 'Penyesuaian stok berhasil disimpan.',
