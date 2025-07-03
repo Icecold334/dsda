@@ -48,7 +48,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Gudang</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Jenis</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">Volume</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12">Aksi</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/12"></th>
             </tr>
         </thead>
         <tbody>
@@ -62,7 +62,7 @@
                         {{ $row['jenis'] === 1 ? 'Masuk' : ($row['jenis'] === 0 ? 'Keluar' : 'Penyesuaian') }}
                     </span>
                 </td>
-                <td class="py-3 px-6 text-center font-semibold">{{ $row['volume'] }}</td>
+                <td class="py-3 px-6 text-center font-semibold">{{ abs($row['volume']) }}</td>
                 <td class="py-3 px-6 text-center">
                     <button class="text-primary-950 px-3 py-2 rounded-md border hover:bg-slate-300"
                         wire:click="selectedTanggal('{{ $row['tanggal'] }}', {{ $row['jenis'] }}, {{ $row['gudang_id'] }})">
@@ -123,8 +123,23 @@
                             <td class="px-3 py-2">{{ $item->merkStok->nama ?? '-' }}</td>
                             <td class="px-3 py-2">{{ $item->merkStok->tipe ?? '-' }}</td>
                             <td class="px-3 py-2">{{ $item->merkStok->ukuran ?? '-' }}</td>
-                            <td class="px-3 py-2 text-center">
-                                {{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama ?? '' }}
+                            @php
+                            $jumlah = $item->jumlah;
+
+                            if ($jenisDipilih === 1) {
+                            $jumlah = '+' . $jumlah;
+                            } elseif ($jenisDipilih === 0) {
+                            $jumlah = '-' . $jumlah;
+                            } else {
+                            $jumlah = $jumlah >= 0 ? '+' . $jumlah : $jumlah;
+                            }
+                            $textColor = str_starts_with($jumlah, '+') ? 'text-success-700' : 'text-danger-700';
+                            // }
+
+                            $textColor = str_starts_with($jumlah, '+') ? 'text-success-700' : 'text-danger-700';
+                            @endphp
+                            <td class="px-3 py-2 text-center font-semibold {{ $textColor }}">
+                                {{ $jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama ?? '' }}
                             </td>
                         </tr>
                         @empty
