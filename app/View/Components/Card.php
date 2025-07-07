@@ -23,7 +23,7 @@ class Card extends Component
     {
         return <<<'blade'
     <div
-    {{ $attributes->merge(['class' => 'w-full bg-white border border-gray-200 rounded-lg shadow overflow-hidden dark:bg-gray-800 dark:border-gray-700']) }}>
+    {{ $attributes->merge(['class' => 'w-full bg-white border border-gray-200 rounded-lg shadow overflow-visible dark:bg-gray-800 dark:border-gray-700']) }}>
         <div
             class="bg-primary-100 flex flex-wrap text-sm rounded-t-lg font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800">
             <h1

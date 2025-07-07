@@ -29,7 +29,7 @@
                     </tr> --}}
                     <tr>
                         <td>Jenis Barang</td>
-                        <td>{{ $kontrak->transaksiStok->first()->merkStok->barangStok->jenisStok->nama }}</td>
+                        <td>{{ $kontrak->listKontrak->first()->merkStok->barangStok->jenisStok->nama }}</td>
                     </tr>
                     <tr>
                         <td>Metode Pengadaan</td>

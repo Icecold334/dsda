@@ -75,4 +75,14 @@ class KontrakVendorStok extends Model
     {
         return $this->hasMany(TransaksiStok::class, 'kontrak_id');
     }
+
+    public function parent()
+    {
+        return $this->belongsTo(KontrakVendorStok::class, 'parent_kontrak_id');
+    }
+
+    public function adendums()
+    {
+        return $this->hasMany(KontrakVendorStok::class, 'parent_kontrak_id');
+    }
 }

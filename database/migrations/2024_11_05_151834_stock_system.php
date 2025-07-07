@@ -144,6 +144,8 @@ return new class extends Migration
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->boolean('type');
             $table->boolean('status')->nullable();
+            $table->boolean('is_adendum')->default(false);
+            $table->foreignId('parent_kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
         });
 
         Schema::create('metode_pengadaan', function (Blueprint $table) {

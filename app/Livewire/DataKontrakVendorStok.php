@@ -37,15 +37,15 @@ class DataKontrakVendorStok extends Component
         $unit = UnitKerja::find($unit_id)->hak;
 
         $jenis = $unit ? 3 : 1;
-
         // Fetch data based on unitKerja and optional search filtering
-        $this->groupedTransactions = KontrakVendorStok::where('jenis_id', $jenis)->whereHas('transaksiStok')->when($this->unit_id, function ($kontrak) {
-            return $kontrak->whereHas('user', function ($user) {
-                return $user->whereHas('unitKerja', function ($unit) {
-                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        $this->groupedTransactions = KontrakVendorStok::where('jenis_id', $jenis)
+            ->when($this->unit_id, function ($kontrak) {
+                return $kontrak->whereHas('user', function ($user) {
+                    return $user->whereHas('unitKerja', function ($unit) {
+                        return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                    });
                 });
-            });
-        })
+            })
 
             ->when($this->search, function ($query) {
                 $query->where(function ($subQuery) {
@@ -53,11 +53,6 @@ class DataKontrakVendorStok extends Component
                         ->orWhereHas('vendorStok', function ($vendor) {
                             $vendor->where('nama', 'like', '%' . $this->search . '%');
                         });
-                });
-            })
-            ->when($this->jenis, function ($query) {
-                $query->whereHas('listKontrak.merkStok.barangStok.jenisStok', function ($jenisQuery) {
-                    $jenisQuery->where('nama', $this->jenis);
                 });
             })
             ->when($this->metode, function ($query) {

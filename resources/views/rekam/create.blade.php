@@ -8,6 +8,7 @@
         </div>
     </div>
 
+    @if (auth()->user()->unitKerja->hak)
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         <div>
@@ -22,5 +23,8 @@
         </div>
     </div>
     <livewire:kontrak-list-form />
+    @else
+    <livewire:create-kontrak-vendor />
+    @endif
 
 </x-body>
