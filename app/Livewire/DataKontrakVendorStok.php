@@ -38,7 +38,13 @@ class DataKontrakVendorStok extends Component
 
         $jenis = $unit ? 3 : 1;
         // Fetch data based on unitKerja and optional search filtering
-        $this->groupedTransactions = KontrakVendorStok::where('jenis_id', $jenis)
+        $this->groupedTransactions = KontrakVendorStok::where('jenis_id', $jenis)->whereHas('listKontrak')->where(function ($query) {
+            $query->where(function ($q) {
+                $q->where('is_adendum', false)
+                    ->whereDoesntHave('adendums');
+            })
+                ->orWhere('is_adendum', true);
+        })
             ->when($this->unit_id, function ($kontrak) {
                 return $kontrak->whereHas('user', function ($user) {
                     return $user->whereHas('unitKerja', function ($unit) {

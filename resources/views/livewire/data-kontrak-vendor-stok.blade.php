@@ -121,10 +121,10 @@
                                     {{ $tran->merkStok->barangStok->satuanBesar->nama }}</td>
                             </tr>
                             @endforeach
-                            @if ($transaction->transaksiStok->count() > 3)
+                            @if ($transaction->listKontrak->count() > 3)
                             <tr class="border-b-[1px] border-primary-800">
                                 <td colspan="2" class="text-center font-semibold px-2">
-                                    {{ $transaction->transaksiStok->count() - 3 }} Transaksi Lain
+                                    {{ $transaction->listKontrak->count() - 3 }} Transaksi Lain
                                 </td>
                             </tr>
                             @endif

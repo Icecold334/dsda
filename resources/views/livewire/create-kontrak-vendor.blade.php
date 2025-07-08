@@ -24,8 +24,9 @@
                                 class="w-full px-3 py-2 border-b border-gray-200 focus:outline-none text-sm" />
 
                             <ul class="max-h-48 overflow-y-auto text-sm">
-                                @foreach ($vendors as $vendor)
-                                <template x-if="'{{ Str::lower($vendor->nama) }}'.includes(search.toLowerCase())">
+                                @foreach ($vendors as $index => $vendor)
+                                <template wire:key="vendor-{{ $index }}"
+                                    x-if="'{{ Str::lower($vendor->nama) }}'.includes(search.toLowerCase())">
                                     <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
                                         @click="$wire.set('vendor_id', {{ $vendor->id }}); open = false;">
                                         {{ $vendor->nama }}
@@ -135,14 +136,13 @@
                             class="w-full px-3 py-2 border-b border-gray-200 focus:outline-none text-sm" />
 
                         <ul class="max-h-48 overflow-y-auto text-sm">
-                            @foreach ($barangs as $barang)
-                            <template
-                                x-if="{{ json_encode(Str::lower($barang->nama)) }}.includes(search.toLowerCase())">
-                                <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
-                                    @click="$wire.set('barang_id', {{ $barang->id }}); open = false;">
-                                    {{ $barang->nama }}
-                                </li>
-                            </template>
+                            @foreach ($barangs as $index => $barang)
+                            <li wire:key="barang-{{ $index }}"
+                                x-show="{{ json_encode(Str::lower($barang->nama)) }}.includes(search.toLowerCase())"
+                                @click="$wire.set('barang_id', {{ $barang->id }}); open = false;"
+                                class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
+                                x-text="{{ json_encode($barang->nama) }}">
+                            </li>
                             @endforeach
                         </ul>
                     </div>
@@ -162,7 +162,8 @@
                         <ul x-show="open" x-transition
                             class="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-md shadow max-h-48 overflow-y-auto text-sm">
                             @foreach ($specOptions[$field] as $value)
-                            <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
+                            <li wire:key="{{ $field.now() }}-{{ $index }}"
+                                class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
                                 @click="search = '{{ $value }}'; open = false;">
                                 {{ $value }}
                             </li>
@@ -274,7 +275,8 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center p-4 text-gray-500">Belum ada barang ditambahkan</td>
+                        <td colspan="{{ $isAdendum ? 8 : 7 }}" class="text-center p-4 text-gray-500">Belum ada barang
+                            ditambahkan</td>
                     </tr>
                     @endforelse
                     @if (count($list) > 0)
@@ -306,7 +308,7 @@
         confirmButtonText: 'Ya, Adendum',
         cancelButtonText: 'Batal'
         }).then((result) => {
-if (result.isConfirmed) {
+        if (result.isConfirmed) {
             @this.call('prosesAdendum', event.detail.id)
             } else {
             @this.set('nomor_kontrak', '');
