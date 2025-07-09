@@ -75,9 +75,20 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex items-end gap-2">
                 <div class="flex-1">
+                    @if ($isAdendum)
+                    <label class="block text-sm">Nomor Kontrak Lama</label>
+                    <input type="text" value="{{ $nomor_kontrak }}" readonly
+                        class="bg-gray-100 border border-gray-300 text-sm rounded-lg block w-full p-2.5">
+
+                    <label class="block text-sm mt-2">Nomor Kontrak Baru</label>
+                    <input type="text" wire:model.live="nomor_kontrak_baru"
+                        class="bg-white border border-gray-300 text-sm rounded-lg block w-full p-2.5"
+                        placeholder="Isi nomor kontrak baru">
+                    @else
                     <label class="block text-sm">Nomor Kontrak</label>
                     <input type="text" wire:model.live="nomor_kontrak"
-                        class="bg-gray-50 border border-gray-300  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        class="bg-white border border-gray-300 text-sm rounded-lg block w-full p-2.5">
+                    @endif
                 </div>
                 @if ($isAdendum)
                 <div class="mb-2">
@@ -246,7 +257,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($list as $index => $item)
+                    @if (count($list) > 0)
+                    @foreach ($list as $index => $item)
                     @php
                     $harga = (int) str_replace('.', '', $item['harga']);
                     $subtotal = $harga * $item['jumlah'];
@@ -261,7 +273,7 @@
                         <td class="p-2 text-center">{{ $item['jumlah_terkirim'] }} {{ $item['satuan'] }}</td>
                         @endif
                         <td class="p-2 text-right">Rp {{ number_format($harga, 0, '', '.') }}</td>
-                        <td class="p-2 text-center">{{ $item['ppn'] == 0 ?'Termasuk PPN': $item['ppn'].'%' }}</td>
+                        <td class="p-2 text-center">{{ $item['ppn'] == 0 ? 'Termasuk PPN' : $item['ppn'].'%' }}</td>
                         <td class="p-2 text-right font-semibold">Rp {{ number_format($total, 0, '', '.') }}</td>
                         <td class="p-2 text-center">
                             @if (!empty($item['can_delete']) && $item['can_delete'])
@@ -273,12 +285,14 @@
                             @endif
                         </td>
                     </tr>
-                    @empty
+                    @endforeach
+                    @else
                     <tr>
-                        <td colspan="{{ $isAdendum ? 8 : 7 }}" class="text-center p-4 text-gray-500">Belum ada barang
-                            ditambahkan</td>
+                        <td colspan="{{ $isAdendum ? 8 : 7 }}" class="text-center p-4 text-gray-500">
+                            Belum ada barang ditambahkan
+                        </td>
                     </tr>
-                    @endforelse
+                    @endif
                     @if (count($list) > 0)
                     <tr class="bg-gray-100 font-bold">
                         <td colspan="5" class="p-2 text-right">TOTAL</td>

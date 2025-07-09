@@ -25,6 +25,8 @@ class CreateKontrakVendor extends Component
 
     // === SECTION: KONTRAK ===
     public $nomor_kontrak, $tanggal_kontrak, $metode_id, $jenis_id = 1, $nominal_kontrak;
+    public $nomor_kontrak_baru = null;
+
 
     // === SECTION: BARANG ===
     public $barang_id, $newBarang, $jumlah, $newHarga, $newPpn = 0;
@@ -48,12 +50,21 @@ class CreateKontrakVendor extends Component
 
     public function updatedNomorKontrak($value)
     {
+        // Cek apakah kontrak dengan nomor ini ada
         $kontrak = KontrakVendorStok::where('nomor_kontrak', $value)->first();
 
-        if ($kontrak) {
-            $this->dispatch('konfirmasi-adendum', id: $kontrak->id, nomor: $kontrak->nomor_kontrak,);
+        // Jika tidak ada, keluar saja
+        if (!$kontrak) return;
+
+        // Cek apakah kontrak ini punya adendum (artinya ini kontrak lama)
+        $punyaAdendum = KontrakVendorStok::where('parent_kontrak_id', $kontrak->id)->exists();
+
+        // Hanya trigger jika kontrak tersebut adalah adendum terakhir (tidak punya adendum lagi)
+        if (!$punyaAdendum) {
+            $this->dispatch('konfirmasi-adendum', id: $kontrak->id, nomor: $kontrak->nomor_kontrak);
         }
     }
+
 
     public function prosesAdendum($id)
     {
@@ -66,6 +77,8 @@ class CreateKontrakVendor extends Component
         $this->metode_id = $kontrak->metode_id;
         $this->jenis_id = $kontrak->jenis_id;
         $this->tanggal_kontrak = now()->format('Y-m-d');
+        $this->nomor_kontrak = $kontrak->nomor_kontrak; // disimpan untuk display readonly
+        $this->nomor_kontrak_baru = null; // inputan baru user
 
         // Set readonly secara manual di blade pakai $isAdendum
 
@@ -73,12 +86,15 @@ class CreateKontrakVendor extends Component
         // prosesAdendum()
         $this->list = $kontrak->listKontrak->map(function ($item) use ($kontrak) {
             $merk_id = $item->merkStok->id;
+            $kontrakIds = $this->getKontrakChainIds($kontrak);
 
             $jumlah_terkirim = \App\Models\PengirimanStok::where('merk_id', $merk_id)
-                ->whereHas('detailPengirimanStok', function ($q) use ($kontrak) {
-                    $q->where('kontrak_id', $kontrak->id)->where('status', 1);
+                ->whereHas('detailPengirimanStok', function ($q) use ($kontrakIds) {
+                    $q->whereIn('kontrak_id', $kontrakIds)
+                        ->where('status', 1);
                 })
                 ->sum('jumlah');
+
 
             return [
                 'barang_id' => $item->merkStok->barang_id,
@@ -249,7 +265,8 @@ class CreateKontrakVendor extends Component
     {
         $this->validate([
             'vendor_id' => 'required',
-            'nomor_kontrak' => 'required',
+            'nomor_kontrak' => $this->isAdendum ? 'nullable' : 'required',
+            'nomor_kontrak_baru' => $this->isAdendum ? 'required|different:nomor_kontrak' : 'nullable',
             'tanggal_kontrak' => 'required|date',
             'metode_id' => 'required',
             'jenis_id' => 'required',
@@ -258,7 +275,7 @@ class CreateKontrakVendor extends Component
 
         $kontrak = KontrakVendorStok::create([
             'vendor_id' => $this->vendor_id,
-            'nomor_kontrak' => $this->nomor_kontrak,
+            'nomor_kontrak' => $this->isAdendum ? $this->nomor_kontrak_baru : $this->nomor_kontrak,
             'tanggal_kontrak' => strtotime($this->tanggal_kontrak),
             'metode_id' => $this->metode_id,
             'jenis_id' => $this->jenis_id,
@@ -291,6 +308,18 @@ class CreateKontrakVendor extends Component
 
         // session()->flash('success', 'Kontrak berhasil disimpan!');
         // return redirect()->route('kontrak-vendor-stok.index');
+    }
+    protected function getKontrakChainIds($kontrak)
+    {
+        $ids = [$kontrak->id];
+
+        while ($kontrak->is_adendum && $kontrak->parent_kontrak_id) {
+            $kontrak = KontrakVendorStok::find($kontrak->parent_kontrak_id);
+            if (!$kontrak) break;
+            $ids[] = $kontrak->id;
+        }
+
+        return $ids;
     }
 
     public function render()

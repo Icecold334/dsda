@@ -81,13 +81,16 @@ class KontrakVendorStokController extends Controller
     {
         // Retrieve the contract details with related data (such as vendor and items)
         $kontrak = KontrakVendorStok::findOrFail($id);
-        $total = $kontrak->transaksiStok->map(function ($item) {
-            $item->afterPpn = $item->harga * $item->jumlah + ($item->harga * $item->jumlah * $item->ppn) / 100;
-            return $item;
-        })->sum('afterPpn');
+        $total = $kontrak->listKontrak->sum(function ($item) {
+            $subtotal = $item->harga * $item->jumlah;
+            $ppn = $item->ppn ? ($subtotal * ((int) $item->ppn) / 100) : 0;
+            return $subtotal + $ppn;
+        });
+
+
 
         // Return the view with the contract data
-        return view('rekam.show', compact('kontrak', 'total'));
+        return view('rekam.show', compact('id'));
     }
 
 

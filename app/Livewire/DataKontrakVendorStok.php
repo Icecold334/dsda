@@ -43,8 +43,12 @@ class DataKontrakVendorStok extends Component
                 $q->where('is_adendum', false)
                     ->whereDoesntHave('adendums');
             })
-                ->orWhere('is_adendum', true);
+                ->orWhere(function ($q) {
+                    $q->where('is_adendum', true)
+                        ->whereDoesntHave('adendums');
+                });
         })
+
             ->when($this->unit_id, function ($kontrak) {
                 return $kontrak->whereHas('user', function ($user) {
                     return $user->whereHas('unitKerja', function ($unit) {
