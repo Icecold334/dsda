@@ -162,13 +162,13 @@
     @endif
 
     @if ($showModal)
-    <div class="fixed -inset-40 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-6xl p-6 relative">
+    <div class="fixed -inset-40 bg-black bg-opacity-50 flex items-center justify-center  z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-6xl p-6 relative max-h-96 overflow-y-scroll">
             <button wire:click="closeModal"
                 class="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl font-bold">&times;</button>
             <h3 class="text-xl font-semibold mb-4">Riwayat Stok: {{ $modalBarangNama }}</h3>
 
-            <table class="w-full border">
+            <table class="w-full border ">
                 <thead class="bg-gray-200">
                     <tr>
                         <th class="px-4 py-2">Kode Transaksi</th>
@@ -181,6 +181,7 @@
                         <th class="px-4 py-2">Bagian</th>
                         <th class="px-4 py-2">Posisi</th>
                         <th class="px-4 py-2">Deskripsi</th>
+                        <th class="px-4 py-2">User</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -227,6 +228,7 @@
                         <td class="px-4 py-2">{{ $item['bagian'] }}</td>
                         <td class="px-4 py-2">{{ $item['posisi'] }}</td>
                         <td class="px-4 py-2">{{ $item['deskripsi'] ?? '-' }}</td>
+                        <td class="px-4 py-2">{{ $item['user'] ?? '-' }}</td>
                     </tr>
                     @empty
                     <tr>

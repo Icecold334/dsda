@@ -192,57 +192,20 @@
                             </div>
                         </td>
                     </tr>
-                    <!-- Pake saluran g -->
-                    <tr>
-                        <td class="">
-                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                            </label>
-                        </td>
-                        <td>
-                            <select wire:model.live="withSaluran" @disabled($listCount)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="">-- Tidak pada saluran --</option>
-                                {{-- <option value="mikro">-- Tidak pada saluran --</option> --}}
-                                <option value="tersier">Saluran Drainase Tersier</option>
-                                <option value="sekunder">Saluran Drainase Sekunder</option>
-                                <option value="primer">Saluran Drainase Primer</option>
-
-                            </select>
-                        </td>
-                    </tr>
-                    <!-- pilih saluran  -->
-                    <tr class="{{ is_null($withSaluran) ? 'hidden':'' }}">
+                    <tr class="">
                         <td>
                             <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                            </label>
-                        </td>
-                        <td>
-                            <select wire:model.live="saluran_id" @disabled($listCount)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="">-- Pilih Saluran --</option>
-                                @foreach ($saluranSelected as $item)
-                                <option value="{{ $item['idPhb'] ?? $item['idAliran'] ?? $item['idPrimer'] }}">
-                                    {{$item['namaPhb'] ?? $item['namaSungai'] }}
-                                </option>
-                                @endforeach
-
-                            </select>
-                        </td>
-                    </tr>
-                    <tr class="{{  is_null($withSaluran) || !$saluran_id ? 'hidden':'' }}">
-                        <td>
-                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Informasi Saluran (Panjang, Lebar, & Kedalaman)*</label>
+                                Volume Pekerjaan*</label>
                         </td>
                         <td>
                             <div class="flex gap-x-2">
-                                <input type="text" wire:model.live="p_saluran" readonly
+                                <input type="text" wire:model.live="vol.p"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Panjang">
-                                <input type="text" wire:model.live="l_saluran" readonly
+                                <input type="text" wire:model.live="vol.l"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Lebar">
-                                <input type="text" wire:model.live="k_saluran" readonly
+                                <input type="text" wire:model.live="vol.k"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Kedalaman">
                             </div>

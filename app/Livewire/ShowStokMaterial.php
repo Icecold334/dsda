@@ -255,6 +255,7 @@ class ShowStokMaterial extends Component
                     'bagian' => $trx->bagianStok?->nama ?? '-',
                     'posisi' => $trx->posisiStok?->nama ?? '-',
                     'deskripsi' => $trx->deskripsi ?? '-',
+                    'user' => $trx->user->name ?? '-',
                 ];
             })->toArray();
 

@@ -74,43 +74,8 @@ class FormPermintaan extends Component
     {
         $this->dispatch('rab_id', rab_id: $this->rab_id);
         $this->rab = Rab::find($this->rab_id);
-        $saluran = collect(app('JakartaDataset'));
-        $mapping = [
-            'tersier' => 'namaPhb',
-            'sekunder' => 'namaSungai',
-            'primer' => 'namaSungai',
-        ];
 
-        $hasil = collect($mapping)->mapWithKeys(function ($uniqueKey, $tipe) use ($saluran) {
-            return [$tipe => collect($saluran[$tipe])->unique($uniqueKey)];
-        });
         $rab = $this->rab;
-        switch ($rab->saluran_jenis) {
-            case 'tersier':
-                $keySaluran = 'idPhb';
-                $namaSaluran = 'namaPhb';
-                break;
-            case 'sekunder':
-                $keySaluran = 'idAliran';
-                $namaSaluran = 'namaSungai';
-                break;
-            case 'primer':
-                $keySaluran = 'idPrimer';
-                $namaSaluran = 'namaSungai';
-                break;
-
-            default:
-                $keySaluran = 'null';
-                break;
-        }
-
-        if ($rab->saluran_jenis) {
-            $sal = collect($hasil[$rab->saluran_jenis])->where($keySaluran, $rab->saluran_id)->first();
-            $rab->saluran_nama = $sal[$namaSaluran];
-            $rab->p_saluran = $sal['panjang'];
-            $rab->l_saluran = $sal['lebar'];
-            $rab->k_saluran = $sal['kedalaman'];
-        }
     }
     public function updatedNodin()
     {
@@ -188,46 +153,46 @@ class FormPermintaan extends Component
         $this->dispatch('vol', vol: $this->vol);
     }
 
-    public function updatedWithSaluran()
-    {
-        // if ($field === 'withSaluran') {
-        if ($this->withSaluran) {
-            $this->saluranSelected = $this->saluran[$this->withSaluran];
-        } else {
-            $this->withSaluran = null;
-            $this->saluranSelected = [];
-        }
-        $this->saluran_id = null;
-        return $this->dispatch('saluranJenis', saluran_jenis: $this->withSaluran);
-    }
+    // public function updatedWithSaluran()
+    // {
+    //     // if ($field === 'withSaluran') {
+    //     if ($this->withSaluran) {
+    //         $this->saluranSelected = $this->saluran[$this->withSaluran];
+    //     } else {
+    //         $this->withSaluran = null;
+    //         $this->saluranSelected = [];
+    //     }
+    //     $this->saluran_id = null;
+    //     return $this->dispatch('saluranJenis', saluran_jenis: $this->withSaluran);
+    // }
 
-    public function updatedSaluranId()
-    {
+    // public function updatedSaluranId()
+    // {
 
-        $this->dispatch('saluran_id', saluran_id: $this->saluran_id);
-        switch ($this->withSaluran) {
-            case 'tersier':
-                $keySaluran = 'idPhb';
-                $namaSaluran = 'namaPhb';
-                break;
-            case 'sekunder':
-                $keySaluran = 'idAliran';
-                $namaSaluran = 'namaSungai';
-                break;
-            case 'primer':
-                $keySaluran = 'idPrimer';
-                $namaSaluran = 'namaSungai';
-                break;
+    //     $this->dispatch('saluran_id', saluran_id: $this->saluran_id);
+    //     switch ($this->withSaluran) {
+    //         case 'tersier':
+    //             $keySaluran = 'idPhb';
+    //             $namaSaluran = 'namaPhb';
+    //             break;
+    //         case 'sekunder':
+    //             $keySaluran = 'idAliran';
+    //             $namaSaluran = 'namaSungai';
+    //             break;
+    //         case 'primer':
+    //             $keySaluran = 'idPrimer';
+    //             $namaSaluran = 'namaSungai';
+    //             break;
 
-            default:
-                $keySaluran = 'null';
-                break;
-        }
-        $saluran = collect(app('JakartaDataset')[$this->withSaluran])->where($keySaluran, $this->saluran_id)->first();
-        $this->p_saluran = $saluran['panjang'];
-        $this->l_saluran = $saluran['lebar'];
-        $this->k_saluran = $saluran['kedalaman'];
-    }
+    //         default:
+    //             $keySaluran = 'null';
+    //             break;
+    //     }
+    //     $saluran = collect(app('JakartaDataset')[$this->withSaluran])->where($keySaluran, $this->saluran_id)->first();
+    //     $this->p_saluran = $saluran['panjang'];
+    //     $this->l_saluran = $saluran['lebar'];
+    //     $this->k_saluran = $saluran['kedalaman'];
+    // }
 
     public $showKategori;
 
@@ -388,17 +353,17 @@ class FormPermintaan extends Component
             $unit->where('parent_id', $this->unit_id)
                 ->orWhere('id', $this->unit_id);
         })->orderBy('created_at', 'desc')->get();
-        $saluran = collect(app('JakartaDataset'));
-        $mapping = [
-            'tersier' => 'namaPhb',
-            'sekunder' => 'namaSungai',
-            'primer' => 'namaSungai',
-        ];
+        // $saluran = collect(app('JakartaDataset'));
+        // $mapping = [
+        //     'tersier' => 'namaPhb',
+        //     'sekunder' => 'namaSungai',
+        //     'primer' => 'namaSungai',
+        // ];
 
-        $hasil = collect($mapping)->mapWithKeys(function ($uniqueKey, $tipe) use ($saluran) {
-            return [$tipe => collect($saluran[$tipe])->unique($uniqueKey)];
-        });
-        $this->saluran = $hasil;
+        // $hasil = collect($mapping)->mapWithKeys(function ($uniqueKey, $tipe) use ($saluran) {
+        //     return [$tipe => collect($saluran[$tipe])->unique($uniqueKey)];
+        // });
+        // $this->saluran = $hasil;
         $this->kecamatans = Kecamatan::where('unit_id', $this->unit_id)->get();
     }
 

@@ -2,7 +2,7 @@
     <div class="flex justify-between py-2 mb-3">
         <h1 class="text-2xl font-bold text-primary-900">DETAIL KONTRAK</h1>
         <div class="flex gap-2">
-            @if (count($riwayatKontrak) > 0)
+            @if (count($riwayatKontrak) > 1)
             {{-- @dump($kontrakId) --}}
             <div>
                 <label for="riwayatSelect" class="text-sm font-semibold text-gray-600">Versi Kontrak:</label>

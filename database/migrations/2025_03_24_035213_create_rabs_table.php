@@ -22,6 +22,9 @@ return new class extends Migration
             $table->foreignId('aktivitas_sub_kegiatan_id')->nullable()->constrained('aktivitas_sub_kegiatans');
             $table->foreignId('uraian_rekening_id')->nullable()->constrained('uraian_rekenings');
             $table->foreignId('kelurahan_id')->nullable()->constrained('kelurahans');
+            $table->string('p')->nullable();
+            $table->string('l')->nullable();
+            $table->string('k')->nullable();
             $table->boolean('draft')->default(0);
             $table->string('jenis_pekerjaan')->nullable();
 

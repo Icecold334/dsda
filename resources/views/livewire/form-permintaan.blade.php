@@ -4,28 +4,6 @@
             <x-card title="data umum">
                 <table class="w-full border-separate border-spacing-y-4">
                     @if ($kategori == 'material')
-
-                    <tr class="">
-                        <td class="w-1/3">
-                            <label for="nodin" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Nomor SPB *</label>
-                        </td>
-                        <td>
-                            <input type="text" wire:model.live="nodin"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                placeholder="Nomor SPB">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="w-1/3">
-                            <label for="gudang_id" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Pilih Lokasi Gudang *</label>
-                        </td>
-                        <td>
-                            <livewire:searchable-select wire:model.live="gudang_id" :options="$gudangs" label='nama' />
-
-                        </td>
-                    </tr>
                     <tr>
                         <td class="w-1/3">
                             <label for="rab_id" class="block mb-2  font-semibold text-gray-900 dark:text-white">
@@ -60,6 +38,28 @@
 
                         </td>
                     </tr>
+                    <tr class="">
+                        <td class="w-1/3">
+                            <label for="nodin" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Nomor SPB *</label>
+                        </td>
+                        <td>
+                            <input type="text" wire:model.live="nodin"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                placeholder="Nomor SPB">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="w-1/3">
+                            <label for="gudang_id" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Pilih Lokasi Gudang *</label>
+                        </td>
+                        <td>
+                            <livewire:searchable-select wire:model.live="gudang_id" :options="$gudangs" label='nama' />
+
+                        </td>
+                    </tr>
+
                     <tr class="{{ !$withRab?'':'hidden' }}">
                         <td class="w-1/3">
                             <label for="namaKegiatan" class="block mb-2  font-semibold text-gray-900 dark:text-white">
@@ -389,118 +389,8 @@
 
                         </td>
                     </tr>
-                    @if (!$rab)
-                    <tr class="{{ $withRab && !$isSeribu ?'hidden':'' }}">
-                        <td class="">
-                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                            </label>
-                        </td>
-                        <td>
-                            <select wire:model.live="withSaluran" @disabled($listCount)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="">-- Tidak pada saluran --</option>
-                                {{-- <option value="mikro">-- Tidak pada saluran --</option> --}}
-                                <option value="tersier">Saluran Drainase Tersier</option>
-                                <option value="sekunder">Saluran Drainase Sekunder</option>
-                                <option value="primer">Saluran Drainase Primer</option>
-
-                            </select>
-                        </td>
-                    </tr>
-                    {{-- @dump(!(!$withRab && !$isSeribu) || is_null($withSaluran)) --}}
-                    <tr class="{{ !(!$withRab  && !$isSeribu) || is_null($withSaluran) ? 'hidden':'' }}">
-                        <td>
-                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                            </label>
-                        </td>
-                        <td>
-                            <select wire:model.live="saluran_id" @disabled($listCount)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="">-- Pilih Saluran --</option>
-                                @foreach ($saluranSelected as $item)
-                                <option value="{{ $item['idPhb'] ?? $item['idAliran'] ?? $item['idPrimer'] }}">
-                                    {{$item['namaPhb'] ?? $item['namaSungai'] }}
-                                </option>
-                                @endforeach
-
-                            </select>
-                        </td>
-                    </tr>
-                    <tr
-                        class="{{ !(!$withRab  && !$isSeribu) || is_null($withSaluran) || !$saluran_id ? 'hidden':'' }}">
-                        <td>
-                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Informasi Saluran (Panjang, Lebar, & Kedalaman)*</label>
-                        </td>
-                        <td>
-                            <div class="flex gap-x-2">
-                                <input type="text" wire:model.live="p_saluran" readonly
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                                    placeholder="Panjang">
-                                <input type="text" wire:model.live="l_saluran" readonly
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                                    placeholder="Lebar">
-                                <input type="text" wire:model.live="k_saluran" readonly
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                                    placeholder="Kedalaman">
-                            </div>
-                        </td>
-                    </tr>
-                    @else
-                    <tr class="">
-                        <td class="">
-                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                            </label>
-                        </td>
-                        <td>
-                            <select @disabled(true)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="">-- Tidak pada saluran --</option>
-                                {{-- <option value="mikro">-- Tidak pada saluran --</option> --}}
-                                <option value="tersier" @selected($rab->saluran_jenis == 'tersier')>Saluran Drainase
-                                    Tersier</option>
-                                <option value="sekunder" @selected($rab->saluran_jenis == 'sekunder')>Saluran Drainase
-                                    Sekunder</option>
-                                <option value="primer" @selected($rab->saluran_jenis == 'primer')>Saluran Drainase
-                                    Primer</option>
-
-                            </select>
-                        </td>
-                    </tr>
-                    {{-- @dump(!(!$withRab && !$isSeribu) || is_null($withSaluran)) --}}
-                    <tr class="{{ !$rab->saluran_jenis ? 'hidden':'' }}">
-                        <td>
-                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                            </label>
-                        </td>
-                        <td>
-                            <select @disabled(true)
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="">{{$rab->saluran_nama}}</option>
-
-                            </select>
-                        </td>
-                    </tr>
-                    <tr class="{{ !$rab->saluran_id ? 'hidden':'' }}">
-                        <td>
-                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Informasi Saluran (Panjang, Lebar, & Kedalaman)*</label>
-                        </td>
-                        <td>
-                            <div class="flex gap-x-2">
-                                <input type="text" value="{{ $rab->p_saluran }}" readonly
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                                    placeholder="{{ $rab->p_saluran }}">
-                                <input type="text" value="{{ $rab->l_saluran }}" readonly
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                                    placeholder="{{ $rab->l_saluran }}">
-                                <input type="text" value="{{ $rab->k_saluran }}" readonly
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                                    placeholder="{{ $rab->k_saluran }}">
-                            </div>
-                        </td>
-                    </tr>
-                    @endif
+                    @if ($rab)
+                    @if ($rab->p&&$rab->l&&$rab->k)
                     <tr class="">
                         <td>
                             <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
@@ -508,18 +398,20 @@
                         </td>
                         <td>
                             <div class="flex gap-x-2">
-                                <input type="text" wire:model.live="vol.p"
+                                <input type="text" value="{{ $rab->p }}" readonly
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Panjang">
-                                <input type="text" wire:model.live="vol.l"
+                                <input type="text" value="{{ $rab->l }}" readonly
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Lebar">
-                                <input type="text" wire:model.live="vol.k"
+                                <input type="text" value="{{ $rab->k }}" readonly
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Kedalaman">
                             </div>
                         </td>
                     </tr>
+                    @endif
+                    @endif
                     @endif
                     <tr class="{{ !$withRab ? '' : 'hidden' }}">
                         <td class="font-semibold"><label for="keterangan">Keterangan</label></td>

@@ -23,23 +23,23 @@ class PengirimanMaterial extends Component
     public $tanggal_pengiriman;
 
 
-    // #[On('kontrakId')]
-    // public function setKontrakId($id)
-    // {
-    //     $this->kontrak_id = $id;
+    #[On('kontrakId')]
+    public function setKontrakId($id)
+    {
+        $this->kontrak_id = $id;
 
-    //     $list = ListKontrakStok::with('merkStok.barangStok')
-    //         ->where('kontrak_id', $id)->get();
+        $list = ListKontrakStok::with('merkStok.barangStok')
+            ->where('kontrak_id', $id)->get();
 
-    //     $this->barangs = $list->pluck('merkStok.barangStok')->unique('id')->values();
-    // }
+        $this->barangs = $list->pluck('merkStok.barangStok')->unique('id')->values();
+    }
 
-    // #[On('gudangId')]
-    // public function setGudangId($id)
-    // {
-    //     $this->gudang_id = $id;
-    //     $this->bagians = BagianStok::where('lokasi_id', $id)->get();
-    // }
+    #[On('gudangId')]
+    public function setGudangId($id)
+    {
+        $this->gudang_id = $id;
+        $this->bagians = BagianStok::where('lokasi_id', $id)->get();
+    }
 
     public function updatedNomorKontrak($value)
     {

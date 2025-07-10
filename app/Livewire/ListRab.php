@@ -61,9 +61,29 @@ class ListRab extends Component
     public function checkShow()
     {
         $this->showRule = collect($this->dataKegiatan)
-            ->except(['saluran_jenis', 'saluran_id']) // dikecualikan dari validasi
-            ->every(fn($value) => $value !== null && $value !== '');
+            // ->except(['saluran_jenis', 'saluran_id'])
+            ->every(function ($value, $key) {
+                // if ($key === 'vol') {
+                //     // Pastikan vol adalah array dan punya key p, l, k yang tidak kosong
+                //     $requiredKeys = ['p', 'l', 'k'];
+
+                //     if (!is_array($value)) {
+                //         return false;
+                //     }
+
+                //     foreach ($requiredKeys as $rk) {
+                //         if (!array_key_exists($rk, $value) || $value[$rk] === null || $value[$rk] === '') {
+                //             return false;
+                //         }
+                //     }
+
+                //     return true;
+                // }
+
+                return $value !== null && $value !== '';
+            });
     }
+
 
     public function checkAdd()
     {
@@ -114,12 +134,15 @@ class ListRab extends Component
             'aktivitas_sub_kegiatan_id' => $this->dataKegiatan['aktivitas_sub_kegiatan'],
             'uraian_rekening_id' => $this->dataKegiatan['kode_rekening'],
             'jenis_pekerjaan' => $this->dataKegiatan['jenis'],
-            'saluran_jenis' => $this->dataKegiatan['saluran_jenis'],
-            'saluran_id' => $this->dataKegiatan['saluran_id'],
+            // 'saluran_jenis' => $this->dataKegiatan['saluran_jenis'],
+            // 'saluran_id' => $this->dataKegiatan['saluran_id'],
             'kelurahan_id' => $this->dataKegiatan['kelurahan_id'],
             'lokasi' => $this->dataKegiatan['lokasi'],
             'mulai' => $this->dataKegiatan['mulai'],
             'selesai' => $this->dataKegiatan['selesai'],
+            'p' => $this->dataKegiatan['vol']['p'] ?? null,
+            'l' => $this->dataKegiatan['vol']['l'] ?? null,
+            'k' => $this->dataKegiatan['vol']['k'] ?? null,
         ]);
 
         $data = [];

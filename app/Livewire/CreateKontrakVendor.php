@@ -269,7 +269,7 @@ class CreateKontrakVendor extends Component
             'nomor_kontrak_baru' => $this->isAdendum ? 'required|different:nomor_kontrak' : 'nullable',
             'tanggal_kontrak' => 'required|date',
             'metode_id' => 'required',
-            'jenis_id' => 'required',
+            // 'jenis_id' => 'required',
             'list' => 'required|array|min:1',
         ]);
 

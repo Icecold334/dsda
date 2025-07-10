@@ -2,12 +2,19 @@
     <div class="flex w-full justify-evenly border-t-4 py-6">
         <!-- Penulis -->
         <div>
-            <div class="block font-semibold text-center mb-2 text-gray-900">Kepala Satuan Pelaksana</div>
+            <div class="block font-semibold text-center mb-2 text-gray-900">
+                @if ($penulis->hasRole('Kepala Seksi') && $penulis->unitKerja)
+                Kepala {{ $penulis->unitKerja->nama }}
+                @else
+                {{ implode(', ', $penulis->roles->pluck('name')->toArray()) }}
+                @endif
+            </div>
             <div class="text-sm border-b-2">
                 <div class="flex justify-between px-3">
                     <span class="mr-9 {{ $penulis->id == auth()->id() ? 'font-bold' : '' }}">
-                        {{ false ? 'Anda' : $penulis->name }}
+                        {{ $penulis->id === auth()->id() ? 'Anda' : $penulis->name }}
                     </span>
+                    {{-- <i class="my-1 fa-solid fa-circle-check text-success-500"></i> --}}
                 </div>
             </div>
         </div>

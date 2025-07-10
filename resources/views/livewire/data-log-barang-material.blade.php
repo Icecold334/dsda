@@ -114,6 +114,7 @@
                             <th class="px-3 py-2 text-left">Tipe</th>
                             <th class="px-3 py-2 text-left">Ukuran</th>
                             <th class="px-3 py-2 text-center">Jumlah</th>
+                            <th class="px-3 py-2 text-center">User</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -141,6 +142,7 @@
                             <td class="px-3 py-2 text-center font-semibold {{ $textColor }}">
                                 {{ $jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama ?? '' }}
                             </td>
+                            <td class="px-3 py-2">{{ $item->user->name }}</td>
                         </tr>
                         @empty
                         <tr>

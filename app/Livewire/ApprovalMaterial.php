@@ -49,7 +49,15 @@ class ApprovalMaterial extends Component
             $this->files = [];
         }
         $this->user = Auth::user();
-        $this->roles = ['Kepala Seksi', 'Kepala Subbagian', 'Pengurus Barang'];
+        $creatorRoles = $this->permintaan->user->roles->pluck('name')->toArray();
+
+        // Jika yang membuat permintaan adalah Kepala Seksi
+        if (in_array('Kepala Seksi', $creatorRoles)) {
+            $this->roles = ['Kepala Subbagian', 'Pengurus Barang'];
+        } else {
+            $this->roles = ['Kepala Seksi', 'Kepala Subbagian', 'Pengurus Barang'];
+        }
+
         $this->roleLists = [];
         $this->lastRoles = [];
 

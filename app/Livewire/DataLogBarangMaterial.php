@@ -130,7 +130,7 @@ class DataLogBarangMaterial extends Component
                 $item['gudang_id'] == $gudangId
         )['list'] ?? collect();
 
-        $this->dataSelected = $this->detailList->first();
+        $this->dataSelected = collect($this->detailList)->first();
     }
 
     public function render()

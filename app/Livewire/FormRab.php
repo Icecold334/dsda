@@ -19,7 +19,7 @@ class FormRab extends Component
     public $kecamatans = [], $kelurahans = [];
     public $saluran;
     // Semua field yang dipakai di form
-    public $program, $programs = [];
+    public $program, $programs = [], $vol = [];
     public $nama, $namas = [];
     public $sub_kegiatan, $sub_kegiatans = [];
     public $aktivitas_sub_kegiatan, $aktivitas_sub_kegiatans = [];
@@ -30,17 +30,9 @@ class FormRab extends Component
     public $lokasi;
     public function mount()
     {
-        $saluran = collect(app('JakartaDataset'));
-        $mapping = [
-            'tersier' => 'namaPhb',
-            'sekunder' => 'namaSungai',
-            'primer' => 'namaSungai',
-        ];
 
-        $hasil = collect($mapping)->mapWithKeys(function ($uniqueKey, $tipe) use ($saluran) {
-            return [$tipe => collect($saluran[$tipe])->unique($uniqueKey)];
-        });
-        $this->saluran = $hasil;
+
+
         $this->programs = Program::where('bidang_id', $this->unit_id)->get();
         $this->kecamatans = Kecamatan::where('unit_id', $this->unit_id)->get();
         // $this->namas = $this->programs->children;
@@ -121,10 +113,6 @@ class FormRab extends Component
                     $keySaluran = 'null';
                     break;
             }
-            $saluran = collect(app('JakartaDataset')[$this->withSaluran])->where($keySaluran, $this->saluran_id)->first();
-            $this->p_saluran = $saluran['panjang'];
-            $this->l_saluran = $saluran['lebar'];
-            $this->k_saluran = $saluran['kedalaman'];
         }
 
         $this->dispatch('dataKegiatan', data: [
@@ -134,12 +122,11 @@ class FormRab extends Component
             'aktivitas_sub_kegiatan' => $this->aktivitas_sub_kegiatan,
             'kode_rekening' => $this->kode_rekening,
             'kelurahan_id' => $this->kelurahan_id,
-            'saluran_jenis' => $this->withSaluran,
-            'saluran_id' => $this->saluran_id,
             'jenis' => $this->jenis,
             'mulai' => $this->mulai,
             'selesai' => $this->selesai,
             'lokasi' => $this->lokasi,
+            'vol' => $this->vol
         ]);
     }
 

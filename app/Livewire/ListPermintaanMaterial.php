@@ -10,6 +10,7 @@ use App\Models\MerkStok;
 use App\Models\BarangStok;
 use Livewire\Attributes\On;
 use App\Models\StokDisetujui;
+use App\Models\TransaksiStok;
 use Livewire\WithFileUploads;
 use App\Models\PermintaanMaterial;
 use Illuminate\Support\Facades\Auth;
@@ -89,7 +90,7 @@ class ListPermintaanMaterial extends Component
         $rabId = $this->rab_id;
         $gudang_id = $this->gudang_id;
 
-        $transaksis = \App\Models\TransaksiStok::with('merkStok.barangStok')
+        $transaksis = TransaksiStok::with(['merkStok.barangStok'])
             ->where(function ($q) use ($gudang_id) {
                 $q->where('lokasi_id', $gudang_id)
                     ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id))
@@ -252,9 +253,9 @@ class ListPermintaanMaterial extends Component
     public function checkShow()
     {
         if ($this->withRab) {
-            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && ($this->isSeribu && $this->withRab || $this->rab_id) && $this->isVolFilled();
+            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && ($this->isSeribu && $this->withRab || $this->rab_id);
         } else {
-            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && $this->lokasiMaterial && $this->keterangan && $this->nodin && $this->namaKegiatan && $this->isVolFilled();
+            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && $this->lokasiMaterial && $this->keterangan && $this->nodin && $this->namaKegiatan;
         }
     }
     public function updated($field)
@@ -379,9 +380,9 @@ class ListPermintaanMaterial extends Component
             'gudang_id' => $this->gudang_id,
             'saluran_jenis' => $this->saluran_jenis,
             'saluran_id' => $this->saluran_id,
-            'p' => $this->vol['p'],
-            'l' => $this->vol['l'],
-            'k' => $this->vol['k'],
+            // 'p' => $this->vol['p'],
+            // 'l' => $this->vol['l'],
+            // 'k' => $this->vol['k'],
             'nama' => $this->namaKegiatan,
             'kelurahan_id' => $this->kelurahanId,
             'lokasi' => $this->lokasiMaterial,

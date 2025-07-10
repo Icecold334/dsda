@@ -10,59 +10,65 @@
     </div>
     <div class="flex py-2 mb-3 justify-end">
         <div>
+            @php
+            $isKepalaSeksi = $permintaan->user->hasRole('Kepala Seksi');
+            $minApprovalCount = $isKepalaSeksi ? 1 : 2;
+            $approvedCount = $permintaan->persetujuan()->where('is_approved', 1)->get()->unique('user_id')->count();
+            @endphp
 
+            {{-- SPB --}}
             @if ($permintaan->spb_path)
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                href="{{ asset('storage/spb/' . $permintaan->spb_path) }}" target="_blank" class="...">Unduh SPB</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                href="{{ asset('storage/spb/' . $permintaan->spb_path) }}" target="_blank">Unduh SPB</a>
             @else
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                onclick="confirmDownload('spb')" class="...">Unduh SPB</a>
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                onclick="showUploadModal('spb')" class="... text-blue-500">Unggah SPB</a>
-            @endif
-            @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 2)
-            @if ($permintaan->sppb_path)
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                href="{{ asset('storage/sppb/' . $permintaan->sppb_path) }}" target="_blank" class="...">Unduh SPPB</a>
-            @else
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                onclick="confirmDownload('sppb')" class="...">Unduh SPPB</a>
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                onclick="showUploadModal('sppb')" class="... text-blue-500">Unggah SPPB</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="confirmDownload('spb')">Unduh SPB</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="showUploadModal('spb')">Unggah SPB</a>
             @endif
 
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                wire:click='qrCode'
-                class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Unduh
-                QR-Code</a>
+            {{-- SPPB + QR-Code --}}
+            @if ($approvedCount >= $minApprovalCount + 1)
+            @if ($permintaan->sppb_path)
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                href="{{ asset('storage/sppb/' . $permintaan->sppb_path) }}" target="_blank">Unduh SPPB</a>
+            @else
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="confirmDownload('sppb')">Unduh SPPB</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="showUploadModal('sppb')">Unggah SPPB</a>
             @endif
-            @if ($permintaan->persetujuan()->where('is_approved',1)->get()->unique('user_id')->count() >= 3)
+
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                wire:click='qrCode'>Unduh QR-Code</a>
+            @endif
+
+            {{-- Surat Jalan --}}
+            @if ($approvedCount >= $minApprovalCount + 2)
             @if ($permintaan->suratJalan_path)
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                href="{{ asset('storage/suratJalan/' . $permintaan->suratJalan_path) }}" target="_blank"
-                class="...">Unduh Surat
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                href="{{ asset('storage/suratJalan/' . $permintaan->suratJalan_path) }}" target="_blank">Unduh Surat
                 Jalan</a>
             @else
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                onclick="confirmDownload('suratJalan')" class="...">Unduh Surat Jalan</a>
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                onclick="showUploadModal('suratJalan')" class="... text-blue-500">Unggah Surat Jalan</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="confirmDownload('suratJalan')">Unduh Surat Jalan</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="showUploadModal('suratJalan')">Unggah Surat Jalan</a>
+            @endif
             @endif
 
-            @endif
+            {{-- BAST --}}
             @if ($permintaan->status == 3)
-
             @if ($permintaan->bast_path)
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                href="{{ asset('storage/bast/' . $permintaan->bast_path) }}" target="_blank" class="...">Unduh BAST</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                href="{{ asset('storage/bast/' . $permintaan->bast_path) }}" target="_blank">Unduh BAST</a>
             @else
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                onclick="confirmDownload('bast')" class="...">Unduh BAST</a>
-            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                onclick="showUploadModal('bast')" class="... text-blue-500">Unggah BAST</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="confirmDownload('bast')">Unduh BAST</a>
+            <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                onclick="showUploadModal('bast')">Unggah BAST</a>
             @endif
             @endif
-
 
         </div>
     </div>
@@ -177,37 +183,14 @@
                             @endif
                     </tr>
                     @if ($permintaan->rab_id)
-
-                    @if ($permintaan->rab->saluran_jenis)
+                    @if ($permintaan->rab->l&&$permintaan->rab->p&&$permintaan->rab->k)
                     <tr class="font-semibold">
-                        <td>Jenis Saluran</td>
-                        <td class="capitalize">{{ $permintaan->rab->saluran_jenis }}</td>
-                    </tr>
-                    <tr class="font-semibold">
-                        <td>Nama Saluran</td>
-                        <td class="capitalize">{{ $permintaan->saluran_nama }}</td>
+                        <td>Volume Pekerjaan (Panjang, Lebar, Kedalaman)</td>
+                        <td class="capitalize">{{ $permintaan->rab->p }}, {{ $permintaan->rab->l }}, {{
+                            $permintaan->rab->k }}</td>
                     </tr>
                     @endif
                     @else
-                    @if ($permintaan->saluran_jenis)
-                    <tr class="font-semibold">
-                        <td>Jenis Saluran</td>
-                        <td class="capitalize">{{ $permintaan->saluran_jenis }}</td>
-                    </tr>
-                    <tr class="font-semibold">
-                        <td>Nama Saluran</td>
-                        <td class="capitalize">{{ $permintaan->saluran_nama }}</td>
-                    </tr>
-                    <tr class="font-semibold">
-                        <td>Informasi Saluran (Panjang, Lebar, Kedalaman)</td>
-                        <td class="capitalize">{{ $permintaan->p_saluran }}, {{ $permintaan->l_saluran }}, {{
-                            $permintaan->k_saluran }}</td>
-                    </tr>
-                    @endif
-                    <tr class="font-semibold">
-                        <td>Volume Pekerjaan (Panjang, Lebar, Kedalaman)</td>
-                        <td class="capitalize">{{ $permintaan->p }}, {{ $permintaan->l }}, {{ $permintaan->k }}</td>
-                    </tr>
                     @endif
                     <tr class="font-semibold {{ !$permintaan->rab_id?'':'hidden' }}">
                         <td>Keterangan</td>

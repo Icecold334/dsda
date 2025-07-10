@@ -84,7 +84,12 @@
             <td>{{ $rab->mulai->format('d F Y') }} - {{ $rab->selesai->format('d F Y') }} ({{ $rab->lamaPengerjaan }})
             </td>
           </tr>
-
+          @if ($rab->p&&$rab->l&&$rab->k)
+          <tr class="font-semibold">
+            <td>Volume Pekerjaan (Panjang, Lebar, Kedalaman)</td>
+            <td class="capitalize">{{ $rab->p }}, {{ $rab->l }}, {{ $rab->k }}</td>
+          </tr>
+          @endif
           {{--
           <!-- Tanggal Selesai -->
           <tr class="font-semibold">
