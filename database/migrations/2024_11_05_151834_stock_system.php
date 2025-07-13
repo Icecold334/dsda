@@ -131,14 +131,16 @@ return new class extends Migration
             $table->timestamps(); // created_at dan updated_at
         });
         Schema::create('kontrak_vendor_stok', function (Blueprint $table) {
-            $table->timestamps();
             $table->id();
+            $table->timestamps();
+
+            // FIELD LAMA (dipertahankan semua)
             $table->string('nomor_kontrak')->nullable();
             $table->integer('nominal_kontrak')->nullable();
-            $table->foreignId('vendor_id')->nullable()->constrained('toko', 'id'); // Explicitly set column
+            $table->foreignId('vendor_id')->nullable()->constrained('toko', 'id'); // vendor manual
             $table->date('tanggal_kontrak');
             $table->foreignId('metode_id')->nullable()->constrained('metode_pengadaan')->onDelete('set null');
-            $table->foreignId('jenis_id')->nullable()->constrained('jenis_stok')->onDelete('cascade'); // Link to unit_kerja table
+            $table->foreignId('jenis_id')->nullable()->constrained('jenis_stok')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('super_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('cascade');
@@ -146,7 +148,28 @@ return new class extends Migration
             $table->boolean('status')->nullable();
             $table->boolean('is_adendum')->default(false);
             $table->foreignId('parent_kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
+
+            // FIELD BARU (dari API)
+            $table->string('tahun_anggaran')->nullable();
+            $table->string('dinas_sudin')->nullable();
+            $table->string('nama_bidang_seksi')->nullable();
+
+            $table->string('program')->nullable(); // kode_program + program
+            $table->string('kegiatan')->nullable(); // kode_kegiatan + kegiatan
+            $table->string('sub_kegiatan')->nullable(); // kode_sub_kegiatan + sub_kegiatan
+            $table->string('aktivitas_sub_kegiatan')->nullable(); // kode_aktivitas_sub_kegiatan + aktivitas_sub_kegiatan
+            $table->string('rekening')->nullable(); // kode_rekening + uraian_kode_rekening
+
+            $table->string('nama_paket')->nullable();
+            $table->string('no_spk')->nullable();
+            $table->date('tgl_spk')->nullable();
+            $table->date('tgl_akhir_spk')->nullable();
+
+            $table->string('jenis_pengadaan')->nullable();
+            $table->string('nama_penyedia')->nullable(); // vendor versi string dari API
+            $table->bigInteger('nilai_kontrak')->nullable(); // nominal dari API
         });
+
 
         Schema::create('metode_pengadaan', function (Blueprint $table) {
             $table->id();

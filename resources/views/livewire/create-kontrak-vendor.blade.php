@@ -1,4 +1,42 @@
 <div>
+    <div class="grid grid-cols-1  gap-6 mb-6">
+        <x-card title="Sumber Data Kontrak">
+            <div class="flex items-center gap-4">
+                <label class="inline-flex items-center">
+                    <input type="radio" wire:model.live="mode_api" value="0" class="form-radio" />
+                    <span class="ml-2">Input Manual</span>
+                </label>
+                <label class="inline-flex items-center">
+                    <input type="radio" wire:model.live="mode_api" value="1" class="form-radio" />
+                    <span class="ml-2">Ambil dari API</span>
+                </label>
+            </div>
+
+            @if ($mode_api)
+            <div class="mt-4">
+                <label for="tahun_api" class="block text-sm font-medium">Pilih Tahun</label>
+                <select wire:model.live="tahun_api" class="form-select w-full mt-1">
+                    <option value="">-- Pilih Tahun --</option>
+                    @for ($i = now()->year; $i >= now()->year - 5; $i--)
+                    <option value="{{ $i }}">{{ $i }}</option>
+                    @endfor
+                </select>
+            </div>
+
+            @if (!empty($kontrak_api_list))
+            <div class="mt-4">
+                <label class="block text-sm font-medium">Pilih Nama Paket</label>
+                <select wire:model.live="selected_api_kontrak" class="form-select w-full mt-1">
+                    <option value="">-- Pilih Paket --</option>
+                    @foreach ($kontrak_api_list['data'] as $i => $paket)
+                    <option value="{{ $i }}">{{ $paket['nama_paket'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+            @endif
+            @endif
+        </x-card>
+    </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <x-card title="Pilih Vendor">
             <div>

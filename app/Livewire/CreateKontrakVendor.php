@@ -15,6 +15,7 @@ use App\Models\MetodePengadaan;
 use App\Models\KontrakVendorStok;
 use App\Models\DetailPengirimanStok;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class CreateKontrakVendor extends Component
 {
@@ -26,6 +27,16 @@ class CreateKontrakVendor extends Component
     // === SECTION: KONTRAK ===
     public $nomor_kontrak, $tanggal_kontrak, $metode_id, $jenis_id = 1, $nominal_kontrak;
     public $nomor_kontrak_baru = null;
+
+    public $mode_api = false;
+    public $tahun_api;
+    public $kontrak_api_list = [];
+    public $selected_api_kontrak;
+    // === SECTION: API FIELDS ===
+    public $nama_penyedia, $jenis_pengadaan, $nama_paket;
+    public $tahun_anggaran, $dinas_sudin, $nama_bidang_seksi;
+
+    public $program, $kegiatan, $sub_kegiatan, $aktivitas_sub_kegiatan, $rekening;
 
 
     // === SECTION: BARANG ===
@@ -47,23 +58,78 @@ class CreateKontrakVendor extends Component
         'ukuran' => [],
     ];
 
-
-    public function updatedNomorKontrak($value)
+    public function updatedTahunApi()
     {
-        // Cek apakah kontrak dengan nomor ini ada
-        $kontrak = KontrakVendorStok::where('nomor_kontrak', $value)->first();
+        $this->kontrak_api_list = [];
 
-        // Jika tidak ada, keluar saja
-        if (!$kontrak) return;
+        if (!$this->tahun_api) return;
 
-        // Cek apakah kontrak ini punya adendum (artinya ini kontrak lama)
-        $punyaAdendum = KontrakVendorStok::where('parent_kontrak_id', $kontrak->id)->exists();
+        $url = "https://emonev-dev.dsdajakarta.id/api/kontrak/{$this->tahun_api}";
 
-        // Hanya trigger jika kontrak tersebut adalah adendum terakhir (tidak punya adendum lagi)
-        if (!$punyaAdendum) {
-            $this->dispatch('konfirmasi-adendum', id: $kontrak->id, nomor: $kontrak->nomor_kontrak);
+        $response = Http::timeout(180)
+            ->withOptions([
+                'verify' => public_path('cacert.pem'),
+            ])
+            ->withBasicAuth(
+                'inventa',
+                'aF7xPq92LmZTkw38RbCn0vMUyJDg1shKXtbEWuAQ5oYclVGriHzSmNd6jeLfOBT3'
+            )
+            ->get($url);
+
+        if ($response->successful()) {
+            $this->kontrak_api_list = $response->json();
+        } else {
+            $this->kontrak_api_list = [];
+            // Opsional: bisa dispatch alert ke browser
+            $this->dispatchBrowserEvent('alert', [
+                'type' => 'error',
+                'message' => 'Gagal mengambil data dari API.'
+            ]);
         }
     }
+
+    public function updatedSelectedApiKontrak($index)
+    {
+        $data = $this->kontrak_api_list[$index] ?? null;
+
+        if (!$data) return;
+
+        $this->nomor_kontrak = $data['no_spk'];
+        $this->tanggal_kontrak = $data['tgl_spk'];
+        $this->nominal_kontrak = number_format((int) $data['nilai_kontrak'], 0, '', '.');
+
+        $this->nama_penyedia = $data['nama_penyedia'];
+        $this->jenis_pengadaan = $data['jenis_pengadaan'];
+        $this->nama_paket = $data['nama_paket'];
+
+        $this->tahun_anggaran = $data['tahun_anggaran'];
+        $this->dinas_sudin = $data['dinas_sudin'];
+        $this->nama_bidang_seksi = $data['nama_bidang_seksi'];
+
+        $this->program = $data['kode_program'] . ' - ' . $data['program'];
+        $this->kegiatan = $data['kode_kegiatan'] . ' - ' . $data['kegiatan'];
+        $this->sub_kegiatan = $data['kode_sub_kegiatan'] . ' - ' . $data['sub_kegiatan'];
+        $this->aktivitas_sub_kegiatan = $data['kode_aktivitas_sub_kegiatan'] . ' - ' . $data['aktivitas_sub_kegiatan'];
+        $this->rekening = $data['kode_rekening'] . ' - ' . $data['uraian_kode_rekening'];
+    }
+
+
+    // public function updatedNomorKontrak($value)
+    // {
+    //     // Cek apakah kontrak dengan nomor ini ada
+    //     $kontrak = KontrakVendorStok::where('nomor_kontrak', $value)->first();
+
+    //     // Jika tidak ada, keluar saja
+    //     if (!$kontrak) return;
+
+    //     // Cek apakah kontrak ini punya adendum (artinya ini kontrak lama)
+    //     $punyaAdendum = KontrakVendorStok::where('parent_kontrak_id', $kontrak->id)->exists();
+
+    //     // Hanya trigger jika kontrak tersebut adalah adendum terakhir (tidak punya adendum lagi)
+    //     if (!$punyaAdendum) {
+    //         $this->dispatch('konfirmasi-adendum', id: $kontrak->id, nomor: $kontrak->nomor_kontrak);
+    //     }
+    // }
 
 
     public function prosesAdendum($id)
@@ -167,16 +233,16 @@ class CreateKontrakVendor extends Component
     {
         $this->validate([
             'nama' => 'required',
-            'alamat' => 'required',
-            'kontak' => 'required'
+            // 'alamat' => 'required',
+            // 'kontak' => 'required'
         ]);
 
         $vendor = Toko::create([
             'user_id' => Auth::id(),
             'nama' => $this->nama,
             'nama_nospace' => Str::slug($this->nama),
-            'alamat' => $this->alamat,
-            'telepon' => $this->kontak,
+            'alamat' => $this->alamat ?? null,
+            'telepon' => $this->kontak ?? null,
         ]);
 
         $this->vendor_id = $vendor->id;
