@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Http;
 class CreateKontrakVendor extends Component
 {
     use WithFileUploads;
-
+    public $id;
     // === SECTION: VENDOR ===
     public $vendor_id, $nama, $alamat, $kontak, $showAddVendorForm = false;
 
@@ -90,7 +90,7 @@ class CreateKontrakVendor extends Component
 
     public function updatedSelectedApiKontrak($index)
     {
-        $data = $this->kontrak_api_list[$index] ?? null;
+        $data = $this->kontrak_api_list['data'][$index] ?? null;
 
         if (!$data) return;
 
@@ -139,17 +139,29 @@ class CreateKontrakVendor extends Component
         $kontrak = KontrakVendorStok::with(['listKontrak.merkStok.barangStok'])->findOrFail($id);
         $this->kontrakLama = $kontrak;
 
+        // Set nilai dasar kontrak lama
         $this->vendor_id = $kontrak->vendor_id;
         $this->metode_id = $kontrak->metode_id;
         $this->jenis_id = $kontrak->jenis_id;
         $this->tanggal_kontrak = now()->format('Y-m-d');
-        $this->nomor_kontrak = $kontrak->nomor_kontrak; // disimpan untuk display readonly
-        $this->nomor_kontrak_baru = null; // inputan baru user
+        $this->nomor_kontrak = $kontrak->nomor_kontrak;
+        $this->nomor_kontrak_baru = null;
 
-        // Set readonly secara manual di blade pakai $isAdendum
+        // === Field tambahan dari kontrak lama
+        $this->tahun_anggaran = $kontrak->tahun_anggaran;
+        $this->dinas_sudin = $kontrak->dinas_sudin;
+        $this->nama_bidang_seksi = $kontrak->nama_bidang_seksi;
+
+        $this->program = $kontrak->program;
+        $this->kegiatan = $kontrak->kegiatan;
+        $this->sub_kegiatan = $kontrak->sub_kegiatan;
+        $this->aktivitas_sub_kegiatan = $kontrak->aktivitas_sub_kegiatan;
+        $this->rekening = $kontrak->rekening;
+
+        $this->nama_paket = $kontrak->nama_paket;
+        $this->jenis_pengadaan = $kontrak->jenis_pengadaan;
 
         // Ambil list barang lama
-        // prosesAdendum()
         $this->list = $kontrak->listKontrak->map(function ($item) use ($kontrak) {
             $merk_id = $item->merkStok->id;
             $kontrakIds = $this->getKontrakChainIds($kontrak);
@@ -160,7 +172,6 @@ class CreateKontrakVendor extends Component
                         ->where('status', 1);
                 })
                 ->sum('jumlah');
-
 
             return [
                 'barang_id' => $item->merkStok->barang_id,
@@ -180,10 +191,9 @@ class CreateKontrakVendor extends Component
             ];
         })->toArray();
 
-
-
         $this->calculateTotal();
     }
+
     public function resetAdendum()
     {
         $this->isAdendum = false;
@@ -200,6 +210,9 @@ class CreateKontrakVendor extends Component
     {
         $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
         $this->barangs = BarangStok::all();
+        if ($this->id) {
+            $this->prosesAdendum($this->id);
+        }
     }
 
     // === VENDOR ===
@@ -351,6 +364,18 @@ class CreateKontrakVendor extends Component
             'nominal_kontrak' => (int) str_replace('.', '', $this->nominal_kontrak),
             'is_adendum' => $this->isAdendum,
             'parent_kontrak_id' => $this->isAdendum ? $this->kontrakLama->id : null,
+
+            // Tambahan:
+            'tahun_anggaran' => $this->tahun_anggaran,
+            'dinas_sudin' => $this->dinas_sudin,
+            'nama_bidang_seksi' => $this->nama_bidang_seksi,
+            'program' => $this->program,
+            'kegiatan' => $this->kegiatan,
+            'sub_kegiatan' => $this->sub_kegiatan,
+            'aktivitas_sub_kegiatan' => $this->aktivitas_sub_kegiatan,
+            'rekening' => $this->rekening,
+            'nama_paket' => $this->nama_paket,
+            'jenis_pengadaan' => $this->jenis_pengadaan,
         ]);
 
         foreach ($this->list as $item) {

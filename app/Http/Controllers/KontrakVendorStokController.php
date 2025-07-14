@@ -99,7 +99,9 @@ class KontrakVendorStokController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        // Gate::authorize('kontrak_tambah_kontrak_baru');
+        // $vendors = VendorStok::all();
+        return view('rekam.create', compact('id'));
     }
 
     /**

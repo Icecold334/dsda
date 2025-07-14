@@ -18,6 +18,10 @@
             </div>
             @endif
 
+            <a href="{{ route('kontrak-vendor-stok.edit',['kontrak_vendor_stok'=>$kontrak->id]) }}"
+                class="text-warning-900 bg-warning-100 hover:bg-warning-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition">
+                Adendum
+            </a>
             <a href="{{ route('kontrak-vendor-stok.index') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition">
                 Kembali
@@ -36,32 +40,65 @@
                         <td>Nomor Kontrak</td>
                         <td>{{ $kontrak->nomor_kontrak }}</td>
                     </tr>
-                    {{-- <tr>
-                        <td>Status</td>
-                        <td><span
-                                class="bg-{{ $kontrak->status === null ? 'warning' : ($kontrak->status ? 'success' : 'danger') }}-600 text-{{ $kontrak->status === null ? 'warning' : ($kontrak->status ? 'success' : 'danger') }}-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">{{
-                                $kontrak->status === null ? 'diproses' : ($kontrak->status ? 'disetujui' :
-                                'ditolak')
-                                }}</span>
-                        </td>
-                    </tr> --}}
                     <tr>
                         <td>Jenis Barang</td>
-                        <td>{{ $kontrak->listKontrak->first()->merkStok->barangStok->jenisStok->nama }}</td>
+                        <td>{{ $kontrak->listKontrak->first()->merkStok->barangStok->jenisStok->nama ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td>Metode Pengadaan</td>
-                        <td>{{ $kontrak->metodePengadaan->nama }}</td>
+                        <td>{{ $kontrak->metodePengadaan->nama ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td>Tanggal Kontrak</td>
                         <td>{{ date('j F Y', $kontrak->tanggal_kontrak) }}</td>
                     </tr>
-                    {{-- <tr>
-                        <td>Penulis</td>
-                        <td>{{ $kontrak->user->name }}</td>
-                    </tr> --}}
 
+                    {{-- Informasi Tambahan --}}
+                    <tr>
+                        <td colspan="2" class="py-2">
+                            <hr>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Tahun Anggaran</td>
+                        <td>{{ $kontrak->tahun_anggaran ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Dinas/Sudin</td>
+                        <td>{{ $kontrak->dinas_sudin ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Bidang/Seksi</td>
+                        <td>{{ $kontrak->nama_bidang_seksi ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Program</td>
+                        <td>{{ $kontrak->program ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Kegiatan</td>
+                        <td>{{ $kontrak->kegiatan ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Sub Kegiatan</td>
+                        <td>{{ $kontrak->sub_kegiatan ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Aktivitas Sub Kegiatan</td>
+                        <td>{{ $kontrak->aktivitas_sub_kegiatan ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Rekening</td>
+                        <td>{{ $kontrak->rekening ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Nama Paket</td>
+                        <td>{{ $kontrak->nama_paket ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Jenis Pengadaan</td>
+                        <td>{{ $kontrak->jenis_pengadaan ?? '-' }}</td>
+                    </tr>
                 </table>
             </x-card>
         </div>

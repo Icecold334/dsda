@@ -77,6 +77,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL KONTRAK</th>
                 <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">DETAIL TRANSAKSI</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">METODE PENGADAAN</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS KONTRAK</th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th> --}}
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
@@ -135,6 +136,11 @@
                 <td class="py-3 px-6">
                     <p class="font-semibold text-gray-800 text-center">
                         {{ $transaction->metodePengadaan->nama }}
+                    </p>
+                </td>
+                <td class="py-3 px-6">
+                    <p class="font-semibold text-gray-800 text-center">
+                        {{ $transaction->parent ? 'Adendum':'Baru' }}
                     </p>
                 </td>
 

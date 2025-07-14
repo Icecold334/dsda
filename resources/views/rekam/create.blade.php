@@ -24,7 +24,8 @@
     </div>
     <livewire:kontrak-list-form />
     @else
-    <livewire:create-kontrak-vendor />
+
+    <livewire:create-kontrak-vendor :id="$id??null" />
     @endif
 
 </x-body>
