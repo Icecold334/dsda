@@ -422,10 +422,10 @@
                                 <input type="text" wire:model.live="vol.p"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Panjang">
-                                <input type="text" wire:mode.live="vol.l"
+                                <input type="text" wire:model.live="vol.l"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Lebar">
-                                <input type="text" wire:mode.live="vol.k"
+                                <input type="text" wire:model.live="vol.k"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Kedalaman">
                             </div>
@@ -434,7 +434,7 @@
                     @endif
                     @endif
 
-                    <tr class="{{ !$withRab ? '' : 'hidden' }}">
+                    <tr class="">
                         <td class="font-semibold"><label for="keterangan">Keterangan</label></td>
                         <td>
                             <div class="flex mb-3">

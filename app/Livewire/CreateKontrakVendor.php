@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\Toko;
+use App\Models\Satuan;
 use App\Models\Program;
 use Livewire\Component;
 use App\Models\Kegiatan;
@@ -20,6 +21,7 @@ use App\Models\MetodePengadaan;
 use App\Models\KontrakVendorStok;
 use App\Models\AktivitasSubKegiatan;
 use App\Models\DetailPengirimanStok;
+use App\Models\SatuanBesar;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
@@ -34,7 +36,13 @@ class CreateKontrakVendor extends Component
     public $nomor_kontrak, $tanggal_kontrak, $metode_id, $jenis_id = 1, $nominal_kontrak;
     public $nomor_kontrak_baru = null;
 
-    public $mode_api = false;
+    public $nomor_spk_api;
+    public $hasil_cari_api = false;
+    public $barangSuggestions = [];
+    public $satuanSuggestions = [];
+
+
+    public $mode_api = true;
     public $tahun_api;
     public $kontrak_api_list = [];
     public $selected_api_kontrak;
@@ -51,6 +59,7 @@ class CreateKontrakVendor extends Component
     public $rekening_id, $rekenings = [];
     public $tanggal_akhir_kontrak;
     public $durasi_kontrak;
+    public  $newSatuan;
 
     // === SECTION: BARANG ===
     public $barang_id, $newBarang, $jumlah, $newHarga, $newPpn = 0;
@@ -70,6 +79,67 @@ class CreateKontrakVendor extends Component
         'tipe' => [],
         'ukuran' => [],
     ];
+
+    public function cariKontrakApi()
+    {
+        if (!$this->tahun_api || !$this->nomor_spk_api) {
+            $this->dispatch('alert', [
+                'type' => 'warning',
+                'message' => 'Tahun dan nomor kontrak harus diisi terlebih dahulu.'
+            ]);
+            return;
+        }
+
+        $url = "https://emonev-dev.dsdajakarta.id/api/kontrak/{$this->tahun_api}";
+
+        $response = Http::timeout(180)
+            ->withOptions(['verify' => public_path('cacert.pem')])
+            ->withBasicAuth('inventa', 'aF7xPq92LmZTkw38RbCn0vMUyJDg1shKXtbEWuAQ5oYclVGriHzSmNd6jeLfOBT3')
+            ->get($url);
+
+        if (!$response->successful()) {
+            $this->dispatch('alert', [
+                'type' => 'error',
+                'message' => 'Gagal mengambil data dari API.'
+            ]);
+            return;
+        }
+
+        $data = collect($response->json()['data'] ?? [])
+            ->firstWhere('no_spk', $this->nomor_spk_api);
+
+        if (!$data) {
+            $this->dispatch('alert', [
+                'type' => 'error',
+                'message' => 'Kontrak tidak ditemukan.'
+            ]);
+            $this->hasil_cari_api = false;
+            return;
+        }
+
+        $this->hasil_cari_api = true;
+
+        // Set semua field dari API
+        // $this->nomor_kontrak = $data['no_spk'];
+        $this->tanggal_kontrak = $data['tgl_spk'];
+        $this->tanggal_akhir_kontrak = $data['tgl_akhir_spk'];
+        $this->nominal_kontrak = number_format((int) $data['nilai_kontrak'], 0, '', '.');
+        $this->nama_paket = $data['nama_paket'];
+        $this->jenis_pengadaan = $data['jenis_pengadaan'];
+        $this->nama_penyedia = $data['nama_penyedia'];
+        $this->tahun_anggaran = $data['tahun_anggaran'];
+        $this->dinas_sudin = $data['dinas_sudin'];
+        $this->nama_bidang_seksi = $data['nama_bidang_seksi'];
+
+        $this->program = $data['kode_program'] . ' - ' . $data['program'];
+        $this->kegiatan = $data['kode_kegiatan'] . ' - ' . $data['kegiatan'];
+        $this->sub_kegiatan = $data['kode_sub_kegiatan'] . ' - ' . $data['sub_kegiatan'];
+        $this->aktivitas_sub_kegiatan = $data['kode_aktivitas_sub_kegiatan'] . ' - ' . $data['aktivitas_sub_kegiatan'];
+        $this->rekening = $data['kode_rekening'] . ' - ' . $data['uraian_kode_rekening'];
+
+        $this->hitungDurasiKontrak();
+    }
+
 
     public function updatedTanggalAkhirKontrak()
     {
@@ -124,7 +194,7 @@ class CreateKontrakVendor extends Component
         } else {
             $this->kontrak_api_list = [];
             // Opsional: bisa dispatch alert ke browser
-            $this->dispatchBrowserEvent('alert', [
+            $this->dispatch('alert', [
                 'type' => 'error',
                 'message' => 'Gagal mengambil data dari API.'
             ]);
@@ -270,13 +340,60 @@ class CreateKontrakVendor extends Component
 
     public function mount()
     {
-        $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
+        // $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
         $this->barangs = BarangStok::all();
         $this->programs = \App\Models\Program::all();
+        $this->barangSuggestions = BarangStok::pluck('nama')->unique()->sort()->values()->toArray();
+        $this->satuanSuggestions = \App\Models\SatuanBesar::pluck('nama')->unique()->sort()->values()->toArray();
+        $this->specOptions['nama'] = MerkStok::pluck('nama')->filter()->unique()->values()->toArray();
+        $this->specOptions['tipe'] = MerkStok::pluck('tipe')->filter()->unique()->values()->toArray();
+        $this->specOptions['ukuran'] = MerkStok::pluck('ukuran')->filter()->unique()->values()->toArray();
         if ($this->id) {
-            $this->prosesAdendum($this->id);
+            $this->loadListBarangAdendum($this->id); // hanya ambil barang, data lain kosong
         }
     }
+    public function loadListBarangAdendum($id)
+    {
+        $this->isAdendum = true;
+
+        $kontrak = KontrakVendorStok::with('listKontrak.merkStok.barangStok')->findOrFail($id);
+        $this->kontrakLama = $kontrak;
+
+        $this->list = $kontrak->listKontrak->map(function ($item) use ($kontrak) {
+            $merk_id = $item->merkStok->id;
+            $kontrakIds = $this->getKontrakChainIds($kontrak);
+
+            $jumlah_terkirim = \App\Models\PengirimanStok::where('merk_id', $merk_id)
+                ->whereHas('detailPengirimanStok', function ($q) use ($kontrakIds) {
+                    $q->whereIn('kontrak_id', $kontrakIds)->where('status', 1);
+                })
+                ->sum('jumlah');
+
+            return [
+                'barang_id' => $item->merkStok->barang_id,
+                'barang' => $item->merkStok->barangStok->nama,
+                'specifications' => [
+                    'nama' => $item->merkStok->nama,
+                    'tipe' => $item->merkStok->tipe,
+                    'ukuran' => $item->merkStok->ukuran,
+                ],
+                'jumlah' => $item->jumlah,
+                'jumlah_terkirim' => $jumlah_terkirim,
+                'harga' => $item->harga,
+                'ppn' => $item->ppn ?? 0,
+                'satuan' => $item->merkStok->barangStok->satuanBesar->nama,
+                'readonly' => true,
+                'can_delete' => $jumlah_terkirim < $item->jumlah,
+            ];
+        })->toArray();
+
+        $this->calculateTotal();
+
+        // Field lainnya tetap dikosongkan:
+        $this->nomor_kontrak = $kontrak->nomor_kontrak;
+        $this->nomor_kontrak_baru = null; // wajib diisi user
+    }
+
     public function updated($property)
     {
         if ($property === 'program_id') {
@@ -380,33 +497,41 @@ class CreateKontrakVendor extends Component
         $this->specOptions['ukuran'] = MerkStok::where('barang_id', $this->barang_id)->pluck('ukuran')->unique()->values()->toArray();
     }
 
-
     public function addToList()
     {
+        if (!$this->newBarang || !$this->newSatuan) return;
 
-        // $this->validate([
-        //     'barang_id' => 'required',
-        //     'jumlah' => 'required|integer|min:1',
-        // ]);
-
-        $barang = BarangStok::find($this->barang_id);
+        $barang = BarangStok::firstOrCreate([
+            'slug' => Str::slug($this->newBarang),
+            'satuan_besar_id' => $this->getOrCreateSatuan($this->newSatuan),
+        ], [
+            'nama' => $this->newBarang,
+            'jenis_id' => $this->jenis_id, // optional
+            'kode_barang' => now()->format('ymdHis') // random kode, ubah sesuai logika kamu
+        ]);
 
         $this->list[] = [
-            'barang_id' => $this->barang_id,
+            'barang_id' => $barang->id,
             'barang' => $barang->nama,
             'specifications' => $this->specifications,
             'jumlah' => $this->jumlah,
             'jumlah_terkirim' => 0,
             'harga' => $this->newHarga,
             'ppn' => $this->newPpn,
-            'satuan' => $barang->satuanBesar->nama,
+            'satuan' => $this->newSatuan,
             'can_delete' => true,
         ];
-        $this->specRenderKey = now()->timestamp; // juga reset saat tambah ke list
-        $this->reset(['barang_id', 'newBarang', 'jumlah', 'newHarga', 'newPpn']);
-        $this->specifications = ['nama' => '', 'tipe' => '', 'ukuran' => ''];
+
+        $this->reset(['newBarang', 'newSatuan', 'jumlah', 'newHarga', 'newPpn', 'specifications']);
         $this->calculateTotal();
     }
+
+    public function getOrCreateSatuan($nama)
+    {
+        return SatuanBesar::firstOrCreate(['slug' => Str::slug($nama)], ['nama' => $nama])->id;
+    }
+
+
 
     public function removeFromList($index)
     {
@@ -431,18 +556,19 @@ class CreateKontrakVendor extends Component
     public function saveKontrak()
     {
         $this->validate([
-            'vendor_id' => 'required',
-            'nomor_kontrak' => $this->isAdendum ? 'nullable' : 'required',
-            'nomor_kontrak_baru' => $this->isAdendum ? 'required|different:nomor_kontrak' : 'nullable',
+            // 'vendor_id' => 'required',
+            'nomor_spk_api' => $this->isAdendum ? 'nullable' : 'required',
+            // 'nomor_kontrak_baru' => $this->isAdendum ? 'required|different:nomor_kontrak' : 'nullable',
             'tanggal_kontrak' => 'required|date',
-            'metode_id' => 'required',
+            // 'metode_id' => 'required',
             // 'jenis_id' => 'required',
             'list' => 'required|array|min:1',
         ]);
 
         $kontrak = KontrakVendorStok::create([
             'vendor_id' => $this->vendor_id,
-            'nomor_kontrak' => $this->isAdendum ? $this->nomor_kontrak_baru : $this->nomor_kontrak,
+            // 'nomor_kontrak' => $this->isAdendum ? $this->nomor_kontrak_baru : $this->nomor_kontrak,
+            'nomor_kontrak' => $this->nomor_spk_api,
             'tanggal_kontrak' => strtotime($this->tanggal_kontrak),
             'tanggal_akhir_kontrak' => strtotime($this->tanggal_akhir_kontrak),
             'metode_id' => $this->metode_id,
@@ -459,15 +585,16 @@ class CreateKontrakVendor extends Component
             'dinas_sudin' => $this->dinas_sudin,
             'nama_bidang_seksi' => $this->nama_bidang_seksi,
 
-            // === DARI DROPDOWN WATERFALL ===
-            'program' => optional(\App\Models\Program::find($this->program_id))->kode . ' - ' . optional(\App\Models\Program::find($this->program_id))->program,
-            'kegiatan' => optional(\App\Models\Kegiatan::find($this->kegiatan_id))->kode . ' - ' . optional(\App\Models\Kegiatan::find($this->kegiatan_id))->kegiatan,
-            'sub_kegiatan' => optional(\App\Models\SubKegiatan::find($this->sub_kegiatan_id))->kode . ' - ' . optional(\App\Models\SubKegiatan::find($this->sub_kegiatan_id))->sub_kegiatan,
-            'aktivitas_sub_kegiatan' => optional(\App\Models\AktivitasSubKegiatan::find($this->aktivitas_id))->kode . ' - ' . optional(\App\Models\AktivitasSubKegiatan::find($this->aktivitas_id))->aktivitas,
-            'rekening' => optional(\App\Models\UraianRekening::find($this->rekening_id))->kode . ' - ' . optional(\App\Models\UraianRekening::find($this->rekening_id))->uraian,
+            // === LANGSUNG DARI API (string gabungan kode - nama)
+            'program' => $this->program,
+            'kegiatan' => $this->kegiatan,
+            'sub_kegiatan' => $this->sub_kegiatan,
+            'aktivitas_sub_kegiatan' => $this->aktivitas_sub_kegiatan,
+            'rekening' => $this->rekening,
 
             // === DARI API (jika aktif) ===
             'nama_paket' => $this->nama_paket,
+            'nama_penyedia' => $this->nama_penyedia,
             'jenis_pengadaan' => $this->jenis_pengadaan,
         ]);
 

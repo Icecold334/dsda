@@ -386,6 +386,8 @@ class ShowPermintaanMaterial extends Component
             })->whereHas('roles', function ($role) {
                 return $role->where('name', 'like', '%Kepala Seksi%');
             })->first();
+        $pemohon = $permintaan->user;
+        $pemohonRole = $pemohon->roles->pluck('name')->first(); // ambil 1 role
 
         $Rkb = $this->Rkb;
         $RKB = $this->RKB;
@@ -399,7 +401,7 @@ class ShowPermintaanMaterial extends Component
         // dd(
         //     !$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb')
         // );
-        $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact('ttdPath', 'permintaan', 'kasatpel', 'pemel', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'sign'))->render();
+        $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact('ttdPath', 'pemohon', 'pemohonRole', 'permintaan', 'kasatpel', 'pemel', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'sign'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();

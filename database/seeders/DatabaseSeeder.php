@@ -38,6 +38,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\DetailPeminjamanAset;
 use App\Models\DetailPengirimanStok;
 use App\Models\DetailPermintaanStok;
+use App\Models\Driver;
+use App\Models\Security;
 use Illuminate\Support\Facades\Hash;
 // use App\Models\KontrakRetrospektifStok;
 
@@ -66,13 +68,14 @@ class DatabaseSeeder extends Seeder
             RuangSeeder::class,
             RabSeeder::class,
             DetailPermintaanMaterialSeeder::class,
-            KontrakSeeder::class,
+            // KontrakSeeder::class,
             GudangSeeder::class,
             TransaksiSeeder::class,
 
         ]);
 
-
+        Driver::factory(40)->create();
+        Security::factory(40)->create();
 
 
 

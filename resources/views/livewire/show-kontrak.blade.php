@@ -34,7 +34,7 @@
                 <table class="w-full font-semibold">
                     <tr>
                         <td>Nama Vendor</td>
-                        <td>{{ $kontrak->vendorStok->nama }}</td>
+                        <td>{{ $kontrak->nama_penyedia }}</td>
                     </tr>
                     <tr>
                         <td>Nomor Kontrak</td>
@@ -44,10 +44,10 @@
                         <td>Jenis Barang</td>
                         <td>{{ $kontrak->listKontrak->first()->merkStok->barangStok->jenisStok->nama ?? '-' }}</td>
                     </tr>
-                    <tr>
+                    {{-- <tr>
                         <td>Metode Pengadaan</td>
                         <td>{{ $kontrak->metodePengadaan->nama ?? '-' }}</td>
-                    </tr>
+                    </tr> --}}
                     <tr>
                         <td>Tanggal Kontrak</td>
                         <td>{{ date('j F Y', $kontrak->tanggal_kontrak) }}</td>

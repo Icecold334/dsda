@@ -35,4 +35,14 @@ class UnitKerja extends Model
     {
         return $this->hasMany(User::class, 'unit_id');
     }
+
+    public function drivers()
+    {
+        return $this->hasMany(Driver::class, 'unit_id');
+    }
+
+    public function securities()
+    {
+        return $this->hasMany(Security::class, 'unit_id');
+    }
 }

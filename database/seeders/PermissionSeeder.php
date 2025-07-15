@@ -2,63 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class PermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        DB::table('permissions')->truncate();
-        $permissionsGuest = [
-            'nama',
-            'kategori',
-            'kode',
-            'systemcode',
-            'aset_keterangan',
-            'status',
-            'foto',
-            'lampiran',
-            'nonaktif_tanggal',
-            'nonaktif_alasan',
-            'nonaktif_keterangan',
-            'detil_merk',
-            'detil_tipe',
-            'detil_produsen',
-            'detil_noseri',
-            'detil_thnproduksi',
-            'detil_deskripsi',
-            'tanggalbeli',
-            'toko',
-            'invoice',
-            'jumlah',
-            'hargasatuan',
-            'hargatotal',
-            'umur',
-            'penyusutan',
-            'usia',
-            'nilaisekarang',
-            'keuangan',
-            'agenda',
-            'jurnal',
-            'riwayat_terakhir',
-            'riwayat_semua',
-            'riwayat_tidak',
-            'riwayat_tanggal',
-            'riwayat_person',
-            'riwayat_lokasi',
-            'riwayat_jumlah',
-            'riwayat_kondisi',
-            'riwayat_kelengkapan',
-            'riwayat_keterangan',
-        ];
-        $permissionsSystem = [
+        // === STEP 1: Permission lama yang sudah ada ===
+        $existingPermissions = [
+            // Modul Aset
             'aset_price',
             'aset_new',
             'aset_edit',
@@ -67,12 +21,18 @@ class PermissionSeeder extends Seeder
             'aset_xls',
             'aset_noaktif',
             'aset_reaktif',
+
+            // Riwayat
             'history_view',
             'history_newedit',
             'history_del',
+
+            // Transaksi
             'trans_view',
             'trans_newedit',
             'trans_del',
+
+            // Data Master
             'data_kategori',
             'data_merk',
             'data_barang',
@@ -83,18 +43,25 @@ class PermissionSeeder extends Seeder
             'data_lokasi',
             'data_lokasi_gudang',
             'data_unit_kerja',
+            'data_driver',
+            'data_security',
+
+            // Inventaris dan QR
             'qr_print',
             'pengaturan',
-            'pengguna_verifikasi_pengguna',
             'inventaris_edit_lokasi_penerimaan',
             'inventaris_tambah_barang_datang',
             'inventaris_unggah_foto_barang_datang',
+            'inventaris_edit_jumlah_diterima',
+            'inventaris_upload_foto_bukti',
+
+            // Permintaan dan Peminjaman
             'permintaan_tambah_permintaan',
             'permintaan_persetujuan_jumlah_barang',
             'permintaan_upload_foto_dan_ttd_driver',
             'peminjaman_persetujuan_peminjaman_aset',
-            'inventaris_edit_jumlah_diterima',
-            'inventaris_upload_foto_bukti',
+
+            // Kontrak, Pelayanan, Stok, RAB
             'persetujuan',
             'kontrak_tambah_kontrak_baru',
             'pelayanan_xls',
@@ -103,68 +70,239 @@ class PermissionSeeder extends Seeder
             'RAB_tambah_rab',
         ];
 
-        // Insert permissions and get their IDs
-        $permissionIds = [];
-        foreach ($permissionsGuest as $permission) {
-            $permissionIds[] = DB::table('permissions')->insertGetId([
-                'name' => $permission,
+        foreach ($existingPermissions as $perm) {
+            Permission::firstOrCreate([
+                'name' => $perm,
                 'guard_name' => 'web',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
-        foreach ($permissionsSystem as $permission) {
-            $permissionIds[] = DB::table('permissions')->insertGetId([
-                'name' => $permission,
-                'type' => true,
-                'guard_name' => 'web',
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
         }
 
-        $users = Role::all();
-        foreach ($users as $user) {
-            $user->syncPermissions($permissionsSystem);
+        // === STEP 2: Tambahkan permission dari tabel hak akses ===
+        $modules = [
+            'dashboard',
+            'rab',
+            'permintaan',
+            'penerimaan',
+            'kontrak',
+            'upload_spb',
+            'upload_sppb',
+            'upload_foto',
+            'spb',
+            'sppb',
+            'surat_jalan',
+            'penyesuaian',
+            'riwayat_transaksi',
+            'gudang',
+            'manajemen',
+            'driver',
+            'security'
+        ];
+        foreach ($modules as $mod) {
+            foreach (['create', 'read', 'update', 'delete'] as $act) {
+                Permission::firstOrCreate([
+                    'name' => "{$mod}.{$act}",
+                    'guard_name' => 'web',
+                ]);
+            }
         }
+        // === STEP 3: Assign permission ke role berdasarkan mapping (versi aman) ===
+        $rolePermissions = [
+            "superadmin" => array_merge(...array_values(array_map(fn($a) => array_map(fn($b) => "$a.$b", ['create', 'read', 'update', 'delete']), $modules))),
+            // "Admin Sudin" => array_merge(...array_values(array_map(fn($a) => array_map(fn($b) => "$a.$b", ['create', 'read', 'update', 'delete']), $modules))),
+            "Admin Sudin" => Permission::all()->pluck('name')->toArray(),
+
+            "Kadis" => array_map(fn($m) => "$m.read", $modules),
+
+            "Sekdis" => array_map(fn($m) => "$m.read", $modules),
+
+            "Kepala Subbagian" => array_map(fn($m) => "$m.read", $modules),
+
+            "Kepala Suku Dinas" => [
+                'dashboard.read',
+                'rab.read',
+                'rab.update',
+                'permintaan.read',
+                'permintaan.update',
+                'penerimaan.read',
+                'penerimaan.update',
+                'kontrak.read',
+                'upload_sppb.read',
+                'upload_foto.read',
+                'spb.read',
+                'spb.update',
+                'sppb.read',
+                'sppb.update',
+                'surat_jalan.read',
+                'surat_jalan.update',
+                'penyesuaian.read',
+                'penyesuaian.update',
+                'riwayat_transaksi.read',
+                'riwayat_transaksi.update',
+                'gudang.read',
+                'gudang.update',
+                'manajemen.read',
+                'manajemen.update',
+                'input_driver.read'
+            ],
+
+            "Kepala Subbagian Tata Usaha" => [
+                'dashboard.read',
+                'rab.read',
+                'rab.update',
+                'penerimaan.read',
+                'penerimaan.update',
+                'kontrak.read',
+                'upload_sppb.create',
+                'upload_sppb.read',
+                'upload_sppb.update',
+                'upload_sppb.delete',
+                'upload_foto.read',
+                'spb.read',
+                'sppb.create',
+                'sppb.read',
+                'sppb.update',
+                'sppb.delete',
+                'surat_jalan.read',
+                'surat_jalan.update',
+                'penyesuaian.read',
+                'penyesuaian.update',
+                'riwayat_transaksi.read',
+                'riwayat_transaksi.update',
+                'gudang.read',
+                'gudang.update',
+                'manajemen.read',
+                'manajemen.update',
+                'input_driver.read'
+            ],
+
+            "Pengurus Barang" => [
+                'dashboard.read',
+                'permintaan.create',
+                'permintaan.read',
+                'permintaan.update',
+                'permintaan.delete',
+                'penerimaan.read',
+                'kontrak.read',
+                'upload_spb.read',
+                'upload_foto.create',
+                'upload_foto.read',
+                'upload_foto.update',
+                'upload_foto.delete',
+                'spb.read',
+                'sppb.create',
+                'sppb.read',
+                'sppb.update',
+                'sppb.delete',
+                'surat_jalan.create',
+                'surat_jalan.read',
+                'surat_jalan.update',
+                'surat_jalan.delete',
+                'penyesuaian.create',
+                'penyesuaian.read',
+                'penyesuaian.update',
+                'penyesuaian.delete',
+                'riwayat_transaksi.create',
+                'riwayat_transaksi.read',
+                'riwayat_transaksi.update',
+                'riwayat_transaksi.delete',
+                'gudang.create',
+                'gudang.read',
+                'gudang.update',
+                'gudang.delete',
+                'input_driver.read',
+                'input_driver.update',
+                'data_barang',
+            ],
+
+            "Kepala Seksi" => [
+                'dashboard.read',
+                'rab.create',
+                'rab.read',
+                'rab.update',
+                'rab.delete',
+                'permintaan.read',
+                'permintaan.create',
+                'penerimaan.read',
+                'upload_spb.create',
+                'upload_spb.read',
+                'upload_spb.update',
+                'upload_spb.delete',
+                'upload_sppb.read',
+                'data_barang',
+                'spb.read',
+                'spb.update',
+                'sppb.read',
+                'sppb.update',
+                'surat_jalan.read',
+                'surat_jalan.update',
+                'penyesuaian.read',
+                'riwayat_transaksi.read',
+                'gudang.read',
+                'manajemen.read'
+            ],
+
+            "Perencanaan" => [
+                'dashboard.read',
+                'rab.create',
+                'rab.read',
+                'rab.update',
+                'rab.delete',
+                'permintaan.read',
+                'penerimaan.read',
+                'gudang.read',
+                'manajemen.read'
+            ],
+
+            "Kepala Satuan Pelaksana" => [
+                'dashboard.read',
+                'rab.create',
+                'permintaan.create',
+                'rab.read',
+                'rab.update',
+                'rab.delete',
+                'upload_spb.create',
+                'upload_spb.read',
+                'upload_spb.update',
+                'upload_spb.delete',
+                'upload_sppb.read',
+                'upload_foto.create',
+                'upload_foto.read',
+                'upload_foto.update',
+                'upload_foto.delete',
+                'spb.read',
+                'spb.update',
+                'sppb.read',
+                'surat_jalan.read',
+                'penyesuaian.read',
+                'riwayat_transaksi.read',
+                'gudang.read',
+                'manajemen.read'
+            ],
+
+            "P3K" => [
+                'dashboard.read',
+                'penerimaan.create',
+                'penerimaan.read',
+                'penerimaan.update',
+                'penerimaan.delete',
+                'kontrak.create',
+                'kontrak.read',
+                'kontrak.update',
+                'gudang.read',
+                'manajemen.read',
+            ],
+        ];
 
 
-        ///////////////////////////////////////////
+        foreach ($rolePermissions as $roleName => $permissions) {
+            $role = Role::firstOrCreate(['name' => $roleName]);
 
-        function syncPermissions(string $roleName, array $permissions): void
-        {
-            $role = Role::where('name', $roleName)->first();
-            $role->syncPermissions($permissions);
+            foreach ($permissions as $permName) {
+                $perm = Permission::where('name', $permName)->first();
+                if ($perm && !$role->hasPermissionTo($perm)) {
+                    $role->givePermissionTo($perm);
+                }
+            }
         }
-        function revokePermissions(string $roleName, array $permissions): void
-        {
-            $role = Role::where('name', $roleName)->first();
-            $role->revokePermissionTo($permissions);
-        }
-
-
-
-        syncPermissions('Perencanaan', [
-            'RAB_tambah_rab',
-        ]);
-
-        syncPermissions('Kepala Satuan Pelaksana', [
-            'permintaan_tambah_permintaan',
-        ]);
-        syncPermissions('Pengurus Barang', [
-            'permintaan_upload_foto_dan_ttd_driver',
-            'permintaan_persetujuan_jumlah_barang',
-            'inventaris_unggah_foto_barang_datang',
-        ]);
-        revokePermissions('Kepala Suku Dinas', [
-            'RAB_tambah_rab',
-            'permintaan_upload_foto_dan_ttd_driver',
-            'permintaan_persetujuan_jumlah_barang'
-        ]);
-        revokePermissions('Kepala Subbagian', [
-            'RAB_tambah_rab',
-            'permintaan_upload_foto_dan_ttd_driver',
-            'permintaan_persetujuan_jumlah_barang'
-        ]);
     }
 }

@@ -52,6 +52,7 @@ use App\Http\Controllers\PosisiStokController;
 use App\Http\Controllers\VendorStokController;
 use App\Http\Controllers\PersetujuanController;
 use App\Http\Controllers\AsetNonAktifController;
+use App\Http\Controllers\DriverController;
 use App\Http\Controllers\KategoriStokController;
 use App\Http\Controllers\KontrakVendorController;
 use App\Http\Controllers\TransaksiStokController;
@@ -61,6 +62,8 @@ use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\PengaturanPersetujuanController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
+use App\Http\Controllers\SecurityController;
+use App\Livewire\DataDriver;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -231,6 +234,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->get();
         return view('peminjaman.index', ['peminjaman' => $peminjaman]);
     });
+    Route::get('driver', [DriverController::class, 'index']);
+    Route::get('security', [SecurityController::class, 'index']);
     Route::get('kategori/{tipe}', [KategoriController::class, 'create']);
     Route::get('kategori/{tipe}/{kategori}', [KategoriController::class, 'create'])->middleware('can:data_kategori');
     Route::resource('kategori', KategoriController::class)->middleware('can:data_kategori');

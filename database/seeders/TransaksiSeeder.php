@@ -9,6 +9,7 @@ use App\Models\PosisiStok;
 use App\Models\TransaksiStok;
 use Illuminate\Database\Seeder;
 use App\Models\KontrakVendorStok;
+use App\Models\User;
 
 class TransaksiSeeder extends Seeder
 {
@@ -18,17 +19,18 @@ class TransaksiSeeder extends Seeder
         $existingCombos = [];
 
         for ($i = 0; $i < 8000; $i++) {
-            $kontrak = KontrakVendorStok::inRandomOrder()->first();
+            // $kontrak = KontrakVendorStok::inRandomOrder()->first();
             $lokasi = LokasiStok::inRandomOrder()->first();
-            if (!$kontrak || !$lokasi) continue;
+            // if (!$kontrak || !$lokasi) continue;
+            if (!$lokasi) continue;
 
-            $user = $kontrak->user;
+            $user = User::inRandomOrder()->first();
             if (!$user) continue;
 
             $bagian = fake()->boolean() ? BagianStok::where('lokasi_id', $lokasi->id)->inRandomOrder()->first() : null;
             $posisi = ($bagian && fake()->boolean()) ? PosisiStok::where('bagian_id', $bagian->id)->inRandomOrder()->first() : null;
 
-            $jenis_id = $kontrak->jenis_id;
+            $jenis_id = fake()->randomElement([1, 2, 3]);
 
             $merk = MerkStok::whereHas('barangStok.jenisStok', function ($jenis) use ($jenis_id) {
                 $jenis->where('id', $jenis_id);
@@ -63,7 +65,7 @@ class TransaksiSeeder extends Seeder
                 'harga' => fake()->numberBetween(1, 10) * 100,
                 'ppn' => fake()->randomElement([0, 11, 12]),
                 'user_id' => $user->id,
-                'kontrak_id' => $tipe === 'Penyesuaian' ? null : $kontrak->id,
+                // 'kontrak_id' => $tipe === 'Penyesuaian' ? null : $kontrak->id,
                 'tanggal' => fake()->dateTimeBetween('-2 years', 'now')->format('Y-m-d'),
                 'jumlah' => (string)$jumlah,
                 'created_at' => now(),

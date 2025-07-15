@@ -11,8 +11,14 @@
         <x-card title="Data Umum" class="h-full">
             <table class="w-full">
                 <tr class="font-semibold">
-                    <td>Nama Vendor</td>
-                    <td>{{ $pengiriman->pengirimanStok->first()->kontrakVendorStok->vendorStok->nama }}</td>
+                    <td>Nama Penyedia</td>
+                    <td>{{ $pengiriman->pengirimanStok->first()->kontrakVendorStok->nama_penyedia ?? 'Tidak Diketahui'
+                        }}</td>
+                </tr>
+                <tr class="font-semibold">
+                    <td>Nomor Kontrak</td>
+                    <td>{{ $pengiriman->pengirimanStok->first()->kontrakVendorStok->nomor_kontrak ?? 'Tidak Diketahui'
+                        }}</td>
                 </tr>
                 <tr class="font-semibold">
                     <td class="w-1/3">Kode Barang Masuk</td>
@@ -28,10 +34,10 @@
                         </span>
                     </td>
                 </tr>
-                <tr class="font-semibold">
+                {{-- <tr class="font-semibold">
                     <td class="w-1/3">Jenis Pengiriman</td>
                     <td>{{ $pengiriman->pengirimanStok->first()->merkStok->barangStok->jenisStok->nama }}</td>
-                </tr>
+                </tr> --}}
             </table>
         </x-card>
         <x-card title="Surat Jalan & Foto Barang" class="h-full">
@@ -39,8 +45,8 @@
         </x-card>
     </div>
     <x-card title="Daftar Barang Yang DIterima">
-        <livewire:list-pengiriman-form
-            :vendor_id="$pengiriman->pengirimanStok->first()->kontrakVendorStok->vendorStok->id"
+        <livewire:list-pengiriman-form {{--
+            :vendor_id="$pengiriman->pengirimanStok->first()->kontrakVendorStok->vendorStok->id" --}}
             :penulis="$pengiriman->penerima" :pj1="$pengiriman->pj1" :pj2="$pengiriman->pj2"
             :old="$pengiriman->pengirimanStok">
             @if (auth()->user()->unitKerja->hak)

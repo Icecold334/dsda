@@ -1,7 +1,6 @@
 <div>
     <div class="flex justify-between py-2 mb-3">
 
-
         @if (session('success'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -17,8 +16,6 @@
 
         <h1 class="text-2xl font-bold text-primary-900 ">Daftar Kontrak
             @if (auth()->user()->unitKerja)
-            {{-- {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama :
-            auth()->user()->unitKerja->nama }} --}}
             @if (!auth()->user()->unitKerja->hak)
             {{ $sudin }}
             @else
@@ -26,44 +23,39 @@
             @endif
             @endif
         </h1>
-        <div>
-            {{-- <button data-modal-target="tipe2" data-modal-toggle="tipe2"
-                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                type="button">
-                Menunggu Persetujuan
-            </button> --}}
-            <div class="flex gap-4">
-                <!-- Date Picker for Tanggal -->
-                <input type="date" wire:model.live="tanggal" class="border rounded-lg px-4 py-2" />
-                <!-- Search Input -->
-                <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2"
-                    placeholder="Cari Kode / Vendor" />
 
-                <!-- Dropdown untuk Memilih Jenis -->
-                <select wire:model.live="jenis"
-                    class="border rounded-lg px-4 py-2 {{ !auth()->user()->unitKerja->hak ?'hidden':'' }}">
-                    <option value="">Pilih Jenis</option>
-                    @foreach ($jenisOptions as $jenis)
-                    <option value="{{ $jenis }}">{{ $jenis }}</option>
-                    @endforeach
-                </select>
-                <select wire:model.live="metode" class="border rounded-lg px-4 py-2">
-                    <option value="">Pilih Metode</option>
-                    @foreach ($metodeOptions as $metode)
-                    <option value="{{ $metode }}">{{ $metode }}</option>
-                    @endforeach
-                </select>
-                @can('kontrak_tambah_kontrak_baru')
-                <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
-                    <i class="fa fa-sync-alt"></i>
-                </button>
-                <a href="{{ route('kontrak-vendor-stok.create') }}"
-                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
-                    Rekam Kontrak Baru</a>
-                @endcan
-                <!-- Button Go -->
+        <div class="flex gap-4">
+            <input type="date" wire:model.live="tanggal" class="border rounded-lg px-4 py-2" />
+            <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2"
+                placeholder="Cari Kode / Vendor" />
 
-            </div>
+            <select wire:model.live="jenis"
+                class="border rounded-lg px-4 py-2 {{ !auth()->user()->unitKerja->hak ?'hidden':'' }}">
+                <option value="">Pilih Jenis</option>
+                @foreach ($jenisOptions as $jenis)
+                <option value="{{ $jenis }}">{{ $jenis }}</option>
+                @endforeach
+            </select>
+
+            <select wire:model.live="metode" class="border rounded-lg px-4 py-2">
+                <option value="">Pilih Metode</option>
+                @foreach ($metodeOptions as $metode)
+                <option value="{{ $metode }}">{{ $metode }}</option>
+                @endforeach
+            </select>
+
+            @can('kontrak.read')
+            <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                <i class="fa fa-sync-alt"></i>
+            </button>
+            @endcan
+
+            @can('kontrak.create')
+            <a href="{{ route('kontrak-vendor-stok.create') }}"
+                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                + Rekam Kontrak Baru
+            </a>
+            @endcan
         </div>
     </div>
 
@@ -79,47 +71,24 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS PENGADAAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS KONTRAK</th>
                 <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">DETAIL TRANSAKSI</th>
-                {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th> --}}
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
         <tbody>
             @foreach ($groupedTransactions as $index => $transaction)
-            {{-- @foreach ($kontrakGroups as $kontrakId => $transaction) --}}
             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
-                <td class="py-3 px-6"></td> <!-- Displays the row number -->
-                <td class="py-3 px-6">
-                    <p class="font-semibold text-gray-800">
-                        {{ $transaction->nomor_kontrak }}</p>
+                <td class="py-3 px-6"></td>
+                <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->nomor_kontrak }}</td>
+                <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->nama_paket }}</td>
+                <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->vendorStok->nama ?? 'Unknown Vendor'
+                    }}</td>
+                <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->tahun_anggaran }}</td>
+                <td class="py-3 px-6 font-semibold text-gray-800">
+                    {{ $transaction->tanggal_kontrak ? date('j F Y', $transaction->tanggal_kontrak) : '---' }}
                 </td>
-                <td class="py-3 px-6">
-                    <p class="font-semibold text-gray-800">
-                        {{ $transaction->nama_paket }}</p>
-                </td>
-                <td class="py-3 px-6">
-                    <p class="font-semibold text-gray-800">
-                        {{ $transaction->vendorStok->nama ?? 'Unknown Vendor' }}</p>
-                </td>
-                <td class="py-3 px-6">
-                    <p class="font-semibold text-gray-800">
-                        {{ $transaction->tahun_anggaran }}</p>
-                </td>
-                <td class="py-3 px-6">
-                    <p class="font-semibold text-gray-800">
-                        {{ $transaction->tanggal_kontrak ? date('j F Y', $transaction->tanggal_kontrak) : '---' }}
-                    </p>
-                </td>
-
-
-                <td class="py-3 px-6">
-                    <p class="font-semibold text-gray-800 text-center">
-                        {{ $transaction->jenis_pengadaan }}
-                    </p>
-                </td>
-                <td class="py-3 px-6">
-                    <p class="font-semibold text-gray-800 text-center">
-                        {{ $transaction->parent ? 'Adendum':'Baru' }}
-                    </p>
+                <td class="py-3 px-6 font-semibold text-center text-gray-800">{{ $transaction->jenis_pengadaan }}</td>
+                <td class="py-3 px-6 font-semibold text-center text-gray-800">
+                    {{ $transaction->parent ? 'Adendum':'Baru' }}
                 </td>
                 <td class="py-3 px-6">
                     <table class="w-full text-sm border-spacing-y-2">
@@ -135,8 +104,8 @@
                                 <td class="border-r-4 px-2">
                                     {{ $tran->merkStok->barangStok->nama }}
                                 </td>
-                                <td class="px-2">{{ $tran->jumlah }}
-                                    {{ $tran->merkStok->barangStok->satuanBesar->nama }}</td>
+                                <td class="px-2">{{ $tran->jumlah }} {{ $tran->merkStok->barangStok->satuanBesar->nama
+                                    }}</td>
                             </tr>
                             @endforeach
                             @if ($transaction->listKontrak->count() > 3)
@@ -155,11 +124,15 @@
                         data-tooltip-target="tooltip-kontrak-{{ $transaction->id }}">
                         <i class="fa-solid fa-eye"></i>
                     </a>
+
+                    @can('kontrak.update')
                     <a href="{{ route('kontrak-vendor-stok.edit', ['kontrak_vendor_stok' => $transaction->id]) }}"
                         class="text-warning-950 px-3 py-3 rounded-md border hover:bg-slate-300"
                         data-tooltip-target="tooltip-edit-{{ $transaction->id }}">
                         <i class="fa-solid fa-pencil"></i>
                     </a>
+                    @endcan
+
                     <div id="tooltip-kontrak-{{ $transaction->id }}" role="tooltip"
                         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                         Lihat Detail Kontrak
@@ -167,9 +140,7 @@
                     </div>
                 </td>
             </tr>
-            {{-- @endforeach --}}
             @endforeach
         </tbody>
     </table>
-
 </div>

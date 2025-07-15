@@ -195,7 +195,7 @@
                     <tr class="">
                         <td>
                             <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Volume Pekerjaan*</label>
+                                Volume Pekerjaan</label>
                         </td>
                         <td>
                             <div class="flex gap-x-2">

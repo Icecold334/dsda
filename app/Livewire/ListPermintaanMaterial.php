@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Carbon\Carbon;
 use App\Models\Rab;
 use App\Models\Stok;
+use App\Models\User;
 use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
@@ -380,9 +381,9 @@ class ListPermintaanMaterial extends Component
             'gudang_id' => $this->gudang_id,
             'saluran_jenis' => $this->saluran_jenis,
             'saluran_id' => $this->saluran_id,
-            // 'p' => $this->vol['p'],
-            // 'l' => $this->vol['l'],
-            // 'k' => $this->vol['k'],
+            'p' => $this->vol['p'] ?? null,
+            'l' => $this->vol['l'] ?? null,
+            'k' => $this->vol['k'] ?? null,
             'nama' => $this->namaKegiatan,
             'kelurahan_id' => $this->kelurahanId,
             'lokasi' => $this->lokasiMaterial,
@@ -438,6 +439,53 @@ class ListPermintaanMaterial extends Component
         }
 
         $this->reset('list');
+        $pemohon = Auth::user();
+        $creatorRoles = $pemohon->roles->pluck('name')->toArray();
+        $hasRab = $permintaan->rab_id !== null;
+        $isKasatpel = in_array('Kepala Satuan Pelaksana', $creatorRoles);
+
+        // Tentukan role approval pertama
+        if ($hasRab && $isKasatpel) {
+            $firstRole = 'Kepala Seksi';
+        } elseif ($hasRab && !$isKasatpel) {
+            $firstRole = 'Kepala Suku Dinas';
+        } elseif (!$hasRab && $isKasatpel) {
+            $firstRole = 'Kepala Seksi';
+        } else {
+            $firstRole = 'Kepala Subbagian';
+        }
+        $date = Carbon::parse($permintaan->created_at);
+
+        // Ambil user pertama dari role yang ditentukan dalam unit yang relevan
+        $approvalUser = User::whereHas('roles', function ($query) use ($firstRole) {
+            $query->where('name', 'LIKE', '%' . $firstRole . '%');
+        })
+            ->where(function ($query) {
+                $query->whereHas('unitKerja', function ($subQuery) {
+                    $subQuery->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+                });
+            })
+            ->where(function ($query) use ($firstRole) {
+                $query->whereHas('unitKerja', function ($subQuery) use ($firstRole) {
+                    $subQuery->when($firstRole === 'Kepala Seksi', function ($query) {
+                        return $query->where('nama', 'like', '%Pemeliharaan%');
+                    })->when($firstRole === 'Kepala Subbagian', function ($query) {
+                        return $query->where('nama', 'like', '%Tata Usaha%');
+                    });
+                });
+            })->when($firstRole === 'Penjaga Gudang', function ($query) use ($permintaan) {
+                return $query->where('lokasi_id', $permintaan->gudang_id);
+            })
+            ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))->first();
+
+        // Kirim notifikasi kalau ketemu
+        if ($approvalUser) {
+            $pesan = "Permintaan dengan kode {$permintaan->kode_permintaan} membutuhkan persetujuan Anda.";
+            \Illuminate\Support\Facades\Notification::send($approvalUser, new \App\Notifications\UserNotification(
+                $pesan,
+                "/permintaan/permintaan/{$permintaan->id}"
+            ));
+        }
         $this->dispatch('saveDokumen', kontrak_id: $permintaan->id, isRab: false, isMaterial: true);
     }
 

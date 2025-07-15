@@ -12,8 +12,14 @@
         <x-card title="Nomor Kontrak">
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Kontrak</label>
-                <input type="text" wire:model.live="nomor_kontrak"
-                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" />
+                <div class="flex gap-2">
+                    <input type="text" wire:model.live="nomor_kontrak"
+                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" />
+                    <button wire:click="cariKontrak"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                        Cari
+                    </button>
+                </div>
                 @error('nomor_kontrak')
                 <span class="text-sm text-red-500">{{ $message }}</span>
                 @enderror
@@ -31,13 +37,13 @@
         <x-card title="Data Umum">
             <div class="mb-4">
                 <label class="block text-sm font-medium mb-1">Nama Vendor</label>
-                <input type="text" readonly value="{{ $kontrak->vendorStok->nama }}"
+                <input type="text" readonly value="{{ $kontrak->nama_penyedia ?? '-' }}"
                     class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm" />
             </div>
 
             <div class="mb-4">
                 <label class="block text-sm font-medium mb-1">Metode Pengadaan</label>
-                <input type="text" readonly value="{{ $kontrak->metodePengadaan->nama }}"
+                <input type="text" readonly value="{{ $kontrak->jenis_pengadaan }}"
                     class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm" />
             </div>
             <div class="mb-4">
@@ -176,3 +182,17 @@
     </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+    Livewire.on('alert', (e) => {
+        var { type, message } = e[0]
+        Swal.fire({
+            icon: type, // 'success', 'error', 'warning', 'info'
+            title: type === 'error' ? 'Gagal!' : 'Berhasil',
+            text: message,
+            confirmButtonColor: '#3085d6',
+        });
+    });
+</script>
+@endpush

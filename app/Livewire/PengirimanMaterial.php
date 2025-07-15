@@ -43,21 +43,20 @@ class PengirimanMaterial extends Component
         $this->bagians = BagianStok::where('lokasi_id', $id)->get();
     }
 
-    public function updatedNomorKontrak($value)
+    public function cariKontrak()
     {
         $this->kontrak = null;
 
-        if (!$value) return;
+        $this->validate([
+            'nomor_kontrak' => 'required',
+        ]);
 
-        // Ambil kontrak terakhir (paling baru) yang punya nomor kontrak sama
         $kontrak = KontrakVendorStok::with(['vendorStok', 'metodePengadaan'])
-            ->where('nomor_kontrak', $value)
-            ->orderByDesc('id') // diasumsikan adendum selalu punya ID lebih besar
+            ->where('nomor_kontrak', $this->nomor_kontrak)
+            ->orderByDesc('id')
             ->first();
 
-        // Cek jika kontrak ini adalah kontrak utama dan sudah memiliki adendum, maka tolak
         if ($kontrak && !$kontrak->is_adendum && $kontrak->adendums()->exists()) {
-            // Reset karena kontrak usang
             $this->reset('kontrak');
             $this->dispatch('alert', [
                 'type' => 'error',
@@ -65,15 +64,20 @@ class PengirimanMaterial extends Component
             ]);
             return;
         }
-        // dd($kontrak);
-        // Jika kontrak valid, tetapkan
-        if ($kontrak) {
-            $this->kontrak = $kontrak;
-            $this->tanggal_pengiriman = now()->format('Y-m-d'); // default hari ini
-            // $this->dispatch('kontrakId', kontrakId: $this->kontrak->id);
-            $this->dispatch('kontrakId', kontrakId: $kontrak->id);
+
+        if (!$kontrak) {
+            $this->dispatch('alert', [
+                'type' => 'error',
+                'message' => 'Kontrak tidak ditemukan.'
+            ]);
+            return;
         }
+
+        $this->kontrak = $kontrak;
+        $this->tanggal_pengiriman = now()->format('Y-m-d');
+        $this->dispatch('kontrakId', kontrakId: $kontrak->id);
     }
+
 
 
 

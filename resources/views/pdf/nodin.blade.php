@@ -197,15 +197,22 @@
     </td>
     <td align="center">
       Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}<br>
-      Kepala Satuan Pelaksana<br>
-      Kecamatan {{ $kasatpel->kecamatan->kecamatan }}<br><br>
+      {{ $pemohonRole }}<br>
+      @if (Str::contains($pemohonRole, 'Kepala Seksi'))
+      Bidang {{ $pemohon->unitKerja->nama }}
+      @elseif(Str::contains($pemohonRole, 'Kepala Satuan Pelaksana'))
+      Kecamatan {{ $pemohon->kecamatan->kecamatan ?? '-' }}
+      @endif
+      <br><br>
+
       @if ($sign)
       <img src="{{ $ttdPath }}" width="100" height="50"><br><br>
       @else
       <br><br><br><br>
       @endif
-      <b>{{ $kasatpel->name }}</b><br>
-      NIP. {{ $kasatpel->nip }}
+
+      <b>{{ $pemohon->name }}</b><br>
+      NIP. {{ $pemohon->nip }}
     </td>
   </tr>
 </table>
