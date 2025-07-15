@@ -1,5 +1,5 @@
 <div>
-    {{-- <div class="grid grid-cols-2 gap-6 mb-6">
+    <div class="grid grid-cols-2 gap-6 mb-6">
         <x-card title="Sumber Data Kontrak">
             <div class="flex items-center gap-4">
                 <label class="inline-flex items-center">
@@ -15,7 +15,7 @@
             @if ($mode_api)
             <div class="mt-4">
                 <label for="tahun_api" class="block text-sm font-medium">Pilih Tahun</label>
-                <select wire:model.live="tahun_api" class="form-select w-full mt-1">
+                <select wire:model.live="tahun_api" class="w-full p-2 border border-gray-300 rounded-md text-sm mt-1">
                     <option value="">-- Pilih Tahun --</option>
                     @for ($i = now()->year; $i >= now()->year - 5; $i--)
                     <option value="{{ $i }}">{{ $i }}</option>
@@ -26,7 +26,8 @@
             @if (!empty($kontrak_api_list['data']))
             <div class="mt-4">
                 <label class="block text-sm font-medium">Pilih Nama Paket</label>
-                <select wire:model.live="selected_api_kontrak" class="form-select w-full mt-1">
+                <select wire:model.live="selected_api_kontrak"
+                    class="w-full p-2 border border-gray-300 rounded-md text-sm mt-1">
                     <option value="">-- Pilih Paket --</option>
                     @foreach ($kontrak_api_list['data'] as $i => $paket)
                     <option value="{{ $i }}">{{ $paket['nama_paket'] }}</option>
@@ -36,7 +37,7 @@
             @endif
             @endif
         </x-card>
-        <x-card title="Informasi Kontrak" class="mb-6">
+        {{-- <x-card title="Informasi Kontrak" class="mb-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @foreach ([
                 'tahun_anggaran' => 'Tahun Anggaran',
@@ -59,12 +60,12 @@
                 </div>
                 @endforeach
             </div>
-        </x-card>
-    </div> --}}
+        </x-card> --}}
+    </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <x-card title="Pilih Vendor">
+        <x-card title="Pilih Penyedia">
             <div>
-                <label for="vendor_id" class="block mb-1 text-sm font-medium">Pilih Vendor</label>
+                <label for="vendor_id" class="block mb-1 text-sm font-medium">Pilih Penyedia</label>
                 <div class="relative w-full" x-data="{ open: false, search: '' }">
                     <div @click.outside="open = false" class="relative">
                         <button type="button"
@@ -72,7 +73,7 @@
                             @click="open = !open" :class="{ 'bg-gray-100': open }">
                             <span>
                                 {{ $vendor_id
-                                ? \App\Models\Toko::find($vendor_id)?->nama ?? '-' : 'Pilih Vendor' }}
+                                ? \App\Models\Toko::find($vendor_id)?->nama ?? '-' : 'Pilih Penyedia' }}
                             </span>
                             <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -82,7 +83,7 @@
 
                         <div x-show="open" x-transition
                             class="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-md shadow">
-                            <input @readonly($isAdendum) type="text" x-model="search" placeholder="Cari vendor..."
+                            <input @readonly($isAdendum) type="text" x-model="search" placeholder="Cari penyedia..."
                                 class="w-full px-3 py-2 border-b border-gray-200 focus:outline-none text-sm" />
 
                             <ul class="max-h-48 overflow-y-auto text-sm">
@@ -133,78 +134,173 @@
         </x-card> --}}
     </div>
 
-    <x-card title="Detail Kontrak" class="mt-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="flex items-end gap-2">
-                <div class="flex-1">
-                    @if ($isAdendum)
-                    <label class="block text-sm">Nomor Kontrak Lama</label>
-                    <input type="text" value="{{ $nomor_kontrak }}" readonly
-                        class="bg-gray-100 border border-gray-300 text-sm rounded-lg block w-full p-2.5">
+    <div class="grid grid-cols-2 gap-6">
+        <x-card title="Detail Kontrak" class="mt-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-end gap-2">
+                    <div class="flex-1">
+                        @if ($isAdendum)
+                        <label class="block text-sm">Nomor Kontrak Lama</label>
+                        <input type="text" value="{{ $nomor_kontrak }}" readonly
+                            class="bg-gray-100 border border-gray-300 text-sm rounded-lg block w-full p-2.5">
 
-                    <label class="block text-sm mt-2">Nomor Kontrak Baru</label>
-                    <input type="text" wire:model.live="nomor_kontrak_baru"
+                        <label class="block text-sm mt-2">Nomor Kontrak Baru</label>
+                        <input type="text" wire:model.live="nomor_kontrak_baru"
+                            class="bg-white border border-gray-300 text-sm rounded-lg block w-full p-2.5"
+                            placeholder="Isi nomor kontrak baru">
+                        @else
+                        <label class="block text-sm">Nomor Kontrak</label>
+                        <input type="text" wire:model.live="nomor_kontrak"
+                            class="bg-white border border-gray-300 text-sm rounded-lg block w-full p-2.5">
+                        @endif
+                    </div>
+
+                    {{-- @if ($isAdendum)
+                    <div class="mb-2">
+                        <button wire:click="resetAdendum"
+                            class="text-xs text-red-600 hover:underline focus:outline-none">
+                            <i class="fa fa-times mr-1"></i> Batal
+                        </button>
+                    </div>
+                    @endif --}}
+                </div>
+                @foreach ([
+                'tahun_anggaran' => 'Tahun Anggaran',
+                'dinas_sudin' => 'Dinas/Sudin',
+                'nama_bidang_seksi' => 'Bidang/Seksi',
+
+                'nama_paket' => 'Nama Paket',
+                'jenis_pengadaan' => 'Jenis Pengadaan',
+                ] as $field => $label)
+                <div>
+                    <label class="block text-sm ">{{ $label }}</label>
+                    <input type="text" wire:model.live="{{ $field }}" @readonly($mode_api)
+                        class="bg-gray-50 border border-gray-300  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="{{ $label }}">
+                </div>
+                @endforeach
+                <div>
+                    <label class="block text-sm">Tanggal Kontrak</label>
+                    <input @readonly($isAdendum) type="date" wire:model.live="tanggal_kontrak"
+                        class="bg-gray-50 border border-gray-300  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                </div>
+                <div>
+                    <label class="block text-sm">Tanggal Akhir Kontrak</label>
+                    <input type="date" wire:model.live="tanggal_akhir_kontrak"
+                        class="bg-gray-50 border border-gray-300  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+                </div>
+
+                @if ($durasi_kontrak)
+                <div class="">
+                    <label class="block text-sm font-medium text-gray-700">Durasi Kontrak</label>
+                    <div class="p-2 bg-gray-100 border border-gray-300 rounded text-sm text-gray-800">
+                        {{ $durasi_kontrak }}
+                    </div>
+                </div>
+                @endif
+                <div>
+                    <label class="block text-sm">Metode Pengadaan</label>
+                    <select wire:model.live="metode_id"
+                        class="bg-gray-50 border border-gray-300  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        <option value="">Pilih Metode</option>
+                        @foreach ($metodes as $metode)
+                        <option value="{{ $metode->id }}">{{ $metode->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                {{-- @foreach ([
+                'tahun_anggaran' => 'Tahun Anggaran',
+                'dinas_sudin' => 'Dinas/Sudin',
+                'nama_bidang_seksi' => 'Bidang/Seksi',
+                'program' => 'Program',
+                'kegiatan' => 'Kegiatan',
+                'sub_kegiatan' => 'Sub Kegiatan',
+                'aktivitas_sub_kegiatan' => 'Aktivitas Sub Kegiatan',
+                'rekening' => 'Rekening',
+                'nama_paket' => 'Nama Paket',
+                'jenis_pengadaan' => 'Jenis Pengadaan',
+                ] as $field => $label)
+                <div>
+                    <label class="block text-sm font-medium">{{ $label }}</label>
+                    <input type="text" wire:model.live="{{ $field }}"
                         class="bg-white border border-gray-300 text-sm rounded-lg block w-full p-2.5"
-                        placeholder="Isi nomor kontrak baru">
-                    @else
-                    <label class="block text-sm">Nomor Kontrak</label>
-                    <input type="text" wire:model.live="nomor_kontrak"
-                        class="bg-white border border-gray-300 text-sm rounded-lg block w-full p-2.5">
-                    @endif
+                        placeholder="{{ $label }}">
                 </div>
-                {{-- @if ($isAdendum)
-                <div class="mb-2">
-                    <button wire:click="resetAdendum" class="text-xs text-red-600 hover:underline focus:outline-none">
-                        <i class="fa fa-times mr-1"></i> Batal
-                    </button>
+                @endforeach --}}
+                {{-- <div>
+                    <label class="block text-sm">Jenis Barang</label>
+                    <select wire:model.live="jenis_id"
+                        class="bg-gray-50 border border-gray-300  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        <option value="1">Barang Umum</option>
+                        <option value="2">Material</option>
+                        <option value="3">Jasa</option>
+                    </select>
+                </div> --}}
+            </div>
+        </x-card>
+        <x-card title="Rincian Program & Kegiatan" class="mt-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {{-- Program --}}
+                <div>
+                    <label class="block text-sm font-medium">Program</label>
+                    <select wire:model.live="program_id" class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                        <option value="">-- Pilih Program --</option>
+                        @foreach ($programs as $item)
+                        <option value="{{ $item->id }}">{{ $item->kode }} - {{ $item->program }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                @endif --}}
+
+                {{-- Kegiatan --}}
+                <div>
+                    <label class="block text-sm font-medium">Kegiatan</label>
+                    <select wire:model.live="kegiatan_id" @disabled(!$program_id)
+                        class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                        <option value="">-- Pilih Kegiatan --</option>
+                        @foreach ($kegiatans as $item)
+                        <option value="{{ $item->id }}">{{ $item->kode }} - {{ $item->kegiatan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Sub Kegiatan --}}
+                <div>
+                    <label class="block text-sm font-medium">Sub Kegiatan</label>
+                    <select wire:model.live="sub_kegiatan_id" @disabled(!$kegiatan_id)
+                        class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                        <option value="">-- Pilih Sub Kegiatan --</option>
+                        @foreach ($sub_kegiatans as $item)
+                        <option value="{{ $item->id }}">{{ $item->kode }} - {{ $item->sub_kegiatan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Aktivitas Sub Kegiatan --}}
+                <div>
+                    <label class="block text-sm font-medium">Aktivitas Sub Kegiatan</label>
+                    <select wire:model.live="aktivitas_id" @disabled(!$sub_kegiatan_id)
+                        class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                        <option value="">-- Pilih Aktivitas --</option>
+                        @foreach ($aktivitass as $item)
+                        <option value="{{ $item->id }}">{{ $item->kode }} - {{ $item->aktivitas }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Rekening --}}
+                <div>
+                    <label class="block text-sm font-medium">Kode Rekening</label>
+                    <select wire:model.live="rekening_id" @disabled(!$aktivitas_id)
+                        class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                        <option value="">-- Pilih Rekening --</option>
+                        @foreach ($rekenings as $item)
+                        <option value="{{ $item->id }}">{{ $item->kode }} - {{ $item->uraian }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
-            <div>
-                <label class="block text-sm">Tanggal Kontrak</label>
-                <input @readonly($isAdendum) type="date" wire:model.live="tanggal_kontrak"
-                    class="bg-gray-50 border border-gray-300  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-            </div>
-            <div>
-                <label class="block text-sm">Metode Pengadaan</label>
-                <select wire:model.live="metode_id"
-                    class="bg-gray-50 border border-gray-300  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                    <option value="">Pilih Metode</option>
-                    @foreach ($metodes as $metode)
-                    <option value="{{ $metode->id }}">{{ $metode->nama }}</option>
-                    @endforeach
-                </select>
-            </div>
-            @foreach ([
-            'tahun_anggaran' => 'Tahun Anggaran',
-            'dinas_sudin' => 'Dinas/Sudin',
-            'nama_bidang_seksi' => 'Bidang/Seksi',
-            'program' => 'Program',
-            'kegiatan' => 'Kegiatan',
-            'sub_kegiatan' => 'Sub Kegiatan',
-            'aktivitas_sub_kegiatan' => 'Aktivitas Sub Kegiatan',
-            'rekening' => 'Rekening',
-            'nama_paket' => 'Nama Paket',
-            'jenis_pengadaan' => 'Jenis Pengadaan',
-            ] as $field => $label)
-            <div>
-                <label class="block text-sm font-medium">{{ $label }}</label>
-                <input type="text" wire:model.live="{{ $field }}"
-                    class="bg-white border border-gray-300 text-sm rounded-lg block w-full p-2.5"
-                    placeholder="{{ $label }}">
-            </div>
-            @endforeach
-            {{-- <div>
-                <label class="block text-sm">Jenis Barang</label>
-                <select wire:model.live="jenis_id"
-                    class="bg-gray-50 border border-gray-300  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                    <option value="1">Barang Umum</option>
-                    <option value="2">Material</option>
-                    <option value="3">Jasa</option>
-                </select>
-            </div> --}}
-        </div>
-    </x-card>
+        </x-card>
+    </div>
 
     <x-card title="Daftar Barang" class="mt-6">
         <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-4">

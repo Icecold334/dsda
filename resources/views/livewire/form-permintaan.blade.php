@@ -411,15 +411,37 @@
                         </td>
                     </tr>
                     @endif
+                    @else
+                    <tr class="">
+                        <td>
+                            <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
+                                Volume Pekerjaan*</label>
+                        </td>
+                        <td>
+                            <div class="flex gap-x-2">
+                                <input type="text" wire:model.live="vol.p"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                                    placeholder="Panjang">
+                                <input type="text" wire:mode.live="vol.l"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                                    placeholder="Lebar">
+                                <input type="text" wire:mode.live="vol.k"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                                    placeholder="Kedalaman">
+                            </div>
+                        </td>
+                    </tr>
                     @endif
                     @endif
+
                     <tr class="{{ !$withRab ? '' : 'hidden' }}">
                         <td class="font-semibold"><label for="keterangan">Keterangan</label></td>
                         <td>
                             <div class="flex mb-3">
-                                <textarea id="keterangan" wire:model.live="keterangan" @disabled($listCount> 0)
+                                <textarea id="keterangan" wire:model.live="keterangan"
+                                    @disabled($listCount> 0)
                                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                                        placeholder="Masukkan Keterangan" rows="4"></textarea>
+                                                        placeholder="Tuliskan Keterangan Pekerjaan. (Contoh : Permohonan dari Ketua RT XX, Kelurahan ABCD)" rows="4"></textarea>
                             </div>
                         </td>
                     </tr>

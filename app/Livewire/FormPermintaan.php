@@ -143,6 +143,7 @@ class FormPermintaan extends Component
     {
         if (!$this->withRab) {
             $this->rab_id = null;
+            $this->rab = null;
         } else {
             $this->withSaluran = null;
         }

@@ -139,6 +139,7 @@ return new class extends Migration
             $table->integer('nominal_kontrak')->nullable();
             $table->foreignId('vendor_id')->nullable()->constrained('toko', 'id'); // vendor manual
             $table->date('tanggal_kontrak');
+            $table->date('tanggal_akhir_kontrak')->nullable();
             $table->foreignId('metode_id')->nullable()->constrained('metode_pengadaan')->onDelete('set null');
             $table->foreignId('jenis_id')->nullable()->constrained('jenis_stok')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');

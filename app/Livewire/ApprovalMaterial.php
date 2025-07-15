@@ -55,7 +55,7 @@ class ApprovalMaterial extends Component
         if (in_array('Kepala Seksi', $creatorRoles)) {
             $this->roles = ['Kepala Subbagian', 'Pengurus Barang'];
         } else {
-            $this->roles = ['Kepala Seksi', 'Kepala Subbagian', 'Pengurus Barang'];
+            $this->roles = ['Kepala Seksi', 'Kepala Suku Dinas', 'Kepala Subbagian', 'Pengurus Barang'];
         }
 
         $this->roleLists = [];

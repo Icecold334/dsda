@@ -4,15 +4,21 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\Toko;
+use App\Models\Program;
 use Livewire\Component;
+use App\Models\Kegiatan;
 use App\Models\MerkStok;
 use App\Models\JenisStok;
 use App\Models\BarangStok;
+use App\Models\SubKegiatan;
 use Illuminate\Support\Str;
 use Livewire\WithFileUploads;
+use App\Models\PengirimanStok;
+use App\Models\UraianRekening;
 use App\Models\ListKontrakStok;
 use App\Models\MetodePengadaan;
 use App\Models\KontrakVendorStok;
+use App\Models\AktivitasSubKegiatan;
 use App\Models\DetailPengirimanStok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -38,6 +44,13 @@ class CreateKontrakVendor extends Component
 
     public $program, $kegiatan, $sub_kegiatan, $aktivitas_sub_kegiatan, $rekening;
 
+    public $program_id, $programs = [];
+    public $kegiatan_id, $kegiatans = [];
+    public $sub_kegiatan_id, $sub_kegiatans = [];
+    public $aktivitas_id, $aktivitass = [];
+    public $rekening_id, $rekenings = [];
+    public $tanggal_akhir_kontrak;
+    public $durasi_kontrak;
 
     // === SECTION: BARANG ===
     public $barang_id, $newBarang, $jumlah, $newHarga, $newPpn = 0;
@@ -57,6 +70,36 @@ class CreateKontrakVendor extends Component
         'tipe' => [],
         'ukuran' => [],
     ];
+
+    public function updatedTanggalAkhirKontrak()
+    {
+        $this->hitungDurasiKontrak();
+    }
+
+    public function updatedTanggalKontrak()
+    {
+        $this->hitungDurasiKontrak();
+    }
+
+    public function hitungDurasiKontrak()
+    {
+        if (!$this->tanggal_kontrak || !$this->tanggal_akhir_kontrak) {
+            $this->durasi_kontrak = null;
+            return;
+        }
+
+        $start = Carbon::parse($this->tanggal_kontrak);
+        $end = Carbon::parse($this->tanggal_akhir_kontrak);
+
+        if ($end->lessThan($start)) {
+            $this->durasi_kontrak = 'Tanggal akhir tidak valid';
+            return;
+        }
+
+        $diff = $start->diff($end);
+        $this->durasi_kontrak = $diff->y . ' tahun, ' . $diff->m . ' bulan, ' . $diff->d . ' hari';
+    }
+
 
     public function updatedTahunApi()
     {
@@ -139,27 +182,44 @@ class CreateKontrakVendor extends Component
         $kontrak = KontrakVendorStok::with(['listKontrak.merkStok.barangStok'])->findOrFail($id);
         $this->kontrakLama = $kontrak;
 
-        // Set nilai dasar kontrak lama
+        // Nilai utama
         $this->vendor_id = $kontrak->vendor_id;
         $this->metode_id = $kontrak->metode_id;
         $this->jenis_id = $kontrak->jenis_id;
         $this->tanggal_kontrak = now()->format('Y-m-d');
+        // $this->tanggal_akhir_kontrak = $kontrak->tanggal_akhir_kontrak?->format('Y-m-d');
         $this->nomor_kontrak = $kontrak->nomor_kontrak;
         $this->nomor_kontrak_baru = null;
 
-        // === Field tambahan dari kontrak lama
+        // Data umum
         $this->tahun_anggaran = $kontrak->tahun_anggaran;
         $this->dinas_sudin = $kontrak->dinas_sudin;
         $this->nama_bidang_seksi = $kontrak->nama_bidang_seksi;
-
-        $this->program = $kontrak->program;
-        $this->kegiatan = $kontrak->kegiatan;
-        $this->sub_kegiatan = $kontrak->sub_kegiatan;
-        $this->aktivitas_sub_kegiatan = $kontrak->aktivitas_sub_kegiatan;
-        $this->rekening = $kontrak->rekening;
-
         $this->nama_paket = $kontrak->nama_paket;
         $this->jenis_pengadaan = $kontrak->jenis_pengadaan;
+
+        // Ambil semua program (dropdown pertama)
+        $this->programs = \App\Models\Program::all();
+
+        // Ambil ID berdasarkan string "kode - nama"
+        $this->program_id = Program::whereRaw("kode || ' - ' || program = ?", [$kontrak->program])->value('id');
+
+        $this->kegiatan_id = Kegiatan::whereRaw("kode || ' - ' || kegiatan = ?", [$kontrak->kegiatan])->value('id');
+
+        $this->sub_kegiatan_id = SubKegiatan::whereRaw("kode || ' - ' || sub_kegiatan = ?", [$kontrak->sub_kegiatan])->value('id');
+
+        $this->aktivitas_id = AktivitasSubKegiatan::whereRaw("kode || ' - ' || aktivitas = ?", [$kontrak->aktivitas_sub_kegiatan])->value('id');
+
+        $this->rekening_id = UraianRekening::whereRaw("kode || ' - ' || uraian = ?", [$kontrak->rekening])->value('id');
+
+        // Isi dropdown cascade setelah ID didapat
+        $this->kegiatans = Kegiatan::where('program_id', $this->program_id)->get();
+        $this->sub_kegiatans = SubKegiatan::where('kegiatan_id', $this->kegiatan_id)->get();
+        $this->aktivitass = AktivitasSubKegiatan::where('sub_kegiatan_id', $this->sub_kegiatan_id)->get();
+        $this->rekenings = UraianRekening::where('aktivitas_sub_kegiatan_id', $this->aktivitas_id)->get();
+
+        // Durasi kontrak
+        $this->hitungDurasiKontrak();
 
         // Ambil list barang lama
         $this->list = $kontrak->listKontrak->map(function ($item) use ($kontrak) {
@@ -194,6 +254,8 @@ class CreateKontrakVendor extends Component
         $this->calculateTotal();
     }
 
+
+
     public function resetAdendum()
     {
         $this->isAdendum = false;
@@ -210,8 +272,34 @@ class CreateKontrakVendor extends Component
     {
         $this->tanggal_kontrak = Carbon::now()->format('Y-m-d');
         $this->barangs = BarangStok::all();
+        $this->programs = \App\Models\Program::all();
         if ($this->id) {
             $this->prosesAdendum($this->id);
+        }
+    }
+    public function updated($property)
+    {
+        if ($property === 'program_id') {
+            $this->kegiatans = \App\Models\Kegiatan::where('program_id', $this->program_id)->get();
+            $this->kegiatan_id = $this->sub_kegiatan_id = $this->aktivitas_id = $this->rekening_id = null;
+            $this->sub_kegiatans = $this->aktivitass = $this->rekenings = [];
+        }
+
+        if ($property === 'kegiatan_id') {
+            $this->sub_kegiatans = \App\Models\SubKegiatan::where('kegiatan_id', $this->kegiatan_id)->get();
+            $this->sub_kegiatan_id = $this->aktivitas_id = $this->rekening_id = null;
+            $this->aktivitass = $this->rekenings = [];
+        }
+
+        if ($property === 'sub_kegiatan_id') {
+            $this->aktivitass = \App\Models\AktivitasSubKegiatan::where('sub_kegiatan_id', $this->sub_kegiatan_id)->get();
+            $this->aktivitas_id = $this->rekening_id = null;
+            $this->rekenings = [];
+        }
+
+        if ($property === 'aktivitas_id') {
+            $this->rekenings = \App\Models\UraianRekening::where('aktivitas_sub_kegiatan_id', $this->aktivitas_id)->get();
+            $this->rekening_id = null;
         }
     }
 
@@ -356,6 +444,7 @@ class CreateKontrakVendor extends Component
             'vendor_id' => $this->vendor_id,
             'nomor_kontrak' => $this->isAdendum ? $this->nomor_kontrak_baru : $this->nomor_kontrak,
             'tanggal_kontrak' => strtotime($this->tanggal_kontrak),
+            'tanggal_akhir_kontrak' => strtotime($this->tanggal_akhir_kontrak),
             'metode_id' => $this->metode_id,
             'jenis_id' => $this->jenis_id,
             'user_id' => Auth::id(),
@@ -365,15 +454,19 @@ class CreateKontrakVendor extends Component
             'is_adendum' => $this->isAdendum,
             'parent_kontrak_id' => $this->isAdendum ? $this->kontrakLama->id : null,
 
-            // Tambahan:
+            // === FIELD TAMBAHAN ===
             'tahun_anggaran' => $this->tahun_anggaran,
             'dinas_sudin' => $this->dinas_sudin,
             'nama_bidang_seksi' => $this->nama_bidang_seksi,
-            'program' => $this->program,
-            'kegiatan' => $this->kegiatan,
-            'sub_kegiatan' => $this->sub_kegiatan,
-            'aktivitas_sub_kegiatan' => $this->aktivitas_sub_kegiatan,
-            'rekening' => $this->rekening,
+
+            // === DARI DROPDOWN WATERFALL ===
+            'program' => optional(\App\Models\Program::find($this->program_id))->kode . ' - ' . optional(\App\Models\Program::find($this->program_id))->program,
+            'kegiatan' => optional(\App\Models\Kegiatan::find($this->kegiatan_id))->kode . ' - ' . optional(\App\Models\Kegiatan::find($this->kegiatan_id))->kegiatan,
+            'sub_kegiatan' => optional(\App\Models\SubKegiatan::find($this->sub_kegiatan_id))->kode . ' - ' . optional(\App\Models\SubKegiatan::find($this->sub_kegiatan_id))->sub_kegiatan,
+            'aktivitas_sub_kegiatan' => optional(\App\Models\AktivitasSubKegiatan::find($this->aktivitas_id))->kode . ' - ' . optional(\App\Models\AktivitasSubKegiatan::find($this->aktivitas_id))->aktivitas,
+            'rekening' => optional(\App\Models\UraianRekening::find($this->rekening_id))->kode . ' - ' . optional(\App\Models\UraianRekening::find($this->rekening_id))->uraian,
+
+            // === DARI API (jika aktif) ===
             'nama_paket' => $this->nama_paket,
             'jenis_pengadaan' => $this->jenis_pengadaan,
         ]);

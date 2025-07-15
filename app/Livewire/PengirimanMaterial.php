@@ -24,9 +24,11 @@ class PengirimanMaterial extends Component
 
 
     #[On('kontrakId')]
-    public function setKontrakId($id)
+    public function setKontrakId($kontrakId)
     {
-        $this->kontrak_id = $id;
+        $id = $kontrakId;
+        // $this->kontrak_id = $id;
+        // dd($this->kontrak_id);
 
         $list = ListKontrakStok::with('merkStok.barangStok')
             ->where('kontrak_id', $id)->get();
@@ -63,12 +65,12 @@ class PengirimanMaterial extends Component
             ]);
             return;
         }
-
+        // dd($kontrak);
         // Jika kontrak valid, tetapkan
         if ($kontrak) {
             $this->kontrak = $kontrak;
             $this->tanggal_pengiriman = now()->format('Y-m-d'); // default hari ini
-            $this->dispatch('kontrakId', kontrakId: $this->kontrak->id);
+            // $this->dispatch('kontrakId', kontrakId: $this->kontrak->id);
             $this->dispatch('kontrakId', kontrakId: $kontrak->id);
         }
     }
@@ -84,8 +86,9 @@ class PengirimanMaterial extends Component
     {
         $this->newMerkId = null;
         $this->maxJumlah = 0;
+        // dd($this->kontrak);
         $list = ListKontrakStok::with('merkStok')
-            ->where('kontrak_id', $this->kontrak_id)->get();
+            ->where('kontrak_id', $this->kontrak->id)->get();
 
         $this->merks = $list->pluck('merkStok')
             ->filter(fn($merk) => $merk && $merk->barang_id == $this->newBarangId)
@@ -99,13 +102,13 @@ class PengirimanMaterial extends Component
 
     public function updatedNewMerkId()
     {
-        if (!$this->kontrak_id || !$this->newMerkId) {
+        if (!$this->kontrak->id || !$this->newMerkId) {
             $this->maxJumlah = 0;
             return;
         }
 
         // Ambil kontrak aktif
-        $currentKontrak = KontrakVendorStok::find($this->kontrak_id);
+        $currentKontrak = KontrakVendorStok::find($this->kontrak->id);
 
         // Dapatkan parent kontrak (induk) jika ini adendum, atau kontrak itu sendiri
         $parentId = $currentKontrak->parent_kontrak_id ?: $currentKontrak->id;
@@ -121,7 +124,7 @@ class PengirimanMaterial extends Component
             ->sum('jumlah');
 
         // Jumlah maksimal berdasarkan kontrak saat ini
-        $jumlahKontrak = \App\Models\ListKontrakStok::where('kontrak_id', $this->kontrak_id)
+        $jumlahKontrak = \App\Models\ListKontrakStok::where('kontrak_id', $this->kontrak->id)
             ->where('merk_id', $this->newMerkId)
             ->value('jumlah') ?? 0;
 
@@ -158,7 +161,7 @@ class PengirimanMaterial extends Component
     public function save()
     {
         $this->validate([
-            'kontrak_id' => 'required',
+            // 'kontrak_id' => 'required',
             'gudang_id' => 'required',
             'tanggal_pengiriman' => 'required|date',
         ]);
@@ -167,7 +170,7 @@ class PengirimanMaterial extends Component
 
         $detailPengiriman = \App\Models\DetailPengirimanStok::create([
             'kode_pengiriman_stok' => fake()->bothify('KP#######'),
-            'kontrak_id' => $this->kontrak_id,
+            'kontrak_id' => $this->kontrak->id,
             'gudang_id' => $this->gudang_id,
             'tanggal' => $timestamp,
             'user_id' => Auth::id(),
@@ -176,7 +179,7 @@ class PengirimanMaterial extends Component
         foreach ($this->list as $item) {
             \App\Models\PengirimanStok::create([
                 'detail_pengiriman_id' => $detailPengiriman->id,
-                'kontrak_id' => $this->kontrak_id,
+                'kontrak_id' => $this->kontrak->id,
                 'merk_id' => $item['merk']->id,
                 'jumlah' => $item['jumlah'],
                 'tanggal_pengiriman' => $timestamp,

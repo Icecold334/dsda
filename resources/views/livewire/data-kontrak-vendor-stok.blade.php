@@ -15,7 +15,7 @@
         </script>
         @endif
 
-        <h1 class="text-2xl font-bold text-primary-900 ">Kontrak Vendor
+        <h1 class="text-2xl font-bold text-primary-900 ">Daftar Kontrak
             @if (auth()->user()->unitKerja)
             {{-- {{ auth()->user()->unitKerja->parent ? auth()->user()->unitKerja->parent->nama :
             auth()->user()->unitKerja->nama }} --}}
@@ -71,13 +71,14 @@
         <thead>
             <tr class="text-white">
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA VENDOR</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NOMOR KONTRAK</th>
-                {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KATEGORI BARANG</th> --}}
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA PAKET</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA PENYEDIA</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TAHUN PENGADAAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL KONTRAK</th>
-                <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">DETAIL TRANSAKSI</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">METODE PENGADAAN</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS PENGADAAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS KONTRAK</th>
+                <th class="py-3 px-6 bg-primary-950 text-center w-1/5 font-semibold">DETAIL TRANSAKSI</th>
                 {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th> --}}
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
@@ -89,19 +90,35 @@
                 <td class="py-3 px-6"></td> <!-- Displays the row number -->
                 <td class="py-3 px-6">
                     <p class="font-semibold text-gray-800">
+                        {{ $transaction->nomor_kontrak }}</p>
+                </td>
+                <td class="py-3 px-6">
+                    <p class="font-semibold text-gray-800">
+                        {{ $transaction->nama_paket }}</p>
+                </td>
+                <td class="py-3 px-6">
+                    <p class="font-semibold text-gray-800">
                         {{ $transaction->vendorStok->nama ?? 'Unknown Vendor' }}</p>
                 </td>
                 <td class="py-3 px-6">
                     <p class="font-semibold text-gray-800">
-                        {{ $transaction->nomor_kontrak }}</p>
+                        {{ $transaction->tahun_anggaran }}</p>
                 </td>
-                {{-- <td class="py-3 px-6">
-                    <p class="font-semibold text-gray-800">
-                        {{ $transaction->transaksiStok->first()->merkStok->barangStok->jenisStok->nama }}</p>
-                </td> --}}
                 <td class="py-3 px-6">
                     <p class="font-semibold text-gray-800">
                         {{ $transaction->tanggal_kontrak ? date('j F Y', $transaction->tanggal_kontrak) : '---' }}
+                    </p>
+                </td>
+
+
+                <td class="py-3 px-6">
+                    <p class="font-semibold text-gray-800 text-center">
+                        {{ $transaction->jenis_pengadaan }}
+                    </p>
+                </td>
+                <td class="py-3 px-6">
+                    <p class="font-semibold text-gray-800 text-center">
+                        {{ $transaction->parent ? 'Adendum':'Baru' }}
                     </p>
                 </td>
                 <td class="py-3 px-6">
@@ -132,23 +149,16 @@
                         </tbody>
                     </table>
                 </td>
-
-                <td class="py-3 px-6">
-                    <p class="font-semibold text-gray-800 text-center">
-                        {{ $transaction->metodePengadaan->nama }}
-                    </p>
-                </td>
-                <td class="py-3 px-6">
-                    <p class="font-semibold text-gray-800 text-center">
-                        {{ $transaction->parent ? 'Adendum':'Baru' }}
-                    </p>
-                </td>
-
-                <td class="py-3 px-6 text-center">
+                <td class="py-3 px-6 text-center flex gap-2">
                     <a href="{{ route('kontrak-vendor-stok.show', ['kontrak_vendor_stok' => $transaction->id]) }}"
                         class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
                         data-tooltip-target="tooltip-kontrak-{{ $transaction->id }}">
                         <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <a href="{{ route('kontrak-vendor-stok.edit', ['kontrak_vendor_stok' => $transaction->id]) }}"
+                        class="text-warning-950 px-3 py-3 rounded-md border hover:bg-slate-300"
+                        data-tooltip-target="tooltip-edit-{{ $transaction->id }}">
+                        <i class="fa-solid fa-pencil"></i>
                     </a>
                     <div id="tooltip-kontrak-{{ $transaction->id }}" role="tooltip"
                         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
