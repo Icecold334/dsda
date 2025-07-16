@@ -394,7 +394,7 @@
                     <tr class="">
                         <td>
                             <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Volume Pekerjaan*</label>
+                                Volume Pekerjaan</label>
                         </td>
                         <td>
                             <div class="flex gap-x-2">
@@ -415,7 +415,7 @@
                     <tr class="">
                         <td>
                             <label for="jenis" class="block mb-2  font-semibold text-gray-900 dark:text-white">
-                                Volume Pekerjaan*</label>
+                                Volume Pekerjaan</label>
                         </td>
                         <td>
                             <div class="flex gap-x-2">
@@ -441,7 +441,7 @@
                                 <textarea id="keterangan" wire:model.live="keterangan"
                                     @disabled($listCount> 0)
                                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                                        placeholder="Tuliskan Keterangan Pekerjaan. (Contoh : Permohonan dari Ketua RT XX, Kelurahan ABCD)" rows="4"></textarea>
+                                                        placeholder="Tuliskan Keterangan Pekerjaan. (Contoh : Permohonan dari Ketua RT XX, Kelurahan ABCD)25053546102505354610" rows="4"></textarea>
                             </div>
                         </td>
                     </tr>

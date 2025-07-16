@@ -557,9 +557,9 @@ class CreateKontrakVendor extends Component
     {
         $this->validate([
             // 'vendor_id' => 'required',
-            'nomor_spk_api' => $this->isAdendum ? 'nullable' : 'required',
+            // 'nomor_spk_api' => $this->isAdendum ? 'nullable' : 'required',
             // 'nomor_kontrak_baru' => $this->isAdendum ? 'required|different:nomor_kontrak' : 'nullable',
-            'tanggal_kontrak' => 'required|date',
+            // 'tanggal_kontrak' => 'required|date',
             // 'metode_id' => 'required',
             // 'jenis_id' => 'required',
             'list' => 'required|array|min:1',

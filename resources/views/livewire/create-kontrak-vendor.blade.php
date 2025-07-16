@@ -1,4 +1,7 @@
 <div>
+    <div wire:loading wire:target="cariKontrakApi">
+        <livewire:loading>
+    </div>
     {{-- <div class="grid grid-cols-2 gap-6"> --}}
         <!-- KIRI -->
         <div class="grid grid-cols-2 gap-6 mb-6">
@@ -38,7 +41,7 @@
                 </div>
             </x-card>
 
-            <x-card title="Informasi Kontrak dari API">
+            <x-card title="Informasi Kontrak">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     @foreach ([
                     'nomor_spk_api' => 'Nomor SPK',

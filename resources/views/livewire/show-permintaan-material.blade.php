@@ -68,28 +68,28 @@
             </a>
             @endif
             @endcan
-            @can('upload_sppb.create')
+            {{-- @can('upload_sppb.create') --}}
             @if ($hasApprovedKasubbag && !$permintaan->sppb_path)
             <a onclick="showUploadModal('sppb')"
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                 Unggah SPPB
             </a>
             @endif
-            @endcan
+            {{-- @endcan --}}
             @endif
 
             {{-- QR-Code --}}
-            @can('qr_print')
+            {{-- @can('qr_print') --}}
             @if ($hasApprovedKasubbag)
             <a wire:click='qrCode'
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                 Unduh QR-Code
             </a>
             @endif
-            @endcan
+            {{-- @endcan --}}
 
             {{-- Surat Jalan --}}
-            @can('surat_jalan.read')
+            {{-- @can('surat_jalan.read') --}}
             @if ($hasApprovedPengurusBarang)
             @if ($permintaan->suratJalan_path)
             <a href="{{ asset('storage/suratJalan/' . $permintaan->suratJalan_path) }}" target="_blank"
@@ -102,15 +102,15 @@
                 Unduh Surat Jalan
             </a>
             @endif
-            @endcan
-            @can('surat_jalan.create')
+            {{-- @endcan --}}
+            {{-- @can('surat_jalan.create') --}}
             @if ($hasApprovedPengurusBarang && !$permintaan->suratJalan_path)
             <a onclick="showUploadModal('suratJalan')"
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                 Unggah Surat Jalan
             </a>
             @endif
-            @endcan
+            {{-- @endcan --}}
             @endif
 
             {{-- BAST --}}

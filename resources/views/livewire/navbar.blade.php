@@ -56,11 +56,11 @@
 
                 @php
                 $masterDataItems = [];
-                if (auth()->user()->can('data_barang')) {
+                // if (auth()->user()->can('data_barang')) {
                 $masterDataItems[] = ['href' => '/stok', 'title' => 'Stok'];
                 $masterDataItems[] = ['href' => '/stok/sudin/sudin', 'title' => 'Stok Sudin'];
                 $masterDataItems[] = ['href' => '/barang', 'title' => 'Barang'];
-                }
+                // }
                 if (auth()->user()->can('data_kategori')) {
                 $masterDataItems[] = ['href' => '/kategori', 'title' => 'kategori'];
                 }

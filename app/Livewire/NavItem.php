@@ -35,27 +35,27 @@ class NavItem extends Component
             $this->filterChild('inventaris_tambah_barang_datang', 'Form barang datang');
         }
 
-        if ($this->title == 'data') {
-            $user = Auth::user();
-            $listcountpermission = $user->getAllPermissions()->pluck('name')->filter(function ($name) {
-                return Str::contains($name, 'data_');
-            })->count();
+        // if ($this->title == 'data') {
+        // $user = Auth::user();
+        // $listcountpermission = $user->getAllPermissions()->pluck('name')->filter(function ($name) {
+        //     return Str::contains($name, 'data_');
+        // })->count();
 
-            // Jika tidak ada permission, sembunyikan nav item
-            if ($listcountpermission === 0 && 0) {
-                $this->showNav = false;
-                return;
-            }
+        // // Jika tidak ada permission, sembunyikan nav item
+        // if ($listcountpermission === 0 && 0) {
+        //     $this->showNav = false;
+        //     return;
+        // }
 
-            $this->filterChild('data_kategori', 'kategori');
-            $this->filterChild('data_merk', 'Merk');
-            $this->filterChild('data_barang', 'Barang Inventaris');
-            $this->filterChild('data_toko', 'Toko / distributor');
-            $this->filterChild('data_penanggung_jawab', 'Penanggung jawab');
-            $this->filterChild('data_lokasi', 'lokasi');
-            $this->filterChild('data_lokasi_gudang', 'lokasi gudang');
-            $this->filterChild('data_unit_kerja', 'Unit Kerja');
-        }
+        // $this->filterChild('data_kategori', 'kategori');
+        // $this->filterChild('data_merk', 'Merk');
+        // $this->filterChild('data_barang', 'Barang Inventaris');
+        // $this->filterChild('data_toko', 'Toko / distributor');
+        // $this->filterChild('data_penanggung_jawab', 'Penanggung jawab');
+        // $this->filterChild('data_lokasi', 'lokasi');
+        // $this->filterChild('data_lokasi_gudang', 'lokasi gudang');
+        // $this->filterChild('data_unit_kerja', 'Unit Kerja');
+        // }
 
         if ($this->href == '/qrprint') {
             $this->showNav = !$this->filterChild('qr_print', '/qrprint');

@@ -118,7 +118,7 @@
 </table>
 <hr style="border-top: 4px solid black; margin: 2px 0;">
 <h3 class="center">SURAT PERINTAH PENYALURAN BARANG <br> (SPPB)</h3>
-<div class="center"><strong>Nomor</strong> : {{ $permintaan->nodin ??
+<div class="center"><strong>Nomor</strong> : {{ $permintaan->sppb ??
   '846846866' }}<br></div>
 <div style="text-align: justify;line-height: 20px">
   Pada hari ini {{ $permintaan->created_at->translatedFormat('l') }} tanggal {{

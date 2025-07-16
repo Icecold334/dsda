@@ -12,7 +12,7 @@
             <div class="text-sm border-b-2">
                 <div class="flex justify-between px-3">
                     <span class="mr-9 {{ $penulis->id == auth()->id() ? 'font-bold' : '' }}">
-                        {{ $penulis->id === auth()->id() ? 'Anda' : $penulis->name }}
+                        {{ $penulis->id === auth()->id() && 0 ? 'Anda' : $penulis->name }}
                     </span>
                     {{-- <i class="my-1 fa-solid fa-circle-check text-success-500"></i> --}}
                 </div>

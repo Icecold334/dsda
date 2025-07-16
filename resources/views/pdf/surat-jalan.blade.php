@@ -118,7 +118,7 @@
 </table>
 <hr style="border-top: 4px solid black; margin: 2px 0;">
 <h3 class="center">SURAT JALAN</h3>
-<div class="center"><strong>Nomor</strong> : {{ $permintaan->nodin ??
+<div class="center"><strong>Nomor</strong> : {{ $permintaan->suratJalan ??
   '846846866' }}<br></div>
 <table style="width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 10px;">
   @if ($permintaan->rab)
