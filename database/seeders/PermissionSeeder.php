@@ -256,6 +256,7 @@ class PermissionSeeder extends Seeder
             "Kepala Satuan Pelaksana" => [
                 'dashboard.read',
                 'rab.create',
+                'permintaan.read',
                 'permintaan.create',
                 'rab.read',
                 'rab.update',
