@@ -595,6 +595,68 @@ class UnitSeeder extends Seeder
         //         ]);
         //     }
         // }
+        // Tambah user khusus untuk role yang belum ada
+
+
+        // Super Admin (Pusdatin)
+        Role::firstOrCreate(['name' => 'Super Admin (Pusdatin)', 'guard_name' => 'web']);
+        User::firstOrCreate([
+            'email' => 'superadmin@pusdatin.com',
+        ], [
+            'name' => 'Super Admin (Pusdatin)',
+            'email_verified_at' => now(),
+            'password' => bcrypt('superadmin123'),
+        ])->assignRole('Super Admin (Pusdatin)');
+
+        // Kadis
+        Role::firstOrCreate(['name' => 'Kadis', 'guard_name' => 'web']);
+        User::firstOrCreate([
+            'email' => 'kadis@dsda.com',
+        ], [
+            'name' => 'Kadis DSDA',
+            'email_verified_at' => now(),
+            'password' => bcrypt('kadis123'),
+        ])->assignRole('Kadis');
+
+        // Sekdis
+        Role::firstOrCreate(['name' => 'Sekdis', 'guard_name' => 'web']);
+        User::firstOrCreate([
+            'email' => 'sekdis@dsda.com',
+        ], [
+            'name' => 'Sekdis DSDA',
+            'email_verified_at' => now(),
+            'password' => bcrypt('sekdis123'),
+        ])->assignRole('Sekdis');
+
+        // Staff Perencanaan
+        Role::firstOrCreate(['name' => 'Staff Perencanaan', 'guard_name' => 'web']);
+        User::firstOrCreate([
+            'email' => 'staff.perencanaan@dsda.com',
+        ], [
+            'name' => 'Staff Perencanaan',
+            'email_verified_at' => now(),
+            'password' => bcrypt('staffperencanaan123'),
+        ])->assignRole('Staff Perencanaan');
+
+        // Kasie Pompa (PPTK)
+        Role::firstOrCreate(['name' => 'Kasie Pompa (PPTK)', 'guard_name' => 'web']);
+        User::firstOrCreate([
+            'email' => 'kasie.pompa@dsda.com',
+        ], [
+            'name' => 'Kasie Pompa (PPTK)',
+            'email_verified_at' => now(),
+            'password' => bcrypt('kasiepompa123'),
+        ])->assignRole('Kasie Pompa (PPTK)');
+
+        // Tim Pendukung PPK
+        Role::firstOrCreate(['name' => 'Tim Pendukung PPK', 'guard_name' => 'web']);
+        User::firstOrCreate([
+            'email' => 'tim.ppk@dsda.com',
+        ], [
+            'name' => 'Tim Pendukung PPK',
+            'email_verified_at' => now(),
+            'password' => bcrypt('timppk123'),
+        ])->assignRole('Tim Pendukung PPK');
     }
 
     private function lokasiSeed()
@@ -684,7 +746,7 @@ class UnitSeeder extends Seeder
         $units = $this->units;
 
 
-        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kepala Satuan Pelaksana', 'Admin Sudin', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang',  'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver', 'P3K'];
+        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kepala Satuan Pelaksana', 'Admin Sudin', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang', 'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver', 'P3K'];
 
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
@@ -889,7 +951,7 @@ class UnitSeeder extends Seeder
                 $isParentHak = (Str::contains($unitName, ['Sekretariat', 'Bidang', 'Unit', 'Pusat Data']));
                 // Hak sub-unit = 1 jika parentnya memenuhi syarat
                 $hakSubUnit = ($isParentHak) ? 1 : 0;
-                $subUnitEntry =  UnitKerja::create([
+                $subUnitEntry = UnitKerja::create([
                     'nama' => $subUnit['nama'],
                     'kode' => strtoupper(substr(str_replace('Subkelompok', '', $subUnit['nama']), 0, 3)),
                     'parent_id' => $unit->id, // Sub-unit terkait dengan unit

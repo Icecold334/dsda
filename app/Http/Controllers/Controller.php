@@ -20,14 +20,15 @@ abstract class Controller
         $unit = UnitKerja::find($unitId);
         $this->unit_id = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
         $parent = UnitKerja::find($this->unit_id);
-        $isSeribu = Str::contains($parent->nama, 'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu');
+        $isSeribu = $parent && Str::contains($parent->nama, 'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu');
         $this->isSeribu = $isSeribu;
         $this->Rkb = $isSeribu ? 'RKB' : 'RAB';
         $this->RKB = $isSeribu ? 'Rencana Kegiatan Bulanan' : 'Rencana Anggaran Biaya';
-        $sudin = Str::contains($parent->nama, 'Kepulauan')
-            ? 'Kepulauan Seribu'
-            : Str::of($unit->nama)->after('Administrasi ');
-        // dd($sudin);
+        $sudin = $parent
+            ? (Str::contains($parent->nama, 'Kepulauan')
+                ? 'Kepulauan Seribu'
+                : Str::of($unit->nama)->after('Administrasi '))
+            : '';
         $this->sudin = $sudin;
         // Pastikan user dalam keadaan login
         if (Auth::check()) {

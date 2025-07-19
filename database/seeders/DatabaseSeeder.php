@@ -71,7 +71,7 @@ class DatabaseSeeder extends Seeder
             KontrakSeeder::class, // aktifkan seeder ini
             GudangSeeder::class,
             TransaksiSeeder::class,
-
+            UserSeeder::class,
         ]);
 
         Driver::factory(40)->create();

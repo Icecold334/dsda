@@ -55,10 +55,26 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
+        // testing role
+        Auth::loginUsingId(369); //superadmin
+        // Auth::loginUsingId(370); //kadis
+        // Auth::loginUsingId(371); //sekdis
+        // Auth::loginUsingId(372); //kasubag umum
+        // Auth::loginUsingId(373); //kasudin ppk
+        // Auth::loginUsingId(374); //kasubag tu
+        // Auth::loginUsingId(375); //pengurus barang
+        // Auth::loginUsingId(376); //kasie perencanaan
+        // Auth::loginUsingId(377); //staff perencanaan
+        // Auth::loginUsingId(378); //kasie pemeliharaan
+        // Auth::loginUsingId(379); //kasatpel
+        // Auth::loginUsingId(380); //kasie pembangunan
+        // Auth::loginUsingId(381); //kasie pompa pptk
+        // Auth::loginUsingId(382); //tim pendukung pptk
+
         // pusat
         // Auth::loginUsingId(1); //superadmin
         // Auth::loginUsingId(175); //kasudin
-        Auth::loginUsingId(176); //admin
+        // Auth::loginUsingId(176); //admin
         // Auth::loginUsingId(177); // pptk
         // Auth::loginUsingId(180); // ppk
         // Auth::loginUsingId(178); // perencanaan
