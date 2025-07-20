@@ -71,6 +71,21 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(181); // pb
         // Auth::loginUsingId(476);
 
+        // jakarta pusat
+
+        // jakarta selatan  
+        // Auth::loginUsingId(246); // kadis (Santo)
+        // Auth::loginUsingId(247); // sekdis
+        // Auth::loginUsingId(248); // kasudin
+        // Auth::loginUsingId(249); // kasubag umum
+        // Auth::loginUsingId(250); // kasie perencanaan (Inge Sukma Yupicha)
+        // Auth::loginUsingId(251); // kasubag TU (Siti Nurjannah)
+        // Auth::loginUsingId(252); // pengurus barang (Nasrudin Darmadi)
+        Auth::loginUsingId(253); // kasie pemeliharaan (Paulus Junjung)
+        // Auth::loginUsingId(254); // kasie pembangunan (Horas Yosua)
+        // Auth::loginUsingId(255); // kasie pompa (Heriyanto)
+        // Auth::loginUsingId(256); // kasatpel cilandak (Yansori)
+        // Auth::loginUsingId(257); // kasatpel jagakarsa (Sartono)
 
         // seribuu
         // Auth::loginUsingId(295); //kasudin

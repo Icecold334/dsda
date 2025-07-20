@@ -68,20 +68,14 @@ class DatabaseSeeder extends Seeder
             RuangSeeder::class,
             RabSeeder::class,
             DetailPermintaanMaterialSeeder::class,
-            KontrakSeeder::class, // aktifkan seeder ini
+            KontrakSeeder::class,
             GudangSeeder::class,
             TransaksiSeeder::class,
-            SudinJakpusSeeder::class,
-            SudinJakutSeeder::class,
-            SudinJakselSeeder::class,
-            SudinJakbarSeeder::class,
-            SudinKepulauanSeribuSeeder::class,
-            SudinJaktimSeeder::class,
+            AkunSudinSeeder::class,
             AdminMaintenanceSeeder::class,
+            DriverSeeder::class,
+            SecuritySeeder::class,
         ]);
-
-        Driver::factory(40)->create();
-        Security::factory(40)->create();
 
 
 

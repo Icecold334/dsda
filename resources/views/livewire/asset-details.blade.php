@@ -19,9 +19,9 @@
 
 <div>
     @if ($type === 'history')
-        @can('history_view')
+        @can('riwayat_transaksi.read')
             <div class="flex justify-end items-center bg-primary-200 rounded-lg mb-3">
-                @can('history_newedit')
+                @can('riwayat_transaksi.create')
                     <a href="javascript:void(0)" wire:click="openModal()"
                         class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                         + Tambah {{ $typeNames[$type] ?? ucfirst($type) }}

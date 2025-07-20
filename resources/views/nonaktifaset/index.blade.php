@@ -178,7 +178,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold ">NAMA ASET</th>
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold">KODE</th>
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold">NON AKTIF</th>
-                {{-- @can('history_view')
+                {{-- @can('riwayat_transaksi.read')
                     <th class="py-3 px-6 bg-primary-950 text-left font-semibold">RIWAYAT TERAKHIR</th>
                 @endcan --}}
     {{-- <th class="py-3 px-6 bg-primary-950 text-left font-semibold rounded-r-lg"></th>
@@ -301,7 +301,7 @@
                         <p class="text-sm text-gray-500">{{ $aset->alasannonaktif }}</p>
 
                     </td> --}}
-    {{-- @can('history_view')
+    {{-- @can('riwayat_transaksi.read')
                         <td class="py-3 px-6 ">
                             @if ($aset->histories->last())
                                 <p class="font-semibold text-gray-800">

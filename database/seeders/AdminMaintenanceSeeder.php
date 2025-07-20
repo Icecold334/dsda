@@ -23,9 +23,9 @@ class AdminMaintenanceSeeder extends Seeder
         ]);
 
         $role = Role::firstOrCreate([
-            'name' => 'admin',
+            'name' => 'Super Admin',
             'guard_name' => 'web',
         ]);
         $user->assignRole($role);
     }
-} 
+}
