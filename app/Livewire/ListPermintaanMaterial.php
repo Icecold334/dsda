@@ -29,7 +29,7 @@ class ListPermintaanMaterial extends Component
     public $alokasiSisa = 0;
     public $stokDistribusiList = [];
 
-    public  $rabs, $rab_id, $vol = [],  $barangs = [], $merks = [], $dokumenCount, $newBarangId, $newRabId, $newMerkId, $newMerkMax, $newKeterangan, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
+    public $rabs, $rab_id, $vol = [], $barangs = [], $merks = [], $dokumenCount, $newBarangId, $newRabId, $newMerkId, $newMerkMax, $newKeterangan, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
 
     public function mount()
     {
@@ -107,7 +107,8 @@ class ListPermintaanMaterial extends Component
 
         foreach ($transaksis as $trx) {
             $barang = $trx->merkStok->barangStok;
-            if (!$barang) continue;
+            if (!$barang)
+                continue;
 
             $barangId = $barang->id;
 
@@ -538,7 +539,7 @@ class ListPermintaanMaterial extends Component
         foreach ($transaksis as $trx) {
             $jumlah = match ($trx->tipe) {
                 'Pemasukan' => (int) $trx->jumlah,
-                'Pengeluaran' => - ((int) $trx->jumlah),
+                'Pengeluaran' => -((int) $trx->jumlah),
                 'Penyesuaian' => (int) $trx->jumlah,
                 default => 0,
             };
@@ -572,13 +573,15 @@ class ListPermintaanMaterial extends Component
     }
     public function submitDistribusi()
     {
-        if ($this->alokasiSisa != 0) return;
+        if ($this->alokasiSisa != 0)
+            return;
 
         $item = $this->list[$this->distribusiModalIndex];
         $user_id = Auth::id();
 
         foreach ($this->alokasiInput as $key => $jumlah) {
-            if ((int) $jumlah <= 0) continue;
+            if ((int) $jumlah <= 0)
+                continue;
 
             [$tipe, $id] = explode(':', $key);
 
@@ -587,12 +590,14 @@ class ListPermintaanMaterial extends Component
 
             if ($tipe === 'posisi') {
                 $posisi = \App\Models\PosisiStok::find($id);
-                if (!$posisi) continue;
+                if (!$posisi)
+                    continue;
                 $posisi_id = $posisi->id;
                 $bagian_id = $posisi->bagian_id;
             } elseif ($tipe === 'bagian') {
                 $bagian = \App\Models\BagianStok::find($id);
-                if (!$bagian) continue;
+                if (!$bagian)
+                    continue;
                 $bagian_id = $bagian->id;
             }
 

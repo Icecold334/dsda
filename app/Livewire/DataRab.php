@@ -21,7 +21,7 @@ class DataRab extends Component
 
     public function fetchData()
     {
-        $rabs =  Rab::whereHas('user.unitKerja', function ($unit) {
+        $rabs = Rab::whereHas('user.unitKerja', function ($unit) {
             $unit->where('parent_id', $this->unit_id)
                 ->orWhere('id', $this->unit_id);
         })->orderBy('created_at', 'desc')->paginate(5);

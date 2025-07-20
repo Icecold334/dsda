@@ -34,6 +34,7 @@ class DataPermintaanMaterial extends Component
     public $approvalTimeline = [], $roleList, $selectedId;
     public $showTimelineModal = false;
     public $tipe;
+
     // public $permintaans;
 
 
@@ -198,12 +199,12 @@ class DataPermintaanMaterial extends Component
         return [
             'id' => $item->id,
             'kode' => $item->nodin,
-            'nomor_rab' => $withRab ? 'Dengan ' . $this->Rkb :  'Tanpa ' . $this->Rkb,
+            'nomor_rab' => $withRab ? 'Dengan ' . $this->Rkb : 'Tanpa ' . $this->Rkb,
             'tanggal' => $item->tanggal_permintaan,
             'kategori_id' => $item->kategori_id,
             'kategori' => $tipe === 'permintaan' ? $item->kategoriStok : $item->kategori,
             'unit_id' => $item->unit_id,
-            'lokasi' => $item->rab_id ? $item->rab->lokasi :  $item->lokasi,
+            'lokasi' => $item->rab_id ? $item->rab->lokasi : $item->lokasi,
             'unit' => $item->unit,
             'sub_unit_id' => $item->sub_unit_id,
             'jenis_pekerjaan' => $item->rab_id ? $item->rab->jenis_pekerjaan : $item->nama,
@@ -295,7 +296,7 @@ class DataPermintaanMaterial extends Component
         $sheet->setCellValue('A3', strtoupper('Dinas Sumber Daya Air (DSDA)'))
             ->mergeCells('A3:E3')
             ->getStyle('A3')->getFont()->setBold(true);
-        $sheet->setCellValue('A4',  $filterInfo)
+        $sheet->setCellValue('A4', $filterInfo)
             ->mergeCells('A4:E4')
             ->getStyle('A4')->getFont()->setItalic(true);
         $sheet->setCellValue('A5', 'Periode: ' . now()->format('d F Y'))
@@ -385,7 +386,7 @@ class DataPermintaanMaterial extends Component
     public function openApprovalTimeline($id, $tipe)
     {
         $this->selectedId = $id;
-        $model =  \App\Models\DetailPermintaanMaterial::class;
+        $model = \App\Models\DetailPermintaanMaterial::class;
         $permintaan = DetailPermintaanMaterial::find($id);
         $roles = ['Kepala Seksi', 'Kepala Subbagian', 'Pengurus Barang'];
 

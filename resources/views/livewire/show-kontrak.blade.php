@@ -18,10 +18,12 @@
             </div>
             @endif
 
+            @can('kontrak.create')
             <a href="{{ route('kontrak-vendor-stok.edit',['kontrak_vendor_stok'=>$kontrak->id]) }}"
                 class="text-warning-900 bg-warning-100 hover:bg-warning-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition">
                 Adendum
             </a>
+            @endcan
             <a href="{{ route('kontrak-vendor-stok.index') }}"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition">
                 Kembali

@@ -79,7 +79,7 @@ abstract class Controller
         }
 
         // Return formatted or raw value based on $tampil flag
-        return $tampil ? number_format((float)$nilai_sekarang, 2, '.', '') : $nilai_sekarang;
+        return $tampil ? number_format((float) $nilai_sekarang, 2, '.', '') : $nilai_sekarang;
     }
 
     public function nilaiAwalBulan($bulan)
