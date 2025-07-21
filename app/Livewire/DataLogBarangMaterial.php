@@ -45,11 +45,15 @@ class DataLogBarangMaterial extends Component
 
     public function applyFilters()
     {
+        // dd($this->unit_id);
         $transaksi = TransaksiStok::with([
             'pengirimanStok.detailPengirimanStok',
             'permintaanMaterial.detailPermintaan',
             'lokasiStok'
         ])
+            ->whereHas('lokasiStok.unitKerja', function ($unit) {
+                $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+            })
             ->when($this->filterFromDate && $this->filterToDate, function ($q) {
                 $q->whereBetween('tanggal', [$this->filterFromDate, $this->filterToDate]);
             })
@@ -79,12 +83,15 @@ class DataLogBarangMaterial extends Component
                 return false;
             })
             ->groupBy(function ($trx) {
-                $tanggal = Carbon::parse($trx->tanggal)->format('Y-m-d');
-                return "{$tanggal}|{$trx->lokasi_id}|{$trx->tipe}";
+                $datetime = Carbon::parse($trx->tanggal)->format('Y-m-d H:i:s');
+                return "{$datetime}|{$trx->lokasi_id}|{$trx->tipe}";
             })
             ->map(function ($items, $key) {
-                [$tanggal, $gudang_id, $tipe] = explode('|', $key);
+                [$datetime, $gudang_id, $tipe] = explode('|', $key);
+                $tanggal = Carbon::parse($datetime)->format('Y-m-d');
+
                 return [
+                    'datetime' => $datetime,
                     'tanggal' => $tanggal,
                     'gudang_id' => $gudang_id,
                     'gudang_nama' => optional($items->first()?->lokasiStok)->nama ?? '-',
@@ -97,7 +104,8 @@ class DataLogBarangMaterial extends Component
                     'list' => $items->values(),
                     'uuid' => fake()->uuid,
                 ];
-            })->sortByDesc('tanggal')->values();
+            })->sortByDesc('datetime')->values();
+
 
         if ($this->filterJenis !== null && $this->filterJenis !== '') {
             $list = $list->filter(fn($item) => $item['jenis'] == $this->filterJenis);
