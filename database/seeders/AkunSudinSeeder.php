@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\UnitKerja;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
@@ -11,26 +12,33 @@ class AkunSudinSeeder extends Seeder
 {
     public function run(): void
     {
-        // Role mapping dari nama asli ke permission role
+        // Cari unit Jakarta Pusat
+        $unitJakpus = UnitKerja::where('nama', 'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Pusat')->first();
+
+        if (!$unitJakpus) {
+            throw new \Exception('Unit Jakarta Pusat tidak ditemukan. Pastikan UnitSeeder sudah dijalankan terlebih dahulu.');
+        }
+
+        // Role mapping dari nama asli ke permission role dan email format
         $roleMapping = [
-            'Kepala Suku Dinas' => 'Kepala Suku Dinas',
-            'Kepala Seksi Perencanaan' => 'Kepala Seksi',
-            'Staf Seksi Perencanaan' => 'Perencanaan',
-            'Kepala Sub Bagian Tata Usaha' => 'Kepala Subbagian Tata Usaha',
-            'Pembantu Pengurus Barang I' => 'Pengurus Barang',
-            'Pembantu Pengurus Barang II' => 'Pengurus Barang',
-            'Kepala Seksi Pemeliharaan' => 'Kepala Seksi',
-            'Tim Pendukung PPK' => 'P3K',
-            'Ketua Satuan Pelaksana Kecamatan Gambir' => 'Kepala Satuan Pelaksana',
-            'Ketua Satuan Pelaksana Kecamatan Sawah Besar' => 'Kepala Satuan Pelaksana',
-            'Ketua Satuan Pelaksana Kecamatan Kemayoran' => 'Kepala Satuan Pelaksana',
-            'Ketua Satuan Pelaksana Kecamatan Senen' => 'Kepala Satuan Pelaksana',
-            'Ketua Satuan Pelaksana Kecamatan Cempaka Putih' => 'Kepala Satuan Pelaksana',
-            'Ketua Satuan Pelaksana Kecamatan Menteng' => 'Kepala Satuan Pelaksana',
-            'Ketua Satuan Pelaksana Kecamatan Tanah Abang' => 'Kepala Satuan Pelaksana',
-            'Ketua Satuan Pelaksana Kecamatan Johar Baru' => 'Kepala Satuan Pelaksana',
-            'Kepala Seksi Pembangunan' => 'Kepala Seksi',
-            'Kepala Seksi Pompa' => 'Kepala Seksi',
+            'Kepala Suku Dinas' => ['role' => 'Kepala Suku Dinas', 'email' => 'kasudin.pusat@test.com'],
+            'Kepala Seksi Perencanaan' => ['role' => 'Kepala Seksi', 'email' => 'kasie_perencanaan.pusat@test.com'],
+            'Staf Seksi Perencanaan' => ['role' => 'Perencanaan', 'email' => 'perencanaan.pusat@test.com'],
+            'Kepala Sub Bagian Tata Usaha' => ['role' => 'Kepala Subbagian Tata Usaha', 'email' => 'kasubagtu.pusat@test.com'],
+            'Pembantu Pengurus Barang I' => ['role' => 'Pengurus Barang', 'email' => 'pb.pusat@test.com'],
+            'Pembantu Pengurus Barang II' => ['role' => 'Pengurus Barang', 'email' => null], // Skip duplicate
+            'Kepala Seksi Pemeliharaan' => ['role' => 'Kepala Seksi', 'email' => 'kasipemel.pusat@test.com'],
+            'Tim Pendukung PPK' => ['role' => 'P3K', 'email' => 'p3k.pusat@test.com'],
+            'Ketua Satuan Pelaksana Kecamatan Gambir' => ['role' => 'Kepala Satuan Pelaksana', 'email' => 'kasatpel.pusat.gambir@test.com'],
+            'Ketua Satuan Pelaksana Kecamatan Sawah Besar' => ['role' => 'Kepala Satuan Pelaksana', 'email' => null], // Skip duplicate
+            'Ketua Satuan Pelaksana Kecamatan Kemayoran' => ['role' => 'Kepala Satuan Pelaksana', 'email' => null], // Skip duplicate
+            'Ketua Satuan Pelaksana Kecamatan Senen' => ['role' => 'Kepala Satuan Pelaksana', 'email' => null], // Skip duplicate
+            'Ketua Satuan Pelaksana Kecamatan Cempaka Putih' => ['role' => 'Kepala Satuan Pelaksana', 'email' => null], // Skip duplicate
+            'Ketua Satuan Pelaksana Kecamatan Menteng' => ['role' => 'Kepala Satuan Pelaksana', 'email' => null], // Skip duplicate
+            'Ketua Satuan Pelaksana Kecamatan Tanah Abang' => ['role' => 'Kepala Satuan Pelaksana', 'email' => null], // Skip duplicate
+            'Ketua Satuan Pelaksana Kecamatan Johar Baru' => ['role' => 'Kepala Satuan Pelaksana', 'email' => null], // Skip duplicate
+            'Kepala Seksi Pembangunan' => ['role' => 'Kepala Seksi', 'email' => 'kasie_pembangunan.pusat@test.com'],
+            'Kepala Seksi Pompa' => ['role' => 'Kepala Seksi', 'email' => 'kasie_pompa@test.com'],
         ];
 
         // Data user dari JSON
@@ -65,17 +73,42 @@ class AkunSudinSeeder extends Seeder
                 continue; // Skip empty entries
             }
 
-            $permissionRole = $roleMapping[$data['role']] ?? null;
-            if (!$permissionRole) {
-                continue; // Skip if no mapping found
+            $mapping = $roleMapping[$data['role']] ?? null;
+            if (!$mapping || !$mapping['email']) {
+                continue; // Skip if no mapping found or email is null (duplicate role)
+            }
+
+            $permissionRole = $mapping['role'];
+            $email = $mapping['email'];
+
+            // Tentukan unit berdasarkan role
+            $targetUnit = $unitJakpus; // Default ke unit utama
+
+            // Untuk Kepala Suku Dinas, gunakan unit utama
+            if ($data['role'] === 'Kepala Suku Dinas') {
+                $targetUnit = $unitJakpus;
+            } else {
+                // Untuk role lainnya, cari sub unit yang sesuai
+                if (strpos($data['role'], 'Perencanaan') !== false) {
+                    $targetUnit = $unitJakpus->children()->where('nama', 'LIKE', '%Perencanaan%')->first() ?? $unitJakpus;
+                } elseif (strpos($data['role'], 'Tata Usaha') !== false) {
+                    $targetUnit = $unitJakpus->children()->where('nama', 'LIKE', '%Tata Usaha%')->first() ?? $unitJakpus;
+                } elseif (strpos($data['role'], 'Pemeliharaan') !== false) {
+                    $targetUnit = $unitJakpus->children()->where('nama', 'LIKE', '%Pemeliharaan%')->first() ?? $unitJakpus;
+                } elseif (strpos($data['role'], 'Pembangunan') !== false) {
+                    $targetUnit = $unitJakpus->children()->where('nama', 'LIKE', '%Pembangunan%')->first() ?? $unitJakpus;
+                } elseif (strpos($data['role'], 'Pompa') !== false) {
+                    $targetUnit = $unitJakpus->children()->where('nama', 'LIKE', '%Pompa%')->first() ?? $unitJakpus;
+                }
             }
 
             $user = User::firstOrCreate(
-                ['email' => strtolower(str_replace(' ', '.', $data['nama'])) . '@jakarta.go.id'],
+                ['email' => $email],
                 [
                     'name' => $data['nama'],
                     'nip' => $data['nip'],
-                    'password' => Hash::make('password123'),
+                    'unit_id' => $targetUnit ? $targetUnit->getKey() : null,
+                    'password' => Hash::make('test@123'),
                     'email_verified_at' => now(),
                 ]
             );
