@@ -138,7 +138,7 @@
       {{ $rab->lokasi }}
     </td>
   </tr>
-  @if ($rab->saluran_jenis)
+  {{-- @if ($rab->saluran_jenis)
   <tr>
     <td>JENIS SALURAN</td>
     <td>:</td>
@@ -149,7 +149,7 @@
     <td>:</td>
     <td>{{ $rab->saluran_nama }}</td>
   </tr>
-  @endif
+  @endif --}}
 </table>
 
 <br><br>
