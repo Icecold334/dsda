@@ -20,7 +20,7 @@
             $usersWithRoles = \App\Models\User::whereIn('id', $approvedUsers)->with('roles')->get();
 
             $hasApprovedKasubbag = $usersWithRoles->contains(function ($user) {
-            return $user->hasRole('Kepala Subbagian');
+            return $user->hasRole('Kepala Subbagian Tata Usaha');
             });
 
             $hasApprovedPengurusBarang = $usersWithRoles->contains(function ($user) {
@@ -310,7 +310,7 @@
         $approvedUserIds = $approvedUsers->pluck('user_id');
         $approvedUsersWithRoles = \App\Models\User::whereIn('id', $approvedUserIds)->with('roles')->get();
 
-        $hasApprovedKasubbag = $approvedUsersWithRoles->contains(fn($user) => $user->hasRole('Kepala Subbagian'));
+        $hasApprovedKasubbag = $approvedUsersWithRoles->contains(fn($user) => $user->hasRole('Kepala Subbagian Tata Usaha'));
         $hasApprovedPengurus = $approvedUsersWithRoles->contains(fn($user) => $user->hasRole('Pengurus Barang'));
 
         $isPengurus = auth()->user()->hasRole('Pengurus Barang');
@@ -330,7 +330,7 @@
                 $approvedUsersWithRoles = \App\Models\User::whereIn('id', $approvedUserIds)->with('roles')->get();
 
                 $hasApprovedKasubbag =
-                $approvedUsersWithRoles->contains(fn($user) => $user->hasRole('Kepala Subbagian'));
+                $approvedUsersWithRoles->contains(fn($user) => $user->hasRole('Kepala Subbagian Tata Usaha'));
                 $hasApprovedPengurus =
                 $approvedUsersWithRoles->contains(fn($user) => $user->hasRole('Pengurus Barang'));
 

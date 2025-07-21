@@ -725,6 +725,8 @@ class UnitSeeder extends Seeder
         Role::insert($roless);
 
         foreach ($units as $unitName => $unitData) {
+            $isSudin = Str::startsWith($unitName, 'Suku Dinas Sumber Daya Air');
+            $isSudinJaktim = $unitName === 'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Timur';
             $sudin = Str::contains($unitName, 'Kepulauan')
                 ? 'seribu'
                 : Str::of($unitName)->after('Jakarta ')->lower();
@@ -738,6 +740,22 @@ class UnitSeeder extends Seeder
                 'hak' => $hak, // 
                 'keterangan' => "Unit $unitName.",
             ]);
+            // Hanya buat akun dummy untuk Sudin Jaktim
+            if ($isSudin && !$isSudinJaktim) {
+                // Buat sub-unit saja tanpa user/role dummy
+                foreach ($unitData['sub_units'] as $key => $subUnit) {
+                    $isParentHak = (Str::contains($unitName, ['Sekretariat', 'Bidang', 'Unit', 'Pusat Data']));
+                    $hakSubUnit = ($isParentHak) ? 1 : 0;
+                    UnitKerja::create([
+                        'nama' => $subUnit['nama'],
+                        'kode' => strtoupper(substr(str_replace('Subkelompok', '', $subUnit['nama']), 0, 3)),
+                        'parent_id' => $unit->id,
+                        'hak' => $hakSubUnit,
+                        'keterangan' => "Sub-unit $subUnit[nama].",
+                    ]);
+                }
+                continue; // Lewati seluruh proses user/role dummy
+            }
             if (Str::contains($unitName, 'Suku Dinas Sumber Daya Air')) {
                 // Buat kepala unit utama
                 $unitRole = Role::firstOrCreate([
