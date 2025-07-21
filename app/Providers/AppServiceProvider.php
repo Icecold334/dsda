@@ -54,7 +54,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Auth::loginUsingId(289);
+        // Auth::loginUsingId(289);
         // pusat
         // Auth::loginUsingId(1); //superadmin
 
