@@ -58,10 +58,10 @@ class NavItem extends Component
         // }
 
         if ($this->href == '/qrprint') {
-            $this->showNav = !$this->filterChild('dashboard.read', '/qrprint');
+            $this->showNav = !$this->filterChild('qr_print', '/qrprint');
         }
         if ($this->href == '/option') {
-            $this->showNav = !$this->filterChild('manajemen_user.read', '/option');
+            $this->showNav = !$this->filterChild('pengaturan', '/option');
         }
     }
     private function filterChild($permission, $title)

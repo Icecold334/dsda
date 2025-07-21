@@ -13,7 +13,7 @@
                 <i class="fa fa-search"></i> Pencarian & Pengurutan
             </button>
 
-            @can('gudang.create')
+            @can('aset_new')
                 <a href="{{ route('aset.create') }}"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     + Tambah Aset
@@ -93,7 +93,7 @@
                             <i class="fa fa-sync-alt"></i>
                         </button>
 
-                        @can('gudang.read')
+                        @can('aset_xls')
                             <div x-data="{ tooltip: false }" class="relative inline-block">
                                 <!-- Tombol Download Excel -->
                                 <button wire:click="exportExcel" @mouseover="tooltip = true" @mouseleave="tooltip = false"
@@ -152,10 +152,10 @@
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold ">NAMA ASET</th>
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold">KODE</th>
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold">MERK & TIPE</th>
-                @can('gudang.read')
+                @can('aset_price')
                     <th class="py-3 px-6 bg-primary-950 text-left font-semibold">PENYUSUTAN</th>
                 @endcan
-                @can('riwayat_transaksi.read')
+                @can('history_view')
                     <th class="py-3 px-6 bg-primary-950 text-left font-semibold">RIWAYAT TERAKHIR</th>
                 @endcan
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold rounded-r-lg"></th>
@@ -275,7 +275,7 @@
                             <p class="text-sm text-gray-500">{{ $aset->tipe ?? '---' }}</p>
 
                         </td>
-                        @can('gudang.read')
+                        @can('aset_price')
                             <td class="py-3 px-6 ">
                                 <div class="flex items-center text-gray-800">
                                     {{ $aset->hargatotal_formatted }}
@@ -288,7 +288,7 @@
                                 </div>
                             </td>
                         @endcan
-                        @can('riwayat_transaksi.read')
+                        @can('history_view')
                             <td class="py-3 px-6 ">
                                 @if ($aset->histories_mapped && $aset->histories_mapped->isNotEmpty())
                                     @php

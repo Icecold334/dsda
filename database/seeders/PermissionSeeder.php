@@ -10,161 +10,143 @@ class PermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // === STEP 1: Create all necessary permissions ===
-        $modules = [
-            'dashboard',
-            'rab',
-            'permintaan_barang',
-            'penerimaan_barang',
-            'kontrak',
-            'upload_spb',
-            'upload_sppb',
-            'upload_foto_barang_keluar',
-            'upload_foto_barang_diterima',
-            'spb',
-            'sppb',
-            'surat_jalan',
-            'penyesuaian_stok',
-            'riwayat_transaksi',
-            'gudang',
-            'manajemen_user',
-            'input_driver_security'
-        ];
+        // === STEP 1: Permission lama yang sudah ada ===
+        $existingPermissions = [
+            // Modul Aset
+            'aset_price',
+            'aset_new',
+            'aset_edit',
+            'aset_del',
+            'aset_pdf',
+            'aset_xls',
+            'aset_noaktif',
+            'aset_reaktif',
 
-        // Create CRUD permissions for each module
-        foreach ($modules as $module) {
-            foreach (['create', 'read', 'update', 'delete'] as $action) {
-                Permission::firstOrCreate([
-                    'name' => "{$module}.{$action}",
-                    'guard_name' => 'web',
-                ]);
-            }
-        }
+            // Riwayat
+            'history_view',
+            'history_newedit',
+            'history_del',
 
-        // Create additional specific permissions
-        $additionalPermissions = [
-            'approve.kontrak',
-            'approve.task',
+            // Transaksi
+            'trans_view',
+            'trans_newedit',
+            'trans_del',
+
+            // Data Master
+            'data_kategori',
+            'data_merk',
+            'data_barang',
+            'data_toko',
+            'data_penanggung_jawab',
+            'data_kategori_stok',
+            'data_ruang',
+            'data_lokasi',
+            'data_lokasi_gudang',
+            'data_unit_kerja',
+            'data_driver',
+            'data_security',
+
+            // Inventaris dan QR
+            'qr_print',
+            'pengaturan',
+            'inventaris_edit_lokasi_penerimaan',
+            'inventaris_tambah_barang_datang',
+            'inventaris_unggah_foto_barang_datang',
             'inventaris_edit_jumlah_diterima',
-            // Legacy scan permissions for guest access
-            'foto', 'nama', 'kode', 'systemcode', 'kategori', 'status',
-            'aset_keterangan', 'nonaktif_tanggal', 'nonaktif_alasan', 'nonaktif_keterangan',
-            'detil_merk', 'detil_tipe', 'detil_produsen', 'detil_noseri', 'detil_thnproduksi', 'detil_deskripsi'
+            'inventaris_upload_foto_bukti',
+
+            // Permintaan dan Peminjaman
+            'permintaan_tambah_permintaan',
+            'permintaan_persetujuan_jumlah_barang',
+            'permintaan_upload_foto_dan_ttd_driver',
+            'peminjaman_persetujuan_peminjaman_aset',
+
+            // Kontrak, Pelayanan, Stok, RAB
+            'persetujuan',
+            'kontrak_tambah_kontrak_baru',
+            'pelayanan_xls',
+            'stok_show_detail',
+            'stok_xls',
+            'RAB_tambah_rab',
         ];
 
-        foreach ($additionalPermissions as $permission) {
+        foreach ($existingPermissions as $perm) {
             Permission::firstOrCreate([
-                'name' => $permission,
+                'name' => $perm,
                 'guard_name' => 'web',
             ]);
         }
 
-        // === STEP 2: Create roles based on the permission table ===
+        // === STEP 2: Tambahkan permission dari tabel hak akses ===
+        $modules = [
+            'dashboard',
+            'rab',
+            'permintaan',
+            'penerimaan',
+            'kontrak',
+            'upload_spb',
+            'upload_sppb',
+            'upload_foto',
+            'spb',
+            'sppb',
+            'surat_jalan',
+            'penyesuaian',
+            'riwayat_transaksi',
+            'gudang',
+            'manajemen',
+            'driver',
+            'security'
+        ];
+        foreach ($modules as $mod) {
+            foreach (['create', 'read', 'update', 'delete'] as $act) {
+                Permission::firstOrCreate([
+                    'name' => "{$mod}.{$act}",
+                    'guard_name' => 'web',
+                ]);
+            }
+        }
+        // === STEP 3: Assign permission ke role berdasarkan mapping (versi aman) ===
         $rolePermissions = [
-            // 1. Super Admin (Pusdatin) - CRUD on everything
-            'Super Admin' => $this->getAllPermissions($modules),
+            "superadmin" => array_merge(...array_values(array_map(fn($a) => array_map(fn($b) => "$a.$b", ['create', 'read', 'update', 'delete']), $modules))),
+            // "Admin Sudin" => array_merge(...array_values(array_map(fn($a) => array_map(fn($b) => "$a.$b", ['create', 'read', 'update', 'delete']), $modules))),
+            "Admin Sudin" => Permission::all()->pluck('name')->toArray(),
 
-            // 2. Kadis - Read only on everything but without upload_foto_barang_keluar
-            'Kadis' => [
-                'dashboard.read',
-                'rab.read',
-                'permintaan_barang.read',
-                'penerimaan_barang.read',
-                'kontrak.read',
-                'upload_spb.read',
-                'upload_sppb.read',
-                // 'upload_foto_barang_keluar' removed - should be dash (-) according to table
-                'upload_foto_barang_diterima.read',
-                'spb.read',
-                'sppb.read',
-                'surat_jalan.read',
-                'penyesuaian_stok.read',
-                'riwayat_transaksi.read',
-                'gudang.read',
-                'manajemen_user.read',
-                'input_driver_security.read'
-            ],
+            "Kadis" => array_map(fn($m) => "$m.read", $modules),
 
-            // 3. Sekdis - Read only on everything but without upload_foto_barang_keluar
-            'Sekdis' => [
-                'dashboard.read',
-                'rab.read',
-                'permintaan_barang.read',
-                'penerimaan_barang.read',
-                'kontrak.read',
-                'upload_spb.read',
-                'upload_sppb.read',
-                // 'upload_foto_barang_keluar' removed - should be dash (-) according to table
-                'upload_foto_barang_diterima.read',
-                'spb.read',
-                'sppb.read',
-                'surat_jalan.read',
-                'penyesuaian_stok.read',
-                'riwayat_transaksi.read',
-                'gudang.read',
-                'manajemen_user.read',
-                'input_driver_security.read'
-            ],
+            "Sekdis" => array_map(fn($m) => "$m.read", $modules),
 
-            // 4. Kasubag Umum - Read only on everything but without upload_foto_barang_keluar
-            'Kasubag Umum' => [
-                'dashboard.read',
-                'rab.read',
-                'permintaan_barang.read',
-                'penerimaan_barang.read',
-                'kontrak.read',
-                'upload_spb.read',
-                'upload_sppb.read',
-                // 'upload_foto_barang_keluar' removed - should be dash (-) according to table
-                'upload_foto_barang_diterima.read',
-                'spb.read',
-                'sppb.read',
-                'surat_jalan.read',
-                'penyesuaian_stok.read',
-                'riwayat_transaksi.read',
-                'gudang.read',
-                'manajemen_user.read',
-                'input_driver_security.read'
-            ],
+            "Kepala Subbagian" => array_map(fn($m) => "$m.read", $modules),
 
-            // 5. Kasudin (PPK) - R on most, RU on RAB and Permintaan
-            'Kasudin' => [
+            "Kepala Suku Dinas" => [
                 'dashboard.read',
                 'rab.read',
                 'rab.update',
-                'permintaan_barang.read',
-                'permintaan_barang.update',
-                'penerimaan_barang.read',
+                'permintaan.read',
+                'permintaan.update',
+                'penerimaan.read',
                 'kontrak.read',
-                // Upload modules removed - should be dash (-) according to table
                 'spb.read',
                 'sppb.read',
                 'surat_jalan.read',
-                'penyesuaian_stok.read',
+                'penyesuaian.read',
                 'riwayat_transaksi.read',
-                'gudang.read'
-                // 'manajemen_user' removed - should be dash (-) according to table
-                // 'input_driver_security' removed - should be dash (-) according to table
+                'gudang.read',
+                'manajemen.read',
             ],
 
-            // 6. Kasubag TU - Complex permissions
-            'Kasubag TU' => [
+            "Kepala Subbagian Tata Usaha" => [
                 'dashboard.read',
                 'rab.read',
-                'permintaan_barang.read',
-                'permintaan_barang.update',
-                'penerimaan_barang.read',
-                'penerimaan_barang.update',
+                'permintaan.read',
+                'permintaan.update',
+                'penerimaan.read',
+                'penerimaan.update',
                 'kontrak.read',
                 'upload_sppb.create',
                 'upload_sppb.read',
                 'upload_sppb.update',
                 'upload_sppb.delete',
-                'upload_foto_barang_keluar.read', // Added missing permission
-                'upload_foto_barang_diterima.create',
-                'upload_foto_barang_diterima.read',
-                'upload_foto_barang_diterima.update',
-                'upload_foto_barang_diterima.delete',
+                'upload_foto',
                 'spb.read',
                 'sppb.create',
                 'sppb.read',
@@ -174,30 +156,32 @@ class PermissionSeeder extends Seeder
                 'surat_jalan.read',
                 'surat_jalan.update',
                 'surat_jalan.delete',
-                'penyesuaian_stok.create',
-                'penyesuaian_stok.read',
-                'penyesuaian_stok.update',
-                'penyesuaian_stok.delete',
+                'penyesuaian.create',
+                'penyesuaian.read',
+                'penyesuaian.update',
+                'penyesuaian.delete',
                 'riwayat_transaksi.create',
                 'riwayat_transaksi.read',
                 'riwayat_transaksi.update',
                 'riwayat_transaksi.delete',
-                'gudang.read' // Changed from CRUD to R (Read only)
+                'gudang.create',
+                'gudang.read',
+                'gudang.update',
+                'gudang.delete',
+                'manajemen.read',
             ],
 
-            // 7. Pengurus Barang
-            'Pengurus Barang' => [
+            "Pengurus Barang" => [
                 'dashboard.read',
                 'rab.read',
-                'permintaan_barang.read',
-                'permintaan_barang.update',
-                'penerimaan_barang.read',
-                'penerimaan_barang.update',
+                'permintaan.read',
+                'permintaan.update',
+                'penerimaan.read',
+                'penerimaan.update',
                 'kontrak.read',
                 'upload_spb.read',
                 'upload_sppb.read',
-                'upload_foto_barang_keluar.read',
-                'upload_foto_barang_diterima.read',
+                'upload_foto',
                 'spb.read',
                 'sppb.create',
                 'sppb.read',
@@ -207,224 +191,111 @@ class PermissionSeeder extends Seeder
                 'surat_jalan.read',
                 'surat_jalan.update',
                 'surat_jalan.delete',
-                'penyesuaian_stok.create',
-                'penyesuaian_stok.read',
-                'penyesuaian_stok.update',
-                'penyesuaian_stok.delete',
+                'penyesuaian.create',
+                'penyesuaian.read',
+                'penyesuaian.update',
+                'penyesuaian.delete',
                 'riwayat_transaksi.create',
                 'riwayat_transaksi.read',
                 'riwayat_transaksi.update',
                 'riwayat_transaksi.delete',
-                // 'gudang' removed - should be dash (-) according to table
-                'input_driver_security.read',
-                'input_driver_security.update'
+                'input_driver.read',
+                'input_driver.update',
+                'input_security.read',
+                'input_security.update',
+                'data_barang',
             ],
 
-            // 8. Kasie Perencanaan
-            'Kasie Perencanaan' => [
+            "Kepala Seksi" => [
                 'dashboard.read',
                 'rab.create',
                 'rab.read',
                 'rab.update',
                 'rab.delete',
-                'permintaan_barang.read',
-                'penerimaan_barang.read',
+                'permintaan.create',
+                'permintaan.read',
+                'permintaan.update',
+                'permintaan.delete',
+                'penerimaan.read',
                 'kontrak.read',
-                // 'spb' and 'sppb' removed - should be dash (-) according to table
-                'penyesuaian_stok.read', // Fixed: added missing permission
-                'riwayat_transaksi.read'
-            ],
-
-            // 9. Staff Perencanaan
-            'Staff Perencanaan' => [
-                'dashboard.read',
-                'rab.create',
-                'rab.read',
-                'rab.update',
-                // 'rab.delete' removed - CRU only, not CRUD according to table
-                'permintaan_barang.read',
-                'penerimaan_barang.read',
-                'kontrak.read',
-                'penyesuaian_stok.read', // Fixed: added missing permission
-                'riwayat_transaksi.read'
-            ],
-
-            // 10. Kasie Pemeliharaan (PPTK)
-            'Kasie Pemeliharaan' => [
-                'dashboard.read',
-                'rab.create',
-                'rab.read',
-                'rab.update',
-                'rab.delete',
-                'permintaan_barang.create',
-                'permintaan_barang.read',
-                'permintaan_barang.update',
-                'permintaan_barang.delete',
-                'penerimaan_barang.read',
-                'kontrak.read',
-                'upload_spb.create',
-                'upload_spb.read',
-                'upload_spb.update',
-                'upload_spb.delete',
-                'upload_foto_barang_diterima.create',
-                'upload_foto_barang_diterima.read',
-                'upload_foto_barang_diterima.update',
-                'upload_foto_barang_diterima.delete',
-                'spb.read',
-                'spb.update',
-                'sppb.read',
-                'sppb.update',
-                'surat_jalan.read',
-                'penyesuaian_stok.read',
-                'riwayat_transaksi.read',
-                'input_driver_security.read'
-            ],
-
-            // 11. Kasatpel
-            'Kasatpel' => [
-                'dashboard.read',
-                'rab.read',
-                'permintaan_barang.create',
-                'permintaan_barang.read',
-                'permintaan_barang.update',
-                'permintaan_barang.delete',
-                // 'penerimaan_barang' removed - should be dash (-) according to table
-                // 'kontrak' removed - should be dash (-) according to table
                 'upload_spb.create',
                 'upload_spb.read',
                 'upload_spb.update',
                 'upload_spb.delete',
                 'upload_sppb.read',
-                'upload_foto_barang_diterima.create',
-                'upload_foto_barang_diterima.read',
-                'upload_foto_barang_diterima.update',
-                'upload_foto_barang_diterima.delete',
+                'upload_foto',
+                'data_barang',
+                'spb.read',
+                'spb.update',
+                'sppb.read',
+                'sppb.update',
+                'surat_jalan.read',
+                'penyesuaian.read',
+                'riwayat_transaksi.read',
+                'input_driver.read',
+                'input_security.read',
+            ],
+
+            "Perencanaan" => [
+                'dashboard.read',
+                'rab.create',
+                'rab.read',
+                'rab.update',
+                'permintaan.read',
+                'penerimaan.read',
+                'kontrak.read',
+                'penyesuaian.read',
+                'riwayat_transaksi.read',
+            ],
+
+            "Kepala Satuan Pelaksana" => [
+                'dashboard.read',
+                'rab.read',
+                'permintaan.create',
+                'permintaan.read',
+                'permintaan.update',
+                'permintaan.delete',
+                'upload_spb.create',
+                'upload_spb.read',
+                'upload_spb.update',
+                'upload_spb.delete',
+                'upload_sppb.read',
+                'upload_foto',
                 'spb.read',
                 'spb.update',
                 'sppb.read',
                 'surat_jalan.read',
                 'surat_jalan.update',
-                'penyesuaian_stok.read',
+                'penyesuaian.read',
                 'riwayat_transaksi.read',
-                'input_driver_security.read'
+                'input_driver.read',
+                'input_security.read',
             ],
 
-            // 12. Kasie Pembangunan
-            'Kasie Pembangunan' => [
+            "P3K" => [
                 'dashboard.read',
-                'rab.create',
-                'rab.read',
-                'rab.update',
-                'rab.delete',
-                'permintaan_barang.create',
-                'permintaan_barang.read',
-                'permintaan_barang.update',
-                'permintaan_barang.delete',
-                'penerimaan_barang.read',
-                'kontrak.read',
-                'upload_spb.create',
-                'upload_spb.read',
-                'upload_spb.update',
-                'upload_spb.delete',
-                'upload_foto_barang_diterima.create',
-                'upload_foto_barang_diterima.read',
-                'upload_foto_barang_diterima.update',
-                'upload_foto_barang_diterima.delete',
-                'spb.read',
-                'spb.update',
-                'sppb.read',
-                'sppb.update',
-                'surat_jalan.read',
-                'penyesuaian_stok.read',
-                'riwayat_transaksi.read',
-                'input_driver_security.read'
-            ],
-
-            // 13. Kasie Pompa (PPTK) - Same as Kasie Pemeliharaan
-            'Kasie Pompa' => [
-                'dashboard.read',
-                'rab.create',
-                'rab.read',
-                'rab.update',
-                'rab.delete',
-                'permintaan_barang.create',
-                'permintaan_barang.read',
-                'permintaan_barang.update',
-                'permintaan_barang.delete',
-                'penerimaan_barang.read',
-                'kontrak.read',
-                'upload_spb.create',
-                'upload_spb.read',
-                'upload_spb.update',
-                'upload_spb.delete',
-                'upload_foto_barang_diterima.create',
-                'upload_foto_barang_diterima.read',
-                'upload_foto_barang_diterima.update',
-                'upload_foto_barang_diterima.delete',
-                'spb.read',
-                'spb.update',
-                'sppb.read',
-                'sppb.update',
-                'surat_jalan.read',
-                'penyesuaian_stok.read',
-                'riwayat_transaksi.read',
-                'input_driver_security.read'
-            ],
-
-            // 14. Tim Pendukung PPK
-            'Tim Pendukung PPK' => [
-                'dashboard.read',
-                'penerimaan_barang.create',
-                'penerimaan_barang.read',
-                'penerimaan_barang.update',
-                'penerimaan_barang.delete',
+                'penerimaan.create',
+                'penerimaan.read',
+                'penerimaan.update',
+                'penerimaan.delete',
+                'kontrak.create',
                 'kontrak.read',
                 'kontrak.update',
-                'penyesuaian_stok.read',
-                'riwayat_transaksi.read'
-            ]
+                'penyesuaian.read',
+                'riwayat_transaksi.read',
+            ],
         ];
 
-        // === STEP 3: Create roles and assign permissions ===
+
         foreach ($rolePermissions as $roleName => $permissions) {
-            $role = Role::firstOrCreate([
-                'name' => $roleName,
-                'guard_name' => 'web'
-            ]);
+            $role = Role::firstOrCreate(['name' => $roleName]);
 
-            // Clear existing permissions
-            $role->permissions()->detach();
-
-            // Assign new permissions
-            foreach ($permissions as $permissionName) {
-                $permission = Permission::where('name', $permissionName)->first();
-                if ($permission) {
-                    $role->givePermissionTo($permission);
+            foreach ($permissions as $permName) {
+                $perm = Permission::where('name', $permName)->first();
+                if ($perm && !$role->hasPermissionTo($perm)) {
+                    $role->givePermissionTo($perm);
                 }
             }
         }
-    }
-
-    private function getAllPermissions($modules)
-    {
-        $permissions = [];
-        foreach ($modules as $module) {
-            foreach (['create', 'read', 'update', 'delete'] as $action) {
-                $permissions[] = "{$module}.{$action}";
-            }
-        }
-        return $permissions;
-    }
-
-    private function getReadOnlyPermissions($modules)
-    {
-        $permissions = [];
-        foreach ($modules as $module) {
-            $permissions[] = "{$module}.read";
-        }
-        // Add specific read permissions for roles like Kadis, Sekdis, etc.
-        $permissions[] = 'upload_foto_barang_diterima.read'; // Added for roles that have R on "Foto Barang Diterima"
-        $permissions[] = 'input_driver_security.read'; // Added for roles that have R on "Input Driver & Security"
-        return $permissions;
     }
 }

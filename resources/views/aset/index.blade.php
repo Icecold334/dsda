@@ -19,7 +19,7 @@
                 </span>
             </button>
 
-            @can('gudang.create')
+            @can('aset_new')
                 <a href="{{ route('aset.create') }}"
                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">+
                     Tambah Aset</a>
@@ -229,10 +229,10 @@
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold ">NAMA ASET</th>
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold">KODE</th>
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold">MERK & TIPE</th>
-                @can('gudang.read')
+                @can('aset_price')
                     <th class="py-3 px-6 bg-primary-950 text-left font-semibold">PENYUSUTAN</th>
                 @endcan
-                @can('riwayat_transaksi.read')
+                @can('history_view')
                     <th class="py-3 px-6 bg-primary-950 text-left font-semibold">RIWAYAT TERAKHIR</th>
                 @endcan
                 <th class="py-3 px-6 bg-primary-950 text-left font-semibold rounded-r-lg"></th>
@@ -370,7 +370,7 @@
                                 </div>
                             </td>
                         @endcan
-                        @can('riwayat_transaksi.read')
+                        @can('history_view')
                             <td class="py-3 px-6 ">
                                 @if ($aset->histories->last())
                                     <p class="font-semibold text-gray-800">

@@ -23,10 +23,10 @@
 
                 @php
                 $formBarangItems = [];
-                if (auth()->user()->can('permintaan_barang.read')) {
+                if (auth()->user()->can('permintaan.read')) {
                 $formBarangItems[] = ['href' => '/permintaan/material', 'title' => 'Permintaan Barang'];
                 }
-                if (auth()->user()->can('penerimaan_barang.read')) {
+                if (auth()->user()->can('penerimaan.read')) {
                 $formBarangItems[] = ['href' => '/pengiriman-stok', 'title' => 'Pengiriman Barang'];
                 }
                 @endphp
@@ -56,27 +56,27 @@
 
                 @php
                 $masterDataItems = [];
-                // if (auth()->user()->can('gudang.read')) {
+                // if (auth()->user()->can('data_barang')) {
                 $masterDataItems[] = ['href' => '/stok', 'title' => 'Stok'];
                 $masterDataItems[] = ['href' => '/stok/sudin/sudin', 'title' => 'Stok Sudin'];
                 $masterDataItems[] = ['href' => '/barang', 'title' => 'Barang'];
                 // }
-                if (auth()->user()->can('gudang.read')) {
+                if (auth()->user()->can('data_kategori')) {
                 $masterDataItems[] = ['href' => '/kategori', 'title' => 'kategori'];
                 }
-                if (auth()->user()->can('gudang.read')) {
+                if (auth()->user()->can('data_toko')) {
                 $masterDataItems[] = ['href' => '/toko', 'title' => 'Toko / distributor'];
                 }
-                if (auth()->user()->can('gudang.read')) {
+                if (auth()->user()->can('data_lokasi_gudang')) {
                 $masterDataItems[] = ['href' => '/lokasi-stok', 'title' => 'lokasi gudang'];
                 }
-                if (auth()->user()->can('manajemen_user.read')) {
+                if (auth()->user()->can('data_unit_kerja')) {
                 $masterDataItems[] = ['href' => '/unit-kerja', 'title' => 'Unit Kerja'];
                 }
-                if (auth()->user()->can('input_driver_security.read')) {
+                if (auth()->user()->can('data_driver')) {
                 $masterDataItems[] = ['href' => '/driver', 'title' => 'Driver'];
                 }
-                if (auth()->user()->can('input_driver_security.read')) {
+                if (auth()->user()->can('data_security')) {
                 $masterDataItems[] = ['href' => '/security', 'title' => 'Security'];
                 }
                 @endphp
@@ -84,21 +84,21 @@
                 <livewire:nav-item title="master data" :child="$masterDataItems" />
                 @endif
 
-                @can('dashboard.read')
+                {{-- @can('qr_print') --}}
                 <livewire:nav-item href="/qrprint" title='<button data-tooltip-target="tooltipQR" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-print"></i></button>
                         <div id="tooltipQR" role="tooltip" class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                             Cetak QR-Code
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>' />
-                @endcan
+                {{-- @endcan --}}
 
-                @can('manajemen_user.read')
+                {{-- @can('pengaturan') --}}
                 <livewire:nav-item href="/option" title='<button data-tooltip-target="tooltipPengaturan" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-gear"></i></button>
                         <div id="tooltipPengaturan" role="tooltip" class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                             Pengaturan
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>' />
-                @endcan
+                {{-- @endcan --}}
                 <livewire:notification />
                 <livewire:nav-item href="/profil" title='<button data-tooltip-target="tooltipProfil" data-tooltip-placement="bottom" type="button"><i class="fa-solid fa-user"></i></button>
                     <div id="tooltipProfil" role="tooltip" class="absolute z-10 normal-case invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">

@@ -336,7 +336,7 @@
                 class="w-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
                 <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 rounded-t-lg bg-primary-100 dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800"
                     id="defaultTab" data-tabs-toggle="#defaultTabContent" role="tablist">
-                    @can('riwayat_transaksi.read')
+                    @can('history_view')
                         <li class="me-2">
                             <button id="history-tab" data-tabs-target="#history" type="button" role="tab"
                                 aria-controls="history" aria-selected="true"
