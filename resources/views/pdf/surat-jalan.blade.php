@@ -208,13 +208,15 @@
       Pemohon<br>
       Kepala Satuan Pelaksana<br>
       Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '-' }}<br><br>
-      @if ($sign)
-      <img src="{{ $permintaan->status === 3 || true ? '/storage/ttdPengiriman/nurdin.png':'' }}" height="40"><br>
-      @else
-      <br><br><br>
-      @endif
-      <strong>{{ $kasatpel->name }}</strong><br>
-      NIP {{ $kasatpel->nip ?? '....................' }}
+      @if ($sign && $permintaan->status <= 3) {{-- <img
+        src="{{ $permintaan->status === 3 || true ? '/storage/ttdPengiriman/nurdin.png':'' }}" height="40"><br>
+        --}}
+        <img src="{{ storage_path('app/public/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
+        @else
+        <br><br><br>
+        @endif
+        <strong>{{ $pemohon->name }}</strong><br>
+        NIP {{ $pemohon->nip ?? '....................' }}
     </td>
     <td width="50%">
       Driver<br><br><br><br>
@@ -256,7 +258,8 @@
       Pengurus Barang Suku Dinas {{ Str::ucfirst(str_replace('Suku Dinas ', '',
       $permintaan->unit->nama)) }}<br><br>
       @if ($sign)
-      <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br>
+      {{-- <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br> --}}
+      <img src="{{ storage_path('app/public/usersTTD/' . $pengurus->ttd) }}" width="100" height="50"><br><br>
       @else
       <br><br><br>
       @endif

@@ -267,15 +267,39 @@ class DriverSecuritySeeder extends Seeder
 
             // Jakarta Selatan
             [
-                'nama' => 'Security Gudang Material Jakarta Selatan',
+                'nama' => 'Jekson Riwu',
                 'wilayah' => 'Jakarta Selatan'
             ],
             [
-                'nama' => 'Security Gudang Peralatan Jakarta Selatan',
+                'nama' => 'Dimas Sapta Alamsyah',
                 'wilayah' => 'Jakarta Selatan'
             ],
             [
-                'nama' => 'Security Kantor Jakarta Selatan',
+                'nama' => 'Rizki Kurnia Adinata',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Budhi Alvino',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Rojih',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Arif Maulana',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Maryadi',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Riki',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'M. Kamaluddin Zuhdi',
                 'wilayah' => 'Jakarta Selatan'
             ],
 

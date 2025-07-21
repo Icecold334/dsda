@@ -130,4 +130,131 @@
             @endforelse
         </tbody>
     </table>
+
+
+
+    @push('scripts')
+    <script type="module">
+        document.addEventListener('gagal', function ({detail}) {
+                feedback('Akses Ditolak!', detail.pesan, 'error');
+                });
+    </script>
+    @endpush
+    {{-- @php
+    $roleLabel = [
+    'kepala-seksi' => 'Kepala Seksi Pemeliharaan',
+    'kepala-subbagian' => 'Kepala Subbagian Tata Usaha',
+    'pengurus-barang' => 'Pengurus Barang',
+    ];
+    @endphp --}}
+
+    @if ($showTimelineModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl py-4 px-2">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 ms-6">Riwayat Permintaan</h2>
+
+            <div class="overflow-y-auto max-h-[65vh] pe-2">
+                <ol class="relative border-s border-gray-500 dark:border-gray-700 m-6 ps-4">
+                    @php
+                    $roleLabel = [
+                    'kepala-seksi' => 'Kepala Seksi Pemeliharaan',
+                    'kepala-subbagian' => 'Kepala Subbagian Tata Usaha',
+                    'pengurus-barang' => 'Pengurus Barang',
+                    ];
+                    @endphp
+                    @php
+                    $flowStopped = false; // indikator aliran berhenti setelah "Ditolak"
+                    @endphp
+
+                    @foreach ($roleList as $slug => $users)
+                    @php
+                    $label = $roleLabel[$slug] ?? ucfirst(str_replace('-', ' ', $slug));
+
+                    $approvedUser = !$flowStopped
+                    ? collect($approvalTimeline)->first(fn($item) =>
+                    \Illuminate\Support\Str::contains(strtolower($item['role']),
+                    strtolower($label)))
+                    : null;
+
+                    if ($approvedUser) {
+                    $status = $approvedUser['status'];
+                    $user = $approvedUser['user'];
+                    $desc = $approvedUser['desc'] ?? null;
+                    $tanggal = $approvedUser['tanggal'];
+                    $img = $approvedUser['img'] ?? null;
+
+                    if ($status === 'Ditolak') {
+                    $flowStopped = true; // stop aliran approval setelah ini
+                    }
+                    } else {
+                    // $status = $flowStopped ? 'Belum Diperiksa' : 'Diproses';
+                    $status = $flowStopped ? 'Tidak Dilanjutkan' : 'Diproses';
+                    // $user = $flowStopped ? '-' : ($users[0]['name'] ?? '-');
+                    $user = $users[0]['name'] ?? '-';
+                    $desc = $flowStopped ? null : null;
+                    $tanggal = $flowStopped ? '-' : null;
+                    $img = $flowStopped ? null : ($users[0]['foto'] ?? null);
+                    }
+
+                    // Warna status
+                    $badgeColor = match($status) {
+                    'Disetujui' => 'bg-green-100 text-green-800',
+                    'Ditolak' => 'bg-red-100 text-red-800',
+                    'Diproses' => 'bg-yellow-100 text-yellow-800',
+                    'Tidak Dilanjutkan' => 'bg-gray-200 text-gray-600',
+                    default => 'bg-gray-100 text-gray-500',
+                    };
+
+                    $color = match($status) {
+                    'Disetujui' => 'text-green-600',
+                    'Ditolak' => 'text-red-600',
+                    'Diproses' => 'text-yellow-600',
+                    'Tidak Dilanjutkan' => 'text-gray-600',
+                    default => 'text-gray-500',
+                    };
+
+                    $initial = strtoupper(substr($user, 0, 1));
+                    $imgPath = $img ? storage_path('app/public/' . $img) : null;
+                    $imgExists = $imgPath && file_exists($imgPath);
+                    @endphp
+
+                    <li class="mb-2 ms-6">
+                        <span
+                            class="absolute flex items-center justify-center w-9 h-9 rounded-full -start-4 ring-8 ring-white {{ $badgeColor }}">
+                            @if ($imgExists)
+                            <img src="{{ asset('storage/' . $img) }}" class="rounded-full w-6 h-6 object-cover" />
+                            @else
+                            <span class="text-xs font-bold text-gray-700">{{ $initial }}</span>
+                            @endif
+                        </span>
+
+                        <h3 class=" text-md font-semibold text-gray-900 dark:text-white">{{ $label }}</h3>
+                        <time class="block  text-xs font-normal leading-none text-gray-400 dark:text-gray-500">{{
+                            $tanggal ?? '-'
+                            }}</time>
+                        <p class="text-sm  font-semibold text-gray-600">{{ $user ?? '-' }}</p>
+
+                        @if (!empty($desc))
+                        <p class="text-sm text-gray-500  italic">{!! $desc !!}
+
+                        </p>
+                        @endif
+
+                        <span class="inline-block  px-2 py-0.5 text-xs rounded-full {{ $badgeColor }}">
+                            {{ $status }}
+                        </span>
+                    </li>
+                    @endforeach
+                </ol>
+            </div>
+
+            <div class="flex justify-end mt-6">
+                <button wire:click="$set('showTimelineModal', false)"
+                    class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-500">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
