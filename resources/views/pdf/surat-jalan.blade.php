@@ -211,7 +211,7 @@
       @if ($sign && $permintaan->status <= 3) {{-- <img
         src="{{ $permintaan->status === 3 || true ? '/storage/ttdPengiriman/nurdin.png':'' }}" height="40"><br>
         --}}
-        <img src="{{ storage_path('app/public/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
+        <img src="{{ public_path('app/public/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
         @else
         <br><br><br>
         @endif
@@ -259,7 +259,7 @@
       $permintaan->unit->nama)) }}<br><br>
       @if ($sign)
       {{-- <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br> --}}
-      <img src="{{ storage_path('app/public/usersTTD/' . $pengurus->ttd) }}" width="100" height="50"><br><br>
+      <img src="{{ public_path('app/public/usersTTD/' . $pengurus->ttd) }}" width="100" height="50"><br><br>
       @else
       <br><br><br>
       @endif
@@ -272,7 +272,7 @@
 <table style="width: 100%">
   <tr>
     <td style="width: 15%">
-      <img src="{{ storage_path('app/public/qr_permintaan_material/' . $permintaan->kode_permintaan . '.png')}}"
+      <img src="{{ public_path('app/public/qr_permintaan_material/' . $permintaan->kode_permintaan . '.png')}}"
         alt="Logo DKI">
     </td>
   </tr>
