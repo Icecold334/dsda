@@ -360,12 +360,22 @@ function downloadGabunganPdf($id)
         : Str::of($permintaan->unit->nama)->after('Administrasi ');
     $isSeribu = 0;
     $withRab = $isSeribu ? $permintaan->permintaanMaterial->first()->rab_id : $permintaan->rab_id;
+    $approvedUsers = $permintaan->persetujuan()
+        ->where('is_approved', 1)
+        ->get()
+        ->pluck('user_id')
+        ->unique();
 
+    $usersWithRoles = \App\Models\User::whereIn('id', $approvedUsers)->with('roles')->get();
+    $pemelDone = $usersWithRoles->contains(function ($user) {
+        return $user->hasRole('Kepala Seksi');
+    });
     // ========== Halaman 1: SPB ==========
     $htmlSpb = view(!$withRab ? 'pdf.nodin' : ($isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact(
         'ttdPath',
         'permintaan',
         'kasatpel',
+        'pemelDone',
         'pemel',
         'Rkb',
         'RKB',
