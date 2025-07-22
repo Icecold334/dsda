@@ -279,7 +279,7 @@
       $permintaan->unit->nama)) }}<br><br>
       @if ($sign)
       {{-- <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br> --}}
-      <img src="{{ public_path('app/public/usersTTD/' . $kasubag->ttd) }}" width="100" height="50"><br><br>
+      <img src="{{ asset('storage/usersTTD/' . $kasubag->ttd) }}" width="100" height="50"><br><br>
       @else
       <br><br><br>
       @endif
