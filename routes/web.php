@@ -125,7 +125,9 @@ Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-
+Route::get('/material/{id}/qrDownload', function ($id) {
+    return downloadGabunganPdf($id);
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('agenda', AgendaController::class);
@@ -214,9 +216,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //         ->header('Content-Type', 'application/pdf')
     //         ->header('Content-Disposition', 'attachment; filename="SPB_SPPB.pdf"');
     // });
-    Route::get('/material/{id}/qrDownload', function ($id) {
-        return downloadGabunganPdf($id);
-    });
+
     Route::get('/nonaktifaset/downlaod-qr/{assetId}', [AsetNonAktifController::class, 'downloadQrImage'])->name('nonaktifaset.downloadQrImage');
     Route::resource('nonaktifaset', AsetNonAktifController::class);
     // Route::patch('/nonaktifaset/{nonaktifaset}/activate', [AsetNonAktifController::class, 'activate'])->name('nonaktifaset.activate');
