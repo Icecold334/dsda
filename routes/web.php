@@ -125,7 +125,9 @@ Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-
+Route::get('/material/{id}/qrDownload', function ($id) {
+    return downloadGabunganPdf($id);
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('agenda', AgendaController::class);
@@ -214,9 +216,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //         ->header('Content-Type', 'application/pdf')
     //         ->header('Content-Disposition', 'attachment; filename="SPB_SPPB.pdf"');
     // });
-    Route::get('/material/{id}/qrDownload', function ($id) {
-        return downloadGabunganPdf($id);
-    });
+
     Route::get('/nonaktifaset/downlaod-qr/{assetId}', [AsetNonAktifController::class, 'downloadQrImage'])->name('nonaktifaset.downloadQrImage');
     Route::resource('nonaktifaset', AsetNonAktifController::class);
     // Route::patch('/nonaktifaset/{nonaktifaset}/activate', [AsetNonAktifController::class, 'activate'])->name('nonaktifaset.activate');
@@ -361,11 +361,22 @@ function downloadGabunganPdf($id)
     $isSeribu = 0;
     $withRab = $isSeribu ? $permintaan->permintaanMaterial->first()->rab_id : $permintaan->rab_id;
 
+    $approvedUsers = $permintaan->persetujuan()
+        ->where('is_approved', 1)
+        ->get()
+        ->pluck('user_id')
+        ->unique();
+
+    $usersWithRoles = \App\Models\User::whereIn('id', $approvedUsers)->with('roles')->get();
+    $pemelDone = $usersWithRoles->contains(function ($user) {
+        return $user->hasRole('Kepala Seksi');
+    });
     // ========== Halaman 1: SPB ==========
     $htmlSpb = view(!$withRab ? 'pdf.nodin' : ($isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact(
         'ttdPath',
         'permintaan',
         'kasatpel',
+        'pemelDone',
         'pemel',
         'Rkb',
         'RKB',

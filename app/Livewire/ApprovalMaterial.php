@@ -261,7 +261,7 @@ class ApprovalMaterial extends Component
         }
 
         // Jika yang menyetujui adalah Kepala Subbagian (buat QR + ubah status = 1)
-        if ($currentUser->hasRole('Kepala Subbagian')) {
+        if ($currentUser->hasRole(['Kepala Subbagian', 'Kepala Subbagian Tata Usaha'])) {
             $permintaan->update(['status' => 1, 'sppb' => $sppb]);
 
             // Buat QR Code
@@ -277,6 +277,7 @@ class ApprovalMaterial extends Component
             $writer = new Writer($renderer);
             $filePath = Storage::disk('public')->path($qrTarget);
             $writer->writeFile($qrContent, $filePath);
+            // dd('oke');
         }
 
         // Jika yang menyetujui adalah Pengurus Barang (buat Transaksi + ubah status = 2)

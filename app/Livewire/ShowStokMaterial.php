@@ -16,12 +16,15 @@ class ShowStokMaterial extends Component
     public $showModal = false;
     public $showFormPenyesuaian = false;
     public $modalBarangNama;
+    public $jumlahAkhir;
     public $modalRiwayat = [];
     public $penyesuaian = [
         'merk_id' => null,
+        'tipe' => 'tambah', // nilai default
         'jumlah' => null,
         'deskripsi' => null,
     ];
+
     public $stokAwal = null;
 
 
@@ -188,6 +191,19 @@ class ShowStokMaterial extends Component
 
         return collect($list)->unique('id')->values();
     }
+    public function updatedPenyesuaian()
+    {
+        // if ($this->stokAwal === null || $this->penyesuaian['jumlah'] === null) {
+        //     return null;
+        // }
+        // dd('sad');
+
+        $jumlahPerubahan = (int) $this->penyesuaian['jumlah'];
+        $selisih = $this->penyesuaian['tipe'] === 'kurang' ? -$jumlahPerubahan : $jumlahPerubahan;
+
+        return $this->jumlahAkhir = (int) $this->stokAwal + $selisih;
+    }
+
 
     public function simpanPenyesuaian()
     {
@@ -197,8 +213,12 @@ class ShowStokMaterial extends Component
             'penyesuaian.deskripsi' => 'nullable|string',
         ]);
 
-        $stokBaru = (int) $this->penyesuaian['jumlah'];
-        $selisih = $stokBaru - (int) $this->stokAwal;
+        // $stokBaru = (int) $this->penyesuaian['jumlah'];
+        // $selisih = $stokBaru - (int) $this->stokAwal;
+
+        $jumlahPerubahan = (int) $this->penyesuaian['jumlah'];
+        $selisih = $this->penyesuaian['tipe'] === 'kurang' ? -$jumlahPerubahan : +$jumlahPerubahan;
+
 
         if ($selisih === 0) {
             session()->flash('info', 'Tidak ada perubahan stok.');
@@ -240,7 +260,7 @@ class ShowStokMaterial extends Component
                     ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $this->lokasi_id));
             })
             ->whereHas('merkStok', fn($q) => $q->where('barang_id', $barangId))
-            ->orderByDesc('tanggal')
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($trx) {
                 return [

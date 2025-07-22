@@ -187,8 +187,9 @@
     <td align="center">
       Mengetahui,<br>
       Kepala Seksi Pemeliharaan<br><br><br>
-      @if ($sign)
-      <img src="{{ $ttdPath }}" width="100" height="50"><br><br>
+      @if ($sign && $pemelDone)
+      {{-- <img src="{{ $ttdPath }}" width="100" height="50"><br><br> --}}
+      <img src="{{ asset('storage/usersTTD/' . $pemel->ttd) }}" width="100" height="50"><br><br>
       @else
       <br><br><br><br>
       @endif
@@ -206,7 +207,8 @@
       <br><br>
 
       @if ($sign)
-      <img src="{{ $ttdPath }}" width="100" height="50"><br><br>
+      <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
+      {{-- <img src="{{ $ttdPath }}" width="100" height="50"><br><br> --}}
       @else
       <br><br><br><br>
       @endif

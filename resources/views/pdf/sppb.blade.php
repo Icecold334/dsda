@@ -278,12 +278,13 @@
       Pejabat Penatausahaan Barang Suku Dinas {{ Str::ucfirst(str_replace('Suku Dinas ', '',
       $permintaan->unit->nama)) }}<br><br>
       @if ($sign)
-      <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br>
+      {{-- <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br> --}}
+      <img src="{{ asset('storage/usersTTD/' . $kasubag->ttd) }}" width="100" height="50"><br><br>
       @else
       <br><br><br>
       @endif
-      <strong>{{ $pengurus->name }}</strong><br>
-      NIP {{ $pengurus->nip ?? '....................' }}
+      <strong>{{ $kasubag->name }}</strong><br>
+      NIP {{ $kasubag->nip ?? '....................' }}
     </td>
   </tr>
 </table>

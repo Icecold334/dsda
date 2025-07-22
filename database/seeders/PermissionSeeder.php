@@ -142,6 +142,7 @@ class PermissionSeeder extends Seeder
                 'penerimaan.read',
                 'penerimaan.update',
                 'kontrak.read',
+                'upload_spb.read',
                 'upload_sppb.create',
                 'upload_sppb.read',
                 'upload_sppb.update',
