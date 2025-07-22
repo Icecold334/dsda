@@ -154,7 +154,8 @@ class AkunSudinSeeder extends Seeder
             } elseif ($roleCounters[$permissionRole] > 1) {
                 // Add numbering for duplicate roles that don't have {counter} placeholder
                 $emailParts = explode('@', $email);
-                $emailParts[0] = $emailParts[0] . $roleCounters[$permissionRole];
+                // $emailParts[0] = $emailParts[0] . $roleCounters[$permissionRole];
+                $emailParts[0] = $emailParts[0];
                 $email = implode('@', $emailParts);
             }
 
@@ -187,7 +188,7 @@ class AkunSudinSeeder extends Seeder
                 $userCreateData['kecamatan_id'] = $kecamatanId;
             }
 
-            $user = User::firstOrCreate(
+            $user = User::updateOrCreate(
                 ['email' => $email],
                 $userCreateData
             );

@@ -228,20 +228,20 @@ class UnitSeeder extends Seeder
                 ],
             ],
             'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Timur' => [
-                // 'kepala' => 'Ir. Abdul Rauf Gaffar, MT', // Commented: exists in AkunSudinSeeder (different title)
-                'kepala' => 'Kepala Sudin Timur Dummy', // Use dummy name
+                'kepala' => 'Ir. Abdul Rauf Gaffar, MT', // Commented: exists in AkunSudinSeeder (different title)
+                // 'kepala' => 'Kepala Sudin Timur Dummy', // Use dummy name
                 'alamat' => 'Jalan Dr. Sumarno – Pulogebang Telp. (021) 48703464 e-mail : sda.jttimur@gmail.com',
                 'sub_units' => [
-                    // ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Herawan, SE, MM'], // Commented: exists in AkunSudinSeeder (different title)
-                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Kepala Subbag TU Timur Dummy'], // Use dummy name
-                    // ['nama' => 'Seksi Perencanaan', 'kepala' => 'Fajar Avisena, ST'], // Commented: exists in AkunSudinSeeder
-                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Kepala Seksi Perencanaan Timur Dummy'], // Use dummy name
-                    // ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Puryanto Palebangan, ST'], // Commented: exists in AkunSudinSeeder
-                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Kepala Seksi Pemeliharaan Timur Dummy'], // Use dummy name
-                    // ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Tengku Saugi Zikri, ST'], // Commented: exists in AkunSudinSeeder
-                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Kepala Seksi Pembangunan Timur Dummy'], // Use dummy name
-                    // ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'John Christian Tarigan, ST'], // Commented: exists in AkunSudinSeeder
-                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Kepala Seksi Pompa Timur Dummy'], // Use dummy name
+                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Herawan, SE, MM'], // Commented: exists in AkunSudinSeeder (different title)
+                    // ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Kepala Subbag TU Timur Dummy'], // Use dummy name
+                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Fajar Avisena, ST'], // Commented: exists in AkunSudinSeeder
+                    // ['nama' => 'Seksi Perencanaan', 'kepala' => 'Kepala Seksi Perencanaan Timur Dummy'], // Use dummy name
+                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Puryanto Palebangan, ST'], // Commented: exists in AkunSudinSeeder
+                    // ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Kepala Seksi Pemeliharaan Timur Dummy'], // Use dummy name
+                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Tengku Saugi Zikri, ST'], // Commented: exists in AkunSudinSeeder
+                    // ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Kepala Seksi Pembangunan Timur Dummy'], // Use dummy name
+                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'John Christian Tarigan, ST'], // Commented: exists in AkunSudinSeeder
+                    // ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Kepala Seksi Pompa Timur Dummy'], // Use dummy name
                 ],
             ],
             'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu' => [
@@ -977,14 +977,16 @@ class UnitSeeder extends Seeder
 
                     $role_name = $role->name == 'Kepala Seksi' ? 'kasie' : 'kasubag';
                     $sub = Str::lower(str_replace(' ', '', str_replace($role->name == 'Kepala Seksi' ? 'Seksi' : 'Subbagian', '', $subUnitEntry->nama)));
-                    $user = User::create([
-                        'email_verified_at' => now(),
-                        'name' => $subUnit['kepala'],
-                        'unit_id' => $subUnitEntry->id,
-                        'email' => $role_name . '.' . $sub . '.' . $sudin . "@test.com",
-                        'password' => bcrypt('test@123'), // Password default
-                    ]);
-                    $user->roles()->attach($role->id);
+                    if (!$isSudinJaktim) {
+                        $user = User::create([
+                            'email_verified_at' => now(),
+                            'name' => $subUnit['kepala'],
+                            'unit_id' => $subUnitEntry->id,
+                            'email' => $role_name . '.' . $sub . '.' . $sudin . "@test.com",
+                            'password' => bcrypt('test@123'), // Password default
+                        ]);
+                        $user->roles()->attach($role->id);
+                    }
                 }
                 // Buat User
 
