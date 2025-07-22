@@ -414,7 +414,7 @@ class ShowPermintaanMaterial extends Component
         //     !$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb')
         // );
         $ttdPath = storage_path('app/public/usersTTD/' . $pemohon->ttd);
-        // dd(public_path('app/public/usersTTD/' . $pemohon->ttd));
+        dd(public_path('app/public/usersTTD/' . $pemohon->ttd));
         $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact('pemelDone', 'ttdPath', 'pemohon', 'pemohonRole', 'permintaan', 'kasatpel', 'pemel', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'sign'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
