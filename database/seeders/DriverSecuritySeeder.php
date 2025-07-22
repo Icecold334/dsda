@@ -19,186 +19,376 @@ class DriverSecuritySeeder extends Seeder
             // Sudin SDA Pusat
             [
                 'nama' => 'Iwam Hanapi',
-                'nopol' => 'B 80098189 XX', // ID karyawan dijadikan nopol
-                'kecamatan' => 'Gambir',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Pusat'
             ],
             [
                 'nama' => 'Agus Supriyanto',
-                'nopol' => 'B 80099451 XX',
-                'kecamatan' => 'Sawah Besar',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Pusat'
             ],
             [
                 'nama' => 'Bambang Riyanto',
-                'nopol' => 'B 80734228 XX',
-                'kecamatan' => 'Kemayoran',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Pusat'
             ],
             [
                 'nama' => 'Eko Sugianto',
-                'nopol' => 'B 80333008 XX',
-                'kecamatan' => 'Senen',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Pusat'
             ],
             [
                 'nama' => 'Arga Seftiyan Wijaya',
-                'nopol' => 'B 80049975 XX',
-                'kecamatan' => 'Cempaka Putih',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Pusat'
             ],
             [
                 'nama' => 'Bambang Sunarto',
-                'nopol' => 'B 80108282 XX',
-                'kecamatan' => 'Menteng',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Pusat'
             ],
             [
                 'nama' => 'Suryanto',
-                'nopol' => 'B 80028235 XX',
-                'kecamatan' => 'Tanah Abang',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Pusat'
             ],
 
             // Sudin SDA Utara
             [
                 'nama' => 'Hisyam Anshori',
-                'nopol' => 'B 80243096 XX',
-                'kecamatan' => 'Cilincing',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Utara'
             ],
             [
                 'nama' => 'Absalon Wahyudin Tarihoran',
-                'nopol' => 'B 80124593 XX',
-                'kecamatan' => 'Cilincing',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Utara'
             ],
             [
                 'nama' => 'Saripudin',
-                'nopol' => 'B 80156921 XX',
-                'kecamatan' => 'Kelapa Gading',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Utara'
             ],
             [
                 'nama' => 'Dadang',
-                'nopol' => 'B 80124313 XX',
-                'kecamatan' => 'Kelapa Gading',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Utara'
             ],
             [
                 'nama' => 'Syarifudin',
-                'nopol' => 'B 80125522 XX',
-                'kecamatan' => 'Koja',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Utara'
             ],
             [
                 'nama' => 'Diding',
-                'nopol' => 'B 80295140 XX',
-                'kecamatan' => 'Pademangan',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Utara'
             ],
             [
                 'nama' => 'Satria',
-                'nopol' => 'B 80124724 XX',
-                'kecamatan' => 'Pademangan',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Utara'
             ],
             [
                 'nama' => 'Margono',
-                'nopol' => 'B 80124299 XX',
-                'kecamatan' => 'Tanjung Priok',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Utara'
             ],
 
-            // Sudin SDA Timur
+            // Sudin SDA Timur (dummy)
             [
                 'nama' => 'Joni Susilo',
-                'nopol' => 'B 80123456 XX',
-                'kecamatan' => 'Cakung',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Timur'
             ],
             [
                 'nama' => 'Suryadi',
-                'nopol' => 'B 80234567 XX',
-                'kecamatan' => 'Cipayung',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Timur'
             ],
             [
                 'nama' => 'Ahmad Fauzi',
-                'nopol' => 'B 80345678 XX',
-                'kecamatan' => 'Kramat Jati',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Timur'
             ],
             [
                 'nama' => 'Budi Santoso',
-                'nopol' => 'B 80456789 XX',
-                'kecamatan' => 'Makasar',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Timur'
             ],
 
             // Sudin SDA Selatan
             [
-                'nama' => 'Dedi Kurniawan',
-                'nopol' => 'B 80567890 XX',
-                'kecamatan' => 'Cilandak',
+                'nama' => 'Supriyadi',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Selatan'
             ],
             [
-                'nama' => 'Roni Setiawan',
-                'nopol' => 'B 80678901 XX',
-                'kecamatan' => 'Jagakarsa',
+                'nama' => 'Hari Triatna',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Selatan'
             ],
             [
-                'nama' => 'Hadi Purnomo',
-                'nopol' => 'B 80789012 XX',
-                'kecamatan' => 'Kebayoran Baru',
+                'nama' => 'Dedi Andriansah',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Selatan'
             ],
             [
-                'nama' => 'Eko Prasetyo',
-                'nopol' => 'B 80890123 XX',
-                'kecamatan' => 'Mampang Prapatan',
+                'nama' => 'Dimas Aditya Putra',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Ferly Sormin',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Sidik',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Jasno',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Zulian Agus',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Maulana Malik',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'M. Fadillah Tigana',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Rian Saputra',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Cosmas Silaen',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Wawan',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Marhali',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Muhamad Topik',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Didit Bastian',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Andri Sentosa',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Jatmiko Nugroho',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Hairudin',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Jutidharo Endro',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Abdol Rouf',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Aji Sekar Bawono',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Selatan'
             ],
 
             // Sudin SDA Barat
             [
-                'nama' => 'Joko Widodo',
-                'nopol' => 'B 80901234 XX',
-                'kecamatan' => 'Cengkareng',
+                'nama' => 'Abdul Mutholib',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Barat'
             ],
             [
-                'nama' => 'Indra Gunawan',
-                'nopol' => 'B 80012345 XX',
-                'kecamatan' => 'Grogol Petamburan',
+                'nama' => 'M Agus Saleh',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Barat'
             ],
             [
-                'nama' => 'Hendra Setiadi',
-                'nopol' => 'B 80123789 XX',
-                'kecamatan' => 'Kalideres',
+                'nama' => 'Muhadi',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Barat'
             ],
             [
-                'nama' => 'Wahyu Firmansyah',
-                'nopol' => 'B 80234890 XX',
-                'kecamatan' => 'Kebon Jeruk',
+                'nama' => 'William Andreas Wuisan',
+                'nopol' => null,
                 'wilayah' => 'Jakarta Barat'
             ],
-
-            // Sudin SDA Kepulauan Seribu
+            [
+                'nama' => 'Daman Huri',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Feri Irawan',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Guntur',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Hadi Sumarmo',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Yusri Andani',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Ely Johan',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Edi Sismanto',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Usep Matius',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Adi Sukarjo',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Syaifulloh',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Nuri Hendriansyah',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Satria Bahari',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Cupriyanto',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Encim',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Arif Supanji',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Saripudin',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Ahmad Hasyim Baihaqi Y',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Jhon Edward G',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'M. Ihrim Hadi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Budi Sugiarto',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Endang Supriatna',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'M Firmansyah',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Johan Wahyudin',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Fahrus Salam',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Jonatan Sembiring',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Suryadi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            // Sudin SDA Kepulauan Seribu (dummy)
             [
                 'nama' => 'Rizki Nugraha',
-                'nopol' => 'B 80345901 XX',
-                'kecamatan' => 'Pulau Seribu Utara',
+                'nopol' => null,
                 'wilayah' => 'Kepulauan Seribu'
             ],
             [
                 'nama' => 'Dedy Hermawan',
-                'nopol' => 'B 80456012 XX',
-                'kecamatan' => 'Pulau Seribu Selatan',
+                'nopol' => null,
                 'wilayah' => 'Kepulauan Seribu'
             ],
         ];
@@ -219,35 +409,54 @@ class DriverSecuritySeeder extends Seeder
 
         // Data Security berdasarkan JSON
         $securities = [
-            // Jakarta Pusat
-            [
-                'nama' => 'Security Gudang JP Sunter Kemayoran',
-                'wilayah' => 'Jakarta Pusat'
-            ],
-            [
-                'nama' => 'Security Gudang Material Dampas',
-                'wilayah' => 'Jakarta Pusat'
-            ],
-            [
-                'nama' => 'Security Gudang Perkakas dan Solar Pompa Melati',
-                'wilayah' => 'Jakarta Pusat'
-            ],
-            [
-                'nama' => 'Security Gudang Pemel Jakarta Pusat',
-                'wilayah' => 'Jakarta Pusat'
-            ],
 
             // Jakarta Utara
             [
-                'nama' => 'Security Gudang Material Jakarta Utara',
+                'nama' => 'Anton Suherman',
                 'wilayah' => 'Jakarta Utara'
             ],
             [
-                'nama' => 'Security Gudang Peralatan Jakarta Utara',
+                'nama' => 'Darfian',
                 'wilayah' => 'Jakarta Utara'
             ],
             [
-                'nama' => 'Security Kantor Jakarta Utara',
+                'nama' => 'Hendra Saipul Anwar',
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Junaidi',
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Mohamad Wahet',
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Muhamad Fadli Elwuar',
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Sulaeman',
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Tarmidi',
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Tedy Supriyanto',
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Suparno',
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Amdoro',
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Hartarto',
                 'wilayah' => 'Jakarta Utara'
             ],
 
@@ -267,29 +476,101 @@ class DriverSecuritySeeder extends Seeder
 
             // Jakarta Selatan
             [
-                'nama' => 'Security Gudang Material Jakarta Selatan',
+                'nama' => 'Jekson Riwu',
                 'wilayah' => 'Jakarta Selatan'
             ],
             [
-                'nama' => 'Security Gudang Peralatan Jakarta Selatan',
+                'nama' => 'Dimas Sapta Alamsyah',
                 'wilayah' => 'Jakarta Selatan'
             ],
             [
-                'nama' => 'Security Kantor Jakarta Selatan',
+                'nama' => 'Rizki Kurnia Adinata',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Budhi Alvino',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Rojih',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Arif Maulana',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Maryadi',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'Riki',
+                'wilayah' => 'Jakarta Selatan'
+            ],
+            [
+                'nama' => 'M. Kamaluddin Zuhdi',
                 'wilayah' => 'Jakarta Selatan'
             ],
 
             // Jakarta Barat
             [
-                'nama' => 'Security Gudang Material Jakarta Barat',
+                'nama' => 'Rojali',
                 'wilayah' => 'Jakarta Barat'
             ],
             [
-                'nama' => 'Security Gudang Peralatan Jakarta Barat',
+                'nama' => 'Surdi Adam',
                 'wilayah' => 'Jakarta Barat'
             ],
             [
-                'nama' => 'Security Kantor Jakarta Barat',
+                'nama' => 'Khoirul',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Bambang Suharjo',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Kukuh Kuncoro',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Jhony Satria Mirza',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Umar Sumantri',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Majuk',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Miskar',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Agus Mawardin',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Arfan Faisal',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Fitra Al Ramadhan',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Adliyas',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Ubaydillah',
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Toton Fhatoni',
                 'wilayah' => 'Jakarta Barat'
             ],
 

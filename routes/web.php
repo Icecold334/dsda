@@ -130,89 +130,92 @@ Route::get('dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('agenda', AgendaController::class);
     Route::get('/nonaktifaset/export', [AsetNonAktifController::class, 'exportExcel'])->name('nonaktifaset.export');
+    // Route::get('/material/{id}/qrDownload', function ($id) {
+    //     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+    //     $pdf->SetMargins(20, 5, 20);
+    //     $pdf->SetCreator('Sistem Permintaan');
+    //     $pdf->SetAuthor('Dinas SDA');
+    //     $pdf->SetTitle('SPB dan SPPB');
+    //     $pdf->SetFont('helvetica', '', 10);
+
+    //     // ========== Data Umum ==========
+    //     // dd($id);
+    //     $permintaan = DetailPermintaanMaterial::findOrFail($id);
+    //     $unit_id = $permintaan->user->unitKerja->id;
+    //     $permintaan->unit = UnitKerja::find($unit_id);
+    //     $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
+
+    //     $kasatpel = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
+    //         ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Satuan Pelaksana%'))
+    //         ->first();
+
+    //     $pemel = User::whereHas('unitKerja', fn($q) => $q->where('parent_id', $unit_id)->where('nama', 'like', '%Pemeliharaan%'))
+    //         ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Seksi%'))
+    //         ->first();
+
+    //     $penjaga = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
+    //         ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Penjaga Gudang%'))
+    //         ->where('lokasi_id', $permintaan->gudang_id)
+    //         ->first();
+
+    //     $pengurus = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
+    //         ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Pengurus Barang%'))
+    //         ->first();
+
+    //     $kasubag = User::whereHas('unitKerja', fn($q) => $q->where('parent_id', $unit_id)->where('nama', 'like', '%Tata Usaha%'))
+    //         ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Subbagian%'))
+    //         ->first();
+
+    //     $Rkb = 1;
+    //     $RKB = 1;
+    //     $sign = true;
+    //     $sudin = Str::contains($permintaan->unit->nama, 'Kepulauan')
+    //         ? 'Kepulauan Seribu'
+    //         : Str::of($permintaan->unit->nama)->after('Administrasi ');
+    //     $isSeribu = 0;
+    //     $withRab = $isSeribu ? $permintaan->permintaanMaterial->first()->rab_id : $permintaan->rab_id;
+
+    //     // ========== Halaman 1: SPB ==========
+    //     $htmlSpb = view(!$withRab ? 'pdf.nodin' : ($isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact(
+    //         'ttdPath',
+    //         'permintaan',
+    //         'kasatpel',
+    //         'pemel',
+    //         'Rkb',
+    //         'RKB',
+    //         'sudin',
+    //         'isSeribu',
+    //         'sign'
+    //     ))->render();
+
+    //     $pdf->AddPage();
+    //     $pdf->writeHTML($htmlSpb, true, false, true, false, '');
+
+    //     // ========== Halaman 2: SPPB ==========
+    //     $htmlSppb = view('pdf.sppb', compact(
+    //         'ttdPath',
+    //         'permintaan',
+    //         'kasatpel',
+    //         'penjaga',
+    //         'pengurus',
+    //         'kasubag',
+    //         'Rkb',
+    //         'RKB',
+    //         'sudin',
+    //         'isSeribu',
+    //         'sign'
+    //     ))->render();
+    //     // dd('asd');
+
+    //     $pdf->AddPage();
+    //     $pdf->writeHTML($htmlSppb, true, false, true, false, '');
+    //     // Output gabungan
+    //     return response($pdf->Output('', 'S'))
+    //         ->header('Content-Type', 'application/pdf')
+    //         ->header('Content-Disposition', 'attachment; filename="SPB_SPPB.pdf"');
+    // });
     Route::get('/material/{id}/qrDownload', function ($id) {
-        $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-        $pdf->SetMargins(20, 5, 20);
-        $pdf->SetCreator('Sistem Permintaan');
-        $pdf->SetAuthor('Dinas SDA');
-        $pdf->SetTitle('SPB dan SPPB');
-        $pdf->SetFont('helvetica', '', 10);
-
-        // ========== Data Umum ==========
-        // dd($id);
-        $permintaan = DetailPermintaanMaterial::findOrFail($id);
-        $unit_id = $permintaan->user->unitKerja->id;
-        $permintaan->unit = UnitKerja::find($unit_id);
-        $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
-
-        $kasatpel = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
-            ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Satuan Pelaksana%'))
-            ->first();
-
-        $pemel = User::whereHas('unitKerja', fn($q) => $q->where('parent_id', $unit_id)->where('nama', 'like', '%Pemeliharaan%'))
-            ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Seksi%'))
-            ->first();
-
-        $penjaga = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
-            ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Penjaga Gudang%'))
-            ->where('lokasi_id', $permintaan->gudang_id)
-            ->first();
-
-        $pengurus = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
-            ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Pengurus Barang%'))
-            ->first();
-
-        $kasubag = User::whereHas('unitKerja', fn($q) => $q->where('parent_id', $unit_id)->where('nama', 'like', '%Tata Usaha%'))
-            ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Subbagian%'))
-            ->first();
-
-        $Rkb = 1;
-        $RKB = 1;
-        $sign = true;
-        $sudin = Str::contains($permintaan->unit->nama, 'Kepulauan')
-            ? 'Kepulauan Seribu'
-            : Str::of($permintaan->unit->nama)->after('Administrasi ');
-        $isSeribu = 0;
-        $withRab = $isSeribu ? $permintaan->permintaanMaterial->first()->rab_id : $permintaan->rab_id;
-
-        // ========== Halaman 1: SPB ==========
-        $htmlSpb = view(!$withRab ? 'pdf.nodin' : ($isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact(
-            'ttdPath',
-            'permintaan',
-            'kasatpel',
-            'pemel',
-            'Rkb',
-            'RKB',
-            'sudin',
-            'isSeribu',
-            'sign'
-        ))->render();
-
-        $pdf->AddPage();
-        $pdf->writeHTML($htmlSpb, true, false, true, false, '');
-
-        // ========== Halaman 2: SPPB ==========
-        $htmlSppb = view('pdf.sppb', compact(
-            'ttdPath',
-            'permintaan',
-            'kasatpel',
-            'penjaga',
-            'pengurus',
-            'kasubag',
-            'Rkb',
-            'RKB',
-            'sudin',
-            'isSeribu',
-            'sign'
-        ))->render();
-        // dd('asd');
-
-        $pdf->AddPage();
-        $pdf->writeHTML($htmlSppb, true, false, true, false, '');
-        // Output gabungan
-        return response($pdf->Output('', 'S'))
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="SPB_SPPB.pdf"');
+        return downloadGabunganPdf($id);
     });
     Route::get('/nonaktifaset/downlaod-qr/{assetId}', [AsetNonAktifController::class, 'downloadQrImage'])->name('nonaktifaset.downloadQrImage');
     Route::resource('nonaktifaset', AsetNonAktifController::class);
@@ -258,8 +261,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('toko/{tipe}/{toko}', [TokoController::class, 'create'])->middleware('can:data_toko');
     Route::resource('toko', TokoController::class)->middleware('can:data_toko');
     Route::resource('bagian-stok', BagianStokController::class);
-    Route::get('barang/{tipe}/{barang}', [BarangStokController::class, 'create'])->middleware('can:data_barang');
-    Route::resource('barang', BarangStokController::class)->middleware('can:data_barang');
+    Route::get('barang/{tipe}/{barang}', [BarangStokController::class, 'create']);
+    // ->middleware('can:data_barang');
+    Route::resource('barang', BarangStokController::class);
+    // ->middleware('can:data_barang');
     // Route::resource('kontrak-vendor', KontrakVendorController::class);
     Route::get('lokasi-stok/{tipe}', [LokasiStokController::class, 'create'])->middleware('can:data_lokasi_gudang');
     Route::get('lokasi-stok/{tipe}/{id}', [LokasiStokController::class, 'create'])->middleware('can:data_lokasi_gudang');
@@ -307,6 +312,97 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'permintaan-stok' => PermintaanStokController::class,
     ]);
 });
+
+
+function downloadGabunganPdf($id)
+{
+    $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+    $pdf->SetMargins(20, 5, 20);
+    $pdf->SetCreator('Sistem Permintaan');
+    $pdf->SetAuthor('Dinas SDA');
+    $pdf->SetTitle('SPB dan SPPB');
+    $pdf->SetFont('helvetica', '', 10);
+
+    $permintaan = DetailPermintaanMaterial::findOrFail($id);
+    $unit_id = $permintaan->user->unitKerja->id;
+    $permintaan->unit = UnitKerja::find($unit_id);
+    $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
+
+    $pemohon = $permintaan->user;
+    $pemohonRole = $pemohon->roles->pluck('name')->first();
+
+    $kasatpel = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
+        ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Satuan Pelaksana%'))
+        ->first();
+
+    $pemel = User::whereHas('unitKerja', fn($q) => $q->where('parent_id', $unit_id)->where('nama', 'like', '%Pemeliharaan%'))
+        ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Seksi%'))
+        ->first();
+
+    $penjaga = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
+        ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Penjaga Gudang%'))
+        ->where('lokasi_id', $permintaan->gudang_id)
+        ->first();
+
+    $pengurus = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
+        ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Pengurus Barang%'))
+        ->first();
+
+    $kasubag = User::whereHas('unitKerja', fn($q) => $q->where('parent_id', $unit_id)->where('nama', 'like', '%Tata Usaha%'))
+        ->whereHas('roles', fn($q) => $q->where('name', 'like', '%Kepala Subbagian%'))
+        ->first();
+
+    $Rkb = 1;
+    $RKB = 1;
+    $sign = true;
+    $sudin = Str::contains($permintaan->unit->nama, 'Kepulauan')
+        ? 'Kepulauan Seribu'
+        : Str::of($permintaan->unit->nama)->after('Administrasi ');
+    $isSeribu = 0;
+    $withRab = $isSeribu ? $permintaan->permintaanMaterial->first()->rab_id : $permintaan->rab_id;
+
+    // ========== Halaman 1: SPB ==========
+    $htmlSpb = view(!$withRab ? 'pdf.nodin' : ($isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact(
+        'ttdPath',
+        'permintaan',
+        'kasatpel',
+        'pemel',
+        'Rkb',
+        'RKB',
+        'sudin',
+        'isSeribu',
+        'sign',
+        'pemohon',
+        'pemohonRole'
+    ))->render();
+
+    $pdf->AddPage();
+    $pdf->writeHTML($htmlSpb, true, false, true, false, '');
+
+    // ========== Halaman 2: SPPB ==========
+    $htmlSppb = view('pdf.sppb', compact(
+        'ttdPath',
+        'permintaan',
+        'kasatpel',
+        'penjaga',
+        'pengurus',
+        'kasubag',
+        'Rkb',
+        'RKB',
+        'sudin',
+        'isSeribu',
+        'sign',
+        'pemohon',
+        'pemohonRole'
+    ))->render();
+
+    $pdf->AddPage();
+    $pdf->writeHTML($htmlSppb, true, false, true, false, '');
+
+    return response($pdf->Output('', 'S'))
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'attachment; filename="SPB_SPPB.pdf"');
+}
 
 
 Route::view('profile', 'profile')
