@@ -97,22 +97,327 @@ class DriverSecuritySeeder extends Seeder
 
             // Sudin SDA Timur (dummy)
             [
-                'nama' => 'Joni Susilo',
+                'nama' => 'Ahmad Faisal',
                 'nopol' => null,
                 'wilayah' => 'Jakarta Timur'
             ],
             [
-                'nama' => 'Suryadi',
+                'nama' => 'Andi Santoso',
                 'nopol' => null,
                 'wilayah' => 'Jakarta Timur'
             ],
             [
-                'nama' => 'Ahmad Fauzi',
+                'nama' => 'Mustang Edward',
                 'nopol' => null,
                 'wilayah' => 'Jakarta Timur'
             ],
             [
-                'nama' => 'Budi Santoso',
+                'nama' => 'M.Sandi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Madih',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Try Hardono',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Rakhman Hadi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Ahmad Puadih',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Mohammad Toha',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Yusup Efendi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Wacim',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Suwardi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Josrin Manalu',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Iwan Pratama',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Uweng Firdaus',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Abdullah',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Ricky Adol',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Deni S Susilo',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Slamet',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Roy Matroji',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Agus Wahidin',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Abdul Kodir',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Adi Hatta',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Afrizal Muslim',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Agus Budhianto',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Ahmad Muhajir',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Ahmad Nur Hafid',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Ahmad Saiful',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Andi Yudha Pamungkas T A',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Andri',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Anwar Hilman',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Aries Dharmawan',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Aris Sugito',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Armain',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Asep Panji Setiawan',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Bambang Cahyono',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Bobby Rakasiwi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Dawud',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Hendi Suhendi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Hendra',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Idham Maulana Sidik',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Ilhamsyah Tambunan',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Iqbal Wahyudin',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Kardi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'M. Bambang Sudirman',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'M.T Rakhmatan Segonang',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Maman Suparman',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Maradona',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Muhamad Soleh',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Mukhridin',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Parjono',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Reza Imam Cahyadi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Rohiyat',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Ronel Pangaribuan',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Sarjumanto',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Sastra Iskandar',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Setiyono',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Subagdo',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Sugiman',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Taufik Hidayat',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Wahyudin',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Windhu Suryo Wibowo',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Yusup Efendi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Zulkifli Sinaga',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Rohmansyah',
                 'nopol' => null,
                 'wilayah' => 'Jakarta Timur'
             ],
@@ -460,17 +765,61 @@ class DriverSecuritySeeder extends Seeder
                 'wilayah' => 'Jakarta Utara'
             ],
 
-            // Jakarta Timur
+                // Jakarta Timur
             [
-                'nama' => 'Security Gudang Material Jakarta Timur',
+                'nama' => 'Heru Purwanto',
                 'wilayah' => 'Jakarta Timur'
             ],
             [
-                'nama' => 'Security Gudang Peralatan Jakarta Timur',
+                'nama' => 'Agus Supriatna',
                 'wilayah' => 'Jakarta Timur'
             ],
             [
-                'nama' => 'Security Kantor Jakarta Timur',
+                'nama' => 'Djunaedi Kurnia',
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Endang Kusmana',
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Hidayat',
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Fery Tiwa',
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Rusmantoro',
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Tri Cahyana',
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Zakaria',
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Casno',
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Ade Suseno',
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Kholil As\'ari',
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Suhendra',
+                'wilayah' => 'Jakarta Timur'
+            ],
+            [
+                'nama' => 'Achmad Sofiyan',
                 'wilayah' => 'Jakarta Timur'
             ],
 
