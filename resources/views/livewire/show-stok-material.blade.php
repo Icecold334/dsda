@@ -140,11 +140,21 @@
                 </div>
 
                 <div>
-                    <label class="block font-medium">Jumlah Akhir</label>
+                    <label class="block font-medium">Jenis Penyesuaian</label>
+                    <select wire:model="penyesuaian.tipe" class="w-full border rounded p-2">
+                        <option value="tambah">Penambahan</option>
+                        <option value="kurang">Pengurangan</option>
+                    </select>
+                </div>
+
+                <div class="mt-2">
+                    <label class="block font-medium">Jumlah Perubahan</label>
                     <input type="number" wire:model.live="penyesuaian.jumlah" class="w-full border rounded p-2" />
-                    @if ($stokAwal !== null)
-                    <p class="text-sm text-gray-600">Stok di sistem: <strong>{{ $stokAwal }}</strong></p>
-                    @endif
+                    {{-- @if ($jumlahAkhir !== null)
+                    <p class="text-sm text-gray-600">
+                        <strong>Stok akhir:</strong> {{ $jumlahAkhir }}
+                    </p>
+                    @endif --}}
                 </div>
 
                 <div>

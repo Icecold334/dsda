@@ -83,7 +83,7 @@ class DataLogBarangMaterial extends Component
                 return false;
             })
             ->groupBy(function ($trx) {
-                $datetime = Carbon::parse($trx->tanggal)->format('Y-m-d H:i:s');
+                $datetime = Carbon::parse($trx->created_at)->format('Y-m-d H:i');
                 return "{$datetime}|{$trx->lokasi_id}|{$trx->tipe}";
             })
             ->map(function ($items, $key) {
