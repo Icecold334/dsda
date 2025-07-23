@@ -160,59 +160,88 @@ class UnitSeeder extends Seeder
                 ],
             ],
             'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Pusat' => [
-                'kepala' => 'Adrian Mara Maulana, ST, M.Si',
+                // 'kepala' => 'Adrian Mara Maulana, ST, M.Si', // Commented: exists in AkunSudinSeeder
+                'kepala' => 'Kepala Sudin Pusat Dummy', // Use dummy name to avoid conflict
                 'alamat' => 'Jalan Tanah Abang 1 No.1 Blok – D Lt. 7; Telp. 3524849; e-mail : ksdta.jakpus@jakarta.go.id',
                 'sub_units' => [
-                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Evy Af Ida, S.Sos, M.Si'],
-                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Dwi Endah Aryaningrum, ST'],
-                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Citrin Indriati, ST'],
-                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Martineet Felix, ST'],
-                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Yusuf Saut Pangibulan, ST, MPSDA'],
+                    // ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Evy Af Ida, S.Sos, M.Si'], // Commented: different from AkunSudinSeeder
+                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Kepala Subbag TU Pusat Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Perencanaan', 'kepala' => 'Dwi Endah Aryaningrum, ST'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Kepala Seksi Perencanaan Pusat Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Citrin Indriati, ST'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Kepala Seksi Pemeliharaan Pusat Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Martineet Felix, ST'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Kepala Seksi Pembangunan Pusat Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Yusuf Saut Pangibulan, ST, MPSDA'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Kepala Seksi Pompa Pusat Dummy'], // Use dummy name
                 ],
             ],
             'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Utara' => [
-                'kepala' => 'Ir. Ahmad Saipul, MM',
+                // 'kepala' => 'Ir. Ahmad Saipul, MM', // Commented: exists in AkunSudinSeeder
+                'kepala' => 'Kepala Sudin Utara Dummy', // Use dummy name
                 'alamat' => 'Jalan Yos Sudarso No. 27 – 29 Telp./Fax 43902028 e-mail : sudinsdaju@gmail.com',
-
                 'sub_units' => [
-                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Deny Tri Hendarto, SE'],
-                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Apriyani Talaohu, ST, MT'],
-                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Yudo Widiatmoko, ST'],
-                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Boris Karlop Lumbangaol, ST, MT'],
-                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Frans Agustinus Siahaan, ST, MT'],
+                    // ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Deny Tri Hendarto, SE'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Kepala Subbag TU Utara Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Perencanaan', 'kepala' => 'Apriyani Talaohu, ST, MT'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Kepala Seksi Perencanaan Utara Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Yudo Widiatmoko, ST'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Kepala Seksi Pemeliharaan Utara Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Boris Karlop Lumbangaol, ST, MT'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Kepala Seksi Pembangunan Utara Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Frans Agustinus Siahaan, ST, MT'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Kepala Seksi Pompa Utara Dummy'], // Use dummy name
                 ],
             ],
             'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Barat' => [
-                'kepala' => 'Purwanti Suryandari, ST, MM',
+                // 'kepala' => 'Purwanti Suryandari, ST, MM', // Commented: exists in AkunSudinSeeder
+                'kepala' => 'Kepala Sudin Barat Dummy', // Use dummy name
                 'alamat' => 'Jalan Raya Kembangan No. 2 Blok – B Lt.8; Telp. 58356234',
                 'sub_units' => [
-                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Eko Wahyono, SE'],
-                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Islauni Juliana, ST'],
-                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Yopi Maidiza Siregar, ST'],
-                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Imam Prasetyo, ST, MT'],
-                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Wira Yudha Bhakti, ST, MT'],
+                    // ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Eko Wahyono, SE'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Kepala Subbag TU Barat Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Perencanaan', 'kepala' => 'Islauni Juliana, ST'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Kepala Seksi Perencanaan Barat Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Yopi Maidiza Siregar, ST'], // Commented: similar to AkunSudinSeeder
+                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Kepala Seksi Pemeliharaan Barat Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Imam Prasetyo, ST, MT'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Kepala Seksi Pembangunan Barat Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Wira Yudha Bhakti, ST, MT'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Kepala Seksi Pompa Barat Dummy'], // Use dummy name
                 ],
             ],
             'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Selatan' => [
-                'kepala' => 'Santo, SST, M.Si',
+                // 'kepala' => 'Santo, SST, M.Si', // Commented: exists in AkunSudinSeeder
+                'kepala' => 'Kepala Sudin Selatan Dummy', // Use dummy name
                 'alamat' => 'Gedung Walikota Jakarta Selatan Blok C Lt. 9, Jalan Prapanca Raya No. 9 Kebayoran Baru',
                 'sub_units' => [
-                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Siti Nurjannah, M.Si'],
-                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Inge Sukma Yupicha, ST, MT'],
-                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Paulus Junjung, ST'],
-                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Horas Yosua, ST, MT'],
-                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Heriyanto, ST'],
+                    // ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Siti Nurjannah, M.Si'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Kepala Subbag TU Selatan Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Perencanaan', 'kepala' => 'Inge Sukma Yupicha, ST, MT'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Kepala Seksi Perencanaan Selatan Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Paulus Junjung, ST'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Kepala Seksi Pemeliharaan Selatan Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Horas Yosua, ST, MT'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Kepala Seksi Pembangunan Selatan Dummy'], // Use dummy name
+                    // ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Heriyanto, ST'], // Commented: exists in AkunSudinSeeder
+                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Kepala Seksi Pompa Selatan Dummy'], // Use dummy name
                 ],
             ],
             'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Timur' => [
-                'kepala' => 'Ir. Abdul Rauf Gaffar, MT',
+                'kepala' => 'Ir. Abdul Rauf Gaffar, MT', // Commented: exists in AkunSudinSeeder (different title)
+                // 'kepala' => 'Kepala Sudin Timur Dummy', // Use dummy name
                 'alamat' => 'Jalan Dr. Sumarno – Pulogebang Telp. (021) 48703464 e-mail : sda.jttimur@gmail.com',
                 'sub_units' => [
-                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Herawan, SE, MM'],
-                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Fajar Avisena, ST'],
-                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Puryanto Palebangan, ST'],
-                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Tengku Saugi Zikri, ST'],
-                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'John Christian Tarigan, ST'],
+                    ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Herawan, SE, MM'], // Commented: exists in AkunSudinSeeder (different title)
+                    // ['nama' => 'Subbagian Tata Usaha', 'kepala' => 'Kepala Subbag TU Timur Dummy'], // Use dummy name
+                    ['nama' => 'Seksi Perencanaan', 'kepala' => 'Fajar Avisena, ST'], // Commented: exists in AkunSudinSeeder
+                    // ['nama' => 'Seksi Perencanaan', 'kepala' => 'Kepala Seksi Perencanaan Timur Dummy'], // Use dummy name
+                    ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Puryanto Palebangan, ST'], // Commented: exists in AkunSudinSeeder
+                    // ['nama' => 'Seksi Pemeliharaan Drainase', 'kepala' => 'Kepala Seksi Pemeliharaan Timur Dummy'], // Use dummy name
+                    ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Tengku Saugi Zikri, ST'], // Commented: exists in AkunSudinSeeder
+                    // ['nama' => 'Seksi Pembangunan dan Peningkatan Drainase', 'kepala' => 'Kepala Seksi Pembangunan Timur Dummy'], // Use dummy name
+                    ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'John Christian Tarigan, ST'], // Commented: exists in AkunSudinSeeder
+                    // ['nama' => 'Seksi Pengelolaan Sarana Pengendali Banjir, Air Bersih dan Air Limbah', 'kepala' => 'Kepala Seksi Pompa Timur Dummy'], // Use dummy name
                 ],
             ],
             'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu' => [
@@ -684,7 +713,7 @@ class UnitSeeder extends Seeder
         $units = $this->units;
 
 
-        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kepala Satuan Pelaksana', 'Admin Sudin', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang',  'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver', 'P3K'];
+        $roles = ['Penanggung Jawab', 'Anggota', 'Pejabat Pembuat Komitmen', 'Kepala Satuan Pelaksana', 'Admin Sudin', 'Pejabat Pelaksana Teknis Kegiatan', 'Penerima Barang', 'Penjaga Gudang', 'Pemeriksa Barang', 'Pengurus Barang', 'Kepala Seksi', 'Perencanaan', 'Kepala Subbagian Tata Usaha', 'Kepala Seksi Pemeliharaan', 'Kepala Unit', 'Driver', 'P3K'];
 
         $superRole = Role::firstOrCreate([
             'name' => 'superadmin',
@@ -907,7 +936,7 @@ class UnitSeeder extends Seeder
                 $isParentHak = (Str::contains($unitName, ['Sekretariat', 'Bidang', 'Unit', 'Pusat Data']));
                 // Hak sub-unit = 1 jika parentnya memenuhi syarat
                 $hakSubUnit = ($isParentHak) ? 1 : 0;
-                $subUnitEntry =  UnitKerja::create([
+                $subUnitEntry = UnitKerja::create([
                     'nama' => $subUnit['nama'],
                     'kode' => strtoupper(substr(str_replace('Subkelompok', '', $subUnit['nama']), 0, 3)),
                     'parent_id' => $unit->id, // Sub-unit terkait dengan unit
@@ -948,14 +977,16 @@ class UnitSeeder extends Seeder
 
                     $role_name = $role->name == 'Kepala Seksi' ? 'kasie' : 'kasubag';
                     $sub = Str::lower(str_replace(' ', '', str_replace($role->name == 'Kepala Seksi' ? 'Seksi' : 'Subbagian', '', $subUnitEntry->nama)));
-                    $user = User::create([
-                        'email_verified_at' => now(),
-                        'name' => $subUnit['kepala'],
-                        'unit_id' => $subUnitEntry->id,
-                        'email' => $role_name . '.' . $sub . '.' . $sudin . "@test.com",
-                        'password' => bcrypt('test@123'), // Password default
-                    ]);
-                    $user->roles()->attach($role->id);
+                    if (!$isSudinJaktim) {
+                        $user = User::create([
+                            'email_verified_at' => now(),
+                            'name' => $subUnit['kepala'],
+                            'unit_id' => $subUnitEntry->id,
+                            'email' => $role_name . '.' . $sub . '.' . $sudin . "@test.com",
+                            'password' => bcrypt('test@123'), // Password default
+                        ]);
+                        $user->roles()->attach($role->id);
+                    }
                 }
                 // Buat User
 

@@ -96,7 +96,7 @@ class AkunSudinSeeder extends Seeder
         $roleMappings = $sudinData['role_mapping'];
         $users = $sudinData['users'];
 
-        // Track role counts for duplicate roles
+        // Track role counts for duplicate mapped roles
         $roleCounters = [];
 
         foreach ($users as $userData) {
@@ -114,7 +114,7 @@ class AkunSudinSeeder extends Seeder
             foreach ($roleMappings as $rolePattern => $mapping) {
                 if (isset($mapping['has_kecamatan']) && $mapping['has_kecamatan']) {
                     // Extract kecamatan name from user role
-                    if (preg_match('/Ketua Satuan Pelaksana Kecamatan (.+)/', $userData['role'], $matches)) {
+                    if (preg_match('/Ketua Satuan Pelaksana.*Kecamatan (.+)/', $userData['role'], $matches)) {
                         $kecamatanName = $matches[1];
                         $kecamatanSlug = strtolower(str_replace(' ', '', $kecamatanName));
                         $kecamatanId = $kecamatanMapping[$kecamatanName] ?? null;
@@ -131,19 +131,16 @@ class AkunSudinSeeder extends Seeder
                 continue; // Skip if no mapping found
             }
 
-            // Handle role counters for duplicate roles
-            $baseRole = $userData['role'];
-            if (isset($roleMapping['has_kecamatan']) && $roleMapping['has_kecamatan']) {
-                $baseRole = 'Ketua Satuan Pelaksana Kecamatan'; // Group all kasatpel together
-            }
+            $permissionRole = $roleMapping['role'];
 
-            if (!isset($roleCounters[$baseRole])) {
-                $roleCounters[$baseRole] = 1;
+            // Handle role counters for duplicate mapped roles
+            if (!isset($roleCounters[$permissionRole])) {
+                $roleCounters[$permissionRole] = 1;
             } else {
-                $roleCounters[$baseRole]++;
+                $roleCounters[$permissionRole]++;
             }
 
-            // Generate email
+            // Generate email based on mapped role
             $email = $roleMapping['email_template'];
             $email = str_replace('{wilayah}', $wilayah, $email);
 
@@ -151,12 +148,16 @@ class AkunSudinSeeder extends Seeder
                 $email = str_replace('{kecamatan_slug}', $kecamatanSlug, $email);
             }
 
-            // Add counter for duplicate roles
+            // Add counter for duplicate mapped roles
             if (strpos($email, '{counter}') !== false) {
-                $email = str_replace('{counter}', $roleCounters[$baseRole], $email);
+                $email = str_replace('{counter}', $roleCounters[$permissionRole], $email);
+            } elseif ($roleCounters[$permissionRole] > 1) {
+                // Add numbering for duplicate roles that don't have {counter} placeholder
+                $emailParts = explode('@', $email);
+                // $emailParts[0] = $emailParts[0] . $roleCounters[$permissionRole];
+                $emailParts[0] = $emailParts[0];
+                $email = implode('@', $emailParts);
             }
-
-            $permissionRole = $roleMapping['role'];
 
             // Tentukan unit berdasarkan role
             $targetUnit = $unit; // Default ke unit utama
@@ -187,7 +188,7 @@ class AkunSudinSeeder extends Seeder
                 $userCreateData['kecamatan_id'] = $kecamatanId;
             }
 
-            $user = User::firstOrCreate(
+            $user = User::updateOrCreate(
                 ['email' => $email],
                 $userCreateData
             );
@@ -232,8 +233,8 @@ class AkunSudinSeeder extends Seeder
                 'Staf Seksi Perencanaan' => ['role' => 'Perencanaan', 'email_template' => 'perencanaan.{wilayah}{counter}@test.com'],
                 'Kepala Sub Bagian Tata Usaha' => ['role' => 'Kepala Subbagian Tata Usaha', 'email_template' => 'kasubagtu.{wilayah}@test.com'],
                 'Pembantu Pengurus Barang I' => ['role' => 'Pengurus Barang', 'email_template' => 'pb.{wilayah}@test.com'],
-                'Pembantu Pengelola Gudang Material' => ['role' => 'Pengelola Gudang', 'email_template' => 'pgm.{wilayah}@test.com'],
-                'Administrasi' => ['role' => 'Administrasi', 'email_template' => 'admin.{wilayah}{counter}@test.com'],
+                'Pembantu Pengelola Gudang Material' => ['role' => 'Pengurus Barang', 'email_template' => 'pgm.{wilayah}@test.com'],
+                'Administrasi' => ['role' => 'Pengurus Barang', 'email_template' => 'admin.{wilayah}{counter}@test.com'],
                 'Kepala Seksi Pemeliharaan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasipemel.{wilayah}@test.com'],
                 'Tim Pendukung PPK' => ['role' => 'P3K', 'email_template' => 'p3k.{wilayah}{counter}@test.com'],
                 'Ketua Satuan Pelaksana Kecamatan {kecamatan}' => ['role' => 'Kepala Satuan Pelaksana', 'email_template' => 'kasatpel.{wilayah}.{kecamatan_slug}@test.com', 'has_kecamatan' => true],
@@ -295,197 +296,7 @@ class AkunSudinSeeder extends Seeder
         ];
     }
 
-    /*
-    private function seedSudinTimur(): void
-    {
-        $unit = UnitKerja::where('nama', 'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Timur')->first();
 
-        if (!$unit) {
-            throw new \Exception('Unit Jakarta Timur tidak ditemukan.');
-        }
-
-        $this->seedSudinAccounts($unit, $this->getTimurData());
-    }
-
-    private function getTimurData(): array
-    {
-        return [
-            'wilayah' => 'timur',
-            'kecamatan_mapping' => [
-                'Matraman' => 33,
-                'Pulogadung' => 34,
-                'Jatinegara' => 35,
-                'Duren Sawit' => 36,
-                'Kramat Jati' => 37,
-                'Makasar' => 38,
-                'Cipayung' => 39,
-                'Ciracas' => 40,
-                'Pasar Rebo' => 41,
-                'Cakung' => 42,
-            ],
-            'role_mapping' => [
-                'Kepala Suku Dinas' => ['role' => 'Kepala Suku Dinas', 'email_template' => 'kasudin.{wilayah}@test.com'],
-                'Kepala Seksi Perencanaan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_perencanaan.{wilayah}@test.com'],
-                'Staf Seksi Perencanaan' => ['role' => 'Perencanaan', 'email_template' => 'perencanaan.{wilayah}{counter}@test.com'],
-                'Kepala Sub Bagian Tata Usaha' => ['role' => 'Kepala Subbagian Tata Usaha', 'email_template' => 'kasubagtu.{wilayah}@test.com'],
-                'Pembantu Pengurus Barang I' => ['role' => 'Pengurus Barang', 'email_template' => 'pb.{wilayah}@test.com'],
-                'Pembantu Pengelola Gudang Material' => ['role' => 'Pengelola Gudang', 'email_template' => 'pgm.{wilayah}@test.com'],
-                'Administrasi' => ['role' => 'Administrasi', 'email_template' => 'admin.{wilayah}{counter}@test.com'],
-                'Kepala Seksi Pemeliharaan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasipemel.{wilayah}@test.com'],
-                'Tim Pendukung PPK' => ['role' => 'P3K', 'email_template' => 'p3k.{wilayah}{counter}@test.com'],
-                'Ketua Satuan Pelaksana Kecamatan {kecamatan}' => ['role' => 'Kepala Satuan Pelaksana', 'email_template' => 'kasatpel.{wilayah}.{kecamatan_slug}@test.com', 'has_kecamatan' => true],
-                'Kepala Seksi Pembangunan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_pembangunan.{wilayah}@test.com'],
-                'Kepala Seksi Pompa' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_pompa.{wilayah}@test.com'],
-            ],
-            'users' => [
-                // PIMPINAN (Data Dummy)
-                ['role' => 'Kepala Suku Dinas', 'nama' => 'Dr. Budi Santoso, ST, MT', 'nip' => '196801151995031001'],
-
-                // SEKSI PERENCANAAN (Data Dummy)
-                ['role' => 'Kepala Seksi Perencanaan', 'nama' => 'Siti Rahayu, ST, MT', 'nip' => '197505102008042002'],
-                ['role' => 'Staf Seksi Perencanaan', 'nama' => 'Ahmad Firdaus, ST', 'nip' => '198812152019031010'],
-                ['role' => 'Staf Seksi Perencanaan', 'nama' => 'Maya Sari, A.Md', 'nip' => '199206082020122015'],
-                ['role' => 'Staf Seksi Perencanaan', 'nama' => 'Rudi Hartono', 'nip' => '197408162009041002'],
-
-                // BAGIAN TATA USAHA (Data Dummy)
-                ['role' => 'Kepala Sub Bagian Tata Usaha', 'nama' => 'Bambang Sulistyo, SE', 'nip' => '198005122010011018'],
-                ['role' => 'Pembantu Pengurus Barang I', 'nama' => 'Hendra Gunawan', 'nip' => '197912042009041004'],
-                ['role' => 'Pembantu Pengelola Gudang Material', 'nama' => 'Eko Purnomo', 'nip' => '198309152009041006'],
-                ['role' => 'Administrasi', 'nama' => 'Dewi Kartini', 'nip' => '80657891'],
-                ['role' => 'Administrasi', 'nama' => 'Agus Setiawan', 'nip' => '80342156'],
-
-                // SEKSI PEMELIHARAAN (Data Dummy)
-                ['role' => 'Kepala Seksi Pemeliharaan', 'nama' => 'Indra Kusuma, ST, MT', 'nip' => '198207152010011011'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Joko Widodo', 'nip' => '197806192009041003'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Rani Mulyani, ST', 'nip' => '198504122010012009'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Yoga Pratama', 'nip' => '199001082020121008'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Sri Wahyuni', 'nip' => '198712292014122005'],
-
-                // SATUAN PELAKSANA KECAMATAN (Data Dummy)
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Matraman', 'nama' => 'Andi Wijaya, ST', 'nip' => '197203121996031002'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Pulogadung', 'nama' => 'Lina Sari, ST', 'nip' => '198006192010012011'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Jatinegara', 'nama' => 'Dedi Firmansyah, ST', 'nip' => '197509082009041005'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Duren Sawit', 'nama' => 'Nina Kurnia, ST', 'nip' => '198201152014122006'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Kramat Jati', 'nama' => 'Hadi Suprianto, ST', 'nip' => '197807102009041007'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Makasar', 'nama' => 'Fitri Handayani, ST', 'nip' => '198403222010012013'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Cipayung', 'nama' => 'Arief Rahman, ST', 'nip' => '197612142009041008'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Ciracas', 'nama' => 'Sari Dewi, ST', 'nip' => '198508172010012014'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Pasar Rebo', 'nama' => 'Toni Hermawan, ST', 'nip' => '197704252009041009'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Cakung', 'nama' => 'Rina Marlina, ST', 'nip' => '198711082010012015'],
-
-                // SEKSI PEMBANGUNAN (Data Dummy)
-                ['role' => 'Kepala Seksi Pembangunan', 'nama' => 'Fajar Nugroho, ST, MT', 'nip' => '198410052010011024'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Eko Budiono', 'nip' => '197905192009041010'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Wati Susilowati', 'nip' => '198608142010012016'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Heru Santoso', 'nip' => '199203112020121011'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Lisa Permata, ST', 'nip' => '199506282019032017'],
-
-                // SEKSI POMPA (Data Dummy)
-                ['role' => 'Kepala Seksi Pompa', 'nama' => 'Ridwan Kamil, ST, MT', 'nip' => '198603112010011026'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Adi Suryana', 'nip' => '197704082009041012'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Putri Handayani', 'nip' => '198809202014122018'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Benny Kurniawan', 'nip' => '199108152020121013'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Ratna Sari, ST', 'nip' => '199407182019032019'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Wahyu Pratama', 'nip' => '198502032009041014'],
-            ]
-        ];
-    }
-    */
-
-    private function seedSudinTimur(): void
-    {
-        $unit = UnitKerja::where('nama', 'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Timur')->first();
-
-        if (!$unit) {
-            throw new \Exception('Unit Jakarta Timur tidak ditemukan.');
-        }
-
-        $this->seedSudinAccounts($unit, $this->getTimurData());
-    }
-
-    private function getTimurData(): array
-    {
-        return [
-            'wilayah' => 'timur',
-            'kecamatan_mapping' => [
-                'Matraman' => 33,
-                'Pulogadung' => 34,
-                'Jatinegara' => 35,
-                'Duren Sawit' => 36,
-                'Kramat Jati' => 37,
-                'Makasar' => 38,
-                'Cipayung' => 39,
-                'Ciracas' => 40,
-                'Pasar Rebo' => 41,
-                'Cakung' => 42,
-            ],
-            'role_mapping' => [
-                'Kepala Suku Dinas' => ['role' => 'Kepala Suku Dinas', 'email_template' => 'kasudin.{wilayah}@test.com'],
-                'Kepala Seksi Perencanaan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_perencanaan.{wilayah}@test.com'],
-                'Staf Seksi Perencanaan' => ['role' => 'Perencanaan', 'email_template' => 'perencanaan.{wilayah}{counter}@test.com'],
-                'Kepala Sub Bagian Tata Usaha' => ['role' => 'Kepala Subbagian Tata Usaha', 'email_template' => 'kasubagtu.{wilayah}@test.com'],
-                'Pembantu Pengurus Barang I' => ['role' => 'Pengurus Barang', 'email_template' => 'pb.{wilayah}@test.com'],
-                'Pembantu Pengelola Gudang Material' => ['role' => 'Pengelola Gudang', 'email_template' => 'pgm.{wilayah}@test.com'],
-                'Administrasi' => ['role' => 'Administrasi', 'email_template' => 'admin.{wilayah}{counter}@test.com'],
-                'Kepala Seksi Pemeliharaan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasipemel.{wilayah}@test.com'],
-                'Tim Pendukung PPK' => ['role' => 'P3K', 'email_template' => 'p3k.{wilayah}{counter}@test.com'],
-                'Ketua Satuan Pelaksana Kecamatan {kecamatan}' => ['role' => 'Kepala Satuan Pelaksana', 'email_template' => 'kasatpel.{wilayah}.{kecamatan_slug}@test.com', 'has_kecamatan' => true],
-                'Kepala Seksi Pembangunan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_pembangunan.{wilayah}@test.com'],
-                'Kepala Seksi Pompa' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_pompa.{wilayah}@test.com'],
-            ],
-            'users' => [
-                // PIMPINAN (Data Dummy)
-                ['role' => 'Kepala Suku Dinas', 'nama' => 'Dr. Budi Santoso, ST, MT', 'nip' => '196801151995031001'],
-
-                // SEKSI PERENCANAAN (Data Dummy)
-                ['role' => 'Kepala Seksi Perencanaan', 'nama' => 'Siti Rahayu, ST, MT', 'nip' => '197505102008042002'],
-                ['role' => 'Staf Seksi Perencanaan', 'nama' => 'Ahmad Firdaus, ST', 'nip' => '198812152019031010'],
-                ['role' => 'Staf Seksi Perencanaan', 'nama' => 'Maya Sari, A.Md', 'nip' => '199206082020122015'],
-                ['role' => 'Staf Seksi Perencanaan', 'nama' => 'Rudi Hartono', 'nip' => '197408162009041002'],
-
-                // BAGIAN TATA USAHA (Data Dummy)
-                ['role' => 'Kepala Sub Bagian Tata Usaha', 'nama' => 'Bambang Sulistyo, SE', 'nip' => '198005122010011018'],
-                ['role' => 'Pembantu Pengurus Barang I', 'nama' => 'Hendra Gunawan', 'nip' => '197912042009041004'],
-                ['role' => 'Pembantu Pengelola Gudang Material', 'nama' => 'Eko Purnomo', 'nip' => '198309152009041006'],
-                ['role' => 'Administrasi', 'nama' => 'Dewi Kartini', 'nip' => '80657891'],
-                ['role' => 'Administrasi', 'nama' => 'Agus Setiawan', 'nip' => '80342156'],
-
-                // SEKSI PEMELIHARAAN (Data Dummy)
-                ['role' => 'Kepala Seksi Pemeliharaan', 'nama' => 'Indra Kusuma, ST, MT', 'nip' => '198207152010011011'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Joko Widodo', 'nip' => '197806192009041003'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Rani Mulyani, ST', 'nip' => '198504122010012009'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Yoga Pratama', 'nip' => '199001082020121008'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Sri Wahyuni', 'nip' => '198712292014122005'],
-
-                // SATUAN PELAKSANA KECAMATAN (Data Dummy)
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Matraman', 'nama' => 'Andi Wijaya, ST', 'nip' => '197203121996031002'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Pulogadung', 'nama' => 'Lina Sari, ST', 'nip' => '198006192010012011'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Jatinegara', 'nama' => 'Dedi Firmansyah, ST', 'nip' => '197509082009041005'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Duren Sawit', 'nama' => 'Nina Kurnia, ST', 'nip' => '198201152014122006'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Kramat Jati', 'nama' => 'Hadi Suprianto, ST', 'nip' => '197807102009041007'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Makasar', 'nama' => 'Fitri Handayani, ST', 'nip' => '198403222010012013'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Cipayung', 'nama' => 'Arief Rahman, ST', 'nip' => '197612142009041008'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Ciracas', 'nama' => 'Sari Dewi, ST', 'nip' => '198508172010012014'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Pasar Rebo', 'nama' => 'Toni Hermawan, ST', 'nip' => '197704252009041009'],
-                ['role' => 'Ketua Satuan Pelaksana Kecamatan Cakung', 'nama' => 'Rina Marlina, ST', 'nip' => '198711082010012015'],
-
-                // SEKSI PEMBANGUNAN (Data Dummy)
-                ['role' => 'Kepala Seksi Pembangunan', 'nama' => 'Fajar Nugroho, ST, MT', 'nip' => '198410052010011024'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Eko Budiono', 'nip' => '197905192009041010'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Wati Susilowati', 'nip' => '198608142010012016'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Heru Santoso', 'nip' => '199203112020121011'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Lisa Permata, ST', 'nip' => '199506282019032017'],
-
-                // SEKSI POMPA (Data Dummy)
-                ['role' => 'Kepala Seksi Pompa', 'nama' => 'Ridwan Kamil, ST, MT', 'nip' => '198603112010011026'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Adi Suryana', 'nip' => '197704082009041012'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Putri Handayani', 'nip' => '198809202014122018'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Benny Kurniawan', 'nip' => '199108152020121013'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Ratna Sari, ST', 'nip' => '199407182019032019'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'Wahyu Pratama', 'nip' => '198502032009041014'],
-            ]
-        ];
-    }
 
     private function seedSudinSelatan(): void
     {
@@ -597,6 +408,16 @@ class AkunSudinSeeder extends Seeder
                 'Staf Seksi Perencanaan' => ['role' => 'Perencanaan', 'email_template' => 'perencanaan.{wilayah}@test.com'],
                 'Kepala Sub Bagian Tata Usaha' => ['role' => 'Kepala Subbagian Tata Usaha', 'email_template' => 'kasubagtu.{wilayah}@test.com'],
                 'Pembantu Pengurus Barang I' => ['role' => 'Pengurus Barang', 'email_template' => 'pb.{wilayah}@test.com'],
+                'Admin Pengurus Barang I' => ['role' => 'Pengurus Barang', 'email_template' => 'apb1.{wilayah}@test.com'],
+                'Admin Pengurus Barang II' => ['role' => 'Pengurus Barang', 'email_template' => 'apb2.{wilayah}@test.com'],
+                'Admin Gudang I Mercu Buana' => ['role' => 'Pengurus Barang', 'email_template' => 'ag1.mercubuana.{wilayah}@test.com'],
+                'Admin Gudang II Mercu Buana' => ['role' => 'Pengurus Barang', 'email_template' => 'ag2.mercubuana.{wilayah}@test.com'],
+                'Admin Gudang I Posko Kembangan' => ['role' => 'Pengurus Barang', 'email_template' => 'ag1.poskokembangan.{wilayah}@test.com'],
+                'Admin Gudang II Posko Kembangan' => ['role' => 'Pengurus Barang', 'email_template' => 'ag2.poskokembangan.{wilayah}@test.com'],
+                'Admin Gudang I Pos Pengumben' => ['role' => 'Pengurus Barang', 'email_template' => 'ag1.pospengumben.{wilayah}@test.com'],
+                'Admin Gudang II Pos Pengumben' => ['role' => 'Pengurus Barang', 'email_template' => 'ag2.pospengumben.{wilayah}@test.com'],
+                'Admin Gudang Perumnas' => ['role' => 'Pengurus Barang', 'email_template' => 'ag.perumnas.{wilayah}@test.com'],
+                'Admin Gudang Tomang Barat' => ['role' => 'Pengurus Barang', 'email_template' => 'ag.tomangbarat.{wilayah}@test.com'],
                 'Kepala Seksi Pemeliharaan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasipemel.{wilayah}@test.com'],
                 'Tim Pendukung PPK' => ['role' => 'P3K', 'email_template' => 'p3k.{wilayah}{counter}@test.com'],
                 'Ketua Satuan Pelaksana Kecamatan {kecamatan}' => ['role' => 'Kepala Satuan Pelaksana', 'email_template' => 'kasatpel.{wilayah}.{kecamatan_slug}@test.com', 'has_kecamatan' => true],
@@ -615,6 +436,16 @@ class AkunSudinSeeder extends Seeder
                 // BAGIAN TATA USAHA
                 ['role' => 'Kepala Sub Bagian Tata Usaha', 'nama' => 'Eko Wahyono, SE', 'nip' => '197802031998031004'],
                 ['role' => 'Pembantu Pengurus Barang I', 'nama' => 'Mokhamad Zahroni', 'nip' => '199711012020121004'],
+                ['role' => 'Admin Pengurus Barang I', 'nama' => 'Noval Kurnain', 'nip' => '80028371'],
+                ['role' => 'Admin Pengurus Barang II', 'nama' => 'Elsa Puty Maulidia', 'nip' => '80167071'],
+                ['role' => 'Admin Gudang I Mercu Buana', 'nama' => 'Aminullah', 'nip' => '80030480'],
+                ['role' => 'Admin Gudang II Mercu Buana', 'nama' => 'Dodi Pramana Putra', 'nip' => '80243518'],
+                ['role' => 'Admin Gudang I Posko Kembangan', 'nama' => 'Umar', 'nip' => '80095225'],
+                ['role' => 'Admin Gudang II Posko Kembangan', 'nama' => 'Ahmad Mawardy', 'nip' => '80239907'],
+                ['role' => 'Admin Gudang I Pos Pengumben', 'nama' => 'Agus Mawardin', 'nip' => '80450116'],
+                ['role' => 'Admin Gudang II Pos Pengumben', 'nama' => 'Arfan Faisal', 'nip' => '80243446'],
+                ['role' => 'Admin Gudang Perumnas', 'nama' => 'Fitra Al Ramadhan', 'nip' => '80341567'],
+                ['role' => 'Admin Gudang Tomang Barat', 'nama' => 'Agus Mawardin', 'nip' => '80450116'],
 
                 // SEKSI PEMELIHARAAN
                 ['role' => 'Kepala Seksi Pemeliharaan', 'nama' => 'Yopi Naidiza Siregar, ST', 'nip' => '197905222010011016'],
@@ -649,8 +480,92 @@ class AkunSudinSeeder extends Seeder
                 ['role' => 'Tim Pendukung PPK', 'nama' => 'Thomas Lisdiyantoko', 'nip' => '199608292020121007'],
                 ['role' => 'Tim Pendukung PPK', 'nama' => 'Hesti Pratiwi', 'nip' => '199508232019032012'],
                 ['role' => 'Tim Pendukung PPK', 'nama' => 'Suhaliman', 'nip' => '197804102009041002'],
-                ['role' => 'Tim Pendukung PPK', 'nama' => 'M usman Harun', 'nip' => '196811201990081001'],
+                ['role' => 'Tim Pendukung PPK', 'nama' => 'M Usman Harun', 'nip' => '196811201990081001'],
                 ['role' => 'Tim Pendukung PPK', 'nama' => 'Mujibul Anwar', 'nip' => '198301032010011011'],
+            ]
+        ];
+    }
+
+    private function seedSudinTimur(): void
+    {
+        $unit = UnitKerja::where('nama', 'Suku Dinas Sumber Daya Air Kota Administrasi Jakarta Timur')->first();
+
+        if (!$unit) {
+            throw new \Exception('Unit Jakarta Timur tidak ditemukan.');
+        }
+
+        $this->seedSudinAccounts($unit, $this->getTimurData());
+    }
+
+    private function getTimurData(): array
+    {
+        return [
+            'wilayah' => 'timur',
+            'kecamatan_mapping' => [
+                'Matraman' => 33,
+                'Pulo Gadung' => 34,
+                'Jatinegara' => 35,
+                'Duren Sawit' => 36,
+                'Kramat Jati' => 37,
+                'Makasar' => 38,
+                'Cipayung' => 39,
+                'Ciracas' => 40,
+                'Pasar Rebo' => 41,
+                'Cakung' => 42,
+            ],
+            'role_mapping' => [
+                'Kepala Suku Dinas' => ['role' => 'Kepala Suku Dinas', 'email_template' => 'kasudin.{wilayah}@test.com'],
+                'Kepala Seksi Perencanaan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_perencanaan.{wilayah}@test.com'],
+                'Staf Seksi Perencanaan' => ['role' => 'Perencanaan', 'email_template' => 'perencanaan.{wilayah}@test.com'],
+                'Kepala Sub Bagian Tata Usaha' => ['role' => 'Kepala Subbagian Tata Usaha', 'email_template' => 'kasubagtu.{wilayah}@test.com'],
+                'Pembantu Pengurus Barang I' => ['role' => 'Pengurus Barang', 'email_template' => 'pb.{wilayah}@test.com'],
+                'Admin Gudang I' => ['role' => 'Pengurus Barang', 'email_template' => 'admin_gudang1.{wilayah}@test.com'],
+                'Admin Gudang II' => ['role' => 'Pengurus Barang', 'email_template' => 'admin_gudang2.{wilayah}@test.com'],
+                'Admin Gudang III' => ['role' => 'Pengurus Barang', 'email_template' => 'admin_gudang3.{wilayah}@test.com'],
+                'Kepala Seksi Pemeliharaan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasipemel.{wilayah}@test.com'],
+                'Tim Pendukung PPK' => ['role' => 'P3K', 'email_template' => 'p3k.{wilayah}{counter}@test.com'],
+                'Ketua Satuan Pelaksana Kecamatan {kecamatan}' => ['role' => 'Kepala Satuan Pelaksana', 'email_template' => 'kasatpel.{wilayah}.{kecamatan_slug}@test.com', 'has_kecamatan' => true],
+                'Kepala Seksi Pembangunan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_pembangunan.{wilayah}@test.com'],
+                'Kepala Seksi Pompa' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_pompa.{wilayah}@test.com'],
+            ],
+            'users' => [
+                // PIMPINAN
+                ['role' => 'Kepala Suku Dinas', 'nama' => 'Abdul Rauf Gaffar', 'nip' => '196912101998031008'],
+
+                // SEKSI PERENCANAAN
+                ['role' => 'Kepala Seksi Perencanaan', 'nama' => 'Fajar Avisena', 'nip' => '197811182010011019'],
+                ['role' => 'Staf Seksi Perencanaan', 'nama' => 'Krista Wulansari', 'nip' => '198602242010012034'],
+
+                // BAGIAN TATA USAHA
+                ['role' => 'Kepala Sub Bagian Tata Usaha', 'nama' => 'Herawan', 'nip' => '197410021996031002'],
+                ['role' => 'Pembantu Pengurus Barang I', 'nama' => 'Reza Perdana Kameswara', 'nip' => '197712122009041003'],
+                ['role' => 'Admin Gudang I', 'nama' => 'Achmad Zulkifli', 'nip' => '80297938'],
+                ['role' => 'Admin Gudang II', 'nama' => 'Mufli Ramsi', 'nip' => '80153456'],
+                ['role' => 'Admin Gudang III', 'nama' => 'Dea Rizky Pradnya', 'nip' => '80433247'],
+
+                // SEKSI PEMELIHARAAN
+                ['role' => 'Kepala Seksi Pemeliharaan', 'nama' => 'Puryanto Palebangan', 'nip' => '198111052010011018'],
+                ['role' => 'Tim Pendukung PPK', 'nama' => 'Dian Kartika Eka S', 'nip' => '198103182010012022'],
+
+                // SATUAN PELAKSANA KECAMATAN
+                ['role' => 'Ketua Satuan Pelaksana Kecamatan Cakung', 'nama' => 'Dian Nur Cahyono', 'nip' => '198307272010011039'],
+                ['role' => 'Ketua Satuan Pelaksana Kecamatan Cipayung', 'nama' => 'Dian Kartika Eka S', 'nip' => '198103182010012022'],
+                ['role' => 'Ketua Satuan Pelaksana Kecamatan Ciracas', 'nama' => 'Yulia Indah', 'nip' => '198707162010012028'],
+                ['role' => 'Ketua Satuan Pelaksana Kecamatan Duren Sawit', 'nama' => 'Achmad Dody Firmansyah', 'nip' => '197103241998031006'],
+                ['role' => 'Ketua Satuan Pelaksana Kecamatan Jatinegara', 'nama' => 'Robby Triawan', 'nip' => '197903282010011014'],
+                ['role' => 'Ketua Satuan Pelaksana Kecamatan Kramat Jati', 'nama' => 'Muchlis', 'nip' => '197010161998031006'],
+                ['role' => 'Ketua Satuan Pelaksana Kecamatan Makasar', 'nama' => 'Nurdin', 'nip' => '197810112009041001'],
+                ['role' => 'Ketua Satuan Pelaksana Kecamatan Matraman', 'nama' => 'Sugeng Sugiono', 'nip' => '196803231995031002'],
+                ['role' => 'Ketua Satuan Pelaksana Kecamatan Pasar Rebo', 'nama' => 'Nana Juhana', 'nip' => '196809271995031003'],
+                ['role' => 'Ketua Satuan Pelaksana Kecamatan Pulo Gadung', 'nama' => 'Didi Rusdiana', 'nip' => '197607252009041001'],
+
+                // SEKSI PEMBANGUNAN
+                ['role' => 'Kepala Seksi Pembangunan', 'nama' => 'Tengku Saugi Zikri', 'nip' => '198501312010011012'],
+                ['role' => 'Tim Pendukung PPK', 'nama' => 'Yulia Indah', 'nip' => '198707162010012028'],
+
+                // SEKSI POMPA
+                ['role' => 'Kepala Seksi Pompa', 'nama' => 'John Christian Tarigan', 'nip' => '196911102014121003'],
+                ['role' => 'Tim Pendukung PPK', 'nama' => 'Krista Wulansari', 'nip' => '198602242010012034'],
             ]
         ];
     }

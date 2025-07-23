@@ -360,6 +360,7 @@ function downloadGabunganPdf($id)
         : Str::of($permintaan->unit->nama)->after('Administrasi ');
     $isSeribu = 0;
     $withRab = $isSeribu ? $permintaan->permintaanMaterial->first()->rab_id : $permintaan->rab_id;
+
     $approvedUsers = $permintaan->persetujuan()
         ->where('is_approved', 1)
         ->get()
