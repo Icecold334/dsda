@@ -48,7 +48,7 @@ class ApprovalPengirimanMaterial extends Component
             $this->files = [];
         }
         $this->user = Auth::user();
-        $this->roles = ['Pengurus Barang', 'Pejabat Pelaksana Teknis Kegiatan', 'Pejabat Pembuat Komitmen'];
+        $this->roles = ['Pengurus Barang', 'Kepala Seksi', 'Kepala Suku Dinas'];
         $this->roleLists = [];
         $this->lastRoles = [];
 
@@ -80,6 +80,11 @@ class ApprovalPengirimanMaterial extends Component
                 ->get();
 
 
+            if ($role == 'Kepala Seksi') {
+                $role = 'Pejabat Pelaksana Teknis Kegiatan';
+            } elseif ($role == 'Kepala Suku Dinas') {
+                $role = 'Pejabat Pembuat Komitmen';
+            }
             $propertyKey = Str::slug($role); // Generate dynamic key for roles
             $this->roleLists[$propertyKey] = $users;
             $this->lastRoles[$propertyKey] = $users->search(fn($user) => $user->id == Auth::id()) === $users->count() - 1;

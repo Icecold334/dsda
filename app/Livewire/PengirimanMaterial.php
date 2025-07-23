@@ -211,6 +211,7 @@ class PengirimanMaterial extends Component
     public function mount()
     {
         $this->listGudang = LokasiStok::where('unit_id', Auth::user()->unit_id)->get();
+        // dd($this->listGudang);
     }
 
     public function render()

@@ -328,9 +328,11 @@ class AkunSudinSeeder extends Seeder
             'role_mapping' => [
                 'Kepala Suku Dinas' => ['role' => 'Kepala Suku Dinas', 'email_template' => 'kasudin.{wilayah}@test.com'],
                 'Kepala Seksi Perencanaan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_perencanaan.{wilayah}@test.com'],
+                'Staf Seksi Perencanaan' => ['role' => 'Perencanaan', 'email_template' => 'perencanaan.{wilayah}@test.com'],
                 'Kepala Sub Bagian Tata Usaha' => ['role' => 'Kepala Subbagian Tata Usaha', 'email_template' => 'kasubagtu.{wilayah}@test.com'],
                 'Pembantu Pengurus Barang I' => ['role' => 'Pengurus Barang', 'email_template' => 'pb.{wilayah}@test.com'],
                 'Kepala Seksi Pemeliharaan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasipemel.{wilayah}@test.com'],
+                'Tim Pendukung PPK' => ['role' => 'P3K', 'email_template' => 'p3k.{wilayah}{counter}@test.com'],
                 'Ketua Satuan Pelaksana Kecamatan {kecamatan}' => ['role' => 'Kepala Satuan Pelaksana', 'email_template' => 'kasatpel.{wilayah}.{kecamatan_slug}@test.com', 'has_kecamatan' => true],
                 'Kepala Seksi Pembangunan' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_pembangunan.{wilayah}@test.com'],
                 'Kepala Seksi Pompa' => ['role' => 'Kepala Seksi', 'email_template' => 'kasie_pompa.{wilayah}@test.com'],
@@ -348,6 +350,11 @@ class AkunSudinSeeder extends Seeder
 
                 // SEKSI PEMELIHARAAN
                 ['role' => 'Kepala Seksi Pemeliharaan', 'nama' => 'Paulus Junjung, ST', 'nip' => '198004142010011032'],
+                // P3K
+                ['role' => 'Tim Pendukung PPK', 'nama' => fake()->name(), 'nip' => fake()->numerify('###########')],
+                ['role' => 'Tim Pendukung PPK', 'nama' => fake()->name(), 'nip' => fake()->numerify('###########')],
+                ['role' => 'Tim Pendukung PPK', 'nama' => fake()->name(), 'nip' => fake()->numerify('###########')],
+                ['role' => 'Tim Pendukung PPK', 'nama' => fake()->name(), 'nip' => fake()->numerify('###########')],
 
                 // SATUAN PELAKSANA KECAMATAN
                 ['role' => 'Ketua Satuan Pelaksana Kecamatan Cilandak', 'nama' => 'Yansori, ST', 'nip' => '196901312009041001'],

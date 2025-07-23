@@ -154,7 +154,7 @@
         const listDrivers = @json($listDrivers);
         const listSecurities = @json($listSecurities);
 
-        if (currentRole.includes('Kepala Subbagian')) {
+        if (currentRole.includes('Kepala Subbagian Tata Usaha')) {
             Swal.fire({
                 title: 'Input Nomor SPPB',
                 input: 'text',

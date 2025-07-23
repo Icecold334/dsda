@@ -64,7 +64,9 @@ class ShowPermintaanMaterial extends Component
         $RKB = $this->RKB;
         $sudin = $this->sudin;
         $isSeribu = $this->isSeribu;
-        $html = view('pdf.surat-jalan', compact('permintaan', 'kasatpel', 'penjaga', 'pengurus', 'ttdPath', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'sign'))->render();
+        $pemohon = $permintaan->user;
+        $pemohonRole = $pemohon->roles->pluck('name')->first(); // ambil 1 role
+        $html = view('pdf.surat-jalan', compact('permintaan', 'kasatpel', 'penjaga', 'pemohon', 'pemohonRole', 'pengurus', 'ttdPath', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'sign'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
@@ -345,13 +347,13 @@ class ShowPermintaanMaterial extends Component
     public function qrCode()
     {
         $kode = $this->permintaan->kode_permintaan;
-
         // Path filesystem yang benar
         $path = storage_path('app/public/qr_permintaan_material/' . $kode . '.png');
+        // dd($path);
 
-        if (!file_exists($path)) {
-            abort(404, 'QR Code not found.');
-        }
+        // if (!file_exists($path)) {
+        //     abort(404, 'QR Code not found.');
+        // }
         $this->statusRefresh();
 
         return response()->download($path, $kode . '.png');
@@ -368,7 +370,6 @@ class ShowPermintaanMaterial extends Component
 
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 11, '', '',);
-        $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
 
         $permintaan = $this->permintaan;
         $unit_id = $this->unit_id;
@@ -398,10 +399,23 @@ class ShowPermintaanMaterial extends Component
         } else {
             $withRab = $this->permintaan->rab_id;
         }
+
+        $approvedUsers = $this->permintaan->persetujuan()
+            ->where('is_approved', 1)
+            ->get()
+            ->pluck('user_id')
+            ->unique();
+
+        $usersWithRoles = \App\Models\User::whereIn('id', $approvedUsers)->with('roles')->get();
+        $pemelDone = $usersWithRoles->contains(function ($user) {
+            return $user->hasRole('Kepala Seksi');
+        });
         // dd(
         //     !$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb')
         // );
-        $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact('ttdPath', 'pemohon', 'pemohonRole', 'permintaan', 'kasatpel', 'pemel', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'sign'))->render();
+        $ttdPath = storage_path('app/public/usersTTD/' . $pemohon->ttd);
+        // dd(asset('storage/usersTTD/' . $pemohon->ttd));
+        $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact('pemelDone', 'ttdPath', 'pemohon', 'pemohonRole', 'permintaan', 'kasatpel', 'pemel', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'sign'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
