@@ -310,7 +310,8 @@
         $approvedUserIds = $approvedUsers->pluck('user_id');
         $approvedUsersWithRoles = \App\Models\User::whereIn('id', $approvedUserIds)->with('roles')->get();
 
-        $hasApprovedKasubbag = $approvedUsersWithRoles->contains(fn($user) => $user->hasRole('Kepala Subbagian Tata Usaha'));
+        $hasApprovedKasubbag = $approvedUsersWithRoles->contains(fn($user) => $user->hasRole('Kepala Subbagian Tata
+        Usaha'));
         $hasApprovedPengurus = $approvedUsersWithRoles->contains(fn($user) => $user->hasRole('Pengurus Barang'));
 
         $isPengurus = auth()->user()->hasRole('Pengurus Barang');
@@ -371,7 +372,7 @@
                         <i class="fa-solid fa-file text-gray-500"></i>
                         @endif
                     </span>
-                    <a href="{{ asset('storage/lampiranRab/' . $attachment->path) }}" target="_blank"
+                    <a href="{{ asset('storage/dokumenKontrak/' . $attachment->path) }}" target="_blank"
                         class="text-gray-800 hover:underline">
                         {{ basename($attachment->path) }}
                     </a>

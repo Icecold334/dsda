@@ -64,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(177); // pptk
         // Auth::loginUsingId(180); // ppk
         // Auth::loginUsingId(178); // perencanaan
-        // Auth::loginUsingId(179); // p3k
+        Auth::loginUsingId(299); // p3k
         // Auth::loginUsingId(319); // kasatpel
         // Auth::loginUsingId(191); // kasipemel drain
         // Auth::loginUsingId(193); // kasipemel banjir

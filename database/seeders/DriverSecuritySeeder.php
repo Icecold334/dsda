@@ -765,7 +765,7 @@ class DriverSecuritySeeder extends Seeder
                 'wilayah' => 'Jakarta Utara'
             ],
 
-                // Jakarta Timur
+            // Jakarta Timur
             [
                 'nama' => 'Heru Purwanto',
                 'wilayah' => 'Jakarta Timur'
