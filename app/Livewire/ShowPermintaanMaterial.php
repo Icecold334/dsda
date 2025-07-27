@@ -374,7 +374,7 @@ class ShowPermintaanMaterial extends Component
         $permintaan = $this->permintaan;
         $unit_id = $this->unit_id;
         $permintaan->unit = UnitKerja::find($unit_id);
-
+        // dd($sign);
         $kasatpel =
             User::whereHas('unitKerja', function ($unit) use ($unit_id) {
                 return $unit->where('id', $unit_id);

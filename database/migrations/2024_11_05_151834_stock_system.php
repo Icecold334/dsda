@@ -31,6 +31,7 @@ return new class extends Migration
         });
         Schema::create('merk_stok', function (Blueprint $table) {
             $table->id();
+            $table->string('kode')->nullable();
             $table->foreignId('barang_id')->constrained('barang_stok');
             $table->string('nama')->nullable();
             $table->string('tipe')->nullable();
@@ -218,7 +219,7 @@ return new class extends Migration
             $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade');
             $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
             $table->integer('tanggal');
-            $table->string('jumlah');
+            $table->float('jumlah');
             $table->text('deskripsi')->nullable();
             $table->string('lokasi_penerimaan')->nullable();
             $table->timestamps();

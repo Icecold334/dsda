@@ -233,6 +233,8 @@ class DataPermintaanMaterial extends Component
     public function tambahPermintaan()
     {
         $href = "/permintaan/add/material/material";
+        return redirect()->to($href);
+
         $data = $this->getPermintaanQuery();
         $query = $data->filter(function ($item) {
             $statusFilter = 'sedang dikirim';

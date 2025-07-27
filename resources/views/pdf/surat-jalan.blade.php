@@ -208,15 +208,15 @@
       Pemohon<br>
       Kepala Satuan Pelaksana<br>
       Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '-' }}<br><br>
-      @if ($sign && $permintaan->status < 3) {{-- <img
-        src="{{ $permintaan->status === 3 || true ? '/storage/ttdPengiriman/nurdin.png':'' }}" height="40"><br>
-        --}}
-        <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
-        @else
-        <br><br><br>
-        @endif
-        <strong>{{ $pemohon->name }}</strong><br>
-        NIP {{ $pemohon->nip ?? '....................' }}
+      @if ($sign) {{-- <img src="{{ $permintaan->status === 3 || true ? '/storage/ttdPengiriman/nurdin.png':'' }}"
+        height="40"><br>
+      --}}
+      <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
+      @else
+      <br><br><br>
+      @endif
+      <strong>{{ $pemohon->name }}</strong><br>
+      NIP {{ $pemohon->nip ?? '....................' }}
     </td>
     <td width="50%">
       Driver<br><br><br><br>
