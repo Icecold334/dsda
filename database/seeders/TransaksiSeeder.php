@@ -21,6 +21,9 @@ class TransaksiSeeder extends Seeder
         for ($i = 0; $i < 8000; $i++) {
             // $kontrak = KontrakVendorStok::inRandomOrder()->first();
             $lokasi = LokasiStok::inRandomOrder()->first();
+            if ($lokasi->id == 7 || $lokasi->id == 8) {
+                continue;
+            }
             // if (!$kontrak || !$lokasi) continue;
             if (!$lokasi) continue;
 
