@@ -51,10 +51,22 @@ class RegisterForm extends Form
             // 'lokasi_id' => ['required', 'exists:lokasi_stok,id'],
         ]);
 
+        // Buat username dari email (bagian sebelum @)
+        $username = strstr($validated['email'], '@', true);
+
+        // Pastikan username unik
+        $originalUsername = $username;
+        $counter = 1;
+        while (User::where('username', $username)->exists()) {
+            $username = $originalUsername . $counter;
+            $counter++;
+        }
+
         // Buat User Baru
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'username' => $username,
             'password' => Hash::make($validated['password']),
             'unit_id' => $this->sub_unit ?? $this->parent_id,
             'lokasi_id' => $validated['lokasi_id'] ?? null,
@@ -87,7 +99,7 @@ class RegisterForm extends Form
      */
     protected function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
