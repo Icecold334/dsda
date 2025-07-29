@@ -159,6 +159,8 @@ class AkunSudinSeeder extends Seeder
                 $email = implode('@', $emailParts);
             }
 
+
+
             // Tentukan unit berdasarkan role
             $targetUnit = $unit; // Default ke unit utama
 

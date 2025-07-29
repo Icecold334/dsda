@@ -56,9 +56,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Auth::loginUsingId(225);
         // pusat
-        // Auth::loginUsingId(1); //superadmin
+        // Auth::loginUsingId(341); //superadmin
 
-        // Auth::loginUsingId(245); //kasudin
+        // Auth::loginUsingId(239); //kasudin
 
         // Auth::loginUsingId(176); //admin
         // Auth::loginUsingId(177); // pptk
@@ -68,9 +68,9 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(319); // kasatpel
         // Auth::loginUsingId(191); // kasipemel drain
         // Auth::loginUsingId(193); // kasipemel banjir
-        // Auth::loginUsingId(295); // kasi perencanaan
-        // Auth::loginUsingId(187); // kasubag tu
-        // Auth::loginUsingId(181); // pb
+        // Auth::loginUsingId(240); // kasi perencanaan
+        // Auth::loginUsingId(242); // kasubag tu
+        // Auth::loginUsingId(243); // pb
         // Auth::loginUsingId(476);
 
         // seribuu

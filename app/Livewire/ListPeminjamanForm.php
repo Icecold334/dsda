@@ -161,7 +161,7 @@ class ListPeminjamanForm extends Component
         $cond = true;
         // dd($tipe);
         if ($tipe == 'Ruangan') {
-            $this->asets =  Ruang::when($cond, function ($query) {
+            $this->asets = Ruang::when($cond, function ($query) {
                 $query->whereHas('user', function ($query) {
                     return $query->whereHas('unitKerja', function ($query) {
                         return $query->where('parent_id', $this->unit_id)
@@ -170,7 +170,7 @@ class ListPeminjamanForm extends Component
                 });
             })->where('peminjaman', 1)->get();
 
-            $this->asetsAvail =  Ruang::when($cond, function ($query) {
+            $this->asetsAvail = Ruang::when($cond, function ($query) {
                 $query->whereHas('user', function ($query) {
                     return $query->whereHas('unitKerja', function ($query) {
                         return $query->where('parent_id', $this->unit_id)
@@ -443,7 +443,7 @@ class ListPeminjamanForm extends Component
                     'foto' => Aset::find($value->aset_id)?->foto
                         ? asset('storage/asetImg/' . Aset::find($value->aset_id)?->foto)
                         : asset('img/default-pic.png'),
-                    'fix' => $this->tipe == 'Ruangan' ? $value->approved_aset_id && $value->approved_waktu_id : ($this->tipe == 'KDO' ? $value->approved_aset_id : $value->approved_aset_id  && $value->jumlah_approve)
+                    'fix' => $this->tipe == 'Ruangan' ? $value->approved_aset_id && $value->approved_waktu_id : ($this->tipe == 'KDO' ? $value->approved_aset_id : $value->approved_aset_id && $value->jumlah_approve)
                 ];
                 // && $value->approved_waktu_id
             }
@@ -457,7 +457,8 @@ class ListPeminjamanForm extends Component
                 ->toArray();
         } else {
             $this->fillTipe($this->tipe);
-        };
+        }
+        ;
         $this->waktus = WaktuPeminjaman::all();
         $this->tanggal_peminjaman = Carbon::now()->format('Y-m-d');
     }
@@ -610,8 +611,8 @@ class ListPeminjamanForm extends Component
         $users = User::role('Customer Services')
             ->where('unit_id', $unitId)
             ->get();
-        $alert = 'Peminjaman dengan kode <span class="font-bold">' .  $this->peminjaman->kode_peminjaman .
-            '</span> Sudah Mengembalikan Peminjaman <span class="font-bold">' .  $kategori->nama .
+        $alert = 'Peminjaman dengan kode <span class="font-bold">' . $this->peminjaman->kode_peminjaman .
+            '</span> Sudah Mengembalikan Peminjaman <span class="font-bold">' . $kategori->nama .
             '</span> dengan Keterangan <span class="font-bold">' . $this->keteranganPengembalian . '</span>';
 
         Notification::send($users, new UserNotification($alert, "/permintaan/peminjaman/{$this->peminjaman->id}"));

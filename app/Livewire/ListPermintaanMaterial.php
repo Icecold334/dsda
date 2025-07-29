@@ -92,47 +92,55 @@ class ListPermintaanMaterial extends Component
         $rabId = $this->rab_id;
         $gudang_id = $this->gudang_id;
 
-        $transaksis = TransaksiStok::with(['merkStok.barangStok'])
-            ->where(function ($q) use ($gudang_id) {
-                $q->where('lokasi_id', $gudang_id)
-                    ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id))
-                    ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id));
-            })
-            ->whereHas('merkStok.barangStok', function ($q) {
-                $q->where('jenis_id', 1); // hanya material
-            })
-            ->get();
+        if ($this->withRab && $rabId > 0) {
+            // Jika menggunakan RAB, ambil semua barang dari RAB
+            // tanpa peduli stok di gudang (validasi stok dilakukan di level input)
+            $rabItems = \App\Models\ListRab::with(['merkStok.barangStok'])
+                ->where('rab_id', $rabId)
+                ->whereHas('merkStok.barangStok', function ($q) {
+                    $q->where('jenis_id', 1); // hanya material
+                })
+                ->get();
 
-        // Hitung total per barang ID
-        $barangTotals = [];
+            $barangIds = $rabItems->pluck('merkStok.barangStok.id')->unique()->filter();
+            $this->barangs = \App\Models\BarangStok::whereIn('id', $barangIds)->get();
+        } else {
+            // Jika tidak menggunakan RAB, gunakan logika lama berdasarkan stok gudang
+            $transaksis = TransaksiStok::with(['merkStok.barangStok'])
+                ->where(function ($q) use ($gudang_id) {
+                    $q->where('lokasi_id', $gudang_id)
+                        ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id))
+                        ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id));
+                })
+                ->whereHas('merkStok.barangStok', function ($q) {
+                    $q->where('jenis_id', 1); // hanya material
+                })
+                ->get();
 
-        foreach ($transaksis as $trx) {
-            $barang = $trx->merkStok->barangStok;
-            if (!$barang)
-                continue;
+            // Hitung total per barang ID
+            $barangTotals = [];
 
-            $barangId = $barang->id;
+            foreach ($transaksis as $trx) {
+                $barang = $trx->merkStok->barangStok;
+                if (!$barang)
+                    continue;
 
-            $jumlah = match ($trx->tipe) {
-                'Penyesuaian' => (int) $trx->jumlah,
-                'Pemasukan' => (int) $trx->jumlah,
-                'Pengeluaran' => -(int) $trx->jumlah,
-                default => 0,
-            };
+                $barangId = $barang->id;
 
-            $barangTotals[$barangId] = ($barangTotals[$barangId] ?? 0) + $jumlah;
+                $jumlah = match ($trx->tipe) {
+                    'Penyesuaian' => (int) $trx->jumlah,
+                    'Pemasukan' => (int) $trx->jumlah,
+                    'Pengeluaran' => -(int) $trx->jumlah,
+                    default => 0,
+                };
+
+                $barangTotals[$barangId] = ($barangTotals[$barangId] ?? 0) + $jumlah;
+            }
+
+            // Ambil hanya barang yang stok totalnya > 0
+            $ids = collect($barangTotals)->filter(fn($val) => $val > 0)->keys();
+            $this->barangs = \App\Models\BarangStok::whereIn('id', $ids)->get();
         }
-
-        // Ambil hanya barang yang stok totalnya > 0
-        $ids = collect($barangTotals)->filter(fn($val) => $val > 0)->keys();
-
-        $this->barangs = \App\Models\BarangStok::whereIn('id', $ids)
-            ->when($rabId > 0, function ($query) use ($rabId) {
-                $query->whereHas('merkStok.listRab', function ($q) use ($rabId) {
-                    $q->where('rab_id', $rabId);
-                });
-            })
-            ->get();
     }
 
     #[On('tanggal_permintaan')]
@@ -268,9 +276,21 @@ class ListPermintaanMaterial extends Component
             $this->newUnit = 'Satuan';
         } else {
             // Gunakan StokHelper untuk menghitung maksimal yang bisa diminta
+            // Tentukan RAB ID yang benar berdasarkan mode
+            $rabIdForValidation = null;
+            if ($this->withRab) {
+                if ($this->isSeribu && $this->newRabId) {
+                    // Untuk mode Seribu, gunakan RAB per-item
+                    $rabIdForValidation = $this->newRabId;
+                } elseif (!$this->isSeribu && $this->rab_id) {
+                    // Untuk mode normal, gunakan RAB dari form utama
+                    $rabIdForValidation = $this->rab_id;
+                }
+            }
+
             $this->newMerkMax = \App\Helpers\StokHelper::calculateMaxPermintaan(
                 $this->newMerkId,
-                $this->withRab && $this->newRabId ? $this->newRabId : null,
+                $rabIdForValidation,
                 $this->gudang_id
             );
         }
@@ -283,62 +303,105 @@ class ListPermintaanMaterial extends Component
             $barang = BarangStok::find($this->newBarangId);
             $this->newUnit = $barang?->satuanBesar->nama ?? 'Satuan';
 
-            $rab_id = $this->newRabId;
+            // Gunakan rab_id dari form utama, bukan newRabId
+            $rab_id = $this->rab_id;
             $gudang_id = $this->gudang_id;
 
-            // Ambil semua transaksi untuk barang terpilih
-            $transaksis = \App\Models\TransaksiStok::with('merkStok')
-                ->whereHas('merkStok', function ($q) use ($rab_id) {
-                    $q->whereHas('barangStok', function ($b) {
-                        $b->where('jenis_id', 1); // hanya material
-                    });
-
-                    // Jika pakai RAB, filter merk-merk dalam RAB
-                    if ($this->withRab && $rab_id) {
-                        $q->whereHas('listRab', function ($qr) use ($rab_id) {
-                            $qr->where('rab_id', $rab_id);
-                        });
-                    }
-                })
-                ->where(function ($q) use ($gudang_id) {
-                    $q->where('lokasi_id', $gudang_id)
-                        ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id))
-                        ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id));
-                })
-                ->get();
-
-            $merkTotals = [];
-
-            foreach ($transaksis as $trx) {
-                $merkId = $trx->merk_id;
-                $jumlah = match ($trx->tipe) {
-                    'Penyesuaian' => (int) $trx->jumlah,
-                    'Pemasukan' => (int) $trx->jumlah,
-                    'Pengeluaran', 'Pengajuan' => -(int) $trx->jumlah,
-                    default => 0,
-                };
-                $merkTotals[$merkId] = ($merkTotals[$merkId] ?? 0) + $jumlah;
-            }
-
-            $availableMerkIds = collect($merkTotals)->filter(fn($val) => $val > 0)->keys();
-
-            $this->merks = MerkStok::whereIn('id', $availableMerkIds)
-                ->where('barang_id', $this->newBarangId)
-                ->when($this->withRab && $rab_id, function ($q) use ($rab_id) {
-                    $q->whereHas('listRab', function ($qr) use ($rab_id) {
+            if ($this->withRab && $rab_id) {
+                // Jika menggunakan RAB, ambil merk dari RAB untuk barang yang dipilih
+                $this->merks = MerkStok::where('barang_id', $this->newBarangId)
+                    ->whereHas('listRab', function ($qr) use ($rab_id) {
                         $qr->where('rab_id', $rab_id);
-                    });
-                })->get();
+                    })->get();
+            } else {
+                // Jika tidak menggunakan RAB, gunakan logika lama berdasarkan stok gudang
+                // Ambil semua transaksi untuk barang terpilih
+                $transaksis = \App\Models\TransaksiStok::with('merkStok')
+                    ->whereHas('merkStok', function ($q) {
+                        $q->whereHas('barangStok', function ($b) {
+                            $b->where('jenis_id', 1); // hanya material
+                        });
+                    })
+                    ->where(function ($q) use ($gudang_id) {
+                        $q->where('lokasi_id', $gudang_id)
+                            ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id))
+                            ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id));
+                    })
+                    ->get();
+
+                $merkTotals = [];
+
+                foreach ($transaksis as $trx) {
+                    $merkId = $trx->merk_id;
+                    $jumlah = match ($trx->tipe) {
+                        'Penyesuaian' => (int) $trx->jumlah,
+                        'Pemasukan' => (int) $trx->jumlah,
+                        'Pengeluaran', 'Pengajuan' => -(int) $trx->jumlah,
+                        default => 0,
+                    };
+                    $merkTotals[$merkId] = ($merkTotals[$merkId] ?? 0) + $jumlah;
+                }
+
+                $availableMerkIds = collect($merkTotals)->filter(fn($val) => $val > 0)->keys();
+
+                $this->merks = MerkStok::whereIn('id', $availableMerkIds)
+                    ->where('barang_id', $this->newBarangId)
+                    ->get();
+            }
         } elseif ($field == 'newRabId') {
+            // Field newRabId hanya digunakan untuk kasus isSeribu
+            // Dimana setiap item bisa memiliki RAB yang berbeda
             $rabId = $this->newRabId;
             $gudang_id = $this->gudang_id;
-            $this->barangs = BarangStok::where('jenis_id', 1)->whereHas('merkStok.stok', function ($stok) use ($gudang_id) {
-                return $stok->where('lokasi_id', $gudang_id);
-            })->when($rabId > 0, function ($query) use ($rabId) { // Filter hanya jika $rabId > 0
-                $query->whereHas('merkStok.listRab', function ($query) use ($rabId) {
-                    $query->where('rab_id', $rabId);
-                });
-            })->get();
+
+            if ($this->isSeribu && $this->withRab && $rabId > 0) {
+                // Jika menggunakan RAB per-item (kasus Seribu), ambil barang dari RAB
+                $rabItems = \App\Models\ListRab::with(['merkStok.barangStok'])
+                    ->where('rab_id', $rabId)
+                    ->whereHas('merkStok.barangStok', function ($q) {
+                        $q->where('jenis_id', 1); // hanya material
+                    })
+                    ->get();
+
+                $barangIds = $rabItems->pluck('merkStok.barangStok.id')->unique()->filter();
+                $this->barangs = \App\Models\BarangStok::whereIn('id', $barangIds)->get();
+            } else {
+                // Jika tidak menggunakan RAB, gunakan logika berdasarkan stok gudang
+                $transaksis = \App\Models\TransaksiStok::with(['merkStok.barangStok'])
+                    ->where(function ($q) use ($gudang_id) {
+                        $q->where('lokasi_id', $gudang_id)
+                            ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id))
+                            ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $gudang_id));
+                    })
+                    ->whereHas('merkStok.barangStok', function ($q) {
+                        $q->where('jenis_id', 1); // hanya material
+                    })
+                    ->get();
+
+                // Hitung total per barang ID
+                $barangTotals = [];
+
+                foreach ($transaksis as $trx) {
+                    $barang = $trx->merkStok->barangStok;
+                    if (!$barang)
+                        continue;
+
+                    $barangId = $barang->id;
+
+                    $jumlah = match ($trx->tipe) {
+                        'Penyesuaian' => (int) $trx->jumlah,
+                        'Pemasukan' => (int) $trx->jumlah,
+                        'Pengeluaran' => -(int) $trx->jumlah,
+                        default => 0,
+                    };
+
+                    $barangTotals[$barangId] = ($barangTotals[$barangId] ?? 0) + $jumlah;
+                }
+
+                // Ambil hanya barang yang stok totalnya > 0
+                $ids = collect($barangTotals)->filter(fn($val) => $val > 0)->keys();
+                $this->barangs = \App\Models\BarangStok::whereIn('id', $ids)->get();
+            }
         }
         $this->checkAdd();
     }
@@ -354,7 +417,11 @@ class ListPermintaanMaterial extends Component
             'keterangan' => $this->newKeterangan ?? null
         ];
         $this->dispatch('listCount', count: count($this->list));
-        $this->reset(['newMerkId', 'newJumlah', 'newUnit', 'newBarangId', 'newRabId', 'newKeterangan']);
+        $this->reset(['newMerkId', 'newJumlah', 'newUnit', 'newBarangId', 'newKeterangan']);
+        // Reset newRabId hanya jika isSeribu (karena setiap item bisa beda RAB)
+        if ($this->isSeribu) {
+            $this->reset(['newRabId']);
+        }
         $this->checkAdd();
     }
 
@@ -494,11 +561,23 @@ class ListPermintaanMaterial extends Component
             return;
         }
 
+        // Tentukan RAB ID yang benar berdasarkan mode
+        $rabIdForValidation = null;
+        if ($this->withRab) {
+            if ($this->isSeribu && $this->newRabId) {
+                // Untuk mode Seribu, gunakan RAB per-item
+                $rabIdForValidation = $this->newRabId;
+            } elseif (!$this->isSeribu && $this->rab_id) {
+                // Untuk mode normal, gunakan RAB dari form utama
+                $rabIdForValidation = $this->rab_id;
+            }
+        }
+
         // Validasi menggunakan StokHelper
         $validation = \App\Helpers\StokHelper::validateJumlahPermintaan(
             $this->newMerkId,
             $this->newJumlah,
-            $this->withRab && $this->newRabId ? $this->newRabId : null,
+            $rabIdForValidation,
             $this->gudang_id
         );
 

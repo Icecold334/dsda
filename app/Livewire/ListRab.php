@@ -66,20 +66,20 @@ class ListRab extends Component
                 // if ($key === 'vol') {
                 //     // Pastikan vol adalah array dan punya key p, l, k yang tidak kosong
                 //     $requiredKeys = ['p', 'l', 'k'];
-
+    
                 //     if (!is_array($value)) {
                 //         return false;
                 //     }
-
+    
                 //     foreach ($requiredKeys as $rk) {
                 //         if (!array_key_exists($rk, $value) || $value[$rk] === null || $value[$rk] === '') {
                 //             return false;
                 //         }
                 //     }
-
+    
                 //     return true;
                 // }
-
+    
                 return $value !== null && $value !== '';
             });
     }
