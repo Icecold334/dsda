@@ -16,10 +16,10 @@ use Illuminate\Support\Facades\Notification;
 class ListRab extends Component
 {
 
-    public $rab_id, $barangs, $merks = [], $dokumenCount, $newMerkId, $newBarangId, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
+    public $rab_id, $barangs, $merks = [], $dokumenCount, $newMerkId, $newBarangId, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [], $unit_id;
     public function mount()
     {
-
+        $this->unit_id = Auth::user()->unit_id;
 
         if ($this->rab_id) {
             $rab = Rab::find($this->rab_id);
@@ -126,6 +126,9 @@ class ListRab extends Component
 
     public function saveData()
     {
+        // Cek apakah user adalah Pengurus Barang
+        $isPengurusBarang = Auth::user()->hasRole('Pengurus Barang');
+
         $rab = Rab::create([
             'user_id' => Auth::id(),
             'program_id' => $this->dataKegiatan['program'],
@@ -143,6 +146,8 @@ class ListRab extends Component
             'p' => $this->dataKegiatan['vol']['p'] ?? null,
             'l' => $this->dataKegiatan['vol']['l'] ?? null,
             'k' => $this->dataKegiatan['vol']['k'] ?? null,
+            // Jika Pengurus Barang, langsung set status = 2 (disetujui)
+            'status' => $isPengurusBarang ? 2 : null,
         ]);
 
         $data = [];
@@ -157,15 +162,34 @@ class ListRab extends Component
         }
         ModelsListRab::insert($data);
         $this->reset('list');
-        $mess = 'RAB <span class="font-semibold">' . $rab->jenis_pekerjaan . '</span> membutuhkan persetujuan Anda.';
 
-        $unit_id = $this->unit_id;
-        $user = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
-            return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Seksi Perencanaan%');
-        })->whereHas('roles', function ($role) {
-            return $role->where('name', 'like', '%Kepala Seksi%');
-        })->first();
-        Notification::send($user, new UserNotification($mess, "/rab/{$rab->id}"));
+        if ($isPengurusBarang) {
+            // Jika Pengurus Barang, buat persetujuan otomatis
+            $rab->persetujuan()->create([
+                'user_id' => Auth::id(),
+                'is_approved' => true,
+                'keterangan' => 'RAB yang sudah ada sebelum sistem (auto-approved untuk Pengurus Barang)'
+            ]);
+
+            session()->flash('success', 'RAB berhasil disimpan dan langsung disetujui (RAB yang sudah ada sebelumnya).');
+        } else {
+            // Logika normal untuk role lain - kirim notifikasi untuk approval
+            $mess = 'RAB <span class="font-semibold">' . $rab->jenis_pekerjaan . '</span> membutuhkan persetujuan Anda.';
+
+            $unit_id = $this->unit_id;
+            $user = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+                return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Seksi Perencanaan%');
+            })->whereHas('roles', function ($role) {
+                return $role->where('name', 'like', '%Kepala Seksi%');
+            })->first();
+
+            if ($user) {
+                Notification::send($user, new UserNotification($mess, "/rab/{$rab->id}"));
+            }
+
+            session()->flash('success', 'RAB berhasil disimpan dan menunggu persetujuan.');
+        }
+
         $this->dispatch('saveDokumen', kontrak_id: $rab->id, isRab: true);
     }
     public function render()

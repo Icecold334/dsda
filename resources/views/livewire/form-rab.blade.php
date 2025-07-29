@@ -8,6 +8,31 @@
             px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
         </div>
     </div>
+
+    {{-- Notifikasi khusus untuk Pengurus Barang --}}
+    @if(auth()->user()->hasRole('Pengurus Barang'))
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800">
+                        Informasi untuk Pengurus Barang
+                    </h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <p>RAB yang Anda buat akan <strong>langsung disetujui</strong> karena merupakan RAB yang sudah ada
+                            sebelum sistem ini dikembangkan.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="grid grid-cols-2 gap-6">
         <div>
             <x-card title="Data Kegiatan" maxH="true">
@@ -24,7 +49,7 @@
                                dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 <option value="">-- Pilih Program --</option>
                                 @foreach($programs as $item)
-                                <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->program }}</option>
+                                    <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->program }}</option>
                                 @endforeach
                             </select>
                         </td>
@@ -40,7 +65,7 @@
                                dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 <option value="">-- Pilih Kegiatan --</option>
                                 @foreach($namas as $item)
-                                <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->kegiatan }}</option>
+                                    <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->kegiatan }}</option>
                                 @endforeach
                             </select>
                         </td>
@@ -58,7 +83,7 @@
                                dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 <option value="">-- Pilih Sub Kegiatan --</option>
                                 @foreach($sub_kegiatans as $item)
-                                <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->sub_kegiatan }}</option>
+                                    <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->sub_kegiatan }}</option>
                                 @endforeach
                             </select>
                         </td>
@@ -76,7 +101,7 @@
                                dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 <option value="">-- Pilih Aktivitas --</option>
                                 @foreach($aktivitas_sub_kegiatans as $item)
-                                <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->aktivitas }}</option>
+                                    <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->aktivitas }}</option>
                                 @endforeach
                             </select>
                         </td>
@@ -94,7 +119,7 @@
                                dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 <option value="">-- Pilih Kode Rekening --</option>
                                 @foreach($kode_rekenings as $item)
-                                <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->uraian }}</option>
+                                    <option value="{{ $item->id }}">{{ $item->kode }} {{ $item->uraian }}</option>
                                 @endforeach
                             </select>
                         </td>
@@ -134,7 +159,7 @@
                             <input type="date" id="tanggal_mulai" wire:model.live="mulai" @disabled($listCount)
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 {{ $listCount ? 'cursor-not-allowed opacity-50' : '' }}">
                             @error('tanggal_mulai')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
                         </td>
                     </tr>
@@ -148,7 +173,7 @@
                             <input type="date" id="tanggal_selesai" wire:model.live="selesai" @disabled($listCount)
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 {{ $listCount ? 'cursor-not-allowed opacity-50' : '' }}">
                             @error('tanggal_selesai')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
                         </td>
                     </tr>
@@ -164,7 +189,7 @@
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                                     <option value="">-- Pilih Kecamatan --</option>
                                     @foreach($kecamatans as $item)
-                                    <option value="{{ $item->id }}">{{ $item->kecamatan }}</option>
+                                        <option value="{{ $item->id }}">{{ $item->kecamatan }}</option>
                                     @endforeach
                                 </select>
                                 {{-- <select wire:model.live="kecamatan_id" @disabled($listCount)
@@ -180,7 +205,7 @@
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                                     <option value="">-- Pilih Kelurahan --</option>
                                     @foreach($kelurahans as $item)
-                                    <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
                                     @endforeach
                                 </select>
 

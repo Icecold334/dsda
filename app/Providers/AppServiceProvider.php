@@ -54,6 +54,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register custom user provider untuk login dengan username
+        Auth::provider('username', function ($app, array $config) {
+            return new \App\Auth\UsernameUserProvider($app['hash'], $config['model']);
+        });
+
         // Auth::loginUsingId(225);
         // pusat
         // Auth::loginUsingId(341); //superadmin
@@ -68,7 +73,7 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(319); // kasatpel
         // Auth::loginUsingId(191); // kasipemel drain
         // Auth::loginUsingId(193); // kasipemel banjir
-        Auth::loginUsingId(240); // kasi perencanaan
+        // Auth::loginUsingId(240); // kasi perencanaan
         // Auth::loginUsingId(242); // kasubag tu
         // Auth::loginUsingId(243); // pb
         // Auth::loginUsingId(476);
