@@ -264,7 +264,7 @@ class ApprovalMaterial extends Component
         if ($currentUser->hasRole(['Kepala Subbagian', 'Kepala Subbagian Tata Usaha'])) {
             $permintaan->update(['status' => 1, 'sppb' => $sppb]);
 
-            // Buat QR Code
+            // Buat QR Code dengan keterangan nomor SPB
             $qrFolder = "qr_permintaan_material";
             $qrTarget = "{$qrFolder}/{$permintaan->kode_permintaan}.png";
             $qrContent = url("material/{$permintaan->id}/qrDownload");
@@ -273,10 +273,19 @@ class ApprovalMaterial extends Component
                 Storage::disk('public')->makeDirectory($qrFolder);
             }
 
-            $renderer = new GDLibRenderer(500);
+            // Generate QR code terlebih dahulu
+            $renderer = new GDLibRenderer(400); // Ukuran QR code dikurangi untuk memberi ruang text
             $writer = new Writer($renderer);
-            $filePath = Storage::disk('public')->path($qrTarget);
-            $writer->writeFile($qrContent, $filePath);
+            $tempQrPath = Storage::disk('public')->path($qrFolder . '/temp_' . $permintaan->kode_permintaan . '.png');
+            $writer->writeFile($qrContent, $tempQrPath);
+
+            // Buat image dengan text di bawah QR code
+            $this->addTextToQrCode($tempQrPath, Storage::disk('public')->path($qrTarget), $permintaan->nodin);
+
+            // Hapus file temporary
+            if (file_exists($tempQrPath)) {
+                unlink($tempQrPath);
+            }
             // dd('oke');
         }
 
@@ -324,6 +333,91 @@ class ApprovalMaterial extends Component
 
 
         return redirect()->to('permintaan/permintaan/' . $permintaan->id);
+    }
+
+    /**
+     * Menambahkan text keterangan SPB di bawah QR code
+     */
+    private function addTextToQrCode($qrImagePath, $outputPath, $spbNumber)
+    {
+        // Load QR code image
+        $qrImage = imagecreatefrompng($qrImagePath);
+        $qrWidth = imagesx($qrImage);
+        $qrHeight = imagesy($qrImage);
+
+        // Tentukan ukuran font dan padding
+        $fontSize = 14;
+        $padding = 20;
+        $textHeight = 30;
+
+        // Buat canvas baru dengan tinggi tambahan untuk text
+        $newHeight = $qrHeight + $textHeight + $padding;
+        $canvas = imagecreatetruecolor($qrWidth, $newHeight);
+
+        // Set background putih
+        $white = imagecolorallocate($canvas, 255, 255, 255);
+        $black = imagecolorallocate($canvas, 0, 0, 0);
+        imagefill($canvas, 0, 0, $white);
+
+        // Copy QR code ke canvas
+        imagecopy($canvas, $qrImage, 0, 0, 0, 0, $qrWidth, $qrHeight);
+
+        // Tentukan text dan posisi
+        $text = "Nomor SPB: " . $spbNumber;
+        $fontPath = $this->getFontPath();
+
+        if ($fontPath && file_exists($fontPath)) {
+            // Gunakan TTF font jika tersedia
+            $textBbox = imagettfbbox($fontSize, 0, $fontPath, $text);
+            $textWidth = abs($textBbox[4] - $textBbox[0]);
+            $textX = ($qrWidth - $textWidth) / 2; // Center text
+            $textY = $qrHeight + $padding + $fontSize;
+
+            imagettftext($canvas, $fontSize, 0, $textX, $textY, $black, $fontPath, $text);
+        } else {
+            // Fallback: gunakan built-in font
+            $fontBuiltIn = 5; // Font size 5 (largest built-in font)
+            $textWidth = strlen($text) * imagefontwidth($fontBuiltIn);
+            $textX = ($qrWidth - $textWidth) / 2; // Center text
+            $textY = $qrHeight + $padding;
+
+            imagestring($canvas, $fontBuiltIn, $textX, $textY, $text, $black);
+        }
+
+        // Simpan image
+        imagepng($canvas, $outputPath);
+
+        // Cleanup
+        imagedestroy($qrImage);
+        imagedestroy($canvas);
+    }
+
+    /**
+     * Mendapatkan path font untuk text
+     */
+    private function getFontPath()
+    {
+        // Gunakan font default system atau font yang tersedia
+        $fontPaths = [
+            public_path('fonts/arial.ttf'),
+            public_path('fonts/DejaVuSans.ttf'),
+            public_path('build/fonts/DejaVuSans.ttf'), // Cek di build folder
+            storage_path('fonts/arial.ttf'),
+            '/System/Library/Fonts/Arial.ttf', // MacOS
+            '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf', // Linux
+            'C:\Windows\Fonts\arial.ttf', // Windows
+            'C:\Windows\Fonts\calibri.ttf', // Windows Calibri
+            'C:\Windows\Fonts\tahoma.ttf' // Windows Tahoma
+        ];
+
+        foreach ($fontPaths as $fontPath) {
+            if (file_exists($fontPath)) {
+                return $fontPath;
+            }
+        }
+
+        // Fallback: gunakan imagestring() jika tidak ada font TTF
+        return null;
     }
 
     public function render()
