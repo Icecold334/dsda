@@ -33,6 +33,9 @@ new #[Layout('layouts.guest')] class extends Component {
 ?>
 
 <div>
+    <!-- Add Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <div class="forms-wrap">
         <!-- Login Form -->
         <form wire:submit="login" class="form sign-in-form">
@@ -53,8 +56,11 @@ new #[Layout('layouts.guest')] class extends Component {
 
                 <div class="input-wrap">
                     <input class="input-field" wire:model="form.password" type="password" name="password"
-                        autocomplete="off">
+                        autocomplete="off" id="password-login">
                     <label>Password</label>
+                    <span class="password-toggle" onclick="togglePassword('password-login', this)">
+                        <i class="fas fa-eye eye-icon"></i>
+                    </span>
                 </div>
 
                 <button type="submit" class="sign-btn">Login</button>
@@ -75,10 +81,10 @@ new #[Layout('layouts.guest')] class extends Component {
                         wire:model="registerForm.parent_id">
                         <option value="">Pilih Unit Kerja</option>
                         @foreach ($unitkerjas as $parent)
-                        <option value="{{ $parent->id }}">{{ $parent->nama }}</option>
-                        @foreach ($parent->children as $child)
-                        <option value="{{ $child->id }}">--- {{ $child->nama }}</option>
-                        @endforeach
+                            <option value="{{ $parent->id }}">{{ $parent->nama }}</option>
+                            @foreach ($parent->children as $child)
+                                <option value="{{ $child->id }}">--- {{ $child->nama }}</option>
+                            @endforeach
                         @endforeach
                     </select>
                     <label>Unit Kerja</label>
@@ -104,15 +110,22 @@ new #[Layout('layouts.guest')] class extends Component {
 
                 <div class="input-wrap">
                     <input class="input-field {{ $errors->any() && strlen($registerForm->password) ? 'active' : '' }}"
-                        type="password" wire:model="registerForm.password" autocomplete="off">
+                        type="password" wire:model="registerForm.password" autocomplete="off" id="password-register">
                     <label>Password</label>
+                    <span class="password-toggle" onclick="togglePassword('password-register', this)">
+                        <i class="fas fa-eye eye-icon"></i>
+                    </span>
                 </div>
 
                 <div class="input-wrap">
                     <input
                         class="input-field {{ $errors->any() && strlen($registerForm->password_confirmation) ? 'active' : '' }}"
-                        type="password" wire:model="registerForm.password_confirmation" autocomplete="off">
+                        type="password" wire:model="registerForm.password_confirmation" autocomplete="off"
+                        id="password-confirm">
                     <label>Konfirmasi Password</label>
+                    <span class="password-toggle" onclick="togglePassword('password-confirm', this)">
+                        <i class="fas fa-eye eye-icon"></i>
+                    </span>
                 </div>
 
                 <button type="submit" class="sign-btn">Daftar</button>
@@ -162,5 +175,45 @@ new #[Layout('layouts.guest')] class extends Component {
                 });
             });
         });
+
+        function togglePassword(inputId, toggleElement) {
+            const input = document.getElementById(inputId);
+            const eyeIcon = toggleElement.querySelector('.eye-icon');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
     </script>
+
+    <style>
+        .input-wrap {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .eye-icon {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .password-toggle:hover .eye-icon {
+            color: #333;
+        }
+    </style>
 </div>
