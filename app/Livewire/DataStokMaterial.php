@@ -28,7 +28,7 @@ class DataStokMaterial extends Component
     public $lokasi = ''; // Selected jenis
     public $unit_id, $isSeribu, $sudin; // Current user's unit ID
     // public $barangs = []; Filtered barangs
-    public $stoks  = [];
+    public $stoks = [];
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
 
@@ -86,7 +86,7 @@ class DataStokMaterial extends Component
             });
 
 
-        return $excel ?  $barang->get() : $barang->paginate(10);
+        return $excel ? $barang->get() : $barang->paginate(10);
     }
 
 
@@ -100,9 +100,11 @@ class DataStokMaterial extends Component
                 $barangQuery->where('jenis_id', 1);
             });
         })
-            ->with(['transaksiStok.merkStok.barangStok' => function ($query) {
-                $query->where('jenis_id', 1);
-            }])
+            ->with([
+                'transaksiStok.merkStok.barangStok' => function ($query) {
+                    $query->where('jenis_id', 1);
+                }
+            ])
             ->get();
 
         $gudangs->filter(function ($lokasi) {
@@ -111,14 +113,15 @@ class DataStokMaterial extends Component
             foreach ($lokasi->transaksiStok as $trx) {
                 $barang = $trx->merkStok->barangStok ?? null;
                 $merkId = $trx->merkStok->id ?? null;
-                if (!$barang || $barang->jenis_id !== 1 || !$merkId) continue;
+                if (!$barang || $barang->jenis_id !== 1 || !$merkId)
+                    continue;
 
                 $barangId = $barang->id;
 
                 // Hitung jumlah
                 $jumlah = match ($trx->tipe) {
                     'Pemasukan' => (int) $trx->jumlah,
-                    'Pengeluaran', 'Pengajuan' => - ((int) $trx->jumlah),
+                    'Pengeluaran', 'Pengajuan' => -((int) $trx->jumlah),
                     'Penyesuaian' => (int) $trx->jumlah, // karena sudah string seperti '+50' atau '-30'
                     default => 0,
                 };
@@ -154,140 +157,149 @@ class DataStokMaterial extends Component
 
     public function downloadExcel()
     {
+        try {
+            $gudangs = $this->fetchStoks();
+            $unit = UnitKerja::find($this->unit_id);
+            $unitName = $unit ? $unit->nama : 'N/A';
 
-        $data = $this->fetchBarangs(true);
-        $unit = UnitKerja::find($this->unit_id)->nama;
-        $spreadsheet = new Spreadsheet();
-        $filterInfo = sprintf(
-            "Jenis: %s, Lokasi: %s, Unit: %s",
-            $this->jenis ?? '-',
-            $this->lokasi ?? '-',
-            $unit ?? '-'
-        );
+            $spreadsheet = new Spreadsheet();
+            $filterInfo = sprintf(
+                "Filter - Unit: %s",
+                $unitName ?: 'Semua Unit'
+            );
 
-        // dd($data);
+            // Properti dokumen
+            $spreadsheet->getProperties()
+                ->setCreator('www.inventa.id')
+                ->setLastModifiedBy('www.inventa.id')
+                ->setTitle('Stok Material')
+                ->setSubject('Daftar Stok Material - Dinas Sumber Daya Air (DSDA)')
+                ->setDescription('Laporan Stok Material')
+                ->setKeywords('stok, material, laporan, excel')
+                ->setCategory('Laporan Stok Material');
 
-        // Properti dokumen
-        $spreadsheet->getProperties()
-            ->setCreator('www.inventa.id')
-            ->setLastModifiedBy('www.inventa.id')
-            ->setTitle('Stok')
-            ->setSubject('Daftar Stok - Dinas Sumber Daya Air (DSDA)')
-            ->setDescription('Laporan Stok')
-            ->setKeywords('aset, laporan, excel')
-            ->setCategory('Laporan Stok');
+            $sheet = $spreadsheet->getActiveSheet();
+            // Header judul
+            $sheet->setCellValue('A2', 'DAFTAR STOK MATERIAL')
+                ->mergeCells('A2:D2')
+                ->getStyle('A2')->getFont()->setBold(true)->setSize(14);
+            $sheet->setCellValue('A3', strtoupper('Dinas Sumber Daya Air (DSDA)'))
+                ->mergeCells('A3:D3')
+                ->getStyle('A3')->getFont()->setBold(true);
+            $sheet->setCellValue('A4', $filterInfo)
+                ->mergeCells('A4:D4')
+                ->getStyle('A4')->getFont()->setItalic(true);
+            $sheet->setCellValue('A5', 'Periode: ' . now()->format('d F Y'))
+                ->mergeCells('A5:D5')
+                ->getStyle('A5')->getFont()->setBold(true);
 
-        $sheet = $spreadsheet->getActiveSheet();
-        // Header judul
-        $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setCellValue('A2', 'DAFTAR STOK')
-            ->mergeCells('A2:G2')
-            ->getStyle('A2')->getFont()->setBold(true)->setSize(14);
-        $sheet->setCellValue('A3', strtoupper('Dinas Sumber Daya Air (DSDA)'))
-            ->mergeCells('A3:G3')
-            ->getStyle('A3')->getFont()->setBold(true);
-        $sheet->setCellValue('A4',  $filterInfo)
-            ->mergeCells('A4:G4')
-            ->getStyle('A4')->getFont()->setItalic(true);
-        $sheet->setCellValue('A5', 'Periode: ' . now()->format('d F Y'))
-            ->mergeCells('A5:G5')
-            ->getStyle('A5')->getFont()->setBold(true);
+            // Atur rata tengah untuk header
+            $sheet->getStyle('A2:A5')
+                ->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        // Atur rata tengah untuk header
-        $sheet->getStyle('A2:A5')
-            ->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            // Header tabel
+            $sheet->setCellValue('A7', 'LOKASI GUDANG');
+            $sheet->setCellValue('B7', 'KODE BARANG');
+            $sheet->setCellValue('C7', 'NAMA BARANG');
+            $sheet->setCellValue('D7', 'JUMLAH STOK');
 
-        // Header tabel
-        $sheet->setCellValue('A7', 'KODE BARANG');
-        $sheet->setCellValue('B7', 'NAMA BARANG');
-        $sheet->setCellValue('C7', 'SPESIFIKASI');
-        $sheet->setCellValue('F7', 'JUMLAH');
-        $sheet->setCellValue('G7', 'LOKASI');
+            // Style header tabel
+            $sheet->getStyle('A7:D7')->getFont()->setBold(true);
+            $sheet->getStyle('A7:D7')->getFont()->getColor()->setARGB('FFFFFFFF');
+            $sheet->getStyle('A7:D7')
+                ->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+            $sheet->getStyle('A7:D7')
+                ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A7:D7')->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FF806000');
 
-        // Sub-header 
-        // Detail Aset
-        $sheet->setCellValue('C8', 'MERK')
-            ->setCellValue('D8', 'TIPE')
-            ->setCellValue('E8', 'UKURAN');
+            $row = 8; // Mulai dari baris ke-8
+            $totalLokasi = 0;
+            $totalBarang = 0;
+            $totalStok = 0;
 
-        // Style header tabel
+            foreach ($gudangs as $gudang) {
+                $totalLokasi++;
+                $isFirstRow = true;
 
-        $sheet->getStyle('A7:G8')->getFont()->setBold(true);
-        $sheet->getStyle('A7:G8')->getFont()->getColor()->setARGB('FFFFFFFF');
-        $sheet->getStyle('A7:G8')
-            ->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('A7:G8')
-            ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $sheet->mergeCells('C7:E7');
+                foreach ($gudang->barangStokSisa as $barangId => $jumlah) {
+                    $barang = \App\Models\BarangStok::find($barangId);
+                    $totalBarang++;
+                    $totalStok += $jumlah;
 
-        $sheet->getStyle('C8:E8')->getFill()
-            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-            ->getStartColor()->setARGB('FF000000');
-        $sheet->getStyle('A7:G7')->getFill() // E26B0A
-            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-            ->getStartColor()->setARGB('FF806000');
-        $row = 9; // Mulai dari baris ke-9
+                    if ($isFirstRow) {
+                        $sheet->setCellValue('A' . $row, $gudang->nama);
+                        $isFirstRow = false;
+                    } else {
+                        $sheet->setCellValue('A' . $row, '');
+                    }
 
-        $stoks = $this->stoks;
-        foreach ($data as $barang) {
-            // Set data utama barang (kolom A dan B)
-            $sheet->setCellValue('A' . $row, $barang->kode_barang)
-                ->setCellValue('B' . $row, $barang->nama);
+                    $sheet->setCellValue('B' . $row, $barang->kode_barang ?? '-')
+                        ->setCellValue('C' . $row, $barang->nama ?? '-')
+                        ->setCellValue('D' . $row, $jumlah . ' ' . ($barang->satuanBesar->nama ?? 'Unit'));
 
-            // Periksa apakah barang memiliki stok terkait
-            if (isset($stoks[$barang->id]) && count($stoks[$barang->id]) > 0) {
-                foreach ($stoks[$barang->id] as $stok) {
-                    // Set data stok terkait barang (kolom C sampai G)
-                    $sheet->setCellValue('C' . $row, $stok['merk'] ?? '-')
-                        ->setCellValue('D' . $row, $stok['tipe'] ?? '-')
-                        ->setCellValue('E' . $row, $stok['ukuran'] ?? '-')
-                        ->setCellValue('F' . $row, ($stok['jumlah'] ?? 0) . ' ' . ($stok['satuan'] ?? '-'))
-
-                        ->setCellValue('G' . $row, $stok['lokasi'] ?? '-');
-
-                    $row++; // Pindah ke baris berikutnya
+                    $row++;
                 }
-            } else {
-                // Jika tidak ada stok, kosongkan kolom C-G untuk barang ini
-                $sheet->setCellValue('C' . $row, '-')
-                    ->setCellValue('D' . $row, '-')
-                    ->setCellValue('E' . $row, '-')
-                    ->setCellValue('F' . $row, '0')
-                    ->setCellValue('G' . $row, '-');
 
-                $row++; // Pindah ke baris berikutnya
+                if ($gudang->barangStokSisa->isEmpty()) {
+                    $sheet->setCellValue('A' . $row, $gudang->nama)
+                        ->setCellValue('B' . $row, '-')
+                        ->setCellValue('C' . $row, 'Tidak ada stok')
+                        ->setCellValue('D' . $row, '0');
+                    $row++;
+                }
             }
 
-            // Terapkan alignment ke kanan untuk kolom tertentu
-            // $sheet->getStyle('F' . ($row - 1))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+            // Tambahkan ringkasan data
+            $row += 2;
+            $sheet->setCellValue('A' . $row, 'RINGKASAN:')
+                ->getStyle('A' . $row)->getFont()->setBold(true);
+            $row++;
+            $sheet->setCellValue('A' . $row, 'Total Lokasi Gudang: ' . $totalLokasi);
+            $row++;
+            $sheet->setCellValue('A' . $row, 'Total Jenis Barang: ' . $totalBarang);
+            $row++;
+            $sheet->setCellValue('A' . $row, 'Total Unit Stok: ' . $totalStok);
+            $row++;
+            $sheet->setCellValue('A' . $row, 'Tanggal Export: ' . now()->format('d F Y H:i:s'));
+
+            // Auto-size kolom
+            $sheet->getColumnDimension('A')->setAutoSize(true);
+            $sheet->getColumnDimension('B')->setAutoSize(true);
+            $sheet->getColumnDimension('C')->setAutoSize(true);
+            $sheet->getColumnDimension('D')->setAutoSize(true);
+
+            // Generate filename berdasarkan filter yang aktif
+            $timestamp = now()->format('Y-m-d_His');
+            $filterName = '';
+            if ($this->unit_id) {
+                $unitFilter = str_replace(' ', '', $unitName);
+                $filterName .= '_' . $unitFilter;
+            }
+
+            $fileName = "Daftar_Stok_Material_DSDA{$filterName}_{$timestamp}.xlsx";
+
+            // Set header untuk file Excel
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header("Content-Disposition: attachment; filename=\"$fileName\"");
+            header('Cache-Control: max-age=0');
+
+            // Flash message sukses
+            session()->flash('success', 'File Excel berhasil diunduh!');
+
+            // Simpan file ke output
+            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+            return Response::streamDownload(function () use ($writer) {
+                $writer->save('php://output');
+            }, $fileName);
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Terjadi kesalahan saat mengunduh file Excel: ' . $e->getMessage());
+            return;
         }
-
-        $sheet->getColumnDimension('A')->setAutoSize(true);
-        $sheet->getColumnDimension('B')->setAutoSize(true);
-        $sheet->getColumnDimension('C')->setAutoSize(true);
-        $sheet->getColumnDimension('D')->setAutoSize(true);
-        $sheet->getColumnDimension('E')->setAutoSize(true);
-        $sheet->getColumnDimension('F')->setAutoSize(true);
-        $sheet->getColumnDimension('G')->setAutoSize(true);
-
-
-
-        $fileName = 'Daftar Stok Dinas Sumber Daya Air (DSDA).xlsx';
-
-        // Set header untuk file Excel
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header("Content-Disposition: attachment; filename=\"$fileName\"");
-        header('Cache-Control: max-age=0');
-
-        // Simpan file ke output
-        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-        return Response::streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, 'Daftar_Stok_DSDA.xlsx');
     }
-
-
 
     public function updated($propertyName)
     {

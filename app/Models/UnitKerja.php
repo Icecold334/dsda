@@ -14,6 +14,7 @@ class UnitKerja extends Model
         'kode',
         'alamat',
         'keterangan',
+        'hak',
     ];
 
     /**
