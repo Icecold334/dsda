@@ -17,6 +17,7 @@ use App\Models\PermintaanMaterial;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use App\Models\DetailPermintaanMaterial;
+use App\Helpers\StokHelper;
 
 class ListPermintaanMaterial extends Component
 {
@@ -266,25 +267,12 @@ class ListPermintaanMaterial extends Component
             $this->newJumlah = null;
             $this->newUnit = 'Satuan';
         } else {
-            // $this->newUnit = MerkStok::find($this->newMerkId)->barangStok->satuanBesar->nama;
-            // $this->newMerkMax = Stok::where('merk_id', $this->newMerkId)->where('lokasi_id', $this->gudang_id)->sum('jumlah');
-
-            $trxList = \App\Models\TransaksiStok::where('merk_id', $this->newMerkId)
-                ->where(function ($q) {
-                    $q->where('lokasi_id', $this->gudang_id)
-                        ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $this->gudang_id))
-                        ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $this->gudang_id));
-                })->get();
-
-            $this->newMerkMax = $trxList->reduce(function ($carry, $trx) {
-                $jumlah = match ($trx->tipe) {
-                    'Penyesuaian' => (int) $trx->jumlah,
-                    'Pemasukan' => (int) $trx->jumlah,
-                    'Pengeluaran', 'Pengajuan' => -(int) $trx->jumlah,
-                    default => 0,
-                };
-                return $carry + $jumlah;
-            }, 0);
+            // Gunakan StokHelper untuk menghitung maksimal yang bisa diminta
+            $this->newMerkMax = \App\Helpers\StokHelper::calculateMaxPermintaan(
+                $this->newMerkId,
+                $this->withRab && $this->newRabId ? $this->newRabId : null,
+                $this->gudang_id
+            );
         }
         if ($field === 'newMerkId') {
             $this->newJumlah = null;
@@ -501,7 +489,27 @@ class ListPermintaanMaterial extends Component
     }
     public function checkAdd()
     {
-        $this->ruleAdd = $this->newMerkId && $this->newJumlah && $this->newJumlah <= $this->newMerkMax;
+        if (!$this->newMerkId || !$this->newJumlah) {
+            $this->ruleAdd = false;
+            return;
+        }
+
+        // Validasi menggunakan StokHelper
+        $validation = \App\Helpers\StokHelper::validateJumlahPermintaan(
+            $this->newMerkId,
+            $this->newJumlah,
+            $this->withRab && $this->newRabId ? $this->newRabId : null,
+            $this->gudang_id
+        );
+
+        $this->ruleAdd = $validation['valid'];
+
+        // Set error message jika tidak valid
+        if (!$validation['valid']) {
+            $this->addError('newJumlah', $validation['error_message']);
+        } else {
+            $this->resetErrorBag('newJumlah');
+        }
     }
     public function isVolFilled()
     {
