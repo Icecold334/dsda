@@ -174,9 +174,19 @@ class AkunSudinSeeder extends Seeder
             } elseif (strpos($userData['role'], 'Pompa') !== false) {
                 $targetUnit = $unit->children()->where('nama', 'LIKE', '%Pompa%')->first() ?? $unit;
             }
+// block to create user
+
+            if (strpos($email, '@') !== false) {
+                $username = substr($email, 0, strpos($email, '@'));
+            } else {
+                $username = $email;
+            }
+
+//end block to create user
 
             $userCreateData = [
                 'name' => $userData['nama'],
+                'username' => $username,
                 'nip' => $userData['nip'],
                 'unit_id' => $targetUnit ? $targetUnit->getKey() : null,
                 'password' => Hash::make('test@123'),
