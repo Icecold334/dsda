@@ -46,9 +46,9 @@ new #[Layout('layouts.guest')] class extends Component {
 
             <div class="actual-form">
                 <div class="input-wrap">
-                    <input class="input-field" type="text" wire:model="form.email" name="email" id="email-login"
-                        autocomplete="off">
-                    <label>Email</label>
+                    <input class="input-field" type="text" wire:model="form.username" name="username"
+                        id="username-login" autocomplete="off">
+                    <label>Username</label>
                 </div>
 
                 <div class="input-wrap">
@@ -75,10 +75,10 @@ new #[Layout('layouts.guest')] class extends Component {
                         wire:model="registerForm.parent_id">
                         <option value="">Pilih Unit Kerja</option>
                         @foreach ($unitkerjas as $parent)
-                        <option value="{{ $parent->id }}">{{ $parent->nama }}</option>
-                        @foreach ($parent->children as $child)
-                        <option value="{{ $child->id }}">--- {{ $child->nama }}</option>
-                        @endforeach
+                            <option value="{{ $parent->id }}">{{ $parent->nama }}</option>
+                            @foreach ($parent->children as $child)
+                                <option value="{{ $child->id }}">--- {{ $child->nama }}</option>
+                            @endforeach
                         @endforeach
                     </select>
                     <label>Unit Kerja</label>
