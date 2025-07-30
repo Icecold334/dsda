@@ -264,7 +264,7 @@ class ApprovalMaterial extends Component
         if ($currentUser->hasRole(['Kepala Subbagian', 'Kepala Subbagian Tata Usaha'])) {
             $permintaan->update(['status' => 1, 'sppb' => $sppb]);
 
-            // Buat QR Code dengan keterangan nomor SPB
+            // Buat QR Code dengan keterangan nomor SPPB yang diinput Kepala Subbagian Tata Usaha
             $qrFolder = "qr_permintaan_material";
             $qrTarget = "{$qrFolder}/{$permintaan->kode_permintaan}.png";
             $qrContent = url("material/{$permintaan->id}/qrDownload");
@@ -279,8 +279,8 @@ class ApprovalMaterial extends Component
             $tempQrPath = Storage::disk('public')->path($qrFolder . '/temp_' . $permintaan->kode_permintaan . '.png');
             $writer->writeFile($qrContent, $tempQrPath);
 
-            // Buat image dengan text di bawah QR code
-            $this->addTextToQrCode($tempQrPath, Storage::disk('public')->path($qrTarget), $permintaan->nodin);
+            // Buat image dengan text di bawah QR code menggunakan keterangan SPPB yang diinput Kepala Subbagian Tata Usaha
+            $this->addTextToQrCode($tempQrPath, Storage::disk('public')->path($qrTarget), $sppb);
 
             // Hapus file temporary
             if (file_exists($tempQrPath)) {
@@ -336,7 +336,7 @@ class ApprovalMaterial extends Component
     }
 
     /**
-     * Menambahkan text keterangan SPB di bawah QR code
+     * Menambahkan text keterangan SPPB di bawah QR code
      */
     private function addTextToQrCode($qrImagePath, $outputPath, $spbNumber)
     {
@@ -363,7 +363,7 @@ class ApprovalMaterial extends Component
         imagecopy($canvas, $qrImage, 0, 0, 0, 0, $qrWidth, $qrHeight);
 
         // Tentukan text dan posisi
-        $text = "Nomor SPB: " . $spbNumber;
+        $text = "Nomor SPPB: " . $spbNumber;
         $fontPath = $this->getFontPath();
 
         if ($fontPath && file_exists($fontPath)) {
