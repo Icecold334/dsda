@@ -715,6 +715,34 @@ class DriverSecuritySeeder extends Seeder
         // Data Security berdasarkan JSON
         $securities = [
 
+            // jakarta pusat
+            [
+                'nama' => 'Nandang Suhada',
+                'wilayah' => 'Jakarta Pusat'
+            ],
+            [
+                'nama' => 'Paryono',
+                'wilayah' => 'Jakarta Pusat'
+            ],
+            ['nama' => 'Ananda fajar Kurniawan ', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Ari Afrial', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Ahmad Kurniyanto', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Anggi Hasanudin ', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Abdul Rachman', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Dodi Wijaya', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Ilham Ahmad', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'M. Fajri Kiswanto', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Siti Nursadiah', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Tri Handoko Putih', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Vicky Ali Bachtiar', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Willy jafeth Marianus', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Sain muhamad', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Agung sri Sukrisno', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Ahmad Bahrudin', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Danu Satriyo', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Moh Setiawan', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Sahrul Anwar', 'wilayah' => 'Jakarta Pusat'],
+            ['nama' => 'Yudik Kiswanto', 'wilayah' => 'Jakarta Pusat'],
             // Jakarta Utara
             [
                 'nama' => 'Anton Suherman',
