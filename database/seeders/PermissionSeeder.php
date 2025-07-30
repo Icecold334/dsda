@@ -174,7 +174,10 @@ class PermissionSeeder extends Seeder
 
             "Pengurus Barang" => [
                 'dashboard.read',
+                'rab.create',
                 'rab.read',
+                'rab.update',
+                'rab.delete',
                 'permintaan.read',
                 'permintaan.update',
                 'penerimaan.read',

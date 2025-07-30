@@ -56,4 +56,9 @@ class TransaksiStok extends Model
     {
         return $this->morphMany(Approval::class, 'approvable');
     }
+
+    public function fileAttachments()
+    {
+        return $this->morphMany(FileSource::class, 'fileable');
+    }
 }

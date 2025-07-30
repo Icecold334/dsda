@@ -6,11 +6,16 @@ use Livewire\Component;
 use App\Models\LokasiStok;
 use App\Models\TransaksiStok;
 use App\Models\MerkStok;
+use App\Models\FileSource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Livewire\WithFileUploads;
 use Carbon\Carbon;
 
 class ShowStokMaterial extends Component
 {
+    use WithFileUploads;
+
     public $lokasi_id;
     public $lokasi, $search;
     public $showModal = false;
@@ -24,6 +29,10 @@ class ShowStokMaterial extends Component
         'jumlah' => null,
         'deskripsi' => null,
     ];
+
+    // File upload properties
+    public $newAttachments = [];
+    public $attachments = [];
 
     public $stokAwal = null;
 
@@ -64,7 +73,8 @@ class ShowStokMaterial extends Component
 
         foreach ($transaksis as $trx) {
             $barang = $trx->merkStok->barangStok;
-            if (!$barang) continue;
+            if (!$barang)
+                continue;
 
             $key = $barang->id;
             $merk = $trx->merkStok->nama ?? 'Tanpa Merk';
@@ -138,7 +148,8 @@ class ShowStokMaterial extends Component
 
         foreach ($transaksis as $trx) {
             $barang = $trx->merkStok->barangStok;
-            if (!$barang) continue;
+            if (!$barang)
+                continue;
 
             $key = $barang->id;
             $merk = $trx->merkStok->nama ?? 'Tanpa Merk';
@@ -205,27 +216,43 @@ class ShowStokMaterial extends Component
     }
 
 
+    public function updatedNewAttachments()
+    {
+        $this->validate([
+            'newAttachments.*' => 'file|max:5024|mimes:jpeg,png,jpg,gif,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar',
+        ]);
+
+        foreach ($this->newAttachments as $file) {
+            $this->attachments[] = $file;
+        }
+
+        $this->reset('newAttachments');
+    }
+
+    public function removeAttachment($index)
+    {
+        unset($this->attachments[$index]);
+        $this->attachments = array_values($this->attachments);
+    }
+
     public function simpanPenyesuaian()
     {
         $this->validate([
             'penyesuaian.merk_id' => 'required|exists:merk_stok,id',
             'penyesuaian.jumlah' => 'required|numeric|min:0',
             'penyesuaian.deskripsi' => 'nullable|string',
+            'attachments.*' => 'file|max:5024|mimes:jpeg,png,jpg,gif,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar',
         ]);
-
-        // $stokBaru = (int) $this->penyesuaian['jumlah'];
-        // $selisih = $stokBaru - (int) $this->stokAwal;
 
         $jumlahPerubahan = (int) $this->penyesuaian['jumlah'];
         $selisih = $this->penyesuaian['tipe'] === 'kurang' ? -$jumlahPerubahan : +$jumlahPerubahan;
-
 
         if ($selisih === 0) {
             session()->flash('info', 'Tidak ada perubahan stok.');
             return;
         }
 
-        TransaksiStok::create([
+        $transaksi = TransaksiStok::create([
             'tipe' => 'Penyesuaian',
             'merk_id' => $this->penyesuaian['merk_id'],
             'jumlah' => $selisih,
@@ -236,16 +263,31 @@ class ShowStokMaterial extends Component
             'kode_transaksi_stok' => 'SO-' . now()->format('Ymd'),
         ]);
 
+        // Save file attachments
+        if (!empty($this->attachments)) {
+            foreach ($this->attachments as $file) {
+                $originalName = $file->getClientOriginalName();
+                $filename = time() . '-' . Str::slug(pathinfo($originalName, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('lampiran-penyesuaian-stok', $filename, 'public');
+
+                FileSource::create([
+                    'fileable_id' => $transaksi->id,
+                    'fileable_type' => TransaksiStok::class,
+                    'user_id' => Auth::id(),
+                    'file' => $path,
+                    'status' => true,
+                    'type' => 'lainnya',
+                    'keterangan' => 'Lampiran Penyesuaian Stok',
+                ]);
+            }
+        }
+
         $this->dispatch('toast', [
-            // 'title' => 'Berhasil',
             'message' => 'Penyesuaian stok berhasil disimpan.',
             'type' => 'success'
         ]);
 
-        $this->reset('penyesuaian', 'stokAwal', 'showFormPenyesuaian');
-
-        $this->reset('penyesuaian', 'stokAwal', 'showFormPenyesuaian');
-        // session()->flash('success', 'Penyesuaian stok berhasil disimpan.');
+        $this->reset('penyesuaian', 'stokAwal', 'showFormPenyesuaian', 'attachments');
     }
 
 
@@ -253,7 +295,7 @@ class ShowStokMaterial extends Component
     {
         $this->modalBarangNama = $namaBarang;
 
-        $this->modalRiwayat = TransaksiStok::with(['merkStok.barangStok', 'lokasiStok', 'bagianStok', 'posisiStok'])
+        $this->modalRiwayat = TransaksiStok::with(['merkStok.barangStok', 'lokasiStok', 'bagianStok', 'posisiStok', 'fileAttachments'])
             ->where(function ($q) {
                 $q->where('lokasi_id', $this->lokasi_id)
                     ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $this->lokasi_id))
@@ -276,6 +318,12 @@ class ShowStokMaterial extends Component
                     'posisi' => $trx->posisiStok?->nama ?? '-',
                     'deskripsi' => $trx->deskripsi ?? '-',
                     'user' => $trx->user->name ?? '-',
+                    'attachments' => $trx->fileAttachments->map(function ($file) {
+                        return [
+                            'file' => $file->file,
+                            'original_name' => basename($file->file),
+                        ];
+                    })->toArray(),
                 ];
             })->toArray();
 

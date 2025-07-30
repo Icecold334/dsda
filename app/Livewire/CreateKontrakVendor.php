@@ -59,7 +59,7 @@ class CreateKontrakVendor extends Component
     public $rekening_id, $rekenings = [];
     public $tanggal_akhir_kontrak;
     public $durasi_kontrak;
-    public  $newSatuan;
+    public $newSatuan;
 
     // === SECTION: BARANG ===
     public $barang_id, $newBarang, $jumlah, $newHarga, $newPpn = 0;
@@ -175,7 +175,8 @@ class CreateKontrakVendor extends Component
     {
         $this->kontrak_api_list = [];
 
-        if (!$this->tahun_api) return;
+        if (!$this->tahun_api)
+            return;
 
         $url = "https://emonev-dev.dsdajakarta.id/api/kontrak/{$this->tahun_api}";
 
@@ -205,7 +206,8 @@ class CreateKontrakVendor extends Component
     {
         $data = $this->kontrak_api_list['data'][$index] ?? null;
 
-        if (!$data) return;
+        if (!$data)
+            return;
 
         $this->nomor_kontrak = $data['no_spk'];
         $this->tanggal_kontrak = $data['tgl_spk'];
@@ -490,7 +492,8 @@ class CreateKontrakVendor extends Component
 
     public function fetchSpesifikasiOptions()
     {
-        if (!$this->barang_id) return;
+        if (!$this->barang_id)
+            return;
 
         $this->specOptions['nama'] = MerkStok::where('barang_id', $this->barang_id)->pluck('nama')->unique()->values()->toArray();
         $this->specOptions['tipe'] = MerkStok::where('barang_id', $this->barang_id)->pluck('tipe')->unique()->values()->toArray();
@@ -499,7 +502,8 @@ class CreateKontrakVendor extends Component
 
     public function addToList()
     {
-        if (!$this->newBarang || !$this->newSatuan) return;
+        if (!$this->newBarang || !$this->newSatuan)
+            return;
 
         $barang = BarangStok::firstOrCreate([
             'slug' => Str::slug($this->newBarang),
@@ -524,6 +528,9 @@ class CreateKontrakVendor extends Component
 
         $this->reset(['newBarang', 'newSatuan', 'jumlah', 'newHarga', 'newPpn', 'specifications']);
         $this->calculateTotal();
+
+        // Trigger Alpine.js reset untuk field harga
+        $this->dispatch('reset-harga-field');
     }
 
     public function getOrCreateSatuan($nama)
@@ -626,7 +633,8 @@ class CreateKontrakVendor extends Component
 
         while ($kontrak->is_adendum && $kontrak->parent_kontrak_id) {
             $kontrak = KontrakVendorStok::find($kontrak->parent_kontrak_id);
-            if (!$kontrak) break;
+            if (!$kontrak)
+                break;
             $ids[] = $kontrak->id;
         }
 

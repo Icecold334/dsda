@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PersetujuanPermintaanStok;
 use Illuminate\Support\Facades\Notification;
+use App\Helpers\StokHelper;
 
 class ListPermintaanForm extends Component
 {
@@ -66,6 +67,10 @@ class ListPermintaanForm extends Component
     public $newLokasiId;
     public $newLokasi;
     public $newJumlah; // Input for new jumlah
+    public $newMerkId; // ID merk yang dipilih
+    public $newMaxJumlah = 0; // Maksimal jumlah yang bisa diminta
+    public $gudang_id; // ID gudang yang dipilih
+    public $validationInfo = []; // Info detail validasi
     public $NoSeri;
     public $JenisKDO;
     public $NamaKDO;
@@ -150,20 +155,20 @@ class ListPermintaanForm extends Component
                 })->where('merk_id', $merk->id) // Ambil stok berdasarkan merk_id
                     ->get()
                     ->map(function ($stok) use ($merk) {
-                        return [
-                            'id' => $merk->id,
-                            'nama' => $merk->nama, // Nama merk
-                            'tipe' => $merk->tipe, // Tipe merk
-                            'ukuran' => $merk->ukuran, // Ukuran merk
-                            'lokasi' => $stok->lokasiStok->nama, // Lokasi terkait stok
-                            'bagian' => $stok->bagianStok->nama ?? null, // Bagian jika ada
-                            'posisi' => $stok->posisiStok->nama ?? null, // Posisi jika ada
-                            'jumlah_tersedia' => $stok->jumlah, // Jumlah stok yang tersedia
-                            'lokasi_id' => $stok->lokasi_id, // ID lokasi
-                            'bagian_id' => $stok->bagian_id, // ID bagian
-                            'posisi_id' => $stok->posisi_id, // ID posisi
-                        ];
-                    });
+                    return [
+                        'id' => $merk->id,
+                        'nama' => $merk->nama, // Nama merk
+                        'tipe' => $merk->tipe, // Tipe merk
+                        'ukuran' => $merk->ukuran, // Ukuran merk
+                        'lokasi' => $stok->lokasiStok->nama, // Lokasi terkait stok
+                        'bagian' => $stok->bagianStok->nama ?? null, // Bagian jika ada
+                        'posisi' => $stok->posisiStok->nama ?? null, // Posisi jika ada
+                        'jumlah_tersedia' => $stok->jumlah, // Jumlah stok yang tersedia
+                        'lokasi_id' => $stok->lokasi_id, // ID lokasi
+                        'bagian_id' => $stok->bagian_id, // ID bagian
+                        'posisi_id' => $stok->posisi_id, // ID posisi
+                    ];
+                });
             })->flatten(1),
         ];
     }
@@ -259,10 +264,12 @@ class ListPermintaanForm extends Component
                     $merkQuery->join('stok', 'merk_stok.id', '=', 'stok.merk_id')
                         ->groupBy('merk_stok.id')
                         // ->havingRaw('SUM(stok.jumlah) > 0')
-                        ->with(['stok' => function ($stokQuery) {
-                            $stokQuery->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah'))
-                                ->groupBy('merk_id');
-                        }]);
+                        ->with([
+                            'stok' => function ($stokQuery) {
+                                $stokQuery->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah'))
+                                    ->groupBy('merk_id');
+                            }
+                        ]);
                 }
             ]);
         if ($this->requestIs === 'permintaan') {
@@ -313,10 +320,12 @@ class ListPermintaanForm extends Component
         })
             ->with([
                 'merkStok' => function ($merkQuery) {
-                    $merkQuery->with(['stok' => function ($stokQuery) {
-                        $stokQuery->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah')) // Hitung total jumlah
-                            ->groupBy('merk_id');
-                    }]);
+                    $merkQuery->with([
+                        'stok' => function ($stokQuery) {
+                            $stokQuery->select('merk_id', DB::raw('SUM(jumlah) as total_jumlah')) // Hitung total jumlah
+                                ->groupBy('merk_id');
+                        }
+                    ]);
                 }
             ]);
         if ($this->requestIs === 'permintaan') {
@@ -353,7 +362,7 @@ class ListPermintaanForm extends Component
             })->whereHas('kategori', function ($query) use ($kategori) {
                 return $query->where('parent_id', $kategori->id)->orWhere('id', $kategori->id);
             })->where('perbaikan', true)
-            ->get();
+                ->get();
 
         $this->drivers = User::whereHas('roles', function ($query) {
             $query->where('name', 'Driver'); // Ambil user dengan role "Driver"
@@ -830,7 +839,7 @@ class ListPermintaanForm extends Component
 
         $this->fillShowRule();
         $expl = explode('/', Request::getUri());
-        $this->requestIs = (int)strlen(Request::segment(3)) > 3 ? Request::segment(3) : $expl[count($expl) - 2];
+        $this->requestIs = (int) strlen(Request::segment(3)) > 3 ? Request::segment(3) : $expl[count($expl) - 2];
         // $this->focusBarang();
 
         $this->fillKategoriId($this->kategori_id ?? null);
@@ -934,6 +943,112 @@ class ListPermintaanForm extends Component
 
         $this->newBarang = $barangName;
         $this->barangSuggestions = [];
+    }
+
+    /**
+     * Handle perubahan barang yang dipilih
+     */
+    public function updatedNewBarangId($value)
+    {
+        if ($value) {
+            $barang = BarangStok::find($value);
+            if ($barang) {
+                $this->newBarang = $barang->nama;
+                $this->newUnit = optional($barang->satuanBesar)->nama ?? 'Satuan';
+
+                // Reset merk dan jumlah ketika barang berubah
+                $this->newMerkId = null;
+                $this->newJumlah = null;
+                $this->newMaxJumlah = 0;
+                $this->validationInfo = [];
+            }
+        }
+    }
+
+    /**
+     * Handle perubahan merk yang dipilih
+     */
+    public function updatedNewMerkId($value)
+    {
+        if ($value) {
+            $this->calculateMaxJumlah();
+        } else {
+            $this->newMaxJumlah = 0;
+            $this->newJumlah = null;
+            $this->validationInfo = [];
+        }
+    }
+
+    /**
+     * Handle perubahan jumlah yang diminta
+     */
+    public function updatedNewJumlah($value)
+    {
+        if ($this->newMerkId && $value) {
+            $this->validateJumlahPermintaan();
+        }
+    }
+
+    /**
+     * Handle perubahan gudang
+     */
+    public function updatedGudangId($value)
+    {
+        if ($this->newMerkId) {
+            $this->calculateMaxJumlah();
+        }
+    }
+
+    /**
+     * Menghitung maksimal jumlah yang bisa diminta
+     */
+    public function calculateMaxJumlah()
+    {
+        if (!$this->newMerkId) {
+            $this->newMaxJumlah = 0;
+            return;
+        }
+
+        $this->newMaxJumlah = StokHelper::calculateMaxPermintaan(
+            $this->newMerkId,
+            $this->rab_id,
+            $this->gudang_id
+        );
+
+        // Reset jumlah jika melebihi maksimal
+        if ($this->newJumlah > $this->newMaxJumlah) {
+            $this->newJumlah = null;
+        }
+
+        // Simpan info detail untuk debugging
+        $this->validationInfo = StokHelper::getDetailInfo(
+            $this->newMerkId,
+            $this->rab_id,
+            $this->gudang_id
+        );
+    }
+
+    /**
+     * Validasi jumlah permintaan
+     */
+    public function validateJumlahPermintaan()
+    {
+        if (!$this->newMerkId || !$this->newJumlah) {
+            return;
+        }
+
+        $validation = StokHelper::validateJumlahPermintaan(
+            $this->newMerkId,
+            $this->newJumlah,
+            $this->rab_id,
+            $this->gudang_id
+        );
+
+        if (!$validation['valid']) {
+            $this->addError('newJumlah', $validation['error_message']);
+        } else {
+            $this->resetErrorBag('newJumlah');
+        }
     }
     public function approveItem($index)
     {
@@ -1123,7 +1238,7 @@ class ListPermintaanForm extends Component
 
                 $permintaanItems = $this->permintaan->permintaanStok;
                 foreach ($permintaanItems as $merk) {
-                    foreach ($merk->stokDisetujui as  $item) {
+                    foreach ($merk->stokDisetujui as $item) {
                         $this->adjustStockForApproval($item);
                     }
                 }
@@ -1215,16 +1330,17 @@ class ListPermintaanForm extends Component
         // Ambil stok berdasarkan merk_id, diurutkan berdasarkan lokasi atau logika lainnya
         $stocks =
             Stok::where('merk_id', $merk->merk_id)
-            ->where('lokasi_id', $merk->lokasi_id)
-            ->where('bagian_id', $merk->bagian_id)
-            ->where('posisi_id', $merk->posisi_id)
-            // ->where('jumlah', '>', 0)
-            ->get();
+                ->where('lokasi_id', $merk->lokasi_id)
+                ->where('bagian_id', $merk->bagian_id)
+                ->where('posisi_id', $merk->posisi_id)
+                // ->where('jumlah', '>', 0)
+                ->get();
 
         $remaining = $merk->jumlah_disetujui; // Jumlah yang harus dikurangi
 
         foreach ($stocks as $stock) {
-            if ($remaining <= 0) break; // Hentikan jika jumlah sudah terpenuhi
+            if ($remaining <= 0)
+                break; // Hentikan jika jumlah sudah terpenuhi
 
             if ($stock->jumlah >= $remaining) {
                 // Jika stok di lokasi ini cukup atau lebih dari jumlah yang dibutuhkan

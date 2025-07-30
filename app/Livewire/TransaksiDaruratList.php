@@ -172,7 +172,7 @@ class TransaksiDaruratList extends Component
                 ];
             }
             $this->dispatch('listCount', count: count($this->list));
-            $this->cekStatusItem  = $this->checkStatusbyVendor($this->vendor_id);
+            $this->cekStatusItem = $this->checkStatusbyVendor($this->vendor_id);
         }
         // $this->cekApproval = TransaksiStok::where('vendor_id', $this->vendor_id)->where(function ($query) {
         //     $query->whereNull('pptk_id')
@@ -342,7 +342,7 @@ class TransaksiDaruratList extends Component
                     'img' => $item['bukti'] != null ? str_replace('buktiTransaksi/', '', $item['bukti']->storeAs('buktiTransaksi', $item['bukti']->getClientOriginalName(), 'public')) : null,
                     'user_id' => Auth::id(),
                     'kontrak_id' => null,
-                    'harga' => (int)str_replace('.', '', $item['harga']),
+                    'harga' => (int) str_replace('.', '', $item['harga']),
                     'ppn' => $item['ppn'],
                     // 'lokasi_id' => $item['lokasi_id'],
                     'tanggal' => strtotime(date('Y-m-d H:i:s')),
@@ -366,7 +366,7 @@ class TransaksiDaruratList extends Component
         }
         $vendor_id = $this->vendor_id;
         // Clear the list and reset input fields
-        $this->reset(['list', 'vendor_id', 'newBarangId', 'newJumlah',  'newBukti']);
+        $this->reset(['list', 'vendor_id', 'newBarangId', 'newJumlah', 'newBukti']);
         //  $this->dispatch('success');
         return redirect()->route('transaksi-darurat-stok.edit', ['transaksi_darurat_stok' => $vendor_id]);
         // $this->dispatchBrowserEvent('kontrakSaved'); // Trigger any frontend success indication if needed

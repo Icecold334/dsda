@@ -9,11 +9,11 @@
                 <div class="flex flex-col gap-4">
                     <!-- Nomor Kontrak Lama -->
                     @if ($isAdendum)
-                    <div>
-                        <label class="block text-sm font-medium">Nomor Kontrak Lama</label>
-                        <input type="text" value="{{ $nomor_kontrak }}" disabled
-                            class="w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100" />
-                    </div>
+                        <div>
+                            <label class="block text-sm font-medium">Nomor Kontrak Lama</label>
+                            <input type="text" value="{{ $nomor_kontrak }}" disabled
+                                class="w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100" />
+                        </div>
                     @endif
                     <div>
                         <label class="block text-sm font-medium">Tahun</label>
@@ -21,14 +21,14 @@
                             class="w-full p-2 border border-gray-300 rounded-md text-sm">
                             <option value="">-- Pilih Tahun --</option>
                             @for ($i = now()->year; $i >= now()->year - 5; $i--)
-                            <option value="{{ $i }}">{{ $i }}</option>
+                                <option value="{{ $i }}">{{ $i }}</option>
                             @endfor
                         </select>
                     </div>
 
 
                     <div>
-                        <label class="block text-sm font-medium">Nomor SPK {{ $isAdendum ? 'Baru': '' }}</label>
+                        <label class="block text-sm font-medium">Nomor SPK {{ $isAdendum ? 'Baru' : '' }}</label>
                         <input type="text" wire:model.live="nomor_spk_api"
                             class="w-full p-2 border border-gray-300 rounded-md text-sm"
                             placeholder="Contoh: 123/SPK/2025">
@@ -44,24 +44,24 @@
             <x-card title="Informasi Kontrak">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     @foreach ([
-                    'nomor_spk_api' => 'Nomor SPK',
-                    'nama_paket' => 'Nama Paket',
-                    'jenis_pengadaan' => 'Jenis Pengadaan',
-                    'nama_penyedia' => 'Nama Penyedia',
-                    'tahun_anggaran' => 'Tahun Anggaran',
-                    'dinas_sudin' => 'Dinas/Sudin',
-                    'nama_bidang_seksi' => 'Bidang/Seksi',
-                    'program' => 'Program',
-                    'kegiatan' => 'Kegiatan',
-                    'sub_kegiatan' => 'Sub Kegiatan',
-                    'aktivitas_sub_kegiatan' => 'Aktivitas Sub Kegiatan',
-                    'rekening' => 'Kode Rekening',
-                    ] as $field => $label)
-                    <div>
-                        <label class="block text-sm font-medium">{{ $label }}</label>
-                        <input type="text" wire:model.live="{{ $field }}" disabled
-                            class="w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100">
-                    </div>
+                            'nomor_spk_api' => 'Nomor SPK',
+                            'nama_paket' => 'Nama Paket',
+                            'jenis_pengadaan' => 'Jenis Pengadaan',
+                            'nama_penyedia' => 'Nama Penyedia',
+                            'tahun_anggaran' => 'Tahun Anggaran',
+                            'dinas_sudin' => 'Dinas/Sudin',
+                            'nama_bidang_seksi' => 'Bidang/Seksi',
+                            'program' => 'Program',
+                            'kegiatan' => 'Kegiatan',
+                            'sub_kegiatan' => 'Sub Kegiatan',
+                            'aktivitas_sub_kegiatan' => 'Aktivitas Sub Kegiatan',
+                            'rekening' => 'Kode Rekening',
+                        ] as $field => $label)
+                        <div>
+                            <label class="block text-sm font-medium">{{ $label }}</label>
+                            <input type="text" wire:model.live="{{ $field }}" disabled
+                                class="w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100">
+                        </div>
                     @endforeach
 
                     <div>
@@ -76,12 +76,12 @@
                     </div>
 
                     @if ($durasi_kontrak)
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium">Durasi Kontrak</label>
-                        <div class="p-2 border border-gray-300 bg-gray-100 rounded-md text-sm">
-                            {{ $durasi_kontrak }}
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium">Durasi Kontrak</label>
+                            <div class="p-2 border border-gray-300 bg-gray-100 rounded-md text-sm">
+                                {{ $durasi_kontrak }}
+                            </div>
                         </div>
-                    </div>
                     @endif
 
                     {{-- <div class="md:col-span-2">
@@ -116,10 +116,10 @@
                         <ul x-show="open" x-transition
                             class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow max-h-48 overflow-y-auto text-sm">
                             @foreach ($barangSuggestions as $suggest)
-                            <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
-                                @click="search = '{{ addslashes($suggest) }}'; open = false;">
-                                {{ $suggest }}
-                            </li>
+                                <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
+                                    @click="search = '{{ addslashes($suggest) }}'; open = false;">
+                                    {{ $suggest }}
+                                </li>
                             @endforeach
                         </ul>
                     </div>
@@ -141,10 +141,10 @@
                         <ul x-show="open" x-transition
                             class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow max-h-48 overflow-y-auto text-sm">
                             @foreach ($satuanSuggestions as $suggest)
-                            <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
-                                @click="search = '{{ addslashes($suggest) }}'; open = false;">
-                                {{ $suggest }}
-                            </li>
+                                <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
+                                    @click="search = '{{ addslashes($suggest) }}'; open = false;">
+                                    {{ $suggest }}
+                                </li>
                             @endforeach
                         </ul>
                     </div>
@@ -167,6 +167,16 @@
                     },
                     init() {
                         this.raw = this.raw;
+                        // Listen untuk reset dari Livewire
+                        Livewire.on('reset-harga-field', () => {
+                            this.formatted = '';
+                        });
+                        // Watch perubahan newHarga dari Livewire
+                        this.$watch('$wire.newHarga', (value) => {
+                            if (!value || value === '' || value === 0) {
+                                this.formatted = '';
+                            }
+                        });
                     }
                 }">
                         <label class="block text-sm font-medium">Harga Satuan</label>
@@ -186,35 +196,35 @@
 
                     <!-- Spesifikasi -->
                     @foreach (['nama', 'tipe', 'ukuran'] as $field)
-                    <div class="col-span-1" x-data="{ open: false, search: @entangle('specifications.' . $field).live }"
-                        class="relative">
-                        <label class="block text-sm font-medium capitalize">{{ $field }}</label>
-                        <input type="text" x-model="search" @focus="open = true" @click.outside="open = false"
-                            class="w-full p-2 border border-gray-300 rounded-md text-sm"
-                            placeholder="Ketik atau pilih {{ $field }}...">
+                        <div class="col-span-1" x-data="{ open: false, search: @entangle('specifications.' . $field).live }"
+                            class="relative">
+                            <label class="block text-sm font-medium capitalize">{{ $field }}</label>
+                            <input type="text" x-model="search" @focus="open = true" @click.outside="open = false"
+                                class="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="Ketik atau pilih {{ $field }}...">
 
-                        <ul x-show="open" x-transition
-                            class="absolute z-10 mt-1 w-72 bg-white border border-gray-300 rounded-md shadow max-h-48 overflow-y-auto text-sm">
-                            @foreach ($specOptions[$field] as $val)
-                            <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
-                                @click="search = '{{ addslashes($val) }}'; open = false;">
-                                {{ $val }}
-                            </li>
-                            @endforeach
-                        </ul>
-                    </div>
+                            <ul x-show="open" x-transition
+                                class="absolute z-10 mt-1 w-72 bg-white border border-gray-300 rounded-md shadow max-h-48 overflow-y-auto text-sm">
+                                @foreach ($specOptions[$field] as $val)
+                                    <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
+                                        @click="search = '{{ addslashes($val) }}'; open = false;">
+                                        {{ $val }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
                     @endforeach
                 </div>
 
                 <!-- Tombol tambah -->
                 <div class="flex justify-end">
                     @if ($newBarang && $newSatuan && $jumlah && $newHarga)
-                    <button wire:click="addToList"
-                        class="mt-2 bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 transition">
-                        <i class="fa fa-plus mr-1"></i> Tambah ke Daftar Barang
-                    </button>
+                        <button wire:click="addToList"
+                            class="mt-2 bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 transition">
+                            <i class="fa fa-plus mr-1"></i> Tambah ke Daftar Barang
+                        </button>
                     @else
-                    <span class="text-sm text-gray-500 mt-2">Lengkapi semua data sebelum menambahkan</span>
+                        <span class="text-sm text-gray-500 mt-2">Lengkapi semua data sebelum menambahkan</span>
                     @endif
                 </div>
             </x-card>
@@ -231,7 +241,7 @@
                     <th class="p-2 text-left">Spesifikasi</th>
                     <th class="p-2 text-center">Jumlah</th>
                     @if ($isAdendum)
-                    <th class="p-2 text-center">Jumlah Terkirim</th>
+                        <th class="p-2 text-center">Jumlah Terkirim</th>
                     @endif
                     <th class="p-2 text-right">Harga</th>
                     <th class="p-2 text-center">PPN</th>
@@ -241,48 +251,48 @@
             </thead>
             <tbody>
                 @if (count($list) > 0)
-                @foreach ($list as $index => $item)
-                @php
-                $harga = (int) str_replace('.', '', $item['harga']);
-                $subtotal = $harga * $item['jumlah'];
-                $ppn = $item['ppn'] ? ($subtotal * ((int) $item['ppn'] / 100)) : 0;
-                $total = $subtotal + $ppn;
-                @endphp
-                <tr class="bg-white border-b hover:bg-gray-50">
-                    <td class="p-2">{{ $item['barang'] }}</td>
-                    <td class="p-2">{{ collect($item['specifications'])->filter()->implode(', ') }}</td>
-                    <td class="p-2 text-center">{{ $item['jumlah'] }} {{ $item['satuan'] }}</td>
-                    @if ($isAdendum)
-                    <td class="p-2 text-center">{{ $item['jumlah_terkirim'] }} {{ $item['satuan'] }}</td>
-                    @endif
-                    <td class="p-2 text-right">Rp {{ number_format($harga, 0, '', '.') }}</td>
-                    <td class="p-2 text-center">{{ $item['ppn'] == 0 ? 'Termasuk PPN' : $item['ppn'].'%' }}</td>
-                    <td class="p-2 text-right font-semibold">Rp {{ number_format($total, 0, '', '.') }}</td>
-                    <td class="p-2 text-center">
-                        @if (!empty($item['can_delete']) && $item['can_delete'])
-                        <button wire:click="removeFromList({{ $index }})" class="text-red-600 hover:text-red-800">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                        @elseif (!empty($item['readonly']))
-                        <span class="text-xs text-gray-800 font-semibold italic">Barang sudah selesai
-                            dikirim</span>
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
+                    @foreach ($list as $index => $item)
+                        @php
+                            $harga = (int) str_replace('.', '', $item['harga']);
+                            $subtotal = $harga * $item['jumlah'];
+                            $ppn = $item['ppn'] ? ($subtotal * ((int) $item['ppn'] / 100)) : 0;
+                            $total = $subtotal + $ppn;
+                        @endphp
+                        <tr class="bg-white border-b hover:bg-gray-50">
+                            <td class="p-2">{{ $item['barang'] }}</td>
+                            <td class="p-2">{{ collect($item['specifications'])->filter()->implode(', ') }}</td>
+                            <td class="p-2 text-center">{{ $item['jumlah'] }} {{ $item['satuan'] }}</td>
+                            @if ($isAdendum)
+                                <td class="p-2 text-center">{{ $item['jumlah_terkirim'] }} {{ $item['satuan'] }}</td>
+                            @endif
+                            <td class="p-2 text-right">Rp {{ number_format($harga, 0, '', '.') }}</td>
+                            <td class="p-2 text-center">{{ $item['ppn'] == 0 ? 'Termasuk PPN' : $item['ppn'] . '%' }}</td>
+                            <td class="p-2 text-right font-semibold">Rp {{ number_format($total, 0, '', '.') }}</td>
+                            <td class="p-2 text-center">
+                                @if (!empty($item['can_delete']) && $item['can_delete'])
+                                    <button wire:click="removeFromList({{ $index }})" class="text-red-600 hover:text-red-800">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                @elseif (!empty($item['readonly']))
+                                    <span class="text-xs text-gray-800 font-semibold italic">Barang sudah selesai
+                                        dikirim</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
                 @else
-                <tr>
-                    <td colspan="{{ $isAdendum ? 8 : 7 }}" class="text-center p-4 text-gray-500">
-                        Belum ada barang ditambahkan
-                    </td>
-                </tr>
+                    <tr>
+                        <td colspan="{{ $isAdendum ? 8 : 7 }}" class="text-center p-4 text-gray-500">
+                            Belum ada barang ditambahkan
+                        </td>
+                    </tr>
                 @endif
                 @if (count($list) > 0)
-                <tr class="bg-gray-100 font-bold">
-                    <td colspan="5" class="p-2 text-right">TOTAL</td>
-                    <td class="p-2 text-right">Rp {{ $nominal_kontrak }}</td>
-                    <td></td>
-                </tr>
+                    <tr class="bg-gray-100 font-bold">
+                        <td colspan="5" class="p-2 text-right">TOTAL</td>
+                        <td class="p-2 text-right">Rp {{ $nominal_kontrak }}</td>
+                        <td></td>
+                    </tr>
                 @endif
             </tbody>
         </table>
@@ -297,26 +307,26 @@
 </div>
 
 @push('scripts')
-<script>
-    Livewire.on('saveDokumen', function ({ kontrak_id }) {
-        Swal.fire({
-            title: 'Berhasil!',
-            text: 'Kontrak berhasil disimpan.',
-            icon: 'success',
-            confirmButtonText: 'OK'
-        }).then(() => {
-            window.location.href = `/kontrak-vendor-stok/${kontrak_id}`;
+    <script>
+        Livewire.on('saveDokumen', function ({ kontrak_id }) {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Kontrak berhasil disimpan.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = `/kontrak-vendor-stok/${kontrak_id}`;
+            });
         });
-    });
 
-    Livewire.on('alert', function (e) {
-        var { type, message } = e[0]
-        Swal.fire({
-            title: type === 'error' ? 'Gagal' : 'Perhatian',
-            text: message,
-            icon: type,
-            confirmButtonText: 'Tutup'
+        Livewire.on('alert', function (e) {
+            var { type, message } = e[0]
+            Swal.fire({
+                title: type === 'error' ? 'Gagal' : 'Perhatian',
+                text: message,
+                icon: type,
+                confirmButtonText: 'Tutup'
+            });
         });
-    });
-</script>
+    </script>
 @endpush

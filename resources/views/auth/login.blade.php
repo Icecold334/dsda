@@ -65,7 +65,7 @@
                             </div>
                             <div class="input-wrap">
                                 <input class="input-field" type="text" name="username" @if (session('register'))
-                                    value="{{ old('username') }}" @endif autocomplete="off">
+                                value="{{ old('username') }}" @endif autocomplete="off">
                                 <label>Username</label>
                             </div>
                             <div class="input-wrap">
@@ -113,8 +113,8 @@
 
     <!-- SweetAlert notifications -->
     @if (session('login'))
-    <script>
-        Swal.fire({
+        <script>
+            Swal.fire({
                 toast: true,
                 icon: "error",
                 title: "Login gagal!",
@@ -123,11 +123,11 @@
                 timer: 3000,
                 timerProgressBar: true
             });
-    </script>
+        </script>
     @endif
     @if (session('register'))
-    <script>
-        Swal.fire({
+        <script>
+            Swal.fire({
                 toast: true,
                 icon: "error",
                 title: "Registrasi gagal!",
@@ -136,11 +136,11 @@
                 timer: 3000,
                 timerProgressBar: true
             });
-    </script>
+        </script>
     @endif
     @if (session('daftar'))
-    <script>
-        Swal.fire({
+        <script>
+            Swal.fire({
                 toast: true,
                 icon: "success",
                 title: "Registrasi berhasil!",
@@ -149,7 +149,7 @@
                 timer: 3000,
                 timerProgressBar: true
             });
-    </script>
+        </script>
     @endif
 
     <!-- JS logic -->
