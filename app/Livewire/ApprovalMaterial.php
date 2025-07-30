@@ -41,30 +41,48 @@ class ApprovalMaterial extends Component
     public $kategori;
     public $listDrivers = [];
     public $listSecurities = [];
-    public $showModal = false;
+    // public $showModal = false;
     public $selectedDriverId, $selectedSecurityId, $nopol;
-    public $noSuratJalan;
+    // public $noSuratJalan;
+    // public $driverName, $securityName, $nopolData;
 
+    protected $listeners = ['driverInfoSaved' => 'refreshDriverInfo'];
 
-    public function openModal()
+    public function refreshDriverInfo()
     {
-        $this->reset(['selectedDriverId', 'selectedSecurityId', 'nopol']);
-        $this->showModal = true;
+        // Force refresh of the component to get updated driver data
+        $this->permintaan = $this->permintaan->fresh(); // Refresh data from database
+        $this->mount();
     }
 
-    public function submitPengirimanApproval()
+    public function checkDriverData()
     {
-        $this->validate([
-            'selectedDriverId' => 'required|exists:drivers,id',
-            'selectedSecurityId' => 'required|exists:securities,id',
-            'nopol' => 'required|string',
-        ]);
-
-        // Panggil approval logika seperti approveConfirmed(1, ...)
-        $this->approveConfirmed(1, null, $this->selectedDriverId, $this->nopol, $this->selectedSecurityId, null, $this->noSuratJalan);
-
-        $this->showModal = false;
+        $this->permintaan = $this->permintaan->fresh();
+        return [
+            'driver' => $this->permintaan->driver,
+            'security' => $this->permintaan->security,
+            'nopol' => $this->permintaan->nopol
+        ];
     }
+
+
+    // public function openModal()
+    // {
+    //     $this->reset(['noSuratJalan']);
+    //     $this->showModal = true;
+    // }
+
+    // public function submitPengirimanApproval()
+    // {
+    //     $this->validate([
+    //         'noSuratJalan' => 'required|string',
+    //     ]);
+
+    //     // Panggil approval logika seperti approveConfirmed(1, ...)
+    //     $this->approveConfirmed(1, null, null, null, null, null, $this->noSuratJalan);
+
+    //     $this->showModal = false;
+    // }
     public function mount()
     {
         $this->isPenulis = $this->permintaan->user_id === Auth::id();
@@ -204,6 +222,12 @@ class ApprovalMaterial extends Component
         // dd($this->userApproval);
         // $this->showButtonApproval = in_array(1, $this->userApproval);
         // dd($this->currentApprovalIndex);
+
+        // Inisialisasi data driver, security, dan nopol dari permintaan yang sudah ada
+        // Data ini sekarang diinput melalui form terpisah di show-permintaan-material
+        // $this->driverName = $this->permintaan->driver ?? null;
+        // $this->securityName = $this->permintaan->security ?? null;
+        // $this->nopolData = $this->permintaan->nopol ?? null;
     }
 
     public function markAsCompleted()
@@ -313,9 +337,6 @@ class ApprovalMaterial extends Component
 
             $this->permintaan->update([
                 'status' => 2,
-                'driver' => optional(Driver::find($driver))->nama,
-                'nopol' => $nopol,
-                'security' => optional(Security::find($security))->nama,
                 'suratJalan' => $noSuratJalan, // pastikan kolom ini ada
             ]);
         }
