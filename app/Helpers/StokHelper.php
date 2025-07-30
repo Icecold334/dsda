@@ -6,6 +6,7 @@ use App\Models\ListRab;
 use App\Models\TransaksiStok;
 use App\Models\PermintaanStok;
 use App\Models\PermintaanMaterial;
+use App\Models\DetailPermintaanMaterial;
 use App\Models\StokDisetujui;
 
 class StokHelper
@@ -95,38 +96,53 @@ class StokHelper
 
     /**
      * Menghitung jumlah yang sudah digunakan dari RAB
-     * Termasuk semua permintaan yang sudah disetujui dan sedang diproses
+     * Hanya menghitung permintaan yang sudah dikirim/selesai (status 2 dan 3)
      */
     public static function getJumlahSudahDigunakan($merkId, $rabId)
     {
-        // Hitung dari permintaan stok yang sudah disetujui (memiliki stok_disetujui)
-        $permintaanStokDisetujui = PermintaanStok::whereHas('detailPermintaan', function ($q) use ($rabId) {
-            $q->where('rab_id', $rabId);
-        })
-            ->where('merk_id', $merkId)
-            ->whereHas('stokDisetujui')
-            ->withSum('stokDisetujui', 'jumlah_disetujui')
-            ->get()
-            ->sum('stok_disetujui_sum_jumlah_disetujui');
+        $totalSudahDigunakan = 0;
 
-        // Hitung dari permintaan material yang sudah disetujui (memiliki stok_disetujui)
-        $permintaanMaterialDisetujui = PermintaanMaterial::where('rab_id', $rabId)
-            ->where('merk_id', $merkId)
-            ->whereHas('stokDisetujui')
-            ->withSum('stokDisetujui', 'jumlah_disetujui')
-            ->get()
-            ->sum('stok_disetujui_sum_jumlah_disetujui');
-
-        // Hitung dari permintaan yang sedang dalam proses (belum disetujui tapi sudah ada transaksi pengajuan)
-        $permintaanProses = \App\Models\TransaksiStok::where('merk_id', $merkId)
-            ->where('tipe', 'Pengajuan')
-            ->whereHas('permintaanMaterial.detailPermintaan', function ($q) use ($rabId) {
-                $q->where('rab_id', $rabId);
+        // Hitung dari PermintaanMaterial yang menggunakan RAB dan sudah dikirim/selesai
+        $permintaanMaterial = PermintaanMaterial::where('merk_id', $merkId)
+            ->where('rab_id', $rabId)
+            ->whereHas('detailPermintaan', function ($query) {
+                $query->whereIn('status', [2, 3]); // 2 = Sedang Dikirim, 3 = Selesai
             })
-            ->whereDoesntHave('permintaanMaterial.stokDisetujui')
-            ->sum('jumlah');
+            ->whereHas('stokDisetujui', function ($query) {
+                $query->where('jumlah_disetujui', '>', 0);
+            })
+            ->with('stokDisetujui')
+            ->get();
 
-        return $permintaanStokDisetujui + $permintaanMaterialDisetujui + $permintaanProses;
+        foreach ($permintaanMaterial as $permintaan) {
+            $totalSudahDigunakan += $permintaan->stokDisetujui->sum('jumlah_disetujui');
+        }
+
+        // Hitung juga dari DetailPermintaanMaterial yang menggunakan RAB dan sudah dikirim/selesai
+        $detailPermintaanRAB = DetailPermintaanMaterial::where('rab_id', $rabId)
+            ->whereIn('status', [2, 3]) // Status dikirim/selesai
+            ->whereHas('permintaanMaterial', function ($query) use ($merkId) {
+                $query->where('merk_id', $merkId)
+                    ->whereHas('stokDisetujui', function ($subQuery) {
+                        $subQuery->where('jumlah_disetujui', '>', 0);
+                    });
+            })
+            ->with([
+                'permintaanMaterial' => function ($query) use ($merkId) {
+                    $query->where('merk_id', $merkId)->with('stokDisetujui');
+                }
+            ])
+            ->get();
+
+        foreach ($detailPermintaanRAB as $detail) {
+            foreach ($detail->permintaanMaterial as $permintaan) {
+                if ($permintaan->merk_id == $merkId) {
+                    $totalSudahDigunakan += $permintaan->stokDisetujui->sum('jumlah_disetujui');
+                }
+            }
+        }
+
+        return $totalSudahDigunakan;
     }
 
     /**

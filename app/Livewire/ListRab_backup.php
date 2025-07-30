@@ -8,12 +8,13 @@ use Livewire\Component;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
 use Livewire\Attributes\On;
+use App\Models\PermintaanMaterial;
+use App\Models\DetailPermintaanMaterial;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Notifications\UserNotification;
 use App\Models\ListRab as ModelsListRab;
 use Illuminate\Support\Facades\Notification;
-use App\Models\PermintaanMaterial;
-use App\Models\DetailPermintaanMaterial;
 
 class ListRab extends Component
 {
@@ -137,10 +138,9 @@ class ListRab extends Component
     public function hitungTelahDigunakan($merkId, $rabId)
     {
         $totalTelahDigunakan = 0;
-
+        
         try {
-            // Hitung dari permintaan material yang sudah dikirim/selesai
-            // Berdasarkan status DetailPermintaanMaterial (2 = Sedang Dikirim, 3 = Selesai)
+            // Hitung dari PermintaanMaterial yang sudah dikirim/selesai (status 2 atau 3)
             $permintaanMaterial = PermintaanMaterial::where('merk_id', $merkId)
                 ->where('rab_id', $rabId)
                 ->whereHas('detailPermintaan', function ($query) {
@@ -156,23 +156,19 @@ class ListRab extends Component
                 $totalTelahDigunakan += $permintaan->stokDisetujui->sum('jumlah_disetujui');
             }
 
-            // Hitung juga dari DetailPermintaanMaterial yang menggunakan RAB dan sudah selesai
-            $detailPermintaanRAB = DetailPermintaanMaterial::where('rab_id', $rabId)
-                ->whereIn('status', [2, 3]) // Status dikirim/selesai
+            // Hitung juga dari DetailPermintaanMaterial yang sudah selesai (proses = 1)
+            $detailPermintaanSelesai = DetailPermintaanMaterial::where('rab_id', $rabId)
+                ->where('proses', 1) // Status selesai
                 ->whereHas('permintaanMaterial', function ($query) use ($merkId) {
                     $query->where('merk_id', $merkId)
                         ->whereHas('stokDisetujui', function ($subQuery) {
                             $subQuery->where('jumlah_disetujui', '>', 0);
                         });
                 })
-                ->with([
-                    'permintaanMaterial' => function ($query) use ($merkId) {
-                        $query->where('merk_id', $merkId)->with('stokDisetujui');
-                    }
-                ])
+                ->with(['permintaanMaterial.stokDisetujui'])
                 ->get();
 
-            foreach ($detailPermintaanRAB as $detail) {
+            foreach ($detailPermintaanSelesai as $detail) {
                 foreach ($detail->permintaanMaterial as $permintaan) {
                     if ($permintaan->merk_id == $merkId) {
                         $totalTelahDigunakan += $permintaan->stokDisetujui->sum('jumlah_disetujui');
