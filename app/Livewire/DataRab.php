@@ -65,8 +65,9 @@ class DataRab extends Component
 
         $query = collect();
 
-        // Ambil permintaan material berdasarkan RAB
+        // Ambil permintaan material berdasarkan RAB dengan filter status
         $permintaanMaterial = DetailPermintaanMaterial::where('rab_id', $this->selectedRabId)
+            ->whereIn('status', [2, 3]) // Filter hanya status 2 (Sedang Dikirim) dan 3 (Selesai)
             ->when($this->searchSpb, function ($q) {
                 $q->where('nodin', 'like', '%' . $this->searchSpb . '%');
             })
@@ -74,8 +75,11 @@ class DataRab extends Component
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Ambil permintaan material individual (untuk kasus Seribu)
+        // Ambil permintaan material individual (untuk kasus Seribu) dengan filter status
         $permintaanMaterialSeribu = PermintaanMaterial::where('rab_id', $this->selectedRabId)
+            ->whereHas('detailPermintaan', function ($detail) {
+                $detail->whereIn('status', [2, 3]); // Filter hanya status 2 dan 3
+            })
             ->when($this->searchSpb, function ($q) {
                 $q->whereHas('detailPermintaan', function ($detail) {
                     $detail->where('nodin', 'like', '%' . $this->searchSpb . '%');

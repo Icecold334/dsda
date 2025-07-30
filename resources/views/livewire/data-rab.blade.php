@@ -119,12 +119,18 @@
                 <div class="flex-1 overflow-hidden flex flex-col">
                     {{-- Search Section --}}
                     <div class="p-6 border-b border-gray-100">
-                        <div class="relative max-w-md">
-                            <input type="text" wire:model.live="searchSpb" placeholder="Cari berdasarkan nomor SPB..."
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200">
+                        <div class="flex justify-between items-center">
+                            <div class="relative max-w-md">
+                                <input type="text" wire:model.live="searchSpb" placeholder="Cari berdasarkan nomor SPB..."
+                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200">
 
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
-                                <i class="fa-solid fa-search text-gray-400"></i>
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                    <i class="fa-solid fa-search text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                <i class="fa-solid fa-info-circle mr-1"></i>
+                                Menampilkan permintaan dengan status: Dikirim & Selesai
                             </div>
                         </div>
                     </div>
@@ -183,7 +189,7 @@
 
                                                     <td class="p-4 text-center">
                                                         <span
-                                                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-{{ $item['status_color'] }}-100 text-{{ $item['status_color'] }}-800">
+                                                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-{{ $item['status_color'] }}-800 text-white">
                                                             {{ $item['status'] }}
                                                         </span>
                                                     </td>
@@ -218,7 +224,7 @@
                                     @if($searchSpb)
                                         Tidak ada permintaan yang ditemukan dengan kata kunci "{{ $searchSpb }}"
                                     @else
-                                        Belum ada permintaan material untuk RAB ini. Permintaan yang dibuat akan muncul di sini.
+                                        Belum ada permintaan material dengan status dikirim atau selesai untuk RAB ini.
                                     @endif
                                 </p>
                             </div>
