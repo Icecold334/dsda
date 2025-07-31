@@ -91,7 +91,7 @@
       <span style="font-size: 12px">PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
         DINAS SUMBER DAYA AIR <br></span>
       <strong style="font-size: 14px">SUKU DINAS SUMBER DAYA AIR <br>
-        {{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
+        {{ $isSeribu ? 'KABUPATEN' : 'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
         {{ $permintaan->unit->alamat }}
         <br>
@@ -106,7 +106,7 @@
 <table width="100%" style="margin-top: 20px;">
   <tr>
     <td style="width: 100%; vertical-align: top;text-align: right">Jakarta, {{
-      \Carbon\Carbon::parse($permintaan->tanggal)->translatedFormat('d F Y') }}</td>
+  \Carbon\Carbon::parse($permintaan->tanggal)->translatedFormat('d F Y') }}</td>
   </tr>
   <tr>
     <!-- Kiri: metadata -->
@@ -135,11 +135,10 @@
     <td style="width: 45%; vertical-align: top; text-align: left;">
       <p style="margin-left: 30px;">
         Kepada <br>
-        Yth.<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;Kepala Suku Dinas Sumber Daya Air<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;{{ $sudin }} <br>
-        &nbsp;&nbsp;&nbsp;&nbsp;di <br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jakarta
+        Yth.
+        &nbsp;Kepala Suku Dinas Sumber Daya Air<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{ $sudin }} <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;di Jakarta
       </p>
     </td>
   </tr>
@@ -169,59 +168,70 @@
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="120">{{ $item->merkStok->barangStok->nama }}</td>
       <td width="280">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
-        $item->merkStok->tipe ?? 'Tanpa tipe' }} -
-        {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
+    $item->merkStok->tipe ?? 'Tanpa tipe' }} -
+      {{ $item->merkStok->ukuran ?? 'Tanpa ukuran' }}
+      </td>
       <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
     </tr>
-    @endforeach
+  @endforeach
   </tbody>
 </table>
 <p>
   Adapun bahan material tersebut diperlukan untuk {{ $permintaan->keterangan }} di {{ $permintaan->lokasi }}.
   Demikian
   permohonan ini kami sampaikan.
-  Atas perhatian dan kerjasamanya, saya ucapkan terima kasih.</p>
-<br><br>
+  Atas perhatian dan kerjasamanya, saya ucapkan terima kasih.
+</p>
+
+<br>
+
+<table width="100%" style="margin-top: 20px;">
+  <tr>
+    <td width="50%"></td>
+    <td width="50%" align="center">
+      Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}
+    </td>
+  </tr>
+</table>
+
+<br>
+<br>
 <table width="100%">
   <tr>
-    <td align="center">
+    <td align="center" width="50%">
       Mengetahui,<br>
-      Kepala Seksi Pemeliharaan<br><br><br>
+      Kepala Seksi Pemeliharaan<br><br>
       @if ($sign && $pemelDone)
-      {{-- <img src="{{ $ttdPath }}" width="100" height="50"><br><br> --}}
       <img src="{{ asset('storage/usersTTD/' . $pemel->ttd) }}" width="100" height="50"><br><br>
-      @else
+    @else
       <br><br><br><br>
-      @endif
+    @endif
       <b>{{ $pemel->name }}</b><br>
       NIP. {{ $pemel->nip }}
     </td>
-    <td align="center">
-      Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}<br>
+    <td align="center" width="50%">
       {{ $pemohonRole }}<br>
       @if (Str::contains($pemohonRole, 'Kepala Seksi'))
       Bidang {{ $pemohon->unitKerja->nama }}
-      @elseif(Str::contains($pemohonRole, 'Kepala Satuan Pelaksana'))
+    @elseif(Str::contains($pemohonRole, 'Kepala Satuan Pelaksana'))
       Kecamatan {{ $pemohon->kecamatan->kecamatan ?? '-' }}
-      @endif
+    @endif
       <br><br>
 
       @if ($sign)
       <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
-      {{-- <img src="{{ $ttdPath }}" width="100" height="50"><br><br> --}}
-      @else
+    @else
       <br><br><br><br>
-      @endif
+    @endif
 
       <b>{{ $pemohon->name }}</b><br>
       NIP. {{ $pemohon->nip }}
     </td>
   </tr>
 </table>
-<br>
-<br>
-<br>
-<br>
+
+<br><br><br><br>
+
 <div class="tembusan">
   Tembusan:<br>
   Kepala Subbagian Tata Usaha Suku Dinas Sumber Daya Air {{ $sudin }}
