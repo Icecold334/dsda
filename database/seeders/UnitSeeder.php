@@ -299,7 +299,7 @@ class UnitSeeder extends Seeder
             // ],
             // 'Jakarta Timur' => [
             'Matraman',
-            'Pulogadung',
+            'Pulo Gadung',
             'Jatinegara',
             'Duren Sawit',
             'Kramat Jati',
