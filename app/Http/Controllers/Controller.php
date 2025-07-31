@@ -34,10 +34,10 @@ abstract class Controller
             $user = Auth::user();
 
             if (!Request::is('profil/profile/*')) {
-                dd('asd');
                 // Periksa jika NIP atau TTD kosong
                 // dd(empty($user->nip) || empty($user->ttd));
                 if (empty($user->nip) || empty($user->ttd)) {
+                    dd('asd');
                     session()->flash('alert');
                 }
             }
