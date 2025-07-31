@@ -18,6 +18,7 @@ class ShowPermintaanMaterial extends Component
     public $permintaan, $isOut = false, $Rkb, $RKB, $sudin, $isSeribu, $withRab;
 
     public $signature, $securitySignature;
+    public $selectedDriverId, $selectedSecurityId, $inputNopol;
     protected $listeners = ['signatureSaved'];
     public $attachments = [];
     public $newAttachments = [];
@@ -160,6 +161,31 @@ class ShowPermintaanMaterial extends Component
         } else {
             $this->securitySignature = null;
         }
+    }
+
+    public function saveDriverInfo()
+    {
+        $this->validate([
+            'selectedDriverId' => 'required',
+            'selectedSecurityId' => 'required',
+            'inputNopol' => 'required|string'
+        ]);
+
+        $driver = \App\Models\Driver::find($this->selectedDriverId);
+        $security = \App\Models\Security::find($this->selectedSecurityId);
+
+        $this->permintaan->update([
+            'driver' => $driver->nama,
+            'security' => $security->nama,
+            'nopol' => $this->inputNopol
+        ]);
+
+        $this->reset(['selectedDriverId', 'selectedSecurityId', 'inputNopol']);
+
+        // Dispatch event to refresh the approval component
+        $this->dispatch('driverInfoSaved');
+
+        session()->flash('message', 'Data pengiriman berhasil disimpan.');
     }
 
     public function mount()
@@ -369,7 +395,7 @@ class ShowPermintaanMaterial extends Component
         $pdf->SetTitle('Surat Permintaan Barang Material');
 
         $pdf->AddPage();
-        $pdf->SetFont('helvetica', '', 11, '', '',);
+        $pdf->SetFont('helvetica', '', 11, '', '', );
 
         $permintaan = $this->permintaan;
         $unit_id = $this->unit_id;

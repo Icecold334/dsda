@@ -106,7 +106,7 @@
       <span style="font-size: 12px">PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
         DINAS SUMBER DAYA AIR <br></span>
       <strong style="font-size: 14px">SUKU DINAS SUMBER DAYA AIR <br>
-        {{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
+        {{ $isSeribu ? 'KABUPATEN' : 'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
         {{ $permintaan->unit->alamat }}
         <br>
@@ -122,35 +122,35 @@
   '846846866' }}<br></div>
 <table style="width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 10px;">
   @if ($permintaan->rab)
-  <tr>
+    <tr>
     <td style="width: 25%; vertical-align: top;"><strong>Jenis Pekerjaan</strong></td>
     <td style="width: 2%; vertical-align: top;">:</td>
     <td style="white-space: normal; vertical-align: top;">
       {{ $permintaan->rab->jenis_pekerjaan ?? '……………..……' }}
     </td>
-  </tr>
-  <tr>
+    </tr>
+    <tr>
     <td style="vertical-align: top;"><strong>Lokasi Pekerjaan</strong></td>
     <td style="vertical-align: top;">:</td>
     <td style="white-space: normal; vertical-align: top;">
       {{ $permintaan->rab->lokasi ?? '……………….' }}
     </td>
-  </tr>
+    </tr>
   @else
-  <tr>
+    <tr>
     <td style="width: 25%; vertical-align: top;"><strong>Jenis Pekerjaan</strong></td>
     <td style="width: 2%; vertical-align: top;">:</td>
     <td style="white-space: normal; vertical-align: top;">
       {{ $permintaan->nama ?? '……………..……' }}
     </td>
-  </tr>
-  <tr>
+    </tr>
+    <tr>
     <td style="vertical-align: top;"><strong>Lokasi Pekerjaan</strong></td>
     <td style="vertical-align: top;">:</td>
     <td style="white-space: normal; vertical-align: top;">
       {{ $permintaan->lokasi ?? '……………….' }}
     </td>
-  </tr>
+    </tr>
   @endif
 
   <tr>
@@ -159,7 +159,7 @@
     <td style="vertical-align: top; white-space: nowrap; width: 73%;">
       <span>{{ $kasatpel->name ?? '…………..' }} <span style="font-style: italic;">Selaku Ketua Satuan Pelaksana Kecamatan
           {{
-          $permintaan->user->kecamatan->kecamatan ?? '-' }}</span></span>
+  $permintaan->user->kecamatan->kecamatan ?? '-' }}</span></span>
     </td>
   </tr>
 
@@ -188,11 +188,12 @@
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="120">{{ $item->merkStok->barangStok->nama }}</td>
       <td width="280">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
-        $item->merkStok->tipe ?? 'Tanpa tipe' }} -
-        {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
+    $item->merkStok->tipe ?? 'Tanpa tipe' }} -
+      {{ $item->merkStok->ukuran ?? 'Tanpa ukuran' }}
+      </td>
       <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
     </tr>
-    @endforeach
+  @endforeach
   </tbody>
 </table>
 
@@ -200,74 +201,70 @@
   Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }}
 </p>
 
-{{-- TANDA TANGAN --}}
-<table class="no-border footer-ttd">
 
+<table style="width: 100%; border-collapse: collapse;">
   <tr>
-    <td width="50%">
-      Pemohon<br>
-      Kepala Satuan Pelaksana<br>
-      Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '-' }}<br><br>
-      @if ($sign) {{-- <img src="{{ $permintaan->status === 3 || true ? '/storage/ttdPengiriman/nurdin.png':'' }}"
-        height="40"><br>
-      --}}
-      <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
-      @else
-      <br><br><br>
-      @endif
-      <strong>{{ $pemohon->name }}</strong><br>
-      NIP {{ $pemohon->nip ?? '....................' }}
-    </td>
-    <td width="50%">
-      Driver<br><br><br><br>
-      @if(!is_null($permintaan->ttd_driver))
-      @if ($sign)
-      <img src="{{ public_path('storage/ttdPengiriman/' . $permintaan->ttd_driver) }}" height="40"><br>
-      @else
-      <br><br><br>
-      @endif
-      @else
-      <br><br><br>
-      @endif
-      <strong>{{ $permintaan->driver }}</strong>
-    </td>
-
-  </tr>
-</table>
-<br><br>
-<br><br>
-<table class="no-border footer-ttd">
-
-  <tr>
-    <td width="50%">
-      Keamanan<br><br><br><br>
+    <td width="50%" style="text-align: center; vertical-align: top; padding: 10px;">
+      Menyerahkan,<br>
+      Petugas Keamanan<br><br><br>
       @if(!is_null($permintaan->ttd_security))
       @if ($sign)
-      <img src="{{ public_path('storage/ttdPengiriman/' . $permintaan->ttd_security) }}" height="40"><br>
-      @else
+      <img src="{{ public_path('storage/ttdPengiriman/' . $permintaan->ttd_security) }}" height="40"><br><br>
+    @else
+      <br><br>
+    @endif
+    @else
       <br><br><br>
-      @endif
-      @else
-      <br><br><br>
-      @endif
-      <strong>{{ $permintaan->security }}</strong>
+    @endif
+      <strong>{{ $permintaan->security ?? '……………Nama……………………' }}</strong><br>
+      {{-- ID …….. --}}
     </td>
-
-    <td width="50%">
-      Mengetahui,<br>
-      Pengurus Barang Suku Dinas {{ Str::ucfirst(str_replace('Suku Dinas ', '',
-      $permintaan->unit->nama)) }}<br><br>
+    <td width="50%" style="text-align: center; vertical-align: top; padding: 10px;">
+      Pemohon<br>
+      Ketua Satuan Pelaksana<br>
+      Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '………...' }}<br><br>
       @if ($sign)
-      {{-- <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br> --}}
-      <img src="{{ asset('storage/usersTTD/' . $pengurus->ttd) }}" width="100" height="50"><br><br>
-      @else
+      <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br>
+    @else
       <br><br><br>
-      @endif
-      <strong>{{ $pengurus->name }}</strong><br>
-      NIP {{ $pengurus->nip ?? '....................' }}
+    @endif
+      <strong>{{ $pemohon->name ?? '……………….Nama ……………………' }}</strong><br>
+      NIP {{ $pemohon->nip ?? '………………………………………' }}
+    </td>
+  </tr>
+  <br />
+  <br />
+  <tr>
+    <td width="50%" style="text-align: center; vertical-align: top; padding: 10px; padding-top: 30px;">
+      <br><br>Sopir<br><br>
+      @if(!is_null($permintaan->ttd_driver))
+      @if ($sign)
+      <img src="{{ public_path('storage/ttdPengiriman/' . $permintaan->ttd_driver) }}" height="40"><br><br>
+    @else
+      <br><br><br>
+    @endif
+    @else
+      <br><br><br>
+    @endif
+      <strong>{{ $permintaan->driver ?? '……………Nama……………………' }}</strong><br>
+      {{-- ID …….. --}}
+    </td>
+    <td width="50%" style="text-align: center; vertical-align: top; padding: 10px; padding-top: 30px;">
+      Mengetahui,<br>
+      Pengurus Barang Suku Dinas Sumber Daya Air<br>
+      {{ $isSeribu ? 'Kabupaten' : 'Kota' }} Administrasi Jakarta
+      {{ $isSeribu ? 'Kepulauan Seribu' : Str::title($sudin) }}<br><br>
+      @if ($sign)
+      <img src="{{ asset('storage/usersTTD/' . $pengurus->ttd) }}" width="100" height="50"><br>
+    @else
+      <br><br><br>
+    @endif
+      <strong>{{ $pengurus->name ?? '……………….Nama ………………' }}</strong><br>
+      NIP {{ $pengurus->nip ?? '………………………………………' }}
     </td>
   </tr>
 </table>
+
 <br>
 <table style="width: 100%">
   <tr>

@@ -45,7 +45,7 @@ class KontrakSeeder extends Seeder
             $kontraks[] = [
                 'nomor_kontrak' => fake()->unique()->bothify('KV#####'),
                 'metode_id' => $metodes->random()->id,
-                'jenis_id' => fake()->numberBetween(1, 3),
+                'jenis_id' => 3,
                 'vendor_id' => $tokos->random()->id,
                 'tanggal_kontrak' => strtotime(fake()->date()),
                 'user_id' => $users->random()->id,
@@ -73,7 +73,8 @@ class KontrakSeeder extends Seeder
                 ->get()
                 ->filter(fn($merk) => $merk->barangStok?->jenis_id === $jenisId)
                 ->values();
-            if ($merkList->isEmpty()) continue;
+            if ($merkList->isEmpty())
+                continue;
 
             // Pilih merk random dari jenis tersebut
             $jumlahItem = rand(3, 7);

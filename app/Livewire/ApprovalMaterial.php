@@ -41,30 +41,48 @@ class ApprovalMaterial extends Component
     public $kategori;
     public $listDrivers = [];
     public $listSecurities = [];
-    public $showModal = false;
+    // public $showModal = false;
     public $selectedDriverId, $selectedSecurityId, $nopol;
-    public $noSuratJalan;
+    // public $noSuratJalan;
+    // public $driverName, $securityName, $nopolData;
 
+    protected $listeners = ['driverInfoSaved' => 'refreshDriverInfo'];
 
-    public function openModal()
+    public function refreshDriverInfo()
     {
-        $this->reset(['selectedDriverId', 'selectedSecurityId', 'nopol']);
-        $this->showModal = true;
+        // Force refresh of the component to get updated driver data
+        $this->permintaan = $this->permintaan->fresh(); // Refresh data from database
+        $this->mount();
     }
 
-    public function submitPengirimanApproval()
+    public function checkDriverData()
     {
-        $this->validate([
-            'selectedDriverId' => 'required|exists:drivers,id',
-            'selectedSecurityId' => 'required|exists:securities,id',
-            'nopol' => 'required|string',
-        ]);
-
-        // Panggil approval logika seperti approveConfirmed(1, ...)
-        $this->approveConfirmed(1, null, $this->selectedDriverId, $this->nopol, $this->selectedSecurityId, null, $this->noSuratJalan);
-
-        $this->showModal = false;
+        $this->permintaan = $this->permintaan->fresh();
+        return [
+            'driver' => $this->permintaan->driver,
+            'security' => $this->permintaan->security,
+            'nopol' => $this->permintaan->nopol
+        ];
     }
+
+
+    // public function openModal()
+    // {
+    //     $this->reset(['noSuratJalan']);
+    //     $this->showModal = true;
+    // }
+
+    // public function submitPengirimanApproval()
+    // {
+    //     $this->validate([
+    //         'noSuratJalan' => 'required|string',
+    //     ]);
+
+    //     // Panggil approval logika seperti approveConfirmed(1, ...)
+    //     $this->approveConfirmed(1, null, null, null, null, null, $this->noSuratJalan);
+
+    //     $this->showModal = false;
+    // }
     public function mount()
     {
         $this->isPenulis = $this->permintaan->user_id === Auth::id();
@@ -204,6 +222,12 @@ class ApprovalMaterial extends Component
         // dd($this->userApproval);
         // $this->showButtonApproval = in_array(1, $this->userApproval);
         // dd($this->currentApprovalIndex);
+
+        // Inisialisasi data driver, security, dan nopol dari permintaan yang sudah ada
+        // Data ini sekarang diinput melalui form terpisah di show-permintaan-material
+        // $this->driverName = $this->permintaan->driver ?? null;
+        // $this->securityName = $this->permintaan->security ?? null;
+        // $this->nopolData = $this->permintaan->nopol ?? null;
     }
 
     public function markAsCompleted()
@@ -264,7 +288,7 @@ class ApprovalMaterial extends Component
         if ($currentUser->hasRole(['Kepala Subbagian', 'Kepala Subbagian Tata Usaha'])) {
             $permintaan->update(['status' => 1, 'sppb' => $sppb]);
 
-            // Buat QR Code dengan keterangan nomor SPB
+            // Buat QR Code dengan keterangan nomor SPPB yang diinput Kepala Subbagian Tata Usaha
             $qrFolder = "qr_permintaan_material";
             $qrTarget = "{$qrFolder}/{$permintaan->kode_permintaan}.png";
             $qrContent = url("material/{$permintaan->id}/qrDownload");
@@ -279,8 +303,8 @@ class ApprovalMaterial extends Component
             $tempQrPath = Storage::disk('public')->path($qrFolder . '/temp_' . $permintaan->kode_permintaan . '.png');
             $writer->writeFile($qrContent, $tempQrPath);
 
-            // Buat image dengan text di bawah QR code
-            $this->addTextToQrCode($tempQrPath, Storage::disk('public')->path($qrTarget), $permintaan->nodin);
+            // Buat image dengan text di bawah QR code menggunakan keterangan SPPB yang diinput Kepala Subbagian Tata Usaha
+            $this->addTextToQrCode($tempQrPath, Storage::disk('public')->path($qrTarget), $sppb);
 
             // Hapus file temporary
             if (file_exists($tempQrPath)) {
@@ -313,9 +337,6 @@ class ApprovalMaterial extends Component
 
             $this->permintaan->update([
                 'status' => 2,
-                'driver' => optional(Driver::find($driver))->nama,
-                'nopol' => $nopol,
-                'security' => optional(Security::find($security))->nama,
                 'suratJalan' => $noSuratJalan, // pastikan kolom ini ada
             ]);
         }
@@ -336,7 +357,7 @@ class ApprovalMaterial extends Component
     }
 
     /**
-     * Menambahkan text keterangan SPB di bawah QR code
+     * Menambahkan text keterangan SPPB di bawah QR code
      */
     private function addTextToQrCode($qrImagePath, $outputPath, $spbNumber)
     {
@@ -363,7 +384,7 @@ class ApprovalMaterial extends Component
         imagecopy($canvas, $qrImage, 0, 0, 0, 0, $qrWidth, $qrHeight);
 
         // Tentukan text dan posisi
-        $text = "Nomor SPB: " . $spbNumber;
+        $text = "Nomor SPPB: " . $spbNumber;
         $fontPath = $this->getFontPath();
 
         if ($fontPath && file_exists($fontPath)) {

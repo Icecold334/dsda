@@ -66,9 +66,9 @@ class SoSeeder extends Seeder
                 ['kode' => trim($data['kode'])],
                 [
                     'barang_id' => $barang->id,
-                    'nama' => trim($data['merk']),
-                    'tipe' => null,
-                    'ukuran' => null,
+                    'nama' => trim($data['merk'] ?? $data['nama_barang']),
+                    'tipe' => trim($data['merk'] ?? null),
+                    'ukuran' => trim($data['merk'] ?? null),
                 ]
             );
 
