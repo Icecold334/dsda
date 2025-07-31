@@ -37,7 +37,7 @@ abstract class Controller
                 // Periksa jika NIP atau TTD kosong
                 // dd(empty($user->nip) || empty($user->ttd));
                 if (empty($user->nip) || empty($user->ttd)) {
-                    dd('asd');
+                    // dd('asd');
                     session()->flash('alert');
                 }
             }
