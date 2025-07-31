@@ -31,7 +31,7 @@ class AkunSudinSeeder extends Seeder
             throw new \Exception('Unit Jakarta Pusat tidak ditemukan. Pastikan UnitSeeder sudah dijalankan terlebih dahulu.');
         }
 
-        $this->seedSudinAccounts($unit, $this->getPusatData());
+        $this->seedSudinAccounts($unit, $this->getPusatData(), '!nventory@Pusat2025');
     }
 
     private function getPusatData(): array
@@ -89,7 +89,7 @@ class AkunSudinSeeder extends Seeder
         ];
     }
 
-    private function seedSudinAccounts(UnitKerja $unit, array $sudinData): void
+    private function seedSudinAccounts(UnitKerja $unit, array $sudinData, string $password = 'test@123'): void
     {
         $wilayah = $sudinData['wilayah'];
         $kecamatanMapping = $sudinData['kecamatan_mapping'];
@@ -176,7 +176,7 @@ class AkunSudinSeeder extends Seeder
             } elseif (strpos($userData['role'], 'Pompa') !== false) {
                 $targetUnit = $unit->children()->where('nama', 'LIKE', '%Pompa%')->first() ?? $unit;
             }
-// block to create user
+            // block to create user
 
             if (strpos($email, '@') !== false) {
                 $username = substr($email, 0, strpos($email, '@'));
@@ -184,14 +184,14 @@ class AkunSudinSeeder extends Seeder
                 $username = $email;
             }
 
-//end block to create user
+            //end block to create user
 
             $userCreateData = [
                 'name' => $userData['nama'],
                 'username' => $username,
                 'nip' => $userData['nip'],
                 'unit_id' => $targetUnit ? $targetUnit->getKey() : null,
-                'password' => Hash::make('test@123'),
+                'password' => Hash::make($password),
                 'email_verified_at' => now(),
             ];
 
@@ -224,7 +224,7 @@ class AkunSudinSeeder extends Seeder
             throw new \Exception('Unit Jakarta Utara tidak ditemukan.');
         }
 
-        $this->seedSudinAccounts($unit, $this->getUtaraData());
+        $this->seedSudinAccounts($unit, $this->getUtaraData(), '!nventory@Utara2025');
     }
 
     private function getUtaraData(): array
@@ -318,7 +318,7 @@ class AkunSudinSeeder extends Seeder
             throw new \Exception('Unit Jakarta Selatan tidak ditemukan.');
         }
 
-        $this->seedSudinAccounts($unit, $this->getSelatanData());
+        $this->seedSudinAccounts($unit, $this->getSelatanData(), '!nventory@Selatan2025');
     }
 
     private function getSelatanData(): array
@@ -397,7 +397,7 @@ class AkunSudinSeeder extends Seeder
             throw new \Exception('Unit Jakarta Barat tidak ditemukan.');
         }
 
-        $this->seedSudinAccounts($unit, $this->getBaratData());
+        $this->seedSudinAccounts($unit, $this->getBaratData(), '!nventory@Barat2025');
     }
 
     private function getBaratData(): array
@@ -506,7 +506,7 @@ class AkunSudinSeeder extends Seeder
             throw new \Exception('Unit Jakarta Timur tidak ditemukan.');
         }
 
-        $this->seedSudinAccounts($unit, $this->getTimurData());
+        $this->seedSudinAccounts($unit, $this->getTimurData(), '!nventory@Timur2025');
     }
 
     private function getTimurData(): array
