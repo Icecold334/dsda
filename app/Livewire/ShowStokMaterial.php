@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\WithFileUploads;
 use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Illuminate\Support\Facades\Response;
 
 class ShowStokMaterial extends Component
 {
@@ -335,6 +339,150 @@ class ShowStokMaterial extends Component
         $this->showModal = false;
         $this->modalBarangNama = null;
         $this->modalRiwayat = [];
+    }
+
+    public function downloadExcel()
+    {
+        try {
+            $barangStok = $this->barangStok;
+
+            $spreadsheet = new Spreadsheet();
+            $filterInfo = sprintf(
+                "Gudang: %s",
+                $this->lokasi->nama
+            );
+
+            // Properti dokumen
+            $spreadsheet->getProperties()
+                ->setCreator('www.inventa.id')
+                ->setLastModifiedBy('www.inventa.id')
+                ->setTitle('Stok Material - ' . $this->lokasi->nama)
+                ->setSubject('Daftar Stok Material - ' . $this->lokasi->nama)
+                ->setDescription('Laporan Stok Material Gudang')
+                ->setKeywords('stok, material, gudang, laporan, excel')
+                ->setCategory('Laporan Stok Material Gudang');
+
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Header judul
+            $sheet->setCellValue('A2', 'DAFTAR STOK MATERIAL')
+                ->mergeCells('A2:E2')
+                ->getStyle('A2')->getFont()->setBold(true)->setSize(14);
+            $sheet->setCellValue('A3', strtoupper('Dinas Sumber Daya Air (DSDA)'))
+                ->mergeCells('A3:E3')
+                ->getStyle('A3')->getFont()->setBold(true);
+            $sheet->setCellValue('A4', $filterInfo)
+                ->mergeCells('A4:E4')
+                ->getStyle('A4')->getFont()->setItalic(true);
+            $sheet->setCellValue('A5', 'Periode: ' . now()->format('d F Y'))
+                ->mergeCells('A5:E5')
+                ->getStyle('A5')->getFont()->setBold(true);
+
+            // Atur rata tengah untuk header
+            $sheet->getStyle('A2:A5')
+                ->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+            // Header tabel
+            $sheet->setCellValue('A7', 'KODE BARANG');
+            $sheet->setCellValue('B7', 'NAMA BARANG');
+            $sheet->setCellValue('C7', 'SPESIFIKASI (MERK/TIPE/UKURAN)');
+            $sheet->setCellValue('D7', 'JUMLAH STOK');
+            $sheet->setCellValue('E7', 'SATUAN');
+
+            // Style header tabel
+            $sheet->getStyle('A7:E7')->getFont()->setBold(true);
+            $sheet->getStyle('A7:E7')->getFont()->getColor()->setARGB('FFFFFFFF');
+            $sheet->getStyle('A7:E7')
+                ->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+            $sheet->getStyle('A7:E7')
+                ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A7:E7')->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FF806000');
+
+            $row = 8; // Mulai dari baris ke-8
+            $totalBarang = 0;
+            $totalStok = 0;
+
+            foreach ($barangStok as $barang) {
+                $totalBarang++;
+                $isFirstRow = true;
+
+                foreach ($barang['spesifikasi'] as $spec => $info) {
+                    $totalStok += $info['jumlah'];
+
+                    if ($isFirstRow) {
+                        $sheet->setCellValue('A' . $row, $barang['kode'])
+                            ->setCellValue('B' . $row, $barang['nama']);
+                        $isFirstRow = false;
+                    } else {
+                        $sheet->setCellValue('A' . $row, '')
+                            ->setCellValue('B' . $row, '');
+                    }
+
+                    $sheet->setCellValue('C' . $row, $spec)
+                        ->setCellValue('D' . $row, $info['jumlah'])
+                        ->setCellValue('E' . $row, $barang['satuan']);
+
+                    $row++;
+                }
+
+                if (empty($barang['spesifikasi'])) {
+                    $sheet->setCellValue('A' . $row, $barang['kode'])
+                        ->setCellValue('B' . $row, $barang['nama'])
+                        ->setCellValue('C' . $row, '-')
+                        ->setCellValue('D' . $row, '0')
+                        ->setCellValue('E' . $row, $barang['satuan']);
+                    $row++;
+                }
+            }
+
+            // Tambahkan ringkasan data
+            $row += 2;
+            $sheet->setCellValue('A' . $row, 'RINGKASAN:')
+                ->getStyle('A' . $row)->getFont()->setBold(true);
+            $row++;
+            $sheet->setCellValue('A' . $row, 'Gudang: ' . $this->lokasi->nama);
+            $row++;
+            $sheet->setCellValue('A' . $row, 'Alamat: ' . ($this->lokasi->alamat ?? '-'));
+            $row++;
+            $sheet->setCellValue('A' . $row, 'Total Jenis Barang: ' . $totalBarang);
+            $row++;
+            $sheet->setCellValue('A' . $row, 'Total Unit Stok: ' . $totalStok);
+            $row++;
+            $sheet->setCellValue('A' . $row, 'Tanggal Export: ' . now()->format('d F Y H:i:s'));
+
+            // Auto-size kolom
+            $sheet->getColumnDimension('A')->setAutoSize(true);
+            $sheet->getColumnDimension('B')->setAutoSize(true);
+            $sheet->getColumnDimension('C')->setAutoSize(true);
+            $sheet->getColumnDimension('D')->setAutoSize(true);
+            $sheet->getColumnDimension('E')->setAutoSize(true);
+
+            // Generate filename
+            $timestamp = now()->format('Y-m-d_His');
+            $gudangName = str_replace(' ', '_', $this->lokasi->nama);
+            $fileName = "Stok_Material_{$gudangName}_{$timestamp}.xlsx";
+
+            // Set header untuk file Excel
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header("Content-Disposition: attachment; filename=\"$fileName\"");
+            header('Cache-Control: max-age=0');
+
+            // Flash message sukses
+            session()->flash('success', 'File Excel berhasil diunduh!');
+
+            // Simpan file ke output
+            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+            return Response::streamDownload(function () use ($writer) {
+                $writer->save('php://output');
+            }, $fileName);
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Terjadi kesalahan saat mengunduh file Excel: ' . $e->getMessage());
+            return;
+        }
     }
 
     public function render()
