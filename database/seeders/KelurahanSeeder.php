@@ -384,10 +384,6 @@ class KelurahanSeeder extends Seeder
             ['kecamatan_id' => 44, 'nama' => 'Pulau Untung Jawa', 'created_at' => now(), 'updated_at' => now()]
         ];
 
-        // Kelurahan::insert($kelurahans);
-        // Insert data in chunks of 50
-        foreach (array_chunk($kelurahans, 50) as $chunk) {
-            Kelurahan::insert($chunk);
-        }
+        Kelurahan::insert($kelurahans);
     }
 }
