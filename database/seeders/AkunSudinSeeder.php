@@ -176,7 +176,7 @@ class AkunSudinSeeder extends Seeder
             } elseif (strpos($userData['role'], 'Pompa') !== false) {
                 $targetUnit = $unit->children()->where('nama', 'LIKE', '%Pompa%')->first() ?? $unit;
             }
-// block to create user
+            // block to create user
 
             if (strpos($email, '@') !== false) {
                 $username = substr($email, 0, strpos($email, '@'));
@@ -184,7 +184,7 @@ class AkunSudinSeeder extends Seeder
                 $username = $email;
             }
 
-//end block to create user
+            //end block to create user
 
             $userCreateData = [
                 'name' => $userData['nama'],

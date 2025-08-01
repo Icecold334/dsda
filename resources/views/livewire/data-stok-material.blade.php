@@ -39,33 +39,31 @@
                     <option value="{{ $lokasi }}">{{ $lokasi }}</option>
                     @endforeach
                 </select> --}}
-                @can('pelayanan_xls')
-                    @if ($gudangs->count())
-                        <button data-tooltip-target="tooltip-excel" wire:click="downloadExcel" wire:loading.attr="disabled"
-                            wire:target="downloadExcel"
-                            class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                            <span wire:loading.remove wire:target="downloadExcel">
-                                <i class="fa-solid fa-file-excel"></i>
-                            </span>
-                            <span wire:loading wire:target="downloadExcel" class="flex items-center">
-                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg"
-                                    fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                                    </circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                                </svg>
-                                Export...
-                            </span>
-                        </button>
-                        <div id="tooltip-excel" role="tooltip"
-                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                            Download laporan stok dalam format MS Excel
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
-                    @endif
-                @endcan
+                @if ($gudangs->count())
+                    <button data-tooltip-target="tooltip-excel" wire:click="downloadExcel" wire:loading.attr="disabled"
+                        wire:target="downloadExcel"
+                        class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span wire:loading.remove wire:target="downloadExcel">
+                            <i class="fa-solid fa-file-excel"></i>
+                        </span>
+                        <span wire:loading wire:target="downloadExcel" class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                                </circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            Export...
+                        </span>
+                    </button>
+                    <div id="tooltip-excel" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                        Download laporan stok dalam format MS Excel
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
+                @endif
 
             </div>
         </div>

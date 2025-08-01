@@ -17,8 +17,22 @@ class SoSeeder extends Seeder
     public function run(): void
     {
         // Contoh pemanggilan:
+        // sudin barat
         $this->seedFromCsv('kembangan.csv', 'kembangan');
         $this->seedFromCsv('mercu.csv', 'mercu');
+        $this->seedFromCsv('pengumben.csv', 'pengumben');
+        $this->seedFromCsv('perumnas.csv', 'perumnas');
+        $this->seedFromCsv('tomang.csv', 'tomang');
+
+        // sudin pusat
+        $this->seedFromCsv('melati.csv', 'melati');
+        $this->seedFromCsv('sunter.csv', 'sunter');
+        // sudin selatan
+        $this->seedFromCsv('minyak.csv', 'minyak');
+        // timur
+        $this->seedFromCsv('bambu.csv', 'bambu');
+        // utara
+        $this->seedFromCsv('ketel.csv', 'ketel'); // belum ada data
         // tambahkan lagi sesuai gudang lainnya
     }
 
@@ -66,9 +80,9 @@ class SoSeeder extends Seeder
                 ['kode' => trim($data['kode'])],
                 [
                     'barang_id' => $barang->id,
-                    'nama' => trim($data['merk']),
-                    'tipe' => null,
-                    'ukuran' => null,
+                    'nama' => trim($data['merk'] ?? $data['nama_barang']),
+                    'tipe' => trim($data['merk'] ?? null),
+                    'ukuran' => trim($data['merk'] ?? null),
                 ]
             );
 

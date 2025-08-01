@@ -73,6 +73,7 @@ class DatabaseSeeder extends Seeder
             KontrakSeeder::class,
             TransaksiSeeder::class,
             AkunSudinSeeder::class,
+            AdminMaintenanceSeeder::class,
             DriverSecuritySeeder::class,
         ]);
 
