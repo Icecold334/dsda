@@ -337,7 +337,7 @@
                     </label>
                     <a wire:click='saveDoc'
                         class="cursor-pointer {{ count($this->attachments) ? '' : 'hidden' }}
-                            text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                                                        text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                         Simpan
                     </a>
                 @endif
@@ -532,7 +532,32 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script>
-        function confirmDownload(docType) {
+        // Fungsi mandiri untuk SweetAlert QR Code
+        function showQrAlert(type, message) {
+            // Karena QR hanya keluar saat status disetujui,
+            // handle hanya untuk status dikirim/selesai dengan icon X
+            Swal.fire({
+                icon: 'error',  // Selalu gunakan tanda silang
+                title: 'Gagal Scan QR',  // Title tetap
+                text: message,  // Text dinamis: "permintaan sedang dikirim" atau "telah selesai"
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#EF4444', // red
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                customClass: {
+                    popup: 'qr-alert-popup',
+                    title: 'qr-alert-title',
+                    content: 'qr-alert-content'
+                }
+            });
+        }
+
+        // Event listener untuk QR Code alerts dari Livewire
+        Livewire.on('showAlert', (params) => {
+            const { type, message } = params;
+            showQrAlert(type, message);
+        }); function confirmDownload(docType) {
             Swal.fire({
                 title: 'Gunakan TTD Elektronik (e-TTD)?',
                 text: "Apakah Anda ingin menyertakan tanda tangan elektronik pada dokumen?",

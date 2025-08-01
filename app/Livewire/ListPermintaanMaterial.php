@@ -56,7 +56,7 @@ class ListPermintaanMaterial extends Component
                     'img' => $item->img,
                     'jumlah' => $item->jumlah,
                     'keterangan' => $item->deskripsi,
-                    'editable' => is_null($item->img),
+                    'editable' => true, // Selalu bisa diedit untuk foto barang diterima
                 ];
             }
         }
@@ -197,7 +197,7 @@ class ListPermintaanMaterial extends Component
 
         // Simpan file ke storage
         $file = $this->list[$index]['img'];
-        $filename = $file->getClientOriginalExtension();
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
         $file->storeAs('fotoPerBarang', $filename, 'public');
 
         // Simpan ke database sesuai model terkait

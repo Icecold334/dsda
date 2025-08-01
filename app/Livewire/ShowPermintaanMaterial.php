@@ -16,6 +16,7 @@ class ShowPermintaanMaterial extends Component
 
     use WithFileUploads;
     public $permintaan, $isOut = false, $Rkb, $RKB, $sudin, $isSeribu, $withRab;
+    public $alert = null; // Tambahan untuk alert
 
     public $signature, $securitySignature;
     public $selectedDriverId, $selectedSecurityId, $inputNopol;
@@ -190,6 +191,29 @@ class ShowPermintaanMaterial extends Component
 
     public function mount()
     {
+        // Cek apakah ada alert dari session untuk SweetAlert
+        if (session('alert') && is_array(session('alert'))) {
+            $this->alert = session('alert');
+            // Dispatch event untuk SweetAlert
+            $this->dispatch(
+                'showAlert',
+                type: $this->alert['type'],
+                message: $this->alert['message']
+            );
+        }
+
+        // Tambahkan status_teks ke permintaan jika belum ada
+        if (!isset($this->permintaan->status_teks)) {
+            $statusMap = [
+                null => ['label' => 'Diproses', 'color' => 'warning'],
+                0 => ['label' => 'Ditolak', 'color' => 'danger'],
+                1 => ['label' => 'Disetujui', 'color' => 'success'],
+                2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
+                3 => ['label' => 'Selesai', 'color' => 'primary'],
+            ];
+            $this->permintaan->status_teks = $statusMap[$this->permintaan->status]['label'] ?? 'Tidak diketahui';
+        }
+
         if ($this->permintaan->lampiran->count()) {
             $this->isOut = true;
         }

@@ -291,7 +291,7 @@ class ApprovalMaterial extends Component
             // Buat QR Code dengan keterangan nomor SPPB yang diinput Kepala Subbagian Tata Usaha
             $qrFolder = "qr_permintaan_material";
             $qrTarget = "{$qrFolder}/{$permintaan->kode_permintaan}.png";
-            $qrContent = url("material/{$permintaan->id}/qrDownload");
+            $qrContent = url("qr/material/3/{$permintaan->kode_permintaan}");
 
             if (!Storage::disk('public')->exists($qrFolder)) {
                 Storage::disk('public')->makeDirectory($qrFolder);
