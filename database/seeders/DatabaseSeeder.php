@@ -71,7 +71,7 @@ class DatabaseSeeder extends Seeder
             RabSeeder::class,
             DetailPermintaanMaterialSeeder::class,
             KontrakSeeder::class,
-            TransaksiSeeder::class,
+            // TransaksiSeeder::class,
             AkunSudinSeeder::class,
             AdminMaintenanceSeeder::class,
             DriverSecuritySeeder::class,
