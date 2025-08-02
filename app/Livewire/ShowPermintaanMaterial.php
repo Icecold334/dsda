@@ -16,6 +16,7 @@ class ShowPermintaanMaterial extends Component
 
     use WithFileUploads;
     public $permintaan, $isOut = false, $Rkb, $RKB, $sudin, $isSeribu, $withRab;
+    public $alert = null; // Tambahan untuk alert
 
     public $signature, $securitySignature;
     public $selectedDriverId, $selectedSecurityId, $inputNopol;
@@ -190,6 +191,29 @@ class ShowPermintaanMaterial extends Component
 
     public function mount()
     {
+        // Cek apakah ada alert dari session untuk SweetAlert
+        if (session('alert') && is_array(session('alert'))) {
+            $this->alert = session('alert');
+            // Dispatch event untuk SweetAlert
+            $this->dispatch(
+                'showAlert',
+                type: $this->alert['type'],
+                message: $this->alert['message']
+            );
+        }
+
+        // Tambahkan status_teks ke permintaan jika belum ada
+        if (!isset($this->permintaan->status_teks)) {
+            $statusMap = [
+                null => ['label' => 'Diproses', 'color' => 'warning'],
+                0 => ['label' => 'Ditolak', 'color' => 'danger'],
+                1 => ['label' => 'Disetujui', 'color' => 'success'],
+                2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
+                3 => ['label' => 'Selesai', 'color' => 'primary'],
+            ];
+            $this->permintaan->status_teks = $statusMap[$this->permintaan->status]['label'] ?? 'Tidak diketahui';
+        }
+
         if ($this->permintaan->lampiran->count()) {
             $this->isOut = true;
         }
@@ -357,11 +381,35 @@ class ShowPermintaanMaterial extends Component
             })->whereHas('roles', function ($role) {
                 return $role->where('name', 'like', '%Kepala Subbagian%');
             })->first();
+
+        // Get requester and determine signature roles based on requester's role
+        $pemohon = $permintaan->user;
+        $isKasatpel = $pemohon->hasRole('Kepala Satuan Pelaksana') || $pemohon->roles->contains(function ($role) {
+            return str_contains($role->name, 'Kepala Satuan Pelaksana') || str_contains($role->name, 'Ketua Satuan Pelaksana');
+        });
+        $isKepalaSeksi = $pemohon->hasRole('Kepala Seksi') || $pemohon->roles->contains(function ($role) {
+            return str_contains($role->name, 'Kepala Seksi');
+        });
+
+        // Get Kepala Seksi Pemeliharaan for when requester is Kasatpel
+        $kepalaSeksiPemeliharaan = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+            return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Pemeliharaan%');
+        })->whereHas('roles', function ($role) {
+            return $role->where('name', 'like', '%Kepala Seksi%');
+        })->first();
+
+        // Get Kepala Suku Dinas for when requester is Kepala Seksi
+        $kepalaSudin = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+            return $unit->where('id', $unit_id);
+        })->whereHas('roles', function ($role) {
+            return $role->where('name', 'like', '%Kepala Suku Dinas%');
+        })->first();
+
         $Rkb = $this->Rkb;
         $RKB = $this->RKB;
         $sudin = $this->sudin;
         $isSeribu = $this->isSeribu;
-        $html = view('pdf.sppb', compact('permintaan', 'kasatpel', 'penjaga', 'sign', 'pengurus', 'ttdPath', 'kasubag', 'Rkb', 'RKB', 'sudin', 'isSeribu'))->render();
+        $html = view('pdf.sppb', compact('permintaan', 'kasatpel', 'penjaga', 'sign', 'pengurus', 'ttdPath', 'kasubag', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'pemohon', 'isKasatpel', 'isKepalaSeksi', 'kepalaSeksiPemeliharaan', 'kepalaSudin'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();

@@ -106,7 +106,7 @@
       <span style="font-size: 12px">PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
         DINAS SUMBER DAYA AIR <br></span>
       <strong style="font-size: 14px">SUKU DINAS SUMBER DAYA AIR <br>
-        {{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
+        {{ $isSeribu ? 'KABUPATEN' : 'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
         {{ $permintaan->unit->alamat }}
         <br>
@@ -124,7 +124,7 @@
   Pada hari ini {{ $permintaan->created_at->translatedFormat('l') }} tanggal {{
   $permintaan->created_at->translatedFormat('j') }} bulan
   {{
-  $permintaan->created_at->translatedFormat('M') }} tahun {{
+  $permintaan->created_at->translatedFormat('F') }} tahun {{
   $permintaan->created_at->translatedFormat('Y') }}, yang bertanda tangan di bawah ini: <br>
   <table>
     <tr>
@@ -140,17 +140,17 @@
     <tr>
       <td></td>
       <td></td>
-      <td>{{ $isSeribu ?'Kabupaten':'Kota' }} Administrasi {{ $sudin }}</td>
+      <td>{{ $isSeribu ? 'Kabupaten' : 'Kota' }} Administrasi {{ $sudin }}</td>
     </tr>
   </table>
   <div style="text-align: justify">
     Berdasarkan Surat Permintaan Barang (SPB) dari Kepala Satuan Pelaksana Kecamatan {{
-    $permintaan->user->kecamatan->kecamatan ?? '-' }} Nomor {{ $permintaan->nodin }}
+  $permintaan->user->kecamatan->kecamatan ?? '-' }} Nomor {{ $permintaan->nodin }}
     tanggal {{ $permintaan->created_at->translatedFormat('j') }} bulan {{
-    $permintaan->created_at->translatedFormat('M') }} tahun {{
-    $permintaan->created_at->translatedFormat('Y') }} dengan ini diperintahkan kepada Pengurus
+  $permintaan->created_at->translatedFormat('F') }} tahun {{
+  $permintaan->created_at->translatedFormat('Y') }} dengan ini diperintahkan kepada Pengurus
     Barang
-    Pembantu Suku Dinas Sumber Daya Air {{ $isSeribu ?'Kabupaten':'Kota' }}
+    Pembantu Suku Dinas Sumber Daya Air {{ $isSeribu ? 'Kabupaten' : 'Kota' }}
     Administrasi {{ $sudin }} untuk mendistribusikan/mengeluarkan barang persediaan, sebagaimana daftar terlampir.
   </div>
 </div>
@@ -223,11 +223,12 @@
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="120">{{ $item->merkStok->barangStok->nama }}</td>
       <td width="280">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
-        $item->merkStok->tipe ?? 'Tanpa tipe' }} -
-        {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
+    $item->merkStok->tipe ?? 'Tanpa tipe' }} -
+      {{ $item->merkStok->ukuran ?? 'Tanpa ukuran' }}
+      </td>
       <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
     </tr>
-    @endforeach
+  @endforeach
   </tbody>
 </table>
 <br>
@@ -239,52 +240,89 @@
 </p>
 
 {{-- TANDA TANGAN --}}
-{{-- <table class="no-border footer-ttd">
-
-  <tr>
-    <td width="50%">
-      Pemohon<br>
-      Ketua Satuan Pelaksana<br>
-      Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '-' }}<br><br>
-      <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br>
-      <strong>{{ $kasatpel->name }}</strong><br>
-      NIP {{ $kasatpel->nip ?? '....................' }}
-    </td>
-    <td width="50%">
-      Driver<br><br><br><br>
-      @if(file_exists(public_path('storage/ttdPengiriman/' . $permintaan->ttd_driver)))
-      <img src="{{ public_path('storage/ttdPengiriman/' . $permintaan->ttd_driver) }}" height="40"><br>
-      @endif
-      <strong>{{ $permintaan->driver }}</strong>
-    </td>
-
-  </tr>
-</table> --}}
 <br><br>
 <br><br>
 <table class="no-border footer-ttd">
-
   <tr>
+    {{-- Left side: Pemohon --}}
     <td width="50%">
-      {{-- Keamanan<br><br><br><br>
-      @if(file_exists(public_path('storage/ttdPengiriman/' . $permintaan->ttd_security)))
-      <img src="{{ public_path('storage/ttdPengiriman/' . $permintaan->ttd_security) }}" height="40"><br>
-      @endif
-      <strong>{{ $permintaan->security }}</strong> --}}
+      @if ($isKasatpel)
+      {{-- If requester is Kasatpel --}}
+      Pemohon,<br>
+      Ketua Satuan Pelaksana<br>
+      Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '-' }}<br><br>
+      @if ($sign && $pemohon->ttd)
+      <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
+    @else
+      <br><br><br><br>
+    @endif
+      <strong>{{ $pemohon->name }}</strong><br>
+      NIP {{ $pemohon->nip ?? '....................' }}
+    @elseif ($isKepalaSeksi)
+      {{-- If requester is Kepala Seksi --}}
+      Pemohon,<br>
+      Kepala Seksi<br><br><br>
+      @if ($sign && $pemohon->ttd)
+      <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
+    @else
+      <br><br><br><br>
+    @endif
+      <strong>{{ $pemohon->name }}</strong><br>
+      NIP {{ $pemohon->nip ?? '....................' }}
+    @else
+      {{-- Default case --}}
+      Pemohon,<br><br><br><br>
+      @if ($sign && $pemohon->ttd)
+      <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
+    @else
+      <br><br><br><br>
+    @endif
+      <strong>{{ $pemohon->name }}</strong><br>
+      NIP {{ $pemohon->nip ?? '....................' }}
+    @endif
     </td>
 
+    {{-- Right side: Mengetahui --}}
     <td width="50%">
       Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }} <br>
-      Pejabat Penatausahaan Barang Suku Dinas {{ Str::ucfirst(str_replace('Suku Dinas ', '',
-      $permintaan->unit->nama)) }}<br><br>
-      @if ($sign)
-      {{-- <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br> --}}
-      <img src="{{ asset('storage/usersTTD/' . $kasubag->ttd) }}" width="100" height="50"><br><br>
-      @else
+      @if ($isKasatpel && $kepalaSeksiPemeliharaan)
+      {{-- If requester is Kasatpel, show Kepala Seksi Pemeliharaan --}}
+      Mengetahui,<br>
+      Kepala Seksi Pemeliharaan<br><br>
+      @if ($sign && $kepalaSeksiPemeliharaan->ttd)
+      <img src="{{ asset('storage/usersTTD/' . $kepalaSeksiPemeliharaan->ttd) }}" width="100" height="50"><br><br>
+    @else
       <br><br><br>
+    @endif
+      <strong>{{ $kepalaSeksiPemeliharaan->name }}</strong><br>
+      NIP {{ $kepalaSeksiPemeliharaan->nip ?? '....................' }}
+    @elseif ($isKepalaSeksi && $kepalaSudin)
+      {{-- If requester is Kepala Seksi, show Kepala Suku Dinas --}}
+      Mengetahui,<br>
+      Kepala Suku Dinas Sumber Daya Air<br>
+      {{ Str::ucfirst(str_replace('Suku Dinas Sumber Daya Air ', '', $permintaan->unit->nama)) }}<br><br>
+      @if ($sign && $kepalaSudin->ttd)
+      <img src="{{ asset('storage/usersTTD/' . $kepalaSudin->ttd) }}" width="100" height="50"><br><br>
+    @else
+      <br><br><br>
+    @endif
+      <strong>{{ $kepalaSudin->name }}</strong><br>
+      NIP {{ $kepalaSudin->nip ?? '....................' }}
+    @else
+        {{-- Default case: Pejabat Penatausahaan Barang --}}
+        Pejabat Penatausahaan Barang Suku Dinas {{ Str::ucfirst(str_replace(
+      'Suku Dinas ',
+      '',
+      $permintaan->unit->nama
+      )) }}<br><br>
+        @if ($sign && $kasubag->ttd)
+        <img src="{{ asset('storage/usersTTD/' . $kasubag->ttd) }}" width="100" height="50"><br><br>
+      @else
+        <br><br><br>
       @endif
-      <strong>{{ $kasubag->name }}</strong><br>
-      NIP {{ $kasubag->nip ?? '....................' }}
+        <strong>{{ $kasubag->name }}</strong><br>
+        NIP {{ $kasubag->nip ?? '....................' }}
+    @endif
     </td>
   </tr>
 </table>

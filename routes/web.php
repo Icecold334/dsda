@@ -78,12 +78,12 @@ Route::get('/logout', function () {
 });
 
 Route::get('/qr/permintaan/{user_id}/{kode}', function ($user_id, $kode) {
-    // Cari aset berdasarkan systemcode
+    // Cari permintaan berdasarkan kode_permintaan
     $permintaan = DetailPermintaanStok::where('kode_permintaan', $kode)->first();
 
     // Jika permintaan tidak ditemukan, redirect ke halaman home atau tampilkan pesan error
     if (!$permintaan) {
-        return redirect()->route('home')->with('error', 'Aset tidak ditemukan.');
+        return redirect()->route('home')->with('error', 'Permintaan tidak ditemukan.');
     }
 
     // Gunakan user_id = 3 sebagai guest, tidak tergantung pada user yang sedang login
@@ -95,9 +95,57 @@ Route::get('/qr/permintaan/{user_id}/{kode}', function ($user_id, $kode) {
         return redirect()->route('home')->with('error', 'User Guest tidak ditemukan.');
     }
 
-    // Kembalikan view dengan data aset dan user guest
+    // Kembalikan view dengan data permintaan dan user guest
     return view('scan_permintaan', compact('permintaan', 'user', 'tipe'));
 })->name('scan_permintaan');
+
+Route::get('/qr/material/{user_id}/{kode}', function ($user_id, $kode) {
+    // Cari permintaan material berdasarkan kode_permintaan
+    $permintaan = \App\Models\DetailPermintaanMaterial::where('kode_permintaan', $kode)->first();
+
+    // Jika permintaan tidak ditemukan, redirect ke halaman home atau tampilkan pesan error
+    if (!$permintaan) {
+        return redirect()->route('home')->with('error', 'Permintaan material tidak ditemukan.');
+    }
+
+    // Mapping status untuk mendapatkan status_teks
+    $statusMap = [
+        null => ['label' => 'Diproses', 'color' => 'warning'],
+        0 => ['label' => 'Ditolak', 'color' => 'danger'],
+        1 => ['label' => 'Disetujui', 'color' => 'success'],
+        2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
+        3 => ['label' => 'Selesai', 'color' => 'primary'],
+    ];
+
+    $statusTeks = $statusMap[$permintaan->status]['label'] ?? 'Tidak diketahui';
+
+    // Cek status permintaan dan redirect sesuai logika
+    switch ($permintaan->status) {
+        case 1: // Disetujui - tampilkan PDF
+            return downloadGabunganPdf($permintaan->id);
+
+        case 2: // Sedang Dikirim - redirect ke halaman show dengan alert
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $permintaan->id])
+                ->with('alert', [
+                    'type' => 'info',
+                    'message' => 'Permintaan sedang dalam proses pengiriman.'
+                ]);
+
+        case 3: // Selesai - redirect ke halaman show dengan alert
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $permintaan->id])
+                ->with('alert', [
+                    'type' => 'success',
+                    'message' => 'Permintaan telah selesai diproses.'
+                ]);
+
+        default: // Status lain - redirect dengan pesan error
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $permintaan->id])
+                ->with('alert', [
+                    'type' => 'warning',
+                    'message' => "Permintaan belum dapat diakses. Status: {$statusTeks}"
+                ]);
+    }
+})->name('scan_material');
 Route::get('/scan/{user_id}/{systemcode}', function ($user_id, $systemcode) {
     // Cari aset berdasarkan systemcode
     $aset = Aset::with(['histories', 'keuangans', 'jurnals'])->where('systemcode', $systemcode)->first();
@@ -126,7 +174,45 @@ Route::get('dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::get('/material/{id}/qrDownload', function ($id) {
-    return downloadGabunganPdf($id);
+    $permintaan = \App\Models\DetailPermintaanMaterial::findOrFail($id);
+
+    // Mapping status untuk mendapatkan status_teks
+    $statusMap = [
+        null => ['label' => 'Diproses', 'color' => 'warning'],
+        0 => ['label' => 'Ditolak', 'color' => 'danger'],
+        1 => ['label' => 'Disetujui', 'color' => 'success'],
+        2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
+        3 => ['label' => 'Selesai', 'color' => 'primary'],
+    ];
+
+    $statusTeks = $statusMap[$permintaan->status]['label'] ?? 'Tidak diketahui';
+
+    // Cek status permintaan
+    switch ($permintaan->status) {
+        case 1: // Disetujui - tampilkan PDF
+            return downloadGabunganPdf($id);
+
+        case 2: // Sedang Dikirim - redirect ke halaman show dengan alert
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $id])
+                ->with('alert', [
+                    'type' => 'info',
+                    'message' => 'Permintaan sedang dalam proses pengiriman.'
+                ]);
+
+        case 3: // Selesai - redirect ke halaman show dengan alert
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $id])
+                ->with('alert', [
+                    'type' => 'success',
+                    'message' => 'Permintaan telah selesai diproses.'
+                ]);
+
+        default: // Status lain - redirect dengan pesan error
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $id])
+                ->with('alert', [
+                    'type' => 'warning',
+                    'message' => "Permintaan belum dapat diakses. Status: {$statusTeks}"
+                ]);
+    }
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

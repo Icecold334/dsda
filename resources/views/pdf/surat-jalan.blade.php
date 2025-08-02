@@ -221,10 +221,10 @@
     </td>
     <td width="50%" style="text-align: center; vertical-align: top; padding: 10px;">
       Pemohon<br>
-      Ketua Satuan Pelaksana<br>
-      Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '………...' }}<br><br>
-      @if ($sign)
-      <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br>
+      {{ $pemohonRole ?? 'Ketua Satuan Pelaksana' }} Suku Dinas Sumber Daya Air<br>
+      {{ $permintaan->user->unitKerja->nama ?? 'Kecamatan ' . ($permintaan->user->kecamatan->kecamatan ?? '…………..') }}<br><br>
+      @if ($sign && $pemohon->ttd)
+      <img src="{{ public_path('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br>
     @else
       <br><br><br>
     @endif
@@ -254,8 +254,8 @@
       Pengurus Barang Suku Dinas Sumber Daya Air<br>
       {{ $isSeribu ? 'Kabupaten' : 'Kota' }} Administrasi Jakarta
       {{ $isSeribu ? 'Kepulauan Seribu' : Str::title($sudin) }}<br><br>
-      @if ($sign)
-      <img src="{{ asset('storage/usersTTD/' . $pengurus->ttd) }}" width="100" height="50"><br>
+      @if ($sign && $pengurus->ttd)
+      <img src="{{ public_path('storage/usersTTD/' . $pengurus->ttd) }}" width="100" height="50"><br>
     @else
       <br><br><br>
     @endif

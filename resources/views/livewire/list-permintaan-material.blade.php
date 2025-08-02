@@ -86,7 +86,7 @@
                                 @if (
                                         $item['editable'] &&
                                         auth()->id() == $permintaan->user_id &&
-                                        $permintaan->persetujuan()->where('is_approved', 1)->get()->unique('user_id')->count() >= 3
+                                        $permintaan->persetujuan()->where('is_approved', 1)->get()->unique('user_id')->count() >= 2
                                     )
                                     {{-- Input file tersembunyi --}}
                                     <input type="file" wire:model="list.{{ $index }}.img" accept="image/*" class="hidden"
