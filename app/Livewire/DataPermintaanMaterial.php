@@ -9,6 +9,7 @@ use App\Models\UnitKerja;
 use App\Models\Persetujuan;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Models\DetailPeminjamanAset;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Request;
@@ -196,6 +197,15 @@ class DataPermintaanMaterial extends Component
             $withRab = $item->rab_id;
         }
 
+        // Cek apakah permintaan bisa dihapus (hanya untuk tipe permintaan, bukan peminjaman)
+        $canDelete = false;
+        if ($tipe === 'permintaan') {
+            $isOwner = $item->user_id === auth()->id();
+            // Cek apakah sudah ada approval sama sekali (baik disetujui maupun ditolak)
+            $hasAnyApproval = $item->persetujuan()->whereNotNull('is_approved')->exists();
+            $canDelete = $isOwner && !$hasAnyApproval;
+        }
+
         return [
             'id' => $item->id,
             'kode' => $item->nodin,
@@ -216,7 +226,8 @@ class DataPermintaanMaterial extends Component
             'proses' => $item->proses,
             'jenis_id' => $tipe === 'permintaan' ? $item->jenis_id : null,
             'tipe' => $tipe,
-            'created_at' => $item->created_at->format('Y ')
+            'created_at' => $item->created_at->format('Y '),
+            'can_delete' => $canDelete
         ];
     }
 
@@ -233,8 +244,8 @@ class DataPermintaanMaterial extends Component
     public function tambahPermintaan()
     {
         $href = "/permintaan/add/material/material";
-        return redirect()->to($href);
 
+        // Cek apakah ada permintaan dengan status "Sedang Dikirim"
         $data = $this->getPermintaanQuery();
         $query = $data->filter(function ($item) {
             $statusFilter = 'sedang dikirim';
@@ -252,8 +263,8 @@ class DataPermintaanMaterial extends Component
 
             return isset($statusMap[$statusFilter]) && $item['status'] === $statusMap[$statusFilter];
         });
+
         if ($query->count()) {
-            # code...
             return $this->dispatch('gagal', pesan: 'Anda masih memiliki permintaan dengan status "Sedang Dikirim". Harap selesaikan terlebih dahulu.');
         } else {
             return redirect()->to($href);
@@ -475,7 +486,7 @@ class DataPermintaanMaterial extends Component
 
 
                 if ($status === 'Disetujui') {
-                    $desc = $desc; // ini nilai catatan approval
+                    $desc = $item->keterangan ?? null; // catatan approval
                 } elseif ($status === 'Ditolak') {
                     $desc = $item->approvable->keterangan_ditolak ?? 'Tidak ada keterangan';
                 }
@@ -503,6 +514,79 @@ class DataPermintaanMaterial extends Component
 
         $this->showTimelineModal = true;
     }
+
+    public function deletePermintaan($permintaanId)
+    {
+        try {
+            $permintaan = DetailPermintaanMaterial::find($permintaanId);
+
+            if (!$permintaan) {
+                session()->flash('error', 'Permintaan tidak ditemukan.');
+                return;
+            }
+
+            // Cek apakah user adalah pemohon
+            if ($permintaan->user_id !== auth()->id()) {
+                session()->flash('error', 'Anda hanya bisa menghapus permintaan yang Anda buat sendiri.');
+                return;
+            }
+
+            // Cek apakah permintaan sudah di-approve/ditolak sama sekali
+            $hasAnyApproval = $permintaan->persetujuan()
+                ->whereNotNull('is_approved')
+                ->exists();
+
+            if ($hasAnyApproval) {
+                session()->flash('error', 'Permintaan yang sudah di-proses (disetujui/ditolak) tidak dapat dihapus.');
+                return;
+            }
+
+            // Cek apakah ada status tertentu yang tidak boleh dihapus
+            if ($permintaan->status && $permintaan->status > 0) {
+                session()->flash('error', 'Permintaan dengan status ini tidak dapat dihapus.');
+                return;
+            }
+
+            // Hapus semua data terkait dalam transaksi database
+            DB::transaction(function () use ($permintaan) {
+                // Hapus persetujuan yang pending (belum ada keputusan)
+                $permintaan->persetujuan()->whereNull('is_approved')->delete();
+
+                // Hapus detail permintaan material
+                $permintaan->permintaanMaterial()->delete();
+
+                // Hapus lampiran foto
+                $lampiran = $permintaan->lampiran();
+                foreach ($lampiran->get() as $foto) {
+                    if ($foto->img && Storage::disk('public')->exists($foto->img)) {
+                        Storage::disk('public')->delete($foto->img);
+                    }
+                }
+                $lampiran->delete();
+
+                // Hapus lampiran dokumen
+                $lampiranDokumen = $permintaan->lampiranDokumen();
+                foreach ($lampiranDokumen->get() as $dokumen) {
+                    if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
+                        Storage::disk('public')->delete($dokumen->file_path);
+                    }
+                }
+                $lampiranDokumen->delete();
+
+                // Hapus permintaan utama
+                $permintaan->delete();
+            });
+
+            session()->flash('success', 'Permintaan berhasil dihapus.');
+
+            // Dispatch event untuk refresh halaman
+            $this->dispatch('permintaan-deleted');
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Terjadi kesalahan saat menghapus permintaan: ' . $e->getMessage());
+        }
+    }
+
     public function render()
     {
         $permintaans = $this->applyFilters();
