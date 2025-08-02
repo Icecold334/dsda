@@ -198,6 +198,7 @@
 <br>
 <table width="100%">
   <tr>
+    @if (!Str::contains($pemohonRole, 'Kepala Seksi'))
     <td align="center" width="50%">
       Mengetahui,<br>
       Kepala Seksi Pemeliharaan<br><br>
@@ -209,6 +210,11 @@
       <b>{{ $pemel->name }}</b><br>
       NIP. {{ $pemel->nip }}
     </td>
+  @else
+    <td align="center" width="50%">
+      <!-- Kosong jika pemohon adalah Kepala Seksi -->
+    </td>
+  @endif
     <td align="center" width="50%">
       {{ $pemohonRole }}<br>
       @if (Str::contains($pemohonRole, 'Kepala Seksi'))

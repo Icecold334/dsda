@@ -381,11 +381,35 @@ class ShowPermintaanMaterial extends Component
             })->whereHas('roles', function ($role) {
                 return $role->where('name', 'like', '%Kepala Subbagian%');
             })->first();
+
+        // Get requester and determine signature roles based on requester's role
+        $pemohon = $permintaan->user;
+        $isKasatpel = $pemohon->hasRole('Kepala Satuan Pelaksana') || $pemohon->roles->contains(function ($role) {
+            return str_contains($role->name, 'Kepala Satuan Pelaksana') || str_contains($role->name, 'Ketua Satuan Pelaksana');
+        });
+        $isKepalaSeksi = $pemohon->hasRole('Kepala Seksi') || $pemohon->roles->contains(function ($role) {
+            return str_contains($role->name, 'Kepala Seksi');
+        });
+
+        // Get Kepala Seksi Pemeliharaan for when requester is Kasatpel
+        $kepalaSeksiPemeliharaan = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+            return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Pemeliharaan%');
+        })->whereHas('roles', function ($role) {
+            return $role->where('name', 'like', '%Kepala Seksi%');
+        })->first();
+
+        // Get Kepala Suku Dinas for when requester is Kepala Seksi
+        $kepalaSudin = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+            return $unit->where('id', $unit_id);
+        })->whereHas('roles', function ($role) {
+            return $role->where('name', 'like', '%Kepala Suku Dinas%');
+        })->first();
+
         $Rkb = $this->Rkb;
         $RKB = $this->RKB;
         $sudin = $this->sudin;
         $isSeribu = $this->isSeribu;
-        $html = view('pdf.sppb', compact('permintaan', 'kasatpel', 'penjaga', 'sign', 'pengurus', 'ttdPath', 'kasubag', 'Rkb', 'RKB', 'sudin', 'isSeribu'))->render();
+        $html = view('pdf.sppb', compact('permintaan', 'kasatpel', 'penjaga', 'sign', 'pengurus', 'ttdPath', 'kasubag', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'pemohon', 'isKasatpel', 'isKepalaSeksi', 'kepalaSeksiPemeliharaan', 'kepalaSudin'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
