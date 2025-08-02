@@ -170,6 +170,14 @@ class PermissionSeeder extends Seeder
                 'gudang.update',
                 'gudang.delete',
                 'manajemen.read',
+                'security.create',
+                'security.read',
+                'security.update',
+                'driver.create',
+                'driver.read',
+                'driver.update',
+                'data_driver',
+                'data_security',
             ],
 
             "Pengurus Barang" => [
@@ -208,6 +216,14 @@ class PermissionSeeder extends Seeder
                 'input_security.read',
                 'input_security.update',
                 'data_barang',
+                'security.create',
+                'security.read',
+                'security.update',
+                'driver.create',
+                'driver.read',
+                'driver.update',
+                'data_driver',
+                'data_security',
             ],
 
             "Kepala Seksi" => [
