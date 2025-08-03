@@ -157,7 +157,7 @@
       NIP. {{ $pemel->nip }}
     </td>
     <td align="center">
-      Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}<br>
+      Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }}<br>
       Kepala Satuan Pelaksana<br>
       Kecamatan {{ $kasatpel->kecamatan->kecamatan }}<br><br>
       @if ($sign && $pemohon->ttd)

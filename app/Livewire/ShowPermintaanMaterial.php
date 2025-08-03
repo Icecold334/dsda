@@ -24,6 +24,10 @@ class ShowPermintaanMaterial extends Component
     public $attachments = [];
     public $newAttachments = [];
 
+    // Edit mode properties
+    public $isEditMode = false;
+    public $editDriverId, $editSecurityId, $editNopol;
+
 
 
     public function suratJalan($sign)
@@ -186,7 +190,157 @@ class ShowPermintaanMaterial extends Component
         // Dispatch event to refresh the approval component
         $this->dispatch('driverInfoSaved');
 
+        $this->statusRefresh();
+
         session()->flash('message', 'Data pengiriman berhasil disimpan.');
+    }
+
+    public function enableEditMode()
+    {
+        // Set edit mode values with current data
+        $this->isEditMode = true;
+        $this->editNopol = $this->permintaan->nopol;
+
+        // Find driver and security IDs based on current names
+        $driver = \App\Models\Driver::where('nama', $this->permintaan->driver)
+            ->where('unit_id', auth()->user()->unit_id)
+            ->first();
+        $security = \App\Models\Security::where('nama', $this->permintaan->security)
+            ->where('unit_id', auth()->user()->unit_id)
+            ->first();
+
+        $this->editDriverId = $driver ? $driver->id : null;
+        $this->editSecurityId = $security ? $security->id : null;
+    }
+
+    public function cancelEdit()
+    {
+        $this->isEditMode = false;
+        $this->reset(['editDriverId', 'editSecurityId', 'editNopol']);
+    }
+
+    public function updateDriverInfo()
+    {
+        $this->validate([
+            'editDriverId' => 'required',
+            'editSecurityId' => 'required',
+            'editNopol' => 'required|string'
+        ], [
+            'editDriverId.required' => 'Driver harus dipilih',
+            'editSecurityId.required' => 'Security harus dipilih',
+            'editNopol.required' => 'Nomor polisi harus diisi'
+        ]);
+
+        $driver = \App\Models\Driver::find($this->editDriverId);
+        $security = \App\Models\Security::find($this->editSecurityId);
+
+        $this->permintaan->update([
+            'driver' => $driver->nama,
+            'security' => $security->nama,
+            'nopol' => $this->editNopol
+        ]);
+
+        $this->isEditMode = false;
+        $this->reset(['editDriverId', 'editSecurityId', 'editNopol']);
+
+        $this->statusRefresh();
+
+        session()->flash('message', 'Data pengiriman berhasil diperbarui.');
+    }
+
+    public function deleteAttachment($attachmentId)
+    {
+        $attachment = FotoPermintaanMaterial::find($attachmentId);
+
+        if ($attachment && $attachment->permintaan_id == $this->permintaan->id) {
+            // Delete file from storage
+            if (Storage::disk('public')->exists('dokumenKontrak/' . $attachment->path)) {
+                Storage::disk('public')->delete('dokumenKontrak/' . $attachment->path);
+            }
+
+            // Delete record from database
+            $attachment->delete();
+
+            session()->flash('message', 'Foto berhasil dihapus.');
+        }
+    }
+
+    public function resetSignatureDriver()
+    {
+        if ($this->permintaan->ttd_driver) {
+            // Delete file from storage
+            if (Storage::disk('public')->exists('ttdPengiriman/' . $this->permintaan->ttd_driver)) {
+                Storage::disk('public')->delete('ttdPengiriman/' . $this->permintaan->ttd_driver);
+            }
+
+            // Update database
+            $this->permintaan->update(['ttd_driver' => null]);
+            $this->signature = null;
+
+            $this->dispatch('signatureReset');
+        }
+    }
+
+    public function resetSignatureSecurity()
+    {
+        if ($this->permintaan->ttd_security) {
+            // Delete file from storage
+            if (Storage::disk('public')->exists('ttdPengiriman/' . $this->permintaan->ttd_security)) {
+                Storage::disk('public')->delete('ttdPengiriman/' . $this->permintaan->ttd_security);
+            }
+
+            // Update database
+            $this->permintaan->update(['ttd_security' => null]);
+            $this->securitySignature = null;
+
+            $this->dispatch('signatureReset');
+        }
+    }
+
+    public function retrySignatureDriver()
+    {
+        // Hanya Pengurus Barang yang bisa mengulang TTD saat status sedang dikirim
+        if (!auth()->user()->hasRole('Pengurus Barang') || $this->permintaan->status != 2) {
+            session()->flash('error', 'Anda tidak memiliki akses untuk mengulang tanda tangan.');
+            return;
+        }
+
+        if ($this->permintaan->ttd_driver) {
+            // Delete old signature file from storage
+            if (Storage::disk('public')->exists('ttdPengiriman/' . $this->permintaan->ttd_driver)) {
+                Storage::disk('public')->delete('ttdPengiriman/' . $this->permintaan->ttd_driver);
+            }
+
+            // Reset signature in database
+            $this->permintaan->update(['ttd_driver' => null]);
+            $this->signature = null;
+
+            $this->dispatch('signatureReset');
+            session()->flash('message', 'Silakan buat tanda tangan driver yang baru.');
+        }
+    }
+
+    public function retrySignatureSecurity()
+    {
+        // Hanya Pengurus Barang yang bisa mengulang TTD saat status sedang dikirim
+        if (!auth()->user()->hasRole('Pengurus Barang') || $this->permintaan->status != 2) {
+            session()->flash('error', 'Anda tidak memiliki akses untuk mengulang tanda tangan.');
+            return;
+        }
+
+        if ($this->permintaan->ttd_security) {
+            // Delete old signature file from storage
+            if (Storage::disk('public')->exists('ttdPengiriman/' . $this->permintaan->ttd_security)) {
+                Storage::disk('public')->delete('ttdPengiriman/' . $this->permintaan->ttd_security);
+            }
+
+            // Reset signature in database
+            $this->permintaan->update(['ttd_security' => null]);
+            $this->securitySignature = null;
+
+            $this->dispatch('signatureReset');
+            session()->flash('message', 'Silakan buat tanda tangan security yang baru.');
+        }
     }
 
     public function mount()

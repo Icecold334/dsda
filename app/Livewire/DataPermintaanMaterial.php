@@ -244,31 +244,7 @@ class DataPermintaanMaterial extends Component
     public function tambahPermintaan()
     {
         $href = "/permintaan/add/material/material";
-
-        // Cek apakah ada permintaan dengan status "Sedang Dikirim"
-        $data = $this->getPermintaanQuery();
-        $query = $data->filter(function ($item) {
-            $statusFilter = 'sedang dikirim';
-
-            if ($statusFilter === 'diproses') {
-                return is_null($item['status']);
-            }
-
-            $statusMap = [
-                'ditolak' => 0,
-                'disetujui' => 1,
-                'sedang dikirim' => 2,
-                'selesai' => 3,
-            ];
-
-            return isset($statusMap[$statusFilter]) && $item['status'] === $statusMap[$statusFilter];
-        });
-
-        if ($query->count()) {
-            return $this->dispatch('gagal', pesan: 'Anda masih memiliki permintaan dengan status "Sedang Dikirim". Harap selesaikan terlebih dahulu.');
-        } else {
-            return redirect()->to($href);
-        }
+        return redirect()->to($href);
     }
     public function updated($propertyName)
     {

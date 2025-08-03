@@ -200,10 +200,10 @@
                 Swal.fire({
                     title: 'Konfirmasi Hapus Permintaan',
                     html: `
-                            <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
-                            <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
-                            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
-                        `,
+                                <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
+                                <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
+                                <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
+                            `,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
@@ -326,7 +326,7 @@
                                         <h3 class=" text-md font-semibold text-gray-900 dark:text-white">{{ $label }}</h3>
                                         <time class="block  text-xs font-normal leading-none text-gray-400 dark:text-gray-500">{{
                             $tanggal ?? '-'
-                                                                            }}</time>
+                                                                                            }}</time>
                                         <p class="text-sm  font-semibold text-gray-600">{{ $user ?? '-' }}</p>
 
                                         @if (!empty($desc))
