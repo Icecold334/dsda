@@ -102,10 +102,10 @@
     </script>
     @endif
 
-    @if (auth()->user()->unitKerja->hak)
-    <livewire:data-permintaan>
-        @else
-        <livewire:data-permintaan-material>
-            @endif
-            @endif
+    @if (auth()->user()->unitKerja && auth()->user()->unitKerja->hak)
+        <livewire:data-permintaan />
+    @else
+        <livewire:data-permintaan-material />
+    @endif
+@endif
 </x-body>

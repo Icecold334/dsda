@@ -5,9 +5,11 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\App;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -59,6 +61,43 @@ class AppServiceProvider extends ServiceProvider
             return new \App\Auth\UsernameUserProvider($app['hash'], $config['model']);
         });
 
+        // Register custom gates for permissions
+        Gate::define('kecamatan.create', function ($user) {
+            return $user->hasPermissionTo('kecamatan.create');
+        });
+
+        Gate::define('kecamatan.read', function ($user) {
+            return $user->hasPermissionTo('kecamatan.read');
+        });
+
+        Gate::define('kecamatan.update', function ($user) {
+            return $user->hasPermissionTo('kecamatan.update');
+        });
+
+        Gate::define('kecamatan.delete', function ($user) {
+            return $user->hasPermissionTo('kecamatan.delete');
+        });
+
+        Gate::define('kelurahan.create', function ($user) {
+            return $user->hasPermissionTo('kelurahan.create');
+        });
+
+        Gate::define('kelurahan.read', function ($user) {
+            return $user->hasPermissionTo('kelurahan.read');
+        });
+
+        Gate::define('kelurahan.update', function ($user) {
+            return $user->hasPermissionTo('kelurahan.update');
+        });
+
+        Gate::define('kelurahan.delete', function ($user) {
+            return $user->hasPermissionTo('kelurahan.delete');
+        });
+
+        // set carbon timezone
+        App::setLocale('id');
+        \Carbon\Carbon::setLocale('id');
+        \Illuminate\Support\Facades\Date::setLocale('id');
         // Auth::loginUsingId(225);
         // pusat
         // Auth::loginUsingId(341); //superadmin
@@ -70,11 +109,11 @@ class AppServiceProvider extends ServiceProvider
         // Auth::loginUsingId(180); // ppk
         // Auth::loginUsingId(178); // perencanaan
         // Auth::loginUsingId(295); // p3k
-        // Auth::loginUsingId(319); // kasatpel
-        // Auth::loginUsingId(245); // kasipemel drain
+        // Auth::loginUsingId(196); // kasatpel
+        // Auth::loginUsingId(246); // kasipemel drain
         // Auth::loginUsingId(193); // kasipemel banjir
         // Auth::loginUsingId(240); // kasi perencanaan
-        // Auth::loginUsingId(242); // kasubag tu
+        Auth::loginUsingId(243); // kasubag tu
         // Auth::loginUsingId(243); // pb
         // Auth::loginUsingId(476);
 

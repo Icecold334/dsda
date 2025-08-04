@@ -134,6 +134,33 @@
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
                         @endif
+
+                        {{-- Admin Actions --}}
+                        {{-- @if ($permintaan['can_admin_edit'])
+                        <button wire:click="adminEditPermintaan({{ $permintaan['id'] }})"
+                            class="ml-2 text-orange-600 hover:text-white hover:bg-orange-600 px-3 py-2 rounded border border-orange-600"
+                            data-tooltip-target="tooltip-admin-edit-{{ $permintaan['id'] }}">
+                            <i class="fa-solid fa-user-gear"></i>
+                        </button>
+                        <div id="tooltip-admin-edit-{{ $permintaan['id'] }}" role="tooltip"
+                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                            Edit Sebagai Admin
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                        @endif --}}
+
+                        @if ($permintaan['can_admin_delete'])
+                            <button onclick="confirmAdminDeletePermintaan({{ $permintaan['id'] }})"
+                                class="ml-2 text-purple-600 hover:text-white hover:bg-purple-600 px-3 py-2 rounded border border-purple-600"
+                                data-tooltip-target="tooltip-admin-delete-{{ $permintaan['id'] }}">
+                                <i class="fa-solid fa-user-slash"></i>
+                            </button>
+                            <div id="tooltip-admin-delete-{{ $permintaan['id'] }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                Hapus Sebagai Admin
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                        @endif
                     </td>
                 </tr>
             @empty
@@ -180,19 +207,48 @@
                 }
             @endif
 
-            // Listen untuk event permintaan-deleted
+            // Listen for Livewire events to close loading modals
             document.addEventListener('livewire:initialized', () => {
+                // Listen untuk event permintaan-deleted
                 Livewire.on('permintaan-deleted', () => {
-                    // Reload data atau redirect
-                    window.location.reload();
+                    // Close any loading modal and reload
+                    if (typeof Swal !== 'undefined') {
+                        Swal.close();
+                    }
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 100);
+                });
+
+                // Listen untuk event admin-delete-completed
+                Livewire.on('admin-delete-completed', () => {
+                    // Close any loading modal and reload
+                    if (typeof Swal !== 'undefined') {
+                        Swal.close();
+                    }
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 100);
+                });
+
+                // Close loading when any Livewire action completes
+                Livewire.hook('morph.updated', () => {
+                    if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+                        // Check if it's a loading modal and close it
+                        const currentModal = Swal.getPopup();
+                        if (currentModal && currentModal.querySelector('.swal2-loader')) {
+                            Swal.close();
+                        }
+                    }
                 });
             });
 
             // Function untuk konfirmasi hapus permintaan
             function confirmDeletePermintaan(permintaanId) {
                 if (typeof Swal === 'undefined') {
+                    const reason = prompt('Alasan menghapus permintaan (opsional):');
                     if (confirm('Apakah Anda yakin ingin menghapus permintaan ini? Tindakan ini tidak dapat dibatalkan.')) {
-                        @this.call('deletePermintaan', permintaanId);
+                        @this.call('deletePermintaan', permintaanId, reason);
                     }
                     return;
                 }
@@ -200,18 +256,28 @@
                 Swal.fire({
                     title: 'Konfirmasi Hapus Permintaan',
                     html: `
-                                <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
-                                <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
-                                <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
-                            `,
+                                        <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
+                                        <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
+                                        <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
+                                    `,
                     icon: 'warning',
+                    input: 'textarea',
+                    inputLabel: 'Alasan menghapus (opsional)',
+                    inputPlaceholder: 'Jelaskan alasan menghapus permintaan...',
+                    inputAttributes: {
+                        'aria-label': 'Alasan menghapus permintaan',
+                        'style': 'min-height: 80px;'
+                    },
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
                     cancelButtonColor: '#6b7280',
                     confirmButtonText: '<i class="fa-solid fa-trash"></i> Hapus',
                     cancelButtonText: 'Batal',
                     reverseButtons: true,
-                    focusCancel: true
+                    focusCancel: true,
+                    preConfirm: (reason) => {
+                        return reason;
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // Show loading
@@ -226,8 +292,68 @@
                             }
                         });
 
-                        // Call Livewire method
-                        @this.call('deletePermintaan', permintaanId);
+                        // Call Livewire method with reason
+                        @this.call('deletePermintaan', permintaanId, result.value);
+                    }
+                });
+            }
+
+            // Function untuk konfirmasi hapus permintaan sebagai admin
+            function confirmAdminDeletePermintaan(permintaanId) {
+                if (typeof Swal === 'undefined') {
+                    const reason = prompt('Alasan menghapus permintaan sebagai admin (wajib):');
+                    if (reason && reason.trim() !== '') {
+                        if (confirm('Apakah Anda yakin ingin menghapus permintaan ini sebagai ADMIN? Tindakan ini tidak dapat dibatalkan.')) {
+                            @this.call('adminDeletePermintaan', permintaanId, reason);
+                        }
+                    } else {
+                        alert('Alasan hapus wajib diisi untuk admin.');
+                    }
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Konfirmasi Hapus Permanen',
+                    icon: 'warning',
+                    input: 'textarea',
+                    inputLabel: 'Alasan hapus sebagai admin (wajib) *',
+                    inputPlaceholder: 'Jelaskan alasan menghapus permintaan sebagai admin...',
+                    inputAttributes: {
+                        'aria-label': 'Alasan hapus sebagai admin',
+                        'style': 'min-height: 100px;',
+                        'required': true
+                    },
+                    inputValidator: (value) => {
+                        if (!value || value.trim() === '') {
+                            return 'Alasan hapus wajib diisi untuk admin!';
+                        }
+                        if (value.length > 500) {
+                            return 'Alasan hapus maksimal 500 karakter!';
+                        }
+                    },
+                    showCancelButton: true,
+                    confirmButtonColor: '#7c3aed',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '<i class="fa-solid fa-user-slash"></i> Hapus Sebagai Admin',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    focusCancel: true
+                }).then((result) => {
+                    if (result.isConfirmed && result.value) {
+                        // Show loading
+                        Swal.fire({
+                            title: 'Menghapus sebagai Admin...',
+                            text: 'Sedang menghapus permintaan',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Call Livewire method with reason
+                        @this.call('adminDeletePermintaan', permintaanId, result.value);
                     }
                 });
             }
@@ -326,7 +452,7 @@
                                         <h3 class=" text-md font-semibold text-gray-900 dark:text-white">{{ $label }}</h3>
                                         <time class="block  text-xs font-normal leading-none text-gray-400 dark:text-gray-500">{{
                             $tanggal ?? '-'
-                                                                                            }}</time>
+                                                                                                                                                                                            }}</time>
                                         <p class="text-sm  font-semibold text-gray-600">{{ $user ?? '-' }}</p>
 
                                         @if (!empty($desc))

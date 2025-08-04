@@ -15,27 +15,36 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        if (!Auth::user()->unitKerja->hak) {
-            $roleRedirectMap = [
-                // 'Kepala Suku Dinas' => 'dashboard',
-                'Kepala Satuan Pelaksana' => 'permintaan/material',
-                'Perencanaan' => 'rab',
-                'Kepala Seksi' => 'permintaan/material',
-                'Kepala Subbagian' => 'permintaan/material',
-                'Pengurus Barang' => 'permintaan/material',
-                'P3K' => 'pengiriman-stok',
-            ];
+        $user = Auth::user();
 
-            foreach ($roleRedirectMap as $role => $target) {
-                if (Auth::user()->hasRole($role)) {
-                    $to = $target;
-                    break;
+        // Handle Super Admin case - mereka bisa langsung akses dashboard
+        if ($user->hasRole('Super Admin')) {
+            // Super Admin langsung ke dashboard tanpa redirect
+        } else {
+            // Handle user dengan unitKerja yang mungkin null
+            $unitKerja = $user->unitKerja;
+            if (!$unitKerja || !$unitKerja->hak) {
+                $roleRedirectMap = [
+                    // 'Kepala Suku Dinas' => 'dashboard',
+                    'Kepala Satuan Pelaksana' => 'permintaan/material',
+                    'Perencanaan' => 'rab',
+                    'Kepala Seksi' => 'permintaan/material',
+                    'Kepala Subbagian' => 'permintaan/material',
+                    'Pengurus Barang' => 'permintaan/material',
+                    'P3K' => 'pengiriman-stok',
+                ];
+
+                foreach ($roleRedirectMap as $role => $target) {
+                    if ($user->hasRole($role)) {
+                        $to = $target;
+                        break;
+                    }
                 }
+                // if (!Auth::user()->hasRole(['Kepala Suku Dinas', 'Admin Sudin'])) {
+                //     # code...
+                //     return redirect()->to($to);
+                // }
             }
-            // if (!Auth::user()->hasRole(['Kepala Suku Dinas', 'Admin Sudin'])) {
-            //     # code...
-            //     return redirect()->to($to);
-            // }
         }
 
         $agendas = Agenda::with('aset')

@@ -27,10 +27,19 @@ class DataRab extends Component
 
     public function fetchData()
     {
-        $rabs = Rab::whereHas('user.unitKerja', function ($unit) {
-            $unit->where('parent_id', $this->unit_id)
-                ->orWhere('id', $this->unit_id);
-        })->orderBy('created_at', 'desc')->paginate(5);
+        $user = Auth::user();
+
+        // Check if user is superadmin
+        if ($user->hasRole('superadmin') || $user->unit_id === null) {
+            // Superadmin dapat melihat semua RAB dari semua suku dinas
+            $rabs = Rab::with(['user.unitKerja'])->orderBy('created_at', 'desc')->paginate(5);
+        } else {
+            // User biasa hanya bisa melihat RAB dari unit mereka/bawahan mereka
+            $rabs = Rab::whereHas('user.unitKerja', function ($unit) {
+                $unit->where('parent_id', $this->unit_id)
+                    ->orWhere('id', $this->unit_id);
+            })->orderBy('created_at', 'desc')->paginate(5);
+        }
 
         $rabs->getCollection()->transform(function ($rab) {
             $statusMap = [

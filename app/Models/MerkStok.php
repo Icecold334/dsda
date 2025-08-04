@@ -50,4 +50,16 @@ class MerkStok extends Model
     {
         return $this->hasMany(KontrakVendorStok::class, 'merk_id');
     }
+
+    /**
+     * Get spesifikasi attribute (combination of nama, tipe, ukuran)
+     */
+    public function getSpesifikasiAttribute()
+    {
+        $parts = array_filter([
+            $this->nama,
+        ]);
+
+        return implode(' - ', $parts);
+    }
 }

@@ -504,37 +504,21 @@ class ShowPermintaanMaterial extends Component
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 10);
 
-        // optional kalau ada ttd atau cap
-        $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
-
         $permintaan = $this->permintaan;
         $unit_id = $this->unit_id;
         $permintaan->unit = UnitKerja::find($unit_id);
-        $kasatpel =
-            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
-                return $unit->where('id', $unit_id);
-            })->whereHas('roles', function ($role) {
-                return $role->where('name', 'like', '%Kepala Satuan Pelaksana%');
-            })->first();
-        $penjaga =
-            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
-                return $unit->where('id', $unit_id);
-            })->whereHas('roles', function ($role) {
-                return $role->where('name', 'like', '%Penjaga Gudang%');
-            })->where('lokasi_id', $this->permintaan->gudang_id)->first();
-        $pengurus =
-            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
-                return $unit->where('id', $unit_id);
-            })->whereHas('roles', function ($role) {
-                return $role->where('name', 'like', '%Pengurus Barang%');
-            })->first();
 
-        $kasubag =
-            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
-                return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Tata Usaha%');
-            })->whereHas('roles', function ($role) {
-                return $role->where('name', 'like', '%Kepala Subbagian%');
-            })->first();
+        $kasatpel = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+            return $unit->where('id', $unit_id);
+        })->whereHas('roles', function ($role) {
+            return $role->where('name', 'like', '%Kepala Satuan Pelaksana%');
+        })->first();
+
+        $kasubag = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+            return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Tata Usaha%');
+        })->whereHas('roles', function ($role) {
+            return $role->where('name', 'like', '%Kepala Subbagian%');
+        })->first();
 
         // Get requester and determine signature roles based on requester's role
         $pemohon = $permintaan->user;
@@ -563,11 +547,27 @@ class ShowPermintaanMaterial extends Component
         $RKB = $this->RKB;
         $sudin = $this->sudin;
         $isSeribu = $this->isSeribu;
-        $html = view('pdf.sppb', compact('permintaan', 'kasatpel', 'penjaga', 'sign', 'pengurus', 'ttdPath', 'kasubag', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'pemohon', 'isKasatpel', 'isKepalaSeksi', 'kepalaSeksiPemeliharaan', 'kepalaSudin'))->render();
+
+        // ===== FIX: Generate view HTML dengan semua variabel yang dibutuhkan =====
+        $html = view('pdf.sppb', compact(
+            'permintaan',
+            'kasatpel',
+            'sign',        // Pastikan variabel $sign dipass ke view
+            'kasubag',
+            'Rkb',
+            'RKB',
+            'sudin',
+            'isSeribu',
+            'pemohon',
+            'isKasatpel',
+            'isKepalaSeksi',
+            'kepalaSeksiPemeliharaan',
+            'kepalaSudin'
+        ))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
-        // return 1;
+
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->Output('', 'S');
         }, 'SPPB.pdf');
@@ -590,38 +590,38 @@ class ShowPermintaanMaterial extends Component
     public function spb($sign = false)
     {
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-        // Set margin (Left, Top, Right)
         $pdf->SetMargins(10, 5, 10);
         $pdf->SetCreator('Sistem Permintaan Bahan');
         $pdf->SetAuthor('Dinas SDA');
         $pdf->SetTitle('Surat Permintaan Barang Material');
 
         $pdf->AddPage();
-        $pdf->SetFont('helvetica', '', 11, '', '', );
+        $pdf->SetFont('helvetica', '', 11, '', '');
 
         $permintaan = $this->permintaan;
         $unit_id = $this->unit_id;
         $permintaan->unit = UnitKerja::find($unit_id);
-        // dd($sign);
-        $kasatpel =
-            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
-                return $unit->where('id', $unit_id);
-            })->whereHas('roles', function ($role) {
-                return $role->where('name', 'like', '%Kepala Satuan Pelaksana%');
-            })->first();
-        $pemel =
-            User::whereHas('unitKerja', function ($unit) use ($unit_id) {
-                return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Pemeliharaan%');
-            })->whereHas('roles', function ($role) {
-                return $role->where('name', 'like', '%Kepala Seksi%');
-            })->first();
+
+        $kasatpel = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+            return $unit->where('id', $unit_id);
+        })->whereHas('roles', function ($role) {
+            return $role->where('name', 'like', '%Kepala Satuan Pelaksana%');
+        })->first();
+
+        $pemel = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+            return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Pemeliharaan%');
+        })->whereHas('roles', function ($role) {
+            return $role->where('name', 'like', '%Kepala Seksi%');
+        })->first();
+
         $pemohon = $permintaan->user;
-        $pemohonRole = $pemohon->roles->pluck('name')->first(); // ambil 1 role
+        $pemohonRole = $pemohon->roles->pluck('name')->first();
 
         $Rkb = $this->Rkb;
         $RKB = $this->RKB;
         $sudin = $this->sudin;
         $isSeribu = $this->isSeribu;
+
         if ($isSeribu) {
             $withRab = $this->permintaan->permintaanMaterial->first()->rab_id;
         } else {
@@ -638,18 +638,50 @@ class ShowPermintaanMaterial extends Component
         $pemelDone = $usersWithRoles->contains(function ($user) {
             return $user->hasRole('Kepala Seksi');
         });
-        // dd(
-        //     !$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb')
-        // );
-        $ttdPath = storage_path('app/public/usersTTD/' . $pemohon->ttd);
-        // dd(asset('storage/usersTTD/' . $pemohon->ttd));
-        $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact('pemelDone', 'ttdPath', 'pemohon', 'pemohonRole', 'permintaan', 'kasatpel', 'pemel', 'Rkb', 'RKB', 'sudin', 'isSeribu', 'sign'))->render();
+
+        // FIX: Path TTD untuk pemohon dan pemel
+        $ttdPemohon = null;
+        $ttdPemel = null;
+
+        // Cek TTD pemohon
+        if ($pemohon && $pemohon->ttd && $sign) {
+            $ttdPemohonPath = storage_path('app/public/usersTTD/' . $pemohon->ttd);
+            if (file_exists($ttdPemohonPath)) {
+                $ttdPemohon = $ttdPemohonPath;
+            }
+        }
+
+        // Cek TTD pemel
+        if ($pemel && $pemel->ttd && $sign) {
+            $ttdPemelPath = storage_path('app/public/usersTTD/' . $pemel->ttd);
+            if (file_exists($ttdPemelPath)) {
+                $ttdPemel = $ttdPemelPath;
+            }
+        }
+
+        // Pass semua variabel yang diperlukan ke view
+        $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact(
+            'pemelDone',
+            'ttdPemohon',   // Ganti dari 'ttdPath'
+            'ttdPemel',     // Tambahan untuk TTD pemel
+            'pemohon',
+            'pemohonRole',
+            'permintaan',
+            'kasatpel',
+            'pemel',
+            'Rkb',
+            'RKB',
+            'sudin',
+            'isSeribu',
+            'sign'
+        ))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
         $this->statusRefresh();
+
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->Output('', 'S');
-        }, 0 ? 'Nota Dinas.pdf' : 'Surat Permintaan Barang.pdf');
+        }, 'Surat Permintaan Barang.pdf');
     }
 
     public function removeAttachment($index)
@@ -668,7 +700,15 @@ class ShowPermintaanMaterial extends Component
     public function downloadDoc($params)
     {
         $type = $params['type'];
-        $withSign = $params['withSign'];
+        $withSign = $params['withSign'] ?? false; // Default false jika tidak ada
+
+        // Debug log untuk memastikan parameter diterima
+        \Log::info('downloadDoc called', [
+            'type' => $type,
+            'withSign' => $withSign,
+            'params' => $params
+        ]);
+
         switch ($type) {
             case 'spb':
                 return $this->spb($withSign);
@@ -680,7 +720,6 @@ class ShowPermintaanMaterial extends Component
                 return $this->bast($withSign);
         }
     }
-
     public function uploadDokumen($type, $fileDataUrl, $originalName)
     {
         // Ambil extension

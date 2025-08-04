@@ -350,7 +350,7 @@
                     </label>
                     <a wire:click='saveDoc'
                         class="cursor-pointer {{ count($this->attachments) ? '' : 'hidden' }}
-                                                                                text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                                                                                            text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                         Simpan
                     </a>
                 @endif
@@ -674,7 +674,8 @@
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#10B981'
             });
-        }); function confirmDownload(docType) {
+        });
+        function confirmDownload(docType) {
             Swal.fire({
                 title: 'Gunakan TTD Elektronik (e-TTD)?',
                 text: "Apakah Anda ingin menyertakan tanda tangan elektronik pada dokumen?",
@@ -685,6 +686,7 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // FIX: Pastikan parameter dikirim dengan benar
                     @this.call('downloadDoc', { type: docType, withSign: true });
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
                     @this.call('downloadDoc', { type: docType, withSign: false });

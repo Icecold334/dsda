@@ -16,10 +16,33 @@ abstract class Controller
 
     public function __construct()
     {
-        $unitId = Auth::user()->unit_id;
+        // Handle Super Admin case (unit_id = null)
+        $user = Auth::user();
+        if (!$user || !$user->unit_id) {
+            // Default values for Super Admin
+            $this->unit_id = null;
+            $this->isSeribu = false;
+            $this->Rkb = 'RAB';
+            $this->RKB = 'Rencana Anggaran Biaya';
+            $this->sudin = 'Super Admin';
+            return;
+        }
+
+        $unitId = $user->unit_id;
         $unit = UnitKerja::find($unitId);
         $this->unit_id = $unit && $unit->parent_id ? $unit->parent_id : $unitId;
         $parent = UnitKerja::find($this->unit_id);
+
+        // Check if parent exists before accessing properties
+        if (!$parent) {
+            $this->unit_id = null;
+            $this->isSeribu = false;
+            $this->Rkb = 'RAB';
+            $this->RKB = 'Rencana Anggaran Biaya';
+            $this->sudin = 'Unknown';
+            return;
+        }
+
         $isSeribu = Str::contains($parent->nama, 'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu');
         $this->isSeribu = $isSeribu;
         $this->Rkb = $isSeribu ? 'RKB' : 'RAB';

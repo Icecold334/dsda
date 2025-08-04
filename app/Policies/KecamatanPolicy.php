@@ -13,7 +13,7 @@ class KecamatanPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class KecamatanPolicy
      */
     public function view(User $user, Kecamatan $kecamatan): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +29,8 @@ class KecamatanPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        // For now, let middleware handle the permission check
+        return true;
     }
 
     /**
@@ -37,7 +38,7 @@ class KecamatanPolicy
      */
     public function update(User $user, Kecamatan $kecamatan): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -45,7 +46,7 @@ class KecamatanPolicy
      */
     public function delete(User $user, Kecamatan $kecamatan): bool
     {
-        return false;
+        return true;
     }
 
     /**
