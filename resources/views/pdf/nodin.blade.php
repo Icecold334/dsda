@@ -30,24 +30,15 @@
     text-align: center;
     font-weight: bold;
     font-size: 14px;
-    /* line-height: 1.6; */
   }
 
   .tembusan {
     font-size: 10px;
     margin-top: 30px;
   }
-</style>
-
-<style>
-  body {
-    font-family: helvetica, sans-serif;
-    font-size: 11px;
-  }
 
   .header-table {
     width: 100%;
-    /* border-bottom: 2px solid #000; */
     padding-top: 8px;
     padding-bottom: 8px;
     margin-bottom: 6px;
@@ -57,28 +48,20 @@
     width: 80px;
   }
 
-  .header-text {
-    text-align: center;
-    /* font-weight: bold; */
-    font-size: 10px;
-  }
-
   .header-subtext {
     font-weight: normal;
     font-size: 10px;
-    /* margin-top: 4px; */
-  }
-
-  .header-kodepos {
-    text-align: right;
-    font-size: 10px;
-    /* margin-top: -10px; */
   }
 
   .underline {
     border-top: 2px solid black;
     width: 100%;
     margin-top: 2px;
+  }
+
+  .meta-table td {
+    padding: 2px 0;
+    vertical-align: top;
   }
 </style>
 
@@ -97,7 +80,6 @@
         <br>
         J A K A R T A
       </div>
-      {{-- <div>J A K A R T A</div> --}}
     </td>
   </tr>
 </table>
@@ -106,7 +88,8 @@
 <table width="100%" style="margin-top: 20px;">
   <tr>
     <td style="width: 100%; vertical-align: top;text-align: right">
-      Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }}</td>
+      Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }}
+    </td>
   </tr>
   <tr>
     <!-- Kiri: metadata -->
@@ -146,11 +129,9 @@
 
 <br>
 
-
 <p>
   Sehubungan dengan kebutuhan pelaksanaan kegiatan {{ $permintaan->nama }}, dengan ini saya mengajukan permohonan
-  penyediaan bahan material dengan rincian sebagai
-  berikut:
+  penyediaan bahan material dengan rincian sebagai berikut:
 </p>
 
 <table class="bahan">
@@ -167,8 +148,7 @@
     <tr>
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="120">{{ $item->merkStok->barangStok->nama }}</td>
-      <td width="280">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
-    $item->merkStok->tipe ?? 'Tanpa tipe' }} -
+      <td width="280">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{ $item->merkStok->tipe ?? 'Tanpa tipe' }} -
       {{ $item->merkStok->ukuran ?? 'Tanpa ukuran' }}
       </td>
       <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
@@ -176,11 +156,10 @@
   @endforeach
   </tbody>
 </table>
+
 <p>
   Adapun bahan material tersebut diperlukan untuk {{ $permintaan->keterangan }} di {{ $permintaan->lokasi }}.
-  Demikian
-  permohonan ini kami sampaikan.
-  Atas perhatian dan kerjasamanya, saya ucapkan terima kasih.
+  Demikian permohonan ini kami sampaikan. Atas perhatian dan kerjasamanya, saya ucapkan terima kasih.
 </p>
 
 <br>
@@ -194,27 +173,31 @@
   </tr>
 </table>
 
-<br>
-<br>
+<br><br>
+
 <table width="100%">
   <tr>
     @if (!Str::contains($pemohonRole, 'Kepala Seksi'))
     <td align="center" width="50%">
       Mengetahui,<br>
       Kepala Seksi Pemeliharaan<br><br>
-      @if ($sign && $pemelDone)
-      <img src="{{ asset('storage/usersTTD/' . $pemel->ttd) }}" width="100" height="50"><br><br>
+
+      {{-- PERBAIKAN: Cek TTD Kepala Seksi Pemeliharaan --}}
+      @if ($sign && $pemelDone && isset($pemel) && $pemel && $pemel->ttd && file_exists(public_path('storage/usersTTD/' . $pemel->ttd)))
+      <img src="{{ public_path('storage/usersTTD/' . $pemel->ttd) }}" width="100" height="50"><br><br>
     @else
       <br><br><br><br>
     @endif
-      <b>{{ $pemel->name }}</b><br>
-      NIP. {{ $pemel->nip }}
+
+      <b>{{ $pemel->name ?? '-' }}</b><br>
+      NIP. {{ $pemel->nip ?? '-' }}
     </td>
   @else
     <td align="center" width="50%">
       <!-- Kosong jika pemohon adalah Kepala Seksi -->
     </td>
   @endif
+
     <td align="center" width="50%">
       {{ $pemohonRole }}<br>
       @if (Str::contains($pemohonRole, 'Kepala Seksi'))
@@ -224,14 +207,15 @@
     @endif
       <br><br>
 
-      @if ($sign)
-      <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
+      {{-- PERBAIKAN: Cek TTD Pemohon --}}
+      @if ($sign && isset($pemohon) && $pemohon && $pemohon->ttd && file_exists(public_path('storage/usersTTD/' . $pemohon->ttd)))
+      <img src="{{ public_path('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
     @else
       <br><br><br><br>
     @endif
 
-      <b>{{ $pemohon->name }}</b><br>
-      NIP. {{ $pemohon->nip }}
+      <b>{{ $pemohon->name ?? '-' }}</b><br>
+      NIP. {{ $pemohon->nip ?? '-' }}
     </td>
   </tr>
 </table>
