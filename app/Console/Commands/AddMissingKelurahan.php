@@ -13,8 +13,7 @@ class AddMissingKelurahan extends Command
      * @var string
      */
     protected $signature = 'kelurahan:add-missing 
-                            {--dry-run : Tampilkan perubahan tanpa menyimpan ke database}
-                            {--verbose : Tampilkan semua kelurahan termasuk yang sudah ada}';
+                            {--dry-run : Tampilkan perubahan tanpa menyimpan ke database}';
 
     /**
      * The console command description.
@@ -29,7 +28,7 @@ class AddMissingKelurahan extends Command
     public function handle()
     {
         $dryRun = $this->option('dry-run');
-        $verbose = $this->option('verbose');
+        $verbose = $this->getOutput()->isVerbose();
 
         if ($dryRun) {
             $this->info('MODE DRY-RUN: Tidak ada perubahan yang akan disimpan ke database');

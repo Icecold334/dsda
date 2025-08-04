@@ -415,6 +415,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'rab' => RabController::class,
         'permintaan-stok' => PermintaanStokController::class,
     ]);
+
+    // Admin routes for permintaan - no restrictions (superadmin only)
+    Route::prefix('admin/permintaan')->group(function () {
+        Route::get('{id}/edit', [PermintaanStokController::class, 'adminEdit'])->name('permintaan.admin-edit');
+        Route::put('{id}', [PermintaanStokController::class, 'adminUpdate'])->name('permintaan.admin-update');
+        Route::delete('{id}', [PermintaanStokController::class, 'adminDestroy'])->name('permintaan.admin-destroy');
+    });
 });
 
 function downloadGabunganPdf($id)

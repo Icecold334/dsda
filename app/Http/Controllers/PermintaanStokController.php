@@ -10,6 +10,8 @@ use App\Models\PermintaanMaterial;
 use App\Models\DetailPeminjamanAset;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Models\DetailPermintaanMaterial;
 
 class PermintaanStokController extends Controller
@@ -29,7 +31,7 @@ class PermintaanStokController extends Controller
             return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
         })->orderBy('id', 'desc')->get();
 
-        $permintaans = is_null($tipe) || $tipe === 'umum' ?  $permintaan->merge($peminjaman) : $permintaan;
+        $permintaans = is_null($tipe) || $tipe === 'umum' ? $permintaan->merge($peminjaman) : $permintaan;
         $kategoris = KategoriStok::all();
 
         if ($jenis_id == 1) {
@@ -121,6 +123,120 @@ class PermintaanStokController extends Controller
     public function update(Request $request, string $id)
     {
         //
+    }
+
+    /**
+     * Admin edit method - no restrictions
+     */
+    public function adminEdit($id)
+    {
+        $user = Auth::user();
+
+        // Check if user is superadmin
+        if (!$user->hasRole('superadmin') && $user->unit_id !== null) {
+            abort(403, 'Unauthorized access. Admin only.');
+        }
+
+        $permintaan = DetailPermintaanMaterial::with([
+            'permintaanMaterial.merkStok.barangStok',
+            'user.unitKerja',
+            'kelurahan.kecamatan',
+            'rab'
+        ])->find($id);
+
+        if (!$permintaan) {
+            abort(404, 'Permintaan tidak ditemukan.');
+        }
+
+        return view('permintaan.admin-edit', compact('permintaan'));
+    }
+
+    /**
+     * Admin update method - no restrictions
+     */
+    public function adminUpdate(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        // Check if user is superadmin
+        if (!$user->hasRole('superadmin') && $user->unit_id !== null) {
+            abort(403, 'Unauthorized access. Admin only.');
+        }
+
+        $permintaan = DetailPermintaanMaterial::find($id);
+
+        if (!$permintaan) {
+            abort(404, 'Permintaan tidak ditemukan.');
+        }
+
+        // Admin can update regardless of status
+        // Implementation will be handled by Livewire component
+
+        return redirect()->route('permintaan.admin-edit', $id)
+            ->with('success', 'Permintaan berhasil diperbarui oleh admin.');
+    }
+
+    /**
+     * Admin delete method - no restrictions
+     */
+    public function adminDestroy($id)
+    {
+        $user = Auth::user();
+
+        // Check if user is superadmin
+        if (!$user->hasRole('superadmin') && $user->unit_id !== null) {
+            abort(403, 'Unauthorized access. Admin only.');
+        }
+
+        $permintaan = DetailPermintaanMaterial::find($id);
+
+        if (!$permintaan) {
+            abort(404, 'Permintaan tidak ditemukan.');
+        }
+
+        try {
+            DB::transaction(function () use ($permintaan) {
+                // Admin can delete regardless of status - cascade delete all related data
+
+                // Delete persetujuan records
+                $permintaan->persetujuan()->delete();
+
+                // Delete permintaan material items
+                $permintaan->permintaanMaterial()->delete();
+
+                // Delete lampiran files and records
+                $lampiran = $permintaan->lampiran();
+                foreach ($lampiran->get() as $foto) {
+                    if ($foto->img && Storage::exists('public/' . $foto->img)) {
+                        Storage::delete('public/' . $foto->img);
+                    }
+                }
+                $lampiran->delete();
+
+                // Delete lampiran dokumen files and records
+                $lampiranDokumen = $permintaan->lampiranDokumen();
+                foreach ($lampiranDokumen->get() as $dokumen) {
+                    if ($dokumen->file_path && Storage::exists('public/' . $dokumen->file_path)) {
+                        Storage::delete('public/' . $dokumen->file_path);
+                    }
+                }
+                $lampiranDokumen->delete();
+
+                // Finally delete the main permintaan
+                $permintaan->delete();
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Permintaan berhasil dihapus oleh admin.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus permintaan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
 

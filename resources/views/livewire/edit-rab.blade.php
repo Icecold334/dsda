@@ -200,21 +200,26 @@
                             @error('uraian_rekening_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
 
-                        <!-- Unit Context for Super Admin -->
+                        <!-- Unit Context for Super Admin (Read Only) -->
                         @if($isSuperAdmin)
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Unit Kerja (Super Admin)</label>
-                                <select wire:model.live="selected_unit_id"
-                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                    <option value="">Pilih Unit Kerja</option>
-                                    @foreach($all_units as $unit)
-                                        <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
-                                    @endforeach
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Unit Kerja (Readonly)</label>
+                                <select disabled readonly
+                                    class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed opacity-75">
+                                    @if($selected_unit_id)
+                                        @php
+                                            $selectedUnit = $all_units->where('id', $selected_unit_id)->first();
+                                        @endphp
+                                        @if($selectedUnit)
+                                            <option value="{{ $selectedUnit->id }}" selected>{{ $selectedUnit->nama }}</option>
+                                        @endif
+                                    @else
+                                        <option value="">Unit Kerja RAB Asli</option>
+                                    @endif
                                 </select>
-                                <div wire:loading wire:target="selected_unit_id" class="text-sm text-blue-600 mt-1">
-                                    <i class="fas fa-spinner fa-spin"></i> Memuat data kecamatan...
+                                <div class="text-sm text-gray-500 mt-1">
+                                    <i class="fas fa-info-circle"></i> Unit kerja tidak dapat diubah saat mengedit RAB yang sudah ada
                                 </div>
-                                @error('selected_unit_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             </div>
                         @endif
 
@@ -386,85 +391,6 @@
         </x-card>
     </div>
 
-    <!-- Lampiran RAB -->
-    <div class="mt-6">
-        <x-card title="Lampiran RAB" class="mb-3">
-            @if($canEdit)
-                <!-- Upload Section -->
-                <div class="mb-4">
-                    <div wire:loading wire:target="newAttachments">
-                        <div class="text-primary-600 mb-2">
-                            <i class="fas fa-spinner fa-spin mr-2"></i>Uploading files...
-                        </div>
-                    </div>
-                    <input type="file" wire:model="newAttachments" multiple class="hidden" id="fileUpload">
-                    <label for="fileUpload"
-                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">
-                        <i class="fas fa-upload mr-1"></i>Tambah Lampiran
-                    </label>
-                    @if(count($newAttachments) > 0)
-                        <button wire:click="saveAttachments"
-                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                            <i class="fas fa-save mr-1"></i>Simpan Lampiran
-                        </button>
-                    @endif
-                </div>
-
-                <!-- Preview New Attachments -->
-                @if(count($newAttachments) > 0)
-                    <div class="mb-4 p-4 bg-blue-50 rounded-lg">
-                        <h5 class="font-medium text-blue-800 mb-2">File yang akan diunggah:</h5>
-                        @foreach($newAttachments as $index => $file)
-                            <div class="flex items-center justify-between border-b border-blue-200 py-2">
-                                <span class="text-blue-700">{{ $file->getClientOriginalName() }}</span>
-                                <button wire:click="removeAttachment({{ $index }})"
-                                    class="text-red-500 hover:text-red-700">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            @endif
-
-            <!-- Existing Attachments -->
-            <div class="space-y-2">
-                @forelse($attachments as $attachment)
-                    <div class="flex items-center justify-between border-b p-2 rounded">
-                        <span class="flex items-center space-x-3">
-                            @php $fileType = pathinfo($attachment['path'], PATHINFO_EXTENSION); @endphp
-                            <span class="text-primary-600">
-                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-                                    <i class="fa-solid fa-image text-green-500"></i>
-                                @elseif($fileType == 'pdf')
-                                    <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                @elseif(in_array($fileType, ['doc', 'docx']))
-                                    <i class="fa-solid fa-file-word text-blue-500"></i>
-                                @else
-                                    <i class="fa-solid fa-file text-gray-500"></i>
-                                @endif
-                            </span>
-                            <a href="{{ asset('storage/lampiranRab/' . $attachment['path']) }}" target="_blank"
-                                class="text-gray-800 hover:underline">
-                                {{ basename($attachment['path']) }}
-                            </a>
-                        </span>
-                        @if($canEdit)
-                            <button wire:click="deleteAttachment({{ $attachment['id'] }})"
-                                class="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        @endif
-                    </div>
-                @empty
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-paperclip text-4xl mb-4"></i>
-                        <p>Belum ada lampiran</p>
-                    </div>
-                @endforelse
-            </div>
-        </x-card>
-    </div>
 
     <!-- Modal untuk Edit Detail Barang -->
     @if($showDetailModal)

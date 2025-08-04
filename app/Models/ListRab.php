@@ -10,11 +10,7 @@ class ListRab extends Model
     protected $fillable = [
         'rab_id',
         'merk_id',
-        'jumlah',
-        'nama_barang_override',
-        'spesifikasi_override',
-        'satuan_override',
-        'keterangan'
+        'jumlah'
     ];
 
     public function rab()

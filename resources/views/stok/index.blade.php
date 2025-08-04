@@ -1,9 +1,9 @@
 <x-body>
     <div>
-        @if (auth()->user()->unitKerja->hak)
-        <livewire:data-stok />
+        @if (auth()->user()->unitKerja && auth()->user()->unitKerja->hak)
+            <livewire:data-stok />
         @else
-        <livewire:data-stok-material :all="$sudin" />
+            <livewire:data-stok-material :all="$sudin" />
         @endif
     </div>
 </x-body>

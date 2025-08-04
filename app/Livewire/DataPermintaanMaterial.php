@@ -9,6 +9,7 @@ use App\Models\UnitKerja;
 use App\Models\Persetujuan;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\DetailPeminjamanAset;
 use App\Models\DetailPermintaanStok;
@@ -36,6 +37,9 @@ class DataPermintaanMaterial extends Component
     public $showTimelineModal = false;
     public $tipe;
 
+    // Admin properties
+    public $isAdmin = false;
+
     // public $permintaans;
 
 
@@ -45,6 +49,11 @@ class DataPermintaanMaterial extends Component
         $this->tipe = Request::segment(2);
         $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::whereNull('parent_id')->get();
         $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');
+
+        // Check if current user is admin (superadmin or unit_id null)
+        $user = Auth::user();
+        $this->isAdmin = $user->hasRole('superadmin') || $user->unit_id === null;
+
         $this->applyFilters();
     }
 
@@ -199,11 +208,22 @@ class DataPermintaanMaterial extends Component
 
         // Cek apakah permintaan bisa dihapus (hanya untuk tipe permintaan, bukan peminjaman)
         $canDelete = false;
+        $canEdit = false;
+        $canAdminEdit = false;
+        $canAdminDelete = false;
+
         if ($tipe === 'permintaan') {
             $isOwner = $item->user_id === auth()->id();
             // Cek apakah sudah ada approval sama sekali (baik disetujui maupun ditolak)
             $hasAnyApproval = $item->persetujuan()->whereNotNull('is_approved')->exists();
+
+            // Regular user permissions
             $canDelete = $isOwner && !$hasAnyApproval;
+            $canEdit = $isOwner && !$hasAnyApproval;
+
+            // Admin permissions (no restrictions)
+            $canAdminEdit = $this->isAdmin;
+            $canAdminDelete = $this->isAdmin;
         }
 
         return [
@@ -227,7 +247,10 @@ class DataPermintaanMaterial extends Component
             'jenis_id' => $tipe === 'permintaan' ? $item->jenis_id : null,
             'tipe' => $tipe,
             'created_at' => $item->created_at->format('Y '),
-            'can_delete' => $canDelete
+            'can_delete' => $canDelete,
+            'can_edit' => $canEdit,
+            'can_admin_edit' => $canAdminEdit,
+            'can_admin_delete' => $canAdminDelete
         ];
     }
 
@@ -491,7 +514,7 @@ class DataPermintaanMaterial extends Component
         $this->showTimelineModal = true;
     }
 
-    public function deletePermintaan($permintaanId)
+    public function deletePermintaan($permintaanId, $reason = null)
     {
         try {
             $permintaan = DetailPermintaanMaterial::find($permintaanId);
@@ -524,7 +547,17 @@ class DataPermintaanMaterial extends Component
             }
 
             // Hapus semua data terkait dalam transaksi database
-            DB::transaction(function () use ($permintaan) {
+            DB::transaction(function () use ($permintaan, $reason) {
+                // Log user action with reason
+                \Log::info('User deleted own permintaan', [
+                    'user_id' => auth()->id(),
+                    'user_name' => auth()->user()->name,
+                    'permintaan_id' => $permintaan->id,
+                    'permintaan_nodin' => $permintaan->nodin,
+                    'reason' => $reason,
+                    'deleted_at' => now()
+                ]);
+
                 // Hapus persetujuan yang pending (belum ada keputusan)
                 $permintaan->persetujuan()->whereNull('is_approved')->delete();
 
@@ -553,14 +586,112 @@ class DataPermintaanMaterial extends Component
                 $permintaan->delete();
             });
 
-            session()->flash('success', 'Permintaan berhasil dihapus.');
+            $successMessage = 'Permintaan berhasil dihapus.';
+            if ($reason) {
+                $successMessage .= ' Alasan: ' . $reason;
+            }
+            // Don't set session flash for delete - handled by event listener
 
             // Dispatch event untuk refresh halaman
-            $this->dispatch('permintaan-deleted');
+            $this->dispatch('permintaan-deleted', ['message' => $successMessage]);
 
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan saat menghapus permintaan: ' . $e->getMessage());
+
+            // Dispatch event to close loading modal even on error
+            $this->dispatch('permintaan-deleted');
         }
+    }
+
+    // Admin Methods - No restrictions
+
+    public function adminDeletePermintaan($permintaanId, $reason = null)
+    {
+        if (!$this->isAdmin) {
+            session()->flash('error', 'Anda tidak memiliki izin admin.');
+            return;
+        }
+
+        if (!$reason) {
+            session()->flash('error', 'Alasan hapus harus diisi untuk admin.');
+            return;
+        }
+
+        try {
+            $permintaan = DetailPermintaanMaterial::find($permintaanId);
+
+            if (!$permintaan) {
+                session()->flash('error', 'Permintaan tidak ditemukan.');
+                return;
+            }
+
+            // Admin can delete regardless of status or ownership
+            DB::transaction(function () use ($permintaan, $reason) {
+                // Log admin action
+                \Log::info('Admin deleted permintaan', [
+                    'admin_id' => auth()->id(),
+                    'admin_name' => auth()->user()->name,
+                    'permintaan_id' => $permintaan->id,
+                    'permintaan_nodin' => $permintaan->nodin,
+                    'original_user_id' => $permintaan->user_id,
+                    'reason' => $reason,
+                    'deleted_at' => now()
+                ]);
+
+                // Delete all persetujuan records (regardless of status)
+                $permintaan->persetujuan()->delete();
+
+                // Delete permintaan material items
+                $permintaan->permintaanMaterial()->delete();
+
+                // Delete lampiran files and records
+                $lampiran = $permintaan->lampiran();
+                foreach ($lampiran->get() as $foto) {
+                    if ($foto->img && Storage::disk('public')->exists($foto->img)) {
+                        Storage::disk('public')->delete($foto->img);
+                    }
+                }
+                $lampiran->delete();
+
+                // Delete lampiran dokumen files and records
+                $lampiranDokumen = $permintaan->lampiranDokumen();
+                foreach ($lampiranDokumen->get() as $dokumen) {
+                    if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
+                        Storage::disk('public')->delete($dokumen->file_path);
+                    }
+                }
+                $lampiranDokumen->delete();
+
+                // Finally delete the main permintaan
+                $permintaan->delete();
+            });
+
+            $successMessage = 'Permintaan berhasil dihapus oleh admin. Alasan: ' . $reason;
+            // Don't set session flash for delete - handled by event listener
+
+            // Dispatch event to close loading modal and refresh data
+            $this->dispatch('admin-delete-completed', ['message' => $successMessage]);
+
+            // Refresh data
+            $this->applyFilters();
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Terjadi kesalahan saat menghapus permintaan: ' . $e->getMessage());
+
+            // Dispatch event to close loading modal even on error
+            $this->dispatch('admin-delete-completed');
+        }
+    }
+
+    public function adminEditPermintaan($permintaanId)
+    {
+        if (!$this->isAdmin) {
+            session()->flash('error', 'Anda tidak memiliki izin admin.');
+            return;
+        }
+
+        // Redirect to admin edit page
+        return redirect()->route('permintaan.admin-edit', $permintaanId);
     }
 
     public function render()

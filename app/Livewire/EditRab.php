@@ -37,7 +37,7 @@ class EditRab extends Component
     public $kelurahan_id, $kelurahans = [];
     public $kecamatan_id, $kecamatans = [];
 
-    // For super admin - additional dropdowns to change unit context
+    // For super admin - display unit context (readonly, cannot be changed)
     public $selected_unit_id = null;
     public $all_units = [];
 
@@ -65,11 +65,7 @@ class EditRab extends Component
     public $editingDetailId = null;
     public $detailForm = [
         'merk_id' => '',
-        'nama_barang' => '',
-        'spesifikasi' => '',
-        'satuan' => '',
         'kuantitas' => '',
-        'harga_satuan' => '',
         'keterangan' => ''
     ];
 
@@ -84,12 +80,12 @@ class EditRab extends Component
     public $isSuperAdmin = false;
 
     protected $rules = [
-        'program_id' => 'required|exists:program,id',
-        'kegiatan_id' => 'required|exists:kegiatan,id',
-        'sub_kegiatan_id' => 'required|exists:sub_kegiatan,id',
-        'aktivitas_sub_kegiatan_id' => 'required|exists:aktivitas_sub_kegiatan,id',
-        'uraian_rekening_id' => 'required|exists:uraian_rekening,id',
-        'kelurahan_id' => 'required|exists:kelurahan,id',
+        'program_id' => 'required|exists:programs,id',
+        'kegiatan_id' => 'required|exists:kegiatans,id',
+        'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
+        'aktivitas_sub_kegiatan_id' => 'required|exists:aktivitas_sub_kegiatans,id',
+        'uraian_rekening_id' => 'required|exists:uraian_rekenings,id',
+        'kelurahan_id' => 'required|exists:kelurahans,id',
         'jenis_pekerjaan' => 'required|string|max:255',
         'lokasi' => 'required|string|max:255',
         'mulai' => 'required|date',
@@ -141,12 +137,12 @@ class EditRab extends Component
                 ->map(function ($item) {
                     return [
                         'id' => $item->id,
-                        'nama_barang' => $item->nama_barang_override ?? $item->merkStok->barangStok->nama ?? '',
-                        'spesifikasi' => $item->spesifikasi_override ?? $item->merkStok->spesifikasi ?? '',
-                        'satuan' => $item->satuan_override ?? $item->merkStok->barangStok->satuanBesar->nama ?? '',
+                        'nama_barang' => $item->merkStok->barangStok->nama ?? '',
+                        'spesifikasi' => $item->merkStok->spesifikasi ?? '',
+                        'satuan' => $item->merkStok->barangStok->satuanBesar->nama ?? '',
                         'kuantitas' => $item->jumlah,
                         'harga_satuan' => 0, // ListRab doesn't have price
-                        'keterangan' => $item->keterangan ?? ''
+                        'keterangan' => ''
                     ];
                 })->toArray();
         }
@@ -184,13 +180,25 @@ class EditRab extends Component
         $user = Auth::user();
 
         if ($this->isSuperAdmin) {
-            // Super admin can see all data, but for edit form we need to show
-            // data relevant to the RAB's original unit for proper cascading
+            // Load all units for display purposes only (readonly)
+            $this->all_units = \App\Models\UnitKerja::whereNull('parent_id')->get();
+
+            // Debug log
+            \Log::info('Super Admin editing RAB - Units loaded for display only', [
+                'unit_count' => $this->all_units->count(),
+                'units' => $this->all_units->pluck('nama', 'id')->toArray()
+            ]);
+
+            // For editing, we always use the RAB's original unit context
+            // Unit context cannot be changed when editing existing RAB
             $rabUnit = $this->rab->user->unitKerja;
             // Use parent_id for main unit, fallback to unit_id if no parent
             $unitId = $rabUnit->parent_id ?: $this->rab->user->unit_id;
 
-            // For superadmin editing, show data from the original RAB's unit
+            // Set the selected unit to RAB's original unit (readonly)
+            $this->selected_unit_id = $unitId;
+
+            // Always show data from the original RAB's unit (cannot be changed)
             $this->programs = Program::where('bidang_id', $unitId)->get();
             $this->kecamatans = Kecamatan::where('unit_id', $unitId)->get();
         } else {
@@ -367,9 +375,6 @@ class EditRab extends Component
 
             // Reset merk selection
             $this->detailForm['merk_id'] = '';
-            $this->detailForm['nama_barang'] = '';
-            $this->detailForm['spesifikasi'] = '';
-            $this->detailForm['satuan'] = '';
         } else {
             $this->merkStoks = [];
             $this->resetDetailFormFields();
@@ -386,40 +391,20 @@ class EditRab extends Component
 
     public function updatedDetailFormMerkId($value)
     {
-        $this->handleMerkSelection($value);
+        // Method untuk handle perubahan merk selection
+        // Karena sekarang hanya menggunakan foreign key, tidak perlu update field lain
     }
 
     // Alternative method to handle merk selection
     public function handleMerkSelection($value)
     {
-        if ($value) {
-            $merk = \App\Models\MerkStok::with(['barangStok.satuanBesar'])->find($value);
-            if ($merk) {
-                $this->detailForm['nama_barang'] = $merk->barangStok->nama ?? '';
-                $this->detailForm['spesifikasi'] = $merk->spesifikasi ?? '';
-                $this->detailForm['satuan'] = $merk->barangStok->satuanBesar->nama ?? '';
-
-                // Debug logging to see if method is being called
-                \Log::info('MerkStok selected', [
-                    'merk_id' => $value,
-                    'nama_barang' => $this->detailForm['nama_barang'],
-                    'spesifikasi' => $this->detailForm['spesifikasi'],
-                    'satuan' => $this->detailForm['satuan']
-                ]);
-            }
-        } else {
-            $this->detailForm['nama_barang'] = '';
-            $this->detailForm['spesifikasi'] = '';
-            $this->detailForm['satuan'] = '';
-        }
+        // Method ini sudah tidak dibutuhkan karena hanya menggunakan foreign key
+        // Tidak ada field yang perlu di-update saat merk dipilih
     }
 
     private function resetDetailFormFields()
     {
         $this->detailForm['merk_id'] = '';
-        $this->detailForm['nama_barang'] = '';
-        $this->detailForm['spesifikasi'] = '';
-        $this->detailForm['satuan'] = '';
     }
 
     // Detail RAB Methods
@@ -434,11 +419,11 @@ class EditRab extends Component
     {
         $detail = collect($this->detailRabs)->firstWhere('id', $detailId);
         if ($detail) {
-            // Get original ListRab record to check merk_id
+            // Get original ListRab record
             $listRab = ListRab::find($detailId);
 
             if ($listRab && $listRab->merk_id) {
-                // If has merk_id, load the related data
+                // Load the related data from merk_id
                 $merk = $listRab->merkStok;
                 $this->selectedBarangId = $merk->barang_id;
                 $this->detailForm['merk_id'] = $listRab->merk_id;
@@ -448,41 +433,29 @@ class EditRab extends Component
                     ->with(['barangStok.satuanBesar'])
                     ->orderBy('nama')
                     ->get();
-            } else {
-                // Custom entry without merk relation
-                $this->selectedBarangId = null;
-                $this->detailForm['merk_id'] = '';
-                $this->merkStoks = [];
+
+                // Set form values from merk relation
+                $this->detailForm['nama_barang'] = $merk->barangStok->nama ?? '';
+                $this->detailForm['spesifikasi'] = $merk->spesifikasi ?? '';
+                $this->detailForm['satuan'] = $merk->barangStok->satuanBesar->nama ?? '';
+                $this->detailForm['kuantitas'] = $listRab->jumlah;
+                $this->detailForm['harga_satuan'] = 0;
+                $this->detailForm['keterangan'] = '';
+
+                $this->editingDetailId = $detailId;
+                $this->showDetailModal = true;
             }
-
-            $this->detailForm['nama_barang'] = $detail['nama_barang'] ?? '';
-            $this->detailForm['spesifikasi'] = $detail['spesifikasi'] ?? '';
-            $this->detailForm['satuan'] = $detail['satuan'] ?? '';
-            $this->detailForm['kuantitas'] = $detail['kuantitas'] ?? '';
-            $this->detailForm['harga_satuan'] = $detail['harga_satuan'] ?? '';
-            $this->detailForm['keterangan'] = $detail['keterangan'] ?? '';
-
-            $this->editingDetailId = $detailId;
-            $this->showDetailModal = true;
         }
     }
 
     public function saveDetailRab()
     {
-        // Validation rules - merk_id is optional, but if not selected, manual fields are required
+        // Validation rules - merk_id is required for foreign key integrity
         $rules = [
+            'detailForm.merk_id' => 'required|exists:merk_stok,id',
             'detailForm.kuantitas' => 'required|numeric|min:1',
             'detailForm.keterangan' => 'nullable|string|max:500'
         ];
-
-        // If merk_id is selected, use it. Otherwise, require manual input
-        if ($this->detailForm['merk_id']) {
-            $rules['detailForm.merk_id'] = 'required|exists:merk_stok,id';
-        } else {
-            $rules['detailForm.nama_barang'] = 'required|string|max:255';
-            $rules['detailForm.spesifikasi'] = 'required|string|max:500';
-            $rules['detailForm.satuan'] = 'required|string|max:50';
-        }
 
         $this->validate($rules);
 
@@ -491,23 +464,10 @@ class EditRab extends Component
             $detail = ListRab::find($this->editingDetailId);
             if ($detail) {
                 $updateData = [
+                    'merk_id' => $this->detailForm['merk_id'],
                     'jumlah' => $this->detailForm['kuantitas'],
                     'keterangan' => $this->detailForm['keterangan']
                 ];
-
-                if ($this->detailForm['merk_id']) {
-                    // Using merk relation
-                    $updateData['merk_id'] = $this->detailForm['merk_id'];
-                    $updateData['nama_barang_override'] = null;
-                    $updateData['spesifikasi_override'] = null;
-                    $updateData['satuan_override'] = null;
-                } else {
-                    // Using manual input
-                    $updateData['merk_id'] = null;
-                    $updateData['nama_barang_override'] = $this->detailForm['nama_barang'];
-                    $updateData['spesifikasi_override'] = $this->detailForm['spesifikasi'];
-                    $updateData['satuan_override'] = $this->detailForm['satuan'];
-                }
 
                 $detail->update($updateData);
             }
@@ -515,23 +475,10 @@ class EditRab extends Component
             // Create new detail
             $createData = [
                 'rab_id' => $this->rab->id,
+                'merk_id' => $this->detailForm['merk_id'],
                 'jumlah' => $this->detailForm['kuantitas'],
                 'keterangan' => $this->detailForm['keterangan']
             ];
-
-            if ($this->detailForm['merk_id']) {
-                // Using merk relation
-                $createData['merk_id'] = $this->detailForm['merk_id'];
-                $createData['nama_barang_override'] = null;
-                $createData['spesifikasi_override'] = null;
-                $createData['satuan_override'] = null;
-            } else {
-                // Using manual input
-                $createData['merk_id'] = null;
-                $createData['nama_barang_override'] = $this->detailForm['nama_barang'];
-                $createData['spesifikasi_override'] = $this->detailForm['spesifikasi'];
-                $createData['satuan_override'] = $this->detailForm['satuan'];
-            }
 
             ListRab::create($createData);
         }
@@ -563,11 +510,7 @@ class EditRab extends Component
     {
         $this->detailForm = [
             'merk_id' => '',
-            'nama_barang' => '',
-            'spesifikasi' => '',
-            'satuan' => '',
             'kuantitas' => '',
-            'harga_satuan' => '',
             'keterangan' => ''
         ];
         $this->selectedBarangId = null;
