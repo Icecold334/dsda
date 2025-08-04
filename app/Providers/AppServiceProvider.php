@@ -5,6 +5,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
@@ -58,6 +59,39 @@ class AppServiceProvider extends ServiceProvider
         // Register custom user provider untuk login dengan username
         Auth::provider('username', function ($app, array $config) {
             return new \App\Auth\UsernameUserProvider($app['hash'], $config['model']);
+        });
+
+        // Register custom gates for permissions
+        Gate::define('kecamatan.create', function ($user) {
+            return $user->hasPermissionTo('kecamatan.create');
+        });
+
+        Gate::define('kecamatan.read', function ($user) {
+            return $user->hasPermissionTo('kecamatan.read');
+        });
+
+        Gate::define('kecamatan.update', function ($user) {
+            return $user->hasPermissionTo('kecamatan.update');
+        });
+
+        Gate::define('kecamatan.delete', function ($user) {
+            return $user->hasPermissionTo('kecamatan.delete');
+        });
+
+        Gate::define('kelurahan.create', function ($user) {
+            return $user->hasPermissionTo('kelurahan.create');
+        });
+
+        Gate::define('kelurahan.read', function ($user) {
+            return $user->hasPermissionTo('kelurahan.read');
+        });
+
+        Gate::define('kelurahan.update', function ($user) {
+            return $user->hasPermissionTo('kelurahan.update');
+        });
+
+        Gate::define('kelurahan.delete', function ($user) {
+            return $user->hasPermissionTo('kelurahan.delete');
         });
 
         // set carbon timezone
