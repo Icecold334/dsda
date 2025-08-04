@@ -105,8 +105,8 @@
 
 <table width="100%" style="margin-top: 20px;">
   <tr>
-    <td style="width: 100%; vertical-align: top;text-align: right">Jakarta, {{
-  \Carbon\Carbon::parse($permintaan->tanggal)->translatedFormat('d F Y') }}</td>
+    <td style="width: 100%; vertical-align: top;text-align: right">
+      Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }}</td>
   </tr>
   <tr>
     <!-- Kiri: metadata -->
@@ -189,7 +189,7 @@
   <tr>
     <td width="50%"></td>
     <td width="50%" align="center">
-      Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}
+      Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }}
     </td>
   </tr>
 </table>

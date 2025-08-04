@@ -157,9 +157,9 @@
     <td style="vertical-align: top; white-space: nowrap; width: 25%;"><strong>Pemohon</strong></td>
     <td style="vertical-align: top; width: 2%;">:</td>
     <td style="vertical-align: top; white-space: nowrap; width: 73%;">
-      <span>{{ $kasatpel->name ?? '…………..' }} <span style="font-style: italic;">Selaku Ketua Satuan Pelaksana Kecamatan
-          {{
-  $permintaan->user->kecamatan->kecamatan ?? '-' }}</span></span>
+      <span>{{ $pemohon->name ?? '…………..' }} <span
+          style="font-style: italic;">{{ $pemohonRole ?? 'Ketua Satuan Pelaksana' }} Suku Dinas Sumber Daya Air
+          {{ $permintaan->user->unitKerja->nama ?? 'Kecamatan ' . ($permintaan->user->kecamatan->kecamatan ?? '…………..') }}</span></span>
     </td>
   </tr>
 
