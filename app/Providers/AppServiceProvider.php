@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\App;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -59,6 +60,10 @@ class AppServiceProvider extends ServiceProvider
             return new \App\Auth\UsernameUserProvider($app['hash'], $config['model']);
         });
 
+        // set carbon timezone
+        App::setLocale('id');
+        \Carbon\Carbon::setLocale('id');
+        \Illuminate\Support\Facades\Date::setLocale('id');
         // Auth::loginUsingId(225);
         // pusat
         // Auth::loginUsingId(341); //superadmin
