@@ -439,6 +439,14 @@ function downloadGabunganPdf($id)
     $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
 
     $pemohon = $permintaan->user;
+    $isKasatpel = $pemohon->hasRole('Kepala Satuan Pelaksana') || $pemohon->roles->contains(function ($role) {
+        return str_contains($role->name, 'Kepala Satuan Pelaksana') || str_contains($role->name, 'Ketua Satuan Pelaksana');
+    });
+    $kepalaSeksiPemeliharaan = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+        return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Pemeliharaan%');
+    })->whereHas('roles', function ($role) {
+        return $role->where('name', 'like', '%Kepala Seksi%');
+    })->first();
     $pemohonRole = $pemohon->roles->pluck('name')->first();
 
     $kasatpel = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
@@ -504,6 +512,8 @@ function downloadGabunganPdf($id)
     $htmlSppb = view('pdf.sppb', compact(
         'ttdPath',
         'permintaan',
+        'isKasatpel',
+        'kepalaSeksiPemeliharaan',
         'kasatpel',
         'penjaga',
         'pengurus',
