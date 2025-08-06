@@ -17,49 +17,9 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = User::with(['unitKerja', 'lokasiStok', 'kecamatan', 'roles']);
-
-        // Search functionality
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('username', 'like', "%{$search}%")
-                    ->orWhere('nip', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter by role
-        if ($request->has('role') && $request->role) {
-            $query->whereHas('roles', function ($q) use ($request) {
-                $q->where('id', $request->role);
-            });
-        }
-
-        // Filter by unit
-        if ($request->has('unit') && $request->unit) {
-            $query->where('unit_id', $request->unit);
-        }
-
-        // Filter by verification status
-        if ($request->has('verified') && $request->verified !== '') {
-            if ($request->verified == '1') {
-                $query->whereNotNull('email_verified_at');
-            } else {
-                $query->whereNull('email_verified_at');
-            }
-        }
-
-        $users = $query->orderBy('name')->paginate(15)->withQueryString();
-
-        // Get filter options
-        $roles = Role::orderBy('name')->get();
-        $units = UnitKerja::orderBy('nama')->get();
-
-        return view('users.index', compact('users', 'roles', 'units'));
+        return view('users.index');
     }
 
     /**
