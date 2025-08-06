@@ -50,6 +50,7 @@ use App\Http\Controllers\BarangStokController;
 use App\Http\Controllers\KonfirmasiController;
 use App\Http\Controllers\LokasiStokController;
 use App\Http\Controllers\PosisiStokController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorStokController;
 use App\Http\Controllers\PersetujuanController;
 use App\Http\Controllers\AsetNonAktifController;
@@ -358,6 +359,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Kelurahan routes - protection via @can in views only
     Route::resource('kelurahan', KelurahanController::class);
+
+    // User Management routes - superadmin only
+    Route::middleware('role:superadmin')->group(function () {
+        Route::resource('users', UserController::class);
+        Route::get('users/{user}/toggle-email-verification', [UserController::class, 'toggleEmailVerification'])->name('users.toggle-email-verification');
+        Route::post('users/bulk-action', [UserController::class, 'bulkAction'])->name('users.bulk-action');
+        Route::get('users/export', [UserController::class, 'export'])->name('users.export');
+    });
 
     Route::get('profil/{tipe}', [ProfilController::class, 'create']);
     Route::get('profil/{tipe}/{profil}', [ProfilController::class, 'create']);
