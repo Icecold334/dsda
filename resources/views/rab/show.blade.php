@@ -5,7 +5,7 @@
     <div>
       @if (!is_null($rab->status) && $rab->status !== 0)
       <livewire:download-rab :rab='$rab'>
-        @endif
+  @endif
 
         <a href="/rab"
           class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
@@ -50,16 +50,16 @@
             <td>{{ $rab->jenis_pekerjaan }}</td>
           </tr>
           @if ($rab->saluran_jenis)
-          <tr class="font-semibold">
-            <td>Jenis Saluran</td>
-            <td class="capitalize">Saluran Drainase {{ $rab->saluran_jenis }}</td>
-          </tr>
-          <tr class="font-semibold">
-            <td>Nama Saluran</td>
-            <td>{{ $rab->saluran_nama }}</td>
-          </tr>
+        <tr class="font-semibold">
+        <td>Jenis Saluran</td>
+        <td class="capitalize">Saluran Drainase {{ $rab->saluran_jenis }}</td>
+        </tr>
+        <tr class="font-semibold">
+        <td>Nama Saluran</td>
+        <td>{{ $rab->saluran_nama }}</td>
+        </tr>
 
-          @endif
+      @endif
 
           <!-- Status -->
           <tr class="font-semibold">
@@ -84,12 +84,12 @@
             <td>{{ $rab->mulai->format('d F Y') }} - {{ $rab->selesai->format('d F Y') }} ({{ $rab->lamaPengerjaan }})
             </td>
           </tr>
-          @if ($rab->p&&$rab->l&&$rab->k)
-          <tr class="font-semibold">
-            <td>Volume Pekerjaan (Panjang, Lebar, Kedalaman)</td>
-            <td class="capitalize">{{ $rab->p }}, {{ $rab->l }}, {{ $rab->k }}</td>
-          </tr>
-          @endif
+          @if ($rab->p && $rab->l && $rab->k)
+        <tr class="font-semibold">
+        <td>Volume Pekerjaan (Panjang, Lebar, Kedalaman)</td>
+        <td class="capitalize">{{ $rab->p }}, {{ $rab->l }}, {{ $rab->k }}</td>
+        </tr>
+      @endif
           {{--
           <!-- Tanggal Selesai -->
           <tr class="font-semibold">
@@ -102,9 +102,9 @@
             <td>Lokasi</td>
             <td>
               @if ($rab->kelurahan)
-              Kelurahan {{ $rab->kelurahan->nama }},
-              Kecamatan {{ $rab->kelurahan->kecamatan->kecamatan }} –
-              @endif
+          Kelurahan {{ $rab->kelurahan->nama }},
+          Kecamatan {{ $rab->kelurahan->kecamatan->kecamatan }} –
+        @endif
               {{ $rab->lokasi }}
             </td>
           </tr>
@@ -116,35 +116,35 @@
         @forelse ($rab->lampiran as $attachment)
         <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
           <span class="flex items-center space-x-3">
-            @php
-            $fileType = pathinfo($attachment->path, PATHINFO_EXTENSION);
-            @endphp
-            <span class="text-primary-600">
-              @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-              <i class="fa-solid fa-image text-green-500"></i>
-              @elseif($fileType == 'pdf')
-              <i class="fa-solid fa-file-pdf text-red-500"></i>
-              @elseif(in_array($fileType, ['doc', 'docx']))
-              <i class="fa-solid fa-file-word text-blue-500"></i>
-              @else
-              <i class="fa-solid fa-file text-gray-500"></i>
-              @endif
-            </span>
+          @php
+          $fileType = pathinfo($attachment->path, PATHINFO_EXTENSION);
+        @endphp
+          <span class="text-primary-600">
+            @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+          <i class="fa-solid fa-image text-green-500"></i>
+        @elseif($fileType == 'pdf')
+          <i class="fa-solid fa-file-pdf text-red-500"></i>
+        @elseif(in_array($fileType, ['doc', 'docx']))
+          <i class="fa-solid fa-file-word text-blue-500"></i>
+        @else
+          <i class="fa-solid fa-file text-gray-500"></i>
+        @endif
+          </span>
 
-            <!-- File name with underline on hover and a link to the saved file -->
-            <span>
-              <a href="{{ asset('storage/lampiranRab/' . $attachment->path) }}" target="_blank"
-                class="text-gray-800 hover:underline">
-                {{ basename($attachment->path) }}
-              </a>
-            </span>
+          <!-- File name with underline on hover and a link to the saved file -->
+          <span>
+            <a href="{{ asset('storage/lampiranRab/' . $attachment->path) }}" target="_blank"
+            class="text-gray-800 hover:underline">
+            {{ basename($attachment->path) }}
+            </a>
+          </span>
           </span>
         </div>
-        @empty
-        <div class="flex justify-center text-xl font-semibold">
-          Tidak ada lampiran
-        </div>
-        @endforelse
+    @empty
+      <div class="flex justify-center text-xl font-semibold">
+        Tidak ada lampiran
+      </div>
+    @endforelse
 
       </x-card>
     </div>

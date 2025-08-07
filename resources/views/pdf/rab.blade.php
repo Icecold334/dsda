@@ -73,7 +73,7 @@
       <span style="font-size: 12px">PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
         DINAS SUMBER DAYA AIR <br></span>
       <strong style="font-size: 14px">SUKU DINAS SUMBER DAYA AIR <br>
-        {{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
+        {{ $isSeribu ? 'KABUPATEN' : 'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
         {{ $rab->unit->alamat }}
         <br>
@@ -134,7 +134,7 @@
       @if ($rab->kelurahan)
       Kelurahan {{ $rab->kelurahan->nama }},
       Kecamatan {{ $rab->kelurahan->kecamatan->kecamatan }} –
-      @endif
+    @endif
       {{ $rab->lokasi }}
     </td>
   </tr>
@@ -169,11 +169,12 @@
       <td width="30" align="center">{{ $loop->iteration }}</td>
       <td width="100">{{ $item->merkStok->barangStok->nama }}</td>
       <td width="250">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
-        $item->merkStok->tipe ?? 'Tanpa tipe' }} -
-        {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
+    $item->merkStok->tipe ?? 'Tanpa tipe' }} -
+      {{ $item->merkStok->ukuran ?? 'Tanpa ukuran' }}
+      </td>
       <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
     </tr>
-    @endforeach
+  @endforeach
   </tbody>
 </table>
 
@@ -185,7 +186,11 @@
       Mengetahui,<br>
       Kepala Suku Dinas Sumber Daya Air<br>
       {{ str_replace('Suku Dinas Sumber Daya Air ', '', $rab->unit->nama) }}<br><br>
-      <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
+      @if ($sign && isset($kasudin) && $kasudin && $kasudin->ttd && file_exists(public_path('storage/usersTTD/' . $kasudin->ttd)))
+      <img src="{{ public_path('storage/usersTTD/' . $kasudin->ttd) }}" width="100" height="50"><br><br>
+    @else
+      <br><br><br><br>
+    @endif
       <b>{{ $kasudin->name }}</b><br>
       NIP. {{ $kasudin->nip }}
     </td>
@@ -193,7 +198,11 @@
       Kepala Seksi Perencanaan<br>
       Suku Dinas Sumber Daya Air<br>
       {{ str_replace('Suku Dinas Sumber Daya Air ', '', $rab->unit->nama) }}<br><br>
-      <img src="/storage/ttdPengiriman/nurdin.png" width="100" height="50"><br><br>
+      @if ($sign && isset($kasi) && $kasi && $kasi->ttd && file_exists(public_path('storage/usersTTD/' . $kasi->ttd)))
+      <img src="{{ public_path('storage/usersTTD/' . $kasi->ttd) }}" width="100" height="50"><br><br>
+    @else
+      <br><br><br><br>
+    @endif
       <b>{{ $kasi->name }}</b><br>
       NIP. {{ $kasi->nip }}
     </td>
