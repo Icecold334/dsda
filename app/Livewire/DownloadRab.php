@@ -11,7 +11,7 @@ class DownloadRab extends Component
 {
     public $rab, $Rkb, $RAB, $sudin;
 
-    public function download()
+    public function download($withSign = true)
     {
         $pdf = new \TCPDF('P', 'mm', 'F4', true, 'UTF-8', false);
         // Set margin (Left, Top, Right)
@@ -76,8 +76,9 @@ class DownloadRab extends Component
 
         $isSeribu = $this->isSeribu;
         $sudin = $this->sudin;
+        $sign = $withSign; // Parameter untuk menentukan apakah pakai TTD atau tidak
 
-        $html = view('pdf.rab', compact('rab', 'kasudin', 'kasi', 'RKB', 'isSeribu', 'sudin',))->render();
+        $html = view('pdf.rab', compact('rab', 'kasudin', 'kasi', 'RKB', 'isSeribu', 'sudin', 'sign'))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
 
