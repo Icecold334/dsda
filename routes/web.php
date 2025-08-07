@@ -28,6 +28,7 @@ use App\Http\Controllers\RuangController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\DiskonController;
 use App\Http\Controllers\JurnalController;
+use App\Http\Controllers\MasterProgramController;
 use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\PersonController;
@@ -366,6 +367,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('users/{user}/toggle-email-verification', [UserController::class, 'toggleEmailVerification'])->name('users.toggle-email-verification');
         Route::post('users/bulk-action', [UserController::class, 'bulkAction'])->name('users.bulk-action');
         Route::get('users/export', [UserController::class, 'export'])->name('users.export');
+
+        // Master Program routes - superadmin only (update only, no create/delete)
+        Route::resource('master-program', MasterProgramController::class)->except(['create', 'store', 'destroy']);
     });
 
     Route::get('profil/{tipe}', [ProfilController::class, 'create']);

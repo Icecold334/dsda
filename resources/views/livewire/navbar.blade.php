@@ -82,6 +82,7 @@
                     // Add User management for superadmin only
                     if (auth()->user()->hasRole('superadmin')) {
                         $masterDataItems[] = ['href' => '/users', 'title' => 'User'];
+                        $masterDataItems[] = ['href' => '/master-program', 'title' => 'Master Program'];
                     }
                     if (auth()->user()->can('data_driver')) {
                         $masterDataItems[] = ['href' => '/driver', 'title' => 'Driver'];
