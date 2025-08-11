@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>INVENTA Manajemen Aset</title>
+    {{--
+    <script src="https://kit.fontawesome.com/179587cb08.js" crossorigin="anonymous"></script> --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
     <script type="importmap">
         {
         "imports": {
@@ -15,7 +18,8 @@
     }
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://kit.fontawesome.com/5fd2369345.js" crossorigin="anonymous"></script>
+    {{--
+    <script src="https://kit.fontawesome.com/5fd2369345.js" crossorigin="anonymous"></script> --}}
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     {{--
@@ -30,8 +34,8 @@
     {{-- @dd(session()->get('alert')) --}}
     {{-- @dd('alert') --}}
     @if (session('alert') && !request()->is('profil/profile'))
-    <script type="module">
-        Swal.fire({
+        <script type="module">
+            Swal.fire({
                 title: "Lengkapi Data!",
                 text: "Harap lengkapi NIP dan Tanda Tangan Anda sebelum melanjutkan.",
                 icon: "warning",
@@ -44,7 +48,7 @@
                     window.location.href = "/profil/profile";
                 }
             });
-    </script>
+        </script>
     @endif
     <livewire:navbar />
     <div class="mx-[3%] px-1 py-10">
@@ -53,20 +57,20 @@
     @stack('html')
 </body>
 @if (session('success'))
-<script type="module">
-    feedback('Berhasil', "{{ session('success') }}", 'success');
-</script>
+    <script type="module">
+        feedback('Berhasil', "{{ session('success') }}", 'success');
+    </script>
 @endif
 @if (session('error'))
-<script type="module">
-    feedback('Gagal', "{{ session('error') }}", 'error');
-</script>
+    <script type="module">
+        feedback('Gagal', "{{ session('error') }}", 'error');
+    </script>
 @endif
 
 @if (session('tanya'))
-<script type="module">
-    // SweetAlert pertama: Konfirmasi tambah permintaan
-        document.addEventListener('DOMContentLoaded', function() {
+    <script type="module">
+        // SweetAlert pertama: Konfirmasi tambah permintaan
+        document.addEventListener('DOMContentLoaded', function () {
             Swal.fire({
                 title: 'Tambah Permintaan?',
                 text: "Apakah Anda ingin membuat permintaan lagi?",
@@ -98,7 +102,7 @@
                 }
             });
         });
-</script>
+    </script>
 @endif
 @stack('scripts')
 
