@@ -5,11 +5,15 @@
     <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">Daftar Stok
-
-            {{ $sudin }}
-
-
-
+            @if (auth()->user()->unitKerja && !(auth()->user()->unitKerja->hak ?? 0))
+                {{ auth()->user()->unitKerja->nama ?? 'Unit Kerja Tidak Diketahui' }}
+            @else
+                @if($unit_id)
+                    {{ $sudin }}
+                @else
+                    Semua Unit Kerja
+                @endif
+            @endif
         </h1>
         <div>
             {{-- <a href="{{ route('aset.create') }}"
@@ -71,15 +75,24 @@
     <table class="w-full  border-3 border-separate border-spacing-y-4 ">
         <thead>
             <tr class="text-white">
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg">LOKASI GUDANG</th>
+                @if(!auth()->user()->unitKerja || (auth()->user()->unitKerja->hak ?? 0) == 1)
+                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg">UNIT KERJA</th>
+                @endif
+                <th
+                    class="py-3 px-6 bg-primary-950 text-center font-semibold {{ (!auth()->user()->unitKerja || (auth()->user()->unitKerja->hak ?? 0) == 1) ? '' : 'rounded-l-lg' }}">
+                    LOKASI GUDANG</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA BARANG</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
         </thead>
         <tbody>
             @foreach ($gudangs as $gudang)
-
                 <tr class="bg-gray-50 hover:bg-gray-200">
+                    @if(!auth()->user()->unitKerja || (auth()->user()->unitKerja->hak ?? 0) == 1)
+                        <td class="py-3 px-6 font-semibold text-center">
+                            {{ $gudang->unitKerja->nama ?? 'Unit Tidak Diketahui' }}
+                        </td>
+                    @endif
                     <td class="py-3 px-6 font-semibold text-center">
                         {{ $gudang->nama }}
                     </td>
@@ -109,7 +122,6 @@
                         </a>
                     </td>
                 </tr>
-
             @endforeach
         </tbody>
     </table>

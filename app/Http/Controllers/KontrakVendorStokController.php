@@ -16,11 +16,27 @@ use Illuminate\Support\Facades\Auth;
 
 class KontrakVendorStokController extends Controller
 {
+    public $unit_id;
+
+    private function setUnitId()
+    {
+        $user = Auth::user();
+
+        // Jika user tidak memiliki unitKerja atau adalah superadmin, biarkan melihat semua data
+        if (!$user || !$user->unitKerja || ($user->unitKerja->hak ?? 0) == 1 || $user->hasRole('superadmin')) {
+            $this->unit_id = null;
+        } else {
+            // User biasa dengan unit kerja dan hak = 0
+            $this->unit_id = $user->unitKerja->id;
+        }
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
+        $this->setUnitId();
         // if ($this->unit_id) {
         //     $transaksi = TransaksiStok::whereNotNull('kontrak_id')->whereHas('kontrakStok', function ($kontrak) {
         //         return $kontrak->whereNotNull('status')->whereHas('user', function ($user) {
@@ -53,7 +69,7 @@ class KontrakVendorStokController extends Controller
                 });
             });
         })->get()->sortByDesc('tanggal');
-        return view('rekam.index', compact('groupedTransactions',));
+        return view('rekam.index', compact('groupedTransactions', ));
     }
 
     /**

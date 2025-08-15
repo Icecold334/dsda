@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class DataBarangStok extends Component
 {
+
     use WithPagination, WithoutUrlPagination;
     public $search = '';
     // public $barangs = [];
@@ -29,7 +30,9 @@ class DataBarangStok extends Component
 
     private function loadData()
     {
-        // Memuat data barang dengan filter pencarian
+        $user = Auth::user();
+
+        // Memuat data barang dengan filter pencarian - default untuk superadmin
         $lists = BarangStok::when($this->search, function ($query) {
             $query->where('nama', 'like', '%' . $this->search . '%')
                 ->orWhereHas('jenisStok', function ($query) {
@@ -40,7 +43,8 @@ class DataBarangStok extends Component
                 });
         })->paginate(3);
 
-        if (!Auth::user()->unitKerja->hak) {
+        // Jika user tidak memiliki unitKerja atau hak = 0 (bukan superadmin), filter hanya Material
+        if (!$user || !$user->unitKerja || !($user->unitKerja->hak ?? 0)) {
             $lists = BarangStok::when($this->search, function ($query) {
                 $query->where('nama', 'like', '%' . $this->search . '%')
                     ->orWhereHas('merkStok', function ($query) {
@@ -48,15 +52,9 @@ class DataBarangStok extends Component
                     });
             })->whereHas('jenisStok', function ($query) {
                 $query->where('nama', 'Material');
-            })->when($this->search, function ($query) {
-                $query->where('nama', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('merkStok', function ($query) {
-                        $query->where('nama', 'like', '%' . $this->search . '%');
-                    });
             })->paginate(3);
-            # code...
         }
-        // $this->barangs = $lists;
+
         return $lists;
     }
 
