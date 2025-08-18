@@ -26,6 +26,9 @@ class DataLogBarangMaterial extends Component
     public $filterFromDate, $filterToDate, $filterMonth, $filterYear, $filterJenis;
     public $perPage = 5, $page = 1;
 
+    // Tambahan property untuk menyimpan semua data
+    public $allData = [];
+
     public function mount()
     {
         $this->applyFilters();
@@ -69,7 +72,7 @@ class DataLogBarangMaterial extends Component
             })
             ->get();
 
-        $list = $transaksi
+        $allData = $transaksi
             ->filter(function ($trx) {
                 if ($trx->tipe === 'Pemasukan') {
                     // return $trx->pengirimanStok?->detailPengirimanStok?->status === 1;
@@ -103,16 +106,19 @@ class DataLogBarangMaterial extends Component
                     },
                     'volume' => $items->sum(fn($i) => (int) $i->jumlah),
                     'list' => $items->values(),
-                    'uuid' => fake()->uuid,
+                    'unique_key' => $key, // Gunakan key yang unik sebagai identifier
                 ];
             })->sortByDesc('datetime')->values();
 
-
         if ($this->filterJenis !== null && $this->filterJenis !== '') {
-            $list = $list->filter(fn($item) => $item['jenis'] == $this->filterJenis);
+            $allData = $allData->filter(fn($item) => $item['jenis'] == $this->filterJenis);
         }
 
-        $this->list = $list->forPage($this->page, $this->perPage)->values();
+        // Simpan semua data untuk digunakan di selectedTanggal()
+        $this->allData = $allData;
+
+        // Paginate untuk ditampilkan
+        $this->list = $allData->forPage($this->page, $this->perPage)->values();
     }
 
     public function resetFilters()
@@ -126,20 +132,23 @@ class DataLogBarangMaterial extends Component
         $this->applyFilters();
     }
 
-    public function selectedTanggal($tanggal, $jenis, $gudangId)
+    public function selectedTanggal($uniqueKey)
     {
         $this->modalVisible = true;
-        $this->tanggalDipilih = Carbon::parse($tanggal)->translatedFormat('l, d F Y');
-        $this->jenisDipilih = $jenis;
 
-        $this->detailList = $this->list->firstWhere(
-            fn($item) =>
-            $item['tanggal'] === $tanggal &&
-                $item['jenis'] == $jenis &&
-                $item['gudang_id'] == $gudangId
-        )['list'] ?? collect();
+        // Cari item berdasarkan unique_key
+        $targetItem = $this->allData->firstWhere('unique_key', $uniqueKey);
 
-        $this->dataSelected = collect($this->detailList)->first();
+        if ($targetItem) {
+            $this->tanggalDipilih = Carbon::parse($targetItem['datetime'])->translatedFormat('l, d F Y');
+            $this->jenisDipilih = $targetItem['jenis'];
+            $this->detailList = $targetItem['list'] ?? collect();
+            $this->dataSelected = collect($this->detailList)->first();
+        } else {
+            // Fallback jika unique_key tidak ditemukan
+            $this->detailList = collect();
+            $this->dataSelected = null;
+        }
     }
 
     public function render()
