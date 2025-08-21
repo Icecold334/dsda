@@ -35,6 +35,7 @@ class DataPermintaanMaterial extends Component
     public $tanggal; // Selected jenis
     public $selected_unit_id; // Selected jenis
     public $status; // Selected jenis
+    public $sortBy = 'terbaru'; // Sorting option
     public $unit_id; // User's unit ID
     public $Rkb = 'RAB'; // RAB label
     public $unitOptions = [];
@@ -73,9 +74,10 @@ class DataPermintaanMaterial extends Component
         $peminjamanQuery = $this->getPeminjamanQuery();
 
         // Gabungkan data berdasarkan tipe
+        $sortMethod = $this->sortBy === 'terlama' ? 'sortBy' : 'sortByDesc';
         $query = $this->tipe
-            ? $permintaanQuery->sortByDesc('created_at')
-            : $permintaanQuery->merge($peminjamanQuery)->sortByDesc('created_at');
+            ? $permintaanQuery->$sortMethod('created_at')
+            : $permintaanQuery->merge($peminjamanQuery)->$sortMethod('created_at');
 
         // Terapkan filter pencarian
         if (!empty($this->search)) {
@@ -158,9 +160,10 @@ class DataPermintaanMaterial extends Component
 
 
         // Gabungkan data berdasarkan tipe
+        $sortMethod = $this->sortBy === 'terlama' ? 'sortBy' : 'sortByDesc';
         $query = $this->tipe
-            ? $permintaanQuery->sortByDesc('created_at')
-            : $permintaanQuery->merge($peminjamanQuery)->sortByDesc('created_at');
+            ? $permintaanQuery->$sortMethod('created_at')
+            : $permintaanQuery->merge($peminjamanQuery)->$sortMethod('created_at');
 
 
         // Terapkan filter pencarian
@@ -366,7 +369,7 @@ class DataPermintaanMaterial extends Component
     public function updated($propertyName)
     {
         // Reset halaman ke 1 saat filter berubah
-        if (in_array($propertyName, ['search', 'jenis', 'lokasi', 'tanggal', 'selected_unit_id', 'status'])) {
+        if (in_array($propertyName, ['search', 'jenis', 'lokasi', 'tanggal', 'selected_unit_id', 'status', 'sortBy'])) {
             $this->resetPage();
         }
     }
