@@ -660,7 +660,8 @@ class ShowPermintaanMaterial extends Component
         }
 
         // Pass semua variabel yang diperlukan ke view
-        $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact(
+        // $html = view(!$withRab ? 'pdf.nodin' : ($this->isSeribu ? 'pdf.spb1000' : 'pdf.spb'), compact(
+        $html = view('pdf.nodin', compact(
             'pemelDone',
             'ttdPemohon',   // Ganti dari 'ttdPath'
             'ttdPemel',     // Tambahan untuk TTD pemel

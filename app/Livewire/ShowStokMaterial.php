@@ -141,67 +141,28 @@ class ShowStokMaterial extends Component
     {
         $list = [];
 
-        $transaksis = TransaksiStok::with(['merkStok.barangStok'])
-            ->whereHas('merkStok.barangStok', function ($barang) {
+        // Ambil semua merk stok dari semua barang (jenis_id = 1), bukan hanya yang ada di gudang
+        $merkStoks = MerkStok::with(['barangStok'])
+            ->whereHas('barangStok', function ($barang) {
                 return $barang->where('jenis_id', 1);
             })
-            ->where('lokasi_id', $this->lokasi_id)
             ->get();
 
-        $result = [];
-
-        foreach ($transaksis as $trx) {
-            $barang = $trx->merkStok->barangStok;
-            if (!$barang)
+        foreach ($merkStoks as $merkStok) {
+            $barang = $merkStok->barangStok;
+            if (!$barang) {
                 continue;
+            }
 
-            $key = $barang->id;
-            $merk = $trx->merkStok->nama ?? 'Tanpa Merk';
-            $tipe = $trx->merkStok->tipe ?? 'Tanpa Tipe';
-            $ukuran = $trx->merkStok->ukuran ?? 'Tanpa Ukuran';
+            $merk = $merkStok->nama ?? 'Tanpa Merk';
+            $tipe = $merkStok->tipe ?? 'Tanpa Tipe';
+            $ukuran = $merkStok->ukuran ?? 'Tanpa Ukuran';
             $spec = "{$merk} - {$tipe} - {$ukuran}";
 
-            $jumlah = 0;
-            if ($trx->tipe === 'Penyesuaian') {
-                $jumlah = (int) $trx->jumlah;
-            } elseif ($trx->tipe === 'Pemasukan') {
-                $jumlah = (int) $trx->jumlah;
-            } elseif ($trx->tipe === 'Pengeluaran' || $trx->tipe === 'Pengajuan') {
-                $jumlah = -(int) $trx->jumlah;
-            }
-
-            if (!isset($result[$key])) {
-                $result[$key] = [
-                    'id' => $barang->id,
-                    'kode' => $barang->kode_barang,
-                    'nama' => $barang->nama,
-                    'satuan' => $barang->satuanBesar->nama,
-                    'spesifikasi' => [],
-                    'jumlah' => [],
-                ];
-            }
-
-            $result[$key]['spesifikasi'][$spec] = [
-                'jumlah' => ($result[$key]['spesifikasi'][$spec]['jumlah'] ?? 0) + $jumlah,
-                'merk_id' => $trx->merkStok->id,
+            $list[] = [
+                'id' => $merkStok->id,
+                'label' => "{$barang->nama} - {$spec}",
             ];
-        }
-
-        foreach ($result as $barangId => &$data) {
-            $data['spesifikasi'] = collect($data['spesifikasi'])
-                ->filter(fn($spec) => $spec['jumlah'] > 0)
-                ->all();
-        }
-
-        $result = array_filter($result, fn($data) => count($data['spesifikasi']) > 0);
-
-        foreach ($result as $barang) {
-            foreach ($barang['spesifikasi'] as $spec => $info) {
-                $list[] = [
-                    'id' => $info['merk_id'],
-                    'label' => "{$barang['nama']} - {$spec}",
-                ];
-            }
         }
 
         return collect($list)->unique('id')->values();

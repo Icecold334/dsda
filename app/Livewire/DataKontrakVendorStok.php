@@ -22,9 +22,21 @@ class DataKontrakVendorStok extends Component
 
     public function mount()
     {
-        if (!Auth::user()->unitKerja->hak) {
+        // Set unit_id dan sudin berdasarkan user
+        $user = Auth::user();
+        if ($user && $user->unitKerja) {
+            $this->unit_id = $user->unitKerja->id;
+            $this->sudin = $user->unitKerja->nama;
+        } else {
+            $this->unit_id = null;
+            $this->sudin = 'Semua Unit Kerja';
+        }
+
+        // Cek apakah user memiliki unitKerja dan bukan superadmin
+        if ($user && $user->unitKerja && !($user->unitKerja->hak ?? 0)) {
             $this->jenis = 'Material';
         }
+
         $this->jenisOptions = JenisStok::pluck('nama')->toArray(); // Fetch all jenis
         $this->metodeOptions = MetodePengadaan::pluck('nama')->toArray(); // Fetch all jenis
         // Initial data fetch
@@ -33,13 +45,18 @@ class DataKontrakVendorStok extends Component
 
     public function fetchData()
     {
-        $unit_id = $this->unit_id;
-        $unit = UnitKerja::find($unit_id)->hak;
+        $user = Auth::user();
 
-        $jenis = $unit ? 3 : 1;
+        // Tentukan jenis berdasarkan hak user
+        // Default jenis = 1 jika user tidak punya unitKerja atau bukan superadmin
+        $jenis = 1; // Default untuk Material
+        if ($user && $user->unitKerja && ($user->unitKerja->hak ?? 0)) {
+            $jenis = 3; // Untuk Aset
+        }
+
         // Fetch data based on unitKerja and optional search filtering
-        $this->groupedTransactions = KontrakVendorStok::where('jenis_id', $jenis)->whereHas('listKontrak')->where(function ($query) {
-            $query->where(function ($q) {
+        $query = KontrakVendorStok::where('jenis_id', $jenis)->whereHas('listKontrak')->where(function ($queryBuilder) {
+            $queryBuilder->where(function ($q) {
                 $q->where('is_adendum', false)
                     ->whereDoesntHave('adendums');
             })
@@ -47,27 +64,31 @@ class DataKontrakVendorStok extends Component
                     $q->where('is_adendum', true)
                         ->whereDoesntHave('adendums');
                 });
-        })
+        });
 
-            ->when($this->unit_id, function ($kontrak) {
-                return $kontrak->whereHas('user', function ($user) {
-                    return $user->whereHas('unitKerja', function ($unit) {
-                        return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-                    });
+        // Filter berdasarkan unit hanya jika user bukan superadmin dan memiliki unitKerja
+        $isSuperadmin = $user && ($user->hasRole('superadmin') || !$user->unitKerja || ($user->unitKerja->hak ?? 0) == 1);
+
+        if (!$isSuperadmin && $this->unit_id) {
+            $query->whereHas('user', function ($userQuery) {
+                return $userQuery->whereHas('unitKerja', function ($unit) {
+                    return $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                 });
-            })
+            });
+        }
 
-            ->when($this->search, function ($query) {
-                $query->where(function ($subQuery) {
+        $this->groupedTransactions = $query
+            ->when($this->search, function ($searchQuery) {
+                $searchQuery->where(function ($subQuery) {
                     $subQuery->where('nomor_kontrak', 'like', '%' . $this->search . '%')
                         ->orWhereHas('vendorStok', function ($vendor) {
                             $vendor->where('nama', 'like', '%' . $this->search . '%');
                         });
                 });
             })
-            ->when($this->metode, function ($query) {
-                $query->whereHas('metodePengadaan', function ($metodeQuery) {
-                    $metodeQuery->where('nama', $this->metode);
+            ->when($this->metode, function ($metodeQuery) {
+                $metodeQuery->whereHas('metodePengadaan', function ($metodeSubQuery) {
+                    $metodeSubQuery->where('nama', $this->metode);
                 });
             })
             ->orderBy('id', 'desc')
@@ -75,8 +96,8 @@ class DataKontrakVendorStok extends Component
             ->map(function ($q) {
                 $q->tanggal_search = date('Y-m-d', $q->tanggal_kontrak);
                 return $q;
-            })->when($this->tanggal, function ($query) {
-                return $query->where('tanggal_search', $this->tanggal);
+            })->when($this->tanggal, function ($collection) {
+                return $collection->where('tanggal_search', $this->tanggal);
             });
     }
 
