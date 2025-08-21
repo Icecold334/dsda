@@ -90,7 +90,7 @@ class CreateKontrakVendor extends Component
             return;
         }
 
-        $url = "https://emonev-dev.dsdajakarta.id/api/kontrak/{$this->tahun_api}";
+        $url = "https://emonev.dsdajakarta.id/api/kontrak/{$this->tahun_api}";
 
         $response = Http::timeout(180)
             ->withOptions(['verify' => public_path('cacert.pem')])
