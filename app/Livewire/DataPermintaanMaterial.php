@@ -8,6 +8,8 @@ use Livewire\Component;
 use App\Models\UnitKerja;
 use App\Models\Persetujuan;
 use Illuminate\Support\Str;
+use Livewire\WithPagination;
+use Livewire\WithoutUrlPagination;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -24,6 +26,8 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class DataPermintaanMaterial extends Component
 {
+    use WithPagination, WithoutUrlPagination;
+
     public $nonUmum, $isSeribu;
     public $search; // Search term
     public $jenis; // Selected jenis
@@ -31,6 +35,8 @@ class DataPermintaanMaterial extends Component
     public $tanggal; // Selected jenis
     public $selected_unit_id; // Selected jenis
     public $status; // Selected jenis
+    public $unit_id; // User's unit ID
+    public $Rkb = 'RAB'; // RAB label
     public $unitOptions = [];
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
@@ -49,6 +55,7 @@ class DataPermintaanMaterial extends Component
     public function mount()
     {
         $this->tipe = Request::segment(2);
+        $this->unit_id = Auth::user()->unit_id;
         $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::whereNull('parent_id')->get();
         $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');
 
@@ -56,11 +63,95 @@ class DataPermintaanMaterial extends Component
         $user = Auth::user();
         $this->isAdmin = $user->hasRole('superadmin') || $user->unit_id === null;
 
-        $this->applyFilters();
+        $this->fetchData();
+    }
+
+    public function fetchData()
+    {
+        // Ambil data permintaan dan peminjaman
+        $permintaanQuery = $this->getPermintaanQuery();
+        $peminjamanQuery = $this->getPeminjamanQuery();
+
+        // Gabungkan data berdasarkan tipe
+        $query = $this->tipe
+            ? $permintaanQuery->sortByDesc('created_at')
+            : $permintaanQuery->merge($peminjamanQuery)->sortByDesc('created_at');
+
+        // Terapkan filter pencarian
+        if (!empty($this->search)) {
+            $query = $query->filter(function ($item) {
+                return stripos($item['kode'], $this->search) !== false;
+            });
+        }
+
+        // Terapkan filter jenis
+        if (!empty($this->jenis)) {
+            $query = $query->filter(function ($item) {
+                return $item['tipe'] === $this->jenis;
+            });
+        }
+
+        // Terapkan filter unit_id
+        if ($this->selected_unit_id) {
+            $query = $query->filter(function ($item) {
+                return $item['sub_unit_id'] == $this->selected_unit_id;
+            });
+        }
+
+        // Terapkan filter tanggal
+        if (!empty($this->tanggal)) {
+            $query = $query->filter(function ($item) {
+                return $item['tanggal'] === strtotime($this->tanggal);
+            });
+        }
+
+        // Terapkan filter status
+        if (!empty($this->status)) {
+            $query = $query->filter(function ($item) {
+                $statusFilter = $this->status;
+
+                if ($statusFilter === 'diproses') {
+                    return is_null($item['status']);
+                }
+
+                $statusMap = [
+                    'ditolak' => 0,
+                    'disetujui' => 1,
+                    'sedang dikirim' => 2,
+                    'selesai' => 3,
+                ];
+
+                return isset($statusMap[$statusFilter]) && $item['status'] === $statusMap[$statusFilter];
+            });
+        }
+
+        // Convert to Collection dan implementasi pagination manual
+        $collection = collect($query->values());
+        $perPage = 5;
+        $currentPage = $this->getPage();
+        $total = $collection->count();
+
+        // Slice collection untuk pagination
+        $items = $collection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        // Buat Paginator instance
+        $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $currentPage,
+            [
+                'path' => request()->url(),
+                'pageName' => 'page',
+            ]
+        );
+
+        return $paginator;
     }
 
     public function applyFilters()
     {
+        // Method ini sekarang hanya untuk kompatibilitas dengan downloadExcel
         // Ambil data permintaan dan peminjaman
         $permintaanQuery = $this->getPermintaanQuery();
         $peminjamanQuery = $this->getPeminjamanQuery();
@@ -274,7 +365,10 @@ class DataPermintaanMaterial extends Component
     }
     public function updated($propertyName)
     {
-        $this->applyFilters();
+        // Reset halaman ke 1 saat filter berubah
+        if (in_array($propertyName, ['search', 'jenis', 'lokasi', 'tanggal', 'selected_unit_id', 'status'])) {
+            $this->resetPage();
+        }
     }
 
     public function downloadExcel()
@@ -732,7 +826,7 @@ class DataPermintaanMaterial extends Component
 
     public function render()
     {
-        $permintaans = $this->applyFilters();
+        $permintaans = $this->fetchData();
         return view('livewire.data-permintaan-material', compact('permintaans'));
     }
 }
