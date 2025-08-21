@@ -1,7 +1,29 @@
 <div>
-    <div wire:loading wire:target='downloadExcel'>
-        <livewire:loading>
+    {{-- Loading overlay untuk download Excel --}}
+    <div wire:loading wire:target='downloadExcel'
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-sm w-full mx-4">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                    <i class="fa-solid fa-file-excel text-2xl text-green-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Mengunduh Data RAB</h3>
+                <p class="text-gray-600 mb-4">Sedang memproses data untuk diexport ke Excel...</p>
+                <div class="flex justify-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    {{-- Flash message untuk error --}}
+    @if (session()->has('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+            <strong class="font-bold">Error!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
+
     <div class="flex justify-between py-2 mb-3">
         <h1 class="text-2xl font-bold text-primary-900 ">Daftar {{ $RKB }}
             @if (auth()->user()->unitKerja)
@@ -16,6 +38,18 @@
                     + Tambah {{ $Rkb }}
                 </a>
             @endcan
+
+            <button wire:click="downloadExcel" wire:loading.attr="disabled" wire:target="downloadExcel"
+                class="text-green-900 bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span wire:loading.remove wire:target="downloadExcel">
+                    <i class="fa-solid fa-file-excel mr-2"></i>
+                    Export Excel
+                </span>
+                <span wire:loading wire:target="downloadExcel">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+                    Mengunduh...
+                </span>
+            </button>
         </div>
     </div>
 

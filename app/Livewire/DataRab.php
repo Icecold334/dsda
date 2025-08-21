@@ -9,6 +9,11 @@ use Livewire\Component;
 use Livewire\WithoutUrlPagination;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class DataRab extends Component
 {
@@ -19,6 +24,7 @@ class DataRab extends Component
     public $selectedRabId = null;
     public $historyData = [];
     public $searchSpb = '';
+    public $loading = false;
 
     public function mount()
     {
@@ -138,6 +144,167 @@ class DataRab extends Component
         $this->selectedRabId = null;
         $this->historyData = [];
         $this->searchSpb = '';
+    }
+
+    public function downloadExcel()
+    {
+        $this->loading = true;
+
+        try {
+            $user = Auth::user();
+
+            // Debug untuk memastikan data user dan unit
+            if (!$user) {
+                throw new \Exception('User tidak ditemukan');
+            }
+
+            // Ambil data RAB berdasarkan role user (sama seperti fetchData tapi tanpa pagination)
+            if ($user->hasRole('superadmin') || $user->unit_id === null) {
+                $rabs = Rab::with(['user.unitKerja'])->orderBy('created_at', 'desc')->get();
+            } else {
+                $rabs = Rab::whereHas('user.unitKerja', function ($unit) {
+                    $unit->where('parent_id', $this->unit_id)
+                        ->orWhere('id', $this->unit_id);
+                })->orderBy('created_at', 'desc')->get();
+            }
+
+            // Transform data dengan status mapping
+            $rabs->transform(function ($rab) {
+                $statusMap = [
+                    null => 'Diproses',
+                    0 => 'Ditolak',
+                    1 => 'Dibatalkan',
+                    2 => 'Disetujui',
+                    3 => 'Selesai',
+                ];
+                $rab->status_teks = $statusMap[$rab->status] ?? 'Tidak diketahui';
+                return $rab;
+            });
+
+            // Buat spreadsheet
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Set judul dokumen
+            $sheet->setTitle('Data RAB');
+
+            // Tentukan nama suku dinas untuk header dan filename
+            $sukuDinasName = 'SEMUA SUKU DINAS';
+            if (!($user->hasRole('superadmin') || $user->unit_id === null)) {
+                // Ambil nama unit kerja dari user yang login
+                $unitKerja = $user->unitKerja;
+                if ($unitKerja) {
+                    // Jika unit ini memiliki parent, gunakan nama parent
+                    if ($unitKerja->parent_id) {
+                        $parentUnit = $unitKerja->parent;
+                        $sukuDinasName = $parentUnit ? strtoupper($parentUnit->nama) : strtoupper($unitKerja->nama);
+                    } else {
+                        // Jika ini adalah parent unit (suku dinas)
+                        $sukuDinasName = strtoupper($unitKerja->nama);
+                    }
+                } else {
+                    $sukuDinasName = 'SUKU DINAS TIDAK DIKETAHUI';
+                }
+            }
+
+            // Tentukan periode data
+            $oldestRab = $rabs->sortBy('created_at')->first();
+            $newestRab = $rabs->sortByDesc('created_at')->first();
+
+            $startDate = $oldestRab ? $oldestRab->created_at->format('d F Y') : date('01 F Y');
+            $endDate = $newestRab ? $newestRab->created_at->format('d F Y') : date('d F Y');
+
+            // Header informasi dokumen
+            $sheet->setCellValue('A1', 'DAFTAR RENCANA ANGGARAN BIAYA (RAB)');
+            $sheet->setCellValue('A2', 'DINAS SUMBER DAYA AIR (DSDA)');
+            $sheet->setCellValue('A3', $sukuDinasName);
+            $sheet->setCellValue('A4', 'Periode: ' . $startDate . ' - ' . $endDate);
+            $sheet->setCellValue('A5', 'Tanggal Export: ' . date('d F Y'));
+
+            // Style untuk header dokumen
+            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+            $sheet->getStyle('A2')->getFont()->setBold(true)->setSize(12);
+            $sheet->getStyle('A3')->getFont()->setBold(true)->setSize(12);
+            $sheet->getStyle('A4')->getFont()->setSize(10);
+            $sheet->getStyle('A5')->getFont()->setSize(10);
+
+            // Merge cells untuk header utama
+            $sheet->mergeCells('A1:F1');
+            $sheet->mergeCells('A2:F2');
+            $sheet->mergeCells('A3:F3');
+            $sheet->mergeCells('A4:F4');
+            $sheet->mergeCells('A5:F5');
+
+            // Center alignment untuk header dokumen
+            $sheet->getStyle('A1:A5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+            // Header tabel (mulai dari baris 7)
+            $headers = ['No', 'Jenis Pekerjaan', 'Tahun Anggaran', 'Lokasi', 'Tanggal Pelaksanaan', 'Status'];
+            $columns = ['A', 'B', 'C', 'D', 'E', 'F'];
+            foreach ($headers as $index => $header) {
+                $sheet->setCellValue($columns[$index] . '7', $header);
+            }
+
+            // Style untuk header tabel
+            $headerRange = 'A7:F7';
+            $sheet->getStyle($headerRange)->getFont()->setBold(true);
+            $sheet->getStyle($headerRange)->getFill()->setFillType(Fill::FILL_SOLID);
+            $sheet->getStyle($headerRange)->getFill()->getStartColor()->setRGB('4F46E5');
+            $sheet->getStyle($headerRange)->getFont()->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle($headerRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle($headerRange)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+            // Data (mulai dari baris 8)
+            $row = 8;
+            foreach ($rabs as $index => $rab) {
+                $tanggalPelaksanaan = $rab->mulai->format('d/m/Y') . ' - ' . $rab->selesai->format('d/m/Y');
+
+                $sheet->setCellValue('A' . $row, $index + 1);
+                $sheet->setCellValue('B' . $row, $rab->jenis_pekerjaan);
+                $sheet->setCellValue('C' . $row, $rab->created_at->format('Y'));
+                $sheet->setCellValue('D' . $row, $rab->lokasi);
+                $sheet->setCellValue('E' . $row, $tanggalPelaksanaan);
+                $sheet->setCellValue('F' . $row, $rab->status_teks);
+                $row++;
+            }
+
+            // Style untuk data
+            if ($row > 8) {
+                $dataRange = 'A8:F' . ($row - 1);
+                $sheet->getStyle($dataRange)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+                $sheet->getStyle('A8:A' . ($row - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('C8:C' . ($row - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('F8:F' . ($row - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            }
+
+            // Auto width untuk semua kolom
+            foreach (range('A', 'F') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            // Set minimum width untuk kolom tertentu
+            $sheet->getColumnDimension('B')->setWidth(25); // Jenis Pekerjaan
+            $sheet->getColumnDimension('D')->setWidth(30); // Lokasi
+            $sheet->getColumnDimension('E')->setWidth(25); // Tanggal Pelaksanaan
+
+            // Generate file dengan nama yang menyertakan suku dinas
+            $sukuDinasSlug = strtolower(str_replace([' ', '(', ')'], ['_', '', ''], $sukuDinasName));
+            $filename = 'Data_RAB_' . $sukuDinasSlug . '_' . date('Y-m-d_H-i-s') . '.xlsx';
+            $writer = new Xlsx($spreadsheet);
+
+            $tempFile = tempnam(sys_get_temp_dir(), 'rab_export');
+            $writer->save($tempFile);
+
+            $this->loading = false;
+
+            // Download file
+            return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
+
+        } catch (\Exception $e) {
+            $this->loading = false;
+            session()->flash('error', 'Terjadi kesalahan saat mengexport data: ' . $e->getMessage());
+            return null;
+        }
     }
 
     public function render()
