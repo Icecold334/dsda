@@ -250,10 +250,10 @@
                 Swal.fire({
                     title: 'Konfirmasi Hapus Permintaan',
                     html: `
-                                                                                        <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
-                                                                                        <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
-                                                                                        <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
-                                                                                    `,
+                                                                                            <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
+                                                                                            <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
+                                                                                            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
+                                                                                        `,
                     icon: 'warning',
                     input: 'textarea',
                     inputLabel: 'Alasan menghapus (opsional)',
@@ -398,6 +398,22 @@
                                             $tanggal = $approvedUser['tanggal'];
                                             $img = $approvedUser['img'] ?? null;
 
+                                            // BYPASS: Untuk periode 12-19 Agustus 2025, jika role adalah Kepala Seksi Pemeliharaan
+                                            // dan ada approval dari Yusuf (252), tampilkan Yusuf sebagai yang approve
+                                            if ($slug === 'kepala-seksi' && $selectedId) {
+                                                $transferApproval = \App\Models\Persetujuan::where('approvable_id', $selectedId)
+                                                    ->where('approvable_type', 'App\Models\DetailPermintaanMaterial')
+                                                    ->where('user_id', 252)
+                                                    ->where('is_approved', 1)
+                                                    ->whereBetween('created_at', ['2025-08-12 00:00:00', '2025-08-19 23:59:59'])
+                                                    ->first();
+
+                                                if ($transferApproval) {
+                                                    $user = 'Yusuf Saut Pangibulan, ST, MPSDA';
+                                                    $tanggal = $transferApproval->created_at->format('d M Y H:i');
+                                                }
+                                            }
+
                                             if ($status === 'Ditolak') {
                                                 $flowStopped = true; // stop aliran approval setelah ini
                                             }
@@ -446,7 +462,7 @@
                                         <h3 class=" text-md font-semibold text-gray-900 dark:text-white">{{ $label }}</h3>
                                         <time class="block  text-xs font-normal leading-none text-gray-400 dark:text-gray-500">{{
                             $tanggal ?? '-'
-                                                                                                                                                                                                                                                                                                                                                                                            }}</time>
+                                                                                                                                                                                                                                                                                                                                                                                                            }}</time>
                                         <p class="text-sm  font-semibold text-gray-600">{{ $user ?? '-' }}</p>
 
                                         @if (!empty($desc))

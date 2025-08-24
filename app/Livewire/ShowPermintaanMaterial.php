@@ -536,6 +536,18 @@ class ShowPermintaanMaterial extends Component
             return $role->where('name', 'like', '%Kepala Seksi%');
         })->first();
 
+        // BYPASS: Untuk periode 12-19 Agustus 2025, jika ada approval dari Yusuf (252),
+        // maka dia yang akan ditampilkan sebagai Kepala Seksi Pemeliharaan di SPPB
+        $transferPeriodApproval = $this->permintaan->persetujuan()
+            ->where('user_id', 252)
+            ->where('is_approved', 1)
+            ->whereBetween('created_at', ['2025-08-12 00:00:00', '2025-08-19 23:59:59'])
+            ->first();
+
+        if ($transferPeriodApproval) {
+            $kepalaSeksiPemeliharaan = User::find(252); // Override dengan Yusuf
+        }
+
         // Get Kepala Suku Dinas for when requester is Kepala Seksi
         $kepalaSudin = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
             return $unit->where('id', $unit_id);
@@ -613,6 +625,18 @@ class ShowPermintaanMaterial extends Component
         })->whereHas('roles', function ($role) {
             return $role->where('name', 'like', '%Kepala Seksi%');
         })->first();
+
+        // BYPASS: Untuk periode 12-19 Agustus 2025, jika ada approval dari Yusuf (252),
+        // maka dia yang akan ditampilkan sebagai pemel (kepala seksi pemeliharaan)
+        $transferPeriodApproval = $this->permintaan->persetujuan()
+            ->where('user_id', 252)
+            ->where('is_approved', 1)
+            ->whereBetween('created_at', ['2025-08-12 00:00:00', '2025-08-19 23:59:59'])
+            ->first();
+
+        if ($transferPeriodApproval) {
+            $pemel = User::find(252); // Override dengan Yusuf
+        }
 
         $pemohon = $permintaan->user;
         $pemohonRole = $pemohon->roles->pluck('name')->first();

@@ -576,37 +576,51 @@ class DataPermintaanMaterial extends Component
             ->map(function ($item) use ($permintaan) {
                 $role = '';
                 $desc = '';
-                switch ($item->user->roles->first()->name) {
-                    case 'Kepala Seksi':
-                        $role = 'Kepala Seksi Pemeliharaan';
-                        $desc = '';
-                        break;
-                    case 'Kepala Subbagian':
-                        $role = 'Kepala Subbagian Tata Usaha';
-                        $desc = 'SPPB & QR-Code';
-                        break;
-                    case 'Pengurus Barang':
-                        $role = 'Pengurus Barang';
-                        $desc = 'Barang dalam pengiriman
-                        <table class="text-sm text-gray-500 italic">
-                            <tr>
-                                <td>Nama Driver</td>
-                                <td>' . $permintaan->driver . '</td>
-                            </tr>
-                            <tr>
-                                <td>Nomor Polisi</td>
-                                <td>' . $permintaan->nopol . '</td>
-                            </tr>
-                            <tr>
-                                <td>Nama Security</td>
-                                <td>' . $permintaan->security . '</td>
-                            </tr>
-                        </table>';
-                        break;
 
-                    default:
-                        $role = 'Admin';
-                        break;
+                // BYPASS: Untuk periode 12-19 Agustus 2025, user 252 (Yusuf) yang approval 
+                // akan ditampilkan sebagai "Kepala Seksi Pemeliharaan" 
+                // meskipun role aslinya berbeda
+                $isTransferPeriod = $item->created_at->between('2025-08-12', '2025-08-19 23:59:59');
+                $isYusufTransfer = $item->user_id == 252;
+
+                if ($isTransferPeriod && $isYusufTransfer) {
+                    // Override role untuk Yusuf selama periode transfer
+                    $role = 'Kepala Seksi Pemeliharaan';
+                    $desc = '';
+                } else {
+                    // Logic normal berdasarkan role user
+                    switch ($item->user->roles->first()->name) {
+                        case 'Kepala Seksi':
+                            $role = 'Kepala Seksi Pemeliharaan';
+                            $desc = '';
+                            break;
+                        case 'Kepala Subbagian':
+                            $role = 'Kepala Subbagian Tata Usaha';
+                            $desc = 'SPPB & QR-Code';
+                            break;
+                        case 'Pengurus Barang':
+                            $role = 'Pengurus Barang';
+                            $desc = 'Barang dalam pengiriman
+                            <table class="text-sm text-gray-500 italic">
+                                <tr>
+                                    <td>Nama Driver</td>
+                                    <td>' . $permintaan->driver . '</td>
+                                </tr>
+                                <tr>
+                                    <td>Nomor Polisi</td>
+                                    <td>' . $permintaan->nopol . '</td>
+                                </tr>
+                                <tr>
+                                    <td>Nama Security</td>
+                                    <td>' . $permintaan->security . '</td>
+                                </tr>
+                            </table>';
+                            break;
+
+                        default:
+                            $role = 'Admin';
+                            break;
+                    }
                 }
                 $isApproved = $item->is_approved;
 
@@ -624,7 +638,7 @@ class DataPermintaanMaterial extends Component
                 }
 
                 return [
-                    'user' => $item->user->name,
+                    'user' => $isTransferPeriod && $isYusufTransfer ? 'Yusuf Saut Pangibulan, ST, MPSDA' : $item->user->name,
                     'role' => $role,
                     'desc' => $desc,
                     'status' => is_null($item->is_approved)
