@@ -8,6 +8,8 @@ use Livewire\Component;
 use App\Models\UnitKerja;
 use App\Models\Persetujuan;
 use Illuminate\Support\Str;
+use Livewire\WithPagination;
+use Livewire\WithoutUrlPagination;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -19,9 +21,13 @@ use App\Models\DetailPermintaanMaterial;
 use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class DataPermintaanMaterial extends Component
 {
+    use WithPagination, WithoutUrlPagination;
+
     public $nonUmum, $isSeribu;
     public $search; // Search term
     public $jenis; // Selected jenis
@@ -29,6 +35,9 @@ class DataPermintaanMaterial extends Component
     public $tanggal; // Selected jenis
     public $selected_unit_id; // Selected jenis
     public $status; // Selected jenis
+    public $sortBy = 'terbaru'; // Sorting option
+    public $unit_id; // User's unit ID
+    public $Rkb = 'RAB'; // RAB label
     public $unitOptions = [];
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
@@ -47,6 +56,7 @@ class DataPermintaanMaterial extends Component
     public function mount()
     {
         $this->tipe = Request::segment(2);
+        $this->unit_id = Auth::user()->unit_id;
         $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::whereNull('parent_id')->get();
         $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');
 
@@ -54,20 +64,106 @@ class DataPermintaanMaterial extends Component
         $user = Auth::user();
         $this->isAdmin = $user->hasRole('superadmin') || $user->unit_id === null;
 
-        $this->applyFilters();
+        $this->fetchData();
+    }
+
+    public function fetchData()
+    {
+        // Ambil data permintaan dan peminjaman
+        $permintaanQuery = $this->getPermintaanQuery();
+        $peminjamanQuery = $this->getPeminjamanQuery();
+
+        // Gabungkan data berdasarkan tipe
+        $sortMethod = $this->sortBy === 'terlama' ? 'sortBy' : 'sortByDesc';
+        $query = $this->tipe
+            ? $permintaanQuery->$sortMethod('created_at')
+            : $permintaanQuery->merge($peminjamanQuery)->$sortMethod('created_at');
+
+        // Terapkan filter pencarian
+        if (!empty($this->search)) {
+            $query = $query->filter(function ($item) {
+                return stripos($item['kode'], $this->search) !== false;
+            });
+        }
+
+        // Terapkan filter jenis
+        if (!empty($this->jenis)) {
+            $query = $query->filter(function ($item) {
+                return $item['tipe'] === $this->jenis;
+            });
+        }
+
+        // Terapkan filter unit_id
+        if ($this->selected_unit_id) {
+            $query = $query->filter(function ($item) {
+                return $item['sub_unit_id'] == $this->selected_unit_id;
+            });
+        }
+
+        // Terapkan filter tanggal
+        if (!empty($this->tanggal)) {
+            $query = $query->filter(function ($item) {
+                return $item['tanggal'] === strtotime($this->tanggal);
+            });
+        }
+
+        // Terapkan filter status
+        if (!empty($this->status)) {
+            $query = $query->filter(function ($item) {
+                $statusFilter = $this->status;
+
+                if ($statusFilter === 'diproses') {
+                    return is_null($item['status']);
+                }
+
+                $statusMap = [
+                    'ditolak' => 0,
+                    'disetujui' => 1,
+                    'sedang dikirim' => 2,
+                    'selesai' => 3,
+                ];
+
+                return isset($statusMap[$statusFilter]) && $item['status'] === $statusMap[$statusFilter];
+            });
+        }
+
+        // Convert to Collection dan implementasi pagination manual
+        $collection = collect($query->values());
+        $perPage = 5;
+        $currentPage = $this->getPage();
+        $total = $collection->count();
+
+        // Slice collection untuk pagination
+        $items = $collection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        // Buat Paginator instance
+        $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $currentPage,
+            [
+                'path' => request()->url(),
+                'pageName' => 'page',
+            ]
+        );
+
+        return $paginator;
     }
 
     public function applyFilters()
     {
+        // Method ini sekarang hanya untuk kompatibilitas dengan downloadExcel
         // Ambil data permintaan dan peminjaman
         $permintaanQuery = $this->getPermintaanQuery();
         $peminjamanQuery = $this->getPeminjamanQuery();
 
 
         // Gabungkan data berdasarkan tipe
+        $sortMethod = $this->sortBy === 'terlama' ? 'sortBy' : 'sortByDesc';
         $query = $this->tipe
-            ? $permintaanQuery->sortByDesc('created_at')
-            : $permintaanQuery->merge($peminjamanQuery)->sortByDesc('created_at');
+            ? $permintaanQuery->$sortMethod('created_at')
+            : $permintaanQuery->merge($peminjamanQuery)->$sortMethod('created_at');
 
 
         // Terapkan filter pencarian
@@ -246,7 +342,8 @@ class DataPermintaanMaterial extends Component
             'proses' => $item->proses,
             'jenis_id' => $tipe === 'permintaan' ? $item->jenis_id : null,
             'tipe' => $tipe,
-            'created_at' => $item->created_at->format('Y '),
+            'created_at' => $item->created_at, // Simpan objek Carbon asli
+            'created_at_year' => $item->created_at->format('Y'),
             'can_delete' => $canDelete,
             'can_edit' => $canEdit,
             'can_admin_edit' => $canAdminEdit,
@@ -271,117 +368,153 @@ class DataPermintaanMaterial extends Component
     }
     public function updated($propertyName)
     {
-        $this->applyFilters();
+        // Reset halaman ke 1 saat filter berubah
+        if (in_array($propertyName, ['search', 'jenis', 'lokasi', 'tanggal', 'selected_unit_id', 'status', 'sortBy'])) {
+            $this->resetPage();
+        }
     }
 
     public function downloadExcel()
     {
-
         $data = $this->applyFilters();
-        $unit = UnitKerja::find($this->selected_unit_id)?->nama;
-        $spreadsheet = new Spreadsheet();
-        $filterInfo = sprintf(
-            "Jenis: %s, Lokasi: %s, Unit: %s",
-            $this->jenis ?? '-',
-            $this->lokasi ?? '-',
-            $unit ?? '-'
-        );
+        $user = Auth::user();
 
-        // dd($data);
+        // Tentukan nama unit kerja untuk header
+        $unitKerjaName = 'SEMUA UNIT KERJA';
+        if (!($user->hasRole('superadmin') || $user->unit_id === null)) {
+            $unitKerja = $user->unitKerja;
+            if ($unitKerja) {
+                // Jika unit ini memiliki parent, gunakan nama parent
+                if ($unitKerja->parent_id) {
+                    $parentUnit = $unitKerja->parent;
+                    $unitKerjaName = $parentUnit ? strtoupper($parentUnit->nama) : strtoupper($unitKerja->nama);
+                } else {
+                    // Jika ini adalah parent unit (suku dinas)
+                    $unitKerjaName = strtoupper($unitKerja->nama);
+                }
+            } else {
+                $unitKerjaName = 'UNIT KERJA TIDAK DIKETAHUI';
+            }
+        }
+
+        // Jika ada filter unit yang dipilih, gunakan nama unit tersebut
+        if ($this->selected_unit_id) {
+            $selectedUnit = UnitKerja::find($this->selected_unit_id);
+            if ($selectedUnit) {
+                $unitKerjaName = strtoupper($selectedUnit->nama);
+            }
+        }
+
+        $spreadsheet = new Spreadsheet();
 
         // Properti dokumen
         $spreadsheet->getProperties()
             ->setCreator('www.inventa.id')
             ->setLastModifiedBy('www.inventa.id')
-            ->setTitle('Permintaan')
+            ->setTitle('Daftar Permintaan')
             ->setSubject('Daftar Permintaan - Dinas Sumber Daya Air (DSDA)')
-            ->setDescription('Daftar Permintaan')
-            ->setKeywords('aset, laporan, excel')
+            ->setDescription('Daftar Permintaan Material/Spare Part')
+            ->setKeywords('permintaan, material, spare part, laporan, excel')
             ->setCategory('Daftar Permintaan');
 
         $sheet = $spreadsheet->getActiveSheet();
-        // Header judul
-        $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setCellValue('A2', 'DAFTAR PERMINTAAN')
-            ->mergeCells('A2:E2')
-            ->getStyle('A2')->getFont()->setBold(true)->setSize(14);
-        $sheet->setCellValue('A3', strtoupper('Dinas Sumber Daya Air (DSDA)'))
-            ->mergeCells('A3:E3')
-            ->getStyle('A3')->getFont()->setBold(true);
-        $sheet->setCellValue('A4', $filterInfo)
-            ->mergeCells('A4:E4')
-            ->getStyle('A4')->getFont()->setItalic(true);
-        $sheet->setCellValue('A5', 'Periode: ' . now()->format('d F Y'))
-            ->mergeCells('A5:E5')
-            ->getStyle('A5')->getFont()->setBold(true);
+        $sheet->setTitle('Data Permintaan');
 
-        // Atur rata tengah untuk header
-        $sheet->getStyle('A2:A5')
-            ->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        // Header dokumen
+        $sheet->setCellValue('A1', 'DAFTAR PERMINTAAN');
+        $sheet->setCellValue('A2', 'DINAS SUMBER DAYA AIR (DSDA)');
+        $sheet->setCellValue('A3', $unitKerjaName);
+        $sheet->setCellValue('A4', 'Periode: ' . date('d F Y'));
+        $sheet->setCellValue('A5', 'Export pada: ' . date('d F Y H:i:s'));
 
-        // Header tabel
+        // Style untuk header dokumen
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A2')->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A3')->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A4')->getFont()->setSize(10);
+        $sheet->getStyle('A5')->getFont()->setSize(10);
+
+        // Merge cells untuk header utama
+        $sheet->mergeCells('A1:E1');
+        $sheet->mergeCells('A2:E2');
+        $sheet->mergeCells('A3:E3');
+        $sheet->mergeCells('A4:E4');
+        $sheet->mergeCells('A5:E5');
+
+        // Center alignment untuk header dokumen
+        $sheet->getStyle('A1:A5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Header tabel (mulai dari baris 7)
         $sheet->setCellValue('A7', 'KODE');
-        $sheet->setCellValue('B7', 'JENIS LAYANAN');
+        $sheet->setCellValue('B7', 'JENIS');
         $sheet->setCellValue('C7', 'TANGGAL PENGGUNAAN');
-        $sheet->setCellValue('D7', 'UNIT KERJA');
+        $sheet->setCellValue('D7', 'TANGGAL PEMBUATAN');
         $sheet->setCellValue('E7', 'STATUS');
 
-        // Sub-header 
-        // Detail Aset
-        // $sheet->setCellValue('C8', 'MERK')
-        //     ->setCellValue('D8', 'TIPE')
-        //     ->setCellValue('E8', 'UKURAN');
-
         // Style header tabel
-
         $sheet->getStyle('A7:E7')->getFont()->setBold(true);
         $sheet->getStyle('A7:E7')->getFont()->getColor()->setARGB('FFFFFFFF');
         $sheet->getStyle('A7:E7')
-            ->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('A7:E7');
-        //     ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        // $sheet->mergeCells('C7:E7');
+            ->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('A7:E7')->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF4F46E5'); // Primary color
 
-        // $sheet->getStyle('C8:E8')->getFill()
-        //     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-        //     ->getStartColor()->setARGB('FF000000');
-        $sheet->getStyle('A7:E7')->getFill() // E26B0A
-            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-            ->getStartColor()->setARGB('FF806000');
-        $row = 8; // Mulai dari baris ke-9
+        $row = 8; // Mulai dari baris ke-8
 
-        foreach ($data as $barang) {
-            // Set data utama barang (kolom A dan B)
-            $sheet->setCellValue('A' . $row, $barang['kode'])
-                ->setCellValue('B' . $row, $barang['tipe']);
+        foreach ($data as $item) {
+            // Tentukan jenis (RAB/Tanpa RAB)
+            $jenis = $item['nomor_rab'] ?? 'Tanpa RAB';
 
-            // Set data terkait barang (kolom C sampai E)
-            $sheet->setCellValue('C' . $row, date('j F Y', $barang['tanggal']))
-                ->setCellValue('D' . $row, $barang['sub_unit']?->nama ?? $barang['unit']?->nama)
-                ->setCellValue(
-                    'E' . $row,
-                    $barang['cancel'] === 1 ? 'dibatalkan' : ($barang['cancel'] === 0 && $barang['proses'] === 1 ? 'selesai' : ($barang['cancel'] === 0 && $barang['proses'] === null ? 'siap diambil' : ($barang['cancel'] === null && $barang['proses'] === null && $barang['status'] === null ? 'diproses' : ($barang['cancel'] === null && $barang['proses'] === null && $barang['status'] === 1 ? 'disetujui' : 'ditolak'))))
-                );
+            // Tentukan status yang lebih jelas
+            $status = 'Diproses';
+            if ($item['cancel'] === 1) {
+                $status = 'Dibatalkan';
+            } elseif ($item['status'] === 0) {
+                $status = 'Ditolak';
+            } elseif ($item['status'] === 1) {
+                $status = 'Disetujui';
+            } elseif ($item['status'] === 2) {
+                $status = 'Sedang Dikirim';
+            } elseif ($item['status'] === 3 || $item['proses'] === 1) {
+                $status = 'Selesai';
+            }
 
-            // Pindah ke baris berikutnya
+            // Format tanggal pembuatan lengkap
+            $tanggalPembuatan = $item['created_at']->format('d F Y');
+
+            // Set data
+            $sheet->setCellValue('A' . $row, $item['kode']);
+            $sheet->setCellValue('B' . $row, $jenis);
+            $sheet->setCellValue('C' . $row, date('d/m/Y', $item['tanggal']));
+            $sheet->setCellValue('D' . $row, $tanggalPembuatan);
+            $sheet->setCellValue('E' . $row, $status);
+
             $row++;
         }
 
-        // Terapkan alignment ke kolom tertentu (contoh kolom F)
-        // $sheet->getStyle('A1:E' . ($row - 1))
-        //     ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+        // Style untuk border semua data
+        if ($row > 8) {
+            $dataRange = 'A7:E' . ($row - 1);
+            $sheet->getStyle($dataRange)->getBorders()->getAllBorders()
+                ->setBorderStyle(Border::BORDER_THIN);
+        }
 
+        // Auto width untuk semua kolom
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
 
-        $sheet->getColumnDimension('A')->setAutoSize(true);
-        $sheet->getColumnDimension('B')->setAutoSize(true);
-        $sheet->getColumnDimension('C')->setAutoSize(true);
-        $sheet->getColumnDimension('D')->setAutoSize(true);
-        $sheet->getColumnDimension('E')->setAutoSize(true);
+        // Set minimum width untuk kolom tertentu
+        $sheet->getColumnDimension('A')->setWidth(15); // Kode
+        $sheet->getColumnDimension('B')->setWidth(20); // Jenis
+        $sheet->getColumnDimension('C')->setWidth(18); // Tanggal Penggunaan
+        $sheet->getColumnDimension('D')->setWidth(20); // Tanggal Pembuatan
+        $sheet->getColumnDimension('E')->setWidth(15); // Status
 
-
-
-        $fileName = 'Daftar Pelayanan Umum Dinas Sumber Daya Air (DSDA).xlsx';
+        // Generate nama file dengan unit kerja
+        $unitSlug = strtolower(str_replace([' ', '(', ')'], ['_', '', ''], $unitKerjaName));
+        $fileName = 'Daftar_Permintaan_' . $unitSlug . '_' . date('Y-m-d_H-i-s') . '.xlsx';
 
         // Set header untuk file Excel
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -443,37 +576,51 @@ class DataPermintaanMaterial extends Component
             ->map(function ($item) use ($permintaan) {
                 $role = '';
                 $desc = '';
-                switch ($item->user->roles->first()->name) {
-                    case 'Kepala Seksi':
-                        $role = 'Kepala Seksi Pemeliharaan';
-                        $desc = '';
-                        break;
-                    case 'Kepala Subbagian':
-                        $role = 'Kepala Subbagian Tata Usaha';
-                        $desc = 'SPPB & QR-Code';
-                        break;
-                    case 'Pengurus Barang':
-                        $role = 'Pengurus Barang';
-                        $desc = 'Barang dalam pengiriman
-                        <table class="text-sm text-gray-500 italic">
-                            <tr>
-                                <td>Nama Driver</td>
-                                <td>' . $permintaan->driver . '</td>
-                            </tr>
-                            <tr>
-                                <td>Nomor Polisi</td>
-                                <td>' . $permintaan->nopol . '</td>
-                            </tr>
-                            <tr>
-                                <td>Nama Security</td>
-                                <td>' . $permintaan->security . '</td>
-                            </tr>
-                        </table>';
-                        break;
 
-                    default:
-                        $role = 'Admin';
-                        break;
+                // BYPASS: Untuk periode 12-19 Agustus 2025, user 252 (Yusuf) yang approval 
+                // akan ditampilkan sebagai "Kepala Seksi Pemeliharaan" 
+                // meskipun role aslinya berbeda
+                $isTransferPeriod = $item->created_at->between('2025-08-12', '2025-08-19 23:59:59');
+                $isYusufTransfer = $item->user_id == 252;
+
+                if ($isTransferPeriod && $isYusufTransfer) {
+                    // Override role untuk Yusuf selama periode transfer
+                    $role = 'Kepala Seksi Pemeliharaan';
+                    $desc = '';
+                } else {
+                    // Logic normal berdasarkan role user
+                    switch ($item->user->roles->first()->name) {
+                        case 'Kepala Seksi':
+                            $role = 'Kepala Seksi Pemeliharaan';
+                            $desc = '';
+                            break;
+                        case 'Kepala Subbagian':
+                            $role = 'Kepala Subbagian Tata Usaha';
+                            $desc = 'SPPB & QR-Code';
+                            break;
+                        case 'Pengurus Barang':
+                            $role = 'Pengurus Barang';
+                            $desc = 'Barang dalam pengiriman
+                            <table class="text-sm text-gray-500 italic">
+                                <tr>
+                                    <td>Nama Driver</td>
+                                    <td>' . $permintaan->driver . '</td>
+                                </tr>
+                                <tr>
+                                    <td>Nomor Polisi</td>
+                                    <td>' . $permintaan->nopol . '</td>
+                                </tr>
+                                <tr>
+                                    <td>Nama Security</td>
+                                    <td>' . $permintaan->security . '</td>
+                                </tr>
+                            </table>';
+                            break;
+
+                        default:
+                            $role = 'Admin';
+                            break;
+                    }
                 }
                 $isApproved = $item->is_approved;
 
@@ -491,7 +638,7 @@ class DataPermintaanMaterial extends Component
                 }
 
                 return [
-                    'user' => $item->user->name,
+                    'user' => $isTransferPeriod && $isYusufTransfer ? 'Yusuf Saut Pangibulan, ST, MPSDA' : $item->user->name,
                     'role' => $role,
                     'desc' => $desc,
                     'status' => is_null($item->is_approved)
@@ -696,7 +843,7 @@ class DataPermintaanMaterial extends Component
 
     public function render()
     {
-        $permintaans = $this->applyFilters();
+        $permintaans = $this->fetchData();
         return view('livewire.data-permintaan-material', compact('permintaans'));
     }
 }

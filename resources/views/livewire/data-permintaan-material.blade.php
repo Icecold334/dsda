@@ -25,12 +25,17 @@
                     <option value="selesai">selesai</option>
                 </select>
 
+                <select wire:model.live="sortBy" class="border rounded-lg px-4 py-2 w-40">
+                    <option value="terbaru">Terbaru</option>
+                    <option value="terlama">Terlama</option>
+                </select>
+
                 <div wire:loading wire:target='downloadExcel'>
                     <livewire:loading>
                 </div>
 
                 @can('pelayanan_xls')
-                    @if ($permintaans->count())
+                    @if ($permintaans->total() > 0)
                         <button data-tooltip-target="tooltip-excel" wire:click="downloadExcel"
                             class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
                             <i class="fa-solid fa-file-excel"></i>
@@ -63,7 +68,7 @@
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold {{ $isSeribu ? 'hidden' : '' }}">LOKASI
                 </th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL PEKERJAAN</th>
-                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TAHUN PERMINTAAN</th>
+                <th class="py-3 px-6 bg-primary-950 text-center font-semibold">TANGGAL PERMINTAAN</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold">STATUS</th>
                 <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-r-lg"></th>
             </tr>
@@ -86,7 +91,7 @@
                         {{ $permintaan['lokasi'] }}
                     </td>
                     <td class="px-6 py-3 font-semibold text-center">{{ date('j F Y', $permintaan['tanggal']) }}</td>
-                    <td class="px-6 py-3 font-semibold text-center">{{$permintaan['created_at'] }}</td>
+                    <td class="px-6 py-3 font-semibold text-center">{{ $permintaan['created_at']->format('d F Y') }}</td>
                     <td class="py-3 px-6 font-semibold {{ $tipe == 'material' ? 'hidden' : '' }}">
                         <div class="text-gray-600 text-sm">
                             {{ $permintaan['sub_unit']?->nama ?? $permintaan['unit']?->nama }}
@@ -101,66 +106,55 @@
                         </p>
                     </td>
                     <td class="py-3 px-6 text-center">
-                        <a href="/permintaan/{{ $permintaan['tipe'] === 'peminjaman' ? 'peminjaman' : 'permintaan' }}/{{ $permintaan['id'] }}"
-                            class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
-                            data-tooltip-target="tooltip-permintaan-{{ $permintaan['id'] }}">
-                            <i class="fa-solid fa-eye"></i>
-                        </a>
-                        <div id="tooltip-permintaan-{{ $permintaan['id'] }}" role="tooltip"
-                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                            Lihat Detail Permintaan
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
-                        <button wire:click="openApprovalTimeline({{ $permintaan['id'] }}, '{{ $permintaan['tipe'] }}')"
-                            class="ml-2 text-green-600 hover:text-white hover:bg-green-600 px-3 py-2 rounded border border-green-600"
-                            data-tooltip-target="tooltip-timeline-{{ $permintaan['id'] }}">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
-                        </button>
-                        <div id="tooltip-timeline-{{ $permintaan['id'] }}" role="tooltip"
-                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                            Lihat Riwayat Approval
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
-
-                        @if ($permintaan['can_delete'])
-                            <button onclick="confirmDeletePermintaan({{ $permintaan['id'] }})"
-                                class="ml-2 text-red-600 hover:text-white hover:bg-red-600 px-3 py-2 rounded border border-red-600"
-                                data-tooltip-target="tooltip-delete-{{ $permintaan['id'] }}">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                            <div id="tooltip-delete-{{ $permintaan['id'] }}" role="tooltip"
-                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                                Hapus Permintaan
+                        <div class="flex justify-center items-center gap-2">
+                            <a href="/permintaan/{{ $permintaan['tipe'] === 'peminjaman' ? 'peminjaman' : 'permintaan' }}/{{ $permintaan['id'] }}"
+                                class="text-blue-600 hover:text-white hover:bg-blue-600 px-3 py-2 rounded border border-blue-600 transition-colors duration-200"
+                                data-tooltip-target="tooltip-permintaan-{{ $permintaan['id'] }}">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            <div id="tooltip-permintaan-{{ $permintaan['id'] }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                Lihat Detail Permintaan
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
-                        @endif
 
-                        {{-- Admin Actions --}}
-                        {{-- @if ($permintaan['can_admin_edit'])
-                        <button wire:click="adminEditPermintaan({{ $permintaan['id'] }})"
-                            class="ml-2 text-orange-600 hover:text-white hover:bg-orange-600 px-3 py-2 rounded border border-orange-600"
-                            data-tooltip-target="tooltip-admin-edit-{{ $permintaan['id'] }}">
-                            <i class="fa-solid fa-user-gear"></i>
-                        </button>
-                        <div id="tooltip-admin-edit-{{ $permintaan['id'] }}" role="tooltip"
-                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                            Edit Sebagai Admin
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
-                        @endif --}}
-
-                        @if ($permintaan['can_admin_delete'])
-                            <button onclick="confirmAdminDeletePermintaan({{ $permintaan['id'] }})"
-                                class="ml-2 text-purple-600 hover:text-white hover:bg-purple-600 px-3 py-2 rounded border border-purple-600"
-                                data-tooltip-target="tooltip-admin-delete-{{ $permintaan['id'] }}">
-                                <i class="fa-solid fa-user-slash"></i>
+                            <button wire:click="openApprovalTimeline({{ $permintaan['id'] }}, '{{ $permintaan['tipe'] }}')"
+                                class="text-green-600 hover:text-white hover:bg-green-600 px-3 py-2 rounded border border-green-600 transition-colors duration-200"
+                                data-tooltip-target="tooltip-timeline-{{ $permintaan['id'] }}">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
                             </button>
-                            <div id="tooltip-admin-delete-{{ $permintaan['id'] }}" role="tooltip"
+                            <div id="tooltip-timeline-{{ $permintaan['id'] }}" role="tooltip"
                                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                                Hapus Sebagai Admin
+                                Lihat Riwayat Approval
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
-                        @endif
+
+                            @if ($permintaan['can_delete'])
+                                <button onclick="confirmDeletePermintaan({{ $permintaan['id'] }})"
+                                    class="text-red-600 hover:text-white hover:bg-red-600 px-3 py-2 rounded border border-red-600 transition-colors duration-200"
+                                    data-tooltip-target="tooltip-delete-{{ $permintaan['id'] }}">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                                <div id="tooltip-delete-{{ $permintaan['id'] }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                    Hapus Permintaan
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            @endif
+
+                            @if ($permintaan['can_admin_delete'])
+                                <button onclick="confirmAdminDeletePermintaan({{ $permintaan['id'] }})"
+                                    class="text-purple-600 hover:text-white hover:bg-purple-600 px-3 py-2 rounded border border-purple-600 transition-colors duration-200"
+                                    data-tooltip-target="tooltip-admin-delete-{{ $permintaan['id'] }}">
+                                    <i class="fa-solid fa-user-slash"></i>
+                                </button>
+                                <div id="tooltip-admin-delete-{{ $permintaan['id'] }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                    Hapus Sebagai Admin
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            @endif
+                        </div>
                     </td>
                 </tr>
             @empty
@@ -173,7 +167,7 @@
         </tbody>
     </table>
 
-
+    {{ $permintaans->onEachSide(1)->links() }}
 
     @push('scripts')
         <script>
@@ -256,10 +250,10 @@
                 Swal.fire({
                     title: 'Konfirmasi Hapus Permintaan',
                     html: `
-                                        <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
-                                        <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
-                                        <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
-                                    `,
+                                                                                            <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
+                                                                                            <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
+                                                                                            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
+                                                                                        `,
                     icon: 'warning',
                     input: 'textarea',
                     inputLabel: 'Alasan menghapus (opsional)',
@@ -404,6 +398,22 @@
                                             $tanggal = $approvedUser['tanggal'];
                                             $img = $approvedUser['img'] ?? null;
 
+                                            // BYPASS: Untuk periode 12-19 Agustus 2025, jika role adalah Kepala Seksi Pemeliharaan
+                                            // dan ada approval dari Yusuf (252), tampilkan Yusuf sebagai yang approve
+                                            if ($slug === 'kepala-seksi' && $selectedId) {
+                                                $transferApproval = \App\Models\Persetujuan::where('approvable_id', $selectedId)
+                                                    ->where('approvable_type', 'App\Models\DetailPermintaanMaterial')
+                                                    ->where('user_id', 252)
+                                                    ->where('is_approved', 1)
+                                                    ->whereBetween('created_at', ['2025-08-12 00:00:00', '2025-08-19 23:59:59'])
+                                                    ->first();
+
+                                                if ($transferApproval) {
+                                                    $user = 'Yusuf Saut Pangibulan, ST, MPSDA';
+                                                    $tanggal = $transferApproval->created_at->format('d M Y H:i');
+                                                }
+                                            }
+
                                             if ($status === 'Ditolak') {
                                                 $flowStopped = true; // stop aliran approval setelah ini
                                             }
@@ -452,7 +462,7 @@
                                         <h3 class=" text-md font-semibold text-gray-900 dark:text-white">{{ $label }}</h3>
                                         <time class="block  text-xs font-normal leading-none text-gray-400 dark:text-gray-500">{{
                             $tanggal ?? '-'
-                                                                                                                                                                                            }}</time>
+                                                                                                                                                                                                                                                                                                                                                                                                            }}</time>
                                         <p class="text-sm  font-semibold text-gray-600">{{ $user ?? '-' }}</p>
 
                                         @if (!empty($desc))
