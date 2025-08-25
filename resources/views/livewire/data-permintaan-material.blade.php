@@ -142,9 +142,22 @@
                                 </div>
                             @endif
 
+                            @if ($permintaan['can_admin_edit'])
+                                <button onclick="confirmAdminEditStatus({{ $permintaan['id'] }})"
+                                    class="text-orange-600 hover:text-white hover:bg-orange-600 px-3 py-2 rounded border border-orange-600 transition-colors duration-200"
+                                    data-tooltip-target="tooltip-admin-status-{{ $permintaan['id'] }}">
+                                    <i class="fa-solid fa-edit"></i>
+                                </button>
+                                <div id="tooltip-admin-status-{{ $permintaan['id'] }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                    Edit Status Sebagai Admin
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            @endif
+
                             @if ($permintaan['can_admin_delete'])
-                                <button onclick="confirmAdminDeletePermintaan({{ $permintaan['id'] }})"
-                                    class="text-purple-600 hover:text-white hover:bg-purple-600 px-3 py-2 rounded border border-purple-600 transition-colors duration-200"
+                                <button onclick="confirmAdminDeletePermintaan({{ $permintaan['id'] }})" class="text-purple-600 hover:text-white hover:bg-purple-600 px-3 py-2 rounded border
+                                        border-purple-600 transition-colors duration-200"
                                     data-tooltip-target="tooltip-admin-delete-{{ $permintaan['id'] }}">
                                     <i class="fa-solid fa-user-slash"></i>
                                 </button>
@@ -299,6 +312,28 @@
                     }, 100);
                 });
 
+                // Listen untuk event admin-status-changed
+                Livewire.on('admin-status-changed', () => {
+                    // Close any loading modal and reload
+                    if (typeof Swal !== 'undefined') {
+                        Swal.close();
+                    }
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 100);
+                });
+
+                // Listen untuk event admin-status-change-completed
+                Livewire.on('admin-status-change-completed', () => {
+                    // Close any loading modal even on error
+                    if (typeof Swal !== 'undefined') {
+                        Swal.close();
+                    }
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 100);
+                });
+
                 // Close loading when any Livewire action completes
                 Livewire.hook('morph.updated', () => {
                     if (typeof Swal !== 'undefined' && Swal.isVisible()) {
@@ -324,10 +359,10 @@
                 Swal.fire({
                     title: 'Konfirmasi Hapus Permintaan',
                     html: `
-                                        <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
-                                        <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
-                                        <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
-                                    `,
+                                                <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
+                                                <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
+                                                <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
+                                            `,
                     icon: 'warning',
                     input: 'textarea',
                     inputLabel: 'Alasan menghapus (opsional)',
@@ -422,6 +457,78 @@
 
                         // Call Livewire method with reason
                         @this.call('adminDeletePermintaan', permintaanId, result.value);
+                    }
+                });
+            }
+
+            // Function untuk konfirmasi edit status sebagai admin
+            function confirmAdminEditStatus(permintaanId) {
+                if (typeof Swal === 'undefined') {
+                    const newStatus = prompt('Status baru (0=Ditolak, 1=Disetujui, 2=Sedang Dikirim, 3=Selesai, null=Diproses):');
+                    const reason = prompt('Alasan mengubah status (opsional):');
+                    if (newStatus !== null) {
+                        if (confirm('Apakah Anda yakin ingin mengubah status permintaan ini sebagai ADMIN?')) {
+                            @this.call('adminEditStatus', permintaanId, newStatus === 'null' ? null : parseInt(newStatus), reason);
+                        }
+                    }
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Edit Status Permintaan',
+                    html: `
+                                <div class="text-left">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Baru</label>
+                                    <select id="statusSelect" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+                                        <option value="">Diproses</option>
+                                        <option value="0">Ditolak</option>
+                                        <option value="1">Disetujui</option>
+                                        <option value="2">Sedang Dikirim</option>
+                                        <option value="3">Selesai</option>
+                                    </select>
+
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Alasan Perubahan (opsional)</label>
+                                    <textarea id="reasonTextarea" class="w-full p-2 border border-gray-300 rounded-md" rows="3" placeholder="Jelaskan alasan perubahan status..."></textarea>
+                                </div>
+                            `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#f97316',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '<i class="fa-solid fa-edit"></i> Ubah Status',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    focusCancel: true,
+                    preConfirm: () => {
+                        const status = document.getElementById('statusSelect').value;
+                        const reason = document.getElementById('reasonTextarea').value;
+
+                        if (reason.length > 500) {
+                            Swal.showValidationMessage('Alasan maksimal 500 karakter!');
+                            return false;
+                        }
+
+                        return {
+                            status: status === '' ? null : parseInt(status),
+                            reason: reason.trim()
+                        };
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading
+                        Swal.fire({
+                            title: 'Mengubah Status...',
+                            text: 'Sedang mengubah status permintaan',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Call Livewire method
+                        @this.call('adminEditStatus', permintaanId, result.value.status, result.value.reason);
                     }
                 });
             }
@@ -536,7 +643,7 @@
                                         <h3 class=" text-md font-semibold text-gray-900 dark:text-white">{{ $label }}</h3>
                                         <time class="block  text-xs font-normal leading-none text-gray-400 dark:text-gray-500">{{
                             $tanggal ?? '-'
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }}</time>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }}</time>
                                         <p class="text-sm  font-semibold text-gray-600">{{ $user ?? '-' }}</p>
 
                                         @if (!empty($desc))

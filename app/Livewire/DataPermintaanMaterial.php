@@ -865,6 +865,75 @@ class DataPermintaanMaterial extends Component
         return redirect()->route('permintaan.admin-edit', $permintaanId);
     }
 
+    public function adminEditStatus($permintaanId, $newStatus, $reason = null)
+    {
+        if (!$this->isAdmin) {
+            session()->flash('error', 'Anda tidak memiliki izin admin.');
+            return;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Find the permintaan
+            $permintaan = DetailPermintaanMaterial::findOrFail($permintaanId);
+
+            $oldStatus = $permintaan->status;
+            $oldStatusText = match ($oldStatus) {
+                null => 'Diproses',
+                0 => 'Ditolak',
+                1 => 'Disetujui',
+                2 => 'Sedang Dikirim',
+                3 => 'Selesai',
+                default => 'Tidak diketahui'
+            };
+
+            $newStatusText = match ($newStatus) {
+                null => 'Diproses',
+                0 => 'Ditolak',
+                1 => 'Disetujui',
+                2 => 'Sedang Dikirim',
+                3 => 'Selesai',
+                default => 'Tidak diketahui'
+            };
+
+            // Update status
+            $permintaan->status = $newStatus;
+            $permintaan->save();
+
+            // Log admin action
+            $logMessage = "Status permintaan diubah oleh admin dari '{$oldStatusText}' menjadi '{$newStatusText}'";
+            if ($reason) {
+                $logMessage .= ". Alasan: {$reason}";
+            }
+
+            // Log to database if you have activity log
+            // ActivityLog::create([
+            //     'user_id' => Auth::id(),
+            //     'action' => 'admin_status_change',
+            //     'model_type' => 'DetailPermintaanMaterial',
+            //     'model_id' => $permintaanId,
+            //     'description' => $logMessage,
+            //     'ip_address' => request()->ip(),
+            //     'user_agent' => request()->userAgent()
+            // ]);
+
+            DB::commit();
+
+            session()->flash('success', "Status permintaan berhasil diubah dari '{$oldStatusText}' menjadi '{$newStatusText}'");
+
+            // Dispatch event to close modal and refresh
+            $this->dispatch('admin-status-changed');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Terjadi kesalahan saat mengubah status: ' . $e->getMessage());
+
+            // Dispatch event to close loading modal even on error
+            $this->dispatch('admin-status-change-completed');
+        }
+    }
+
     // Pagination methods
     public function previousPage()
     {
