@@ -8,8 +8,6 @@ use Livewire\Component;
 use App\Models\UnitKerja;
 use App\Models\Persetujuan;
 use Illuminate\Support\Str;
-use Livewire\WithPagination;
-use Livewire\WithoutUrlPagination;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -23,10 +21,11 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use Livewire\WithPagination;
 
 class DataPermintaanMaterial extends Component
 {
-    use WithPagination, WithoutUrlPagination;
+    use WithPagination;
 
     public $nonUmum, $isSeribu;
     public $search; // Search term
@@ -36,11 +35,10 @@ class DataPermintaanMaterial extends Component
     public $selected_unit_id; // Selected jenis
     public $status; // Selected jenis
     public $sortBy = 'terbaru'; // Sorting option
-    public $unit_id; // User's unit ID
-    public $Rkb = 'RAB'; // RAB label
     public $unitOptions = [];
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
+    public $perPage = 10; // Items per page
 
     public $approvalTimeline = [], $roleList, $selectedId;
     public $showTimelineModal = false;
@@ -49,65 +47,73 @@ class DataPermintaanMaterial extends Component
     // Admin properties
     public $isAdmin = false;
 
-    // public $permintaans;
-
-
+    protected $paginationTheme = 'bootstrap'; // or 'tailwind'
 
     public function mount()
     {
         $this->tipe = Request::segment(2);
-        $this->unit_id = Auth::user()->unit_id;
         $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::whereNull('parent_id')->get();
         $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');
 
         // Check if current user is admin (superadmin or unit_id null)
         $user = Auth::user();
         $this->isAdmin = $user->hasRole('superadmin') || $user->unit_id === null;
-
-        $this->fetchData();
     }
 
-    public function fetchData()
+    public function updated($propertyName)
     {
-        // Ambil data permintaan dan peminjaman
+        // Reset to page 1 when filters change
+        if (in_array($propertyName, ['search', 'jenis', 'lokasi', 'tanggal', 'selected_unit_id', 'status', 'sortBy'])) {
+            $this->resetPage();
+        }
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function getPermintaansProperty()
+    {
+        // Get filtered data
         $permintaanQuery = $this->getPermintaanQuery();
         $peminjamanQuery = $this->getPeminjamanQuery();
 
-        // Gabungkan data berdasarkan tipe
+        // Combine data based on type
         $sortMethod = $this->sortBy === 'terlama' ? 'sortBy' : 'sortByDesc';
         $query = $this->tipe
             ? $permintaanQuery->$sortMethod('created_at')
             : $permintaanQuery->merge($peminjamanQuery)->$sortMethod('created_at');
 
-        // Terapkan filter pencarian
+        // Apply search filter
         if (!empty($this->search)) {
             $query = $query->filter(function ($item) {
                 return stripos($item['kode'], $this->search) !== false;
             });
         }
 
-        // Terapkan filter jenis
+        // Apply jenis filter
         if (!empty($this->jenis)) {
             $query = $query->filter(function ($item) {
                 return $item['tipe'] === $this->jenis;
             });
         }
 
-        // Terapkan filter unit_id
+        // Apply unit_id filter
         if ($this->selected_unit_id) {
             $query = $query->filter(function ($item) {
                 return $item['sub_unit_id'] == $this->selected_unit_id;
             });
         }
 
-        // Terapkan filter tanggal
+        // Apply date filter
         if (!empty($this->tanggal)) {
             $query = $query->filter(function ($item) {
                 return $item['tanggal'] === strtotime($this->tanggal);
             });
         }
 
-        // Terapkan filter status
+        // Apply status filter
         if (!empty($this->status)) {
             $query = $query->filter(function ($item) {
                 $statusFilter = $this->status;
@@ -127,73 +133,111 @@ class DataPermintaanMaterial extends Component
             });
         }
 
-        // Convert to Collection dan implementasi pagination manual
-        $collection = collect($query->values());
-        $perPage = 5;
+        // Convert to paginated collection
+        $allItems = $query->values();
         $currentPage = $this->getPage();
-        $total = $collection->count();
+        $offset = ($currentPage - 1) * $this->perPage;
 
-        // Slice collection untuk pagination
-        $items = $collection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        return $allItems->slice($offset, $this->perPage);
+    }
 
-        // Buat Paginator instance
-        $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
-            $items,
-            $total,
-            $perPage,
-            $currentPage,
-            [
-                'path' => request()->url(),
-                'pageName' => 'page',
-            ]
-        );
+    public function getTotalProperty()
+    {
+        // Get total count for pagination
+        $permintaanQuery = $this->getPermintaanQuery();
+        $peminjamanQuery = $this->getPeminjamanQuery();
 
-        return $paginator;
+        $query = $this->tipe
+            ? $permintaanQuery
+            : $permintaanQuery->merge($peminjamanQuery);
+
+        // Apply same filters as getPermintaansProperty
+        if (!empty($this->search)) {
+            $query = $query->filter(function ($item) {
+                return stripos($item['kode'], $this->search) !== false;
+            });
+        }
+
+        if (!empty($this->jenis)) {
+            $query = $query->filter(function ($item) {
+                return $item['tipe'] === $this->jenis;
+            });
+        }
+
+        if ($this->selected_unit_id) {
+            $query = $query->filter(function ($item) {
+                return $item['sub_unit_id'] == $this->selected_unit_id;
+            });
+        }
+
+        if (!empty($this->tanggal)) {
+            $query = $query->filter(function ($item) {
+                return $item['tanggal'] === strtotime($this->tanggal);
+            });
+        }
+
+        if (!empty($this->status)) {
+            $query = $query->filter(function ($item) {
+                $statusFilter = $this->status;
+
+                if ($statusFilter === 'diproses') {
+                    return is_null($item['status']);
+                }
+
+                $statusMap = [
+                    'ditolak' => 0,
+                    'disetujui' => 1,
+                    'sedang dikirim' => 2,
+                    'selesai' => 3,
+                ];
+
+                return isset($statusMap[$statusFilter]) && $item['status'] === $statusMap[$statusFilter];
+            });
+        }
+
+        return $query->count();
     }
 
     public function applyFilters()
     {
-        // Method ini sekarang hanya untuk kompatibilitas dengan downloadExcel
-        // Ambil data permintaan dan peminjaman
+        // This method is now used for downloadExcel compatibility
+        // Get request data and combined data
         $permintaanQuery = $this->getPermintaanQuery();
         $peminjamanQuery = $this->getPeminjamanQuery();
 
-
-        // Gabungkan data berdasarkan tipe
+        // Combine data based on type
         $sortMethod = $this->sortBy === 'terlama' ? 'sortBy' : 'sortByDesc';
         $query = $this->tipe
             ? $permintaanQuery->$sortMethod('created_at')
             : $permintaanQuery->merge($peminjamanQuery)->$sortMethod('created_at');
 
-
-        // Terapkan filter pencarian
+        // Apply search filter
         if (!empty($this->search)) {
             $query = $query->filter(function ($item) {
                 return stripos($item['kode'], $this->search) !== false;
             });
         }
 
-        // Terapkan filter jenis
+        // Apply jenis filter
         if (!empty($this->jenis)) {
             $query = $query->filter(function ($item) {
                 return $item['tipe'] === $this->jenis;
             });
         }
+
         // Apply unit_id filter if selected
-        // Terapkan filter unit_id
         if ($this->selected_unit_id) {
             $query = $query->filter(function ($item) {
                 return $item['sub_unit_id'] == $this->selected_unit_id;
             });
         }
 
-        // Terapkan filter tanggal
+        // Apply date filter
         if (!empty($this->tanggal)) {
             $query = $query->filter(function ($item) {
                 return $item['tanggal'] === strtotime($this->tanggal);
             });
         }
-
 
         if (!empty($this->status)) {
             $query = $query->filter(function ($item) {
@@ -213,15 +257,11 @@ class DataPermintaanMaterial extends Component
                 return isset($statusMap[$statusFilter]) && $item['status'] === $statusMap[$statusFilter];
             });
         }
-
-
-
 
         // Fetch filtered data
         $permintaans = $query->values();
         return $permintaans;
     }
-
 
     /**
      * Ambil data permintaan dengan filter.
@@ -230,17 +270,14 @@ class DataPermintaanMaterial extends Component
      */
     private function getPermintaanQuery()
     {
-
         $permintaan = DetailPermintaanStok::where('jenis_id', $this->getJenisId())
             ->when($this->unit_id, function ($query) {
                 $query->whereHas('unit', function ($unit) {
                     $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                 });
             })->get();
-        // dd($this->unit_id);
 
         if ($this->getJenisId() == 1) {
-
             $permintaan = DetailPermintaanMaterial::when($this->unit_id, function ($query) {
                 $query->whereHas('user.unitKerja', function ($unit) {
                     $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
@@ -254,7 +291,7 @@ class DataPermintaanMaterial extends Component
                     3 => ['label' => 'Selesai', 'color' => 'primary'],
                 ];
 
-                // Menambahkan properti dinamis
+                // Add dynamic properties
                 $perm->status_teks = $statusMap[$perm->status]['label'] ?? 'Tidak diketahui';
                 $perm->status_warna = $statusMap[$perm->status]['color'] ?? 'gray';
 
@@ -281,8 +318,7 @@ class DataPermintaanMaterial extends Component
         })->get();
 
         return $peminjaman->isNotEmpty() ? $peminjaman->map(function ($item) {
-            return
-                $this->mapData($item, 'peminjaman');
+            return $this->mapData($item, 'peminjaman');
         }) : collect([]);
     }
 
@@ -296,13 +332,12 @@ class DataPermintaanMaterial extends Component
     private function mapData($item, $tipe)
     {
         if ($this->isSeribu) {
-            # code...
             $withRab = $item->permintaanMaterial->first()->rab_id;
         } else {
             $withRab = $item->rab_id;
         }
 
-        // Cek apakah permintaan bisa dihapus (hanya untuk tipe permintaan, bukan peminjaman)
+        // Check if request can be deleted (only for permintaan type, not peminjaman)
         $canDelete = false;
         $canEdit = false;
         $canAdminEdit = false;
@@ -310,7 +345,7 @@ class DataPermintaanMaterial extends Component
 
         if ($tipe === 'permintaan') {
             $isOwner = $item->user_id === auth()->id();
-            // Cek apakah sudah ada approval sama sekali (baik disetujui maupun ditolak)
+            // Check if there's any approval at all (either approved or rejected)
             $hasAnyApproval = $item->persetujuan()->whereNotNull('is_approved')->exists();
 
             // Regular user permissions
@@ -342,7 +377,7 @@ class DataPermintaanMaterial extends Component
             'proses' => $item->proses,
             'jenis_id' => $tipe === 'permintaan' ? $item->jenis_id : null,
             'tipe' => $tipe,
-            'created_at' => $item->created_at, // Simpan objek Carbon asli
+            'created_at' => $item->created_at, // Store original Carbon object
             'created_at_year' => $item->created_at->format('Y'),
             'can_delete' => $canDelete,
             'can_edit' => $canEdit,
@@ -366,30 +401,23 @@ class DataPermintaanMaterial extends Component
         $href = "/permintaan/add/material/material";
         return redirect()->to($href);
     }
-    public function updated($propertyName)
-    {
-        // Reset halaman ke 1 saat filter berubah
-        if (in_array($propertyName, ['search', 'jenis', 'lokasi', 'tanggal', 'selected_unit_id', 'status', 'sortBy'])) {
-            $this->resetPage();
-        }
-    }
 
     public function downloadExcel()
     {
         $data = $this->applyFilters();
         $user = Auth::user();
 
-        // Tentukan nama unit kerja untuk header
+        // Determine unit name for header
         $unitKerjaName = 'SEMUA UNIT KERJA';
         if (!($user->hasRole('superadmin') || $user->unit_id === null)) {
             $unitKerja = $user->unitKerja;
             if ($unitKerja) {
-                // Jika unit ini memiliki parent, gunakan nama parent
+                // If this unit has a parent, use parent name
                 if ($unitKerja->parent_id) {
                     $parentUnit = $unitKerja->parent;
                     $unitKerjaName = $parentUnit ? strtoupper($parentUnit->nama) : strtoupper($unitKerja->nama);
                 } else {
-                    // Jika ini adalah parent unit (suku dinas)
+                    // If this is a parent unit (suku dinas)
                     $unitKerjaName = strtoupper($unitKerja->nama);
                 }
             } else {
@@ -397,7 +425,7 @@ class DataPermintaanMaterial extends Component
             }
         }
 
-        // Jika ada filter unit yang dipilih, gunakan nama unit tersebut
+        // If there's a unit filter selected, use that unit's name
         if ($this->selected_unit_id) {
             $selectedUnit = UnitKerja::find($this->selected_unit_id);
             if ($selectedUnit) {
@@ -407,7 +435,7 @@ class DataPermintaanMaterial extends Component
 
         $spreadsheet = new Spreadsheet();
 
-        // Properti dokumen
+        // Document properties
         $spreadsheet->getProperties()
             ->setCreator('www.inventa.id')
             ->setLastModifiedBy('www.inventa.id')
@@ -420,38 +448,38 @@ class DataPermintaanMaterial extends Component
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Data Permintaan');
 
-        // Header dokumen
+        // Document header
         $sheet->setCellValue('A1', 'DAFTAR PERMINTAAN');
         $sheet->setCellValue('A2', 'DINAS SUMBER DAYA AIR (DSDA)');
         $sheet->setCellValue('A3', $unitKerjaName);
         $sheet->setCellValue('A4', 'Periode: ' . date('d F Y'));
         $sheet->setCellValue('A5', 'Export pada: ' . date('d F Y H:i:s'));
 
-        // Style untuk header dokumen
+        // Style for document header
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A2')->getFont()->setBold(true)->setSize(12);
         $sheet->getStyle('A3')->getFont()->setBold(true)->setSize(12);
         $sheet->getStyle('A4')->getFont()->setSize(10);
         $sheet->getStyle('A5')->getFont()->setSize(10);
 
-        // Merge cells untuk header utama
+        // Merge cells for main header
         $sheet->mergeCells('A1:E1');
         $sheet->mergeCells('A2:E2');
         $sheet->mergeCells('A3:E3');
         $sheet->mergeCells('A4:E4');
         $sheet->mergeCells('A5:E5');
 
-        // Center alignment untuk header dokumen
+        // Center alignment for document header
         $sheet->getStyle('A1:A5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        // Header tabel (mulai dari baris 7)
+        // Table header (starting from row 7)
         $sheet->setCellValue('A7', 'KODE');
         $sheet->setCellValue('B7', 'JENIS');
         $sheet->setCellValue('C7', 'TANGGAL PENGGUNAAN');
         $sheet->setCellValue('D7', 'TANGGAL PEMBUATAN');
         $sheet->setCellValue('E7', 'STATUS');
 
-        // Style header tabel
+        // Table header style
         $sheet->getStyle('A7:E7')->getFont()->setBold(true);
         $sheet->getStyle('A7:E7')->getFont()->getColor()->setARGB('FFFFFFFF');
         $sheet->getStyle('A7:E7')
@@ -460,13 +488,13 @@ class DataPermintaanMaterial extends Component
             ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()->setARGB('FF4F46E5'); // Primary color
 
-        $row = 8; // Mulai dari baris ke-8
+        $row = 8; // Start from row 8
 
         foreach ($data as $item) {
-            // Tentukan jenis (RAB/Tanpa RAB)
+            // Determine type (RAB/Without RAB)
             $jenis = $item['nomor_rab'] ?? 'Tanpa RAB';
 
-            // Tentukan status yang lebih jelas
+            // Determine clearer status
             $status = 'Diproses';
             if ($item['cancel'] === 1) {
                 $status = 'Dibatalkan';
@@ -480,7 +508,7 @@ class DataPermintaanMaterial extends Component
                 $status = 'Selesai';
             }
 
-            // Format tanggal pembuatan lengkap
+            // Format complete creation date
             $tanggalPembuatan = $item['created_at']->format('d F Y');
 
             // Set data
@@ -493,35 +521,35 @@ class DataPermintaanMaterial extends Component
             $row++;
         }
 
-        // Style untuk border semua data
+        // Border style for all data
         if ($row > 8) {
             $dataRange = 'A7:E' . ($row - 1);
             $sheet->getStyle($dataRange)->getBorders()->getAllBorders()
                 ->setBorderStyle(Border::BORDER_THIN);
         }
 
-        // Auto width untuk semua kolom
+        // Auto width for all columns
         foreach (range('A', 'E') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        // Set minimum width untuk kolom tertentu
-        $sheet->getColumnDimension('A')->setWidth(15); // Kode
-        $sheet->getColumnDimension('B')->setWidth(20); // Jenis
-        $sheet->getColumnDimension('C')->setWidth(18); // Tanggal Penggunaan
-        $sheet->getColumnDimension('D')->setWidth(20); // Tanggal Pembuatan
+        // Set minimum width for specific columns
+        $sheet->getColumnDimension('A')->setWidth(15); // Code
+        $sheet->getColumnDimension('B')->setWidth(20); // Type
+        $sheet->getColumnDimension('C')->setWidth(18); // Usage Date
+        $sheet->getColumnDimension('D')->setWidth(20); // Creation Date
         $sheet->getColumnDimension('E')->setWidth(15); // Status
 
-        // Generate nama file dengan unit kerja
+        // Generate filename with unit name
         $unitSlug = strtolower(str_replace([' ', '(', ')'], ['_', '', ''], $unitKerjaName));
         $fileName = 'Daftar_Permintaan_' . $unitSlug . '_' . date('Y-m-d_H-i-s') . '.xlsx';
 
-        // Set header untuk file Excel
+        // Set header for Excel file
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header("Content-Disposition: attachment; filename=\"$fileName\"");
         header('Cache-Control: max-age=0');
 
-        // Simpan file ke output
+        // Save file to output
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         return Response::streamDownload(function () use ($writer) {
             $writer->save('php://output');
@@ -535,11 +563,9 @@ class DataPermintaanMaterial extends Component
         $permintaan = DetailPermintaanMaterial::find($id);
         $roles = ['Kepala Seksi', 'Kepala Subbagian', 'Pengurus Barang'];
 
-
         $date = Carbon::parse($permintaan->created_at);
 
         foreach ($roles as $role) {
-            // dd($this->permintaan->user->unit_id);
             $users = User::whereHas('roles', function ($query) use ($role) {
                 $query->where('name', 'LIKE', '%' . $role . '%');
             })
@@ -563,7 +589,6 @@ class DataPermintaanMaterial extends Component
                 ->limit(1)
                 ->get();
 
-
             $propertyKey = Str::slug($role); // Generate dynamic key for roles
             $this->roleList[$propertyKey] = $users;
         }
@@ -577,18 +602,18 @@ class DataPermintaanMaterial extends Component
                 $role = '';
                 $desc = '';
 
-                // BYPASS: Untuk periode 12-19 Agustus 2025, user 252 (Yusuf) yang approval 
-                // akan ditampilkan sebagai "Kepala Seksi Pemeliharaan" 
-                // meskipun role aslinya berbeda
+                // BYPASS: For period 12-19 August 2025, user 252 (Yusuf) who approves
+                // will be displayed as "Kepala Seksi Pemeliharaan"
+                // despite their actual role being different
                 $isTransferPeriod = $item->created_at->between('2025-08-12', '2025-08-19 23:59:59');
                 $isYusufTransfer = $item->user_id == 252;
 
                 if ($isTransferPeriod && $isYusufTransfer) {
-                    // Override role untuk Yusuf selama periode transfer
+                    // Override role for Yusuf during transfer period
                     $role = 'Kepala Seksi Pemeliharaan';
                     $desc = '';
                 } else {
-                    // Logic normal berdasarkan role user
+                    // Normal logic based on user role
                     switch ($item->user->roles->first()->name) {
                         case 'Kepala Seksi':
                             $role = 'Kepala Seksi Pemeliharaan';
@@ -630,9 +655,8 @@ class DataPermintaanMaterial extends Component
                     $isApproved == false => 'Ditolak',
                 };
 
-
                 if ($status === 'Disetujui') {
-                    $desc = $item->keterangan ?? null; // catatan approval
+                    $desc = $item->keterangan ?? null; // approval notes
                 } elseif ($status === 'Ditolak') {
                     $desc = $item->approvable->keterangan_ditolak ?? 'Tidak ada keterangan';
                 }
@@ -671,13 +695,13 @@ class DataPermintaanMaterial extends Component
                 return;
             }
 
-            // Cek apakah user adalah pemohon
+            // Check if user is the requester
             if ($permintaan->user_id !== auth()->id()) {
                 session()->flash('error', 'Anda hanya bisa menghapus permintaan yang Anda buat sendiri.');
                 return;
             }
 
-            // Cek apakah permintaan sudah di-approve/ditolak sama sekali
+            // Check if request has been approved/rejected at all
             $hasAnyApproval = $permintaan->persetujuan()
                 ->whereNotNull('is_approved')
                 ->exists();
@@ -687,13 +711,13 @@ class DataPermintaanMaterial extends Component
                 return;
             }
 
-            // Cek apakah ada status tertentu yang tidak boleh dihapus
+            // Check if there's a specific status that cannot be deleted
             if ($permintaan->status && $permintaan->status > 0) {
                 session()->flash('error', 'Permintaan dengan status ini tidak dapat dihapus.');
                 return;
             }
 
-            // Hapus semua data terkait dalam transaksi database
+            // Delete all related data in database transaction
             DB::transaction(function () use ($permintaan, $reason) {
                 // Log user action with reason
                 \Log::info('User deleted own permintaan', [
@@ -705,13 +729,13 @@ class DataPermintaanMaterial extends Component
                     'deleted_at' => now()
                 ]);
 
-                // Hapus persetujuan yang pending (belum ada keputusan)
+                // Delete pending approvals (no decision yet)
                 $permintaan->persetujuan()->whereNull('is_approved')->delete();
 
-                // Hapus detail permintaan material
+                // Delete permintaan material details
                 $permintaan->permintaanMaterial()->delete();
 
-                // Hapus lampiran foto
+                // Delete photo attachments
                 $lampiran = $permintaan->lampiran();
                 foreach ($lampiran->get() as $foto) {
                     if ($foto->img && Storage::disk('public')->exists($foto->img)) {
@@ -720,7 +744,7 @@ class DataPermintaanMaterial extends Component
                 }
                 $lampiran->delete();
 
-                // Hapus lampiran dokumen
+                // Delete document attachments
                 $lampiranDokumen = $permintaan->lampiranDokumen();
                 foreach ($lampiranDokumen->get() as $dokumen) {
                     if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
@@ -729,7 +753,7 @@ class DataPermintaanMaterial extends Component
                 }
                 $lampiranDokumen->delete();
 
-                // Hapus permintaan utama
+                // Delete main permintaan
                 $permintaan->delete();
             });
 
@@ -739,7 +763,7 @@ class DataPermintaanMaterial extends Component
             }
             // Don't set session flash for delete - handled by event listener
 
-            // Dispatch event untuk refresh halaman
+            // Dispatch event to refresh page
             $this->dispatch('permintaan-deleted', ['message' => $successMessage]);
 
         } catch (\Exception $e) {
@@ -820,7 +844,7 @@ class DataPermintaanMaterial extends Component
             $this->dispatch('admin-delete-completed', ['message' => $successMessage]);
 
             // Refresh data
-            $this->applyFilters();
+            $this->resetPage();
 
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan saat menghapus permintaan: ' . $e->getMessage());
@@ -841,9 +865,101 @@ class DataPermintaanMaterial extends Component
         return redirect()->route('permintaan.admin-edit', $permintaanId);
     }
 
+    public function adminEditStatus($permintaanId, $newStatus, $reason = null)
+    {
+        if (!$this->isAdmin) {
+            session()->flash('error', 'Anda tidak memiliki izin admin.');
+            return;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Find the permintaan
+            $permintaan = DetailPermintaanMaterial::findOrFail($permintaanId);
+
+            $oldStatus = $permintaan->status;
+            $oldStatusText = match ($oldStatus) {
+                null => 'Diproses',
+                0 => 'Ditolak',
+                1 => 'Disetujui',
+                2 => 'Sedang Dikirim',
+                3 => 'Selesai',
+                default => 'Tidak diketahui'
+            };
+
+            $newStatusText = match ($newStatus) {
+                null => 'Diproses',
+                0 => 'Ditolak',
+                1 => 'Disetujui',
+                2 => 'Sedang Dikirim',
+                3 => 'Selesai',
+                default => 'Tidak diketahui'
+            };
+
+            // Update status
+            $permintaan->status = $newStatus;
+            $permintaan->save();
+
+            // Log admin action
+            $logMessage = "Status permintaan diubah oleh admin dari '{$oldStatusText}' menjadi '{$newStatusText}'";
+            if ($reason) {
+                $logMessage .= ". Alasan: {$reason}";
+            }
+
+            // Log to database if you have activity log
+            // ActivityLog::create([
+            //     'user_id' => Auth::id(),
+            //     'action' => 'admin_status_change',
+            //     'model_type' => 'DetailPermintaanMaterial',
+            //     'model_id' => $permintaanId,
+            //     'description' => $logMessage,
+            //     'ip_address' => request()->ip(),
+            //     'user_agent' => request()->userAgent()
+            // ]);
+
+            DB::commit();
+
+            session()->flash('success', "Status permintaan berhasil diubah dari '{$oldStatusText}' menjadi '{$newStatusText}'");
+
+            // Dispatch event to close modal and refresh
+            $this->dispatch('admin-status-changed');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Terjadi kesalahan saat mengubah status: ' . $e->getMessage());
+
+            // Dispatch event to close loading modal even on error
+            $this->dispatch('admin-status-change-completed');
+        }
+    }
+
+    // Pagination methods
+    public function previousPage()
+    {
+        $this->setPage(max(1, $this->getPage() - 1));
+    }
+
+    public function nextPage()
+    {
+        $totalPages = ceil($this->total / $this->perPage);
+        $this->setPage(min($totalPages, $this->getPage() + 1));
+    }
+
+    public function gotoPage($page)
+    {
+        $this->setPage($page);
+    }
+
     public function render()
     {
-        $permintaans = $this->fetchData();
-        return view('livewire.data-permintaan-material', compact('permintaans'));
+        return view('livewire.data-permintaan-material', [
+            'permintaans' => $this->permintaans,
+            'total' => $this->total,
+            'currentPage' => $this->getPage(),
+            'totalPages' => ceil($this->total / $this->perPage),
+            'from' => (($this->getPage() - 1) * $this->perPage) + 1,
+            'to' => min($this->getPage() * $this->perPage, $this->total)
+        ]);
     }
 }

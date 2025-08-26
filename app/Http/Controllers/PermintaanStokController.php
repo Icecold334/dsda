@@ -85,7 +85,7 @@ class PermintaanStokController extends Controller
             ? DetailPermintaanStok::find($id)
             : ($tipe === 'peminjaman' ? DetailPeminjamanAset::find($id) : null);
 
-        $type = Auth::user()->unitKerja->hak;
+        $type = Auth::user()->unitKerja->hak ?? 0;
         if (!$type) {
             $permintaan_material = DetailPermintaanMaterial::find($id);
             if ($permintaan_material) {

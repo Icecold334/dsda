@@ -1,5 +1,5 @@
 <x-body>
-    @if (auth()->user()->unitKerja->hak)
+    @if (auth()->user()->unitKerja->hak??0)
 
         <div class="flex justify-between py-2 mb-3">
             <h1 class="text-2xl font-bold text-primary-900 ">DETAIL {{ Str::upper($tipe) }}</h1>
@@ -7,13 +7,13 @@
                 @if ($permintaan->status || $permintaan->cancel === 0)
                     <livewire:pdf-form :permintaan="$permintaan">
                 @endif
-                @if ($tipe == 'peminjaman')
-                    <a href="/permintaan-stok"
-                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
-                @else
-                    <a href="/permintaan{{ $permintaan->jenis_id == 3 ? '-stok' : ($permintaan->jenis_id == 2 ? '/spare-part' : '/material') }}"
-                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
-                @endif
+                    @if ($tipe == 'peminjaman')
+                        <a href="/permintaan-stok"
+                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
+                    @else
+                        <a href="/permintaan{{ $permintaan->jenis_id == 3 ? '-stok' : ($permintaan->jenis_id == 2 ? '/spare-part' : '/material') }}"
+                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Kembali</a>
+                    @endif
             </div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -26,9 +26,8 @@
                         </tr>
                         <tr class="font-semibold">
                             <td>Status</td>
-                            <td> <span
-                                    class="
-        bg-{{ $permintaan->cancel === 1
+                            <td> <span class="
+            bg-{{ $permintaan->cancel === 1
             ? 'secondary'
             : ($permintaan->cancel === 0 && $permintaan->proses === 1
                 ? 'primary'
@@ -39,7 +38,7 @@
                         : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
                             ? 'success'
                             : 'danger')))) }}-600
-        text-{{ $permintaan->cancel === 1
+            text-{{ $permintaan->cancel === 1
             ? 'secondary'
             : ($permintaan->cancel === 0 && $permintaan->proses === 1
                 ? 'primary'
@@ -50,29 +49,29 @@
                         : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
                             ? 'success'
                             : 'danger')))) }}-100
-        text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
+            text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
 
                                     {{ $permintaan->cancel === 1
-                                        ? 'dibatalkan'
-                                        : ($permintaan->cancel === 0 && $permintaan->proses === 1
-                                            ? 'selesai'
-                                            : ($tipe === 'permintaan' &&
-                                            $permintaan->cancel === 0 &&
-                                            $permintaan->proses === null &&
-                                            $permintaan->kategori_id != 6
-                                                ? 'siap digunkan atau siap diambil'
-                                                : ($permintaan->cancel === 0 &&
-                                                $permintaan->proses === null &&
-                                                $tipe == 'permintaan' &&
-                                                $permintaan->kategori_id == 6
-                                                    ? 'sudah diambil'
-                                                    : ($permintaan->cancel === 0 && $permintaan->proses === null && $tipe === 'peminjaman'
-                                                        ? 'dipinjam'
-                                                        : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
-                                                            ? 'diproses'
-                                                            : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
-                                                                ? 'disetujui'
-                                                                : 'ditolak')))))) }}
+            ? 'dibatalkan'
+            : ($permintaan->cancel === 0 && $permintaan->proses === 1
+                ? 'selesai'
+                : ($tipe === 'permintaan' &&
+                    $permintaan->cancel === 0 &&
+                    $permintaan->proses === null &&
+                    $permintaan->kategori_id != 6
+                    ? 'siap digunkan atau siap diambil'
+                    : ($permintaan->cancel === 0 &&
+                        $permintaan->proses === null &&
+                        $tipe == 'permintaan' &&
+                        $permintaan->kategori_id == 6
+                        ? 'sudah diambil'
+                        : ($permintaan->cancel === 0 && $permintaan->proses === null && $tipe === 'peminjaman'
+                            ? 'dipinjam'
+                            : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === null
+                                ? 'diproses'
+                                : ($permintaan->cancel === null && $permintaan->proses === null && $permintaan->status === 1
+                                    ? 'disetujui'
+                                    : 'ditolak')))))) }}
                                 </span>
 
                             </td>
@@ -86,8 +85,8 @@
                         <tr class="font-semibold">
                             <td>Tanggal {{ Str::ucfirst($tipe) }}</td>
                             <td> {{ $permintaan->kategori_id == 4
-                                ? date('j F Y - H:i', $permintaan->tanggal_permintaan)
-                                : date('j F Y', $permintaan->tanggal_permintaan) }}
+            ? date('j F Y - H:i', $permintaan->tanggal_permintaan)
+            : date('j F Y', $permintaan->tanggal_permintaan) }}
                             </td>
                         </tr>
                         @if ($permintaan->kategori_id == 4)
@@ -149,11 +148,12 @@
                             <td>{{ $permintaan->keterangan ?? '---' }}</td>
                         </tr>
                         @if (
-                            $permintaan->kategori_id == 4 &&
+                                $permintaan->kategori_id == 4 &&
                                 $permintaan->status === 1 &&
                                 empty($permintaan->file) &&
                                 $tipe == 'permintaan' &&
-                                auth()->id() == $permintaan->user_id)
+                                auth()->id() == $permintaan->user_id
+                            )
                             <tr>
                                 <livewire:spj-button :permintaan="$permintaan">
                             </tr>
@@ -162,8 +162,8 @@
                             <tr>
                                 <td colspan="2">
                                     <span class="text-success-600 font-semibold">File SPJ</span><br>
-                                    <a href="{{ asset('storage/pengembalianUmum/' . $permintaan->file) }}"
-                                        target="_blank" download class="text-blue-600 underline hover:text-blue-800">
+                                    <a href="{{ asset('storage/pengembalianUmum/' . $permintaan->file) }}" target="_blank"
+                                        download class="text-blue-600 underline hover:text-blue-800">
                                         {{ $permintaan->file }}
                                     </a>
                                 </td>
@@ -265,12 +265,13 @@
                             </tr>
                         @endif
                         @if (
-                            $tipe == 'peminjaman' &&
+                                $tipe == 'peminjaman' &&
                                 $permintaan->status === 1 &&
                                 $permintaan->cancel === 0 &&
                                 empty($permintaan->img_pengembalian) &&
                                 auth()->id() == $permintaan->user_id &&
-                                Str::lower($permintaan->kategori->nama) !== 'peralatan kantor')
+                                Str::lower($permintaan->kategori->nama) !== 'peralatan kantor'
+                            )
                             <tr>
                                 <livewire:pengembalian-button :permintaan="$permintaan">
                             </tr>
@@ -358,37 +359,36 @@
                 <x-card title="daftar permintaan">
                     @if ($tipe == 'permintaan')
                         <livewire:list-permintaan-form :permintaan="$permintaan">
-                        @else
-                            <livewire:list-peminjaman-form :peminjaman="$permintaan">
-                    @endif
-                    @if ($tipe == 'permintaan')
-                        @if ($permintaan->kategori_id === 6)
-                            <livewire:approval-permintaan-voucher :permintaan="$permintaan">
-                            @elseif($permintaan->kategori_id === 5)
-                                <livewire:approval-permintaan-perbaikan-kdo :permintaan="$permintaan">
-                                @elseif($permintaan->kategori_id === 4)
-                                    <livewire:approval-permintaan-konsumsi :permintaan="$permintaan">
-                                    @elseif(in_array($permintaan->kategori_id, [1, 2, 3]))
-                                        <livewire:approval-permintaan-a-t-k :permintaan="$permintaan">
-                                        @else
-                                            <livewire:approval-permintaan :permintaan="$permintaan">
-                        @endif
-                    @elseif ($tipe == 'peminjaman')
-                        @if ($permintaan->kategori_id == 1)
-                            <livewire:approval-peminjaman-k-d-o :permintaan="$permintaan">
-                            @elseif($permintaan->kategori_id === 2)
-                                <livewire:approval-peminjaman-ruangan :permintaan="$permintaan">
-                                @else
-                                    <livewire:approval-peminjaman-peralatan :permintaan="$permintaan">
-                        @endif
                     @else
-                        <livewire:approval-permintaan :permintaan="$permintaan">
-                    @endif
+                            <livewire:list-peminjaman-form :peminjaman="$permintaan">
+                        @endif
+                            @if ($tipe == 'permintaan')
+                                @if ($permintaan->kategori_id === 6)
+                                    <livewire:approval-permintaan-voucher :permintaan="$permintaan">
+                                @elseif($permintaan->kategori_id === 5)
+                                        <livewire:approval-permintaan-perbaikan-kdo :permintaan="$permintaan">
+                                    @elseif($permintaan->kategori_id === 4)
+                                            <livewire:approval-permintaan-konsumsi :permintaan="$permintaan">
+                                        @elseif(in_array($permintaan->kategori_id, [1, 2, 3]))
+                                                <livewire:approval-permintaan-a-t-k :permintaan="$permintaan">
+                                            @else
+                                                    <livewire:approval-permintaan :permintaan="$permintaan">
+                                                @endif
+                            @elseif ($tipe == 'peminjaman')
+                                                    @if ($permintaan->kategori_id == 1)
+                                                        <livewire:approval-peminjaman-k-d-o :permintaan="$permintaan">
+                                                    @elseif($permintaan->kategori_id === 2)
+                                                            <livewire:approval-peminjaman-ruangan :permintaan="$permintaan">
+                                                        @else
+                                                                <livewire:approval-peminjaman-peralatan :permintaan="$permintaan">
+                                                            @endif
+                                                @else
+                                                                <livewire:approval-permintaan :permintaan="$permintaan">
+                                                            @endif
                 </x-card>
             </div>
         </div>
     @else
-        <livewire:show-permintaan-material :permintaan='$permintaan'>
-    @endif
+    <livewire:show-permintaan-material :permintaan='$permintaan'>
+        @endif
 </x-body>
-
