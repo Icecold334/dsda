@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up()
     {
 
@@ -378,22 +377,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-
-
-
-
-
-
-        Schema::create('unit_kerja', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama', 255);
-            $table->foreignId('parent_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
-            $table->string('kode', 50)->nullable();
-            $table->integer('hak')->nullable();
-            $table->text('keterangan')->nullable();
-            $table->text('alamat')->nullable();
-            $table->timestamps();
-        });
     }
 
     public function down()

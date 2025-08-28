@@ -40,6 +40,10 @@ class DataPermintaanMaterial extends Component
     // Admin properties
     public $isAdmin = false;
 
+    // Additional properties
+    public $unit_id;
+    public $Rkb;
+
     // public $permintaans;
 
 
@@ -47,6 +51,13 @@ class DataPermintaanMaterial extends Component
     public function mount()
     {
         $this->tipe = Request::segment(2);
+
+        // Initialize unit_id from user's unit or default
+        $this->unit_id = Auth::user()->unit_id ?? Auth::user()->unitKerja?->parent_id ?? null;
+
+        // Initialize Rkb based on unit
+        $this->Rkb = $this->unit_id == 1000 ? 'RAB' : 'RKB';
+
         $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::whereNull('parent_id')->get();
         $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');
 
@@ -229,7 +240,7 @@ class DataPermintaanMaterial extends Component
         return [
             'id' => $item->id,
             'kode' => $item->nodin,
-            'nomor_rab' => $withRab ? 'Dengan ' . $this->Rkb : 'Tanpa ' . $this->Rkb,
+            'nomor_rab' => $withRab ? 'Dengan RAB' : 'Tanpa RAB',
             'tanggal' => $item->tanggal_permintaan,
             'kategori_id' => $item->kategori_id,
             'kategori' => $tipe === 'permintaan' ? $item->kategoriStok : $item->kategori,
@@ -262,6 +273,92 @@ class DataPermintaanMaterial extends Component
     private function getJenisId()
     {
         return $this->tipe === 'material' ? 1 : ($this->tipe === 'spare-part' ? 2 : 3);
+    }
+
+    /**
+     * Get approval information for a specific permintaan
+     */
+    private function getApprovalInfo($permintaanId, $tipe)
+    {
+        $approvals = [
+            'kepala_seksi' => ['status' => '-', 'tanggal' => '-'],
+            'kasudin' => ['status' => '-', 'tanggal' => '-'],
+            'kepala_subbagian' => ['status' => '-', 'tanggal' => '-'],
+            'pengurus_barang' => ['status' => '-', 'tanggal' => '-']
+        ];
+
+        if ($tipe === 'permintaan') {
+            $model = DetailPermintaanMaterial::class;
+            $persetujuanList = Persetujuan::where('approvable_id', $permintaanId)
+                ->where('approvable_type', $model)
+                ->with('user.roles')
+                ->get();
+
+            foreach ($persetujuanList as $persetujuan) {
+                $userRoles = $persetujuan->user->roles->pluck('name');
+
+                // Check for Kepala Seksi
+                if (
+                    $userRoles->contains(function ($role) {
+                        return str_contains($role, 'Kepala Seksi');
+                    })
+                ) {
+                    $approvals['kepala_seksi'] = [
+                        'status' => $this->getApprovalStatus($persetujuan->is_approved),
+                        'tanggal' => $persetujuan->created_at ? $persetujuan->created_at->format('d/m/Y H:i') : '-'
+                    ];
+                }
+
+                // Check for Kasudin (Kepala Suku Dinas)
+                if (
+                    $userRoles->contains(function ($role) {
+                        return str_contains($role, 'Kepala Suku Dinas') || str_contains($role, 'Kasudin');
+                    })
+                ) {
+                    $approvals['kasudin'] = [
+                        'status' => $this->getApprovalStatus($persetujuan->is_approved),
+                        'tanggal' => $persetujuan->created_at ? $persetujuan->created_at->format('d/m/Y H:i') : '-'
+                    ];
+                }
+
+                // Check for Kepala Subbagian
+                if (
+                    $userRoles->contains(function ($role) {
+                        return str_contains($role, 'Kepala Subbagian');
+                    })
+                ) {
+                    $approvals['kepala_subbagian'] = [
+                        'status' => $this->getApprovalStatus($persetujuan->is_approved),
+                        'tanggal' => $persetujuan->created_at ? $persetujuan->created_at->format('d/m/Y H:i') : '-'
+                    ];
+                }
+
+                // Check for Pengurus Barang
+                if (
+                    $userRoles->contains(function ($role) {
+                        return str_contains($role, 'Pengurus Barang');
+                    })
+                ) {
+                    $approvals['pengurus_barang'] = [
+                        'status' => $this->getApprovalStatus($persetujuan->is_approved),
+                        'tanggal' => $persetujuan->created_at ? $persetujuan->created_at->format('d/m/Y H:i') : '-'
+                    ];
+                }
+            }
+        }
+
+        return $approvals;
+    }
+
+    /**
+     * Get approval status text
+     */
+    private function getApprovalStatus($isApproved)
+    {
+        if (is_null($isApproved)) {
+            return 'Diproses';
+        }
+        return $isApproved ? 'Disetujui' : 'Ditolak';
     }
 
     public function tambahPermintaan()
@@ -303,16 +400,16 @@ class DataPermintaanMaterial extends Component
         // Header judul
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setCellValue('A2', 'DAFTAR PERMINTAAN')
-            ->mergeCells('A2:E2')
+            ->mergeCells('A2:N2')
             ->getStyle('A2')->getFont()->setBold(true)->setSize(14);
         $sheet->setCellValue('A3', strtoupper('Dinas Sumber Daya Air (DSDA)'))
-            ->mergeCells('A3:E3')
+            ->mergeCells('A3:N3')
             ->getStyle('A3')->getFont()->setBold(true);
         $sheet->setCellValue('A4', $filterInfo)
-            ->mergeCells('A4:E4')
+            ->mergeCells('A4:N4')
             ->getStyle('A4')->getFont()->setItalic(true);
         $sheet->setCellValue('A5', 'Periode: ' . now()->format('d F Y'))
-            ->mergeCells('A5:E5')
+            ->mergeCells('A5:N5')
             ->getStyle('A5')->getFont()->setBold(true);
 
         // Atur rata tengah untuk header
@@ -322,12 +419,19 @@ class DataPermintaanMaterial extends Component
 
         // Header tabel
         $sheet->setCellValue('A7', 'KODE');
-        $sheet->setCellValue('B7', 'JENIS LAYANAN');
-        $sheet->setCellValue('C7', 'TANGGAL PENGGUNAAN');
-        $sheet->setCellValue('D7', 'UNIT KERJA');
-        $sheet->setCellValue('E7', 'STATUS');
-
-        // Sub-header 
+        $sheet->setCellValue('B7', 'RAB');
+        $sheet->setCellValue('C7', 'JENIS LAYANAN');
+        $sheet->setCellValue('D7', 'TANGGAL PENGGUNAAN');
+        $sheet->setCellValue('E7', 'UNIT KERJA');
+        $sheet->setCellValue('F7', 'STATUS');
+        $sheet->setCellValue('G7', 'KEPALA SEKSI');
+        $sheet->setCellValue('H7', 'TGL KEPALA SEKSI');
+        $sheet->setCellValue('I7', 'KASUDIN');
+        $sheet->setCellValue('J7', 'TGL KASUDIN');
+        $sheet->setCellValue('K7', 'KEPALA SUBBAGIAN');
+        $sheet->setCellValue('L7', 'TGL KEPALA SUBBAGIAN');
+        $sheet->setCellValue('M7', 'PENGURUS BARANG');
+        $sheet->setCellValue('N7', 'TGL PENGURUS BARANG');        // Sub-header 
         // Detail Aset
         // $sheet->setCellValue('C8', 'MERK')
         //     ->setCellValue('D8', 'TIPE')
@@ -335,34 +439,44 @@ class DataPermintaanMaterial extends Component
 
         // Style header tabel
 
-        $sheet->getStyle('A7:E7')->getFont()->setBold(true);
-        $sheet->getStyle('A7:E7')->getFont()->getColor()->setARGB('FFFFFFFF');
-        $sheet->getStyle('A7:E7')
+        $sheet->getStyle('A7:N7')->getFont()->setBold(true);
+        $sheet->getStyle('A7:N7')->getFont()->getColor()->setARGB('FFFFFFFF');
+        $sheet->getStyle('A7:N7')
             ->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('A7:E7');
+        $sheet->getStyle('A7:N7');
         //     ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         // $sheet->mergeCells('C7:E7');
 
         // $sheet->getStyle('C8:E8')->getFill()
         //     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
         //     ->getStartColor()->setARGB('FF000000');
-        $sheet->getStyle('A7:E7')->getFill() // E26B0A
+
+        $sheet->getStyle('A7:N7')->getFill() // E26B0A
             ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
             ->getStartColor()->setARGB('FF806000');
         $row = 8; // Mulai dari baris ke-9
 
         foreach ($data as $barang) {
+            // Get approval information for this permintaan
+            $approvals = $this->getApprovalInfo($barang['id'], $barang['tipe']);
+
             // Set data utama barang (kolom A dan B)
             $sheet->setCellValue('A' . $row, $barang['kode'])
-                ->setCellValue('B' . $row, $barang['tipe']);
+                ->setCellValue('B' . $row, $barang['nomor_rab'])
+                ->setCellValue('C' . $row, $barang['tipe']);
 
-            // Set data terkait barang (kolom C sampai E)
-            $sheet->setCellValue('C' . $row, date('j F Y', $barang['tanggal']))
-                ->setCellValue('D' . $row, $barang['sub_unit']?->nama ?? $barang['unit']?->nama)
-                ->setCellValue(
-                    'E' . $row,
-                    $barang['cancel'] === 1 ? 'dibatalkan' : ($barang['cancel'] === 0 && $barang['proses'] === 1 ? 'selesai' : ($barang['cancel'] === 0 && $barang['proses'] === null ? 'siap diambil' : ($barang['cancel'] === null && $barang['proses'] === null && $barang['status'] === null ? 'diproses' : ($barang['cancel'] === null && $barang['proses'] === null && $barang['status'] === 1 ? 'disetujui' : 'ditolak'))))
-                );
+            // Set data terkait barang (kolom D sampai N)
+            $sheet->setCellValue('D' . $row, date('j F Y', $barang['tanggal']))
+                ->setCellValue('E' . $row, $barang['sub_unit']?->nama ?? $barang['unit']?->nama)
+                ->setCellValue('F' . $row, $barang['status_teks'] ?? '-')
+                ->setCellValue('G' . $row, $approvals['kepala_seksi']['status'] ?? '-')
+                ->setCellValue('H' . $row, $approvals['kepala_seksi']['tanggal'] ?? '-')
+                ->setCellValue('I' . $row, $approvals['kasudin']['status'] ?? '-')
+                ->setCellValue('J' . $row, $approvals['kasudin']['tanggal'] ?? '-')
+                ->setCellValue('K' . $row, $approvals['kepala_subbagian']['status'] ?? '-')
+                ->setCellValue('L' . $row, $approvals['kepala_subbagian']['tanggal'] ?? '-')
+                ->setCellValue('M' . $row, $approvals['pengurus_barang']['status'] ?? '-')
+                ->setCellValue('N' . $row, $approvals['pengurus_barang']['tanggal'] ?? '-');
 
             // Pindah ke baris berikutnya
             $row++;
@@ -378,8 +492,15 @@ class DataPermintaanMaterial extends Component
         $sheet->getColumnDimension('C')->setAutoSize(true);
         $sheet->getColumnDimension('D')->setAutoSize(true);
         $sheet->getColumnDimension('E')->setAutoSize(true);
-
-
+        $sheet->getColumnDimension('F')->setAutoSize(true);
+        $sheet->getColumnDimension('G')->setAutoSize(true);
+        $sheet->getColumnDimension('H')->setAutoSize(true);
+        $sheet->getColumnDimension('I')->setAutoSize(true);
+        $sheet->getColumnDimension('J')->setAutoSize(true);
+        $sheet->getColumnDimension('K')->setAutoSize(true);
+        $sheet->getColumnDimension('L')->setAutoSize(true);
+        $sheet->getColumnDimension('M')->setAutoSize(true);
+        $sheet->getColumnDimension('N')->setAutoSize(true);
 
         $fileName = 'Daftar Pelayanan Umum Dinas Sumber Daya Air (DSDA).xlsx';
 
