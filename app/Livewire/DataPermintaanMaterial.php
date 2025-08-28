@@ -242,6 +242,8 @@ class DataPermintaanMaterial extends Component
             'kode' => $item->nodin,
             'nomor_rab' => $withRab ? 'Dengan RAB' : 'Tanpa RAB',
             'tanggal' => $item->tanggal_permintaan,
+            'tanggal_dibuat' => $item->created_at->format('d/m/Y'),
+            'jam_dibuat' => $item->created_at->format('H:i:s'),
             'kategori_id' => $item->kategori_id,
             'kategori' => $tipe === 'permintaan' ? $item->kategoriStok : $item->kategori,
             'unit_id' => $item->unit_id,
@@ -351,6 +353,52 @@ class DataPermintaanMaterial extends Component
     }
 
     /**
+     * Calculate speed from created_at to pengurus barang approval
+     */
+    private function calculateSpeed($permintaanId, $tipe)
+    {
+        if ($tipe !== 'permintaan') {
+            return ['hari' => '-', 'jam' => '-'];
+        }
+
+        try {
+            $permintaan = DetailPermintaanMaterial::find($permintaanId);
+            if (!$permintaan) {
+                return ['hari' => '-', 'jam' => '-'];
+            }
+
+            // Get pengurus barang approval
+            $pengurusApproval = Persetujuan::where('approvable_id', $permintaanId)
+                ->where('approvable_type', DetailPermintaanMaterial::class)
+                ->whereHas('user.roles', function ($query) {
+                    $query->where('name', 'like', '%Pengurus Barang%');
+                })
+                ->whereNotNull('is_approved')
+                ->first();
+
+            if (!$pengurusApproval) {
+                return ['hari' => 'Belum diapprove', 'jam' => '-'];
+            }
+
+            $createdAt = $permintaan->created_at;
+            $approvedAt = $pengurusApproval->created_at;
+            
+            $diff = $createdAt->diff($approvedAt);
+            
+            // Format days
+            $hari = $diff->d > 0 ? $diff->d . ' hari' : '0 hari';
+            
+            // Format time as HH:MM:SS
+            $jam = sprintf('%02d:%02d:%02d', $diff->h, $diff->i, $diff->s);
+            
+            return ['hari' => $hari, 'jam' => $jam];
+            
+        } catch (\Exception $e) {
+            return ['hari' => 'Error', 'jam' => '-'];
+        }
+    }
+
+    /**
      * Get approval status text
      */
     private function getApprovalStatus($isApproved)
@@ -400,16 +448,16 @@ class DataPermintaanMaterial extends Component
         // Header judul
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setCellValue('A2', 'DAFTAR PERMINTAAN')
-            ->mergeCells('A2:N2')
+            ->mergeCells('A2:Q2')
             ->getStyle('A2')->getFont()->setBold(true)->setSize(14);
         $sheet->setCellValue('A3', strtoupper('Dinas Sumber Daya Air (DSDA)'))
-            ->mergeCells('A3:N3')
+            ->mergeCells('A3:Q3')
             ->getStyle('A3')->getFont()->setBold(true);
         $sheet->setCellValue('A4', $filterInfo)
-            ->mergeCells('A4:N4')
+            ->mergeCells('A4:Q4')
             ->getStyle('A4')->getFont()->setItalic(true);
         $sheet->setCellValue('A5', 'Periode: ' . now()->format('d F Y'))
-            ->mergeCells('A5:N5')
+            ->mergeCells('A5:Q5')
             ->getStyle('A5')->getFont()->setBold(true);
 
         // Atur rata tengah untuk header
@@ -424,14 +472,18 @@ class DataPermintaanMaterial extends Component
         $sheet->setCellValue('D7', 'TANGGAL PENGGUNAAN');
         $sheet->setCellValue('E7', 'UNIT KERJA');
         $sheet->setCellValue('F7', 'STATUS');
-        $sheet->setCellValue('G7', 'KEPALA SEKSI');
-        $sheet->setCellValue('H7', 'TGL KEPALA SEKSI');
-        $sheet->setCellValue('I7', 'KASUDIN');
-        $sheet->setCellValue('J7', 'TGL KASUDIN');
-        $sheet->setCellValue('K7', 'KEPALA SUBBAGIAN');
-        $sheet->setCellValue('L7', 'TGL KEPALA SUBBAGIAN');
-        $sheet->setCellValue('M7', 'PENGURUS BARANG');
-        $sheet->setCellValue('N7', 'TGL PENGURUS BARANG');        // Sub-header 
+        $sheet->setCellValue('G7', 'TANGGAL DIBUAT');
+        $sheet->setCellValue('H7', 'JAM DIBUAT');
+        $sheet->setCellValue('I7', 'KEPALA SEKSI');
+        $sheet->setCellValue('J7', 'TGL KEPALA SEKSI');
+        $sheet->setCellValue('K7', 'KASUDIN');
+        $sheet->setCellValue('L7', 'TGL KASUDIN');
+        $sheet->setCellValue('M7', 'KEPALA SUBBAGIAN');
+        $sheet->setCellValue('N7', 'TGL KEPALA SUBBAGIAN');
+        $sheet->setCellValue('O7', 'PENGURUS BARANG');
+        $sheet->setCellValue('P7', 'TGL PENGURUS BARANG');
+        $sheet->setCellValue('Q7', 'HARI');
+        $sheet->setCellValue('R7', 'JAM');        // Sub-header 
         // Detail Aset
         // $sheet->setCellValue('C8', 'MERK')
         //     ->setCellValue('D8', 'TIPE')
@@ -439,11 +491,11 @@ class DataPermintaanMaterial extends Component
 
         // Style header tabel
 
-        $sheet->getStyle('A7:N7')->getFont()->setBold(true);
-        $sheet->getStyle('A7:N7')->getFont()->getColor()->setARGB('FFFFFFFF');
-        $sheet->getStyle('A7:N7')
+        $sheet->getStyle('A7:R7')->getFont()->setBold(true);
+        $sheet->getStyle('A7:R7')->getFont()->getColor()->setARGB('FFFFFFFF');
+        $sheet->getStyle('A7:R7')
             ->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('A7:N7');
+        $sheet->getStyle('A7:R7');
         //     ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         // $sheet->mergeCells('C7:E7');
 
@@ -451,7 +503,7 @@ class DataPermintaanMaterial extends Component
         //     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
         //     ->getStartColor()->setARGB('FF000000');
 
-        $sheet->getStyle('A7:N7')->getFill() // E26B0A
+        $sheet->getStyle('A7:R7')->getFill() // E26B0A
             ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
             ->getStartColor()->setARGB('FF806000');
         $row = 8; // Mulai dari baris ke-9
@@ -459,24 +511,31 @@ class DataPermintaanMaterial extends Component
         foreach ($data as $barang) {
             // Get approval information for this permintaan
             $approvals = $this->getApprovalInfo($barang['id'], $barang['tipe']);
-
+            
+            // Calculate speed (kecepatan) from created_at to pengurus barang approval
+            $kecepatan = $this->calculateSpeed($barang['id'], $barang['tipe']);
+            
             // Set data utama barang (kolom A dan B)
             $sheet->setCellValue('A' . $row, $barang['kode'])
                 ->setCellValue('B' . $row, $barang['nomor_rab'])
                 ->setCellValue('C' . $row, $barang['tipe']);
 
-            // Set data terkait barang (kolom D sampai N)
+            // Set data terkait barang (kolom D sampai R)
             $sheet->setCellValue('D' . $row, date('j F Y', $barang['tanggal']))
                 ->setCellValue('E' . $row, $barang['sub_unit']?->nama ?? $barang['unit']?->nama)
                 ->setCellValue('F' . $row, $barang['status_teks'] ?? '-')
-                ->setCellValue('G' . $row, $approvals['kepala_seksi']['status'] ?? '-')
-                ->setCellValue('H' . $row, $approvals['kepala_seksi']['tanggal'] ?? '-')
-                ->setCellValue('I' . $row, $approvals['kasudin']['status'] ?? '-')
-                ->setCellValue('J' . $row, $approvals['kasudin']['tanggal'] ?? '-')
-                ->setCellValue('K' . $row, $approvals['kepala_subbagian']['status'] ?? '-')
-                ->setCellValue('L' . $row, $approvals['kepala_subbagian']['tanggal'] ?? '-')
-                ->setCellValue('M' . $row, $approvals['pengurus_barang']['status'] ?? '-')
-                ->setCellValue('N' . $row, $approvals['pengurus_barang']['tanggal'] ?? '-');
+                ->setCellValue('G' . $row, $barang['tanggal_dibuat'] ?? '-')
+                ->setCellValue('H' . $row, $barang['jam_dibuat'] ?? '-')
+                ->setCellValue('I' . $row, $approvals['kepala_seksi']['status'] ?? '-')
+                ->setCellValue('J' . $row, $approvals['kepala_seksi']['tanggal'] ?? '-')
+                ->setCellValue('K' . $row, $approvals['kasudin']['status'] ?? '-')
+                ->setCellValue('L' . $row, $approvals['kasudin']['tanggal'] ?? '-')
+                ->setCellValue('M' . $row, $approvals['kepala_subbagian']['status'] ?? '-')
+                ->setCellValue('N' . $row, $approvals['kepala_subbagian']['tanggal'] ?? '-')
+                ->setCellValue('O' . $row, $approvals['pengurus_barang']['status'] ?? '-')
+                ->setCellValue('P' . $row, $approvals['pengurus_barang']['tanggal'] ?? '-')
+                ->setCellValue('Q' . $row, $kecepatan['hari'])
+                ->setCellValue('R' . $row, $kecepatan['jam']);
 
             // Pindah ke baris berikutnya
             $row++;
@@ -501,6 +560,10 @@ class DataPermintaanMaterial extends Component
         $sheet->getColumnDimension('L')->setAutoSize(true);
         $sheet->getColumnDimension('M')->setAutoSize(true);
         $sheet->getColumnDimension('N')->setAutoSize(true);
+        $sheet->getColumnDimension('O')->setAutoSize(true);
+        $sheet->getColumnDimension('P')->setAutoSize(true);
+        $sheet->getColumnDimension('Q')->setAutoSize(true);
+        $sheet->getColumnDimension('R')->setAutoSize(true);
 
         $fileName = 'Daftar Pelayanan Umum Dinas Sumber Daya Air (DSDA).xlsx';
 
