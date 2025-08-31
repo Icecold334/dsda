@@ -121,7 +121,7 @@
 
                             {{-- Edit Draft Button - Only for draft status --}}
                             @if ($permintaan['status'] === 4 && $permintaan['can_edit'])
-                                <a href="/permintaan/edit/material/{{ $permintaan['id'] }}"
+                                <a 
                                     class="text-yellow-600 hover:text-white hover:bg-yellow-600 px-3 py-2 rounded border border-yellow-600 transition-colors duration-200"
                                     data-tooltip-target="tooltip-edit-draft-{{ $permintaan['id'] }}">
                                     <i class="fa-solid fa-edit"></i>
