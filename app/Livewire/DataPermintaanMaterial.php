@@ -294,22 +294,31 @@ class DataPermintaanMaterial extends Component
                 $query->whereHas('user.unitKerja', function ($unit) {
                     $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                 });
-            })->get()->map(function ($perm) {
-                $statusMap = [
-                    null => ['label' => 'Diproses', 'color' => 'warning'],
-                    0 => ['label' => 'Ditolak', 'color' => 'danger'],
-                    1 => ['label' => 'Disetujui', 'color' => 'success'],
-                    2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
-                    3 => ['label' => 'Selesai', 'color' => 'primary'],
-                    4 => ['label' => 'Draft', 'color' => 'secondary'],
-                ];
+            })
+                // ADD THIS: Filter draft items to only show to their creators
+                ->where(function ($query) {
+                    $query->where('status', '!=', 4) // Non-draft items visible to all
+                        ->orWhere(function ($subQuery) {
+                            $subQuery->where('status', 4) // Draft items only visible to creator
+                                ->where('user_id', auth()->id());
+                        });
+                })
+                ->get()->map(function ($perm) {
+                    $statusMap = [
+                        null => ['label' => 'Diproses', 'color' => 'warning'],
+                        0 => ['label' => 'Ditolak', 'color' => 'danger'],
+                        1 => ['label' => 'Disetujui', 'color' => 'success'],
+                        2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
+                        3 => ['label' => 'Selesai', 'color' => 'primary'],
+                        4 => ['label' => 'Draft', 'color' => 'secondary'],
+                    ];
 
-                // Add dynamic properties
-                $perm->status_teks = $statusMap[$perm->status]['label'] ?? 'Tidak diketahui';
-                $perm->status_warna = $statusMap[$perm->status]['color'] ?? 'gray';
+                    // Add dynamic properties
+                    $perm->status_teks = $statusMap[$perm->status]['label'] ?? 'Tidak diketahui';
+                    $perm->status_warna = $statusMap[$perm->status]['color'] ?? 'gray';
 
-                return $perm;
-            });
+                    return $perm;
+                });
         }
 
         return $permintaan->isNotEmpty() ? $permintaan->map(function ($item) {
@@ -726,7 +735,7 @@ class DataPermintaanMaterial extends Component
 
             // Allow deletion if it's a draft (status 4) or if no approval has been made
             $isDraft = $permintaan->status === 4;
-            
+
             if ($hasAnyApproval && !$isDraft) {
                 session()->flash('error', 'Permintaan yang sudah di-proses (disetujui/ditolak) tidak dapat dihapus.');
                 return;
