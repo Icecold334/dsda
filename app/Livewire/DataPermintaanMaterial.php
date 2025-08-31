@@ -724,13 +724,16 @@ class DataPermintaanMaterial extends Component
                 ->whereNotNull('is_approved')
                 ->exists();
 
-            if ($hasAnyApproval) {
+            // Allow deletion if it's a draft (status 4) or if no approval has been made
+            $isDraft = $permintaan->status === 4;
+            
+            if ($hasAnyApproval && !$isDraft) {
                 session()->flash('error', 'Permintaan yang sudah di-proses (disetujui/ditolak) tidak dapat dihapus.');
                 return;
             }
 
-            // Check if there's a specific status that cannot be deleted
-            if ($permintaan->status && $permintaan->status > 0) {
+            // Check if there's a specific status that cannot be deleted (except draft)
+            if ($permintaan->status && $permintaan->status > 0 && $permintaan->status !== 4) {
                 session()->flash('error', 'Permintaan dengan status ini tidak dapat dihapus.');
                 return;
             }
@@ -743,6 +746,7 @@ class DataPermintaanMaterial extends Component
                     'user_name' => auth()->user()->name,
                     'permintaan_id' => $permintaan->id,
                     'permintaan_nodin' => $permintaan->nodin,
+                    'status' => $permintaan->status,
                     'reason' => $reason,
                     'deleted_at' => now()
                 ]);
