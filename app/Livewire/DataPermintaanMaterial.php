@@ -122,6 +122,10 @@ class DataPermintaanMaterial extends Component
                     return is_null($item['status']);
                 }
 
+                if ($statusFilter === 'draft') {
+                    return $item['status'] === 4;
+                }
+
                 $statusMap = [
                     'ditolak' => 0,
                     'disetujui' => 1,
@@ -182,6 +186,10 @@ class DataPermintaanMaterial extends Component
 
                 if ($statusFilter === 'diproses') {
                     return is_null($item['status']);
+                }
+
+                if ($statusFilter === 'draft') {
+                    return $item['status'] === 4;
                 }
 
                 $statusMap = [
@@ -247,6 +255,10 @@ class DataPermintaanMaterial extends Component
                     return is_null($item['status']);
                 }
 
+                if ($statusFilter === 'draft') {
+                    return $item['status'] === 4;
+                }
+
                 $statusMap = [
                     'ditolak' => 0,
                     'disetujui' => 1,
@@ -289,6 +301,7 @@ class DataPermintaanMaterial extends Component
                     1 => ['label' => 'Disetujui', 'color' => 'success'],
                     2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
                     3 => ['label' => 'Selesai', 'color' => 'primary'],
+                    4 => ['label' => 'Draft', 'color' => 'secondary'],
                 ];
 
                 // Add dynamic properties
@@ -348,9 +361,12 @@ class DataPermintaanMaterial extends Component
             // Check if there's any approval at all (either approved or rejected)
             $hasAnyApproval = $item->persetujuan()->whereNotNull('is_approved')->exists();
 
+            // Draft can be deleted and edited by owner
+            $isDraft = $item->status === 4;
+
             // Regular user permissions
-            $canDelete = $isOwner && !$hasAnyApproval;
-            $canEdit = $isOwner && !$hasAnyApproval;
+            $canDelete = $isOwner && (!$hasAnyApproval || $isDraft);
+            $canEdit = $isOwner && (!$hasAnyApproval || $isDraft);
 
             // Admin permissions (no restrictions)
             $canAdminEdit = $this->isAdmin;
@@ -506,6 +522,8 @@ class DataPermintaanMaterial extends Component
                 $status = 'Sedang Dikirim';
             } elseif ($item['status'] === 3 || $item['proses'] === 1) {
                 $status = 'Selesai';
+            } elseif ($item['status'] === 4) {
+                $status = 'Draft';
             }
 
             // Format complete creation date
@@ -885,6 +903,7 @@ class DataPermintaanMaterial extends Component
                 1 => 'Disetujui',
                 2 => 'Sedang Dikirim',
                 3 => 'Selesai',
+                4 => 'Draft',
                 default => 'Tidak diketahui'
             };
 
@@ -894,6 +913,7 @@ class DataPermintaanMaterial extends Component
                 1 => 'Disetujui',
                 2 => 'Sedang Dikirim',
                 3 => 'Selesai',
+                4 => 'Draft',
                 default => 'Tidak diketahui'
             };
 

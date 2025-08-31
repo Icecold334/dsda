@@ -274,12 +274,16 @@
     <div class="flex justify-center">
         {{-- @role('penanggungjawab') --}}
         @if (count($list) > 0 && $showRule && !$isShow)
-            <button wire:click="saveData" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Simpan
-            </button>
+            <div class="flex gap-3">
+                <button wire:click="saveDraft" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                    Simpan Draft
+                </button>
+                <button wire:click="saveData" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Submit Permintaan
+                </button>
+            </div>
         @endif
         {{-- @endrole --}}
-
     </div>
     @if (!is_null($distribusiModalIndex))
         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
