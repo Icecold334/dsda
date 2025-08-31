@@ -39,6 +39,8 @@ class DataPermintaanMaterial extends Component
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
     public $perPage = 10; // Items per page
+    public $unit_id; // User's unit ID for filtering
+    public $Rkb = 'RKB'; // RKB label
 
     public $approvalTimeline = [], $roleList, $selectedId;
     public $showTimelineModal = false;
@@ -52,11 +54,27 @@ class DataPermintaanMaterial extends Component
     public function mount()
     {
         $this->tipe = Request::segment(2);
+
+        // Initialize unit_id from authenticated user
+        $user = Auth::user();
+        $this->unit_id = $user->unit_id;
+
+        // Initialize isSeribu based on unit name (like in Controller.php)
+        if ($this->unit_id) {
+            $parent = UnitKerja::find($this->unit_id);
+            if ($parent) {
+                $this->isSeribu = Str::contains($parent->nama, 'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu');
+            } else {
+                $this->isSeribu = false;
+            }
+        } else {
+            $this->isSeribu = false;
+        }
+
         $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::whereNull('parent_id')->get();
         $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');
 
         // Check if current user is admin (superadmin or unit_id null)
-        $user = Auth::user();
         $this->isAdmin = $user->hasRole('superadmin') || $user->unit_id === null;
     }
 
@@ -295,9 +313,10 @@ class DataPermintaanMaterial extends Component
                     $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                 });
             })
-                // ADD THIS: Filter draft items to only show to their creators
+                // Filter draft items to only show to their creators, but allow all other statuses
                 ->where(function ($query) {
-                    $query->where('status', '!=', 4) // Non-draft items visible to all
+                    $query->whereNull('status') // Include null status (diproses)
+                        ->orWhere('status', '!=', 4) // Include all non-draft statuses
                         ->orWhere(function ($subQuery) {
                             $subQuery->where('status', 4) // Draft items only visible to creator
                                 ->where('user_id', auth()->id());
