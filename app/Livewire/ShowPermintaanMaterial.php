@@ -364,6 +364,7 @@ class ShowPermintaanMaterial extends Component
                 1 => ['label' => 'Disetujui', 'color' => 'success'],
                 2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
                 3 => ['label' => 'Selesai', 'color' => 'primary'],
+                4 => ['label' => 'Draft', 'color' => 'secondary'],
             ];
             $this->permintaan->status_teks = $statusMap[$this->permintaan->status]['label'] ?? 'Tidak diketahui';
         }
@@ -437,6 +438,7 @@ class ShowPermintaanMaterial extends Component
             1 => ['label' => 'Disetujui', 'color' => 'success'],
             2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
             3 => ['label' => 'Selesai', 'color' => 'primary'],
+            4 => ['label' => 'Draft', 'color' => 'secondary'],
         ];
 
         // Tambahkan properti dinamis
