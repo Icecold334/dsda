@@ -177,13 +177,21 @@ class EditFormPermintaanMaterial extends Component
 
     private function fillBarangs()
     {
+        // Dapatkan barang yang sudah ada di list
+        $usedBarangIds = collect($this->list)->map(function ($item) {
+            return $item['merk']->barang_id ?? null;
+        })->filter()->unique()->toArray();
+
         if ($this->withRab && $this->rab_id > 0) {
-            // Load barang dari RAB
+            // Load barang dari RAB yang belum ada di list
             $barangIds = collect($this->rab->detailRab ?? [])->pluck('barang_id')->unique();
-            $this->barangs = BarangStok::whereIn('id', $barangIds)->get();
+            $this->barangs = BarangStok::whereIn('id', $barangIds)
+                ->whereNotIn('id', $usedBarangIds)
+                ->get();
         } else {
-            // Load semua barang material
+            // Load semua barang material yang belum ada di list
             $this->barangs = BarangStok::where('jenis_id', 1)
+                ->whereNotIn('id', $usedBarangIds)
                 ->whereHas('merkStok', function ($merk) {
                     $merk->whereHas('transaksiStok', function ($transaksi) {
                         $transaksi->where('lokasi_id', $this->gudang_id ?? 0)
@@ -200,25 +208,47 @@ class EditFormPermintaanMaterial extends Component
             $this->rab_id = null;
             $this->rab = null;
         }
+
+        // Reset form tambah item saat mode RAB berubah
+        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
+        $this->newUnit = 'Satuan';
+        $this->merks = [];
+
         $this->fillBarangs();
     }
 
     public function updatedRabId()
     {
         $this->rab = $this->rab_id ? Rab::find($this->rab_id) : null;
+
+        // Reset form tambah item saat RAB berubah
+        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
+        $this->newUnit = 'Satuan';
+        $this->merks = [];
+
         $this->fillBarangs();
     }
 
     public function updatedGudangId()
     {
+        // Reset form tambah item saat gudang berubah
+        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
+        $this->newUnit = 'Satuan';
+        $this->merks = [];
+
         $this->fillBarangs();
-        $this->reset(['newMerkId', 'newJumlah']);
     }
 
     public function updatedNewBarangId()
     {
         if ($this->newBarangId) {
+            // Dapatkan merk yang sudah ada di list untuk barang ini
+            $usedMerkIds = collect($this->list)->filter(function ($item) {
+                return isset($item['merk']->barang_id) && $item['merk']->barang_id == $this->newBarangId;
+            })->pluck('merk_id')->toArray();
+
             $this->merks = MerkStok::where('barang_id', $this->newBarangId)
+                ->whereNotIn('id', $usedMerkIds)
                 ->whereHas('transaksiStok', function ($transaksi) {
                     $transaksi->where('lokasi_id', $this->gudang_id)
                         ->where('jumlah', '>', 0);
@@ -287,14 +317,32 @@ class EditFormPermintaanMaterial extends Component
             'rab_id' => $this->newRabId,
         ];
 
-        $this->reset(['newMerkId', 'newJumlah', 'newUnit', 'newKeterangan', 'newRabId']);
+        // Reset semua field form tambah item
+        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
         $this->newUnit = 'Satuan';
+        $this->barangs = [];
+        $this->merks = [];
+
+        // Refresh dropdown setelah menambah item
+        $this->fillBarangs();
+
+        session()->flash('success', 'Item berhasil ditambahkan ke daftar permintaan.');
     }
 
     public function removeFromList($index)
     {
         unset($this->list[$index]);
         $this->list = array_values($this->list);
+
+        // Reset form tambah item
+        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
+        $this->newUnit = 'Satuan';
+        $this->merks = [];
+
+        // Refresh dropdown setelah menghapus item
+        $this->fillBarangs();
+
+        session()->flash('success', 'Item berhasil dihapus dari daftar permintaan.');
     }
 
     public function updateData()

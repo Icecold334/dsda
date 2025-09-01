@@ -366,18 +366,23 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Barang</label>
-                            <select wire:model.live="newBarangId"
-                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
-                                <option value="">Pilih Barang</option>
-                                @foreach($barangs as $barang)
-                                    <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
-                                @endforeach
-                            </select>
+                            @if($withRab && $rab_id)
+                                <select wire:model.live="newBarangId"
+                                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+                                    <option value="">Pilih Barang</option>
+                                    @foreach($barangs as $barang)
+                                        <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <livewire:searchable-select wire:model.live="newBarangId" :options="$barangs" label="nama" />
+                            @endif
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Merk/Spesifikasi</label>
-                            <select wire:model.live="newMerkId"
-                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+                            <select wire:model.live="newMerkId" @disabled(!$newBarangId)
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
+                                       @if(!$newBarangId) cursor-not-allowed opacity-50 @endif">
                                 <option value="">Pilih Merk</option>
                                 @foreach($merks as $merk)
                                     <option value="{{ $merk->id }}">{{ $merk->nama }} - {{ $merk->tipe }} - {{ $merk->ukuran }}
@@ -388,14 +393,18 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
                             <div class="flex">
-                                <input type="number" wire:model.live="newJumlah"
-                                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                <input type="number" wire:model.live="newJumlah" @disabled(!$newMerkId)
+                                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
+                                           @if(!$newMerkId) cursor-not-allowed opacity-50 @endif"
                                     placeholder="0" min="1">
                                 <span
                                     class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-l-0 border-gray-300 rounded-r-lg">
                                     {{ $newUnit }}
                                 </span>
                             </div>
+                            @error('newJumlah')
+                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                            @enderror
                         </div>
                         <div class="flex items-end">
                             <button type="button" wire:click="addToList" @disabled(!$newMerkId || !$newJumlah)
@@ -416,14 +425,6 @@
                             </select>
                         </div>
                     @endif
-                    {{-- @if($newMerkId)
-                    <div class="mt-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
-                        <textarea wire:model.live="newKeterangan" rows="2"
-                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
-                            placeholder="Keterangan tambahan (opsional)"></textarea>
-                    </div>
-                    @endif --}}
                 </div>
             @endif
 
