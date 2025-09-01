@@ -458,35 +458,72 @@
                             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
                                 @if($isSeribu && $withRab)
                                     <td class="py-3 px-6">
-                                        @if($item['rab_id'])
-                                            {{ $rabs->firstWhere('id', $item['rab_id'])->nama_kegiatan ?? 'RAB tidak ditemukan' }}
-                                        @else
-                                            -
-                                        @endif
+                                        <select disabled class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg cursor-not-allowed block w-full p-2.5">
+                                            <option value="{{ $item['rab_id'] }}">
+                                                {{ $rabs->firstWhere('id', $item['rab_id'])->nama_kegiatan ?? 'RAB tidak ditemukan' }}
+                                            </option>
+                                        </select>
                                     </td>
                                 @endif
                                 <td class="py-3 px-6">
-                                    {{ $item['merk']->barangStok->nama ?? 'Barang tidak ditemukan' }}
+                                    <select disabled class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg cursor-not-allowed block w-full p-2.5">
+                                        <option value="{{ $item['merk']->barangStok->id }}">
+                                            {{ $item['merk']->barangStok->nama ?? 'Barang tidak ditemukan' }}
+                                        </option>
+                                    </select>
                                 </td>
                                 <td class="py-3 px-6">
-                                    {{ $item['merk']->nama ?? 'Tanpa merk' }} -
-                                    {{ $item['merk']->tipe ?? 'Tanpa tipe' }} -
-                                    {{ $item['merk']->ukuran ?? 'Tanpa ukuran' }}
+                                    <select disabled class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg cursor-not-allowed block w-full p-2.5">
+                                        <option value="{{ $item['merk']->id }}">
+                                            {{ $item['merk']->nama ?? 'Tanpa merk' }} -
+                                            {{ $item['merk']->tipe ?? 'Tanpa tipe' }} -
+                                            {{ $item['merk']->ukuran ?? 'Tanpa ukuran' }}
+                                        </option>
+                                    </select>
                                 </td>
                                 <td class="py-3 px-6">
-                                    {{ number_format($item['jumlah'], 0, ',', '.') }} {{ $item['merk']->barangStok->satuanBesar->nama ?? $item['unit'] }}
+                                    <div class="flex items-center">
+                                        @if($permintaan->status === 4)
+                                            <input type="number" wire:model.live="list.{{ $index }}.jumlah" min="1"
+                                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                                placeholder="Jumlah">
+                                            <span class="inline-flex items-center py-2.5 px-3 text-sm text-gray-900 bg-gray-200 border border-l-0 border-gray-300 rounded-r-lg">
+                                                {{ $item['merk']->barangStok->satuanBesar->nama ?? $item['unit'] }}
+                                            </span>
+                                        @else
+                                            <span class="bg-gray-100  border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
+                                                {{ number_format($item['jumlah'], 0, ',', '.') }} {{ $item['merk']->barangStok->satuanBesar->nama ?? $item['unit'] }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 @if($isSeribu && $withRab)
                                     <td class="py-3 px-6">
-                                        {{ $item['keterangan'] ?? '-' }}
+                                        @if($permintaan->status === 4)
+                                            <textarea wire:model.live="list.{{ $index }}.keterangan" rows="2"
+                                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                                placeholder="Keterangan (opsional)"></textarea>
+                                        @else
+                                            <span class="text-gray-900">{{ $item['keterangan'] ?? '-' }}</span>
+                                        @endif
                                     </td>
                                 @endif
                                 <td class="py-3 px-6 text-center">
                                     @if($permintaan->status === 4)
-                                        <button type="button" wire:click="removeFromList({{ $index }})"
-                                            class="text-danger-900 border-danger-600 text-xl border bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
-                                            <i class="fa-solid fa-circle-xmark"></i>
-                                        </button>
+                                        <div class="flex items-center justify-center gap-2">
+                                            {{-- Show save button if there are changes --}}
+                                            @if($this->hasChanges($index))
+                                                <button type="button" wire:click="saveItemChange({{ $index }})"
+                                                    class="text-green-900 border-green-600 text-xl border bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                    <i class="fa-solid fa-circle-check"></i>
+                                                </button>
+                                            @endif
+                                            {{-- Remove button --}}
+                                            <button type="button" wire:click="removeFromList({{ $index }})"
+                                                class="text-danger-900 border-danger-600 text-xl border bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                                <i class="fa-solid fa-circle-xmark"></i>
+                                            </button>
+                                        </div>
                                     @endif
                                 </td>
                             </tr>

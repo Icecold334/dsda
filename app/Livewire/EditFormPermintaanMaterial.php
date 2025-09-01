@@ -54,6 +54,7 @@ class EditFormPermintaanMaterial extends Component
     public $newUnit = 'Satuan';
     public $newKeterangan;
     public $newRabId;
+    public $originalJumlah = []; // Track original quantities for change detection
 
     protected $rules = [
         'tanggal_permintaan' => 'required|date',
@@ -173,6 +174,12 @@ class EditFormPermintaanMaterial extends Component
                 'rab_id' => $item->rab_id,
             ];
         })->toArray();
+
+        // Store original quantities for change detection
+        $this->originalJumlah = [];
+        foreach ($this->list as $index => $item) {
+            $this->originalJumlah[$index] = $item['jumlah'];
+        }
     }
 
     private function fillBarangs()
@@ -317,6 +324,10 @@ class EditFormPermintaanMaterial extends Component
             'rab_id' => $this->newRabId,
         ];
 
+        // Add originalJumlah entry for new item
+        $newIndex = count($this->list) - 1;
+        $this->originalJumlah[$newIndex] = $this->newJumlah;
+
         // Reset semua field form tambah item
         $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
         $this->newUnit = 'Satuan';
@@ -334,6 +345,12 @@ class EditFormPermintaanMaterial extends Component
         unset($this->list[$index]);
         $this->list = array_values($this->list);
 
+        // Update originalJumlah array after reindexing
+        $this->originalJumlah = [];
+        foreach ($this->list as $i => $item) {
+            $this->originalJumlah[$i] = $item['jumlah'];
+        }
+
         // Reset form tambah item
         $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
         $this->newUnit = 'Satuan';
@@ -343,6 +360,25 @@ class EditFormPermintaanMaterial extends Component
         $this->fillBarangs();
 
         session()->flash('success', 'Item berhasil dihapus dari daftar permintaan.');
+    }
+
+    public function saveItemChange($index)
+    {
+        // Validate the specific item's quantity
+        $this->validate([
+            "list.{$index}.jumlah" => 'required|numeric|min:1',
+        ]);
+
+        // Update original quantity to current quantity (mark as saved)
+        $this->originalJumlah[$index] = $this->list[$index]['jumlah'];
+
+        session()->flash('success', 'Perubahan berhasil disimpan.');
+    }
+
+    public function hasChanges($index)
+    {
+        return isset($this->originalJumlah[$index]) &&
+            $this->originalJumlah[$index] != $this->list[$index]['jumlah'];
     }
 
     public function updateData()
