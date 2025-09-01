@@ -264,7 +264,7 @@ class EditFormPermintaanMaterial extends Component
     {
         if ($this->newMerkId) {
             $merk = MerkStok::find($this->newMerkId);
-            $this->newUnit = $merk->barangStok->unit ?? 'Satuan';
+            $this->newUnit = $merk->barangStok->satuanBesar->nama ?? 'Satuan';
         } else {
             $this->newUnit = 'Satuan';
         }

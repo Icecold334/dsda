@@ -363,8 +363,8 @@
                 {{-- Form Add New Item --}}
                 <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                     <h4 class="font-semibold mb-3">Tambah Item Baru</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
+                    <div class="flex items-end w-full gap-4">
+                        <div class="flex flex-col w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Barang</label>
                             @if($withRab && $rab_id)
                                 <select wire:model.live="newBarangId"
@@ -378,7 +378,7 @@
                                 <livewire:searchable-select wire:model.live="newBarangId" :options="$barangs" label="nama" />
                             @endif
                         </div>
-                        <div>
+                        <div class="flex flex-col w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Merk/Spesifikasi</label>
                             <select wire:model.live="newMerkId" @disabled(!$newBarangId)
                                 class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
@@ -390,7 +390,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div>
+                        <div class="flex flex-col w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
                             <div class="flex">
                                 <input type="number" wire:model.live="newJumlah" @disabled(!$newMerkId)
@@ -406,11 +406,13 @@
                                 <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
                         </div>
-                        <div class="flex items-end">
-                            <button type="button" wire:click="addToList" @disabled(!$newMerkId || !$newJumlah)
-                                class="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                                Tambah
-                            </button>
+                        <div class="flex justify-end w-fit">
+                            @if($newMerkId && $newJumlah)
+                                <button type="button" wire:click="addToList"
+                                    class="w-fit bg-primary-600 items-end justify-end hover:bg-primary-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </button>
+                            @endif
                         </div>
                     </div>
                     @if($newMerkId && $isSeribu && $withRab)
@@ -472,7 +474,7 @@
                                     {{ $item['merk']->ukuran ?? 'Tanpa ukuran' }}
                                 </td>
                                 <td class="py-3 px-6">
-                                    {{ number_format($item['jumlah'], 0, ',', '.') }} {{ $item['unit'] }}
+                                    {{ number_format($item['jumlah'], 0, ',', '.') }} {{ $item['merk']->barangStok->satuanBesar->nama ?? $item['unit'] }}
                                 </td>
                                 @if($isSeribu && $withRab)
                                     <td class="py-3 px-6">
@@ -482,8 +484,8 @@
                                 <td class="py-3 px-6 text-center">
                                     @if($permintaan->status === 4)
                                         <button type="button" wire:click="removeFromList({{ $index }})"
-                                            class="text-red-600 hover:text-red-900 font-medium">
-                                            Hapus
+                                            class="text-danger-900 border-danger-600 text-xl border bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
+                                            <i class="fa-solid fa-circle-xmark"></i>
                                         </button>
                                     @endif
                                 </td>
