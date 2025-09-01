@@ -406,6 +406,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'index']);
     Route::get('option-approval', [PengaturanPersetujuanController::class, 'index']);
     Route::get('option-approval/{tipe}/{jenis}', [PengaturanPersetujuanController::class, 'edit']);
+    Route::get('permintaan/edit/{id}', [PermintaanStokController::class, 'edit'])->name('editPermintaan');
+    Route::get('permintaan/material/edit/{id}', [PermintaanStokController::class, 'editMaterial'])->name('editPermintaanMaterial');
     Route::get('permintaan/{tipe}/{id}', [PermintaanStokController::class, 'show'])->name('showPermintaan');
     Route::get('/log-barang', [StokController::class, 'logBarang'])->name('log-index');
     Route::get('/stok/sudin/{sudin}', [StokController::class, 'index']);
