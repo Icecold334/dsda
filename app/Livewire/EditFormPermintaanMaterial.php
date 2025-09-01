@@ -37,6 +37,7 @@ class EditFormPermintaanMaterial extends Component
     public $kelurahans = [];
     public $isSeribu;
     public $unit_id;
+    public $dokumenCount = 0;
 
     // Volume pekerjaan
     public $p;
@@ -261,6 +262,12 @@ class EditFormPermintaanMaterial extends Component
         // Auto calculate if needed
     }
 
+    #[On('dokumenCount')]
+    public function fillDokumenCount($count)
+    {
+        $this->dokumenCount = $count;
+    }
+
     public function addToList()
     {
         $this->validate([
@@ -336,6 +343,9 @@ class EditFormPermintaanMaterial extends Component
             }
 
             session()->flash('success', 'Permintaan material berhasil diperbarui.');
+
+            // Save documents if any
+            $this->dispatch('saveDokumen', kontrak_id: $this->permintaan->id, isRab: false, isMaterial: true);
 
             // Redirect ke halaman show
             return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $this->permintaan->id]);
@@ -417,6 +427,9 @@ class EditFormPermintaanMaterial extends Component
             }
 
             session()->flash('success', 'Permintaan material berhasil disubmit untuk approval.');
+
+            // Save documents if any
+            $this->dispatch('saveDokumen', kontrak_id: $this->permintaan->id, isRab: false, isMaterial: true);
 
             // Redirect ke halaman show
             return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $this->permintaan->id]);

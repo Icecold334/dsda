@@ -57,9 +57,11 @@
         </div>
     @endif
 
-    <x-card title="Data Umum">
-        <form wire:submit.prevent="{{ $permintaan->status === 4 ? 'updateData' : '' }}">
-            <table class="w-full border-separate border-spacing-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+            <x-card title="Data Umum">
+                <form wire:submit.prevent="{{ $permintaan->status === 4 ? 'updateData' : '' }}">
+                    <table class="w-full border-separate border-spacing-y-4">
                 {{-- RAB --}}
                 <tr>
                     <td class="w-1/3">
@@ -298,9 +300,61 @@
                         @enderror
                     </td>
                 </tr>
-            </table>
-        </form>
-    </x-card>
+                    </table>
+                </form>
+            </x-card>
+        </div>
+        
+        <div>
+            <x-card title="Tambah Lampiran">
+                {{-- Display existing attachments --}}
+                @if($permintaan->lampiranDokumen->count() > 0)
+                    <div class="mb-4">
+                        <h5 class="font-medium text-gray-900 mb-2">Lampiran yang Ada:</h5>
+                        <div class="space-y-2">
+                            @foreach($permintaan->lampiranDokumen as $attachment)
+                                <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-2">
+                                        <span>
+                                            @php
+                                                $fileType = pathinfo($attachment->path, PATHINFO_EXTENSION);
+                                            @endphp
+                                            @if(in_array($fileType, ['jpg', 'jpeg', 'png', 'gif']))
+                                                <i class="fa-solid fa-image text-green-500"></i>
+                                            @elseif($fileType === 'pdf')
+                                                <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                            @elseif(in_array($fileType, ['doc', 'docx']))
+                                                <i class="fa-solid fa-file-word text-blue-500"></i>
+                                            @else
+                                                <i class="fa-solid fa-file text-gray-500"></i>
+                                            @endif
+                                        </span>
+                                        <span>
+                                            <a href="{{ asset('storage/lampiranMaterial/' . $attachment->path) }}" target="_blank"
+                                                class="text-gray-800 hover:underline">
+                                                {{ basename($attachment->path) }}
+                                            </a>
+                                        </span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+                
+                {{-- Upload new attachments only if status is draft --}}
+                @if($permintaan->status === 4)
+                    <livewire:upload-surat-kontrak>
+                @else
+                    @if($permintaan->lampiranDokumen->count() === 0)
+                        <div class="text-center text-gray-500 italic">
+                            Tidak ada lampiran
+                        </div>
+                    @endif
+                @endif
+            </x-card>
+        </div>
+    </div>
 
     {{-- List Items --}}
     <div class="mt-6">

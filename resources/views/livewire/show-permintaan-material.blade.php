@@ -304,7 +304,7 @@
                                 @endif
                             </span>
                             <span>
-                                <a href="{{ asset('storage/lampiranRab/' . $attachment->path) }}" target="_blank"
+                                <a href="{{ asset('storage/lampiranMaterial/' . $attachment->path) }}" target="_blank"
                                     class="text-gray-800 hover:underline">
                                     {{ basename($attachment->path) }}
                                 </a>
@@ -350,7 +350,7 @@
                     </label>
                     <a wire:click='saveDoc'
                         class="cursor-pointer {{ count($this->attachments) ? '' : 'hidden' }}
-                                                                                                    text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                                                                                                        text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                         Simpan
                     </a>
                 @endif
