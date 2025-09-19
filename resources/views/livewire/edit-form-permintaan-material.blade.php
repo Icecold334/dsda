@@ -4,7 +4,7 @@
         <div class=<td>
             <select wire:model.live="gudang_id" @disabled($permintaan->status !== 4 || $rab)
                 class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-                                            @if($permintaan->status !== 4 || $rab) bg-gray-200 cursor-not-allowed opacity-60 @else  @endif">
+                                                @if($permintaan->status !== 4 || $rab) bg-gray-200 cursor-not-allowed opacity-60 @else  @endif">
                 <option value="">Pilih Gudang</option>
                 @foreach($gudangs as $gudang)
                     <option value="{{ $gudang->id }}">{{ $gudang->nama }}</option>
@@ -126,7 +126,7 @@
                                 <td>
                                     <input type="text" wire:model.live="jenisPekerjaan" @disabled($permintaan->status !== 4)
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-                                                                       @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif"
+                                                                           @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif"
                                         placeholder="Masukkan jenis pekerjaan">
                                     @error('jenisPekerjaan')
                                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -240,8 +240,9 @@
                                     <label for="kecamatan_id">Lokasi Kegiatan</label>
                                 </td>
                                 <td>
-                                    <select wire:model.live="kecamatan_id" @disabled($permintaan->status !== 4) class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-                                                    @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif">
+                                    <select wire:model.live="kecamatan_id" @disabled($permintaan->status !== 4)
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
+                                                        @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif">
                                         <option value="">Pilih Kecamatan</option>
                                         @foreach($kecamatans as $kecamatan)
                                             <option value="{{ $kecamatan->id }}">{{ $kecamatan->kecamatan }}</option>
@@ -252,8 +253,9 @@
                             <tr>
                                 <td></td>
                                 <td>
-                                    <select wire:model.live="kelurahan_id" @disabled($permintaan->status !== 4) class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-                                                    @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif">
+                                    <select wire:model.live="kelurahan_id" @disabled($permintaan->status !== 4)
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
+                                                        @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif">
                                         <option value="">Pilih Kelurahan</option>
                                         @foreach($kelurahans as $kelurahan)
                                             <option value="{{ $kelurahan->id }}">{{ $kelurahan->nama }}</option>
@@ -269,7 +271,7 @@
                                 <td>
                                     <input type="text" wire:model.live="lokasiMaterial" @disabled($permintaan->status !== 4)
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-                                                   @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif"
+                                                       @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif"
                                         placeholder="Detail lokasi kegiatan">
                                     @error('lokasiMaterial')
                                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -310,7 +312,7 @@
                                             <input type="number" step="0.01" wire:model.live="p"
                                                 @disabled($permintaan->status !== 4)
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-                                                        @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif" placeholder="0.00">
+                                                            @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif" placeholder="0.00">
                                             @error('p')
                                                 <span class="text-xs text-red-500 font-semibold">{{ $message }}</span>
                                             @enderror
@@ -320,7 +322,7 @@
                                             <input type="number" step="0.01" wire:model.live="l"
                                                 @disabled($permintaan->status !== 4)
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-                                                        @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif" placeholder="0.00">
+                                                            @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif" placeholder="0.00">
                                             @error('l')
                                                 <span class="text-xs text-red-500 font-semibold">{{ $message }}</span>
                                             @enderror
@@ -330,7 +332,7 @@
                                             <input type="number" step="0.01" wire:model.live="k"
                                                 @disabled($permintaan->status !== 4)
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-                                                        @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif" placeholder="0.00">
+                                                            @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif" placeholder="0.00">
                                             @error('k')
                                                 <span class="text-xs text-red-500 font-semibold">{{ $message }}</span>
                                             @enderror
@@ -451,7 +453,7 @@
                         <div class="flex flex-col w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Merk/Spesifikasi</label>
                             <select wire:model.live="newMerkId" @disabled(!$newBarangId) class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-                                                       @if(!$newBarangId) cursor-not-allowed opacity-50 @endif">
+                                                           @if(!$newBarangId) cursor-not-allowed opacity-50 @endif">
                                 <option value="">Pilih Merk</option>
                                 @foreach($merks as $merk)
                                     <option value="{{ $merk->id }}">{{ $merk->nama }} - {{ $merk->tipe }} - {{ $merk->ukuran }}
@@ -463,8 +465,9 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
                             <div class="flex">
                                 <input type="number" wire:model.live="newJumlah" @disabled(!$newMerkId) class="bg-white border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-                                                           @if(!$newMerkId) cursor-not-allowed opacity-50 @endif"
-                                    placeholder="0" min="1">
+                                               @if(!$newMerkId) cursor-not-allowed opacity-50 @endif"
+                                    placeholder="{{ $rab && $newMerkMax !== null ? 'Maksimal: ' . $newMerkMax : '0' }}"
+                                    min="1" @if($rab && $newMerkMax !== null) max="{{ $newMerkMax }}" @endif>
                                 <span
                                     class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-l-0 border-gray-300 rounded-r-lg">
                                     {{ $newUnit }}
@@ -555,13 +558,24 @@
                                 <td class="py-3 px-6">
                                     <div class="flex items-center">
                                         @if($permintaan->status === 4)
-                                            <input type="number" wire:model.live="list.{{ $index }}.jumlah" min="1"
-                                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
-                                                placeholder="Jumlah">
-                                            <span
-                                                class="inline-flex items-center py-2.5 px-3 text-sm text-gray-900 bg-gray-200 border border-l-0 border-gray-300 rounded-r-lg">
-                                                {{ $item['merk']->barangStok->satuanBesar->nama ?? $item['unit'] }}
-                                            </span>
+                                            @php
+                                                $maxJumlah = $rab ? $this->getMaxJumlahForItem($index) : null;
+                                            @endphp
+                                            <div class="w-full">
+                                                <div class="flex">
+                                                    <input type="number" wire:model.live="list.{{ $index }}.jumlah" min="1"
+                                                        @if($maxJumlah !== null) max="{{ $maxJumlah }}" @endif
+                                                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                                        placeholder="{{ $maxJumlah !== null ? 'Maksimal: ' . $maxJumlah : 'Jumlah' }}">
+                                                    <span
+                                                        class="inline-flex items-center py-2.5 px-3 text-sm text-gray-900 bg-gray-200 border border-l-0 border-gray-300 rounded-r-lg">
+                                                        {{ $item['merk']->barangStok->satuanBesar->nama ?? $item['unit'] }}
+                                                    </span>
+                                                </div>
+                                                @error("list.{$index}.jumlah")
+                                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                                @enderror
+                                            </div>
                                         @else
                                             <span
                                                 class="bg-gray-100  border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">

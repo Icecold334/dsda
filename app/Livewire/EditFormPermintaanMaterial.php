@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Rab;
 use App\Models\User;
 use Livewire\Component;
+use App\Models\ListRab;
 use App\Models\MerkStok;
 use App\Models\BarangStok;
 use App\Models\Kecamatan;
@@ -49,6 +50,7 @@ class EditFormPermintaanMaterial extends Component
     public $newBarangId;
     public $newMerkId;
     public $newJumlah;
+    public $newMerkMax; // Maksimal jumlah berdasarkan RAB
     public $newUnit = 'Satuan';
     public $newKeterangan;
     public $newRabId;
@@ -202,13 +204,21 @@ class EditFormPermintaanMaterial extends Component
         })->filter()->unique()->toArray();
 
         if ($this->rab) {
-            // Load barang dari RAB yang belum ada di list
-            $barangIds = collect($this->rab->detailRab ?? [])->pluck('barang_id')->unique();
-            $this->barangs = BarangStok::whereIn('id', $barangIds)
+            // Jika menggunakan RAB, ambil semua barang dari RAB
+            // tanpa peduli stok di gudang (validasi stok dilakukan di level input)
+            $rabItems = \App\Models\ListRab::with(['merkStok.barangStok'])
+                ->where('rab_id', $this->rab->id)
+                ->whereHas('merkStok.barangStok', function ($q) {
+                    $q->where('jenis_id', 1); // hanya material
+                })
+                ->get();
+
+            $barangIds = $rabItems->pluck('merkStok.barangStok.id')->unique()->filter();
+            $this->barangs = \App\Models\BarangStok::whereIn('id', $barangIds)
                 ->whereNotIn('id', $usedBarangIds)
                 ->get();
         } else {
-            // Load semua barang material yang belum ada di list
+            // Jika tidak menggunakan RAB, gunakan logika berdasarkan stok gudang
             $this->barangs = BarangStok::where('jenis_id', 1)
                 ->whereNotIn('id', $usedBarangIds)
                 ->whereHas('merkStok', function ($merk) {
@@ -226,6 +236,7 @@ class EditFormPermintaanMaterial extends Component
         // Reset form tambah item saat gudang berubah
         $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
         $this->newUnit = 'Satuan';
+        $this->newMerkMax = null;
         $this->merks = [];
 
         $this->fillBarangs();
@@ -239,17 +250,34 @@ class EditFormPermintaanMaterial extends Component
                 return isset($item['merk']->barang_id) && $item['merk']->barang_id == $this->newBarangId;
             })->pluck('merk_id')->toArray();
 
-            $this->merks = MerkStok::where('barang_id', $this->newBarangId)
-                ->whereNotIn('id', $usedMerkIds)
-                ->whereHas('transaksiStok', function ($transaksi) {
-                    $transaksi->where('lokasi_id', $this->gudang_id)
-                        ->where('jumlah', '>', 0);
-                })
-                ->get();
+            if ($this->rab) {
+                // Jika menggunakan RAB, ambil merk dari RAB yang sesuai dengan barang yang dipilih
+                $rabItems = \App\Models\ListRab::with(['merkStok'])
+                    ->where('rab_id', $this->rab->id)
+                    ->whereHas('merkStok', function ($q) {
+                        $q->where('barang_id', $this->newBarangId);
+                    })
+                    ->get();
+
+                $merkIds = $rabItems->pluck('merk_id')->unique()->filter();
+                $this->merks = MerkStok::whereIn('id', $merkIds)
+                    ->whereNotIn('id', $usedMerkIds)
+                    ->get();
+            } else {
+                // Jika tidak menggunakan RAB, gunakan logika berdasarkan stok gudang
+                $this->merks = MerkStok::where('barang_id', $this->newBarangId)
+                    ->whereNotIn('id', $usedMerkIds)
+                    ->whereHas('transaksiStok', function ($transaksi) {
+                        $transaksi->where('lokasi_id', $this->gudang_id)
+                            ->where('jumlah', '>', 0);
+                    })
+                    ->get();
+            }
         } else {
             $this->merks = [];
         }
         $this->reset(['newMerkId', 'newJumlah']);
+        $this->newMerkMax = null;
     }
 
     public function updatedNewMerkId()
@@ -257,8 +285,26 @@ class EditFormPermintaanMaterial extends Component
         if ($this->newMerkId) {
             $merk = MerkStok::find($this->newMerkId);
             $this->newUnit = $merk->barangStok->satuanBesar->nama ?? 'Satuan';
+
+            // Jika menggunakan RAB, ambil maksimal jumlah dari RAB
+            if ($this->rab) {
+                $rabItem = ListRab::where('rab_id', $this->rab->id)
+                    ->where('merk_id', $this->newMerkId)
+                    ->first();
+
+                if ($rabItem) {
+                    // Hitung jumlah yang sudah digunakan untuk merk ini
+                    $jumlahTerpakai = collect($this->list)->where('merk_id', $this->newMerkId)->sum('jumlah');
+                    $this->newMerkMax = max(0, $rabItem->jumlah - $jumlahTerpakai);
+                } else {
+                    $this->newMerkMax = 0;
+                }
+            } else {
+                $this->newMerkMax = null; // Tidak ada limit jika tanpa RAB
+            }
         } else {
             $this->newUnit = 'Satuan';
+            $this->newMerkMax = null;
         }
         $this->newJumlah = null;
     }
@@ -292,10 +338,24 @@ class EditFormPermintaanMaterial extends Component
 
     public function addToList()
     {
-        $this->validate([
+        // Validasi dasar
+        $rules = [
             'newMerkId' => 'required|exists:merk_stok,id',
             'newJumlah' => 'required|numeric|min:1',
-        ]);
+        ];
+
+        // Jika menggunakan RAB, tambahkan validasi maksimal
+        if ($this->rab && $this->newMerkMax !== null) {
+            $rules['newJumlah'] .= '|max:' . $this->newMerkMax;
+        }
+
+        $this->validate($rules);
+
+        // Jika menggunakan RAB, lakukan pengecekan manual juga
+        if ($this->rab && $this->newMerkMax !== null && $this->newJumlah > $this->newMerkMax) {
+            $this->addError('newJumlah', 'Jumlah yang diminta melebihi sisa yang tersedia di RAB (maksimal: ' . $this->newMerkMax . ')');
+            return;
+        }
 
         $merk = MerkStok::find($this->newMerkId);
 
@@ -316,6 +376,7 @@ class EditFormPermintaanMaterial extends Component
         // Reset semua field form tambah item
         $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
         $this->newUnit = 'Satuan';
+        $this->newMerkMax = null;
         $this->barangs = [];
         $this->merks = [];
 
@@ -339,6 +400,7 @@ class EditFormPermintaanMaterial extends Component
         // Reset form tambah item
         $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
         $this->newUnit = 'Satuan';
+        $this->newMerkMax = null;
         $this->merks = [];
 
         // Refresh dropdown setelah menghapus item
@@ -349,15 +411,59 @@ class EditFormPermintaanMaterial extends Component
 
     public function saveItemChange($index)
     {
-        // Validate the specific item's quantity
-        $this->validate([
+        // Validasi dasar
+        $rules = [
             "list.{$index}.jumlah" => 'required|numeric|min:1',
-        ]);
+        ];
+
+        // Jika menggunakan RAB, validasi maksimal
+        if ($this->rab) {
+            $maxAllowed = $this->getMaxJumlahForItem($index);
+            if ($maxAllowed !== null && $this->list[$index]['jumlah'] > $maxAllowed) {
+                $this->addError("list.{$index}.jumlah", 'Jumlah melebihi sisa yang tersedia di RAB (maksimal: ' . $maxAllowed . ')');
+                return;
+            }
+        }
+
+        $this->validate($rules);
 
         // Update original quantity to current quantity (mark as saved)
         $this->originalJumlah[$index] = $this->list[$index]['jumlah'];
 
         session()->flash('success', 'Perubahan berhasil disimpan.');
+    }
+
+    /**
+     * Hitung maksimal jumlah yang diperbolehkan untuk item tertentu berdasarkan RAB
+     */
+    public function getMaxJumlahForItem($index)
+    {
+        if (!$this->rab || !isset($this->list[$index])) {
+            return null;
+        }
+
+        $merkId = $this->list[$index]['merk_id'];
+        $currentJumlah = $this->originalJumlah[$index] ?? 0; // Jumlah asli sebelum edit
+
+        // Cari item di RAB
+        $rabItem = ListRab::where('rab_id', $this->rab->id)
+            ->where('merk_id', $merkId)
+            ->first();
+
+        if (!$rabItem) {
+            return 0;
+        }
+
+        // Hitung total yang sudah digunakan untuk merk ini (kecuali item yang sedang diedit)
+        $jumlahTerpakai = collect($this->list)
+            ->where('merk_id', $merkId)
+            ->reject(function ($item, $idx) use ($index) {
+                return $idx == $index; // Abaikan item yang sedang diedit
+            })
+            ->sum('jumlah');
+
+        // Kembalikan sisa yang tersedia + jumlah asli item ini
+        return max(0, $rabItem->jumlah - $jumlahTerpakai);
     }
 
     public function hasChanges($index)
