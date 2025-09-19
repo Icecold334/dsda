@@ -24,12 +24,10 @@ class EditFormPermintaanMaterial extends Component
     public $keterangan;
     public $gudang_id;
     public $gudangs = [];
-    public $withRab = 0;
-    public $rab_id;
-    public $rabs = [];
     public $rab;
+    public $availableRabs = [];
     public $nodin;
-    public $namaKegiatan;
+    public $jenisPekerjaan;
     public $lokasiMaterial;
     public $kelurahan_id;
     public $kecamatan_id;
@@ -61,7 +59,7 @@ class EditFormPermintaanMaterial extends Component
         'keterangan' => 'nullable|string',
         'gudang_id' => 'required|exists:lokasi_stok,id',
         'nodin' => 'nullable|string',
-        'namaKegiatan' => 'nullable|string',
+        'jenisPekerjaan' => 'nullable|string',
         'lokasiMaterial' => 'nullable|string',
         'kelurahan_id' => 'nullable|exists:kelurahans,id',
         'p' => 'nullable|numeric|min:0',
@@ -78,12 +76,24 @@ class EditFormPermintaanMaterial extends Component
         $this->tanggal_permintaan = Carbon::parse($this->permintaan->tanggal_permintaan)->format('Y-m-d');
         $this->keterangan = $this->permintaan->keterangan;
         $this->gudang_id = $this->permintaan->gudang_id;
-        $this->withRab = $this->permintaan->rab_id ? 1 : 0;
-        $this->rab_id = $this->permintaan->rab_id;
+        $this->rab = $this->permintaan->rab_id ? Rab::find($this->permintaan->rab_id) : null;
         $this->nodin = $this->permintaan->nodin;
-        $this->namaKegiatan = $this->permintaan->nama;
+        $this->jenisPekerjaan = $this->permintaan->nama;
         $this->lokasiMaterial = $this->permintaan->lokasi;
-        $this->kelurahan_id = $this->permintaan->kelurahan_id;
+
+        // Set kelurahan dan kecamatan berdasarkan RAB atau permintaan
+        if ($this->rab && $this->rab->kelurahan_id) {
+            // Jika ada RAB, ambil dari RAB
+            $this->kelurahan_id = $this->rab->kelurahan_id;
+            // Auto-set kecamatan dari kelurahan (parent relationship)
+            $kelurahan = Kelurahan::find($this->rab->kelurahan_id);
+            $this->kecamatan_id = $kelurahan ? $kelurahan->kecamatan_id : null;
+        } else {
+            // Jika tidak ada RAB, ambil dari permintaan
+            $this->kelurahan_id = $this->permintaan->kelurahan_id;
+            $this->kecamatan_id = $this->permintaan->kecamatan_id;
+        }
+
         $this->unit_id = $this->permintaan->user->unit_id;
 
         // Load volume pekerjaan
@@ -96,9 +106,9 @@ class EditFormPermintaanMaterial extends Component
 
         // Load related data - pastikan dimuat dalam urutan yang benar
         $this->loadGudangs();
-        $this->loadRabs();
+        $this->loadAvailableRabs();
         $this->loadKecamatans();
-        if ($this->kelurahan_id) {
+        if ($this->kelurahan_id || $this->kecamatan_id) {
             $this->loadKelurahans();
         }
         $this->loadExistingItems();
@@ -123,17 +133,17 @@ class EditFormPermintaanMaterial extends Component
         }
     }
 
-    private function loadRabs()
+    private function loadAvailableRabs()
     {
-        $this->rabs = Rab::where('status', 2)
-            ->whereHas('user.unitKerja', function ($unit) {
-                $unit->where('id', $this->unit_id);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        if ($this->rab_id) {
-            $this->rab = Rab::find($this->rab_id);
+        // Load RABs untuk keperluan display di Kepulauan Seribu
+        if ($this->isSeribu) {
+            $this->availableRabs = Rab::where('status', 2)
+                ->whereHas('user.unitKerja', function ($unit) {
+                    $unit->where('parent_id', $this->unit_id)
+                        ->orWhere('id', $this->unit_id);
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
         }
     }
 
@@ -152,7 +162,9 @@ class EditFormPermintaanMaterial extends Component
 
     private function loadKelurahans()
     {
-        if ($this->kelurahan_id) {
+        if ($this->kecamatan_id) {
+            $this->kelurahans = Kelurahan::where('kecamatan_id', $this->kecamatan_id)->get();
+        } elseif ($this->kelurahan_id) {
             $kelurahan = Kelurahan::find($this->kelurahan_id);
             if ($kelurahan) {
                 $this->kecamatan_id = $kelurahan->kecamatan_id;
@@ -189,7 +201,7 @@ class EditFormPermintaanMaterial extends Component
             return $item['merk']->barang_id ?? null;
         })->filter()->unique()->toArray();
 
-        if ($this->withRab && $this->rab_id > 0) {
+        if ($this->rab) {
             // Load barang dari RAB yang belum ada di list
             $barangIds = collect($this->rab->detailRab ?? [])->pluck('barang_id')->unique();
             $this->barangs = BarangStok::whereIn('id', $barangIds)
@@ -207,33 +219,6 @@ class EditFormPermintaanMaterial extends Component
                 })
                 ->get();
         }
-    }
-
-    public function updatedWithRab()
-    {
-        if (!$this->withRab) {
-            $this->rab_id = null;
-            $this->rab = null;
-        }
-
-        // Reset form tambah item saat mode RAB berubah
-        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
-        $this->newUnit = 'Satuan';
-        $this->merks = [];
-
-        $this->fillBarangs();
-    }
-
-    public function updatedRabId()
-    {
-        $this->rab = $this->rab_id ? Rab::find($this->rab_id) : null;
-
-        // Reset form tambah item saat RAB berubah
-        $this->reset(['newBarangId', 'newMerkId', 'newJumlah', 'newKeterangan', 'newRabId']);
-        $this->newUnit = 'Satuan';
-        $this->merks = [];
-
-        $this->fillBarangs();
     }
 
     public function updatedGudangId()
@@ -402,11 +387,12 @@ class EditFormPermintaanMaterial extends Component
                 'tanggal_permintaan' => strtotime($this->tanggal_permintaan),
                 'keterangan' => $this->keterangan,
                 'gudang_id' => $this->gudang_id,
-                'rab_id' => $this->withRab ? $this->rab_id : null,
+                'rab_id' => $this->rab ? $this->rab->id : null,
                 'nodin' => $this->nodin,
-                'nama' => $this->namaKegiatan,
+                'nama' => $this->jenisPekerjaan,
                 'lokasi' => $this->lokasiMaterial,
                 'kelurahan_id' => $this->kelurahan_id,
+                'kecamatan_id' => $this->kecamatan_id,
                 'p' => $this->p,
                 'l' => $this->l,
                 'k' => $this->k,
@@ -454,11 +440,12 @@ class EditFormPermintaanMaterial extends Component
                 'tanggal_permintaan' => strtotime($this->tanggal_permintaan),
                 'keterangan' => $this->keterangan,
                 'gudang_id' => $this->gudang_id,
-                'rab_id' => $this->withRab ? $this->rab_id : null,
+                'rab_id' => $this->rab ? $this->rab->id : null,
                 'nodin' => $this->nodin,
-                'nama' => $this->namaKegiatan,
+                'nama' => $this->jenisPekerjaan,
                 'lokasi' => $this->lokasiMaterial,
                 'kelurahan_id' => $this->kelurahan_id,
+                'kecamatan_id' => $this->kecamatan_id,
                 'p' => $this->p,
                 'l' => $this->l,
                 'k' => $this->k,
@@ -482,7 +469,7 @@ class EditFormPermintaanMaterial extends Component
             // Logic untuk approval (seperti di ListPermintaanMaterial)
             $pemohon = $this->permintaan->user;
             $creatorRoles = $pemohon->roles->pluck('name')->toArray();
-            $hasRab = $this->permintaan->rab_id !== null;
+            $hasRab = $this->rab !== null;
             $isKasatpel = in_array('Kepala Satuan Pelaksana', $creatorRoles);
 
             // Tentukan role approval pertama
