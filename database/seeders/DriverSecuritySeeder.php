@@ -52,6 +52,57 @@ class DriverSecuritySeeder extends Seeder
                 'nopol' => null,
                 'wilayah' => 'Jakarta Pusat'
             ],
+            // Tambahan Sudin SDA Pusat
+            [
+                'nama' => 'Ponirin',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Pusat'
+            ],
+            [
+                'nama' => 'Agus Riyanto',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Pusat'
+            ],
+            [
+                'nama' => 'Andri Saputra',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Pusat'
+            ],
+            [
+                'nama' => 'Seto Giri',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Pusat'
+            ],
+            [
+                'nama' => 'Agus Supriyadi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Pusat'
+            ],
+            [
+                'nama' => 'Ramdoni',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Pusat'
+            ],
+            [
+                'nama' => 'Teyun Kuswanto',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Pusat'
+            ],
+            [
+                'nama' => 'Kasindon',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Pusat'
+            ],
+            [
+                'nama' => 'Asep Sukendar',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Pusat'
+            ],
+            [
+                'nama' => 'Feri Hendri Purnomo',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Pusat'
+            ],
 
             // Sudin SDA Utara
             [
@@ -94,8 +145,79 @@ class DriverSecuritySeeder extends Seeder
                 'nopol' => null,
                 'wilayah' => 'Jakarta Utara'
             ],
+            // Tambahan Sudin SDA Utara
+            [
+                'nama' => 'Ahmad Azis',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Dadang Haerani',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Arif Zainudin',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Ramdoni',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Cakra Bagus Jati',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Abdul Rahman Sini Suka',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Junaedi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Sutejo Triyono',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Rahmat',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Maman Abdurahman',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Surono',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Asep Cahyadi Atmaja',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Rian Aditya',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
+            [
+                'nama' => 'Abdul Fuad',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Utara'
+            ],
 
-            // Sudin SDA Timur (dummy)
+            // Sudin SDA Timur
             [
                 'nama' => 'Ahmad Faisal',
                 'nopol' => null,
@@ -682,6 +804,112 @@ class DriverSecuritySeeder extends Seeder
             ],
             [
                 'nama' => 'Suryadi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            // Tambahan Sudin SDA Barat
+            [
+                'nama' => 'Budi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'David',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Yopa',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Sofwatul Anam',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Sujiono',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Mulyadi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Warji',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Sasa',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Beni',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Ferdian',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Saudi',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Sutisna',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Eko',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Abdul Rohman',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Sidik',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Abdul Hamid',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Fazrinal',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Haryoko',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Suryaka',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Jaruki',
+                'nopol' => null,
+                'wilayah' => 'Jakarta Barat'
+            ],
+            [
+                'nama' => 'Hilman',
                 'nopol' => null,
                 'wilayah' => 'Jakarta Barat'
             ],

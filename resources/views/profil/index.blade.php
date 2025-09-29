@@ -29,10 +29,10 @@
                             <span class="text-sm font-medium text-gray-700 w-1/3">Unit Kerja</span>
                             @if ($user->unitKerja?->parent)
                                 <span
-                                    class="text-sm text-gray-500 w-2/3">{{ $user->unitKerja->parent->nama . ' - ' . $user->unitKerja->nama ?? 'Tidak Ditemukan' }}</span>
+                                    class="text-sm text-gray-500 w-2/3">{{ ($user->unitKerja->parent->nama ?? '') . ' - ' . ($user->unitKerja->nama ?? 'Tidak Ditemukan') }}</span>
                             @else
                                 <span
-                                    class="text-sm text-gray-500 w-2/3">{{ $user->unitKerja->nama ?? 'Tidak Ditemukan' }}</span>
+                                    class="text-sm text-gray-500 w-2/3">{{ $user->unitKerja?->nama ?? 'Tidak Ditemukan' }}</span>
                             @endif
                         </div>
                         <div class="flex justify-between border-b py-2">
@@ -42,8 +42,8 @@
                         </div>
                         {{-- <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Perusahaan/Organisasi</span>
-                            <span
-                                class="text-sm text-gray-500 w-2/3">{{ $user->perusahaan ?? 'Tidak Ditemukan' }}</span>
+                            <span class="text-sm text-gray-500 w-2/3">{{ $user->perusahaan ?? 'Tidak Ditemukan'
+                                }}</span>
                         </div>
                         <div class="flex justify-between border-b py-2">
                             <span class="text-sm font-medium text-gray-700 w-1/3">Alamat</span>
@@ -211,54 +211,55 @@
 
                                     <!-- Tombol Reset -->
                                     @if (request()->has('search') && request('search') != '')
-                                        <a href="{{ route('profil.index') }}"
-                                            class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
-                                            <i class="fa-solid fa-rotate-right"></i>
-                                        </a>
+                                    <a href="{{ route('profil.index') }}"
+                                        class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors">
+                                        <i class="fa-solid fa-rotate-right"></i>
+                                    </a>
                                     @endif
                                 </div>
                             </form>
                         </div>
                         @forelse ($Users as $user)
-                            <div class="border rounded-lg shadow-md p-4 mb-4 bg-white">
-                                <!-- Header Section -->
-                                <div class="flex justify-between items-center mb-4">
-                                    <p class="text-base font-medium text-gray-700">
-                                        <strong>Nama:</strong> <span>{{ $user->name }}</span>
-                                    </p>
-                                    <div class="flex space-x-2">
-                                        <a href="profil/user/{{ $user->id }}""
-                                            class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
-                                            data-tooltip-target="tooltip-edit-{{ $user->id }}">
-                                            <i class="fa-solid fa-pencil"></i>
-                                        </a>
-                                        <div id="tooltip-edit-{{ $user->id }}" role="tooltip"
-                                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                            Edit Pengguna ini
-                                            <div class="tooltip-arrow" data-popper-arrow></div>
-                                        </div>
+                        <div class="border rounded-lg shadow-md p-4 mb-4 bg-white">
+                            <!-- Header Section -->
+                            <div class="flex justify-between items-center mb-4">
+                                <p class="text-base font-medium text-gray-700">
+                                    <strong>Nama:</strong> <span>{{ $user->name }}</span>
+                                </p>
+                                <div class="flex space-x-2">
+                                    <a href="profil/user/{{ $user->id }}""
+                                                class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
+                                                data-tooltip-target=" tooltip-edit-{{ $user->id }}">
+                                        <i class="fa-solid fa-pencil"></i>
+                                    </a>
+                                    <div id="tooltip-edit-{{ $user->id }}" role="tooltip"
+                                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                        Edit Pengguna ini
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
                                     </div>
                                 </div>
-                                <!-- Details Section -->
-                                <div class="text-sm text-gray-500 space-y-2">
-                                    <p><strong>NIP:</strong> {{ $user->nip ?? '-' }}</p>
-                                    <p><strong>Email:</strong> {{ $user->email ?? '-' }}</p>
-                                    <p><strong>Jabatan:</strong> {{ $user->formatted_roles ?? '-' }}</p>
-                                    <p><strong>Username:</strong> {{ $user->username ?? '-' }}</p>
-                                    <p><strong>Unit Kerja:</strong> {{ $user->unitKerja->nama ?? '-' }} </p>
-                                    <p><strong>Lokasi Gudang:</strong> {{ $user->lokasiStok->nama ?? '-' }} </p> --}}
-                {{-- <p><strong>Keterangan:</strong> {{ $user->keterangan ?? '-' }}</p> --}}
-                {{-- </div>
                             </div>
+                            <!-- Details Section -->
+                            <div class="text-sm text-gray-500 space-y-2">
+                                <p><strong>NIP:</strong> {{ $user->nip ?? '-' }}</p>
+                                <p><strong>Email:</strong> {{ $user->email ?? '-' }}</p>
+                                <p><strong>Jabatan:</strong> {{ $user->formatted_roles ?? '-' }}</p>
+                                <p><strong>Username:</strong> {{ $user->username ?? '-' }}</p>
+                                <p><strong>Unit Kerja:</strong> {{ $user->unitKerja->nama ?? '-' }} </p>
+                                <p><strong>Lokasi Gudang:</strong> {{ $user->lokasiStok->nama ?? '-' }} </p> --}}
+                                {{-- <p><strong>Keterangan:</strong> {{ $user->keterangan ?? '-' }}</p> --}}
+                                {{--
+                            </div>
+                        </div>
                         @empty
-                            <div class="text-gray-500 text-sm">
-                                <p>Belum ada pengguna tambahan yang terdaftar.</p>
-                            </div>
+                        <div class="text-gray-500 text-sm">
+                            <p>Belum ada pengguna tambahan yang terdaftar.</p>
+                        </div>
                         @endforelse
                     </div>
                 </x-card>
             </div> --}}
-                <livewire:additional-user />
+            <livewire:additional-user />
         @endif
     </div>
 </x-body>

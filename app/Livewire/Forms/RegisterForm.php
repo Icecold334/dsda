@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use Carbon\Carbon;
 use Livewire\Form;
 use App\Models\User;
 use App\Models\UnitKerja;
@@ -70,6 +71,7 @@ class RegisterForm extends Form
             'password' => Hash::make($validated['password']),
             'unit_id' => $this->sub_unit ?? $this->parent_id,
             'lokasi_id' => $validated['lokasi_id'] ?? null,
+            'email_verified_at' => Carbon::now(),
         ]);
 
         // Berikan Role 'Anggota' dari Spatie

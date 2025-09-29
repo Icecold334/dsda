@@ -106,7 +106,7 @@
       PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
       <strong>DINAS SUMBER DAYA AIR <br>
         SUKU DINAS SUMBER DAYA AIR <br></strong>
-      <strong>{{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
+      <strong>{{ $isSeribu ? 'KABUPATEN' : 'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
         {{ $permintaan->unit->alamat }}
         <br>
@@ -126,7 +126,7 @@
   Pada hari ini {{ $permintaan->created_at->translatedFormat('l') }} tanggal {{
   $permintaan->created_at->translatedFormat('j') }} bulan
   {{
-  $permintaan->created_at->translatedFormat('M') }} tahun {{
+  $permintaan->created_at->translatedFormat('F') }} tahun {{
   $permintaan->created_at->translatedFormat('Y') }}, yang bertanda tangan di bawah ini: <br>
   <table>
     <tr>
@@ -142,15 +142,15 @@
     <tr>
       <td></td>
       <td></td>
-      <td>{{ $isSeribu ?'Kabupaten':'Kota' }} Administrasi {{ $sudin }}</td>
+      <td>{{ $isSeribu ? 'Kabupaten' : 'Kota' }} Administrasi {{ $sudin }}</td>
     </tr>
   </table>
   <div style="text-align: justify">
     Berdasarkan Surat Perintah Penyaluran Barang (SPPB) dari Pejabat Penatausahaan Barang Suku Dinas Sumber Daya Air {{
-    $isSeribu ?'Kabupaten':'Kota' }} Administrasi {{$sudin }} Nomor {{ $permintaan->nodin }}
+  $isSeribu ? 'Kabupaten' : 'Kota' }} Administrasi {{$sudin }} Nomor {{ $permintaan->nodin }}
     tanggal {{ $permintaan->created_at->translatedFormat('j') }} bulan {{
-    $permintaan->created_at->translatedFormat('M') }} tahun {{
-    $permintaan->created_at->translatedFormat('Y') }} telah diserahkan oleh Pengurus Barang Pembantu kepada Pemakai
+  $permintaan->created_at->translatedFormat('F') }} tahun {{
+  $permintaan->created_at->translatedFormat('Y') }} telah diserahkan oleh Pengurus Barang Pembantu kepada Pemakai
     Barang Persediaan, sebagaimana daftar terlampir.
   </div>
 </div>
@@ -174,11 +174,12 @@
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="100">{{ $item->merkStok->barangStok->nama }}</td>
       <td width="250">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
-        $item->merkStok->tipe ?? 'Tanpa tipe' }} -
-        {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
+    $item->merkStok->tipe ?? 'Tanpa tipe' }} -
+      {{ $item->merkStok->ukuran ?? 'Tanpa ukuran' }}
+      </td>
       <td width="100" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
     </tr>
-    @endforeach
+  @endforeach
   </tbody>
 </table>
 
@@ -195,9 +196,9 @@
       Pengurus Barang Pembantu <br><br>
       @if ($sign)
       <img src="/storage/ttdPengiriman/nurdin.png" height="40"><br>
-      @else
+    @else
       <br><br><br>
-      @endif
+    @endif
       <strong>{{ $pengurus->name }}</strong><br>
       NIP {{ $pengurus->nip ?? '....................' }}
     </td>
@@ -205,10 +206,10 @@
       Yang Menerima<br>
       Pemakai Persediaan<br><br>
       @if ($sign)
-      <img src="{{ $permintaan->status === 3 || true ? '/storage/ttdPengiriman/nurdin.png':'' }}" height="40"><br>
-      @else
+      <img src="{{ $permintaan->status === 3 || true ? '/storage/ttdPengiriman/nurdin.png' : '' }}" height="40"><br>
+    @else
       <br><br><br>
-      @endif
+    @endif
       <strong>{{ $permintaan->user->name }}</strong><br>
       NIP {{ $permintaan->user->nip ?? '....................' }}
     </td>

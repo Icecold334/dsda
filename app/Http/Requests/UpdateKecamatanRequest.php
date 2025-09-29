@@ -11,7 +11,7 @@ class UpdateKecamatanRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,7 @@ class UpdateKecamatanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'kecamatan' => 'required|string|max:255|unique:kecamatans,kecamatan,' . $this->kecamatan->id
         ];
     }
 }

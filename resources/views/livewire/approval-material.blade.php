@@ -3,16 +3,34 @@
         <!-- Penulis -->
         <div>
             <div class="block font-semibold text-center mb-2 text-gray-900">
-                @if ($penulis->hasRole('Kepala Seksi') && $penulis->unitKerja)
-                    Kepala {{ $penulis->unitKerja->nama }}
-                @else
-                    {{ implode(', ', $penulis->roles->pluck('name')->toArray()) }}
-                @endif
+                @php
+                    // BYPASS: Untuk periode 12-19 Agustus 2025, jika permintaan dibuat oleh Citrin (245),
+                    // tampilkan sebagai dibuat oleh Yusuf (252) dengan role Kepala Seksi Pemeliharaan
+                    $isTransferPeriod = $permintaan->created_at->between('2025-08-12 00:00:00', '2025-08-19 23:59:59');
+                    $isCitrinRequest = $penulis->id == 245;
+
+                    if ($isTransferPeriod && $isCitrinRequest) {
+                        $displayRole = 'Kepala Seksi Pemeliharaan';
+                    } elseif ($penulis->hasRole('Kepala Seksi') && $penulis->unitKerja) {
+                        $displayRole = 'Kepala ' . $penulis->unitKerja->nama;
+                    } else {
+                        $displayRole = implode(', ', $penulis->roles->pluck('name')->toArray());
+                    }
+                @endphp
+                {{ $displayRole }}
             </div>
             <div class="text-sm border-b-2">
                 <div class="flex justify-between px-3">
                     <span class="mr-9 {{ $penulis->id == auth()->id() ? 'font-bold' : '' }}">
-                        {{ $penulis->id === auth()->id() && 0 ? 'Anda' : $penulis->name }}
+                        @php
+                            // BYPASS: Tampilkan nama Yusuf jika permintaan periode transfer oleh Citrin
+                            if ($isTransferPeriod && $isCitrinRequest) {
+                                $displayName = 'Yusuf Saut Pangibulan, ST, MPSDA';
+                            } else {
+                                $displayName = $penulis->id === auth()->id() && 0 ? 'Anda' : $penulis->name;
+                            }
+                        @endphp
+                        {{ $displayName }}
                     </span>
                     {{-- <i class="my-1 fa-solid fa-circle-check text-success-500"></i> --}}
                 </div>
@@ -35,17 +53,40 @@
                     @foreach ($users as $user)
                             <tr class="text-sm border-b-2">
                                 <td class="flex justify-between px-3">
-                                    <span class="mr-9 {{ $user->id == auth()->id() ? 'font-bold' : '' }}">
-                                        {{ $user->name }}
-                                    </span>
                                     @php
-                                        $status = optional(
-                                            $user->persetujuan
-                                                ->where('approvable_id', $permintaan->id ?? 0)
+                                        // BYPASS: Untuk periode 12-19 Agustus 2025, jika ada approval dari Yusuf (252) 
+                                        // untuk role Kepala Seksi, tampilkan nama Yusuf
+                                        $displayName = $user->name;
+                                        $isKepalaSeksi = $roleKey == 'kepala-seksi';
+
+                                        // Cek apakah ada approval dari Yusuf untuk permintaan ini dalam periode transfer
+                                        $transferApproval = null;
+                                        if ($isKepalaSeksi) {
+                                            $transferApproval = \App\Models\Persetujuan::where('approvable_id', $permintaan->id ?? 0)
                                                 ->where('approvable_type', App\Models\DetailPermintaanMaterial::class)
-                                                ->first()
-                                        )->is_approved;
+                                                ->where('user_id', 252)
+                                                ->whereBetween('created_at', ['2025-08-12 00:00:00', '2025-08-19 23:59:59'])
+                                                ->first();
+                                        }
+
+                                        // Jika ada transfer approval, override nama dan status
+                                        if ($transferApproval) {
+                                            $displayName = 'Yusuf Saut Pangibulan, ST, MPSDA';
+                                            $status = $transferApproval->is_approved;
+                                        } else {
+                                            // Logic normal
+                                            $status = optional(
+                                                $user->persetujuan
+                                                    ->where('approvable_id', $permintaan->id ?? 0)
+                                                    ->where('approvable_type', App\Models\DetailPermintaanMaterial::class)
+                                                    ->first()
+                                            )->is_approved;
+                                        }
                                     @endphp
+
+                                    <span class="mr-9 {{ $user->id == auth()->id() ? 'font-bold' : '' }}">
+                                        {{ $displayName }}
+                                    </span>
 
                                     <i class="my-1 fa-solid {{ is_null($status)
                         ? 'fa-circle-question text-secondary-600'

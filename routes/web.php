@@ -11,6 +11,7 @@ use App\Livewire\AssetCalendar;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RabController;
 use Illuminate\Support\Facades\Session;
@@ -27,6 +28,7 @@ use App\Http\Controllers\RuangController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\DiskonController;
 use App\Http\Controllers\JurnalController;
+use App\Http\Controllers\MasterProgramController;
 use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\PersonController;
@@ -49,6 +51,7 @@ use App\Http\Controllers\BarangStokController;
 use App\Http\Controllers\KonfirmasiController;
 use App\Http\Controllers\LokasiStokController;
 use App\Http\Controllers\PosisiStokController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorStokController;
 use App\Http\Controllers\PersetujuanController;
 use App\Http\Controllers\AsetNonAktifController;
@@ -63,6 +66,8 @@ use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\PengaturanPersetujuanController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
 use App\Http\Controllers\SecurityController;
+use App\Http\Controllers\KecamatanController;
+use App\Http\Controllers\KelurahanController;
 use App\Livewire\DataDriver;
 
 Route::get('/', function () {
@@ -78,12 +83,12 @@ Route::get('/logout', function () {
 });
 
 Route::get('/qr/permintaan/{user_id}/{kode}', function ($user_id, $kode) {
-    // Cari aset berdasarkan systemcode
+    // Cari permintaan berdasarkan kode_permintaan
     $permintaan = DetailPermintaanStok::where('kode_permintaan', $kode)->first();
 
     // Jika permintaan tidak ditemukan, redirect ke halaman home atau tampilkan pesan error
     if (!$permintaan) {
-        return redirect()->route('home')->with('error', 'Aset tidak ditemukan.');
+        return redirect()->route('home')->with('error', 'Permintaan tidak ditemukan.');
     }
 
     // Gunakan user_id = 3 sebagai guest, tidak tergantung pada user yang sedang login
@@ -95,9 +100,57 @@ Route::get('/qr/permintaan/{user_id}/{kode}', function ($user_id, $kode) {
         return redirect()->route('home')->with('error', 'User Guest tidak ditemukan.');
     }
 
-    // Kembalikan view dengan data aset dan user guest
+    // Kembalikan view dengan data permintaan dan user guest
     return view('scan_permintaan', compact('permintaan', 'user', 'tipe'));
 })->name('scan_permintaan');
+
+Route::get('/qr/material/{user_id}/{kode}', function ($user_id, $kode) {
+    // Cari permintaan material berdasarkan kode_permintaan
+    $permintaan = \App\Models\DetailPermintaanMaterial::where('kode_permintaan', $kode)->first();
+
+    // Jika permintaan tidak ditemukan, redirect ke halaman home atau tampilkan pesan error
+    if (!$permintaan) {
+        return redirect()->route('home')->with('error', 'Permintaan material tidak ditemukan.');
+    }
+
+    // Mapping status untuk mendapatkan status_teks
+    $statusMap = [
+        null => ['label' => 'Diproses', 'color' => 'warning'],
+        0 => ['label' => 'Ditolak', 'color' => 'danger'],
+        1 => ['label' => 'Disetujui', 'color' => 'success'],
+        2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
+        3 => ['label' => 'Selesai', 'color' => 'primary'],
+    ];
+
+    $statusTeks = $statusMap[$permintaan->status]['label'] ?? 'Tidak diketahui';
+
+    // Cek status permintaan dan redirect sesuai logika
+    switch ($permintaan->status) {
+        case 1: // Disetujui - tampilkan PDF
+            return downloadGabunganPdf($permintaan->id);
+
+        case 2: // Sedang Dikirim - redirect ke halaman show dengan alert
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $permintaan->id])
+                ->with('alert', [
+                    'type' => 'info',
+                    'message' => 'Permintaan sedang dalam proses pengiriman.'
+                ]);
+
+        case 3: // Selesai - redirect ke halaman show dengan alert
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $permintaan->id])
+                ->with('alert', [
+                    'type' => 'success',
+                    'message' => 'Permintaan telah selesai diproses.'
+                ]);
+
+        default: // Status lain - redirect dengan pesan error
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $permintaan->id])
+                ->with('alert', [
+                    'type' => 'warning',
+                    'message' => "Permintaan belum dapat diakses. Status: {$statusTeks}"
+                ]);
+    }
+})->name('scan_material');
 Route::get('/scan/{user_id}/{systemcode}', function ($user_id, $systemcode) {
     // Cari aset berdasarkan systemcode
     $aset = Aset::with(['histories', 'keuangans', 'jurnals'])->where('systemcode', $systemcode)->first();
@@ -126,7 +179,45 @@ Route::get('dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::get('/material/{id}/qrDownload', function ($id) {
-    return downloadGabunganPdf($id);
+    $permintaan = \App\Models\DetailPermintaanMaterial::findOrFail($id);
+
+    // Mapping status untuk mendapatkan status_teks
+    $statusMap = [
+        null => ['label' => 'Diproses', 'color' => 'warning'],
+        0 => ['label' => 'Ditolak', 'color' => 'danger'],
+        1 => ['label' => 'Disetujui', 'color' => 'success'],
+        2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
+        3 => ['label' => 'Selesai', 'color' => 'primary'],
+    ];
+
+    $statusTeks = $statusMap[$permintaan->status]['label'] ?? 'Tidak diketahui';
+
+    // Cek status permintaan
+    switch ($permintaan->status) {
+        case 1: // Disetujui - tampilkan PDF
+            return downloadGabunganPdf($id);
+
+        case 2: // Sedang Dikirim - redirect ke halaman show dengan alert
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $id])
+                ->with('alert', [
+                    'type' => 'info',
+                    'message' => 'Permintaan sedang dalam proses pengiriman.'
+                ]);
+
+        case 3: // Selesai - redirect ke halaman show dengan alert
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $id])
+                ->with('alert', [
+                    'type' => 'success',
+                    'message' => 'Permintaan telah selesai diproses.'
+                ]);
+
+        default: // Status lain - redirect dengan pesan error
+            return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $id])
+                ->with('alert', [
+                    'type' => 'warning',
+                    'message' => "Permintaan belum dapat diakses. Status: {$statusTeks}"
+                ]);
+    }
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -252,9 +343,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('ruang', RuangController::class)->middleware('can:data_ruang');
     Route::get('person/{tipe}/{person}', [PersonController::class, 'create'])->middleware('can:data_penanggung_jawab');
     Route::resource('person', PersonController::class)->middleware('can:data_penanggung_jawab');
-    Route::get('unit-kerja/{tipe}', [UnitKerjaController::class, 'create'])->middleware('can:data_unit_kerja');
-    Route::get('unit-kerja/{tipe}/{id}', [UnitKerjaController::class, 'create'])->middleware('can:data_unit_kerja');
-    Route::resource('unit-kerja', UnitKerjaController::class)->middleware('can:data_unit_kerja');
+
+    // Unit Kerja routes with new permissions
+    Route::get('unit-kerja/{tipe}', [UnitKerjaController::class, 'create'])->middleware('can:unit_kerja.create');
+    Route::get('unit-kerja/{tipe}/{id}', [UnitKerjaController::class, 'create'])->middleware('can:unit_kerja.create');
+    Route::resource('unit-kerja', UnitKerjaController::class)->except(['create', 'store', 'edit', 'update', 'destroy'])->middleware('can:unit_kerja.read');
+    Route::get('unit-kerja/create', [UnitKerjaController::class, 'create'])->middleware('can:unit_kerja.create')->name('unit-kerja.create');
+    Route::post('unit-kerja', [UnitKerjaController::class, 'store'])->middleware('can:unit_kerja.create')->name('unit-kerja.store');
+    Route::get('unit-kerja/{unit_kerja}/edit', [UnitKerjaController::class, 'edit'])->middleware('can:unit_kerja.update')->name('unit-kerja.edit');
+    Route::put('unit-kerja/{unit_kerja}', [UnitKerjaController::class, 'update'])->middleware('can:unit_kerja.update')->name('unit-kerja.update');
+    Route::patch('unit-kerja/{unit_kerja}', [UnitKerjaController::class, 'update'])->middleware('can:unit_kerja.update');
+    Route::delete('unit-kerja/{unit_kerja}', [UnitKerjaController::class, 'destroy'])->middleware('can:unit_kerja.delete')->name('unit-kerja.destroy');
+
+    // Kecamatan routes - protection via @can in views only
+    Route::resource('kecamatan', KecamatanController::class);
+
+    // Kelurahan routes - protection via @can in views only
+    Route::resource('kelurahan', KelurahanController::class);
+
+    // User Management routes - superadmin only
+    Route::middleware('role:superadmin')->group(function () {
+        Route::resource('users', UserController::class);
+        Route::get('users/{user}/toggle-email-verification', [UserController::class, 'toggleEmailVerification'])->name('users.toggle-email-verification');
+        Route::post('users/bulk-action', [UserController::class, 'bulkAction'])->name('users.bulk-action');
+        Route::get('users/export', [UserController::class, 'export'])->name('users.export');
+
+        // Master Program routes - superadmin only (update only, no create/delete)
+        Route::resource('master-program', MasterProgramController::class)->except(['create', 'store', 'destroy']);
+    });
+
     Route::get('profil/{tipe}', [ProfilController::class, 'create']);
     Route::get('profil/{tipe}/{profil}', [ProfilController::class, 'create']);
     Route::resource('profil', ProfilController::class);
@@ -289,6 +406,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('permintaan/{tipe}', [PermintaanStokController::class, 'index']);
     Route::get('option-approval', [PengaturanPersetujuanController::class, 'index']);
     Route::get('option-approval/{tipe}/{jenis}', [PengaturanPersetujuanController::class, 'edit']);
+    Route::get('permintaan/edit/{id}', [PermintaanStokController::class, 'edit'])->name('editPermintaan');
+    Route::get('permintaan/material/edit/{id}', [PermintaanStokController::class, 'editMaterial'])->name('editPermintaanMaterial');
     Route::get('permintaan/{tipe}/{id}', [PermintaanStokController::class, 'show'])->name('showPermintaan');
     Route::get('/log-barang', [StokController::class, 'logBarang'])->name('log-index');
     Route::get('/stok/sudin/{sudin}', [StokController::class, 'index']);
@@ -311,8 +430,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'rab' => RabController::class,
         'permintaan-stok' => PermintaanStokController::class,
     ]);
-});
 
+    // Admin routes for permintaan - no restrictions (superadmin only)
+    Route::prefix('admin/permintaan')->group(function () {
+        Route::get('{id}/edit', [PermintaanStokController::class, 'adminEdit'])->name('permintaan.admin-edit');
+        Route::put('{id}', [PermintaanStokController::class, 'adminUpdate'])->name('permintaan.admin-update');
+        Route::delete('{id}', [PermintaanStokController::class, 'adminDestroy'])->name('permintaan.admin-destroy');
+    });
+});
 
 function downloadGabunganPdf($id)
 {
@@ -329,6 +454,14 @@ function downloadGabunganPdf($id)
     $ttdPath = storage_path('app/public/ttdPengiriman/nurdin.png');
 
     $pemohon = $permintaan->user;
+    $isKasatpel = $pemohon->hasRole('Kepala Satuan Pelaksana') || $pemohon->roles->contains(function ($role) {
+        return str_contains($role->name, 'Kepala Satuan Pelaksana') || str_contains($role->name, 'Ketua Satuan Pelaksana');
+    });
+    $kepalaSeksiPemeliharaan = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
+        return $unit->where('parent_id', $unit_id)->where('nama', 'like', '%Pemeliharaan%');
+    })->whereHas('roles', function ($role) {
+        return $role->where('name', 'like', '%Kepala Seksi%');
+    })->first();
     $pemohonRole = $pemohon->roles->pluck('name')->first();
 
     $kasatpel = User::whereHas('unitKerja', fn($q) => $q->where('id', $unit_id))
@@ -394,6 +527,8 @@ function downloadGabunganPdf($id)
     $htmlSppb = view('pdf.sppb', compact(
         'ttdPath',
         'permintaan',
+        'isKasatpel',
+        'kepalaSeksiPemeliharaan',
         'kasatpel',
         'penjaga',
         'pengurus',

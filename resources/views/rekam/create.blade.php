@@ -8,24 +8,24 @@
         </div>
     </div>
 
-    @if (auth()->user()->unitKerja->hak)
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    @if (auth()->user()->unitKerja && auth()->user()->unitKerja->hak)
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <div>
-            <x-card title="Pilih Vendor">
-                <livewire:vendor-kontrak-form :vendors="$vendors" />
-            </x-card>
+            <div>
+                <x-card title="Pilih Vendor">
+                    <livewire:vendor-kontrak-form :vendors="$vendors" />
+                </x-card>
+            </div>
+            <div>
+                <x-card title="DOKUMEN kontrak">
+                    <livewire:upload-surat-kontrak />
+                </x-card>
+            </div>
         </div>
-        <div>
-            <x-card title="DOKUMEN kontrak">
-                <livewire:upload-surat-kontrak />
-            </x-card>
-        </div>
-    </div>
-    <livewire:kontrak-list-form />
+        <livewire:kontrak-list-form />
     @else
 
-    <livewire:create-kontrak-vendor :id="$id??null" />
+        <livewire:create-kontrak-vendor :id="$id ?? null" />
     @endif
 
 </x-body>

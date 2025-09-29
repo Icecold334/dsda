@@ -1,6 +1,17 @@
 <div>
-    <div class="flex justify-between ">
+    {{-- Flash Messages --}}
+    @if(session('message'))
+        <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+            {{ session('message') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            {{ session('error') }}
+        </div>
+    @endif
 
+    <div class="flex justify-between ">
         <h1 class="text-2xl font-bold text-primary-900 ">DETAIL PERMINTAAN</h1>
         <div>
             <a class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
@@ -114,7 +125,8 @@
             @endif
 
             {{-- BAST --}}
-            {{-- @canany(['permintaan.read', 'permintaan.update'])
+            {{--
+            @canany(['permintaan.read', 'permintaan.update'])
             @if ($permintaan->status == 3)
             @if ($permintaan->bast_path)
             <a href="{{ asset('storage/bast/' . $permintaan->bast_path) }}" target="_blank"
@@ -134,7 +146,8 @@
             @endcan
             @endif
             @endif
-            @endcanany --}}
+            @endcanany
+            --}}
 
         </div>
     </div>
@@ -290,8 +303,6 @@
                                     <i class="fa-solid fa-file text-gray-500"></i>
                                 @endif
                             </span>
-
-                            <!-- File name with underline on hover and a link to the saved file -->
                             <span>
                                 <a href="{{ asset('storage/lampiranRab/' . $attachment->path) }}" target="_blank"
                                     class="text-gray-800 hover:underline">
@@ -325,6 +336,8 @@
 
         <div>
             <x-card title="Foto Pengiriman" class="mb-3">
+
+
                 {{-- Tombol unggah & simpan hanya jika boleh upload dan belum ada lampiran --}}
                 @if ($canUpload && $lampiranCount < 1)
                     <div wire:loading wire:target="newAttachments">
@@ -337,7 +350,7 @@
                     </label>
                     <a wire:click='saveDoc'
                         class="cursor-pointer {{ count($this->attachments) ? '' : 'hidden' }}
-                            text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                                                                                                            text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                         Simpan
                     </a>
                 @endif
@@ -364,6 +377,14 @@
                                     {{ basename($attachment->path) }}
                                 </a>
                             </span>
+
+                            {{-- Tombol hapus foto untuk edit mode --}}
+                            @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 2 && isset($showEditFoto) && $showEditFoto)
+                                <button onclick="confirmDeleteFoto({{ $attachment->id }})"
+                                    class="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            @endif
                         </div>
                     @endforeach
 
@@ -409,6 +430,29 @@
         @endphp
 
         <x-card title="Tanda Tangan Driver & Keamanan">
+            {{-- Tombol Edit untuk data pengiriman --}}
+            @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 2 && $permintaan->driver && $permintaan->security && $permintaan->nopol)
+                <div class="flex justify-end mb-3">
+                    @if(!$isEditMode)
+                        <button wire:click="enableEditMode"
+                            class="text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                            <i class="fas fa-edit mr-1"></i> Edit Data Pengiriman
+                        </button>
+                    @else
+                        <div class="flex space-x-2">
+                            <button wire:click="updateDriverInfo"
+                                class="text-sm px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition">
+                                <i class="fas fa-save mr-1"></i> Simpan
+                            </button>
+                            <button wire:click="cancelEdit"
+                                class="text-sm px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
+                                <i class="fas fa-times mr-1"></i> Batal
+                            </button>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
             {{-- Form Input Driver, Security, dan Nopol --}}
             @if ($canInputDriverInfo && (!$permintaan->driver || !$permintaan->security || !$permintaan->nopol))
                 <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -417,6 +461,12 @@
                     @if (session()->has('message'))
                         <div class="mb-3 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
                             {{ session('message') }}
+                        </div>
+                    @endif
+
+                    @if (session()->has('error'))
+                        <div class="mb-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                            {{ session('error') }}
                         </div>
                     @endif
 
@@ -462,33 +512,78 @@
 
             {{-- Informasi Driver --}}
             <div class="mb-4 p-3 bg-gray-50 rounded-lg">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                        <span class="font-semibold text-gray-600">Driver:</span>
-                        <span class="ml-2">{{ $permintaan->driver ?? 'Belum ditentukan' }}</span>
+                @if($isEditMode)
+                    {{-- Edit Mode --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Driver</label>
+                            <select wire:model="editDriverId"
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
+                                <option value="">Pilih Driver</option>
+                                @foreach(\App\Models\Driver::where('unit_id', auth()->user()->unit_id)->get() as $driver)
+                                    <option value="{{ $driver->id }}">{{ $driver->nama }}</option>
+                                @endforeach
+                            </select>
+                            @error('editDriverId') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Security</label>
+                            <select wire:model="editSecurityId"
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
+                                <option value="">Pilih Security</option>
+                                @foreach(\App\Models\Security::where('unit_id', auth()->user()->unit_id)->get() as $security)
+                                    <option value="{{ $security->id }}">{{ $security->nama }}</option>
+                                @endforeach
+                            </select>
+                            @error('editSecurityId') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Polisi</label>
+                            <input type="text" wire:model="editNopol"
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                                placeholder="Masukkan nomor polisi">
+                            @error('editNopol') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
                     </div>
-                    <div>
-                        <span class="font-semibold text-gray-600">Security:</span>
-                        <span class="ml-2">{{ $permintaan->security ?? 'Belum ditentukan' }}</span>
+                @else
+                    {{-- View Mode --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <span class="font-semibold text-gray-600">Driver:</span>
+                            <span class="ml-2">{{ $permintaan->driver ?? 'Belum ditentukan' }}</span>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-gray-600">Security:</span>
+                            <span class="ml-2">{{ $permintaan->security ?? 'Belum ditentukan' }}</span>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-gray-600">No. Polisi:</span>
+                            <span class="ml-2">{{ $permintaan->nopol ?? 'Belum ditentukan' }}</span>
+                        </div>
                     </div>
-                    <div>
-                        <span class="font-semibold text-gray-600">No. Polisi:</span>
-                        <span class="ml-2">{{ $permintaan->nopol ?? 'Belum ditentukan' }}</span>
-                    </div>
-                </div>
+                @endif
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <h4 class="font-semibold text-sm mb-2">Tanda Tangan Driver</h4>
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-semibold text-sm">Tanda Tangan Driver</h4>
+                        {{-- Tombol ulangi TTD untuk Pengurus Barang saat status sedang dikirim --}}
+                        @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 2 && $signature)
+                            <button onclick="confirmRetrySignature('driver')"
+                                class="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                                <i class="fas fa-redo mr-1"></i> Ulangi TTD
+                            </button>
+                        @endif
+                    </div>
                     @if ($signature)
                         <img src="{{ asset('storage/ttdPengiriman/' . $signature) }}" class="border rounded shadow-sm"
                             height="100" alt="TTD Driver">
-                    @elseif ($canUpload)
+                    @elseif ($canUpload || (auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 2))
                         <canvas id="signature-pad-driver" class="border rounded shadow-sm h-25 bg-transparent"
                             height="100"></canvas>
                         <div class="mt-2">
-                            <button wire:click="resetSignature('driver')" onclick="resetCanvas('driver')"
+                            <button onclick="resetCanvas('driver')"
                                 class="bg-danger-600 text-danger-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">Hapus</button>
                             <button onclick="saveSignature('driver')"
                                 class="bg-success-600 text-success-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">Simpan</button>
@@ -499,11 +594,20 @@
                 </div>
 
                 <div>
-                    <h4 class="font-semibold text-sm mb-2">Tanda Tangan Keamanan</h4>
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-semibold text-sm">Tanda Tangan Keamanan</h4>
+                        {{-- Tombol ulangi TTD untuk Pengurus Barang saat status sedang dikirim --}}
+                        @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 2 && $securitySignature)
+                            <button onclick="confirmRetrySignature('security')"
+                                class="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                                <i class="fas fa-redo mr-1"></i> Ulangi TTD
+                            </button>
+                        @endif
+                    </div>
                     @if ($securitySignature)
                         <img src="{{ asset('storage/ttdPengiriman/' . $securitySignature) }}"
                             class="border rounded shadow-sm" height="100" alt="TTD Keamanan">
-                    @elseif ($canUpload)
+                    @elseif ($canUpload || (auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 2))
                         <canvas id="signature-pad-security" class="border rounded shadow-sm h-25 bg-transparent"
                             height="100"></canvas>
                         <div class="mt-2">
@@ -532,6 +636,45 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script>
+        // Fungsi mandiri untuk SweetAlert QR Code
+        function showQrAlert(type, message) {
+            // Karena QR hanya keluar saat status disetujui,
+            // handle hanya untuk status dikirim/selesai dengan icon X
+            Swal.fire({
+                icon: 'error',  // Selalu gunakan tanda silang
+                title: 'Gagal Scan QR',  // Title tetap
+                text: message,  // Text dinamis: "permintaan sedang dikirim" atau "telah selesai"
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#EF4444', // red
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                customClass: {
+                    popup: 'qr-alert-popup',
+                    title: 'qr-alert-title',
+                    content: 'qr-alert-content'
+                }
+            });
+        }
+
+        // Event listener untuk QR Code alerts dari Livewire
+        Livewire.on('showAlert', (params) => {
+            const { type, message } = params;
+            showQrAlert(type, message);
+        });
+
+        // Event listener untuk SweetAlert success
+        Livewire.on('swal:success', (params) => {
+            const { title, text } = params;
+            Swal.fire({
+                icon: 'success',
+                title: title,
+                text: text,
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#10B981'
+            });
+        });
         function confirmDownload(docType) {
             Swal.fire({
                 title: 'Gunakan TTD Elektronik (e-TTD)?',
@@ -543,8 +686,8 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // FIX: Pastikan parameter dikirim dengan benar
                     @this.call('downloadDoc', { type: docType, withSign: true });
-                    // Livewire.dispatch('downloadDoc', { type: docType, withSign: true });
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
                     @this.call('downloadDoc', { type: docType, withSign: false });
                 }
@@ -552,69 +695,116 @@
         }
     </script>
     <script>
+        // Function untuk konfirmasi ulangi tanda tangan
+        function confirmRetrySignature(type) {
+            // Langsung reset tanpa konfirmasi SweetAlert
+            if (type === 'driver') {
+                @this.call('resetSignatureDriver');
+            } else {
+                @this.call('resetSignatureSecurity');
+            }
+            // Inisialisasi ulang signature pad setelah reset
+            setTimeout(() => {
+                initializeSignaturePad();
+            }, 100);
+        }
+
         let canvasDriver, canvasSecurity, signaturePadDriver, signaturePadSecurity;
 
-        // document.addEventListener("livewire:load", () => {
-        initializeSignaturePad();
-        // });
-
-        Livewire.on('signatureReset', () => {
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function () {
             initializeSignaturePad();
+        });
+
+        // Event listener untuk reset signature
+        Livewire.on('signatureReset', () => {
+            setTimeout(() => {
+                initializeSignaturePad();
+            }, 200);
+        });
+
+        // Event listener untuk refresh component
+        document.addEventListener('livewire:init', () => {
+            initializeSignaturePad();
+        });
+
+        // Event listener untuk Livewire component updates
+        document.addEventListener('livewire:updated', () => {
+            setTimeout(() => {
+                initializeSignaturePad();
+            }, 100);
         });
 
         function initializeSignaturePad() {
             canvasDriver = document.getElementById('signature-pad-driver');
-            if (canvasDriver) {
+            if (canvasDriver && (!signaturePadDriver || signaturePadDriver.canvas !== canvasDriver)) {
                 signaturePadDriver = new SignaturePad(canvasDriver);
+                console.log('Signature pad driver initialized');
             }
             canvasSecurity = document.getElementById('signature-pad-security');
-            if (canvasSecurity) {
+            if (canvasSecurity && (!signaturePadSecurity || signaturePadSecurity.canvas !== canvasSecurity)) {
                 signaturePadSecurity = new SignaturePad(canvasSecurity);
+                console.log('Signature pad security initialized');
             }
         }
 
         function saveSignature(type) {
-            // if (signaturePadDriver.isEmpty()||signaturePadSecurity.isEmpty()) {
-            //     alert("Tanda tangan belum diisi.");
-            //     return;
-            // }
+            let signatureData;
+            let isEmpty = false;
 
-            let signatureDataDriver = signaturePadDriver.toDataURL('image/png');
-            let signatureDataSecurity = signaturePadSecurity.toDataURL('image/png');
+            if (type == 'driver') {
+                // Pastikan signature pad driver sudah diinisialisasi
+                if (!signaturePadDriver) {
+                    console.log("Canvas tanda tangan driver belum tersedia, mencoba inisialisasi ulang...");
+                    initializeSignaturePad();
+                    // Tunggu sebentar agar signature pad terinisialisasi
+                    setTimeout(() => {
+                        saveSignature(type);
+                    }, 100);
+                    return;
+                }
+                isEmpty = signaturePadDriver.isEmpty();
+                signatureData = signaturePadDriver.toDataURL('image/png');
+            } else {
+                // Pastikan signature pad security sudah diinisialisasi
+                if (!signaturePadSecurity) {
+                    console.log("Canvas tanda tangan security belum tersedia, mencoba inisialisasi ulang...");
+                    initializeSignaturePad();
+                    // Tunggu sebentar agar signature pad terinisialisasi
+                    setTimeout(() => {
+                        saveSignature(type);
+                    }, 100);
+                    return;
+                }
+                isEmpty = signaturePadSecurity.isEmpty();
+                signatureData = signaturePadSecurity.toDataURL('image/png');
+            }
 
-            let signatureData = type == 'driver' ? signatureDataDriver : signatureDataSecurity
+            if (isEmpty) {
+                console.log("Tanda tangan belum diisi. Silakan buat tanda tangan terlebih dahulu.");
+                return;
+            }
+
             @this.call('signatureSaved', signatureData, type);
         }
 
-        function showUploadModal(type) {
-            Swal.fire({
-                title: 'Unggah ' + type.toUpperCase(),
-                html: '<input type="file" id="uploadFile" multiple accept=".pdf,.jpg,.jpeg,.png" class="swal2-file">',
-                confirmButtonText: 'Upload',
-                preConfirm: () => {
-                    const files = document.getElementById('uploadFile').files;
-                    if (files.length === 0) {
-                        Swal.showValidationMessage('Minimal 1 file harus dipilih');
-                    } else if (files.length > 2) {
-                        Swal.showValidationMessage('Maksimal 2 file diperbolehkan');
-                    }
-                    return files;
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    @this.call('uploadDokumen', type, Array.from(result.value));
-                }
-            });
-        }
-
-
         function resetCanvas(type) {
             if (type == 'driver') {
-
-                signaturePadDriver.clear();
+                // Pastikan signature pad driver sudah diinisialisasi
+                if (!signaturePadDriver) {
+                    initializeSignaturePad();
+                }
+                if (signaturePadDriver) {
+                    signaturePadDriver.clear();
+                }
             } else {
-                signaturePadSecurity.clear();
-
+                // Pastikan signature pad security sudah diinisialisasi
+                if (!signaturePadSecurity) {
+                    initializeSignaturePad();
+                }
+                if (signaturePadSecurity) {
+                    signaturePadSecurity.clear();
+                }
             }
         }
 

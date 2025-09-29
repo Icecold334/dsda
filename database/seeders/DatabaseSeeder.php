@@ -53,6 +53,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UnitSeeder::class,
             PermissionSeeder::class,
+            SuperAdminSeeder::class,
             KasatpelSeeder::class,
             KelurahanSeeder::class,
             KategoriAsetSeeder::class,
@@ -71,7 +72,7 @@ class DatabaseSeeder extends Seeder
             RabSeeder::class,
             DetailPermintaanMaterialSeeder::class,
             KontrakSeeder::class,
-            TransaksiSeeder::class,
+            // TransaksiSeeder::class,
             AkunSudinSeeder::class,
             AdminMaintenanceSeeder::class,
             DriverSecuritySeeder::class,

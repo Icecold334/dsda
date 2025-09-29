@@ -67,6 +67,28 @@
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
 
+                            <!-- Tombol Edit RAB -->
+                            @php
+                                $user = auth()->user();
+                                $canEditRab = $user->hasRole('superadmin') || $user->unit_id === null ||
+                                    (($rab->user->unit_id === $user->unit_id ||
+                                        $rab->user->unitKerja->parent_id === $user->unit_id) &&
+                                        is_null($rab->status));
+                            @endphp
+
+                            @if($canEditRab)
+                                <a href="{{ route('rab.edit', ['rab' => $rab->id]) }}"
+                                    class="text-yellow-600 hover:text-white hover:bg-yellow-600 px-3 py-2 rounded border border-yellow-600 transition duration-200"
+                                    data-tooltip-target="tooltip-edit-{{ $rab->id }}">
+                                    <i class="fa-solid fa-edit"></i>
+                                </a>
+                                <div id="tooltip-edit-{{ $rab->id }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Edit RAB
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            @endif
+
                             <!-- Tombol History -->
                             <button wire:click="showHistory({{ $rab->id }})"
                                 class="text-green-600 hover:text-white hover:bg-green-600 px-3 py-2 rounded border border-green-600 transition duration-200"

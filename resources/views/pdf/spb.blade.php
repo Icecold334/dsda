@@ -90,7 +90,7 @@
       <span style="font-size: 12px">PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
         DINAS SUMBER DAYA AIR <br></span>
       <strong style="font-size: 14px">SUKU DINAS SUMBER DAYA AIR <br>
-        {{ $isSeribu ?'KABUPATEN':'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
+        {{ $isSeribu ? 'KABUPATEN' : 'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
       <div class="header-subtext">
         <span style="font-size: 10px;">
           {{ $permintaan->unit->alamat }} </span>
@@ -132,11 +132,12 @@
       <td width="30" class="center">{{ $loop->iteration }}</td>
       <td width="100">{{ $item->merkStok->barangStok->nama }}</td>
       <td width="280">{{ $item->merkStok->nama ?? 'Tanpa merk' }} - {{
-        $item->merkStok->tipe ?? 'Tanpa tipe' }} -
-        {{ $item->merkStok->ukuran?? 'Tanpa ukuran' }}</td>
+    $item->merkStok->tipe ?? 'Tanpa tipe' }} -
+      {{ $item->merkStok->ukuran ?? 'Tanpa ukuran' }}
+      </td>
       <td width="180" align="right">{{ $item->jumlah }} {{ $item->merkStok->barangStok->satuanBesar->nama }}</td>
     </tr>
-    @endforeach
+  @endforeach
   </tbody>
 </table>
 
@@ -147,23 +148,23 @@
     <td align="center">
       Mengetahui,<br>
       Kepala Seksi Pemeliharaan<br><br><br>
-      @if ($sign && $pemelDone)
-      <img src="{{ asset('storage/usersTTD/' . $pemel->ttd) }}" width="100" height="50"><br><br>
-      @else
+      @if ($sign && $pemelDone && $pemel->ttd)
+      <img src="{{ public_path('storage/usersTTD/' . $pemel->ttd) }}" width="100" height="50"><br><br>
+    @else
       <br><br><br><br>
-      @endif
+    @endif
       <b>{{ $pemel->name }}</b><br>
       NIP. {{ $pemel->nip }}
     </td>
     <td align="center">
-      Jakarta, {{ $permintaan->created_at->locale('id')->translatedFormat('d F Y') }}<br>
+      Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }}<br>
       Kepala Satuan Pelaksana<br>
       Kecamatan {{ $kasatpel->kecamatan->kecamatan }}<br><br>
-      @if ($sign)
-      <img src="{{ asset('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
-      @else
+      @if ($sign && $pemohon->ttd)
+      <img src="{{ public_path('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
+    @else
       <br><br><br><br>
-      @endif
+    @endif
       <b>{{ $kasatpel->name }}</b><br>
       NIP. {{ $kasatpel->nip }}
     </td>

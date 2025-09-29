@@ -3,11 +3,33 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rab;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreRabRequest;
 use App\Http\Requests\UpdateRabRequest;
 
 class RabController extends Controller
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Check if user can access specific RAB
+     */
+    private function canAccessRab(Rab $rab, $user)
+    {
+        // Superadmin can access all RABs
+        if ($user->hasRole('superadmin') || $user->unit_id === null) {
+            return true;
+        }
+
+        // Regular users can only access RABs from their unit or sub-units
+        $rabUnitId = $rab->user->unitKerja->parent_id ?: $rab->user->unit_id;
+        $userUnitId = $user->unitKerja->parent_id ?: $user->unit_id;
+
+        return $rabUnitId === $userUnitId;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -55,7 +77,7 @@ class RabController extends Controller
 
         // Hitung bulan dan sisa hari
         $bulan = floor($totalHari / 30);
-        $hari  = $totalHari % 30;
+        $hari = $totalHari % 30;
 
         // Buat string durasi
         $lamaPengerjaan = '';
@@ -100,7 +122,14 @@ class RabController extends Controller
      */
     public function edit(Rab $rab)
     {
-        //
+        $user = Auth::user();
+
+        // Check authorization
+        if (!$this->canAccessRab($rab, $user)) {
+            abort(403, 'Unauthorized access to this RAB');
+        }
+
+        return view('pages.rab.edit', compact('rab'));
     }
 
     /**

@@ -95,7 +95,10 @@ class PermissionSeeder extends Seeder
             'gudang',
             'manajemen',
             'driver',
-            'security'
+            'security',
+            'unit_kerja',
+            'kecamatan',
+            'kelurahan'
         ];
         foreach ($modules as $mod) {
             foreach (['create', 'read', 'update', 'delete'] as $act) {
@@ -107,7 +110,7 @@ class PermissionSeeder extends Seeder
         }
         // === STEP 3: Assign permission ke role berdasarkan mapping (versi aman) ===
         $rolePermissions = [
-            "superadmin" => array_merge(...array_values(array_map(fn($a) => array_map(fn($b) => "$a.$b", ['create', 'read', 'update', 'delete']), $modules))),
+            "superadmin" => Permission::all()->pluck('name')->toArray(),
             // "Admin Sudin" => array_merge(...array_values(array_map(fn($a) => array_map(fn($b) => "$a.$b", ['create', 'read', 'update', 'delete']), $modules))),
             "Admin Sudin" => Permission::all()->pluck('name')->toArray(),
 
@@ -170,6 +173,14 @@ class PermissionSeeder extends Seeder
                 'gudang.update',
                 'gudang.delete',
                 'manajemen.read',
+                'security.create',
+                'security.read',
+                'security.update',
+                'driver.create',
+                'driver.read',
+                'driver.update',
+                'data_driver',
+                'data_security',
             ],
 
             "Pengurus Barang" => [
@@ -208,6 +219,14 @@ class PermissionSeeder extends Seeder
                 'input_security.read',
                 'input_security.update',
                 'data_barang',
+                'security.create',
+                'security.read',
+                'security.update',
+                'driver.create',
+                'driver.read',
+                'driver.update',
+                'data_driver',
+                'data_security',
             ],
 
             "Kepala Seksi" => [

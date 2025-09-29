@@ -56,7 +56,7 @@ class ListPermintaanMaterial extends Component
                     'img' => $item->img,
                     'jumlah' => $item->jumlah,
                     'keterangan' => $item->deskripsi,
-                    'editable' => is_null($item->img),
+                    'editable' => true, // Selalu bisa diedit untuk foto barang diterima
                 ];
             }
         }
@@ -197,7 +197,7 @@ class ListPermintaanMaterial extends Component
 
         // Simpan file ke storage
         $file = $this->list[$index]['img'];
-        $filename = $file->getClientOriginalExtension();
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
         $file->storeAs('fotoPerBarang', $filename, 'public');
 
         // Simpan ke database sesuai model terkait
@@ -543,6 +543,58 @@ class ListPermintaanMaterial extends Component
             ));
         }
         $this->dispatch('saveDokumen', kontrak_id: $permintaan->id, isRab: false, isMaterial: true);
+    }
+
+    public function saveDraft()
+    {
+        $user_id = Auth::id();
+
+        $permintaan = DetailPermintaanMaterial::create([
+            'kode_permintaan' => fake()->numerify('DRAFT#######'),
+            'user_id' => $user_id,
+            'nodin' => $this->nodin,
+            'gudang_id' => $this->gudang_id,
+            'saluran_jenis' => $this->saluran_jenis,
+            'saluran_id' => $this->saluran_id,
+            'p' => $this->vol['p'] ?? null,
+            'l' => $this->vol['l'] ?? null,
+            'k' => $this->vol['k'] ?? null,
+            'nama' => $this->namaKegiatan,
+            'kelurahan_id' => $this->kelurahanId,
+            'lokasi' => $this->lokasiMaterial,
+            'keterangan' => $this->keterangan,
+            'rab_id' => $this->rab_id ?? null,
+            'tanggal_permintaan' => strtotime($this->tanggalPenggunaan),
+            'status' => 4 // Set status as draft
+        ]);
+
+        foreach ($this->list as $item) {
+            $merkId = $item['merk']->id;
+
+            // 1. Simpan ke permintaan_material
+            $pm = PermintaanMaterial::create([
+                'detail_permintaan_id' => $permintaan->id,
+                'user_id' => $user_id,
+                'merk_id' => $merkId,
+                'rab_id' => $this->isSeribu ? $item['rab_id'] : null,
+                'jumlah' => $item['jumlah'],
+                'alocated' => 0, // Draft tidak perlu alokasi
+                'deskripsi' => $item['keterangan'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            // 2. Tidak perlu buat transaksi stok untuk draft
+            // 3. Tidak perlu buat StokDisetujui untuk draft
+        }
+
+        $this->reset('list');
+
+        // Show success message
+        session()->flash('success', 'Draft permintaan berhasil disimpan. Anda dapat melanjutkan atau mengedit draft ini nanti.');
+
+        // Redirect to permintaan list
+        return redirect()->to('/permintaan/material');
     }
 
 
