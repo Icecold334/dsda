@@ -378,7 +378,6 @@ class KelurahanSeeder extends Seeder
             ['kecamatan_id' => 44, 'nama' => 'Pulau Tidung'],
             ['kecamatan_id' => 44, 'nama' => 'Pulau Untung Jawa']
         ];
-
         // Insert data using firstOrCreate in chunks to avoid duplicates and maintain performance
         foreach (array_chunk($kelurahans, 50) as $chunk) {
             foreach ($chunk as $kelurahan) {
@@ -387,6 +386,7 @@ class KelurahanSeeder extends Seeder
                     'nama' => $kelurahan['nama']
                 ]);
             }
+
         }
     }
 }
