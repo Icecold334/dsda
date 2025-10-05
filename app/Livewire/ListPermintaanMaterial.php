@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use App\Models\DetailPermintaanMaterial;
 use App\Helpers\StokHelper;
+use App\Models\Merk;
 
 class ListPermintaanMaterial extends Component
 {
@@ -32,7 +33,7 @@ class ListPermintaanMaterial extends Component
 
     public $rabs, $rab_id, $vol = [], $barangs = [], $merks = [], $dokumenCount, $newBarangId, $newRabId, $newMerkId, $newMerkMax, $newKeterangan, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
 
-    public function mount()
+    public function mount($permintaan)
     {
         // dd($this->isSeribu);
         $this->isShow = Request::routeIs('showPermintaan');
@@ -53,6 +54,7 @@ class ListPermintaanMaterial extends Component
                     'id' => $item->id,
                     'rab_id' => $item->rab_id,
                     'merk' => $item->merkStok,
+                    'merk_id' => $item->merkStok->id,
                     'img' => $item->img,
                     'jumlah' => $item->jumlah,
                     'keterangan' => $item->deskripsi,
@@ -62,7 +64,21 @@ class ListPermintaanMaterial extends Component
         }
 
         $this->fillBarangs();
+
+        // logic form pengurus barang
+        if ($permintaan && isset($permintaan->gudang_id)) {
+            $gudangId = $permintaan->gudang_id;
+            $barangIds = collect($this->list)->pluck('merk.barang_id')->unique()->toArray();
+
+            $this->merks = \App\Models\MerkStok::whereIn('barang_id', $barangIds)
+                ->whereHas('transaksiStok', function ($q) use ($gudangId) {
+                    $q->where('lokasi_id', $gudangId);
+                })->get();
+        } else {
+            $this->merks = collect();
+        }
     }
+
     #[On('saluranJenis')]
     public function setSaluranJenis($saluran_jenis)
     {
@@ -626,7 +642,7 @@ class ListPermintaanMaterial extends Component
         foreach ($transaksis as $trx) {
             $jumlah = match ($trx->tipe) {
                 'Pemasukan' => (int) $trx->jumlah,
-                'Pengeluaran' => -((int) $trx->jumlah),
+                'Pengeluaran' => - ((int) $trx->jumlah),
                 'Penyesuaian' => (int) $trx->jumlah,
                 default => 0,
             };
@@ -764,6 +780,16 @@ class ListPermintaanMaterial extends Component
             ->where('permintaan_id', $item['id'])
             ->where('merk_id', $merkId)
             ->get();
+    }
+
+    public function updatedList($value, $name)
+    {
+        $parts = explode('.', $name);
+
+        if (isset($parts[2]) && $parts[2] === 'merk') {
+            $index = $parts[1];
+            $this->list[$index]['merk'] = \App\Models\MerkStok::find($value);
+        }
     }
 
     public function render()

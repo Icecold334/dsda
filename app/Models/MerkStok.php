@@ -10,6 +10,7 @@ class MerkStok extends Model
     protected $table = 'merk_stok';
     protected $guarded = ['id'];
 
+
     public function barangStok()
     {
         return $this->belongsTo(BarangStok::class, 'barang_id');

@@ -1,4 +1,5 @@
 <div>
+     {{-- <pre>{{ json_encode($merks) }}</pre> --}}
     <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
         <thead>
             <tr class="text-white uppercase">
@@ -51,31 +52,58 @@
                                 <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
                         </td>
-                        <td class="py-3 px-6 ">
-                            <select wire:model.live="list.{{ $index }}.merk" disabled
-                                class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option value="{{ $item['merk']->id }}">
-                                    {{
-                $item['merk']->nama ?? 'Tanpa merk' }} - {{
-                $item['merk']->tipe ?? 'Tanpa tipe' }} -
-                                    {{ $item['merk']->ukuran ?? 'Tanpa ukuran' }}
-                                </option>
-                            </select>
-                            @error('newMerkId')
-                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+
+                        {{-- permision pengurus barang spesifikasi --}}
+                        <td class="py-3 px-6">
+                            @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status != 1)
+                                <select wire:model.live="list.{{ $index }}.merk_id"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+                                    <!-- Tampilkan dulu data yang sudah dipilih -->
+                                    @if(isset($item['merk']))
+                                        <option value="{{ $item['merk']->id }}">
+                                            {{ $item['merk']->nama ?? 'Tanpa merk' }} - {{ $item['merk']->tipe ?? 'Tanpa tipe' }} - {{ $item['merk']->ukuran ?? 'Tanpa ukuran' }}
+                                        </option>
+                                    @else
+                                        <option value="">Pilih Merk</option>
+                                    @endif
+                                    @foreach ($merks as $merk)
+                                        @if(isset($item['merk']) && $merk->barang_id == $item['merk']->barang_id && $merk->id != $item['merk']->id)
+                                            <option value="{{ $merk->id }}">
+                                                {{ $merk->nama ?? 'Tanpa merk' }} - {{ $merk->tipe ?? 'Tanpa tipe' }} - {{ $merk->ukuran ?? 'Tanpa ukuran' }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            @else
+                                <select disabled class="bg-gray-50 border border-gray-300 cursor-not-allowed text-gray-900 text-sm rounded-lg block w-full p-2.5">
+                                    @if(isset($item['merk']))
+                                        <option value="{{ $item['merk']->id }}">
+                                            {{ $item['merk']->nama ?? 'Tanpa merk' }} - {{ $item['merk']->tipe ?? 'Tanpa tipe' }} - {{ $item['merk']->ukuran ?? 'Tanpa ukuran' }}
+                                        </option>
+                                    @else
+                                        <option value="">Belum dipilih</option>
+                                    @endif
+                                </select>
+                            @endif
                         </td>
+                        
+                        {{-- permision pengurus barang valume --}}
                         <td class="py-3 px-6">
                             <div class="flex items-center">
-                                <input type="number" wire:model.live="list.{{ $index }}.jumlah" min="1" disabled
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg {{ !$newMerkId ? 'cursor-not-allowed' : '' }} focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                    placeholder="Jumlah">
-                                <span
-                                    class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
+                                @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status != 3)
+                                    <input type="number" wire:model.live="list.{{ $index }}.jumlah" min="1" max="{{ $item['merk']->stok_gudang }}"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        placeholder="Jumlah">
+                                @else
+                                    <input type="number" value="{{ $item['jumlah'] }}" disabled
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg cursor-not-allowed block w-full p-2.5">
+                                @endif
+                                <span class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm">
                                     {{ $item['merk']->barangStok->satuanBesar->nama }}
                                 </span>
-                            </div>
+                            </div>
                         </td>
+
                         <td class="px-6 py-3 {{ $isSeribu && $withRab ? '' : 'hidden' }}">
                             <textarea id="jumlah" wire:model.live="list.{{ $index }}.keterangan" disabled rows="2"
                                 class="w-full border  border-gray-300 {{ $isSeribu && $withRab ? '' : 'hidden' }} cursor-not-allowed rounded-lg px-4 py-2 focus:ring-primary-500 focus:border-primary-500"
@@ -193,6 +221,8 @@
                                 <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
                         </td>
+
+                        {{-- view form list add permintaan --}}
                         <td class="py-3 px-6 ">
                             @if ($rab_id)
                                 <select wire:model.live="newBarangId" @disabled($isSeribu && !$newRabId && $withRab)
@@ -208,8 +238,6 @@
                             @else
                                 <livewire:searchable-select wire:model.live="newBarangId" :options="$barangs" />
                             @endif
-
-
                         </td>
                         <td class="py-3 px-6 ">
                             <select wire:model.live="newMerkId" @disabled(!$newBarangId)
