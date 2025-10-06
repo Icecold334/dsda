@@ -10,6 +10,8 @@ class MerkStok extends Model
     protected $table = 'merk_stok';
     protected $guarded = ['id'];
 
+    protected $appends = ['stok_gudang'];
+
 
     public function barangStok()
     {
