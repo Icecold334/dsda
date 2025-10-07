@@ -65,4 +65,10 @@ class MerkStok extends Model
 
         return implode(' - ', $parts);
     }
+
+    public function getStokGudangAttribute()
+    {
+        // Ganti dengan logic yang sesuai untuk stok gudang
+        return $this->attributes['stok_gudang'] ?? 0;
+    }
 }
