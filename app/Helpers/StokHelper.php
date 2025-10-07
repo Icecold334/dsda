@@ -24,40 +24,74 @@ class StokHelper
      * @param int $gudangId ID gudang/lokasi stok
      * @return int Limit maksimal yang bisa diminta
      */
-    public static function calculateMaxPermintaan($merkId, $rabId = null, $gudangId = null)
+    public static function calculateMaxPermintaan($merkId, $rabId = null, $gudangId = null, $permintaanMaterialIdToIgnore = null)
     {
-        // 1. Hitung stok tersedia di gudang
-        $stokGudang = self::getStokTersedia($merkId, $gudangId);
+        // 1. Hitung stok tersedia (dengan mengabaikan item yang diedit)
+        $stokGudang = self::getStokTersedia($merkId, $gudangId, $permintaanMaterialIdToIgnore);
 
-        // 2. Jika tidak ada RAB, return stok gudang
         if (!$rabId) {
             return max($stokGudang, 0);
         }
 
-        // 3. Hitung limit dari RAB
+        // 3. Hitung limit dari RAB (method ini tidak perlu diubah)
         $limitRab = self::getLimitRab($merkId, $rabId);
 
-        // 4. Hitung yang sudah digunakan dari RAB
-        $sudahDigunakan = self::getJumlahSudahDigunakan($merkId, $rabId);
+        // 4. Hitung yang sudah digunakan (dengan mengabaikan item yang diedit)
+        $sudahDigunakan = self::getJumlahSudahDigunakan($merkId, $rabId, $permintaanMaterialIdToIgnore);
 
         // 5. Sisa limit RAB setelah penggunaan
         $sisaLimitRab = max($limitRab - $sudahDigunakan, 0);
 
-        // 6. Logika baru: Return yang terkecil antara sisa limit RAB dan stok gudang
-        // Ini memastikan:
-        // - Tidak melebihi limit RAB yang tersisa
-        // - Tidak melebihi stok fisik yang ada di gudang
-        // - Mendukung pengambilan bertahap/parsial
+        // 6. Logika return tetap sama, karena variabel di atas sudah benar
         return min($sisaLimitRab, max($stokGudang, 0));
     }
 
     /**
      * Menghitung stok tersedia di gudang untuk merk tertentu
      */
-    public static function getStokTersedia($merkId, $gudangId = null)
+    // public static function getStokTersedia($merkId, $gudangId = null)
+    // {
+    //     $query = TransaksiStok::where('merk_id', $merkId);
+
+    //     if ($gudangId) {
+    //         $query->where(function ($q) use ($gudangId) {
+    //             $q->where('lokasi_id', $gudangId)
+    //                 ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $gudangId))
+    //                 ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $gudangId));
+    //         });
+    //     }
+
+    //     $transaksis = $query->get();
+
+    //     $total = 0;
+    //     foreach ($transaksis as $trx) {
+    //         $jumlah = match ($trx->tipe) {
+    //             'Penyesuaian' => (int) $trx->jumlah,
+    //             'Pemasukan' => (int) $trx->jumlah,
+    //             'Pengeluaran', 'Pengajuan' => -(int) $trx->jumlah,
+    //             default => 0,
+    //         };
+    //         $total += $jumlah;
+    //     }
+
+    //     return max($total, 0);
+    // }
+
+    // [UBAH] Tambahkan parameter baru di sini
+    public static function getStokTersedia($merkId, $gudangId = null, $permintaanMaterialIdToIgnore = null)
     {
         $query = TransaksiStok::where('merk_id', $merkId);
 
+        // [TAMBAHAN] Kondisi untuk mengabaikan transaksi dari item yang sedang diedit
+        $query->when($permintaanMaterialIdToIgnore, function ($q) use ($permintaanMaterialIdToIgnore) {
+            $pm = \App\Models\PermintaanMaterial::find($permintaanMaterialIdToIgnore);
+            if ($pm) {
+                // Abaikan transaksi yang memiliki 'permintaan_id' yang sama dengan item yang diedit
+                return $q->where('permintaan_id', '!=', $pm->id);
+            }
+        });
+
+        // --- LOGIKA LAMA ANDA (TETAP SAMA) ---
         if ($gudangId) {
             $query->where(function ($q) use ($gudangId) {
                 $q->where('lokasi_id', $gudangId)
@@ -98,13 +132,20 @@ class StokHelper
      * Menghitung jumlah yang sudah digunakan dari RAB
      * Hanya menghitung permintaan yang sudah dikirim/selesai (status 2 dan 3)
      */
-    public static function getJumlahSudahDigunakan($merkId, $rabId)
+    // 
+
+    // [UBAH] Tambahkan parameter baru di sini
+    public static function getJumlahSudahDigunakan($merkId, $rabId, $permintaanMaterialIdToIgnore = null)
     {
         $totalSudahDigunakan = 0;
 
-        // Hitung dari PermintaanMaterial yang menggunakan RAB dan sudah dikirim/selesai
+        // --- LOGIKA LAMA ANDA (Bagian 1) ---
         $permintaanMaterial = PermintaanMaterial::where('merk_id', $merkId)
             ->where('rab_id', $rabId)
+            // [TAMBAHAN] Abaikan item yang sedang diedit dari perhitungan
+            ->when($permintaanMaterialIdToIgnore, function ($query) use ($permintaanMaterialIdToIgnore) {
+                return $query->where('id', '!=', $permintaanMaterialIdToIgnore);
+            })
             ->whereHas('detailPermintaan', function ($query) {
                 $query->whereIn('status', [2, 3]); // 2 = Sedang Dikirim, 3 = Selesai
             })
@@ -114,26 +155,37 @@ class StokHelper
             ->with('stokDisetujui')
             ->get();
 
+        // Loop ini tetap sama
         foreach ($permintaanMaterial as $permintaan) {
             $totalSudahDigunakan += $permintaan->stokDisetujui->sum('jumlah_disetujui');
         }
 
-        // Hitung juga dari DetailPermintaanMaterial yang menggunakan RAB dan sudah dikirim/selesai
+        // --- LOGIKA LAMA ANDA (Bagian 2) ---
         $detailPermintaanRAB = DetailPermintaanMaterial::where('rab_id', $rabId)
             ->whereIn('status', [2, 3]) // Status dikirim/selesai
-            ->whereHas('permintaanMaterial', function ($query) use ($merkId) {
+            ->whereHas('permintaanMaterial', function ($query) use ($merkId, $permintaanMaterialIdToIgnore) {
                 $query->where('merk_id', $merkId)
+                    // [TAMBAHAN] Abaikan juga di sini agar relasi tidak terhitung jika hanya item ini yang ada
+                    ->when($permintaanMaterialIdToIgnore, function ($q) use ($permintaanMaterialIdToIgnore) {
+                        return $q->where('id', '!=', $permintaanMaterialIdToIgnore);
+                    })
                     ->whereHas('stokDisetujui', function ($subQuery) {
                         $subQuery->where('jumlah_disetujui', '>', 0);
                     });
             })
             ->with([
-                'permintaanMaterial' => function ($query) use ($merkId) {
-                    $query->where('merk_id', $merkId)->with('stokDisetujui');
+                'permintaanMaterial' => function ($query) use ($merkId, $permintaanMaterialIdToIgnore) {
+                    $query->where('merk_id', $merkId)
+                        // [TAMBAHAN] Abaikan saat eager loading agar tidak masuk ke dalam hasil
+                        ->when($permintaanMaterialIdToIgnore, function ($q) use ($permintaanMaterialIdToIgnore) {
+                            return $q->where('id', '!=', $permintaanMaterialIdToIgnore);
+                        })
+                        ->with('stokDisetujui');
                 }
             ])
             ->get();
 
+        // Loop ini tetap sama
         foreach ($detailPermintaanRAB as $detail) {
             foreach ($detail->permintaanMaterial as $permintaan) {
                 if ($permintaan->merk_id == $merkId) {

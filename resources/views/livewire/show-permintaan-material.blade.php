@@ -626,11 +626,15 @@
 
     <!-- Daftar Permintaan dan Approval - Full Width -->
     <div>
-        <x-card title="daftar permintaan">
-            <livewire:list-permintaan-material :permintaan='$permintaan'>
-                <livewire:approval-material :permintaan='$permintaan'>
-        </x-card>
+            <x-card title="daftar permintaan">
+                <div class="mb-6">
+                    <livewire:list-permintaan-material :permintaan="$permintaan" />
+                </div>
+                <livewire:approval-material :permintaan="$permintaan" />
+            </x-card>
     </div>
+
+
 </div>
 
 @push('scripts')

@@ -10,6 +10,9 @@ class MerkStok extends Model
     protected $table = 'merk_stok';
     protected $guarded = ['id'];
 
+    protected $appends = ['stok_gudang'];
+
+
     public function barangStok()
     {
         return $this->belongsTo(BarangStok::class, 'barang_id');
@@ -61,5 +64,11 @@ class MerkStok extends Model
         ]);
 
         return implode(' - ', $parts);
+    }
+
+    public function getStokGudangAttribute()
+    {
+        // Ganti dengan logic yang sesuai untuk stok gudang
+        return $this->attributes['stok_gudang'] ?? 0;
     }
 }

@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use App\Models\DetailPermintaanMaterial;
 use App\Helpers\StokHelper;
+use App\Models\Merk;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class ListPermintaanMaterial extends Component
 {
@@ -31,12 +34,13 @@ class ListPermintaanMaterial extends Component
     public $stokDistribusiList = [];
 
     public $rabs, $rab_id, $vol = [], $barangs = [], $merks = [], $dokumenCount, $newBarangId, $newRabId, $newMerkId, $newMerkMax, $newKeterangan, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
+    public $originalList = [];
+    public $isDataChanged = false;
 
-    public function mount()
+    public function mount($permintaan)
     {
-        // dd($this->isSeribu);
         $this->isShow = Request::routeIs('showPermintaan');
-        $this->tanggalPenggunaan = Carbon::now()->format('Y-m-d'); // Format untuk date biasa
+        $this->tanggalPenggunaan = Carbon::now()->format('Y-m-d');
         $this->checkShow();
         $this->checkAdd();
         $this->rabs = Rab::where('status', 2)->whereHas('user.unitKerja', function ($unit) {
@@ -46,23 +50,68 @@ class ListPermintaanMaterial extends Component
 
         if ($this->permintaan) {
             if ($this->isSeribu) {
-                $this->withRab = $this->permintaan->permintaanMaterial->first()->rab_id;
+                // Gunakan optional() atau null-safe operator (?->) untuk keamanan
+                $this->withRab = optional($this->permintaan->permintaanMaterial->first())->rab_id;
             }
+
+            $gudangId = $this->permintaan->gudang_id;
+
+            // Ganti blok foreach di dalam method mount() Anda dengan ini
+
             foreach ($this->permintaan->permintaanMaterial as $item) {
+                $merkStok = $item->merkStok;
+                $stokMaksimalUntukEdit = 0; // Ini akan menjadi nilai max di input
+
+                if ($merkStok && $gudangId) {
+                    // Langkah 1: Hitung sisa stok di gudang saat ini (menggunakan query asli Anda)
+                    $sisaStokGudang = \App\Models\TransaksiStok::where('merk_id', $merkStok->id)
+                        ->where('lokasi_id', $gudangId)
+                        ->get()
+                        ->sum(function ($transaksi) {
+                            // Logika sum Anda tidak diubah sama sekali
+                            if ($transaksi->tipe == 'Pemasukan' || $transaksi->tipe == 'Penyesuaian') {
+                                return $transaksi->jumlah;
+                            }
+                            if (in_array($transaksi->tipe, ['Pengeluaran', 'Pengajuan'])) {
+                                return -$transaksi->jumlah;
+                            }
+                            return 0;
+                        });
+
+                    // Langkah 2: Ambil jumlah awal dari item yang sedang diedit ini
+                    $jumlahAwalItemIni = $item->jumlah;
+
+                    // Langkah 3: Hitung batas maksimal yang benar untuk diedit
+                    $stokMaksimalUntukEdit = $sisaStokGudang + $jumlahAwalItemIni;
+                }
+
                 $this->list[] = [
                     'id' => $item->id,
                     'rab_id' => $item->rab_id,
-                    'merk' => $item->merkStok,
+                    'merk' => $merkStok,
+                    'merk_id' => $merkStok->id ?? null,
+                    'stok_gudang' => $stokMaksimalUntukEdit, // <-- Gunakan nilai yang sudah benar
                     'img' => $item->img,
                     'jumlah' => $item->jumlah,
                     'keterangan' => $item->deskripsi,
-                    'editable' => true, // Selalu bisa diedit untuk foto barang diterima
+                    'editable' => true,
                 ];
             }
+            $this->originalList = $this->list;
         }
 
         $this->fillBarangs();
+
+        if ($permintaan && isset($permintaan->gudang_id)) {
+            $gudangId = $permintaan->gudang_id;
+            $barangIds = collect($this->list)->pluck('merk.barang_id')->unique()->filter()->toArray();
+
+            $this->merks = \App\Models\MerkStok::whereIn('barang_id', $barangIds)->get();
+        } else {
+            $this->merks = collect();
+        }
     }
+
     #[On('saluranJenis')]
     public function setSaluranJenis($saluran_jenis)
     {
@@ -269,6 +318,8 @@ class ListPermintaanMaterial extends Component
             $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && $this->lokasiMaterial && $this->keterangan && $this->nodin && $this->namaKegiatan;
         }
     }
+
+    // edit disini
     public function updated($field)
     {
         if (!$this->newMerkId) {
@@ -403,7 +454,121 @@ class ListPermintaanMaterial extends Component
                 $this->barangs = \App\Models\BarangStok::whereIn('id', $ids)->get();
             }
         }
+
+        // code edit permintaan pengurus barang
+        if (Str::startsWith($field, 'list.')) {
+            $parts = explode('.', $field);
+            $index = $parts[1];
+            $propertyName = $parts[2];
+
+            // Fokus pada blok ini saat 'merk_id' (Spesifikasi) berubah
+            // Di dalam method updated() Anda...
+            if ($propertyName === 'merk_id') {
+                $merkId = $this->list[$index]['merk_id'];
+                $stokMaksimalUntukEdit = 0;
+
+                if ($merkId) {
+                    $gudangId = $this->permintaan->gudang_id;
+
+                    // Langkah 1: Ambil data asli dari item yang sedang diedit
+                    $originalItem = collect($this->originalList)->firstWhere('id', $this->list[$index]['id']);
+                    $originalMerkId = $originalItem['merk_id'] ?? null;
+                    $originalJumlah = $originalItem['jumlah'] ?? 0;
+
+                    // Langkah 2: Hitung SISA STOK MURNI untuk merk yang BARU DIPILIH.
+                    // Panggil helper TANPA parameter ke-4 (ignore) untuk mendapatkan stok riil.
+                    $sisaStokGudang = \App\Helpers\StokHelper::calculateMaxPermintaan(
+                        $merkId,
+                        $this->list[$index]['rab_id'], // atau null, sesuaikan
+                        $gudangId
+                    );
+
+                    // Langkah 3: Terapkan logika kondisional
+                    if ($merkId == $originalMerkId) {
+                        // JIKA merk yang dipilih SAMA DENGAN merk asli, tambahkan jatah lama.
+                        $stokMaksimalUntukEdit = $sisaStokGudang + $originalJumlah;
+                    } else {
+                        // JIKA merk yang dipilih BERBEDA, gunakan sisa stok murni.
+                        $stokMaksimalUntukEdit = $sisaStokGudang;
+                    }
+                }
+
+                // Update list dengan data baru
+                $merkModel = \App\Models\MerkStok::find($merkId);
+                $this->list[$index]['merk'] = $merkModel;
+                $this->list[$index]['stok_gudang'] = $stokMaksimalUntukEdit;
+                $this->list[$index]['jumlah'] = ''; // Reset volume
+            }
+
+            // Panggil pengecekan perubahan agar tombol 'Simpan' bisa muncul/hilang
+            $this->checkForChanges();
+        }
         $this->checkAdd();
+    }
+
+    public function checkForChanges()
+    {
+        $this->isDataChanged = false; // Asumsikan tidak ada perubahan
+
+        foreach ($this->list as $index => $currentItem) {
+            // Cari item asli berdasarkan ID
+            $originalItem = collect($this->originalList)->firstWhere('id', $currentItem['id']);
+
+            // Jika nilai 'jumlah' berbeda, tandai ada perubahan dan hentikan loop
+            if ($originalItem && $currentItem['jumlah'] != $originalItem['jumlah']) {
+                $this->isDataChanged = true;
+                return; // Keluar dari fungsi lebih awal karena kita sudah menemukan perubahan
+            }
+        }
+    }
+
+
+    // fungsi tersebut digunakan untuk mengupdate data permintaan material 
+    public function updateData()
+    {
+        // Validasi dulu sebelum menyimpan
+        $this->validate([
+            'list.*.jumlah' => 'required|numeric|min:1',
+            'list.*.merk_id' => 'required', // Tambahkan validasi untuk merk_id
+        ]);
+
+        try {
+            DB::transaction(function () {
+                foreach ($this->list as $item) {
+                    $permintaanMaterial = PermintaanMaterial::find($item['id']);
+
+                    if ($permintaanMaterial) {
+                        // [DIUBAH] Cek perubahan pada 'jumlah' ATAU 'merk_id'
+                        $isChanged = $permintaanMaterial->jumlah != $item['jumlah'] ||
+                            $permintaanMaterial->merk_id != $item['merk_id'];
+
+                        if ($isChanged) {
+                            // [DIUBAH] Update kedua kolom: jumlah dan merk_id
+                            $permintaanMaterial->update([
+                                'jumlah' => $item['jumlah'],
+                                'merk_id' => $item['merk_id'],
+                            ]);
+
+                            // [DIUBAH] Update kedua kolom di TransaksiStok juga
+                            TransaksiStok::where('permintaan_id', $permintaanMaterial->id)
+                                ->where('tipe', 'Pengajuan')
+                                ->update([
+                                    'jumlah' => $item['jumlah'],
+                                    'merk_id' => $item['merk_id'],
+                                ]);
+                        }
+                    }
+                }
+            });
+
+            // Setelah berhasil, reset kembali state-nya
+            $this->originalList = $this->list; // Update data asli dengan data terbaru
+            $this->isDataChanged = false; // Sembunyikan kembali tombol simpan
+
+            $this->dispatch('alert', message: 'Perubahan berhasil disimpan.', type: 'success');
+        } catch (\Exception $e) {
+            $this->dispatch('alert', message: 'Gagal menyimpan perubahan.', type: 'error');
+        }
     }
 
     public function addToList()
@@ -678,7 +843,7 @@ class ListPermintaanMaterial extends Component
         foreach ($transaksis as $trx) {
             $jumlah = match ($trx->tipe) {
                 'Pemasukan' => (int) $trx->jumlah,
-                'Pengeluaran' => -((int) $trx->jumlah),
+                'Pengeluaran' => - ((int) $trx->jumlah),
                 'Penyesuaian' => (int) $trx->jumlah,
                 default => 0,
             };
@@ -817,6 +982,65 @@ class ListPermintaanMaterial extends Component
             ->where('merk_id', $merkId)
             ->get();
     }
+
+    // public function updatedList($value, $name)
+    // {
+    //     $parts = explode('.', $name);
+
+    //     if (isset($parts[2]) && $parts[2] === 'merk_id') {
+    //         $index = $parts[1];
+    //         $merkModel = \App\Models\MerkStok::find($value);
+
+    //         if ($merkModel && $this->permintaan->gudang_id) {
+    //             $stokGudang = \App\Models\TransaksiStok::where('merk_id', $merkModel->id)
+    //                 ->where('lokasi_id', $this->permintaan->gudang_id)
+    //                 ->get()
+    //                 ->sum(function ($transaksi) {
+    //                     if ($transaksi->tipe == 'Pemasukan') {
+    //                         return $transaksi->jumlah;
+    //                     }
+    //                     if ($transaksi->tipe == 'Penyesuaian') {
+    //                         return $transaksi->jumlah;
+    //                     }
+    //                     if (in_array($transaksi->tipe, ['Pengeluaran', 'Pengajuan'])) {
+    //                         return -$transaksi->jumlah;
+    //                     }
+    //                     return 0;
+    //                 });
+
+    //             $merkModel->stok_gudang = $stokGudang;
+
+    //             // Update semua property
+    //             $this->list[$index]['merk'] = $merkModel;
+    //             $this->list[$index]['merk_id'] = $value;
+    //             $this->list[$index]['stok_gudang'] = $stokGudang; // Ini yang penting
+    //             $this->list[$index]['jumlah'] = null; // Reset ke null
+
+    //             $this->resetErrorBag("list.{$index}.jumlah");
+    //         }
+    //     }
+
+    //     // Validasi jumlah
+    //     if (isset($parts[2]) && $parts[2] === 'jumlah') {
+    //         $index = $parts[1];
+    //         $stokGudang = $this->list[$index]['stok_gudang'] ?? 0;
+
+    //         // Skip jika value kosong, null, atau 0
+    //         if (empty($value) || $value <= 0) {
+    //             return;
+    //         }
+
+    //         if ($value > $stokGudang) {
+    //             $this->addError(
+    //                 "list.{$index}.jumlah",
+    //                 "Melebihi stok gudang. Tersedia: {$stokGudang}, diminta: {$value}"
+    //             );
+    //             $this->list[$index]['jumlah'] = $stokGudang;
+    //         } else {
+    //             $this->resetErrorBag("list.{$index}.jumlah");
+    //         }
+    //     }
+    // }
 
     public function render()
     {

@@ -1,61 +1,8 @@
+<div style="color:red;font-weight:bold;">DEBUG LIST PERMINTAAN FORM</div>
 <div>
     <div class="overflow-x-auto">
         <table class="w-full border-3 border-separate border-spacing-y-4 h-5">
-            <thead>
-                <tr class="text-white uppercase">
-                    <th class="py-3 px-6 bg-primary-950 text-center font-semibold rounded-l-lg"></th>
-                    @if ($requestIs == 'spare-part' || optional($permintaan?->jenisStok)->nama == 'Spare Part')
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">JENIS KDO</th>
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DESKRIPSI KERUSAKAN</th>
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">CATATAN</th>
-                    @endif
-                    @if ($requestIs == 'material' || optional($permintaan?->jenisStok)->nama == 'Material')
-                        {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">LOKASI PENGGUNAAN</th> --}}
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KEPERLUAN</th>
-                    @endif
-                    @if ($kategori_id == 6)
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">PILIH KDO *</th>
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DRIVER / PENANGGUNG JAWAB *
-                        </th>
-                    @endif
-                    @if ($kategori_id != 6)
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">NAMA
-                            {{ $kategori_id == 4 ? 'Konsumsi' : ($kategori_id == 5 ? 'Tipe Service' : 'Barang') }}
-                        </th>
-                    @endif
-                    @if ($kategori_id != 5 && $kategori_id != 6)
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH *</th>
-                    @endif
-                    @if ($kategori_id == 5)
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KETERANGAN</th>
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">KONDISI AWAL*</th>
-                    @endif
-                    @if ($kategori_id == 6)
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold">FOTO KENDARAAN*</th>
-                    @endif
-                    @if (!$showAdd && !in_array($kategori_id, [4, 5, 6]))
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">JUMLAH disetujui</th>
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">FOTO PENGAMBILAN</th>
-                    @endif
-                    @if (!$showAdd && $kategori_id == 5)
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">KONDISI AKHIR</th>
-                    @endif
-                    @if (!$showAdd && $kategori_id == 6)
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">FOTO PROSES</th>
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-1/6">NAMA VOUCHER</th>
-                    @endif
-                    @if (
-                        $requestIs == 'spare-part' ||
-                            optional($permintaan?->jenisStok)->nama == 'Spare Part' ||
-                            $requestIs == 'material' ||
-                            optional($permintaan?->jenisStok)->nama == 'Material')
-                        <th class="py-3 px-6 bg-primary-950 text-center font-semibold w-[10%]"></th>
-                    @endif
-                    {{-- <th class="py-3 px-6 bg-primary-950 text-center font-semibold">DOKUMEN PENDUKUNG</th> --}}
-                    <th class="py-3 px-6 bg-primary-950 w-1/12 text-center font-semibold rounded-r-lg ">
-                    </th>
-                </tr>
-            </thead>
+            
             <tbody>
                 @if ($ruleShow)
                     {{-- @if (true) --}}
