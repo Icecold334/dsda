@@ -38,16 +38,27 @@
                                 <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
                         </td>
+                        
+                        {{-- permision pengurus barang nama barang --}}
                         <td class="py-3 px-6 ">
-                            <select wire:model.live="list.{{ $index }}.merk" disabled
-                                class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option value="{{ $item['merk']->id }}">{{ $item['merk']->barangStok->nama }}
-                                    {{-- - {{
-                                    $item['merk']->nama ?? 'Tanpa merk' }} - {{
-                                    $item['merk']->tipe ?? 'Tanpa tipe' }} -
-                                    {{ $item['merk']->ukuran?? 'Tanpa ukuran' }} --}}
-                                </option>
-                            </select>
+                            @if(auth()->user()->hasRole('Pengurus Barang') && is_null($permintaan->status))
+                                <select wire:model.live="list.{{ $index }}.merk"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+                                    <option value="{{ $item['merk']->id }}">{{ $item['merk']->barangStok->nama }}</option>
+                                    @foreach ($merks as $merk)
+                                        @if($merk->barang_id == $item['merk']->barang_id && $merk->id != $item['merk']->id)
+                                            <option value="{{ $merk->id }}">
+                                                {{ $merk->barangStok->nama }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            @else
+                                <select disabled
+                                    class="bg-gray-50 border border-gray-300 cursor-not-allowed text-gray-900 text-sm rounded-lg block w-full p-2.5">
+                                    <option value="{{ $item['merk']->id }}">{{ $item['merk']->barangStok->nama }}</option>
+                                </select>
+                            @endif
                             @error('newMerkId')
                                 <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
