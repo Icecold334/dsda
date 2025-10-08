@@ -39,4 +39,10 @@ class BarangStok extends Model
     {
         return $this->hasMany(MerkStok::class, 'barang_id');
     }
+
+    public function merkStoks()
+    {
+        // Pastikan nama model 'MerkStok' dan foreign key 'barang_id' sudah sesuai
+        return $this->hasMany(MerkStok::class, 'barang_id');
+    }
 }
