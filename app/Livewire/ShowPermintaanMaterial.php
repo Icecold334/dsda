@@ -610,8 +610,21 @@ class ShowPermintaanMaterial extends Component
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 11, '', '');
 
-        $permintaan = $this->permintaan;
+        $permintaan = $this->permintaan->fresh(['kelurahan.kecamatan', 'rab']);
         $unit_id = $this->unit_id;
+        $lokasiLengkap = '';
+        if (!$permintaan->rab_id) {
+            if ($permintaan->kelurahan && $permintaan->kelurahan->kecamatan) {
+                $lokasiLengkap .= 'Kelurahan ' . $permintaan->kelurahan->nama . ', ';
+                $lokasiLengkap .= 'Kecamatan ' . $permintaan->kelurahan->kecamatan->kecamatan . ' – ';
+            }
+            $lokasiLengkap .= $permintaan->lokasi;
+        } else {
+            // Pastikan relasi rab tidak null sebelum diakses
+            if ($permintaan->rab) {
+                $lokasiLengkap = $permintaan->rab->lokasi;
+            }
+        }
         $permintaan->unit = UnitKerja::find($unit_id);
 
         $kasatpel = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
@@ -698,7 +711,8 @@ class ShowPermintaanMaterial extends Component
             'RKB',
             'sudin',
             'isSeribu',
-            'sign'
+            'sign',
+            'lokasiLengkap' 
         ))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');
@@ -745,6 +759,7 @@ class ShowPermintaanMaterial extends Component
                 return $this->bast($withSign);
         }
     }
+
     public function uploadDokumen($type, $fileDataUrl, $originalName)
     {
         // Ambil extension

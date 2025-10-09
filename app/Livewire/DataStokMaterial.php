@@ -131,7 +131,7 @@ class DataStokMaterial extends Component
         $gudangsQuery = LokasiStok::query();
 
         // Filter unit kerja hanya jika bukan superadmin
-        if (!$isSuperadmin && $this->unit_id) {
+        if ($this->unit_id) {
             $gudangsQuery->whereHas('unitKerja', function ($unit) {
                 $unit->where('parent_id', $this->unit_id)
                     ->orWhere('id', $this->unit_id);

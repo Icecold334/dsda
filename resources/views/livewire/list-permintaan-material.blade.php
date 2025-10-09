@@ -40,37 +40,24 @@
                         </td>
                         
                         {{-- permision pengurus barang nama barang --}}                   
-                        <td class="py-3 px-6">
-                            @if(auth()->user()->hasRole('Pengurus Barang') && (is_null($permintaan->status) || $permintaan->status == 1))
-                           {{-- @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1) --}}
-                                <select 
-                                    wire:model.live="list.{{ $index }}.barang_id"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
-                                    
-                                    {{-- Loop ke properti $allBarangStok yang berisi daftar barang unik dari komponen --}}
-                                    @foreach ($allBarangStok as $barang)
-                                        <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
-                                    @endforeach
-                                </select>
-                            @else
-                                {{-- Untuk tampilan disabled, lebih baik gunakan input text biasa --}}
-                                <input 
-                                    type="text" 
-                                    value="{{ $item['merk']->barangStok->nama }}" 
-                                    class="bg-gray-50 border border-gray-300 cursor-not-allowed text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                                    disabled
-                                >
-                            @endif
-
-                            {{-- Error harus sesuai dengan nama wire:model --}}
-                            @error("list.{$index}.barang_id")
+                        <td class="py-3 px-6 ">
+                            <select wire:model.live="list.{{ $index }}.merk" disabled
+                                class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <option value="{{ $item['merk']->id }}">{{ $item['merk']->barangStok->nama }}
+                                    {{-- - {{
+                                    $item['merk']->nama ?? 'Tanpa merk' }} - {{
+                                    $item['merk']->tipe ?? 'Tanpa tipe' }} -
+                                    {{ $item['merk']->ukuran?? 'Tanpa ukuran' }} --}}
+                                </option>
+                            </select>
+                            @error('newMerkId')
                                 <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
                         </td>
 
                         {{-- permision pengurus barang spesifikasi --}}
                         <td class="py-3 px-6">
-                           @if(auth()->user()->hasRole('Pengurus Barang') && (is_null($permintaan->status) || $permintaan->status == 1))
+                           @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1)
                             {{-- @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1) --}}
                                 <select 
                                     wire:model.live="list.{{ $index }}.merk_id"
@@ -107,7 +94,7 @@
                         {{-- permision pengurus barang valume --}}
                         <td class="py-3 px-6">
                             <div class="flex items-center">
-                                @if(auth()->user()->hasRole('Pengurus Barang') && (is_null($permintaan->status) || $permintaan->status == 1))
+                                @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1)
                               {{-- @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1) --}}
                                     @php
                                         $stokTersedia = $item['stok_gudang'] ?? 0;

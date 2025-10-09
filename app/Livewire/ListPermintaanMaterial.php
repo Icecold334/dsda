@@ -747,6 +747,7 @@ class ListPermintaanMaterial extends Component
         $this->list = array_values($this->list); // Reindex the array
         $this->dispatch('listCount', count: count($this->list));
     }
+
     public function checkAdd()
     {
         if (!$this->newMerkId || !$this->newJumlah) {
@@ -783,6 +784,7 @@ class ListPermintaanMaterial extends Component
             $this->resetErrorBag('newJumlah');
         }
     }
+
     public function isVolFilled()
     {
         $requiredKeys = ['p', 'l', 'k'];
@@ -797,6 +799,7 @@ class ListPermintaanMaterial extends Component
 
         return true;
     }
+    
     public function openDistribusiModal($index)
     {
         $item = $this->list[$index];
