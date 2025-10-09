@@ -41,7 +41,8 @@
                         
                         {{-- permision pengurus barang nama barang --}}                   
                         <td class="py-3 px-6">
-                            @if(auth()->user()->hasRole('Pengurus Barang') && is_null($permintaan->status))
+                            @if(auth()->user()->hasRole('Pengurus Barang') && (is_null($permintaan->status) || $permintaan->status == 1))
+                           {{-- @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1) --}}
                                 <select 
                                     wire:model.live="list.{{ $index }}.barang_id"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
@@ -69,7 +70,8 @@
 
                         {{-- permision pengurus barang spesifikasi --}}
                         <td class="py-3 px-6">
-                            @if(auth()->user()->hasRole('Pengurus Barang') && is_null($permintaan->status))
+                           @if(auth()->user()->hasRole('Pengurus Barang') && (is_null($permintaan->status) || $permintaan->status == 1))
+                            {{-- @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1) --}}
                                 <select 
                                     wire:model.live="list.{{ $index }}.merk_id"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
@@ -105,7 +107,8 @@
                         {{-- permision pengurus barang valume --}}
                         <td class="py-3 px-6">
                             <div class="flex items-center">
-                                @if(auth()->user()->hasRole('Pengurus Barang') && is_null($permintaan->status))
+                                @if(auth()->user()->hasRole('Pengurus Barang') && (is_null($permintaan->status) || $permintaan->status == 1))
+                              {{-- @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1) --}}
                                     @php
                                         $stokTersedia = $item['stok_gudang'] ?? 0;
                                     @endphp
