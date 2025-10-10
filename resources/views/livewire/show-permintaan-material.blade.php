@@ -304,7 +304,7 @@
                                 @endif
                             </span>
                             <span>
-                                <a href="{{ asset('storage/lampiranRab/' . $attachment->path) }}" target="_blank"
+                                <a href="{{ asset('storage/lampiranMaterial/' . $attachment->path) }}" target="_blank"
                                     class="text-gray-800 hover:underline">
                                     {{ basename($attachment->path) }}
                                 </a>

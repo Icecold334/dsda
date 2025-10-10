@@ -33,8 +33,12 @@ class UploadSuratKontrak extends Component
         ]);
 
         foreach ($this->attachments as $file) {
-            $path = str_replace($isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak') . '/', '', $file->storeAs($isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak') . '', $file->getClientOriginalName(), 'public'));  // Store the file
+            // $path = str_replace($isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak') . '/', '', $file->storeAs($isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak') . '', $file->getClientOriginalName(), 'public'));  // Store the file
 
+            // Versi yang lebih sederhana
+            $folder = $isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak');
+            $path = $file->storeAs($folder, $file->getClientOriginalName(), 'public');
+            
             if ($isRab) {
                 LampiranRab::create([
                     'rab_id' => $kontrak_id,  // Associate with kontrak
