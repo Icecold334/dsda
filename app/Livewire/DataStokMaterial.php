@@ -138,16 +138,19 @@ class DataStokMaterial extends Component
             });
         }
 
-        $gudangs = $gudangsQuery->whereHas('transaksiStok', function ($trxQuery) {
-            $trxQuery->whereHas('merkStok.barangStok', function ($barangQuery) {
-                $barangQuery->where('jenis_id', 1);
-            });
-        })
-            ->with([
-                'transaksiStok.merkStok.barangStok' => function ($query) {
-                    $query->where('jenis_id', 1);
-                }
-            ])
+        // $gudangs = $gudangsQuery ->whereHas('transaksiStok', function ($trxQuery) {
+        //     $trxQuery->whereHas('merkStok.barangStok', function ($barangQuery) {
+        //         $barangQuery->where('jenis_id', 1);
+        //     });
+        // })
+        //     ->with([
+        //         'transaksiStok.merkStok.barangStok' => function ($query) {
+        //             $query->where('jenis_id', 1);
+        //         }
+        //     ])
+        //     ->get();
+
+        $gudangs = $gudangsQuery
             ->get();
 
         $gudangs->filter(function ($lokasi) {
@@ -361,6 +364,7 @@ class DataStokMaterial extends Component
 
     public function render()
     {
+        // dd('test');
         $gudangs = $this->fetchStoks();
         return view('livewire.data-stok-material', compact('gudangs'));
     }
