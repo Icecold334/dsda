@@ -857,6 +857,20 @@ class DataPermintaanMaterial extends Component
                 // Delete all persetujuan records (regardless of status)
                 $permintaan->persetujuan()->delete();
 
+                foreach ($itemsToDelete as $item) {
+                    if ($item->merkStok && $item->merkStok->barang_id) {
+                        $barang = BarangStok::find($item->merkStok->barang_id);
+                        if ($barang) {
+                            $barang->stok += $item->jumlah;
+                            $barang->save();
+                        }
+                    }
+
+                    TransaksiStok::where('permintaan_id', $item->id)
+                        ->where('tipe', 'Pengajuan')
+                        ->delete(); 
+                }
+
                 // Delete permintaan material items
                 $permintaan->permintaanMaterial()->delete();
 

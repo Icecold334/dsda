@@ -121,6 +121,13 @@
 @once
     @push('scripts')
         <script>
+            const data = {
+                driver: @json($permintaan->driver),
+                security: @json($permintaan->security),
+                nopol: @json($permintaan->nopol),
+                ttd_driver: @json($permintaan->ttd_driver),
+                ttd_security: @json($permintaan->ttd_security),
+            };
             function confirmApprove() {
                 const currentRole = @json(auth()->user()->roles->pluck('name')->toArray());
                 const listDrivers = @json($listDrivers);
@@ -150,7 +157,7 @@
                 } else if (currentRole.includes('Pengurus Barang')) {
                     // Ambil data terbaru dari server untuk memastikan data driver/security/nopol up-to-date
                     @this.call('checkDriverData').then((data) => {
-                        if (!data.driver || !data.security || !data.nopol) {
+                        if (!data.driver || !data.security || !data.nopol || !data.ttd_driver || !data.ttd_security) {
                             Swal.fire({
                                 title: 'Data Pengiriman Belum Lengkap',
                                 text: 'Silakan lengkapi data driver, security, dan nomor polisi terlebih dahulu di bagian "Tanda Tangan Driver & Keamanan".',

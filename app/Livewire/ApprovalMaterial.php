@@ -61,7 +61,9 @@ class ApprovalMaterial extends Component
         return [
             'driver' => $this->permintaan->driver,
             'security' => $this->permintaan->security,
-            'nopol' => $this->permintaan->nopol
+            'nopol' => $this->permintaan->nopol,
+            'ttd_driver'   => $this->permintaan->ttd_driver,
+            'ttd_security' => $this->permintaan->ttd_security,
         ];
     }
 
