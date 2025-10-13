@@ -40,8 +40,6 @@ class DataPermintaanMaterial extends Component
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
     public $perPage = 10; // Items per page
-    public $unit_id; // User's unit ID for filtering
-    public $Rkb = 'RKB'; // RKB label
 
     public $approvalTimeline = [], $roleList, $selectedId;
     public $showTimelineModal = false;
@@ -57,27 +55,12 @@ class DataPermintaanMaterial extends Component
     public function mount()
     {
         $this->tipe = Request::segment(2);
-
-        // Initialize unit_id from authenticated user
-        $user = Auth::user();
-        $this->unit_id = $user->unit_id;
-
-        // Initialize isSeribu based on unit name (like in Controller.php)
-        if ($this->unit_id) {
-            $parent = UnitKerja::find($this->unit_id);
-            if ($parent) {
-                $this->isSeribu = Str::contains($parent->nama, 'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu');
-            } else {
-                $this->isSeribu = false;
-            }
-        } else {
-            $this->isSeribu = false;
-        }
-
         $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::whereNull('parent_id')->get();
         $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');
 
         // Check if current user is admin (superadmin or unit_id null)
+        $user = Auth::user();
+        // dd($user);
         $this->isAdmin = $user->hasRole('superadmin') || $user->unit_id === null;
         
         if (str_contains(strtolower($user->username), 'kasatpel')) {
@@ -148,10 +131,6 @@ class DataPermintaanMaterial extends Component
                     return is_null($item['status']);
                 }
 
-                if ($statusFilter === 'draft') {
-                    return $item['status'] === 4;
-                }
-
                 $statusMap = [
                     'ditolak' => 0,
                     'disetujui' => 1,
@@ -212,10 +191,6 @@ class DataPermintaanMaterial extends Component
 
                 if ($statusFilter === 'diproses') {
                     return is_null($item['status']);
-                }
-
-                if ($statusFilter === 'draft') {
-                    return $item['status'] === 4;
                 }
 
                 $statusMap = [
@@ -281,10 +256,6 @@ class DataPermintaanMaterial extends Component
                     return is_null($item['status']);
                 }
 
-                if ($statusFilter === 'draft') {
-                    return $item['status'] === 4;
-                }
-
                 $statusMap = [
                     'ditolak' => 0,
                     'disetujui' => 1,
@@ -336,32 +307,28 @@ class DataPermintaanMaterial extends Component
                 $query->whereHas('user.unitKerja', function ($unit) {
                     $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                 });
-            })
-                // Filter draft items to only show to their creators, but allow all other statuses
-                ->where(function ($query) {
-                    $query->whereNull('status') // Include null status (diproses)
-                        ->orWhere('status', '!=', 4) // Include all non-draft statuses
-                        ->orWhere(function ($subQuery) {
-                            $subQuery->where('status', 4) // Draft items only visible to creator
-                                ->where('user_id', auth()->id());
-                        });
-                })
-                ->get()->map(function ($perm) {
-                    $statusMap = [
-                        null => ['label' => 'Diproses', 'color' => 'warning'],
-                        0 => ['label' => 'Ditolak', 'color' => 'danger'],
-                        1 => ['label' => 'Disetujui', 'color' => 'success'],
-                        2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
-                        3 => ['label' => 'Selesai', 'color' => 'primary'],
-                        4 => ['label' => 'Draft', 'color' => 'secondary'],
-                    ];
+            });
 
-                    // Add dynamic properties
-                    $perm->status_teks = $statusMap[$perm->status]['label'] ?? 'Tidak diketahui';
-                    $perm->status_warna = $statusMap[$perm->status]['color'] ?? 'gray';
+            // --- TAMBAHAN FILTER KASATPEL DIMULAI (Logika yang sama) ---
+            if ($this->isKasatpel) {
+                $kelurahanIds = Kelurahan::where('kecamatan_id', $this->kecamatanId)->pluck('id');
+                $materialQuery->whereIn('kelurahan_id', $kelurahanIds);
+            }
+            // --- TAMBAHAN SELESAI ---
 
-                    return $perm;
-                });
+            // Logika lama Anda untuk mengambil dan memetakan data tetap dipertahankan
+            $permintaan = $materialQuery->get()->map(function ($perm) {
+                $statusMap = [
+                    null => ['label' => 'Diproses', 'color' => 'warning'],
+                    0 => ['label' => 'Ditolak', 'color' => 'danger'],
+                    1 => ['label' => 'Disetujui', 'color' => 'success'],
+                    2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
+                    3 => ['label' => 'Selesai', 'color' => 'primary'],
+                ];
+                $perm->status_teks = $statusMap[$perm->status]['label'] ?? 'Tidak diketahui';
+                $perm->status_warna = $statusMap[$perm->status]['color'] ?? 'gray';
+                return $perm;
+            });
         }
 
         return $permintaan->isNotEmpty() ? $permintaan->map(function ($item) {
@@ -427,12 +394,9 @@ class DataPermintaanMaterial extends Component
             // Check if there's any approval at all (either approved or rejected)
             $hasAnyApproval = $item->persetujuan()->whereNotNull('is_approved')->exists();
 
-            // Draft can be deleted and edited by owner
-            $isDraft = $item->status === 4;
-
             // Regular user permissions
-            $canDelete = $isOwner && (!$hasAnyApproval || $isDraft);
-            $canEdit = $isOwner && (!$hasAnyApproval || $isDraft);
+            $canDelete = $isOwner && !$hasAnyApproval;
+            $canEdit = $isOwner && !$hasAnyApproval;
 
             // Admin permissions (no restrictions)
             $canAdminEdit = $this->isAdmin;
@@ -588,8 +552,6 @@ class DataPermintaanMaterial extends Component
                 $status = 'Sedang Dikirim';
             } elseif ($item['status'] === 3 || $item['proses'] === 1) {
                 $status = 'Selesai';
-            } elseif ($item['status'] === 4) {
-                $status = 'Draft';
             }
 
             // Format complete creation date
@@ -790,16 +752,13 @@ class DataPermintaanMaterial extends Component
                 ->whereNotNull('is_approved')
                 ->exists();
 
-            // Allow deletion if it's a draft (status 4) or if no approval has been made
-            $isDraft = $permintaan->status === 4;
-
-            if ($hasAnyApproval && !$isDraft) {
+            if ($hasAnyApproval) {
                 session()->flash('error', 'Permintaan yang sudah di-proses (disetujui/ditolak) tidak dapat dihapus.');
                 return;
             }
 
-            // Check if there's a specific status that cannot be deleted (except draft)
-            if ($permintaan->status && $permintaan->status > 0 && $permintaan->status !== 4) {
+            // Check if there's a specific status that cannot be deleted
+            if ($permintaan->status && $permintaan->status > 0) {
                 session()->flash('error', 'Permintaan dengan status ini tidak dapat dihapus.');
                 return;
             }
@@ -812,7 +771,6 @@ class DataPermintaanMaterial extends Component
                     'user_name' => auth()->user()->name,
                     'permintaan_id' => $permintaan->id,
                     'permintaan_nodin' => $permintaan->nodin,
-                    'status' => $permintaan->status,
                     'reason' => $reason,
                     'deleted_at' => now()
                 ]);
@@ -913,7 +871,7 @@ class DataPermintaanMaterial extends Component
                         ->delete(); 
                 }
 
-                
+                // Delete permintaan material items
                 $permintaan->permintaanMaterial()->delete();
 
                 // Delete lampiran files and records
@@ -985,7 +943,6 @@ class DataPermintaanMaterial extends Component
                 1 => 'Disetujui',
                 2 => 'Sedang Dikirim',
                 3 => 'Selesai',
-                4 => 'Draft',
                 default => 'Tidak diketahui'
             };
 
@@ -995,7 +952,6 @@ class DataPermintaanMaterial extends Component
                 1 => 'Disetujui',
                 2 => 'Sedang Dikirim',
                 3 => 'Selesai',
-                4 => 'Draft',
                 default => 'Tidak diketahui'
             };
 
