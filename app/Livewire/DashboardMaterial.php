@@ -3,10 +3,14 @@
 namespace App\Livewire;
 
 use App\Models\BarangStok;
+use App\Models\DetailPermintaanMaterial;
+use App\Models\Kelurahan;
 use App\Models\PermintaanMaterial;
 use App\Models\TransaksiStok;
 use Livewire\Component;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardMaterial extends Component
 {
@@ -178,25 +182,37 @@ class DashboardMaterial extends Component
             2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
             3 => ['label' => 'Selesai', 'color' => 'primary'],
         ];
+        
+        $user = Auth::user();
+        $query = DetailPermintaanMaterial::query();
 
-        $this->permintaanTerbaru = \App\Models\DetailPermintaanMaterial::with(['permintaanMaterial.user', 'lokasiStok.unitKerja'])
-            ->whereHas('user.unitKerja', function ($unit) {
+        // Cek apakah user adalah Kasatpel
+        if (str_contains(strtolower($user->username), 'kasatpel')) {
+            // KHUSUS KASATPEL: Filter berdasarkan kelurahan di dalam kecamatannya
+            $kecamatanId = $user->kecamatan_id;
+            $kelurahanIds = Kelurahan::where('kecamatan_id', $kecamatanId)->pluck('id');
+            $query->whereIn('kelurahan_id', $kelurahanIds);
+        } elseif ($this->unit_id) {
+            // USER LAIN (non-kasatpel) DENGAN unit_id: Terapkan logika lama Anda (filter sudin)
+            $query->whereHas('user.unitKerja', function ($unit) {
                 $unit->where('parent_id', $this->unit_id)
                     ->orWhere('id', $this->unit_id);
-            })
+            });
+        }
+
+        $this->permintaanTerbaru = $query->with(['user', 'lokasiStok.unitKerja'])
             ->whereHas('permintaanMaterial')
             ->orderByDesc(
-                \DB::raw('(SELECT created_at FROM permintaan_material WHERE permintaan_material.detail_permintaan_id = detail_permintaan_material.id)')
+                DB::raw('(SELECT created_at FROM permintaan_material WHERE permintaan_material.detail_permintaan_id = detail_permintaan_material.id)')
             )
             ->take(10)
             ->get()
             ->map(function ($detail) use ($statusMap) {
-                $permintaan = $detail;
                 $status = $detail->status;
                 return (object)[
-                    'id' => $permintaan->id,
+                    'id' => $detail->id,
                     'nodin' => $detail->nodin,
-                    'user' => $detail->user ?? '-',
+                    'user' => $detail->user ?? null,
                     'created_at' => $detail->created_at,
                     'status_label' => $statusMap[$status]['label'] ?? 'Tidak Diketahui',
                     'status_color' => $statusMap[$status]['color'] ?? 'secondary',

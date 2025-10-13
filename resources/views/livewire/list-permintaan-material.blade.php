@@ -38,6 +38,8 @@
                                 <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
                         </td>
+                        
+                        {{-- permision pengurus barang nama barang --}}                   
                         <td class="py-3 px-6 ">
                             <select wire:model.live="list.{{ $index }}.merk" disabled
                                 class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
@@ -55,42 +57,45 @@
 
                         {{-- permision pengurus barang spesifikasi --}}
                         <td class="py-3 px-6">
-                            @if(auth()->user()->hasRole('Pengurus Barang') && is_null($permintaan->status))
-                                <select wire:model.live="list.{{ $index }}.merk_id"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
-                                    <!-- Tampilkan dulu data yang sudah dipilih -->
-                                    @if(isset($item['merk']))
-                                        <option value="{{ $item['merk']->id }}">
-                                            {{ $item['merk']->nama ?? 'Tanpa merk' }} - {{ $item['merk']->tipe ?? 'Tanpa tipe' }} - {{ $item['merk']->ukuran ?? 'Tanpa ukuran' }}
-                                        </option>
-                                    @else
-                                        <option value="">Pilih Merk</option>
-                                    @endif
-                                    @foreach ($merks as $merk)
-                                        @if(isset($item['merk']) && $merk->barang_id == $item['merk']->barang_id && $merk->id != $item['merk']->id)
+                           @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1)
+                            {{-- @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1) --}}
+                                <select 
+                                    wire:model.live="list.{{ $index }}.merk_id"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                    {{-- Dropdown akan di-disable jika 'Nama Barang' belum dipilih --}}
+                                    @disabled(empty($item['barang_id']))>
+                                    {{-- <option value="">Pilih Spesifikasi</option> --}}
+                                    
+                                    {{-- Loop ke 'available_merks' yang sudah difilter secara otomatis di komponen --}}
+                                    @if(!empty($item['available_merks']))
+                                        @foreach ($item['available_merks'] as $merk)
                                             <option value="{{ $merk->id }}">
-                                                {{ $merk->nama ?? 'Tanpa merk' }} - {{ $merk->tipe ?? 'Tanpa tipe' }} - {{ $merk->ukuran ?? 'Tanpa ukuran' }}
+                                                {{ $merk->nama ?? '' }} - {{ $merk->tipe ?? '' }} - {{ $merk->ukuran ?? '' }}
                                             </option>
-                                        @endif
-                                    @endforeach
+                                        @endforeach
+                                    @endif
                                 </select>
                             @else
-                                <select disabled class="bg-gray-50 border border-gray-300 cursor-not-allowed text-gray-900 text-sm rounded-lg block w-full p-2.5">
-                                    @if(isset($item['merk']))
-                                        <option value="{{ $item['merk']->id }}">
-                                            {{ $item['merk']->nama ?? 'Tanpa merk' }} - {{ $item['merk']->tipe ?? 'Tanpa tipe' }} - {{ $item['merk']->ukuran ?? 'Tanpa ukuran' }}
-                                        </option>
-                                    @else
-                                        <option value="">Belum dipilih</option>
-                                    @endif
-                                </select>
+                                {{-- Untuk tampilan disabled, lebih baik gunakan input text biasa agar lebih bersih --}}
+                                <input 
+                                    type="text"
+                                    value="{{ $item['merk']->nama ?? '' }} - {{ $item['merk']->tipe ?? '' }} - {{ $item['merk']->ukuran ?? '' }}"
+                                    class="bg-gray-50 border border-gray-300 cursor-not-allowed text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                                    disabled
+                                >
                             @endif
+
+                            {{-- Pastikan error key-nya benar --}}
+                            @error("list.{$index}.merk_id")
+                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                            @enderror
                         </td>
                         
                         {{-- permision pengurus barang valume --}}
                         <td class="py-3 px-6">
                             <div class="flex items-center">
-                                @if(auth()->user()->hasRole('Pengurus Barang') && is_null($permintaan->status))
+                                @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1)
+                              {{-- @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1) --}}
                                     @php
                                         $stokTersedia = $item['stok_gudang'] ?? 0;
                                     @endphp

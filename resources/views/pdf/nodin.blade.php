@@ -158,9 +158,10 @@
 </table>
 
 <p>
-  Adapun bahan material tersebut diperlukan untuk {{ $permintaan->keterangan }} di {{ $permintaan->lokasi }}.
+  Adapun bahan material tersebut diperlukan untuk {{ $permintaan->keterangan }} di {{ $lokasiLengkap }}.
   Demikian permohonan ini kami sampaikan. Atas perhatian dan kerjasamanya, saya ucapkan terima kasih.
 </p>
+
 
 <br>
 

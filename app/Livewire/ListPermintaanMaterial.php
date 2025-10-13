@@ -36,9 +36,12 @@ class ListPermintaanMaterial extends Component
     public $rabs, $rab_id, $vol = [], $barangs = [], $merks = [], $dokumenCount, $newBarangId, $newRabId, $newMerkId, $newMerkMax, $newKeterangan, $newJumlah, $newUnit = 'Satuan', $showRule = false, $ruleAdd = false, $list = [], $dataKegiatan = [];
     public $originalList = [];
     public $isDataChanged = false;
+    public $allBarangStok;
+
 
     public function mount($permintaan)
     {
+        // --- 1. Inisialisasi Awal (Kode Anda, tetap sama) ---
         $this->isShow = Request::routeIs('showPermintaan');
         $this->tanggalPenggunaan = Carbon::now()->format('Y-m-d');
         $this->checkShow();
@@ -48,57 +51,61 @@ class ListPermintaanMaterial extends Component
                 ->orWhere('id', $this->unit_id);
         })->orderBy('created_at', 'desc')->get();
 
+
         if ($this->permintaan) {
+            $gudangId = $this->permintaan->gudang_id;
+
+            // --- 2. Ambil Daftar Barang unik (sudah difilter per gudang) ---
+            $this->allBarangStok = BarangStok::whereHas('merkStoks.transaksiStok', function ($query) use ($gudangId) {
+                $query->where('lokasi_id', $gudangId);
+            })
+                ->orderBy('nama')
+                ->get();
+
             if ($this->isSeribu) {
-                // Gunakan optional() atau null-safe operator (?->) untuk keamanan
                 $this->withRab = optional($this->permintaan->permintaanMaterial->first())->rab_id;
             }
 
-            $gudangId = $this->permintaan->gudang_id;
-
-            // Ganti blok foreach di dalam method mount() Anda dengan ini
-
+            // --- 3. Proses Setiap Item Permintaan yang Ada ---
             foreach ($this->permintaan->permintaanMaterial as $item) {
                 $merkStok = $item->merkStok;
-                $stokMaksimalUntukEdit = 0; // Ini akan menjadi nilai max di input
+                $stokMaksimalUntukEdit = 0;
 
                 if ($merkStok && $gudangId) {
-                    // Langkah 1: Hitung sisa stok di gudang saat ini (menggunakan query asli Anda)
-                    $sisaStokGudang = \App\Models\TransaksiStok::where('merk_id', $merkStok->id)
+                    // (Langkah A) Hitung sisa stok gudang saat ini
+                    $sisaStokGudang = TransaksiStok::where('merk_id', $merkStok->id)
                         ->where('lokasi_id', $gudangId)
                         ->get()
                         ->sum(function ($transaksi) {
-                            // Logika sum Anda tidak diubah sama sekali
-                            if ($transaksi->tipe == 'Pemasukan' || $transaksi->tipe == 'Penyesuaian') {
-                                return $transaksi->jumlah;
-                            }
-                            if (in_array($transaksi->tipe, ['Pengeluaran', 'Pengajuan'])) {
-                                return -$transaksi->jumlah;
-                            }
+                            if (in_array($transaksi->tipe, ['Pemasukan', 'Penyesuaian'])) return $transaksi->jumlah;
+                            if (in_array($transaksi->tipe, ['Pengeluaran', 'Pengajuan'])) return -$transaksi->jumlah;
                             return 0;
                         });
 
-                    // Langkah 2: Ambil jumlah awal dari item yang sedang diedit ini
-                    $jumlahAwalItemIni = $item->jumlah;
-
-                    // Langkah 3: Hitung batas maksimal yang benar untuk diedit
-                    $stokMaksimalUntukEdit = $sisaStokGudang + $jumlahAwalItemIni;
+                    // (Langkah B) Tambahkan kembali jumlah awal item ini
+                    $stokMaksimalUntukEdit = $sisaStokGudang + $item->jumlah;
                 }
 
+                // (Langkah C) Siapkan data untuk dimasukkan ke $list
                 $this->list[] = [
                     'id' => $item->id,
                     'rab_id' => $item->rab_id,
+                    'barang_id' => $merkStok->barang_id ?? null,
                     'merk' => $merkStok,
                     'merk_id' => $merkStok->id ?? null,
-                    'stok_gudang' => $stokMaksimalUntukEdit, // <-- Gunakan nilai yang sudah benar
+                    'stok_gudang' => $stokMaksimalUntukEdit,
                     'img' => $item->img,
                     'jumlah' => $item->jumlah,
+                    'available_merks' => MerkStok::where('barang_id', $merkStok->barang_id)->get(),
                     'keterangan' => $item->deskripsi,
                     'editable' => true,
                 ];
             }
+
+            // --- 4. Simpan state asli untuk deteksi perubahan ---
             $this->originalList = $this->list;
         }
+
 
         $this->fillBarangs();
 
@@ -461,6 +468,20 @@ class ListPermintaanMaterial extends Component
             $index = $parts[1];
             $propertyName = $parts[2];
 
+            if ($propertyName === 'barang_id') {
+                $barangId = $this->list[$index]['barang_id'];
+
+                // 1. Ambil semua spesifikasi yang relevan untuk barang yang baru dipilih
+                $availableMerks = \App\Models\MerkStok::where('barang_id', $barangId)->get();
+                $this->list[$index]['available_merks'] = $availableMerks;
+
+                // 2. KOSONGKAN/RESET semua input yang bergantung padanya
+                $this->list[$index]['merk_id'] = null;
+                $this->list[$index]['merk'] = null;
+                $this->list[$index]['jumlah'] = '';
+                $this->list[$index]['stok_gudang'] = 0;
+            }
+
             // Fokus pada blok ini saat 'merk_id' (Spesifikasi) berubah
             // Di dalam method updated() Anda...
             if ($propertyName === 'merk_id') {
@@ -510,14 +531,21 @@ class ListPermintaanMaterial extends Component
     {
         $this->isDataChanged = false; // Asumsikan tidak ada perubahan
 
-        foreach ($this->list as $index => $currentItem) {
-            // Cari item asli berdasarkan ID
+        foreach ($this->list as $currentItem) {
             $originalItem = collect($this->originalList)->firstWhere('id', $currentItem['id']);
 
-            // Jika nilai 'jumlah' berbeda, tandai ada perubahan dan hentikan loop
-            if ($originalItem && $currentItem['jumlah'] != $originalItem['jumlah']) {
-                $this->isDataChanged = true;
-                return; // Keluar dari fungsi lebih awal karena kita sudah menemukan perubahan
+            if ($originalItem) {
+                // [INI PERBAIKANNYA]
+                // Cek perubahan pada jumlah, ATAU spesifikasi, ATAU nama barang.
+                // Jika salah satu saja ada yang berubah, tombol akan muncul.
+                if (
+                    $currentItem['jumlah'] != $originalItem['jumlah'] ||
+                    $currentItem['merk_id'] != $originalItem['merk_id'] ||
+                    $currentItem['barang_id'] != $originalItem['barang_id']
+                ) {
+                    $this->isDataChanged = true;
+                    return; // Langsung keluar dari fungsi jika sudah ketemu satu perubahan
+                }
             }
         }
     }
@@ -771,6 +799,7 @@ class ListPermintaanMaterial extends Component
         $this->list = array_values($this->list); // Reindex the array
         $this->dispatch('listCount', count: count($this->list));
     }
+
     public function checkAdd()
     {
         if (!$this->newMerkId || !$this->newJumlah) {
@@ -807,6 +836,7 @@ class ListPermintaanMaterial extends Component
             $this->resetErrorBag('newJumlah');
         }
     }
+
     public function isVolFilled()
     {
         $requiredKeys = ['p', 'l', 'k'];
@@ -821,6 +851,7 @@ class ListPermintaanMaterial extends Component
 
         return true;
     }
+    
     public function openDistribusiModal($index)
     {
         $item = $this->list[$index];
