@@ -118,6 +118,36 @@ class PermintaanStokController extends Controller
     }
 
     /**
+     * Show the form for editing material request.
+     */
+    public function editMaterial(string $id)
+    {
+        $user = Auth::user();
+        $permintaan = DetailPermintaanMaterial::with([
+            'permintaanMaterial.merkStok.barangStok',
+            'user.unitKerja',
+            'kelurahan.kecamatan',
+            'rab'
+        ])->find($id);
+
+        if (!$permintaan) {
+            abort(404, 'Permintaan material tidak ditemukan.');
+        }
+
+        // Check if user has permission to edit this request
+        if ($permintaan->user_id !== $user->id && !$user->hasRole('superadmin')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit permintaan ini.');
+        }
+
+        // Check if request can be edited (only draft status)
+        if ($permintaan->status !== 4 && $permintaan->status !== null) {
+            // Allow viewing but disable editing
+        }
+
+        return view('permintaan.edit-material', compact('permintaan'));
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
