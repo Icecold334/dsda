@@ -871,7 +871,7 @@ class DataPermintaanMaterial extends Component
                         ->delete(); 
                 }
 
-                // Delete permintaan material items
+                
                 $permintaan->permintaanMaterial()->delete();
 
                 // Delete lampiran files and records
