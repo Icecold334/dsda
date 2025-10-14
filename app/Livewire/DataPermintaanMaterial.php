@@ -16,6 +16,7 @@ use App\Models\DetailPermintaanStok;
 use Illuminate\Support\Facades\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\DetailPermintaanMaterial;
+use App\Models\Kelurahan;
 use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -46,6 +47,8 @@ class DataPermintaanMaterial extends Component
 
     // Admin properties
     public $isAdmin = false;
+    public bool $isKasatpel = false;
+    public ?int $kecamatanId = null;
 
     protected $paginationTheme = 'bootstrap'; // or 'tailwind'
 
@@ -57,7 +60,13 @@ class DataPermintaanMaterial extends Component
 
         // Check if current user is admin (superadmin or unit_id null)
         $user = Auth::user();
+        // dd($user);
         $this->isAdmin = $user->hasRole('superadmin') || $user->unit_id === null;
+        
+        if (str_contains(strtolower($user->username), 'kasatpel')) {
+            $this->isKasatpel = true;
+            $this->kecamatanId = $user->kecamatan_id;
+        }
     }
 
     public function updated($propertyName)
@@ -270,19 +279,45 @@ class DataPermintaanMaterial extends Component
      */
     private function getPermintaanQuery()
     {
-        $permintaan = DetailPermintaanStok::where('jenis_id', $this->getJenisId())
+        // === Query Pertama (DetailPermintaanStok) ===
+        $stokQuery = DetailPermintaanStok::where('jenis_id', $this->getJenisId())
             ->when($this->unit_id, function ($query) {
                 $query->whereHas('unit', function ($unit) {
                     $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                 });
-            })->get();
+            });
 
+        // --- TAMBAHAN FILTER KASATPEL DIMULAI ---
+        if ($this->isKasatpel) {
+            // 1. Ambil semua ID kelurahan yang berada di dalam kecamatan milik Kasatpel
+            $kelurahanIds = Kelurahan::where('kecamatan_id', $this->kecamatanId)->pluck('id');
+            
+            // 2. Terapkan filter ke query SEBELUM ->get() dipanggil
+            $stokQuery->whereIn('kelurahan_id', $kelurahanIds);
+        }
+        // --- TAMBAHAN SELESAI ---
+
+        // Logika lama Anda untuk mengambil data tetap dipertahankan
+        $permintaan = $stokQuery->get();
+
+
+        // === Query Kedua (DetailPermintaanMaterial) jika jenis_id == 1 ===
         if ($this->getJenisId() == 1) {
-            $permintaan = DetailPermintaanMaterial::when($this->unit_id, function ($query) {
+            $materialQuery = DetailPermintaanMaterial::when($this->unit_id, function ($query) {
                 $query->whereHas('user.unitKerja', function ($unit) {
                     $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
                 });
-            })->get()->map(function ($perm) {
+            });
+
+            // --- TAMBAHAN FILTER KASATPEL DIMULAI (Logika yang sama) ---
+            if ($this->isKasatpel) {
+                $kelurahanIds = Kelurahan::where('kecamatan_id', $this->kecamatanId)->pluck('id');
+                $materialQuery->whereIn('kelurahan_id', $kelurahanIds);
+            }
+            // --- TAMBAHAN SELESAI ---
+
+            // Logika lama Anda untuk mengambil dan memetakan data tetap dipertahankan
+            $permintaan = $materialQuery->get()->map(function ($perm) {
                 $statusMap = [
                     null => ['label' => 'Diproses', 'color' => 'warning'],
                     0 => ['label' => 'Ditolak', 'color' => 'danger'],
@@ -290,11 +325,8 @@ class DataPermintaanMaterial extends Component
                     2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
                     3 => ['label' => 'Selesai', 'color' => 'primary'],
                 ];
-
-                // Add dynamic properties
                 $perm->status_teks = $statusMap[$perm->status]['label'] ?? 'Tidak diketahui';
                 $perm->status_warna = $statusMap[$perm->status]['color'] ?? 'gray';
-
                 return $perm;
             });
         }
@@ -311,11 +343,25 @@ class DataPermintaanMaterial extends Component
      */
     private function getPeminjamanQuery()
     {
-        $peminjaman = DetailPeminjamanAset::when($this->unit_id, function ($query) {
+        // Pisahkan query builder agar bisa disisipkan kondisi
+        $peminjamanQuery = DetailPeminjamanAset::when($this->unit_id, function ($query) {
             $query->whereHas('unit', function ($unit) {
                 $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
             });
-        })->get();
+        });
+
+        // --- TAMBAHAN FILTER KASATPEL DIMULAI ---
+        if ($this->isKasatpel) {
+            // 1. Ambil semua ID kelurahan yang berada di dalam kecamatan milik Kasatpel
+            $kelurahanIds = Kelurahan::where('kecamatan_id', $this->kecamatanId)->pluck('id');
+            
+            // 2. Terapkan filter ke query SEBELUM ->get() dipanggil
+            $peminjamanQuery->whereIn('kelurahan_id', $kelurahanIds);
+        }
+        // --- TAMBAHAN SELESAI ---
+
+        // Lanjutkan dengan logika lama Anda
+        $peminjaman = $peminjamanQuery->get();
 
         return $peminjaman->isNotEmpty() ? $peminjaman->map(function ($item) {
             return $this->mapData($item, 'peminjaman');
@@ -765,7 +811,6 @@ class DataPermintaanMaterial extends Component
 
             // Dispatch event to refresh page
             $this->dispatch('permintaan-deleted', ['message' => $successMessage]);
-
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan saat menghapus permintaan: ' . $e->getMessage());
 
@@ -812,6 +857,20 @@ class DataPermintaanMaterial extends Component
                 // Delete all persetujuan records (regardless of status)
                 $permintaan->persetujuan()->delete();
 
+                foreach ($itemsToDelete as $item) {
+                    if ($item->merkStok && $item->merkStok->barang_id) {
+                        $barang = BarangStok::find($item->merkStok->barang_id);
+                        if ($barang) {
+                            $barang->stok += $item->jumlah;
+                            $barang->save();
+                        }
+                    }
+
+                    TransaksiStok::where('permintaan_id', $item->id)
+                        ->where('tipe', 'Pengajuan')
+                        ->delete(); 
+                }
+
                 // Delete permintaan material items
                 $permintaan->permintaanMaterial()->delete();
 
@@ -845,7 +904,6 @@ class DataPermintaanMaterial extends Component
 
             // Refresh data
             $this->resetPage();
-
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan saat menghapus permintaan: ' . $e->getMessage());
 
@@ -924,7 +982,6 @@ class DataPermintaanMaterial extends Component
 
             // Dispatch event to close modal and refresh
             $this->dispatch('admin-status-changed');
-
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Terjadi kesalahan saat mengubah status: ' . $e->getMessage());

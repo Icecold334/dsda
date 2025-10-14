@@ -131,23 +131,26 @@ class DataStokMaterial extends Component
         $gudangsQuery = LokasiStok::query();
 
         // Filter unit kerja hanya jika bukan superadmin
-        if (!$isSuperadmin && $this->unit_id) {
+        if ($this->unit_id) {
             $gudangsQuery->whereHas('unitKerja', function ($unit) {
                 $unit->where('parent_id', $this->unit_id)
                     ->orWhere('id', $this->unit_id);
             });
         }
 
-        $gudangs = $gudangsQuery->whereHas('transaksiStok', function ($trxQuery) {
-            $trxQuery->whereHas('merkStok.barangStok', function ($barangQuery) {
-                $barangQuery->where('jenis_id', 1);
-            });
-        })
-            ->with([
-                'transaksiStok.merkStok.barangStok' => function ($query) {
-                    $query->where('jenis_id', 1);
-                }
-            ])
+        // $gudangs = $gudangsQuery ->whereHas('transaksiStok', function ($trxQuery) {
+        //     $trxQuery->whereHas('merkStok.barangStok', function ($barangQuery) {
+        //         $barangQuery->where('jenis_id', 1);
+        //     });
+        // })
+        //     ->with([
+        //         'transaksiStok.merkStok.barangStok' => function ($query) {
+        //             $query->where('jenis_id', 1);
+        //         }
+        //     ])
+        //     ->get();
+
+        $gudangs = $gudangsQuery
             ->get();
 
         $gudangs->filter(function ($lokasi) {
@@ -361,6 +364,7 @@ class DataStokMaterial extends Component
 
     public function render()
     {
+        // dd('test');
         $gudangs = $this->fetchStoks();
         return view('livewire.data-stok-material', compact('gudangs'));
     }

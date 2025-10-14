@@ -18,6 +18,7 @@
 
                 <select wire:model.live="status" class="border rounded-lg px-4 py-2 w-40">
                     <option value="">Semua Status</option>
+                    <option value="draft">Draft</option>
                     <option value="diproses">diproses</option>
                     <option value="ditolak">ditolak</option>
                     <option value="disetujui">disetujui</option>
@@ -118,6 +119,20 @@
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
 
+                            {{-- Edit Draft Button - Only for draft status --}}
+                            @if ($permintaan['status'] === 4 && $permintaan['can_edit'])
+                                <a href="/permintaan/material/edit/{{ $permintaan['id'] }}"
+                                    class="text-yellow-600 hover:text-white hover:bg-yellow-600 px-3 py-2 rounded border border-yellow-600 transition-colors duration-200"
+                                    data-tooltip-target="tooltip-edit-draft-{{ $permintaan['id'] }}">
+                                    <i class="fa-solid fa-edit"></i>
+                                </a>
+                                <div id="tooltip-edit-draft-{{ $permintaan['id'] }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Edit Draft
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            @endif
+
                             <button wire:click="openApprovalTimeline({{ $permintaan['id'] }}, '{{ $permintaan['tipe'] }}')"
                                 class="text-green-600 hover:text-white hover:bg-green-600 px-3 py-2 rounded border border-green-600 transition-colors duration-200"
                                 data-tooltip-target="tooltip-timeline-{{ $permintaan['id'] }}">
@@ -157,7 +172,7 @@
 
                             @if ($permintaan['can_admin_delete'])
                                 <button onclick="confirmAdminDeletePermintaan({{ $permintaan['id'] }})" class="text-purple-600 hover:text-white hover:bg-purple-600 px-3 py-2 rounded border
-                                        border-purple-600 transition-colors duration-200"
+                                                                border-purple-600 transition-colors duration-200"
                                     data-tooltip-target="tooltip-admin-delete-{{ $permintaan['id'] }}">
                                     <i class="fa-solid fa-user-slash"></i>
                                 </button>
@@ -359,10 +374,10 @@
                 Swal.fire({
                     title: 'Konfirmasi Hapus Permintaan',
                     html: `
-                                                <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
-                                                <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
-                                                <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
-                                            `,
+                                                            <p>Apakah Anda yakin ingin menghapus permintaan ini?</p>
+                                                            <p style="color: #dc2626; font-weight: 600; margin-top: 8px;">Tindakan ini tidak dapat dibatalkan.</p>
+                                                            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 8px;">Semua data terkait termasuk lampiran dan detail permintaan akan ikut terhapus.</p>
+                                                        `,
                     icon: 'warning',
                     input: 'textarea',
                     inputLabel: 'Alasan menghapus (opsional)',
@@ -477,20 +492,20 @@
                 Swal.fire({
                     title: 'Edit Status Permintaan',
                     html: `
-                                <div class="text-left">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Baru</label>
-                                    <select id="statusSelect" class="w-full p-2 border border-gray-300 rounded-md mb-4">
-                                        <option value="">Diproses</option>
-                                        <option value="0">Ditolak</option>
-                                        <option value="1">Disetujui</option>
-                                        <option value="2">Sedang Dikirim</option>
-                                        <option value="3">Selesai</option>
-                                    </select>
+                                            <div class="text-left">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Status Baru</label>
+                                                <select id="statusSelect" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+                                                    <option value="">Diproses</option>
+                                                    <option value="0">Ditolak</option>
+                                                    <option value="1">Disetujui</option>
+                                                    <option value="2">Sedang Dikirim</option>
+                                                    <option value="3">Selesai</option>
+                                                </select>
 
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Alasan Perubahan (opsional)</label>
-                                    <textarea id="reasonTextarea" class="w-full p-2 border border-gray-300 rounded-md" rows="3" placeholder="Jelaskan alasan perubahan status..."></textarea>
-                                </div>
-                            `,
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Alasan Perubahan (opsional)</label>
+                                                <textarea id="reasonTextarea" class="w-full p-2 border border-gray-300 rounded-md" rows="3" placeholder="Jelaskan alasan perubahan status..."></textarea>
+                                            </div>
+                                        `,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#f97316',
@@ -643,7 +658,7 @@
                                         <h3 class=" text-md font-semibold text-gray-900 dark:text-white">{{ $label }}</h3>
                                         <time class="block  text-xs font-normal leading-none text-gray-400 dark:text-gray-500">{{
                             $tanggal ?? '-'
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }}</time>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }}</time>
                                         <p class="text-sm  font-semibold text-gray-600">{{ $user ?? '-' }}</p>
 
                                         @if (!empty($desc))

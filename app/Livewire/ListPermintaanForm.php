@@ -155,20 +155,20 @@ class ListPermintaanForm extends Component
                 })->where('merk_id', $merk->id) // Ambil stok berdasarkan merk_id
                     ->get()
                     ->map(function ($stok) use ($merk) {
-                    return [
-                        'id' => $merk->id,
-                        'nama' => $merk->nama, // Nama merk
-                        'tipe' => $merk->tipe, // Tipe merk
-                        'ukuran' => $merk->ukuran, // Ukuran merk
-                        'lokasi' => $stok->lokasiStok->nama, // Lokasi terkait stok
-                        'bagian' => $stok->bagianStok->nama ?? null, // Bagian jika ada
-                        'posisi' => $stok->posisiStok->nama ?? null, // Posisi jika ada
-                        'jumlah_tersedia' => $stok->jumlah, // Jumlah stok yang tersedia
-                        'lokasi_id' => $stok->lokasi_id, // ID lokasi
-                        'bagian_id' => $stok->bagian_id, // ID bagian
-                        'posisi_id' => $stok->posisi_id, // ID posisi
-                    ];
-                });
+                        return [
+                            'id' => $merk->id,
+                            'nama' => $merk->nama, // Nama merk
+                            'tipe' => $merk->tipe, // Tipe merk
+                            'ukuran' => $merk->ukuran, // Ukuran merk
+                            'lokasi' => $stok->lokasiStok->nama, // Lokasi terkait stok
+                            'bagian' => $stok->bagianStok->nama ?? null, // Bagian jika ada
+                            'posisi' => $stok->posisiStok->nama ?? null, // Posisi jika ada
+                            'jumlah_tersedia' => $stok->jumlah, // Jumlah stok yang tersedia
+                            'lokasi_id' => $stok->lokasi_id, // ID lokasi
+                            'bagian_id' => $stok->bagian_id, // ID bagian
+                            'posisi_id' => $stok->posisi_id, // ID posisi
+                        ];
+                    });
             })->flatten(1),
         ];
     }
@@ -362,7 +362,7 @@ class ListPermintaanForm extends Component
             })->whereHas('kategori', function ($query) use ($kategori) {
                 return $query->where('parent_id', $kategori->id)->orWhere('id', $kategori->id);
             })->where('perbaikan', true)
-                ->get();
+            ->get();
 
         $this->drivers = User::whereHas('roles', function ($query) {
             $query->where('name', 'Driver'); // Ambil user dengan role "Driver"
@@ -1330,11 +1330,11 @@ class ListPermintaanForm extends Component
         // Ambil stok berdasarkan merk_id, diurutkan berdasarkan lokasi atau logika lainnya
         $stocks =
             Stok::where('merk_id', $merk->merk_id)
-                ->where('lokasi_id', $merk->lokasi_id)
-                ->where('bagian_id', $merk->bagian_id)
-                ->where('posisi_id', $merk->posisi_id)
-                // ->where('jumlah', '>', 0)
-                ->get();
+            ->where('lokasi_id', $merk->lokasi_id)
+            ->where('bagian_id', $merk->bagian_id)
+            ->where('posisi_id', $merk->posisi_id)
+            // ->where('jumlah', '>', 0)
+            ->get();
 
         $remaining = $merk->jumlah_disetujui; // Jumlah yang harus dikurangi
 

@@ -61,7 +61,9 @@ class ApprovalMaterial extends Component
         return [
             'driver' => $this->permintaan->driver,
             'security' => $this->permintaan->security,
-            'nopol' => $this->permintaan->nopol
+            'nopol' => $this->permintaan->nopol,
+            'ttd_driver'   => $this->permintaan->ttd_driver,
+            'ttd_security' => $this->permintaan->ttd_security,
         ];
     }
 
@@ -315,29 +317,42 @@ class ApprovalMaterial extends Component
 
         // Jika yang menyetujui adalah Pengurus Barang (buat Transaksi + ubah status = 2)
         if ($currentUser->hasRole('Pengurus Barang')) {
-            foreach ($permintaan->permintaanMaterial as $item) {
-                foreach ($item->stokDisetujui as $value) {
-                    TransaksiStok::create([
-                        'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
-                        'tipe' => 'Pengeluaran',
-                        'merk_id' => $value->merk_id,
-                        'vendor_id' => null,
-                        'lokasi_id' => $value->lokasi_id,
-                        'bagian_id' => $value->bagian_id,
-                        'posisi_id' => $value->posisi_id,
-                        'harga' => fake()->numberBetween(1, 10) * 100,
-                        'user_id' => $value->permintaanMaterial->detailPermintaan->user_id,
-                        'tanggal' => Carbon::now()->format('Y-m-d'),
-                        'jumlah' => $value->jumlah_disetujui,
-                    ]);
-                }
 
-                $item->transaksi->first()?->delete();
+            // Langsung loop ke setiap item material yang ada di permintaan
+            foreach ($permintaan->permintaanMaterial as $item) {
+
+                // 1. Buat satu transaksi 'Pengeluaran' untuk setiap item
+                //    dengan data yang diambil dari sumber yang paling akurat.
+                TransaksiStok::create([
+                    'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
+                    'tipe'            => 'Pengeluaran',
+                    'permintaan_id'   => $item->id, // [BENAR] Tautkan ke PermintaanMaterial
+
+                    // [BENAR] Ambil jumlah FINAL dari PermintaanMaterial
+                    'jumlah'          => $item->jumlah,
+
+                    // [BENAR] Ambil data lain dari sumber yang paling akurat ($item dan $permintaan)
+                    'merk_id'         => $item->merk_id,
+                    'lokasi_id'       => $permintaan->gudang_id,
+                    'user_id'         => $permintaan->user_id,
+                    'tanggal'         => now()->format('Y-m-d'),
+
+                    // Kolom lain bisa disesuaikan
+                    'vendor_id'       => null,
+                    'bagian_id'       => null,
+                    'posisi_id'       => null,
+                    'harga'           => fake()->numberBetween(1, 10) * 100,
+                ]);
+
+                // 2. [DIUBAH] Hapus transaksi 'Pengajuan' yang lama secara spesifik
+                //    Ini lebih aman daripada menghapus 'first()'
+                $item->transaksi()->where('tipe', 'Pengajuan')->delete();
             }
 
+            // 3. Update status permintaan utama setelah semua loop selesai
             $this->permintaan->update([
-                'status' => 2,
-                'suratJalan' => $noSuratJalan, // pastikan kolom ini ada
+                'status'     => 2, // Status: Dikirim
+                'suratJalan' => $noSuratJalan,
             ]);
         }
 

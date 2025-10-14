@@ -214,161 +214,115 @@
             </tr> --}}
 
             @push('scripts')
-                <script type="module">
-                    document.addEventListener('livewire:init', () => {
-                        // Tangkap event dari Livewire untuk reset canvas jika ttd dihapus
-                        Livewire.on('resetCanvas', () => {
-                            // Tunggu hingga canvas benar-benar tersedia di DOM
-                            setTimeout(() => {
-                                const canvas = document.getElementById("myCanvas");
-                                if (canvas) {
-                                    initializeCanvas();
-                                    // console.log('Canvas berhasil di-reset');
-                                } else {
-                                    // console.error('Canvas tidak ditemukan!');
-                                }
-                            }, 100); // Beri jeda waktu jika perlu
-                        });
+            <script type="module">
+                document.addEventListener('livewire:init', () => {
+                    // Tangkap event dari Livewire untuk reset canvas jika ttd dihapus
+                    Livewire.on('resetCanvas', () => {
+                        setTimeout(() => {
+                            const canvas = document.getElementById("myCanvas");
+                            if (canvas) {
+                                initializeCanvas();
+                            }
+                        }, 100);
                     });
+                });
 
-                    initializeCanvas();
+                // Panggil inisialisasi saat halaman pertama kali dimuat
+                initializeCanvas();
 
-                    function initializeCanvas() {
-                        const canvas = document.getElementById("myCanvas");
-                        const clearButton = document.getElementById("clearButton");
+                function initializeCanvas() {
+                    const canvas = document.getElementById("myCanvas");
+                    const clearButton = document.getElementById("clearButton");
 
-                        if (!canvas || !clearButton) return;
-
-                        canvas.width = canvas.parentElement.offsetWidth;
-                        canvas.height = 256;
-
-                        const ctx = canvas.getContext("2d");
-                        ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan kanvas saat diinisialisasi ulang
-
-                        let isDrawing = false;
-                        let selectedTool = "brush";
-                        ctx.globalCompositeOperation = "source-over"; // Default blending mode
-                        ctx.lineWidth = 5; // Default brush size
-                        ctx.strokeStyle = "#000000"; // Default brush color
-
-                        function startDrawing(event) {
-                            isDrawing = true;
-                            ctx.beginPath();
-                            draw(event);
-                        }
-
-                        function draw(event) {
-                            if (!isDrawing) return;
-                            const rect = canvas.getBoundingClientRect();
-                            const x = event.clientX - rect.left;
-                            const y = event.clientY - rect.top;
-                            ctx.lineTo(x, y);
-                            ctx.stroke();
-                        }
-
-                        function stopDrawing() {
-                            isDrawing = false;
-                            ctx.beginPath();
-                        }
-
-                        // Pastikan event listener tidak terduplikasi
-                        canvas.removeEventListener("mousedown", startDrawing);
-                        canvas.removeEventListener("mousemove", draw);
-                        canvas.removeEventListener("mouseup", stopDrawing);
-
-                        // Tambah ulang event listener
-                        canvas.addEventListener("mousedown", startDrawing);
-                        canvas.addEventListener("mousemove", draw);
-                        canvas.addEventListener("mouseup", stopDrawing);
-
-                        // Clear Canvas Button
-                        clearButton.removeEventListener("click", clearCanvas);
-                        clearButton.addEventListener("click", clearCanvas);
-
-                        function clearCanvas() {
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        }
+                    if (!canvas || !clearButton) {
+                        console.error("Elemen canvas atau tombol clear tidak ditemukan!");
+                        return;
                     }
 
-                    // const canvas = document.getElementById("myCanvas");
-                    // canvas.width = canvas.parentElement.offsetWidth;
-                    // canvas.height = 256;
+                    const ctx = canvas.getContext("2d");
 
-                    // const ctx = canvas.getContext("2d");
-                    // let isDrawing = false;
+                    // Set ukuran canvas agar sesuai dengan parent dan responsif
+                    function resizeCanvas() {
+                        const parent = canvas.parentElement;
+                        canvas.width = parent.offsetWidth;
+                        canvas.height = 256; // Atau sesuaikan tinggi yang diinginkan
+                    }
 
-                    // // Tool Logic
-                    // // let selectedTool = "pencil";
-                    // // Set Default Tool to Brush
-                    // let selectedTool = "brush";
-                    // ctx.globalCompositeOperation = "source-over"; // Default blending mode
-                    // ctx.lineWidth = 5; // Default brush size
-                    // ctx.strokeStyle = "#000000"; // Default brush color
+                    window.addEventListener('resize', resizeCanvas);
+                    resizeCanvas(); // Panggil saat inisialisasi
 
-                    // function startDrawing(event) {
-                    //     isDrawing = true;
-                    //     ctx.beginPath();
-                    //     draw(event);
-                    // }
+                    let isDrawing = false;
+                    ctx.lineWidth = 3; // Ketebalan garis standar untuk tanda tangan
+                    ctx.strokeStyle = "#000000";
+                    ctx.lineCap = "round"; // Membuat ujung garis lebih halus
+                    ctx.lineJoin = "round"; // Membuat sambungan garis lebih halus
 
-                    // function draw(event) {
-                    //     if (!isDrawing) return;
-                    //     const rect = canvas.getBoundingClientRect();
-                    //     const x = event.clientX - rect.left;
-                    //     const y = event.clientY - rect.top;
-                    //     ctx.lineTo(x, y);
-                    //     ctx.stroke();
-                    // }
+                    // --- FUNGSI UTAMA UNTUK MENGGAMBAR ---
 
-                    // function stopDrawing() {
-                    //     isDrawing = false;
-                    //     ctx.beginPath();
-                    // }
+                    // Fungsi untuk mendapatkan koordinat (bekerja untuk mouse dan sentuhan)
+                    function getCoordinates(event) {
+                        if (event.touches && event.touches.length > 0) {
+                            // Untuk perangkat sentuh (HP/Tablet)
+                            return { x: event.touches[0].clientX, y: event.touches[0].clientY };
+                        }
+                        // Untuk mouse
+                        return { x: event.clientX, y: event.clientY };
+                    }
 
-                    // canvas.addEventListener("mousedown", startDrawing);
-                    // canvas.addEventListener("mousemove", draw);
-                    // canvas.addEventListener("mouseup", stopDrawing);
+                    function startDrawing(event) {
+                        event.preventDefault(); // Mencegah scrolling halaman saat menggambar di HP
+                        isDrawing = true;
+                        const coords = getCoordinates(event);
+                        const rect = canvas.getBoundingClientRect();
+                        ctx.beginPath();
+                        ctx.moveTo(coords.x - rect.left, coords.y - rect.top);
+                    }
 
-                    // // Clear Canvas
-                    // document.getElementById("clearButton").addEventListener("click", () => {
-                    //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    // });
+                    function draw(event) {
+                        if (!isDrawing) return;
+                        event.preventDefault(); // Mencegah scrolling halaman saat menggambar di HP
+                        const coords = getCoordinates(event);
+                        const rect = canvas.getBoundingClientRect();
+                        ctx.lineTo(coords.x - rect.left, coords.y - rect.top);
+                        ctx.stroke();
+                    }
 
-                    // Tool Handlers
-                    // document.getElementById("pencilTool").addEventListener("click", () => {
-                    //     selectedTool = "pencil";
-                    //     ctx.globalCompositeOperation = "source-over";
-                    //     ctx.lineWidth = 1;
-                    // });
+                    function stopDrawing() {
+                        isDrawing = false;
+                        ctx.beginPath(); // Reset path
+                    }
+                    
+                    function clearCanvas() {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    }
 
-                    // document.getElementById("brushTool").addEventListener("click", () => {
-                    //     selectedTool = "brush";
-                    //     ctx.globalCompositeOperation = "source-over";
-                    //     ctx.lineWidth = 5;
-                    // });
+                    // --- EVENT LISTENERS ---
+                    
+                    // Hapus event listener lama untuk menghindari duplikasi
+                    canvas.removeEventListener("mousedown", startDrawing);
+                    canvas.removeEventListener("mousemove", draw);
+                    canvas.removeEventListener("mouseup", stopDrawing);
+                    canvas.removeEventListener("mouseout", stopDrawing);
+                    canvas.removeEventListener("touchstart", startDrawing);
+                    canvas.removeEventListener("touchmove", draw);
+                    canvas.removeEventListener("touchend", stopDrawing);
+                    clearButton.removeEventListener("click", clearCanvas);
 
-                    // document.getElementById("eraserTool").addEventListener("click", () => {
-                    //     selectedTool = "eraser";
-                    //     ctx.globalCompositeOperation = "destination-out";
-                    // });
+                    // Tambahkan event listener untuk MOUSE
+                    canvas.addEventListener("mousedown", startDrawing);
+                    canvas.addEventListener("mousemove", draw);
+                    canvas.addEventListener("mouseup", stopDrawing);
+                    canvas.addEventListener("mouseout", stopDrawing); // Hentikan jika mouse keluar canvas
 
-                    // // Color and Brush Size
-                    // document.getElementById("colorPicker").addEventListener("input", (event) => {
-                    //     ctx.strokeStyle = event.target.value;
-                    // });
-
-                    // document.getElementById("brushSize").addEventListener("change", (event) => {
-                    //     ctx.lineWidth = event.target.value;
-                    // });
-
-                    // Save Canvas
-                    // document.getElementById("saveButton").addEventListener("click", () => {
-                    //     const link = document.createElement("a");
-                    //     link.download = "signature.png";
-                    //     link.href = canvas.toDataURL();
-                    //     link.click();
-                    // });
-                </script>
+                    // Tambahkan event listener untuk SENTUHAN JARI (MOBILE)
+                    canvas.addEventListener("touchstart", startDrawing);
+                    canvas.addEventListener("touchmove", draw);
+                    canvas.addEventListener("touchend", stopDrawing);
+                    
+                    // Listener untuk tombol clear
+                    clearButton.addEventListener("click", clearCanvas);
+                }
+            </script>
             @endpush
 
             <!-- Select for LokasiStok -->

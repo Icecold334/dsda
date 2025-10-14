@@ -112,13 +112,17 @@ class ShowStokMaterial extends Component
             ];
         }
 
+        // --- KODE BARU (FIX) ---
         foreach ($result as $barangId => &$data) {
             $data['spesifikasi'] = collect($data['spesifikasi'])
-                ->filter(fn($spec) => $spec['jumlah'] > 0)
+                // UBAH '>' MENJADI '>='
+                ->filter(fn($spec) => $spec['jumlah'] >= 0)
                 ->all();
         }
 
+        // Baris ini tidak perlu diubah, karena akan berfungsi benar setelah perbaikan di atas
         $result = array_filter($result, fn($data) => count($data['spesifikasi']) > 0);
+
 
         $search = strtolower($this->search);
         if ($search) {
@@ -439,7 +443,6 @@ class ShowStokMaterial extends Component
             return Response::streamDownload(function () use ($writer) {
                 $writer->save('php://output');
             }, $fileName);
-
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan saat mengunduh file Excel: ' . $e->getMessage());
             return;

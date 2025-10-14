@@ -1,6 +1,10 @@
+{{-- <div style="color:red;font-weight:bold;">DEBUG SHOW BLADE: TIPE = {{ $tipe }}</div> --}}
 <x-body>
-    @if (auth()->user()->unitKerja->hak??0)
-
+    {{-- <div style="color:blue;font-weight:bold;">
+        UNIT KERJA HAK: {{ auth()->user()->unitKerja->hak ?? 'NULL' }}
+    </div> --}}
+    @if (auth()->user()->unitKerja->hak ?? 0)
+    
         <div class="flex justify-between py-2 mb-3">
             <h1 class="text-2xl font-bold text-primary-900 ">DETAIL {{ Str::upper($tipe) }}</h1>
             <div class="flex gap-2 items-center">
@@ -390,5 +394,5 @@
         </div>
     @else
     <livewire:show-permintaan-material :permintaan='$permintaan'>
-        @endif
+    @endif
 </x-body>
