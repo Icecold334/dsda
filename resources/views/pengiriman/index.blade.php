@@ -1,4 +1,5 @@
 <x-body>
+    {{-- <?php dd(auth()->user()); ?> --}}
     {{-- <div class="flex justify-between py-2 mb-3">
 
         <h1 class="text-2xl font-bold text-primary-900 ">Daftar Barang Datang @if (auth()->user()->unitKerja)
