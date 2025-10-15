@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -11,13 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->foreignId('unit_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
             $table->foreignId('kecamatan_id')->nullable()->constrained('kecamatans')->onDelete('cascade');
             $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('cascade');
             $table->string('name');
-            $table->integer('nip')->nullable()
+            $table->bigInteger('nip')->nullable()
                 ->default('1');
             $table->string('ttd', 256)
                 ->nullable();
@@ -32,8 +34,8 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->text('alamat')->nullable();
             $table->string('perusahaan')->nullable();
-            $table->integer('provinsi')->nullable();
-            $table->integer('kota')->nullable();
+            $table->bigInteger('provinsi')->nullable();
+            $table->bigInteger('kota')->nullable();
             $table->string('no_wa')->nullable();
             $table->string('keterangan')->nullable();
             $table->rememberToken();
@@ -52,7 +54,7 @@ return new class extends Migration
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
-            $table->integer('last_activity')->index();
+            $table->bigInteger('last_activity')->index();
         });
     }
 
