@@ -83,9 +83,7 @@ class ListPermintaanMaterial extends Component
                             return 0;
                         });
 
-                    // Pastikan jumlah dari item ini juga angka sebelum dijumlahkan
-                    $jumlahItemIni = (int) $item->jumlah;
-                    $stokMaksimalUntukEdit = $sisaStokGudang + $jumlahItemIni;
+                     $stokMaksimalUntukEdit = $sisaStokGudang + $item->jumlah;
                 }
 
                 // Siapkan data untuk list (sisa kode Anda)
