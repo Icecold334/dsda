@@ -78,16 +78,8 @@ class ListPermintaanMaterial extends Component
                         ->where('lokasi_id', $gudangId)
                         ->get()
                         ->sum(function ($transaksi) {
-                            // (int) akan mengubah NULL, string kosong '', atau teks lain menjadi 0
-                            $jumlah = (int) $transaksi->jumlah;
-
-                            if (in_array($transaksi->tipe, ['Pemasukan', 'Penyesuaian'])) {
-                                return $jumlah;
-                            }
-                            if (in_array($transaksi->tipe, ['Pengeluaran', 'Pengajuan', 'Pengembalian'])) {
-                                return -$jumlah;
-                            }
-
+                            if (in_array($transaksi->tipe, ['Pemasukan', 'Penyesuaian'])) return (int) $transaksi->jumlah;
+                            if (in_array($transaksi->tipe, ['Pengeluaran', 'Pengajuan'])) return (int) -$transaksi->jumlah;
                             return 0;
                         });
 
@@ -290,15 +282,6 @@ class ListPermintaanMaterial extends Component
     public function fillRabId($rab_id)
     {
         $this->rab_id = $rab_id;
-
-        if ($this->rab_id) {
-            $rab = \App\Models\Rab::find($this->rab_id);
-            if ($rab) {
-                $this->kelurahanId = $rab->kelurahan_id; // Ini mengisi properti untuk hidden input
-            }
-        } else {
-            $this->kelurahanId = null;
-        }
 
         $this->fillBarangs();
 

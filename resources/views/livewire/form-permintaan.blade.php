@@ -121,32 +121,18 @@
 
                         </td>
                     </tr>
-                    {{-- BLOK BARU SEBAGAI PENGGANTI --}}
                     <tr class="">
+
                         <td class="font-semibold"><label for="lokasi">Lokasi Kegiatan</label></td>
                         <td>
-                            {{-- Input untuk Kecamatan (Hanya Tampilan) --}}
-                            <input type="text" readonly value="{{ $rab->kelurahan->kecamatan->kecamatan ?? '' }}"
-                                class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5">
-                        </td>
-                    </tr>
-                    <tr class="">
-                        <td></td>
-                        <td>
-                            {{-- Input untuk Kelurahan (Hanya Tampilan) --}}
-                            <input type="text" readonly value="{{ $rab->kelurahan->nama ?? '' }}"
-                                class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5">
-                            
-                            {{-- PENTING: Input tersembunyi untuk mengirim ID Kelurahan ke backend --}}
-                            <input type="hidden" wire:model.defer="kelurahanId">
-                        </td>
-                    </tr>
-                    <tr class="">
-                        <td></td>
-                        <td>
-                            {{-- Textarea untuk detail lokasi (Hanya Tampilan) --}}
-                            <textarea rows="2" readonly
-                                class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5">{{ $rab->lokasi }}</textarea>
+                            <select disabled
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+
+                                <option>
+                                    {{ $rab->kelurahan->kecamatan->kecamatan }}
+                                </option>
+                            </select>
+
                         </td>
                     </tr>
                     <tr class="">
