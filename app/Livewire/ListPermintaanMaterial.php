@@ -77,8 +77,8 @@ class ListPermintaanMaterial extends Component
                         ->where('lokasi_id', $gudangId)
                         ->get()
                         ->sum(function ($transaksi) {
-                            if (in_array($transaksi->tipe, ['Pemasukan', 'Penyesuaian'])) return $transaksi->jumlah;
-                            if (in_array($transaksi->tipe, ['Pengeluaran', 'Pengajuan'])) return -$transaksi->jumlah;
+                            if (in_array($transaksi->tipe, ['Pemasukan', 'Penyesuaian'])) return (int) $transaksi->jumlah;
+                            if (in_array($transaksi->tipe, ['Pengeluaran', 'Pengajuan'])) return (int) -$transaksi->jumlah;
                             return 0;
                         });
 
@@ -851,7 +851,7 @@ class ListPermintaanMaterial extends Component
 
         return true;
     }
-    
+
     public function openDistribusiModal($index)
     {
         $item = $this->list[$index];
