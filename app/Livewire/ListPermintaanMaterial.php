@@ -67,26 +67,26 @@ class ListPermintaanMaterial extends Component
             }
 
             // --- 3. Proses Setiap Item Permintaan yang Ada ---
+            // KODE BARU (SANGAT ROBUST) DI DALAM METHOD mount()
             foreach ($this->permintaan->permintaanMaterial as $item) {
                 $merkStok = $item->merkStok;
                 $stokMaksimalUntukEdit = 0;
 
                 if ($merkStok && $gudangId) {
-                    // (Langkah A) Hitung sisa stok gudang saat ini
+                    // ===== FIX UTAMA: MENGGUNAKAN (int) UNTUK MEMAKSA JADI ANGKA =====
                     $sisaStokGudang = TransaksiStok::where('merk_id', $merkStok->id)
                         ->where('lokasi_id', $gudangId)
                         ->get()
                         ->sum(function ($transaksi) {
-                            if (in_array($transaksi->tipe, ['Pemasukan', 'Penyesuaian'])) return $transaksi->jumlah;
-                            if (in_array($transaksi->tipe, ['Pengeluaran', 'Pengajuan'])) return -$transaksi->jumlah;
+                            if (in_array($transaksi->tipe, ['Pemasukan', 'Penyesuaian'])) return (int) $transaksi->jumlah;
+                            if (in_array($transaksi->tipe, ['Pengeluaran', 'Pengajuan'])) return (int) -$transaksi->jumlah;
                             return 0;
                         });
 
-                    // (Langkah B) Tambahkan kembali jumlah awal item ini
-                    $stokMaksimalUntukEdit = $sisaStokGudang + $item->jumlah;
+                     $stokMaksimalUntukEdit = $sisaStokGudang + $item->jumlah;
                 }
 
-                // (Langkah C) Siapkan data untuk dimasukkan ke $list
+                // Siapkan data untuk list (sisa kode Anda)
                 $this->list[] = [
                     'id' => $item->id,
                     'rab_id' => $item->rab_id,
@@ -851,7 +851,7 @@ class ListPermintaanMaterial extends Component
 
         return true;
     }
-    
+
     public function openDistribusiModal($index)
     {
         $item = $this->list[$index];

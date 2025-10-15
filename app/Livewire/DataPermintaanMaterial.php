@@ -62,7 +62,7 @@ class DataPermintaanMaterial extends Component
         $user = Auth::user();
         // dd($user);
         $this->isAdmin = $user->hasRole('superadmin') || $user->unit_id === null;
-        
+
         if (str_contains(strtolower($user->username), 'kasatpel')) {
             $this->isKasatpel = true;
             $this->kecamatanId = $user->kecamatan_id;
@@ -279,7 +279,7 @@ class DataPermintaanMaterial extends Component
      */
     private function getPermintaanQuery()
     {
-        // === Query Pertama (DetailPermintaanStok) ===
+
         $stokQuery = DetailPermintaanStok::where('jenis_id', $this->getJenisId())
             ->when($this->unit_id, function ($query) {
                 $query->whereHas('unit', function ($unit) {
@@ -287,21 +287,14 @@ class DataPermintaanMaterial extends Component
                 });
             });
 
-        // --- TAMBAHAN FILTER KASATPEL DIMULAI ---
+
         if ($this->isKasatpel) {
-            // 1. Ambil semua ID kelurahan yang berada di dalam kecamatan milik Kasatpel
             $kelurahanIds = Kelurahan::where('kecamatan_id', $this->kecamatanId)->pluck('id');
-            
-            // 2. Terapkan filter ke query SEBELUM ->get() dipanggil
             $stokQuery->whereIn('kelurahan_id', $kelurahanIds);
         }
-        // --- TAMBAHAN SELESAI ---
 
-        // Logika lama Anda untuk mengambil data tetap dipertahankan
         $permintaan = $stokQuery->get();
-
-
-        // === Query Kedua (DetailPermintaanMaterial) jika jenis_id == 1 ===
+        
         if ($this->getJenisId() == 1) {
             $materialQuery = DetailPermintaanMaterial::when($this->unit_id, function ($query) {
                 $query->whereHas('user.unitKerja', function ($unit) {
@@ -309,14 +302,20 @@ class DataPermintaanMaterial extends Component
                 });
             });
 
-            // --- TAMBAHAN FILTER KASATPEL DIMULAI (Logika yang sama) ---
             if ($this->isKasatpel) {
                 $kelurahanIds = Kelurahan::where('kecamatan_id', $this->kecamatanId)->pluck('id');
-                $materialQuery->whereIn('kelurahan_id', $kelurahanIds);
-            }
-            // --- TAMBAHAN SELESAI ---
 
-            // Logika lama Anda untuk mengambil dan memetakan data tetap dipertahankan
+                $materialQuery->where(function ($q) use ($kelurahanIds) {
+                    $q->whereIn('kelurahan_id', $kelurahanIds)
+                        ->orWhere(function ($subQ) use ($kelurahanIds) {
+                            $subQ->whereNull('kelurahan_id')
+                                ->whereHas('rab', function ($rabQuery) use ($kelurahanIds) {
+                                    $rabQuery->whereIn('kelurahan_id', $kelurahanIds);
+                                });
+                        });
+                });
+            }
+
             $permintaan = $materialQuery->get()->map(function ($perm) {
                 $statusMap = [
                     null => ['label' => 'Diproses', 'color' => 'warning'],
@@ -343,25 +342,11 @@ class DataPermintaanMaterial extends Component
      */
     private function getPeminjamanQuery()
     {
-        // Pisahkan query builder agar bisa disisipkan kondisi
-        $peminjamanQuery = DetailPeminjamanAset::when($this->unit_id, function ($query) {
+        $peminjaman = DetailPeminjamanAset::when($this->unit_id, function ($query) {
             $query->whereHas('unit', function ($unit) {
                 $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
             });
-        });
-
-        // --- TAMBAHAN FILTER KASATPEL DIMULAI ---
-        if ($this->isKasatpel) {
-            // 1. Ambil semua ID kelurahan yang berada di dalam kecamatan milik Kasatpel
-            $kelurahanIds = Kelurahan::where('kecamatan_id', $this->kecamatanId)->pluck('id');
-            
-            // 2. Terapkan filter ke query SEBELUM ->get() dipanggil
-            $peminjamanQuery->whereIn('kelurahan_id', $kelurahanIds);
-        }
-        // --- TAMBAHAN SELESAI ---
-
-        // Lanjutkan dengan logika lama Anda
-        $peminjaman = $peminjamanQuery->get();
+        })->get();
 
         return $peminjaman->isNotEmpty() ? $peminjaman->map(function ($item) {
             return $this->mapData($item, 'peminjaman');
@@ -868,7 +853,7 @@ class DataPermintaanMaterial extends Component
 
                     TransaksiStok::where('permintaan_id', $item->id)
                         ->where('tipe', 'Pengajuan')
-                        ->delete(); 
+                        ->delete();
                 }
 
                 // Delete permintaan material items
