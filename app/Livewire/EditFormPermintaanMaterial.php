@@ -17,6 +17,8 @@ use Livewire\Attributes\On;
 use App\Models\PermintaanMaterial;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DetailPermintaanMaterial;
+use App\Models\StokDisetujui;
+use Illuminate\Support\Facades\DB;
 
 class EditFormPermintaanMaterial extends Component
 {
@@ -472,6 +474,42 @@ class EditFormPermintaanMaterial extends Component
             $this->originalJumlah[$index] != $this->list[$index]['jumlah'];
     }
 
+    private function isMerkTersebar($merkId)
+    {
+        $lokasiId = $this->gudang_id;
+
+        $transaksis = \App\Models\TransaksiStok::where('merk_id', $merkId)
+            ->where(function ($q) use ($lokasiId) {
+                $q->where('lokasi_id', $lokasiId)
+                    ->orWhereHas('bagianStok', fn($q) => $q->where('lokasi_id', $lokasiId))
+                    ->orWhereHas('posisiStok.bagianStok', fn($q) => $q->where('lokasi_id', $lokasiId));
+            })
+            ->get();
+
+        $stokBagian = $transaksis->whereNull('posisi_id')->whereNotNull('bagian_id');
+        $stokPosisi = $transaksis->whereNotNull('posisi_id');
+
+        $jumlahBagian = $stokBagian->reduce(function ($carry, $trx) {
+            return $carry + match ($trx->tipe) {
+                'Pemasukan' => (int) $trx->jumlah,
+                'Pengeluaran' => -(int) $trx->jumlah,
+                'Penyesuaian' => (int) $trx->jumlah,
+                default => 0,
+            };
+        }, 0);
+
+        $jumlahPosisi = $stokPosisi->reduce(function ($carry, $trx) {
+            return $carry + match ($trx->tipe) {
+                'Pemasukan' => (int) $trx->jumlah,
+                'Pengeluaran', 'Pengajuan' => -(int) $trx->jumlah,
+                'Penyesuaian' => (int) $trx->jumlah,
+                default => 0,
+            };
+        }, 0);
+
+        return ($jumlahBagian + $jumlahPosisi) > 0;
+    }
+
     public function updateData()
     {
         // Hanya bisa update jika status draft
@@ -525,7 +563,6 @@ class EditFormPermintaanMaterial extends Component
 
             // Redirect ke halaman show
             return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $this->permintaan->id]);
-
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
@@ -541,6 +578,8 @@ class EditFormPermintaanMaterial extends Component
         }
 
         try {
+
+            DB::beginTransaction();
             // Update detail permintaan material dan ubah status ke diproses
             $this->permintaan->update([
                 'tanggal_permintaan' => strtotime($this->tanggal_permintaan),
@@ -563,13 +602,47 @@ class EditFormPermintaanMaterial extends Component
 
             // Tambah item baru
             foreach ($this->list as $item) {
-                PermintaanMaterial::create([
+                $merkId = $item['merk_id'];
+
+                // 1. Simpan ke permintaan_material
+                $pm = PermintaanMaterial::create([
                     'detail_permintaan_id' => $this->permintaan->id,
                     'user_id' => $this->permintaan->user_id,
-                    'merk_id' => $item['merk_id'],
+                    'merk_id' => $merkId,
                     'jumlah' => $item['jumlah'],
                     'rab_id' => $item['rab_id'],
+                    'alocated' => !$this->isMerkTersebar($merkId) ? 1 : 0,
+                    'deskripsi' => $item['keterangan'] ?? null,
                 ]);
+
+                // 2. PENTING: Buat transaksi stok (tipe: Pengajuan)
+                \App\Models\TransaksiStok::create([
+                    'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
+                    'permintaan_id' => $pm->id,
+                    'tipe' => 'Pengajuan',
+                    'merk_id' => $merkId,
+                    'jumlah' => $item['jumlah'],
+                    'lokasi_id' => $this->gudang_id,
+                    'bagian_id' => null,
+                    'posisi_id' => null,
+                    'user_id' => $this->permintaan->user_id,
+                    'tanggal' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                // 3. PENTING: Cek jika stok tidak tersebar → langsung buat StokDisetujui
+                if (!$this->isMerkTersebar($merkId)) {
+                    StokDisetujui::create([
+                        'permintaan_id' => $pm->id,
+                        'merk_id' => $merkId,
+                        'lokasi_id' => $this->gudang_id,
+                        'bagian_id' => null,
+                        'posisi_id' => null,
+                        'catatan' => 'Stok hanya tersedia di lokasi utama',
+                        'jumlah_disetujui' => $item['jumlah'],
+                    ]);
+                }
             }
 
             // Logic untuk approval (seperti di ListPermintaanMaterial)
@@ -603,6 +676,8 @@ class EditFormPermintaanMaterial extends Component
                 $approvalUser->notify(new \App\Notifications\PermintaanMaterialNotification($this->permintaan));
             }
 
+            DB::commit();
+
             session()->flash('success', 'Permintaan material berhasil disubmit untuk approval.');
 
             // Save documents if any
@@ -610,8 +685,8 @@ class EditFormPermintaanMaterial extends Component
 
             // Redirect ke halaman show
             return redirect()->route('showPermintaan', ['tipe' => 'material', 'id' => $this->permintaan->id]);
-
         } catch (\Exception $e) {
+            DB::rollBack();
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
