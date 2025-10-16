@@ -193,12 +193,22 @@ class DashboardMaterial extends Component
         $user = Auth::user();
         $query = DetailPermintaanMaterial::query();
 
-        // Cek apakah user adalah Kasatpel
         if (str_contains(strtolower($user->username), 'kasatpel')) {
-            // KHUSUS KASATPEL: Filter berdasarkan kelurahan di dalam kecamatannya
+           
             $kecamatanId = $user->kecamatan_id;
             $kelurahanIds = Kelurahan::where('kecamatan_id', $kecamatanId)->pluck('id');
-            $query->whereIn('kelurahan_id', $kelurahanIds);
+
+            $query->where(function ($q) use ($kelurahanIds) {
+               
+                $q->whereIn('kelurahan_id', $kelurahanIds)
+                   
+                    ->orWhere(function ($subQ) use ($kelurahanIds) {
+                        $subQ->whereNull('kelurahan_id')
+                            ->whereHas('rab', function ($rabQuery) use ($kelurahanIds) {
+                                $rabQuery->whereIn('kelurahan_id', $kelurahanIds);
+                            });
+                    });
+            });
         } elseif ($this->unit_id) {
             // USER LAIN (non-kasatpel) DENGAN unit_id: Terapkan logika lama Anda (filter sudin)
             $query->whereHas('user.unitKerja', function ($unit) {
@@ -206,6 +216,7 @@ class DashboardMaterial extends Component
                     ->orWhere('id', $this->unit_id);
             });
         }
+        // Jika user tidak punya unit_id (misal: superadmin), tidak ada filter yang diterapkan, sehingga melihat semua.
 
         $this->permintaanTerbaru = $query->with(['user', 'lokasiStok.unitKerja'])
             ->whereHas('permintaanMaterial')
