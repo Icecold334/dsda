@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 
 class ShowStokMaterial extends Component
@@ -24,6 +25,7 @@ class ShowStokMaterial extends Component
     public $lokasi, $search;
     public $showModal = false;
     public $showFormPenyesuaian = false;
+    public $StokOpnamecreate = false;
     public $modalBarangNama;
     public $jumlahAkhir;
     public $modalRiwayat = [];
@@ -35,6 +37,8 @@ class ShowStokMaterial extends Component
     ];
 
     // File upload properties
+    public $uploadedFileName = null; 
+    public $soFile; 
     public $newAttachments = [];
     public $attachments = [];
 
@@ -456,4 +460,148 @@ class ShowStokMaterial extends Component
             'merkStokSiapPenyesuaian' => $this->merkStokSiapPenyesuaian,
         ]);
     }
+
+
+    //stok opname
+     public function downloadTemplate()
+    {
+        // format header CSV
+        $headers = ['kode', 'nama_barang', 'satuan', 'stok', 'merk'];
+        $csv = implode(',', $headers) . "\n";
+        return response($csv)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="template_stok_opname.csv"');
+    }
+
+public function processSO()
+{
+     $this->validate([
+        'soFile' => 'required|file|mimes:csv,txt,xlsx|max:10240'
+    ]);
+
+    $fileName = time() . '-' . str_replace(' ', '_', $this->soFile->getClientOriginalName());
+
+    // ✅ simpan ke disk 'public'
+    $this->soFile->storeAs('dataSO', $fileName, 'public');
+
+
+    // ✅ ambil path via Storage (lebih aman)
+    $fullPath = Storage::path('public/dataSO/' . $fileName);
+
+    //dd($fullPath, file_exists($fullPath));
+
+    // cek apakah file bener-bener ada
+    if (!Storage::exists('public/dataSO/' . $fileName)) {
+        $this->dispatch('toast', [['type' => 'error', 'message' => '❌ File gagal ditemukan di storage public/dataSO']]);
+        return;
+    }
+    
+        // / deteksi delimiter otomatis
+    $sample = file_get_contents($fullPath, false, null, 0, 1000);
+    $delimiter = (substr_count($sample, ',') > substr_count($sample, ';')) ? ',' : ';';
+
+    // / baca file CSV
+    $rows = array_map(fn($r) => str_getcsv($r, $delimiter), file($fullPath));
+    $header = array_map(fn($h) => strtolower(trim($h)), array_shift($rows));
+
+    // pastikan header mengandung kolom yang wajib
+    $required = ['kode', 'nama_barang', 'satuan', 'stok', 'merk'];
+    foreach ($required as $col) {
+        if (!in_array($col, $header)) {
+            $this->dispatch('toast', [['type' => 'error', 'message' => "❌ Kolom '$col' tidak ditemukan di file CSV."]]);
+            return;
+        }
+    }
+
+    $inserted = 0;
+
+    foreach ($rows as $index => $row) {
+        $data = @array_combine($header, $row);
+        if (!$data || !isset($data['stok'])) continue;
+        if ((int) $data['stok'] < 1) continue;
+
+        // / Satuan
+        $satuan = \App\Models\SatuanBesar::firstOrCreate(
+            ['nama' => trim($data['satuan'])],
+            ['slug' => \Illuminate\Support\Str::slug($data['satuan'])]
+        );
+
+        // / Barang
+        $barang = \App\Models\BarangStok::firstOrCreate(
+            ['slug' => \Illuminate\Support\Str::slug($data['nama_barang'])],
+            [
+                'nama' => trim($data['nama_barang']),
+                'kode_barang' => 'BRG-' . strtoupper(\Illuminate\Support\Str::random(5)),
+                'jenis_id' => 1,
+                'satuan_besar_id' => $satuan->id,
+                'minimal' => 10,
+            ]
+        );
+
+        // / Merk
+        $merk = \App\Models\MerkStok::firstOrCreate(
+            ['kode' => trim($data['kode'])],
+            [
+                'barang_id' => $barang->id,
+                'nama' => trim($data['merk'] ?? $data['nama_barang'])
+            ]
+        );
+
+        // / Hitung stok existing
+        $lokasi = $this->lokasi;
+        $transaksis = \App\Models\TransaksiStok::where('lokasi_id', $lokasi->id)
+            ->where('merk_id', $merk->id)
+            ->get();
+
+        $jumlah = 0;
+        foreach ($transaksis as $trx) {
+            if (in_array($trx->tipe, ['Penyesuaian', 'Pemasukan'])) $jumlah += $trx->jumlah;
+            if ($trx->tipe === 'Pengeluaran') $jumlah -= $trx->jumlah;
+        }
+
+        $selisih = ((int)$data['stok']) - $jumlah;
+
+        // / Catat jika stok berbeda
+        if ($selisih !== 0) {
+            \App\Models\TransaksiStok::create([
+                'status' => 1,
+                'keterangan_status' => 'Stok Opname Upload',
+                'kode_transaksi_stok' => 'SO-' . strtoupper(\Illuminate\Support\Str::random(6)),
+                'tipe' => 'Penyesuaian',
+                'merk_id' => $merk->id,
+                'lokasi_id' => $lokasi->id,
+                'tanggal' => now(),
+                'jumlah' => $selisih,
+                'deskripsi' => 'Penyesuaian hasil Stok Opname ' . $lokasi->nama,
+                'user_id' => \Illuminate\Support\Facades\Auth::id(),
+            ]);
+
+            $inserted++;
+        }
+    }
+
+    // / Notifikasi
+    $this->dispatch('toast', [
+        ['type' => 'success', 'message' => "/ Stok Opname selesai. $inserted data diperbarui."]
+    ]);
+
+    // / Reset setelah selesai
+    $this->reset('soFile', 'uploadedFileName');
+}
+
+
+
+    public function updatedSoFile()
+        {
+            // Simpan nama file yang baru diupload
+            if ($this->soFile) {
+                $this->uploadedFileName = $this->soFile->getClientOriginalName();
+            }
+        }
+
+        public function removeSoFile()
+        {
+            // Hapus file dari state
+            $this->reset('soFile', 'uploadedFileName');
+        }
 }

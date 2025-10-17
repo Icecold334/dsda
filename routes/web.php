@@ -68,6 +68,7 @@ use App\Http\Controllers\KontrakRetrospektifStokController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\KecamatanController;
 use App\Http\Controllers\KelurahanController;
+use App\Http\Controllers\StokOpnameController;
 use App\Livewire\DataDriver;
 
 Route::get('/', function () {
@@ -411,6 +412,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('permintaan/{tipe}/{id}', [PermintaanStokController::class, 'show'])->name('showPermintaan');
     Route::get('/log-barang', [StokController::class, 'logBarang'])->name('log-index');
     Route::get('/stok/sudin/{sudin}', [StokController::class, 'index']);
+    Route::get('/stok/template-opname', [\App\Http\Controllers\StokOpnameController::class, 'downloadTemplate'])->name('stok.template-opname');
 
     Route::resources([
         'jenis-stok' => JenisStokController::class,
