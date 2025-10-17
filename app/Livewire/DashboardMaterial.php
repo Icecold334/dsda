@@ -3,13 +3,13 @@
 namespace App\Livewire;
 
 use App\Models\BarangStok;
-use App\Models\DetailPermintaanMaterial;
-use App\Models\Kelurahan;
 use App\Models\PermintaanMaterial;
+use App\Models\DetailPermintaanMaterial;
 use App\Models\TransaksiStok;
+use App\Models\Kelurahan;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardMaterial extends Component
@@ -23,34 +23,12 @@ class DashboardMaterial extends Component
 
     public function mount()
     {
-        $this->tipe = Request::segment(2);
-
-        // Initialize unit_id from authenticated user
-        $user = Auth::user();
-        // dd($user);
-        // $this->unit_id = $user->unit_id;
-
-        // Initialize isSeribu based on unit name (like in Controller.php)
-        // if ($this->unit_id) {
-        //     $parent = UnitKerja::find($this->unit_id);
-        //     if ($parent) {
-        //         $this->isSeribu = Str::contains($parent->nama, 'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu');
-        //     } else {
-        //         $this->isSeribu = false;
-        //     }
-        // } else {
-        //     $this->isSeribu = false;
-        // }
-
-        $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::whereNull('parent_id')->get();
-        $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');
-
-        $this->isAdmin = $user->hasRole('superadmin') || $user->unit_id === null;
-
-        if (str_contains(strtolower($user->username), 'kasatpel')) {
-            $this->isKasatpel = true;
-            $this->kecamatanId = $user->kecamatan_id;
-        }
+        //$this->unit_id = auth()->user()->unit_id;
+        $this->filterDate = now()->format('Y-m-d');
+        $this->preparePemasukan();
+        $this->preparePengeluaran();
+        $this->prepareStokMenipis();
+        $this->preparePermintaanTerbaru();
     }
 
     public function updatedFilterDate()
@@ -61,6 +39,7 @@ class DashboardMaterial extends Component
 
     public function preparePemasukan()
     {
+        // ... (Kode Anda tidak diubah) ...
         $this->pemasukanList = TransaksiStok::selectRaw('
                 merk_stok.barang_id,
                 transaksi_stok.lokasi_id,
@@ -92,11 +71,9 @@ class DashboardMaterial extends Component
             });
     }
 
-
-
-
     public function preparePengeluaran()
     {
+        // ... (Kode Anda tidak diubah) ...
         $permintaan = PermintaanMaterial::with(['detailPermintaan', 'merkStok.barangStok.satuanBesar'])
             ->whereHas('detailPermintaan', function ($detail) {
                 $detail->where('status', '>=', 2)
@@ -138,15 +115,9 @@ class DashboardMaterial extends Component
             ->values();
     }
 
-
-
-
-
-
-
-
     public function prepareStokMenipis()
     {
+        // ... (Kode Anda tidak diubah) ...
         $data = TransaksiStok::selectRaw('
                 merk_stok.barang_id,
                 transaksi_stok.lokasi_id,
@@ -174,7 +145,6 @@ class DashboardMaterial extends Component
         $this->stokMenipisList = $data->filter(function ($row) use ($barangList) {
             $barang = $barangList[$row->barang_id] ?? null;
 
-            // Jangan tampilkan jika minimal = 0 (anggap tidak perlu warning)
             if (!$barang || $barang->minimal === 0) {
                 return false;
             }
@@ -193,7 +163,9 @@ class DashboardMaterial extends Component
     }
 
 
-
+    /**
+     * Mempersiapkan data Permintaan Terbaru dengan filter yang benar.
+     */
     public function preparePermintaanTerbaru()
     {
         $statusMap = [
@@ -202,6 +174,7 @@ class DashboardMaterial extends Component
             1 => ['label' => 'Disetujui', 'color' => 'success'],
             2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
             3 => ['label' => 'Selesai', 'color' => 'primary'],
+            4 => ['label' => 'Draft'],
         ];
 
         $user = Auth::user();
@@ -232,6 +205,7 @@ class DashboardMaterial extends Component
         }
         // Jika user tidak punya unit_id (misal: superadmin), tidak ada filter yang diterapkan, sehingga melihat semua.
 
+        // Lanjutkan dengan sisa query Anda
         $this->permintaanTerbaru = $query->with(['user', 'lokasiStok.unitKerja'])
             ->whereHas('permintaanMaterial')
             ->orderByDesc(
@@ -251,7 +225,6 @@ class DashboardMaterial extends Component
                 ];
             });
     }
-
 
     public function render()
     {
