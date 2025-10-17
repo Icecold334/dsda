@@ -101,7 +101,8 @@ class ListPermintaanMaterial extends Component
                     'editable' => true,
                 ];
             }
-
+        
+            
             // --- 4. Simpan state asli untuk deteksi perubahan ---
             $this->originalList = $this->list;
         }

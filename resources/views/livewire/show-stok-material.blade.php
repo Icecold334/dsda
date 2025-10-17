@@ -42,6 +42,13 @@
                     Penyesuaian Barang
                 </button>
             @endcan
+            
+            @can('penyesuaian.create')
+                <button wire:click="$set('StokOpnamecreate', true)"
+                    class="text-primary-900 bg-yellow-100 hover:bg-yellow-400 transition duration-200 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 flex items-center h-10">
+                    Stok Opname
+                </button>
+            @endcan
         </div>
     </div>
 
@@ -82,6 +89,7 @@
                 <tr class="bg-primary-700 text-white ">
                     <th class="px-4 py-2 text-center">Kode Barang</th>
                     <th class="px-4 py-2 text-center">Nama Barang</th>
+                    <th class="px-4 py-2 text-center">Kode Merk</th>
                     <th class="px-4 py-2 text-center">Spesifikasi</th>
                     <th class="px-4 py-2 text-center">Jumlah</th>
                     <th class="px-4 py-2 text-center"></th>
@@ -92,6 +100,8 @@
                     <tr class="bg-gray-50 hover:bg-gray-200">
                         <td class="px-4 py-2">{{ $item['kode'] }}</td>
                         <td class="px-4 py-2">{{ $item['nama'] }}</td>
+                        <td class="px-4 py-2">{{ $item['nama'] }}</td>
+                        <td class="px-4 py-2">{{ $item['merk_id'] ?? '-' }}</td> 
                         <td class="px-4 py-2">
                             <ul class="list-disc list-inside text-sm">
                                 @foreach($item['spesifikasi'] as $spec => $info)
@@ -398,6 +408,77 @@
             </div>
         </div>
     @endif
+
+
+    <!-- StokOpname Modal -->
+   @if ($StokOpnamecreate)
+    <div class="fixed -inset-56 bg-black bg-opacity-50 z-[99] flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl p-6 relative">
+            <button wire:click="$set('StokOpnamecreate', false)"
+                class="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl font-bold">&times;
+            </button>
+
+            <h3 class="text-xl font-semibold mb-4 text-primary-900">Stok Opname {{ $lokasi->nama }}</h3>
+
+          <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
+    {{-- Tombol Download Template --}}
+    <a href="{{ route('stok.template-opname') }}"
+       class="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+        <i class="fa-solid fa-file-arrow-down"></i>
+        <span>Download Template</span>
+    </a>
+
+    {{-- Upload file --}}
+    <div class="flex items-center gap-3">
+        <label class="bg-yellow-500 text-white px-5 py-2.5 rounded-lg hover:bg-yellow-600 transition cursor-pointer flex items-center gap-2">
+            <i class="fa-solid fa-upload"></i> Upload File SO
+            <input type="file" wire:model="soFile" accept=".csv,.xlsx" hidden>
+        </label>
+
+        @if ($uploadedFileName)
+            <div class="flex items-center gap-2 text-sm bg-gray-100 border border-gray-300 px-3 py-2 rounded">
+                <i class="fa-solid fa-file-excel text-green-600"></i>
+                <span class="text-gray-800">{{ $uploadedFileName }}</span>
+                <button wire:click="removeSoFile" class="text-red-500 hover:text-red-700 ml-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        @endif
+    </div>
+
+    {{-- Jalankan Penyesuaian --}}
+    <button wire:click="processSO"
+        wire:loading.attr="disabled"
+        class="bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 transition disabled:opacity-50 flex items-center gap-2">
+        <i class="fa-solid fa-circle-check"></i>
+        <span wire:loading.remove wire:target="processSO">Jalankan Penyesuaian</span>
+        <span wire:loading wire:target="processSO" class="flex items-center text-sm">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+                fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10"
+                    stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Memproses...
+        </span>
+    </button>
+</div>
+
+            <div class="mt-4 border-t pt-4 text-sm text-gray-600">
+                <p><strong>Petunjuk:</strong></p>
+                <ul class="list-disc ml-5 mt-1 space-y-1">
+                    <li>Klik <b>Download Template</b> untuk mendapatkan format Excel stok opname.</li>
+                    <li>Isi stok aktual setiap barang di kolom <b>stok</b>.</li>
+                    <li>Upload kembali file tersebut melalui tombol <b>Upload SO</b>.</li>
+                    <li>Setelah itu klik <b>Jalankan Penyesuaian</b> untuk mencatat hasil opname ke sistem.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+@endif
+
+
     <script>
         document.addEventListener('toast', (c) => {
             var { type, message } = c.detail[0]
