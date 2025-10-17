@@ -62,19 +62,19 @@ class DataPermintaanMaterial extends Component
 
 // Initialize unit_id from authenticated user
         $user = Auth::user();
-        $this->unit_id = $user->unit_id;
+        // $this->unit_id = $user->unit_id;
 
-        // Initialize isSeribu based on unit name (like in Controller.php)
-        if ($this->unit_id) {
-            $parent = UnitKerja::find($this->unit_id);
-            if ($parent) {
-                $this->isSeribu = Str::contains($parent->nama, 'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu');
-            } else {
-                $this->isSeribu = false;
-            }
-        } else {
-            $this->isSeribu = false;
-        }
+        // // Initialize isSeribu based on unit name (like in Controller.php)
+        // if ($this->unit_id) {
+        //     $parent = UnitKerja::find($this->unit_id);
+        //     if ($parent) {
+        //         $this->isSeribu = Str::contains($parent->nama, 'Suku Dinas Sumber Daya Air Kabupaten Administrasi Kepulauan Seribu');
+        //     } else {
+        //         $this->isSeribu = false;
+        //     }
+        // } else {
+        //     $this->isSeribu = false;
+        // }
 
         $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::whereNull('parent_id')->get();
         $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');
