@@ -1,0 +1,60 @@
+kode,nama_barang,tanggal,satuan,merk,stok,lokasi
+1.1.7.01.01.01.005.00009,Batu Pecah,2025-10-10,M3,Ukuran 2/3,"8,22",Gudang Pantai
+1.1.7.01.01.01.005.00040,Batu Kali,2025-10-10,M3,Batu Belah,"20,30",Gudang Pantai
+1.1.7.01.01.04.001.00002,BBM Pertamax,2025-10-10,Liter,Pertamax,"65,00",Gudang Pantai
+1.1.7.01.01.04.001.00013,BBM Solar,2025-10-10,Liter,Solar,"75,00",Gudang Pantai
+1.1.7.02.02.06.001.00086,Belokan Talang,2025-10-10,Buah,Belokan Talang Kotak PVC uk. 4 inch,"14,00",Gudang Pantai
+1.1.7.01.03.07.006.50027,Benang Proyek/Bangunan,2025-10-10,Roll,,"8,00",Gudang Pantai
+1.1.7.01.01.01.012.00006,Beton Instan,2025-10-10,ZAK,K225,"345,00",Gudang Pantai
+1.1.7.01.02.04.006.00100,Bulkhead Fitting uk. 2 inch,2025-10-10,Buah,,"19,00",Gudang Pantai
+1.1.7.02.02.06.001.00088,Corong Talang,2025-10-10,Buah,Kotak PVC uk. 4 inch,"17,00",Gudang Pantai
+1.1.7.02.02.06.001.00116,Elbow 90,2025-10-10,Buah,"Spesifikasi : uk. 6, type AW","1,00",Gudang Pantai
+1.1.7.02.02.06.001.00134,Elbow 90,2025-10-10,Buah,"Spesifikasi : uk. 4, type AW","22,00",Gudang Pantai
+1.1.7.02.02.06.001.00117,Elbow 90,2025-10-10,Buah,"Spesifikasi : uk. 8, type AW","5,00",Gudang Pantai
+1.1.7.02.02.04.001.00005,Elbow 45,2025-10-10,Buah,"Spesifikasi : uk. 4, type AW","83,00",Gudang Pantai
+1.1.7.01.03.07.015.00002,Drum Plastik,2025-10-10,Buah,warna biru uk. 200 Liter,"27,00",Gudang Pantai
+1.1.7.02.02.06.003.00001,Flange,2025-10-10,Buah,PVC uk. 2 inch,"24,00",Gudang Pantai
+1.1.7.01.01.04.003.00049,Gemuk,2025-10-10,Buah,Pelumas / Stemplet,"2,00",Gudang Pantai
+1.1.7.02.02.03.004.00006,Klem / Penjepit,2025-10-10,Buah,Pipa uk. 4 inch,"171,00",Gudang Pantai
+1.1.7.01.01.05.002.00061,Papan Terentang,2025-10-10,Lembar,uk. 2x20 cm @4 m,"1,00",Gudang Pantai
+1.1.7.02.02.06.001.00136,Reducer Vlok Sock,2025-10-10,Buah,4x2 type AW,"19,00",Gudang Pantai
+1.1.7.02.02.04.001.00017,Sambungan Talang Air Kotak,2025-10-10,,Uk. 4 Inch,"4,00",Gudang Pantai
+1.1.7.02.02.06.001.00038,Sock Drat Dalam,2025-10-10,Buah,Spesifikasi : uk 1/2 type AW,"17,00",Gudang Pantai
+1.1.7.02.02.04.001.00015,Sock Drat Dalam,2025-10-10,Buah,Spesifikasi : uk 2 type AW,"35,00",Gudang Pantai
+1.1.7.02.02.06.001.00037,Sock Drat Dalam,2025-10-10,Buah,Spesifikasi : uk 1 type AW,"40,00",Gudang Pantai
+1.1.7.02.02.06.001.00039,Sock Drat Luar,2025-10-10,Buah,Spesifikasi : uk 1/2 type AW,"40,00",Gudang Pantai
+1.1.7.02.02.06.003.00031,Sock Drat Luar,2025-10-10,Buah,Spesifikasi : uk 2 type AW,"20,00",Gudang Pantai
+1.1.7.02.02.06.001.00098,Sock Drat Luar,2025-10-10,Buah,Spesifikasi : uk 1 type AW,"14,00",Gudang Pantai
+1.1.7.01.02.02.001.02247,Specer,2025-10-10,Buah,Uk. 4 Inch,"116,00",Gudang Pantai
+,Steker Listrik,2025-10-10,Buah,,"1,00",Gudang Pantai
+1.1.7.01.03.09.007.00108,Terpal,2025-10-10,Buah,uk. A12 (6x9) m2,"2,00",Gudang Pantai
+1.1.7.01.01.05.002.00048,Triplek,2025-10-10,Lembar,Spesifikasi uk. 1220x2440x12 mm,"3,00",Gudang Pantai
+1.1.7.02.02.06.001.00087,Watermur PVC,2025-10-10,Buah,uk. 1 inch,"18,00",Gudang Pantai
+1.1.7.02.02.06.001.00048,Watermur PVC,2025-10-10,Buah,uk. 2 inch,"40,00",Gudang Pantai
+1.1.7.01.01.01.006.00175,CAT MINYAK,2025-10-10,KALENG,ISI 5 LITER Cat besi & kayu Glossy,"  18,00 ",Gudang Pantai
+1.1.7.01.01.01.012.00007,Besi Siku,2025-10-10,BATANG,Uk. 60.60.6 Panjang 6 M,"  14,00 ",Gudang Pantai
+1.1.7.01.01.01.012.00028,Besi Hollow,2025-10-10,BATANG,2X2X600 cm,"  3,00 ",Gudang Pantai
+1.1.7.01.01.01.012.00067,Besi Hollow,2025-10-10,BATANG,4X4X600 Mm Dia. Tebal 2 Mm,"  2,00 ",Gudang Pantai
+1.1.7.01.01.01.012.00083,Besi Beton,2025-10-10,BATANG,Polos Diameter 10,2,Gudang Pantai
+1.1.7.01.01.01.012.00084,Besi Beton,2025-10-10,BATANG,Polos Diameter 12,5,Gudang Pantai
+1.1.7.01.01.01.027.00034,Paku,2025-10-10,KG,Beton 5-12 cm,"  20,00 ",Gudang Pantai
+1.1.7.01.01.01.027.00019,Paku,2025-10-10,KG,Tripleks,"  1,00 ",Gudang Pantai
+1.1.7.01.01.05.001.00020,Kawat,2025-10-10,KG,Beton,"  12,00 ",Gudang Pantai
+1.1.7.01.01.05.002.00058,Kayu Balok,2025-10-10,BATANG,Meranti uk. 8x12x400 cm,"  2,00 ",Gudang Pantai
+1.1.7.01.01.05.002.00057,Kayu Lapis,2025-10-10,LEMBAR,Tripleks Uk. 1220x2440x12 mm,"  3,00 ",Gudang Pantai
+1.1.7.01.03.01.010.00002,Lem Pipa uPVC,2025-10-10,BUAH,400 Gr,"  19,00 ",Gudang Pantai
+1.1.7.01.03.08.002.00358,Lampu Led,2025-10-10,BUAH,19 W,"  11,00 ",Gudang Pantai
+1.1.7.02.02.06.001.00004,Pipa Pvc Dia. 1/ 2,2025-10-10,BATANG,Type Aw,"  9,00 ",Gudang Pantai
+1.1.7.02.02.06.001.00125,Pipa Pvc Dia. 4,2025-10-10,BATANG,Type Aw,"  1,00 ",Gudang Pantai
+1.1.7.02.02.06.001.00122,Pipa Pvc Dia. 2,2025-10-10,BATANG,Type Aw,"  8,00 ",Gudang Pantai
+1.1.7.02.02.06.001.00127,Pipa Pvc Dia. 6,2025-10-10,BATANG,Type Aw,"  12,00 ",Gudang Pantai
+1.1.7.02.02.06.001.00139,"Tee 3""",2025-10-10,BUAH,Type AW,"  41,00 ",Gudang Pantai
+1.1.7.02.02.06.001.00013,"Tee 8""",2025-10-10,BUAH,Type AW,"  4,00 ",Gudang Pantai
+1.1.7.02.02.06.001.00090,"Tee 6""",2025-10-10,BUAH,Type AW,"  3,00 ",Gudang Pantai
+"1.1.7.02.02.06.001.00244
+",Tutup Dop,2025-10-10,Buah,Uk : 4,"  20,00 ",Gudang Pantai
+1.1.7.01.01.01.020.00006,Karung,2025-10-10,BUAH,"Barang plastik anyaman ukuran 45x75 cm, 25 kg",  9.310 ,Gudang Pantai
+1.1.7.01.01.01.019.00002,Kawat Bronjong,2025-10-10,UNIT,"Uk. 0,5 m x 1m x 2m",  23 ,Gudang Pantai
+,Kawat Las,2025-10-10,Kg,"2,0 mm",  10 ,Gudang Pantai
+,Kawat Las,2025-10-10,Kg,"1,6 mm",  10 ,Gudang Pantai
+1.1.7.01.01.01.019.00002,Kawat Las,2025-10-10,Kg,"2,6 mm",  74 ,Gudang Pantai

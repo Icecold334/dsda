@@ -1,0 +1,68 @@
+kode,nama_barang,tanggal,satuan,merk,stok,lokasi
+1.1.7.02.02.06.001.00116,Elbow 90,2025-10-10,Buah," Spesifikasi : uk. 6, type AW","30,00",Gudang Abal 
+1.1.7.02.02.06.001.00188,Elbow 90,2025-10-10,Buah," Spesifikasi : uk. 2, type AW","6,00",Gudang Abal 
+1.1.7.02.02.06.001.00182,Elbow 90,2025-10-10,Buah," Spesifikasi : uk. 3, type AW","7,00",Gudang Abal 
+1.1.7.02.02.06.001.00135,Elbow 90,2025-10-10,Buah," Spesifikasi : uk. 4, type AW","18,00",Gudang Abal 
+1.1.7.02.02.06.001.00169,Elbow 45,2025-10-10,Buah," Spesifikasi : uk. 2, type AW","12,00",Gudang Abal 
+1.1.7.02.02.04.001.00006,Elbow 45,2025-10-10,Buah," Spesifikasi : uk. 6, type AW","30,00",Gudang Abal 
+1.1.7.01.01.04.003.00049,Gemuk,2025-10-10,Buah,Pelumas / Stemplet,"3,00",Gudang Abal 
+1.1.7.02.02.06.001.00034,Reducer Vlok Sock,2025-10-10,Buah, 6x4 type AW,"11,00",Gudang Abal 
+1.1.7.02.02.06.001.00161,Reducer Vlok Sock,2025-10-10,Buah, 4x3 type AW,"13,00",Gudang Abal 
+1.1.7.02.02.06.001.00136,Reducer Vlok Sock,2025-10-10,Buah, 4x2 type AW,"34,00",Gudang Abal 
+1.1.7.02.02.04.001.00015,Sock Drat Dalam,2025-10-10,Buah,Spesifikasi : uk 2 type AW,"40,00",Gudang Abal 
+1.1.7.02.02.06.001.00038,Sock Drat Dalam,2025-10-10,Buah,Spesifikasi : uk 1/2 type AW,"45,00",Gudang Abal 
+1.1.7.02.02.06.003.00031,Sock Drat Luar,2025-10-10,Buah, Spesifikasi : uk 2 type AW,"45,00",Gudang Abal 
+1.1.7.02.02.06.001.00039,Sock Drat Luar,2025-10-10,Buah, Spesifikasi : uk 1/2 type AW,"40,00",Gudang Abal 
+1.1.7.02.02.04.001.00018,Sock TY,2025-10-10,Buah," UK 4-6'' AW, merk Rucika","47,00",Gudang Abal 
+1.1.7.01.03.09.007.00108,Terpal,2025-10-10,Buah,uk. A12 (6x9) m2,"1,00",Gudang Abal 
+1.1.7.01.01.05.002.00049,Triplek,2025-10-10,Lembar, Spesifikasi uk. 1220x2440x9 mm,"15,00",Gudang Abal 
+1.1.7.01.01.05.002.00048,Triplek,2025-10-10,Lembar,Spesifikasi uk. 1220x2440x12 mm,"16,00",Gudang Abal 
+1.1.7.02.02.06.001.00245,Watermur PVC,2025-10-10,Buah, uk. 3 inch,"10,00",Gudang Abal 
+1.1.7.02.02.06.001.00048,Watermur PVC,2025-10-10,Buah, uk. 2 inch,"50,00",Gudang Abal 
+1.1.7.01.03.08.009.00019,Air Accu,2025-10-10,Botol, 1 LITER,"12,00",Gudang Abal 
+,"Aki 12v-120 Ah, type N120",2025-10-10,Buah,,"1,00",Gudang Abal 
+1.1.7.01.01.01.005.00019,Batu Bata Merah,2025-10-10,Buah, Spesifikasi : uk 20x10x5cm,"3805,00",Gudang Abal 
+1.1.7.01.01.01.005.00048,Batu Bata Ringan ,2025-10-10,Buah , Spesifikasi : uk 10x20x60cm,"30,00",Gudang Abal 
+1.1.7.01.01.01.005.00009,Batu Split/Pecah ,2025-10-10,m3, Spesifikasi : uk. 2-3cm ,"2,78",Gudang Abal 
+1.1.7.01.01.04.001.00002,BBM Pertamax,2025-10-10,Liter ,,"105,00",Gudang Abal 
+1.1.7.01.01.04.001.00013,BBM Solar ,2025-10-10,Liter ,,"320,00",Gudang Abal 
+1.1.7.01.01.01.012.00078,Besi Beton Polos ,2025-10-10,Batang ,10 mm.SNI,"45,00",Gudang Abal 
+1.1.7.01.01.01.012.00077,Besi Beton Polos ,2025-10-10,Batang ,12 mm.SNI,"  25,00 ",Gudang Abal 
+1.1.7.01.01.01.012.00080,Besi Beton Polos ,2025-10-10,Batang ,6 mm.SNI,"  67,00 ",Gudang Abal 
+1.1.7.01.01.01.012.00079,Besi Beton Polos ,2025-10-10,Batang ,8 mm. SNI,"  21,00 ",Gudang Abal 
+1.1.7.01.01.01.002.00027,Beton Instan ,2025-10-10,Zak,k-175 ,"  90,00 ",Gudang Abal 
+1.1.7.01.01.01.012.00006,Beton Instan ,2025-10-10,Zak,k-225,"  5,00 ",Gudang Abal 
+1.1.7.01.03.07.006.00017,Tali Tambang Nilon,2025-10-10,Pail,uk. 8 mm,"  2,00 ",Gudang Abal 
+1.1.7.02.02.06.001.00090,Tee Pipa PVC,2025-10-10,Buah ,"Spesifikasi : uk.6 "",AW","  14,00 ",Gudang Abal 
+1.1.7.02.02.06.001.00165,Tee Pipa PVC,2025-10-10,Buah ,"Spesifikasi : uk.2 "",AW","  17,00 ",Gudang Abal 
+1.1.7.02.02.06.001.00183,Tee Pipa PVC,2025-10-10,Buah ,"Spesifikasi : uk.4 "",AW","  22,00 ",Gudang Abal 
+1.1.7.01.03.07.003.00089,Jerigen Plastik,2025-10-10,Buah,uk. 25 LITER,"  15,00 ",Gudang Abal 
+1.1.7.01.03.08.001.00223,"Kabel NYYHY 2x1,5 mm2",2025-10-10,Meter,"NYYHY 2x1,5 mm2","  100,00 ",Gudang Abal 
+1.1.7.01.03.08.001.00267,Kabel NYYHY 4x4 mm2,2025-10-10,Meter,NYYHY 4x4 mm2,"  100,00 ",Gudang Abal 
+1.1.7.01.05.01.008.00015,Karet Packing,2025-10-10,Lembar,uk. 5 cm,"  1,00 ",Gudang Abal 
+1.1.7.01.01.01.002.00013,Mortar Acian & Plester,2025-10-10,ZAK,40 kg,"  5,00 ",Gudang Abal 
+1.1.7.01.01.01.002.00016,Mortar Perekat bata ringan,2025-10-10,zak,40 kg,"  10,00 ",Gudang Abal 
+1.1.7.01.01.04.002.00046,Oli mesin diesel,2025-10-10,botol,,"  4,00 ",Gudang Abal 
+1.1.7.01.01.01.004.00016,Pasir Pasang,2025-10-10,m3,,"  4,46 ",Gudang Abal 
+1.1.7.01.01.01.004.00015,Pasir Urug,2025-10-10,m3,,"  4,82 ",Gudang Abal 
+1.1.7.02.02.03.004.00032,Pipa Galvanis,2025-10-10,Batang,uk. 1 panjang 6 m,"  2,00 ",Gudang Abal 
+1.1.7.01.01.01.002.00007,Semen,2025-10-10,zak,50 kg,"  6,00 ",Gudang Abal 
+1.1.7.01.01.01.021.00030,Thinner,2025-10-10,KALENG,,"  47,00 ",Gudang Abal 
+1.1.7.02.02.03.004.00045,Tutup Dop,2025-10-10,Buah,pvc uk 2 AW,"  22,00 ",Gudang Abal 
+1.1.7.02.02.03.004.00047,Tutup Dop,2025-10-10,Buah,pvc uk 4 AW,"  44,00 ",Gudang Abal 
+1.1.7.02.02.06.001.00091,Tutup Dop,2025-10-10,Buah,pvc uk 6 AW,"  66,00 ",Gudang Abal 
+1.1.7.01.02.01.001.01632,Van Belt,2025-10-10,Buah,Blower type A52,"  20,00 ",Gudang Abal 
+1.1.7.01.01.01.006.00175,CAT MINYAK,2025-10-10,KALENG,ISI 5 LITER Cat besi & kayu Glossy merk zinctium,"  13,00 ",Gudang Abal 
+1.1.7.01.01.01.027.00034,Paku,2025-10-10,KG,Beton 5-12 cm,"  11,00 ",Gudang Abal 
+1.1.7.01.01.01.027.00019,Paku,2025-10-10,KG,Tripleks,"  11,00 ",Gudang Abal 
+1.1.7.01.01.05.001.00020,Kawat,2025-10-10,KG,,"  6,00 ",Gudang Abal 
+1.1.7.01.01.05.002.00011,Kayu Kaso Meranti,2025-10-10,BATANG,Kaso uk 5/7,"  13,00 ",Gudang Abal 
+1.1.7.01.03.01.010.00002,Lem Pipa uPVC,2025-10-10,BUAH,400 Gr,"  19,00 ",Gudang Abal 
+1.1.7.01.03.08.002.00358,Lampu Led,2025-10-10,BUAH,18 W,"  11,00 ",Gudang Abal 
+1.1.7.02.02.06.001.00125,Pipa Pvc Dia. 4,2025-10-10,BATANG,Type Aw,"  25,00 ",Gudang Abal 
+1.1.7.02.02.06.001.00004,Pipa Pvc Dia. 1/ 2,2025-10-10,BATANG,Type Aw,"  10,00 ",Gudang Abal 
+1.1.7.02.02.06.001.00006,Pipa Pvc Dia. 1,2025-10-10,BATANG,Type Aw,"  40,00 ",Gudang Abal 
+1.1.7.02.02.06.001.00124,Pipa Pvc Dia. 3,2025-10-10,BATANG,Type Aw,"  14,00 ",Gudang Abal 
+1.1.7.02.02.06.001.00122,Pipa Pvc Dia. 2,2025-10-10,BATANG,Type Aw,"  8,00 ",Gudang Abal 
+1.1.7.01.01.01.020.00006,Karung,2025-10-10,BUAH,"Barang plastik anyaman ukuran 45x75 cm, 25 kg",  3.500 ,Gudang Abal 
+1.1.7.01.01.01.019.00002,Kawat Las,2025-10-10,Kg,"2,6 mm",  160 ,Gudang Abal 

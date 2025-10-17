@@ -1,0 +1,179 @@
+kode,nama_barang,tanggal,satuan,merk,stok
+1.1.7.01.01.04.001.00017,Solar non subsidi,16/07/2024,LITER,,  - 
+1.1.7.01.01.04.002.00086,Gemuk (Grease),17/07/2024,PEIL,Nlgi Grade : 2 ; Soap Lithium 12-Hydroxystearate,  - 
+1.1.7.01.01.04.002.00086,Gemuk (Grease),19/05/2025,PEIL,Nlgi Grade : 2 ; Soap Lithium 12-Hydroxystearate,"  42,00 "
+1.1.7.01.01.04.002.00112,Oli Mesin,17/07/2024,LITER,Uk : 20 W 50,"  13,00 "
+1.1.7.01.01.04.002.00117,Oli Mesin,02/01/2020,LITER,20W50/ Mesran,  - 
+1.1.7.01.01.04.002.00117,Oli Mesin,07/10/2022,LITER,20W50/ Mesran,  - 
+1.1.7.01.01.04.002.00117,Oli Mesin,19/05/2025,LITER,20W50/ Mesran,"  40,00 "
+1.1.7.01.01.04.002.00192,Oli,13/11/2023,LITER,Oli 10W-40,"  24,00 "
+1.1.7.01.01.04.002.05001,Oli Rored,17/07/2024,GALON,EPA SAE 140 (4 liter/galon),"  28,00 "
+1.1.7.01.01.04.002.05001,Oli Rored,19/05/2025,GALON,EPA SAE 140 (4 liter/galon),"  292,00 "
+1.1.7.01.01.04.002.05002,Oli Meditran,17/07/2024,DRUM,Oli SAE 40 Meditran (209 liter/drum),  - 
+1.1.7.01.01.04.002.05002,Oli Meditran,19/05/2025,DRUM,Oli SAE 40 Meditran (209 liter/drum),  - 
+1.1.7.01.01.04.002.05003,Oli,17/07/2024,JERIGEN,Oli 10W-40 (1 liter/Jerigen),"  102,00 "
+1.1.7.01.01.04.002.05003,Oli,19/05/2025,JERIGEN,Oli 10W-40 (1 liter/Jerigen),"  176,00 "
+1.1.7.01.01.04.002.05004,Oli Gearbox,17/07/2024,DRUM,ISO VG 220 (200 liter/drum),  - 
+1.1.7.01.01.04.002.05004,Oli Gearbox,19/05/2025,DRUM,ISO VG 220 (200 liter/drum),"  1,00 "
+1.1.7.01.01.04.002.05005,Oli Rored,17/07/2024,GALON,EPA SAE 90 (5 liter/galon),  - 
+1.1.7.01.01.04.002.05005,Oli Rored,19/05/2025,GALON,EPA SAE 90 (5 liter/galon),"  22,00 "
+1.1.7.01.01.04.002.05006,Oli Diesel,19/05/2025,GALON,Oli Synthetic Diesel SAE 40 (5 liter/galon),"  38,00 "
+1.1.7.01.01.04.002.05007,Oli Mesin,17/07/2024,JERIGEN,SAE 10W-40 (4 liter/Jerigen),  - 
+1.1.7.01.01.04.002.05008,Oli Mesin,17/07/2024,GALON,SAE 40 (5 liter/galon),"  15,00 "
+1.1.7.01.01.04.002.05022,Oli Mesin,19/05/2025,JERIGEN,Meditran SAE 40 (5 liter/Jerigen),"  45,00 "
+1.1.7.01.01.04.002.05023,Oli Mesin,19/05/2025,JERIGEN,Mesran SAE 40 (5 Liter / Jerigen),"  148,00 "
+1.1.7.01.01.04.002.05024,Oli Mesin,19/05/2025,BOTOL,Mesran SAE40 (1 Liter/Botol),"  270,00 "
+1.1.7.01.01.04.002.05025,Oli Mesin,19/05/2025,DRUM,Rored SAE 140 (200 liter/Drum),"  7,00 "
+1.1.7.01.01.04.003.00054,Oli Hidrolik,13/11/2023,LITER,"Oli Turalik 52 SAE 10/ Oli 10 Hidrolik/ Oli Drum SJP VG-68, 1 Drum isi 200 liter",  - 
+1.1.7.01.01.04.003.00096,Oli Turalik,17/07/2024,DRUM,,  - 
+1.1.7.01.01.04.003.00096,Oli Turalik,19/05/2025,DRUM,,"  7,00 "
+1.1.7.01.02.01.001.02228,Klem Accu,24/08/2022,BUAH,,"  119,00 "
+1.1.7.01.02.01.001.03972,MCB 1 Phase [A9K24104 (4A)],05/12/2023,PCS,,"  8,00 "
+1.1.7.01.02.01.001.03973,MCB 3 Phase [A9K24306 (6A)],05/12/2023,PCS,,"  5,00 "
+1.1.7.01.02.01.001.50025,Air Coolant,17/07/2024,JERIGEN,5 Liter/Jerigen,"  67,00 "
+1.1.7.01.02.01.001.50025,Air Coolant,19/05/2025,JERIGEN,5 Liter/Jerigen,"  110,00 "
+1.1.7.01.02.01.001.50083,Charger Accu Generator Set,18/07/2025,UNIT,"Type CD - 730, AC 220V","  2,00 "
+1.1.7.01.02.08.001.00094,Skun kabel AL-CU,05/12/2023,PCS,Diameter 70-12 mm,"  70,00 "
+1.1.7.01.02.08.002.00053,Test Pen,18/07/2025,BUAH,"Tespen AC , 12 volt-220 volt","  30,00 "
+1.1.7.01.03.01.010.00070,Isolasi Kabel,13/09/2022,BUAH,,"  56,00 "
+1.1.7.01.03.01.010.00154,Isolasi Kabel,05/12/2023,PCS,3/4 inch,"  27,00 "
+1.1.7.01.03.01.010.00155,Isolasi Kabel,05/12/2023,PCS,3/4inch x 66 ft,"  50,00 "
+1.1.7.01.03.07.001.00012,Kemoceng,01/08/2025,BUAH,"Model Bulu Ayam, Ukuran Besar",  - 
+1.1.7.01.03.07.001.00029,SAPU IJUK,01/08/2025,BUAH,"BERGAGANG; UKURAN : STANDAR, MODEL MIRING, TANGKAI BERWARNA, BAHAN IJUK",  - 
+1.1.7.01.03.07.001.00037,SAPU LIDI,01/08/2025,BUAH,BERGAGANG,  - 
+1.1.7.01.03.07.001.00072,Pengki,01/08/2025,BUAH,Bahan Plastik Bergagang,  - 
+1.1.7.01.03.07.001.00093,Sikat Kamar Mandi,01/08/2025,BUAH,,  - 
+1.1.7.01.03.07.001.00096,Sikat Gagang,01/08/2025,BUAH,Bahan Plastik dan Karet,  - 
+1.1.7.01.03.07.001.05009,Sapu Laba-laba,01/08/2025,BUAH,Panjang 2 m,  - 
+1.1.7.01.03.07.002.00056,Lap Kain,01/08/2025,KG,Kain Majun,  - 
+1.1.7.01.03.07.002.00067,Pel Dorong,01/08/2025,BUAH,Lengkap Tangkai,  - 
+1.1.7.01.03.07.002.00078,Pembersih Lantai,01/08/2025,BUAH,Wiper Lantai Bergagang,  - 
+1.1.7.01.03.07.002.05011,Serokan Jaring,26/08/2024,BUAH,,"  40,00 "
+1.1.7.01.03.07.003.00033,Ember Plastik,01/08/2025,UNIT,Uk. 15 Liter,  - 
+1.1.7.01.03.07.003.00043,Jerigen,01/08/2025,BUAH,Uk. 20 Liter,"  15,00 "
+1.1.7.01.03.07.003.00050,Selang Air,01/08/2025,M,Bahan Plastik Berserat Benang Ukuran Diameter 3/4 Inchi,"  100,00 "
+1.1.7.01.03.07.003.00099,Drum,01/08/2025,PCS,Spesifikasi : 200 Liter,"  46,00 "
+1.1.7.01.03.07.004.50007,Tempat Sampah,01/08/2025,BUAH,"Beroda, Uk. 240 Liter",  - 
+1.1.7.01.03.07.005.05017,Gembok,26/08/2024,BUAH,70mm,"  50,00 "
+1.1.7.01.03.07.006.00046,Heatshrink,05/12/2023,M,70 MM,"  20,00 "
+1.1.7.01.03.07.008.00022,Cairan Pembersih Kaca,01/08/2025,BOTOL,isi 425 ml,  - 
+1.1.7.01.03.07.008.00107,Sabun Colek,01/08/2025,BUNGKUS,Kemasan 1800 Gr,  - 
+1.1.7.01.03.07.008.00186,Kamper,01/08/2025,PCS,Bola isi 5,  - 
+1.1.7.01.03.07.008.50004,Sabun Cuci Tangan,01/08/2025,BUAH,"Kemasan botol, pump, 400 ml",  - 
+1.1.7.01.03.07.008.50008,Cairan Pembersih Lantai,01/08/2025,JERIGEN,5 Liter dengan Konsentrasi Tinggi,  - 
+1.1.7.01.03.07.008.50022,Pembersih Toilet,01/08/2025,BUAH,2 Liter,  - 
+1.1.7.01.03.07.008.50032,Sabun Cuci Tangan,01/08/2025,JERIGEN,isi 4 liter,"  6,00 "
+1.1.7.01.03.07.012.00018,Pengharum Ruangan,01/08/2025,BUAH,"Gantung, 70 Gram",  - 
+1.1.7.01.03.07.012.05002,Pengharum Ruangan,01/08/2025,BOTOL,Matic Refill,  - 
+1.1.7.01.03.07.015.00468,Gembok,20/07/2023,BUAH,Bahan Besi Stainless Anti Karat,"  38,00 "
+1.1.7.01.03.08.001.00091,Mcb,05/12/2023,BUAH,Standar Pln 25A,"  10,00 "
+1.1.7.01.03.08.001.00093,Mcb,05/12/2023,BUAH,1 Phase 6 Ampere,"  8,00 "
+1.1.7.01.03.08.001.00102,Mcb,05/12/2023,BUAH,Standar Pln 3 Phase 10A,"  3,00 "
+1.1.7.01.03.08.001.00103,Mcb,05/12/2023,BUAH,Standar Pln 3 Phase 16A,"  5,00 "
+1.1.7.01.03.08.001.00106,Mcb,05/12/2023,BUAH,20 A 3 Phase,"  4,00 "
+1.1.7.01.03.08.001.00114,Mcb,05/12/2023,BUAH,"1 Fasa Kap. 20 A/4,5 Ka, 230/240V, Sni, Iec","  10,00 "
+1.1.7.01.03.08.001.00172,Skun,05/12/2023,PCS,"Tembaga, diamater 50 mm","  40,00 "
+1.1.7.01.03.08.001.00309,Kabel Nym,18/07/2025,ROLL,3X2.5 Mm (1 Roll 50 M),  - 
+1.1.7.01.03.08.001.00366,Kabel Serabut,05/12/2023,ROLL,AWG 24 SNI Isi 2,"  3,00 "
+1.1.7.01.03.08.001.50010,Kabel Gulung Roll,03/12/2024,PCS,4 Lubang 50 M,"  10,00 "
+1.1.7.01.03.08.001.50010,Kabel Gulung Roll,18/07/2025,PCS,4 Lubang 50 M,"  15,00 "
+1.1.7.01.03.08.001.50038,Kabel NYY,18/07/2025,ROLL,2 x 1.5mm (1 Roll = 50 M),"  1,00 "
+1.1.7.01.03.08.001.50039,Klem Kabel Listrik,18/07/2025,PACK,7 mm ( @50 pcs),"  35,00 "
+1.1.7.01.03.08.002.00013,Lampu LED,03/12/2024,BUAH,40 watt,  - 
+1.1.7.01.03.08.002.00013,Lampu LED,18/07/2025,BUAH,40 watt,"  77,00 "
+1.1.7.01.03.08.002.00014,Rumah lampu TL LED,13/09/2022,UNIT,Housing : SIMBAT 1XTL-D 36WTMS012,"  101,00 "
+1.1.7.01.03.08.002.00127,Lampu sorot,18/07/2025,PCS,"Led, 100 wat","  20,00 "
+1.1.7.01.03.08.002.00129,Lampu PJU,09/11/2023,PCS,Spesifikasi : all in one 100 watt (ac 220v),  - 
+1.1.7.01.03.08.002.00330,Lampu Emergency,18/07/2025,BUAH,,"  21,00 "
+1.1.7.01.03.08.002.00358,Lampu Led,03/12/2024,BUAH,18 W,"  60,00 "
+1.1.7.01.03.08.002.00358,Lampu Led,18/07/2025,BUAH,18 W,"  103,00 "
+1.1.7.01.03.08.002.00392,Lampu Tornado,03/12/2024,BUAH,24 Watt,  - 
+1.1.7.01.03.08.002.00392,Lampu Tornado,18/07/2025,BUAH,24 Watt,  - 
+1.1.7.01.03.08.002.00429,Lampu Sorot,03/12/2024,PCS,"Led, 400 Watt","  89,00 "
+1.1.7.01.03.08.002.00429,Lampu Sorot,18/07/2025,PCS,"Led, 400 Watt","  25,00 "
+1.1.7.01.03.08.002.00435,Lampu Led,03/12/2024,BUAH,9 watt,  - 
+1.1.7.01.03.08.002.50066,Lampu Sorot,03/12/2024,UNIT,"LED, 100 Watt","  92,00 "
+1.1.7.01.03.08.002.50067,Lampu LED,03/12/2024,PCS,30 Watt,"  102,00 "
+1.1.7.01.03.08.002.50067,Lampu LED,18/07/2025,PCS,30 Watt,"  71,00 "
+1.1.7.01.03.08.002.50068,Lampu Sorot,03/12/2024,PCS,1000 Watt,  - 
+1.1.7.01.03.08.002.50068,Lampu Sorot,18/07/2025,PCS,1000 Watt,"  9,00 "
+1.1.7.01.03.08.002.50089,Lampu Bulb Led,18/07/2025,BUAH,18 Watt,"  90,00 "
+1.1.7.01.03.08.002.50090,Lampu LED Downlight,18/07/2025,BUAH,24 WATT,"  92,00 "
+1.1.7.01.03.08.003.00001,Stop Kontak,03/12/2024,UNIT,6 lubang (socket),  - 
+1.1.7.01.03.08.003.00002,Stacker Arde T,13/09/2022,UNIT,10A/250V,"  2,00 "
+1.1.7.01.03.08.003.00002,Stacker Arde T,18/07/2025,UNIT,10A/250V,"  81,00 "
+1.1.7.01.03.08.003.00014,Stop Kontak,05/12/2023,BUAH,Outbow 4 Lubang,  - 
+1.1.7.01.03.08.003.00040,Box Panel Listrik,05/12/2023,PCS,Spesifikasi : 30x40x18 T Plat 1.2 mm,"  6,00 "
+1.1.7.01.03.08.003.00041,Box MCB,05/12/2023,PCS,Spesifikasi : 2 Grup (Model Tanam),"  8,00 "
+1.1.7.01.03.08.003.00042,Circuit Breaker,05/12/2023,PCS,Spesifikasi : MCCB 3P 50 A,"  5,00 "
+1.1.7.01.03.08.003.00043,Circuit Breaker,05/12/2023,PCS,Spesifikasi : MCCB 3P 25 A,"  4,00 "
+1.1.7.01.03.08.003.00044,Kontaktor,05/12/2023,UNIT,3 Phase 220V AC (25 Ampere),"  15,00 "
+1.1.7.01.03.08.003.00046,Stop Kontak,05/12/2023,PCS,Outblow 3 Lubang,  - 
+1.1.7.01.03.08.003.00046,Stop Kontak,18/07/2025,PCS,Outblow 3 Lubang,"  22,00 "
+1.1.7.01.03.08.003.00047,Terminal Block,05/12/2023,PCS,25A TB2506-2512 12p,"  20,00 "
+1.1.7.01.03.08.003.00048,Terminal Block Grounding,05/12/2023,PCS,10 pole M5 8x12 mm,"  20,00 "
+1.1.7.01.03.08.003.00049,Terminal Block Grounding,05/12/2023,PCS,12 pole M5 8x12 mm,"  17,00 "
+1.1.7.01.03.08.003.00050,Stop Kontak,05/12/2023,PCS,Outblow 2 Lubang,"  10,00 "
+1.1.7.01.03.08.004.00003,Saklar Tunggal,18/07/2025,BUAH,,"  93,00 "
+1.1.7.01.03.08.004.00020,Saklar Ganda,18/07/2025,BUAH,,"  100,00 "
+1.1.7.01.03.08.004.00037,Circuit Breaker,05/12/2023,PCS,Spesifikasi : MCCB 3P 150 A,"  2,00 "
+1.1.7.01.03.08.004.00038,Handel,05/12/2023,PCS,Spesifikasi : 3 Phase 400a,"  10,00 "
+1.1.7.01.03.08.004.00039,Tombol Emergency,05/12/2023,PCS,,"  4,00 "
+1.1.7.01.03.08.004.00040,Volt Meter,05/12/2023,PCS,300V 72x72,"  15,00 "
+1.1.7.01.03.08.004.00041,Box MCB,05/12/2023,PCS,Spesifikasi : 8 Grup (Model Tanam),"  10,00 "
+1.1.7.01.03.08.004.00042,Terminal Block,05/12/2023,PCS,25A TB2506-2512 6p,"  20,00 "
+1.1.7.01.03.08.005.00006,Stacker,05/12/2023,BUAH,,  - 
+1.1.7.01.03.08.005.00010,Stacker Kaki Tiga,03/12/2024,BUAH,,"  16,00 "
+1.1.7.01.03.08.005.00010,Stacker Kaki Tiga,18/07/2025,BUAH,,"  20,00 "
+1.1.7.01.03.08.005.00014,Stacker Cok Genset,05/12/2023,PCS,Plug 3 Kaki 20A 250V,"  30,00 "
+1.1.7.01.03.08.005.05001,Stacker,03/12/2024,PCS,Kaki 2,  - 
+1.1.7.01.03.08.005.05001,Stacker,18/07/2025,PCS,Kaki 2,"  27,00 "
+1.1.7.01.03.08.005.05003,Hand Stacker,01/08/2025,UNIT,2 ton,"  1,00 "
+1.1.7.01.03.08.006.00071,Ballast Lampu TL,05/12/2023,PCS,Spesifikasi : 30-40 Watt,"  90,00 "
+1.1.7.01.03.08.007.00003,Starter Lampu Tl,05/12/2023,BUAH,,"  578,00 "
+1.1.7.01.03.08.008.00036,Fitting,18/07/2025,BUAH,Fitting Lampu E27,"  30,00 "
+1.1.7.01.03.08.008.00052,Fitting Lampu TL,05/12/2023,PCS,Spesifikasi : 18-36 Watt,"  300,00 "
+1.1.7.01.03.08.008.05002,Rumah Lampu LED,03/12/2024,UNIT,8 W - 40 W,"  43,00 "
+1.1.7.01.03.08.010.00011,Baterai,01/08/2025,BUAH,,  - 
+1.1.7.01.03.08.012.00088,Crimp kawat konektor,05/12/2023,PCS,Spesifikasi : 4mm (1 pack isi 100 pcs),"  500,00 "
+1.1.7.01.03.08.012.00089,Crimp kawat konektor,05/12/2023,PCS,"Spesifikasi : 2,5mm (1 pack isi 100 pcs)","  500,00 "
+1.1.7.01.03.08.012.00090,Photo cell sensor siang malam,05/12/2023,PCS,Spesifikasi : SB 10 Ampere,"  6,00 "
+1.1.7.01.03.08.012.00161,Relay,05/12/2023,BUAH,220 Volt,"  20,00 "
+1.1.7.01.03.08.012.00226,Busbar Isolator,05/12/2023,PCS,Spesifikasi : SM-25/ SM25 6KV M6,"  50,00 "
+1.1.7.01.03.08.012.00227,Circuit Breaker,05/12/2023,PCS,Spesifikasi : MCCB 3P 100 A,"  2,00 "
+1.1.7.01.03.08.012.00228,Frekuensi Meter,05/12/2023,PCS,Spesifikasi : 220v 96x96,"  10,00 "
+1.1.7.01.03.08.012.00229,Panel Meter Pengukuran Amperemeter Analog AC DC,05/12/2023,PCS,10A besar,"  15,00 "
+1.1.7.01.03.08.012.00230,Push Button,05/12/2023,PCS,AC 250 V Hijau,"  10,00 "
+1.1.7.01.03.08.012.00231,Push Button,05/12/2023,PCS,AC 250 V Merah,"  4,00 "
+1.1.7.01.03.08.012.00232,Skun Garpu Tembaga,05/12/2023,PCS,2.5 mm,"  100,00 "
+1.1.7.01.03.08.012.00236,Busbar Arde Tembaga,05/12/2023,PCS,Spesifikasi : 15x2x180 + Ground/ Terminal Nol Plat Isolator,"  20,00 "
+1.1.7.01.03.08.012.00237,Current Transformeter,05/12/2023,PCS,Spesifikasi : 50/5A,"  15,00 "
+1.1.7.01.03.08.012.00239,Timer Panel,05/12/2023,PCS,220 V,"  4,00 "
+1.1.7.01.03.08.012.00241,Kontaktor,05/12/2023,UNIT,3 Phase 220V 32 Ampere,"  15,00 "
+1.1.7.01.03.08.012.00242,Phase Indicator 3 Phase Rotation Tester,05/12/2023,PCS,,"  10,00 "
+1.1.7.01.03.08.012.00243,Power Supply,05/12/2023,UNIT,24V 10A,"  2,00 "
+1.1.7.01.03.08.012.00244,String Clamp Cable Twisted (SR),05/12/2023,PCS,Uk 50-70,"  30,00 "
+1.1.7.01.03.08.012.00245,String Camp Kabel Twisted (SR),05/12/2023,PCS,6-16 mm,"  30,00 "
+1.1.7.01.03.08.012.00247,Tespen DC,05/12/2023,PCS,,  - 
+1.1.7.01.03.09.007.00004,GOLOK,01/08/2025,BUAH,BAHAN BESI TEMPA DENGAN GAGANG KAYU,"  5,00 "
+1.1.7.01.03.09.007.00088,Senter Jinjing,01/08/2025,BUAH,"Lampu Led, Batere Charger Listrik",  - 
+1.1.7.01.03.09.007.00159,Payung,01/08/2025,BUAH,,  - 
+1.1.7.01.05.01.004.00038,BLOWER,11/07/2024,UNIT,"kapasitas 1,35 m3/min, head 3000 mmAq, daya listrik 1,5 kW, 380V, 3 phase, 50 Hz.","  3,00 "
+1.1.7.01.05.01.004.00249,TOOL KIT,26/08/2024,SET,KOMPLIT,"  5,00 "
+1.1.7.01.05.01.004.00816,Kotak P3K/ First Aid Kit Box,20/07/2023,SET,Type : First Aid 01 Ukuran : P 80 X L 40 X T 60 Cm - One Centre Door Frame Material Plywood W/ Auto Sanding Process - Door Panel Frame Layered W/ High Pressure Laminate Thin Wood Accent Pvc Layer Sheet - High Pressure Laminate Process W/ Adhesive - One Centre Door Material Glass 5 Mm - Attached Self-Adhesive Red Cross Insignia On Glass Panel - Two Vertical Square Column Support On Door Panel - One Equipment Support Rack Material Plywood Laminate Thin Wood Accent Pvc Layer Sheet - Door W/ Steel Door Hinges And Handles - Door Equipped W/ Interior Rubber Impact Reduction & Lock System - Dual Steel Iron Bolt Hanger Construction System,"  3,00 "
+1.1.7.01.05.01.004.00816,Kotak P3K/ First Aid Kit Box,01/08/2025,SET,Type : First Aid 01 Ukuran : P 80 X L 40 X T 60 Cm - One Centre Door Frame Material Plywood W/ Auto Sanding Process - Door Panel Frame Layered W/ High Pressure Laminate Thin Wood Accent Pvc Layer Sheet - High Pressure Laminate Process W/ Adhesive - One Centre Door Material Glass 5 Mm - Attached Self-Adhesive Red Cross Insignia On Glass Panel - Two Vertical Square Column Support On Door Panel - One Equipment Support Rack Material Plywood Laminate Thin Wood Accent Pvc Layer Sheet - Door W/ Steel Door Hinges And Handles - Door Equipped W/ Interior Rubber Impact Reduction & Lock System - Dual Steel Iron Bolt Hanger Construction System,  - 
+1.1.7.01.05.01.004.00852,Obeng Listrik,05/12/2023,SET,1000 Volt,  - 
+1.1.7.01.05.01.004.50387,Mesin Pemotong Dahan Atau Ranting,26/08/2024,UNIT,"Ukuran 18""","  4,00 "
+1.1.7.01.05.01.004.50388,Impact Drill Bor Listrik,26/08/2024,BUAH,tenaga listrik; tipe 48 S,"  5,00 "
+1.1.7.01.05.01.004.50389,Generator Set Portable,26/08/2024,UNIT,,"  2,00 "
+1.1.7.01.05.01.004.50475,Tangga Lipat,01/08/2025,UNIT,"Teleskopik, Dapat diluruskan, Pipa Tebal, Dapat dilipat, Tinggi Min. 5 m",  - 
+1.1.7.01.05.01.004.50476,Mesin Air,01/08/2025,UNIT,PS 135 E,"  15,00 "
+1.1.7.01.05.01.004.50477,Pompa BBM,01/08/2025,UNIT,"550 Watt, Flow Analog","  5,00 "
+1.1.7.01.05.01.004.50478,Alat Pemadam Api Ringan (APAR),01/08/2025,BUAH,"CO2, 5 kg","  3,00 "
+1.1.7.02.02.06.001.00254,Elbow,05/12/2023,PCS,Spesifikasi : 20 mm,"  300,00 "
+1.1.7.01.03.01.001.00052,Whiteboard Double Face,02/01/2020,BUAH,120 x 240,"  1,00 "
+1.1.7.01.03.08.001.00092,Mcb,05/12/2023,BUAH,Standar Pln 32A,"  9,00 "
+1.1.7.01.02.01.001.00910,Kontaktor,09/11/2023,PCS,Spesifikasi : 3P 40A 220VAC,"  15,00 "
+1.1.7.01.03.08.002.00218,Lampu Tl,03/12/2024,BUAH,36 Watt,"  239,00 "
+1.1.7.01.01.01.016.00029,Plat Tembaga Busbar,05/12/2023,BATANG,5mm x 20mm x 5cm,"  10,00 "
+1.1.7.01.01.01.024.00067,Fisher s6,05/12/2023,BOX,,"  9,00 "
