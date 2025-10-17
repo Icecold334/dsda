@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\BarangStok;
 use Carbon\Carbon;
 use App\Models\User;
 use Livewire\Component;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\DetailPermintaanMaterial;
 use App\Models\Kelurahan;
+use App\Models\TransaksiStok;
 use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -147,6 +149,10 @@ class DataPermintaanMaterial extends Component
                     return is_null($item['status']);
                 }
 
+                if ($statusFilter === 'draft') {
+                    return $item['status'] === 4;
+                }
+
                 $statusMap = [
                     'ditolak' => 0,
                     'disetujui' => 1,
@@ -211,9 +217,7 @@ class DataPermintaanMaterial extends Component
                 if ($statusFilter === 'draft') {
                     return $item['status'] === 4;
                 }
-                if ($statusFilter === 'draft') {
-                    return $item['status'] === 4;
-                }
+
                 $statusMap = [
                     'ditolak' => 0,
                     'disetujui' => 1,
@@ -278,7 +282,7 @@ class DataPermintaanMaterial extends Component
                 }
                 if ($statusFilter === 'draft') {
                     return $item['status'] === 4;
-                }                
+                }
 
                 $statusMap = [
                     'ditolak' => 0,
@@ -318,7 +322,7 @@ class DataPermintaanMaterial extends Component
         }
 
         $permintaan = $stokQuery->get();
-        
+
         if ($this->getJenisId() == 1) {
             $materialQuery = DetailPermintaanMaterial::when($this->unit_id, function ($query) {
                 $query->whereHas('user.unitKerja', function ($unit) {
@@ -347,6 +351,7 @@ class DataPermintaanMaterial extends Component
                     1 => ['label' => 'Disetujui', 'color' => 'success'],
                     2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
                     3 => ['label' => 'Selesai', 'color' => 'primary'],
+                    4 => ['label' => 'Draft'],
                 ];
                 $perm->status_teks = $statusMap[$perm->status]['label'] ?? 'Tidak diketahui';
                 $perm->status_warna = $statusMap[$perm->status]['color'] ?? 'gray';
@@ -871,22 +876,19 @@ class DataPermintaanMaterial extends Component
                     'deleted_at' => now()
                 ]);
 
+                if ($permintaan->status >= 2) {
+
+                    // INI BAGIAN PENTINGNYA:
+                    // Kita putuskan hubungan antara item permintaan dan riwayat transaksinya.
+                    // Analogi: Kita "memutus kabel" agar saat induknya dihapus, anaknya tetap aman.
+                    foreach ($permintaan->permintaanMaterial as $item) {
+                        TransaksiStok::where('permintaan_id', $item->id)
+                            ->update(['permintaan_id' => null]);
+                    }
+                }
+
                 // Delete all persetujuan records (regardless of status)
                 $permintaan->persetujuan()->delete();
-
-                foreach ($itemsToDelete as $item) {
-                    if ($item->merkStok && $item->merkStok->barang_id) {
-                        $barang = BarangStok::find($item->merkStok->barang_id);
-                        if ($barang) {
-                            $barang->stok += $item->jumlah;
-                            $barang->save();
-                        }
-                    }
-
-                    TransaksiStok::where('permintaan_id', $item->id)
-                        ->where('tipe', 'Pengajuan')
-                        ->delete();
-                }
 
                 // Delete permintaan material items
                 $permintaan->permintaanMaterial()->delete();

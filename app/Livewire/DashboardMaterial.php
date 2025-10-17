@@ -174,6 +174,7 @@ class DashboardMaterial extends Component
             1 => ['label' => 'Disetujui', 'color' => 'success'],
             2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
             3 => ['label' => 'Selesai', 'color' => 'primary'],
+            4 => ['label' => 'Draft'],
         ];
 
         $user = Auth::user();
