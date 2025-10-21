@@ -73,18 +73,37 @@
                     </span>
                 </td>
                 <td class="py-3 px-6 text-center">
-                    @can('penerimaan.read')
+                   <div class="flex items-center justify-center gap-2">
+
+                    {{-- TOMBOL EDIT (Diperbaiki) --}}
+                    @can('penerimaan.update')
                     <a href="{{ route('pengiriman-stok.show', ['pengiriman_stok' => $datang->id]) }}"
-                        class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
-                        data-tooltip-target="tooltip-aset-{{ $datang->id }}">
+                        class="text-blue-500 px-3 py-2 rounded-md border hover:bg-slate-200"
+                        data-tooltip-target="tooltip-edit-{{ $datang->id }}">
                         <i class="fa-solid fa-pen"></i>
                     </a>
-                    @endcan
-                    <div id="tooltip-aset-{{ $datang->id }}" role="tooltip"
-                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    <div id="tooltip-edit-{{ $datang->id }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
                         Ubah Detail Kedatangan Barang
                         <div class="tooltip-arrow" data-popper-arrow></div>
                     </div>
+                    @endcan
+                    
+                    {{-- TOMBOL HAPUS (Ditambahkan) --}}
+                    @can('penerimaan.delete')
+                    <form action="{{ route('pengiriman-stok.destroy', $datang->id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        {{-- GANTI onsubmit DENGAN onclick DI DALAM BUTTON --}}
+                        <button type="submit" onclick="confirmDelete(event)" class="text-red-500 px-3 py-2 rounded-md border hover:bg-slate-200" data-tooltip-target="tooltip-delete-{{ $datang->id }}">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                    <div id="tooltip-delete-{{ $datang->id }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                        Hapus Data
+                    </div>
+                    @endcan
+
+                </div>
                 </td>
             </tr>
             @empty
@@ -95,3 +114,33 @@
         </tbody>
     </table>
 </div>
+
+@push('scripts')
+<script>
+    // Fungsi untuk menampilkan konfirmasi SweetAlert
+    function confirmDelete(event) {
+        // Mencegah form dikirim secara default
+        event.preventDefault(); 
+        
+        // Mengambil form yang mentrigger event ini
+        let form = event.target.closest('form'); 
+
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            // Jika pengguna menekan tombol "Ya, hapus!"
+            if (result.isConfirmed) {
+                // Kirim form-nya
+                form.submit();
+            }
+        });
+    }
+</script>
+@endpush

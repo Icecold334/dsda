@@ -93,7 +93,7 @@
   </tr>
   <tr>
     <!-- Kiri: metadata -->
-    <td style="width: 55%; vertical-align: top;">
+    <td style="width: 30%; vertical-align: top;">
       <table class="meta-table">
         <tr>
           <td width="20%">Nomor</td>
@@ -115,7 +115,7 @@
     </td>
 
     <!-- Kanan: alamat tujuan -->
-    <td style="width: 45%; vertical-align: top; text-align: left;">
+    <td style="width: 70%; vertical-align: top; text-align: left;">
       <p style="margin-left: 30px;">
         Kepada <br>
         Yth.

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\BarangStok;
 use Carbon\Carbon;
 use App\Models\User;
 use Livewire\Component;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\DetailPermintaanMaterial;
 use App\Models\Kelurahan;
+use App\Models\TransaksiStok;
 use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -40,6 +42,8 @@ class DataPermintaanMaterial extends Component
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
     public $perPage = 10; // Items per page
+    public $unit_id; // User's unit ID for filtering
+    public $Rkb = 'RKB'; // RKB label
 
     public $approvalTimeline = [], $roleList, $selectedId;
     public $showTimelineModal = false;
@@ -146,6 +150,10 @@ class DataPermintaanMaterial extends Component
                     return is_null($item['status']);
                 }
 
+                if ($statusFilter === 'draft') {
+                    return $item['status'] === 4;
+                }
+
                 $statusMap = [
                     'ditolak' => 0,
                     'disetujui' => 1,
@@ -206,6 +214,9 @@ class DataPermintaanMaterial extends Component
 
                 if ($statusFilter === 'diproses') {
                     return is_null($item['status']);
+                }
+                if ($statusFilter === 'draft') {
+                    return $item['status'] === 4;
                 }
 
                 $statusMap = [
@@ -270,6 +281,9 @@ class DataPermintaanMaterial extends Component
                 if ($statusFilter === 'diproses') {
                     return is_null($item['status']);
                 }
+                if ($statusFilter === 'draft') {
+                    return $item['status'] === 4;
+                }
 
                 $statusMap = [
                     'ditolak' => 0,
@@ -309,7 +323,7 @@ class DataPermintaanMaterial extends Component
         }
 
         $permintaan = $stokQuery->get();
-        
+
         if ($this->getJenisId() == 1) {
             $materialQuery = DetailPermintaanMaterial::when($this->unit_id, function ($query) {
                 $query->whereHas('user.unitKerja', function ($unit) {
@@ -338,6 +352,7 @@ class DataPermintaanMaterial extends Component
                     1 => ['label' => 'Disetujui', 'color' => 'success'],
                     2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
                     3 => ['label' => 'Selesai', 'color' => 'primary'],
+                    4 => ['label' => 'Draft'],
                 ];
                 $perm->status_teks = $statusMap[$perm->status]['label'] ?? 'Tidak diketahui';
                 $perm->status_warna = $statusMap[$perm->status]['color'] ?? 'gray';
@@ -394,9 +409,12 @@ class DataPermintaanMaterial extends Component
             // Check if there's any approval at all (either approved or rejected)
             $hasAnyApproval = $item->persetujuan()->whereNotNull('is_approved')->exists();
 
+          // Draft can be deleted and edited by owner
+            $isDraft = $item->status === 4;
+
             // Regular user permissions
-            $canDelete = $isOwner && !$hasAnyApproval;
-            $canEdit = $isOwner && !$hasAnyApproval;
+            $canDelete = $isOwner && (!$hasAnyApproval || $isDraft);
+            $canEdit = $isOwner && (!$hasAnyApproval || $isDraft);
 
             // Admin permissions (no restrictions)
             $canAdminEdit = $this->isAdmin;
@@ -552,8 +570,11 @@ class DataPermintaanMaterial extends Component
                 $status = 'Sedang Dikirim';
             } elseif ($item['status'] === 3 || $item['proses'] === 1) {
                 $status = 'Selesai';
+            } elseif ($item['status'] === 4) {
+                $status = 'Draft';
             }
-
+            
+            
             // Format complete creation date
             $tanggalPembuatan = $item['created_at']->format('d F Y');
 
@@ -751,14 +772,15 @@ class DataPermintaanMaterial extends Component
             $hasAnyApproval = $permintaan->persetujuan()
                 ->whereNotNull('is_approved')
                 ->exists();
+            $isDraft = $permintaan->status === 4;
 
-            if ($hasAnyApproval) {
+            if ($hasAnyApproval && !$isDraft) {
                 session()->flash('error', 'Permintaan yang sudah di-proses (disetujui/ditolak) tidak dapat dihapus.');
                 return;
             }
 
             // Check if there's a specific status that cannot be deleted
-            if ($permintaan->status && $permintaan->status > 0) {
+            if ($permintaan->status && $permintaan->status > 0 && $permintaan->status !== 4) {
                 session()->flash('error', 'Permintaan dengan status ini tidak dapat dihapus.');
                 return;
             }
@@ -771,6 +793,7 @@ class DataPermintaanMaterial extends Component
                     'user_name' => auth()->user()->name,
                     'permintaan_id' => $permintaan->id,
                     'permintaan_nodin' => $permintaan->nodin,
+                    'status' => $permintaan->status,
                     'reason' => $reason,
                     'deleted_at' => now()
                 ]);
@@ -854,22 +877,19 @@ class DataPermintaanMaterial extends Component
                     'deleted_at' => now()
                 ]);
 
+                if ($permintaan->status >= 2) {
+
+                    // INI BAGIAN PENTINGNYA:
+                    // Kita putuskan hubungan antara item permintaan dan riwayat transaksinya.
+                    // Analogi: Kita "memutus kabel" agar saat induknya dihapus, anaknya tetap aman.
+                    foreach ($permintaan->permintaanMaterial as $item) {
+                        TransaksiStok::where('permintaan_id', $item->id)
+                            ->update(['permintaan_id' => null]);
+                    }
+                }
+
                 // Delete all persetujuan records (regardless of status)
                 $permintaan->persetujuan()->delete();
-
-                foreach ($itemsToDelete as $item) {
-                    if ($item->merkStok && $item->merkStok->barang_id) {
-                        $barang = BarangStok::find($item->merkStok->barang_id);
-                        if ($barang) {
-                            $barang->stok += $item->jumlah;
-                            $barang->save();
-                        }
-                    }
-
-                    TransaksiStok::where('permintaan_id', $item->id)
-                        ->where('tipe', 'Pengajuan')
-                        ->delete();
-                }
 
                 // Delete permintaan material items
                 $permintaan->permintaanMaterial()->delete();
@@ -943,6 +963,7 @@ class DataPermintaanMaterial extends Component
                 1 => 'Disetujui',
                 2 => 'Sedang Dikirim',
                 3 => 'Selesai',
+                4 => 'Draft',
                 default => 'Tidak diketahui'
             };
 
@@ -952,6 +973,7 @@ class DataPermintaanMaterial extends Component
                 1 => 'Disetujui',
                 2 => 'Sedang Dikirim',
                 3 => 'Selesai',
+                4 => 'Draft',
                 default => 'Tidak diketahui'
             };
 

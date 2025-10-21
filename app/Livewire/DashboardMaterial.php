@@ -23,7 +23,7 @@ class DashboardMaterial extends Component
 
     public function mount()
     {
-        //$this->unit_id = auth()->user()->unit_id;
+        $this->unit_id = auth()->user()->unit_id;
         $this->filterDate = now()->format('Y-m-d');
         $this->preparePemasukan();
         $this->preparePengeluaran();
