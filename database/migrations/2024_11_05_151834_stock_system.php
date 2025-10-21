@@ -112,7 +112,7 @@ return new class extends Migration
             $table->foreignId('detail_pengiriman_id')->constrained('detail_pengiriman_stok');
             $table->foreignId('kontrak_id')->constrained('kontrak_vendor_stok');
             $table->foreignId('merk_id')->constrained('merk_stok');
-            $table->string('tanggal_pengiriman');
+            $table->date('tanggal_pengiriman');
             $table->bigInteger('jumlah');
             $table->bigInteger('jumlah_diterima')->nullable();
             $table->timestamp('status_diterima')->nullable();
@@ -139,8 +139,8 @@ return new class extends Migration
             $table->string('nomor_kontrak')->nullable();
             $table->bigInteger('nominal_kontrak')->nullable();
             $table->foreignId('vendor_id')->nullable()->constrained('toko', 'id'); // vendor manual
-            $table->string('tanggal_kontrak');
-            $table->string('tanggal_akhir_kontrak')->nullable();
+            $table->date('tanggal_kontrak');
+            $table->date('tanggal_akhir_kontrak')->nullable();
             $table->foreignId('metode_id')->nullable()->constrained('metode_pengadaan')->onDelete('set null');
             $table->foreignId('jenis_id')->nullable()->constrained('jenis_stok')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
@@ -164,8 +164,8 @@ return new class extends Migration
 
             $table->string('nama_paket')->nullable();
             $table->string('no_spk')->nullable();
-            $table->string('tgl_spk')->nullable();
-            $table->string('tgl_akhir_spk')->nullable();
+            $table->date('tgl_spk')->nullable();
+            $table->date('tgl_akhir_spk')->nullable();
 
             $table->string('jenis_pengadaan')->nullable();
             $table->string('nama_penyedia')->nullable(); // vendor versi string dari API
@@ -218,7 +218,7 @@ return new class extends Migration
             $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade');
             $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade');
             $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
-            $table->string('tanggal');
+            $table->bigInteger('tanggal');
             $table->float('jumlah');
             $table->text('deskripsi')->nullable();
             $table->string('lokasi_penerimaan')->nullable();
@@ -259,7 +259,7 @@ return new class extends Migration
         Schema::create('detail_permintaan_stok', function (Blueprint $table) {
             $table->id();
             $table->string('kode_permintaan')->unique();
-            $table->string('tanggal_permintaan');
+            $table->date('tanggal_permintaan');
             // $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
             $table->foreignId('jenis_id')->constrained('jenis_stok')->onDelete('cascade'); // Link to unit_kerja table
             $table->foreignId('unit_id')->constrained('unit_kerja')->onDelete('cascade'); // Link to unit_kerja table
@@ -333,7 +333,7 @@ return new class extends Migration
         Schema::create('detail_peminjaman_aset', function (Blueprint $table) {
             $table->id();
             $table->string('kode_peminjaman')->unique();
-            $table->string('tanggal_peminjaman');
+            $table->date('tanggal_peminjaman');
             // $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
             $table->foreignId('unit_id')->constrained('unit_kerja')->onDelete('cascade'); // Link to unit_kerja table
             $table->foreignId('sub_unit_id')->nullable()->constrained('unit_kerja')->onDelete('set null'); // Optional sub-unit link

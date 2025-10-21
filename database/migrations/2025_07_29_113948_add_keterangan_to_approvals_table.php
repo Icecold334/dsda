@@ -10,9 +10,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Schema::table('approvals', function (Blueprint $table) {
-        //     $table->text('keterangan')->nullable()->after('img');
-        // });
+        Schema::table('approvals', function (Blueprint $table) {
+            $table->text('keterangan')->nullable()->after('img');
+        });
     }
 
     /**
@@ -20,8 +20,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        // Schema::table('approvals', function (Blueprint $table) {
-        //     $table->dropColumn('keterangan');
-        // });
+        Schema::table('approvals', function (Blueprint $table) {
+            $table->dropColumn('keterangan');
+        });
     }
 };

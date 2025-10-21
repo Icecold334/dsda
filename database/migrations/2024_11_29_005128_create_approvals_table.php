@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('approvable_type'); // Nama model yang disetujui
             $table->string('img')->nullable();
             $table->timestamps();
-            $table->text('keterangan')->nullable();
         });
     }
 
