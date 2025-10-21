@@ -70,6 +70,7 @@ use App\Http\Controllers\KecamatanController;
 use App\Http\Controllers\KelurahanController;
 use App\Http\Controllers\StokOpnameController;
 use App\Livewire\DataDriver;
+use App\Http\Controllers\StokOpnameController;
 
 Route::get('/', function () {
     return redirect()->to('/login');
