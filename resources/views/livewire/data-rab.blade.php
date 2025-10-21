@@ -9,13 +9,32 @@
             @endif
         </h1>
 
-        <div>
-            @can('rab.create')
-                <a href="{{ route('rab.create') }}"
-                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                    + Tambah {{ $Rkb }}
-                </a>
-            @endcan
+        <div class="flex items-center gap-4">
+            <div class="flex gap-4">
+                <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2 w-40"
+                    placeholder="Cari Jenis Pekerjaan" />
+                <select wire:model.live="status" class="border rounded-lg px-4 py-2 w-40">
+                    <option value="">Semua Status</option>
+                    <option value="diproses">diproses</option>
+                    <option value="ditolak">ditolak</option>
+                    <option value="disetujui">disetujui</option>
+                </select>
+                <select wire:model.live="tahun" class="border rounded-lg px-3 py-2 w-32">
+                    <option value="">Semua Tahun</option>
+                    @foreach($daftarTahun as $th)
+                        <option value="{{ $th }}">{{ $th }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                @can('rab.create')
+                    <a href="{{ route('rab.create') }}"
+                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200 whitespace-nowrap flex-shrink-0">
+                        + Tambah {{ $Rkb }}
+                    </a>
+                @endcan
+            </div>
         </div>
     </div>
 

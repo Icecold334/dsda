@@ -3,13 +3,13 @@
 namespace App\Livewire;
 
 use App\Models\BarangStok;
-use App\Models\DetailPermintaanMaterial;
-use App\Models\Kelurahan;
 use App\Models\PermintaanMaterial;
+use App\Models\DetailPermintaanMaterial;
 use App\Models\TransaksiStok;
+use App\Models\Kelurahan;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardMaterial extends Component
@@ -23,11 +23,10 @@ class DashboardMaterial extends Component
 
     public function mount()
     {
-        // $this->unit_id = auth()->user()->unit_id;
-        $this->filterDate = now()->format('Y-m-d'); // default: hari ini
+        $this->unit_id = auth()->user()->unit_id;
+        $this->filterDate = now()->format('Y-m-d');
         $this->preparePemasukan();
         $this->preparePengeluaran();
-
         $this->prepareStokMenipis();
         $this->preparePermintaanTerbaru();
     }
@@ -40,6 +39,7 @@ class DashboardMaterial extends Component
 
     public function preparePemasukan()
     {
+        // ... (Kode Anda tidak diubah) ...
         $this->pemasukanList = TransaksiStok::selectRaw('
                 merk_stok.barang_id,
                 transaksi_stok.lokasi_id,
@@ -71,11 +71,9 @@ class DashboardMaterial extends Component
             });
     }
 
-
-
-
     public function preparePengeluaran()
     {
+        // ... (Kode Anda tidak diubah) ...
         $permintaan = PermintaanMaterial::with(['detailPermintaan', 'merkStok.barangStok.satuanBesar'])
             ->whereHas('detailPermintaan', function ($detail) {
                 $detail->where('status', '>=', 2)
@@ -117,15 +115,9 @@ class DashboardMaterial extends Component
             ->values();
     }
 
-
-
-
-
-
-
-
     public function prepareStokMenipis()
     {
+        // ... (Kode Anda tidak diubah) ...
         $data = TransaksiStok::selectRaw('
             merk_stok.barang_id,
             transaksi_stok.lokasi_id,
@@ -164,7 +156,12 @@ class DashboardMaterial extends Component
 
         $this->stokMenipisList = $data->filter(function ($row) use ($barangList) {
             $barang = $barangList[$row->barang_id] ?? null;
-            return $barang && $barang->minimal > 0 && $row->stok <= $barang->minimal;
+
+            if (!$barang || $barang->minimal === 0) {
+                return false;
+            }
+
+            return $row->stok <= $barang->minimal;
         })->map(function ($row) use ($barangList, $gudangList) {
             $barang = $barangList[$row->barang_id];
             $gudang = $gudangList[$row->lokasi_id] ?? null;
@@ -178,8 +175,9 @@ class DashboardMaterial extends Component
     }
 
 
-
-
+    /**
+     * Mempersiapkan data Permintaan Terbaru dengan filter yang benar.
+     */
     public function preparePermintaanTerbaru()
     {
         $statusMap = [
@@ -188,6 +186,7 @@ class DashboardMaterial extends Component
             1 => ['label' => 'Disetujui', 'color' => 'success'],
             2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
             3 => ['label' => 'Selesai', 'color' => 'primary'],
+            4 => ['label' => 'Draft'],
         ];
 
         $user = Auth::user();
@@ -218,6 +217,7 @@ class DashboardMaterial extends Component
         }
         // Jika user tidak punya unit_id (misal: superadmin), tidak ada filter yang diterapkan, sehingga melihat semua.
 
+        // Lanjutkan dengan sisa query Anda
         $this->permintaanTerbaru = $query->with(['user', 'lokasiStok.unitKerja'])
             ->whereHas('permintaanMaterial')
             ->orderByDesc(
@@ -237,7 +237,6 @@ class DashboardMaterial extends Component
                 ];
             });
     }
-
 
     public function render()
     {

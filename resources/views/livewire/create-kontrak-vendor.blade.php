@@ -4,10 +4,8 @@
     </div>
     
     <div class="grid grid-cols-2 gap-6 mb-6">
-        <!-- KIRI: Sumber Data Kontrak -->
         <x-card title="Sumber Data Kontrak">
             <div class="flex flex-col gap-4">
-                <!-- Nomor Kontrak Lama -->
                 @if ($isAdendum)
                     <div>
                         <label class="block text-sm font-medium">Nomor Kontrak Lama</label>
@@ -41,7 +39,6 @@
                     </button>
                 @endif
 
-                <!-- Tombol Reset Mode Manual -->
                 @if ($mode_manual)
                     <div class="flex gap-2">
                         <div class="flex-1 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
@@ -56,7 +53,6 @@
             </div>
         </x-card>
 
-        <!-- KANAN: Informasi Kontrak -->
         <x-card title="Informasi Kontrak">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @foreach ([
@@ -108,7 +104,6 @@
                     </div>
                 @endif
 
-                <!-- Metode Pengadaan - hanya tampil di mode manual -->
                 @if ($mode_manual)
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium">Metode Pengadaan</label>
@@ -125,60 +120,37 @@
         </x-card>
     </div>
 
-    <!-- BAGIAN BAWAH -->
     <div class="grid grid-cols-2 gap-6">
-        <!-- KIRI: Upload Dokumen -->
         <x-card title="Upload Dokumen">
             <livewire:upload-surat-kontrak />
         </x-card>
 
-        <!-- KANAN: Tambah Barang -->
         <x-card title="Tambah Barang">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <!-- Nama Barang -->
-                <div x-data="{ open: false, search: @entangle('newBarang').live }" class="relative">
+                <div 
                     <label class="block text-sm font-medium">Nama Barang</label>
-                    <input type="text" x-model="search" @focus="open = true" @click.outside="open = false"
-                        class="w-full p-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="Nama barang baru atau lama">
-
-                    <ul x-show="open" x-transition
-                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow max-h-48 overflow-y-auto text-sm">
-                        @foreach ($barangSuggestions as $suggest)
-                            <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
-                                @click="search = '{{ addslashes($suggest) }}'; open = false;">
-                                {{ $suggest }}
-                            </li>
-                        @endforeach
-                    </ul>
+                    <livewire:searchable-select 
+                        wire:model.live="newBarang" 
+                        :options="$barangs" 
+                        placeholder="Ketik atau pilih nama barang..."
+                    />
                 </div>
 
-                <!-- Jumlah -->
                 <div>
                     <label class="block text-sm font-medium">Jumlah</label>
                     <input type="number" wire:model.live="jumlah"
                         class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Jumlah" min="1">
                 </div>
 
-                <!-- Satuan -->
-                <div x-data="{ open: false, search: @entangle('newSatuan').live }" class="relative">
+                <div 
                     <label class="block text-sm font-medium">Satuan</label>
-                    <input type="text" x-model="search" @focus="open = true" @click.outside="open = false"
-                        class="w-full p-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="Contoh: sak, liter, unit">
-
-                    <ul x-show="open" x-transition
-                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow max-h-48 overflow-y-auto text-sm">
-                        @foreach ($satuanSuggestions as $suggest)
-                            <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
-                                @click="search = '{{ addslashes($suggest) }}'; open = false;">
-                                {{ $suggest }}
-                            </li>
-                        @endforeach
-                    </ul>
+                    <livewire:searchable-select 
+                        wire:model.live="newSatuan" 
+                        :options="$satuanOptions"
+                        placeholder="Ketik atau pilih satuan..."
+                    />
                 </div>
 
-                <!-- Harga -->
                 <div x-data="{
                 formatted: '',
                 get raw() {
@@ -213,7 +185,6 @@
                         class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Rp 0">
                 </div>
 
-                <!-- PPN -->
                 <div>
                     <label class="block text-sm font-medium">PPN</label>
                     <select wire:model.live="newPpn" class="w-full p-2 border border-gray-300 rounded-md text-sm">
@@ -222,30 +193,37 @@
                         <option value="12">PPN 12%</option>
                     </select>
                 </div>
+                
 
-                <!-- Spesifikasi -->
-                @foreach (['nama', 'tipe', 'ukuran'] as $field)
-                    <div class="col-span-1" x-data="{ open: false, search: @entangle('specifications.' . $field).live }"
-                        class="relative">
-                        <label class="block text-sm font-medium capitalize">{{ $field }}</label>
-                        <input type="text" x-model="search" @focus="open = true" @click.outside="open = false"
-                            class="w-full p-2 border border-gray-300 rounded-md text-sm"
-                            placeholder="Ketik atau pilih {{ $field }}...">
+                <div>
+                    <label class="block text-sm font-medium">Nama</label>
+                    <livewire:searchable-select 
+                        wire:model.live="specifications.nama" 
+                        :options="$specNamaOptions" 
+                        placeholder="Ketik atau pilih nama..."
+                    />
+                </div>
 
-                        <ul x-show="open" x-transition
-                            class="absolute z-10 mt-1 w-72 bg-white border border-gray-300 rounded-md shadow max-h-48 overflow-y-auto text-sm">
-                            @foreach ($specOptions[$field] as $val)
-                                <li class="px-3 py-2 hover:bg-primary-100 cursor-pointer"
-                                    @click="search = '{{ addslashes($val) }}'; open = false;">
-                                    {{ $val }}
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endforeach
+                <div>
+                    <label class="block text-sm font-medium">Tipe</label>
+                    <livewire:searchable-select 
+                        wire:model.live="specifications.tipe" 
+                        :options="$specTipeOptions"
+                        placeholder="Ketik atau pilih tipe..."
+                    />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">Ukuran</label>
+                    <livewire:searchable-select 
+                        wire:model.live="specifications.ukuran" 
+                        :options="$specUkuranOptions"
+                        placeholder="Ketik atau pilih ukuran..."
+                    />
+                </div>
+
             </div>
 
-            <!-- Tombol tambah -->
             <div class="flex justify-end">
                 @if ($newBarang && $newSatuan && $jumlah && $newHarga)
                     <button wire:click="addToList"
@@ -259,7 +237,6 @@
         </x-card>
     </div>
 
-    <!-- TABEL BARANG -->
     <x-card title="Daftar Barang" class="mt-6">
         <table class="min-w-full text-sm border border-gray-300">
             <thead class="bg-primary-700 text-white">
