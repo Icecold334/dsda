@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('kontrak_id')->constrained('kontrak_vendor_stok')->onDelete('cascade');
             $table->foreignId('merk_id')->constrained('merk_stok')->onDelete('restrict');
-            $table->integer('jumlah');
+            $table->bigInteger('jumlah');
             $table->bigInteger('harga'); // harga satuan
             $table->enum('ppn', ['11', '12'])->nullable()->comment('null = harga sudah termasuk ppn');
             $table->timestamps();

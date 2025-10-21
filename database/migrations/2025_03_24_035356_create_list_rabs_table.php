@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('rab_id')->constrained('rab');
             $table->foreignId('merk_id')->constrained('merk_stok');
-            $table->integer('jumlah');
+            $table->bigInteger('jumlah');
             $table->timestamps();
         });
     }

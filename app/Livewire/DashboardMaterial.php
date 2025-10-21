@@ -119,11 +119,11 @@ class DashboardMaterial extends Component
     {
         // ... (Kode Anda tidak diubah) ...
         $data = TransaksiStok::selectRaw('
-                merk_stok.barang_id,
-                transaksi_stok.lokasi_id,
-                SUM(CASE WHEN transaksi_stok.tipe = "Pemasukan" THEN jumlah ELSE 0 END) as masuk,
-                SUM(CASE WHEN transaksi_stok.tipe = "Pengeluaran" THEN jumlah ELSE 0 END) as keluar
-            ')
+            merk_stok.barang_id,
+            transaksi_stok.lokasi_id,
+            SUM(CASE WHEN transaksi_stok.tipe = "Pemasukan" THEN jumlah ELSE 0 END) as masuk,
+            SUM(CASE WHEN transaksi_stok.tipe = "Pengeluaran" THEN jumlah ELSE 0 END) as keluar
+        ')
             ->join('merk_stok', 'transaksi_stok.merk_id', '=', 'merk_stok.id')
             ->join('lokasi_stok', 'transaksi_stok.lokasi_id', '=', 'lokasi_stok.id')
             ->join('unit_kerja', 'lokasi_stok.unit_id', '=', 'unit_kerja.id')
@@ -138,9 +138,21 @@ class DashboardMaterial extends Component
                 return $row;
             });
 
+        // Fix: unique + chunked queries to avoid SQLite error
+        $barangIds = $data->pluck('barang_id')->unique()->values();
+        $lokasiIds = $data->pluck('lokasi_id')->unique()->values();
 
-        $barangList = BarangStok::whereIn('id', $data->pluck('barang_id'))->get()->keyBy('id');
-        $gudangList = \App\Models\LokasiStok::whereIn('id', $data->pluck('lokasi_id'))->get()->keyBy('id');
+        $barangList = collect();
+        $barangIds->chunk(900)->each(function ($chunk) use (&$barangList) {
+            $barangList = $barangList->merge(BarangStok::whereIn('id', $chunk)->get());
+        });
+        $barangList = $barangList->keyBy('id');
+
+        $gudangList = collect();
+        $lokasiIds->chunk(900)->each(function ($chunk) use (&$gudangList) {
+            $gudangList = $gudangList->merge(\App\Models\LokasiStok::whereIn('id', $chunk)->get());
+        });
+        $gudangList = $gudangList->keyBy('id');
 
         $this->stokMenipisList = $data->filter(function ($row) use ($barangList) {
             $barang = $barangList[$row->barang_id] ?? null;
