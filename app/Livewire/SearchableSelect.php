@@ -13,7 +13,7 @@ class SearchableSelect extends Component
     #[Modelable]
     public $selected = null;   // wire:model
     public $search = '';
-
+    public $disabled = false;
     public $filteredOptions = [];
 
     public function mount()
