@@ -46,7 +46,7 @@ class DataRab extends Component
             $query = Rab::with(['user.unitKerja']);
 
             $query->when($this->search, function ($q) {
-                return $q->where('jenis_pekerjaan', 'like', '%' . $this->search . '%');
+                return $q->where('lokasi', 'like', '%' . $this->search . '%');
             });
             $query->when($this->status, function ($q) {
                 $statusValue = match ($this->status) {
@@ -72,7 +72,7 @@ class DataRab extends Component
 
             
             $query->when($this->search, function ($q) {
-                return $q->where('jenis_pekerjaan', 'like', '%' . $this->search . '%');
+                return $q->where('lokasi', 'like', '%' . $this->search . '%');
             });
             $query->when($this->status, function ($q) {
                 $statusValue = match ($this->status) {
