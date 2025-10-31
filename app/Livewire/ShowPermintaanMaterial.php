@@ -612,8 +612,13 @@ class ShowPermintaanMaterial extends Component
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 11, '', '');
 
-        $permintaan = $this->permintaan->fresh(['kelurahan.kecamatan', 'rab']);
-        $unit_id = $this->unit_id;
+
+        // DIUBAH: Tambahkan 'user.unitKerja.parent' untuk eager load
+        $permintaan = $this->permintaan->fresh(['kelurahan.kecamatan', 'rab', 'user.unitKerja.parent']);
+        $pemohon = $permintaan->user;
+        $unitKerja = $pemohon ? $pemohon->unitKerja : null;
+        $unit_id = $unitKerja ? $unitKerja->id : null;
+
         $lokasiLengkap = '';
         if (!$permintaan->rab_id) {
             if ($permintaan->kelurahan && $permintaan->kelurahan->kecamatan) {
@@ -627,7 +632,7 @@ class ShowPermintaanMaterial extends Component
                 $lokasiLengkap = $permintaan->rab->lokasi;
             }
         }
-        $permintaan->unit = UnitKerja::find($unit_id);
+        $permintaan->unit = $unitKerja;
 
         $kasatpel = User::whereHas('unitKerja', function ($unit) use ($unit_id) {
             return $unit->where('id', $unit_id);
@@ -653,13 +658,13 @@ class ShowPermintaanMaterial extends Component
             $pemel = User::find(252); // Override dengan Yusuf
         }
 
-        $pemohon = $permintaan->user;
+        // $pemohon = $permintaan->user;
         $pemohonRole = $pemohon->roles->pluck('name')->first();
 
         $Rkb = $this->Rkb;
         $RKB = $this->RKB;
-        $sudin = $this->sudin;
-        $isSeribu = $this->isSeribu;
+        $sudin = $unitKerja ? $unitKerja->nama : null;
+        $isSeribu = $unitKerja ? str_contains($unitKerja->nama, 'Kepulauan Seribu') : false;
 
         if ($isSeribu) {
             $withRab = $this->permintaan->permintaanMaterial->first()->rab_id;
@@ -714,7 +719,7 @@ class ShowPermintaanMaterial extends Component
             'sudin',
             'isSeribu',
             'sign',
-            'lokasiLengkap' 
+            'lokasiLengkap'
         ))->render();
 
         $pdf->writeHTML($html, true, false, true, false, '');

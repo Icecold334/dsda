@@ -19,8 +19,8 @@ return new class extends Migration
             $table->timestamps();
             $table->id();
             $table->string('kode_barang');
-            $table->integer('minimal')->default(10);
-            $table->integer('konversi')->nullable();
+            $table->bigInteger('minimal')->default(10);
+            $table->bigInteger('konversi')->nullable();
             $table->foreignId('jenis_id')->constrained('jenis_stok');
             $table->foreignId('kategori_id')->nullable()->constrained('kategori_stok');
             $table->foreignId('satuan_besar_id')->constrained('satuan'); // Foreign key to satuan
@@ -31,11 +31,11 @@ return new class extends Migration
         });
         Schema::create('merk_stok', function (Blueprint $table) {
             $table->id();
-            $table->string('kode')->nullable();
+            $table->longText('kode')->nullable();
             $table->foreignId('barang_id')->constrained('barang_stok');
-            $table->string('nama')->nullable();
-            $table->string('tipe')->nullable();
-            $table->string('ukuran')->nullable();
+            $table->longText('nama')->nullable();
+            $table->longText('tipe')->nullable();
+            $table->longText('ukuran')->nullable();
             $table->timestamps();
         });
 
@@ -113,8 +113,8 @@ return new class extends Migration
             $table->foreignId('kontrak_id')->constrained('kontrak_vendor_stok');
             $table->foreignId('merk_id')->constrained('merk_stok');
             $table->date('tanggal_pengiriman');
-            $table->integer('jumlah');
-            $table->integer('jumlah_diterima')->nullable();
+            $table->bigInteger('jumlah');
+            $table->bigInteger('jumlah_diterima')->nullable();
             $table->timestamp('status_diterima')->nullable();
             $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('cascade');
             $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade');
@@ -126,7 +126,7 @@ return new class extends Migration
             $table->id(); // Primary Key
             $table->foreignId('pengiriman_id')->constrained('pengiriman_stok')->onDelete('cascade'); // Relasi ke pengiriman_barang
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
-            $table->integer('jumlah_diterima'); // Jumlah stok yang diterima
+            $table->bigInteger('jumlah_diterima'); // Jumlah stok yang diterima
             // $table->string('img')->nullable();
             $table->text('catatan')->nullable(); // Kolom untuk mencatat informasi tambahan
             $table->timestamps(); // created_at dan updated_at
@@ -137,7 +137,7 @@ return new class extends Migration
 
             // FIELD LAMA (dipertahankan semua)
             $table->string('nomor_kontrak')->nullable();
-            $table->integer('nominal_kontrak')->nullable();
+            $table->bigInteger('nominal_kontrak')->nullable();
             $table->foreignId('vendor_id')->nullable()->constrained('toko', 'id'); // vendor manual
             $table->date('tanggal_kontrak');
             $table->date('tanggal_akhir_kontrak')->nullable();
@@ -203,8 +203,8 @@ return new class extends Migration
             $table->boolean('status')->nullable();
             $table->string('keterangan_status')->nullable();
             $table->string('kode_transaksi_stok')->nullable();
-            $table->integer('harga')->nullable();
-            $table->integer('ppn')->nullable();
+            $table->bigInteger('harga')->nullable();
+            $table->bigInteger('ppn')->nullable();
             $table->string('img')->nullable();
             $table->enum('tipe', ['Pemasukan', 'Pengeluaran', 'Penyesuaian', 'Pengajuan']);
             $table->foreignId('permintaan_id')->nullable()->constrained('permintaan_material')->onDelete('cascade'); // Relasi ke permintaan_barang
@@ -218,7 +218,7 @@ return new class extends Migration
             $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade');
             $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade');
             $table->foreignId('kontrak_id')->nullable()->constrained('kontrak_vendor_stok');
-            $table->integer('tanggal');
+            $table->bigInteger('tanggal');
             $table->float('jumlah');
             $table->text('deskripsi')->nullable();
             $table->string('lokasi_penerimaan')->nullable();
@@ -229,7 +229,7 @@ return new class extends Migration
             $table->timestamps();
             $table->id();
             $table->foreignId('merk_id')->constrained('merk_stok');
-            $table->integer('jumlah');
+            $table->bigInteger('jumlah');
             $table->foreignId('lokasi_id')->constrained('lokasi_stok')->onDelete('cascade');
             $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade');
             $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade');
@@ -243,7 +243,7 @@ return new class extends Migration
             $table->foreignId('bagian_id')->nullable()->constrained('bagian_stok')->onDelete('cascade'); // Relasi ke bagian
             $table->foreignId('posisi_id')->nullable()->constrained('posisi_stok')->onDelete('cascade'); // Relasi ke posisi
             $table->text('catatan')->nullable(); // Kolom untuk mencatat informasi tambahan
-            $table->integer('jumlah_disetujui'); // Jumlah stok yang disetujui
+            $table->bigInteger('jumlah_disetujui'); // Jumlah stok yang disetujui
             $table->timestamps(); // created_at dan updated_at
         });
 
@@ -269,14 +269,14 @@ return new class extends Migration
             $table->foreignId('sub_unit_id')->nullable()->constrained('unit_kerja')->onDelete('set null'); // Optional sub-unit link
             $table->foreignId('rab_id')->nullable()->constrained('rab')->onDelete('set null');
 
-            $table->integer('jumlah')->nullable();
+            $table->bigInteger('jumlah')->nullable();
             $table->text('keterangan')->nullable();
             $table->text('keterangan_cancel')->nullable();
             $table->text('keterangan_done')->nullable();
             $table->boolean('proses')->nullable();
             $table->boolean('cancel')->nullable();
             $table->boolean('status')->nullable();
-            $table->integer('jumlah_peserta')->nullable();
+            $table->bigInteger('jumlah_peserta')->nullable();
             $table->foreignId('lokasi_id')->nullable()->constrained('ruangs')->onDelete('set null');
             $table->text('lokasi_lain')->nullable();
             $table->text('alamat_lokasi')->nullable();
@@ -299,8 +299,8 @@ return new class extends Migration
             $table->string('img_done')->nullable();
             $table->string('catatan_done')->nullable();
             $table->foreignId('barang_id')->constrained('barang_stok')->onDelete('cascade');
-            $table->integer('jumlah');
-            $table->integer('jumlah_approve')->nullable();
+            $table->bigInteger('jumlah');
+            $table->bigInteger('jumlah_approve')->nullable();
             $table->boolean('status')->nullable();
             $table->foreignId('lokasi_id')->nullable()->constrained('ruangs')->onDelete('set null');
             $table->foreignId('driver_id')->nullable()->constrained('users')->onDelete('cascade');
@@ -362,9 +362,9 @@ return new class extends Migration
             $table->text('catatan')->nullable();
             $table->text('catatan_approved')->nullable();
             $table->string('img')->nullable();
-            $table->integer('jumlah_orang')->nullable();
-            $table->integer('jumlah')->nullable();
-            $table->integer('jumlah_approve')->nullable();
+            $table->bigInteger('jumlah_orang')->nullable();
+            $table->bigInteger('jumlah')->nullable();
+            $table->bigInteger('jumlah_approve')->nullable();
             $table->boolean('status')->nullable();
             $table->string('img_pengembalian')->nullable();
             $table->text('keterangan_pengembalian')->nullable();
@@ -389,7 +389,7 @@ return new class extends Migration
             $table->string('nama', 255);
             $table->foreignId('parent_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
             $table->string('kode', 50)->nullable();
-            $table->integer('hak')->nullable();
+            $table->bigInteger('hak')->nullable();
             $table->text('keterangan')->nullable();
             $table->text('alamat')->nullable();
             $table->timestamps();
