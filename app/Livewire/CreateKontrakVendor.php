@@ -361,7 +361,7 @@ class CreateKontrakVendor extends Component
 
     public function mount()
     {
-        $this->barangs = \App\Models\BarangStok::query()->select('id', 'nama')->get();
+        $this->barangs = \App\Models\BarangStok::query()->select('id', 'nama')->get()->unique('nama');
         $this->programs = \App\Models\Program::all();
         
         // Mengisi properti baru dengan semua pilihan dari database
