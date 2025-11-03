@@ -1,4 +1,5 @@
 <div x-data="{ open: false }" class="relative w-full">
+    
     @if($disabled)
         <input 
             type="text"
