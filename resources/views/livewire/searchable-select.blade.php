@@ -35,10 +35,5 @@
         <li class="px-4 py-2 text-gray-500">Tidak ditemukan</li>
         @endforelse
     </ul>
-
-    {{-- @if($search)
-    <div class="mt-2 text-sm text-gray-600">
-        Dipilih: {{ $search }}
-    </div>
-    @endif --}}
+    @endif
 </div>
