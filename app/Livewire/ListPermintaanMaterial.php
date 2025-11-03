@@ -101,7 +101,8 @@ class ListPermintaanMaterial extends Component
                     'editable' => true,
                 ];
             }
-
+        
+            
             // --- 4. Simpan state asli untuk deteksi perubahan ---
             $this->originalList = $this->list;
         }
@@ -322,7 +323,7 @@ class ListPermintaanMaterial extends Component
         if ($this->withRab) {
             $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && ($this->isSeribu && $this->withRab || $this->rab_id);
         } else {
-            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && $this->lokasiMaterial && $this->keterangan && $this->nodin && $this->namaKegiatan;
+            $this->showRule = $this->tanggalPenggunaan && $this->gudang_id && $this->lokasiMaterial && $this->keterangan && $this->nodin && $this->namaKegiatan && $this->kelurahanId;
         }
     }
 

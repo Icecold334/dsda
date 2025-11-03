@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Rab;
 use App\Models\DetailPermintaanMaterial;
 use App\Models\PermintaanMaterial;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithoutUrlPagination;
 use Livewire\WithPagination;
@@ -20,9 +21,19 @@ class DataRab extends Component
     public $historyData = [];
     public $searchSpb = '';
 
+    public $search = '';
+    public $status = '';
+    public $tahun = ''; 
+
     public function mount()
     {
         $this->unit_id = Auth::user()->unit_id;
+    }
+
+    public function updated($propertyName) {
+        if (in_array($propertyName, ['search', 'status', 'tahun'])) {
+            $this->resetPage();
+        }
     }
 
     public function fetchData()
@@ -32,13 +43,53 @@ class DataRab extends Component
         // Check if user is superadmin
         if ($user->hasRole('superadmin') || $user->unit_id === null) {
             // Superadmin dapat melihat semua RAB dari semua suku dinas
-            $rabs = Rab::with(['user.unitKerja'])->orderBy('created_at', 'desc')->paginate(5);
+            $query = Rab::with(['user.unitKerja']);
+
+            $query->when($this->search, function ($q) {
+                return $q->where('lokasi', 'like', '%' . $this->search . '%');
+            });
+            $query->when($this->status, function ($q) {
+                $statusValue = match ($this->status) {
+                    'diproses' => null, 'ditolak' => 0, 'disetujui' => 2, default => 'ignore',
+                };
+                if ($statusValue !== 'ignore') {
+                    return $q->where('status', $statusValue);
+                }
+            });
+            $query->when($this->tahun, function ($q) {
+                return $q->whereYear('created_at', $this->tahun);
+            });
+            $query->orderBy('created_at', 'desc');
+
+            $rabs = $query->paginate(5);
+
         } else {
             // User biasa hanya bisa melihat RAB dari unit mereka/bawahan mereka
-            $rabs = Rab::whereHas('user.unitKerja', function ($unit) {
+            $query = Rab::whereHas('user.unitKerja', function ($unit) {
                 $unit->where('parent_id', $this->unit_id)
                     ->orWhere('id', $this->unit_id);
-            })->orderBy('created_at', 'desc')->paginate(5);
+            });
+
+            
+            $query->when($this->search, function ($q) {
+                return $q->where('lokasi', 'like', '%' . $this->search . '%');
+            });
+            $query->when($this->status, function ($q) {
+                $statusValue = match ($this->status) {
+                    'diproses' => null, 'ditolak' => 0, 'disetujui' => 2, default => 'ignore',
+                };
+                 if ($statusValue !== 'ignore') {
+                    return $q->where('status', $statusValue);
+                 }
+            });
+
+            $query->when($this->tahun, function ($q) {
+                return $q->whereYear('created_at', $this->tahun);
+            });
+
+            $query->orderBy('created_at', 'desc');
+
+            $rabs = $query->paginate(5);
         }
 
         $rabs->getCollection()->transform(function ($rab) {
@@ -143,6 +194,17 @@ class DataRab extends Component
     public function render()
     {
         $rabs = $this->fetchData();
-        return view('livewire.data-rab', compact('rabs'));
+
+        $daftarTahun = Rab::select(DB::raw("strftime('%Y', created_at) as tahun"))
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+        return view('livewire.data-rab', [
+            'rabs' => $rabs,
+            'daftarTahun' => $daftarTahun,
+            'Rkb' => $this->Rkb,
+            'RKB' => $this->RKB,
+            'sudin' => $this->sudin,
+        ]);
     }
 }

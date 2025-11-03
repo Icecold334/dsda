@@ -16,6 +16,7 @@ class SearchableSelect extends Component
     public $search = '';
     public $disabled = false;
     public $filteredOptions = [];
+    public bool $open = false;
 
     public function mount()
     {
@@ -25,8 +26,12 @@ class SearchableSelect extends Component
 
     public function updatedSearch()
     {
+        $this->open = true;
         $this->filteredOptions = collect($this->options)->filter(function ($item) {
-            $label = is_array($item) ? $item[$this->label] : $item->{$this->label};
+            $label = is_array($item) ? ($item[$this->label] ?? null) : ($item->{$this->label} ?? null);
+            if (!is_string($label)) {
+                return false;
+            }
             return stripos($label, $this->search) !== false;
         })->values();
     }
@@ -35,16 +40,24 @@ class SearchableSelect extends Component
     {
         $this->selected = $id;
         $this->setInitialLabel();
+        $this->open = false;
     }
 
     public function setInitialLabel()
     {
+        if ($this->selected === null) {
+            $this->search = '';
+            return;
+        }
         $found = collect($this->options)->firstWhere('id', $this->selected);
         $this->search = $found[$this->label] ?? $found?->{$this->label} ?? '';
     }
 
     public function render()
     {
+        if ($this->search === '') {
+            $this->filteredOptions = collect($this->options);
+        }
         return view('livewire.searchable-select');
     }
 }

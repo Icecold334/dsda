@@ -83,6 +83,11 @@ class CreateKontrakVendor extends Component
         'ukuran' => [],
     ];
 
+    public $specNamaOptions = [];
+    public $specTipeOptions = [];
+    public $specUkuranOptions = [];
+    public $satuanOptions = [];
+
     public function cariKontrakApi()
     {
         if (!$this->tahun_api || !$this->nomor_spk_api) {
@@ -356,13 +361,38 @@ class CreateKontrakVendor extends Component
 
     public function mount()
     {
-        $this->barangs = BarangStok::all();
+        $this->barangs = \App\Models\BarangStok::query()->select('id', 'nama')->get()->unique('nama');
         $this->programs = \App\Models\Program::all();
-        $this->barangSuggestions = BarangStok::pluck('nama')->unique()->sort()->values()->toArray();
-        $this->satuanSuggestions = \App\Models\SatuanBesar::pluck('nama')->unique()->sort()->values()->toArray();
-        $this->specOptions['nama'] = MerkStok::pluck('nama')->filter()->unique()->values()->toArray();
-        $this->specOptions['tipe'] = MerkStok::pluck('tipe')->filter()->unique()->values()->toArray();
-        $this->specOptions['ukuran'] = MerkStok::pluck('ukuran')->filter()->unique()->values()->toArray();
+        
+        // Mengisi properti baru dengan semua pilihan dari database
+        $this->satuanOptions = \App\Models\SatuanBesar::pluck('nama')->unique()->sort()->values()
+        ->map(function ($value) {
+            return ['id' => $value, 'nama' => $value];
+        })
+        ->toArray();
+        $this->specNamaOptions = \App\Models\MerkStok::pluck('nama')->filter()->unique()->sort()->values()
+            ->map(function ($value) {
+                return ['id' => $value, 'nama' => $value];
+            })
+            ->toArray();
+        $this->specTipeOptions = \App\Models\MerkStok::pluck('tipe')->filter()->unique()->sort()->values()
+            ->map(function ($value) {
+                return ['id' => $value, 'nama' => $value];
+            })
+            ->toArray();
+        $this->specUkuranOptions = \App\Models\MerkStok::pluck('ukuran')->filter()->unique()->sort()->values()
+            ->map(function ($value) {
+                return ['id' => $value, 'nama' => $value];
+            })
+            ->toArray();
+        $this->barangSuggestions = [];
+        $this->satuanSuggestions = [];
+        $this->specOptions = [
+            'nama' => [],
+            'tipe' => [],
+            'ukuran' => [],
+        ];
+
         if ($this->id) {
             $this->loadListBarangAdendum($this->id);
         }

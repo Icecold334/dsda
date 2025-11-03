@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('detail_permintaan_material', function (Blueprint $table) {
             $table->id();
-            $table->integer('saluran_jenis')->nullable();
-            $table->integer('saluran_id')->nullable();
+            $table->bigInteger('saluran_jenis')->nullable();
+            $table->bigInteger('saluran_id')->nullable();
             $table->string('driver')->nullable();
             $table->string('nopol')->nullable();
             $table->string('ttd_driver')->nullable();

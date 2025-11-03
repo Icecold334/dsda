@@ -409,7 +409,7 @@ class DataPermintaanMaterial extends Component
             // Check if there's any approval at all (either approved or rejected)
             $hasAnyApproval = $item->persetujuan()->whereNotNull('is_approved')->exists();
 
-            // Draft can be deleted and edited by owner
+          // Draft can be deleted and edited by owner
             $isDraft = $item->status === 4;
 
             // Regular user permissions
@@ -573,8 +573,8 @@ class DataPermintaanMaterial extends Component
             } elseif ($item['status'] === 4) {
                 $status = 'Draft';
             }
-
-
+            
+            
             // Format complete creation date
             $tanggalPembuatan = $item['created_at']->format('d F Y');
 

@@ -3,13 +3,13 @@
 namespace App\Livewire;
 
 use App\Models\BarangStok;
-use App\Models\DetailPermintaanMaterial;
-use App\Models\Kelurahan;
 use App\Models\PermintaanMaterial;
+use App\Models\DetailPermintaanMaterial;
 use App\Models\TransaksiStok;
+use App\Models\Kelurahan;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardMaterial extends Component
@@ -24,10 +24,9 @@ class DashboardMaterial extends Component
     public function mount()
     {
         // $this->unit_id = auth()->user()->unit_id;
-        $this->filterDate = now()->format('Y-m-d'); // default: hari ini
+        $this->filterDate = now()->format('Y-m-d');
         $this->preparePemasukan();
         $this->preparePengeluaran();
-
         $this->prepareStokMenipis();
         $this->preparePermintaanTerbaru();
     }
@@ -40,6 +39,7 @@ class DashboardMaterial extends Component
 
     public function preparePemasukan()
     {
+        // ... (Kode Anda tidak diubah) ...
         $this->pemasukanList = TransaksiStok::selectRaw('
                 merk_stok.barang_id,
                 transaksi_stok.lokasi_id,
@@ -71,11 +71,9 @@ class DashboardMaterial extends Component
             });
     }
 
-
-
-
     public function preparePengeluaran()
     {
+        // ... (Kode Anda tidak diubah) ...
         $permintaan = PermintaanMaterial::with(['detailPermintaan', 'merkStok.barangStok.satuanBesar'])
             ->whereHas('detailPermintaan', function ($detail) {
                 $detail->where('status', '>=', 2)
@@ -117,21 +115,15 @@ class DashboardMaterial extends Component
             ->values();
     }
 
-
-
-
-
-
-
-
     public function prepareStokMenipis()
     {
+        // ... (Kode Anda tidak diubah) ...
         $data = TransaksiStok::selectRaw('
-                merk_stok.barang_id,
-                transaksi_stok.lokasi_id,
-                SUM(CASE WHEN transaksi_stok.tipe = "Pemasukan" THEN jumlah ELSE 0 END) as masuk,
-                SUM(CASE WHEN transaksi_stok.tipe = "Pengeluaran" THEN jumlah ELSE 0 END) as keluar
-            ')
+            merk_stok.barang_id,
+            transaksi_stok.lokasi_id,
+            SUM(CASE WHEN transaksi_stok.tipe = "Pemasukan" THEN jumlah ELSE 0 END) as masuk,
+            SUM(CASE WHEN transaksi_stok.tipe = "Pengeluaran" THEN jumlah ELSE 0 END) as keluar
+        ')
             ->join('merk_stok', 'transaksi_stok.merk_id', '=', 'merk_stok.id')
             ->join('lokasi_stok', 'transaksi_stok.lokasi_id', '=', 'lokasi_stok.id')
             ->join('unit_kerja', 'lokasi_stok.unit_id', '=', 'unit_kerja.id')
@@ -146,14 +138,25 @@ class DashboardMaterial extends Component
                 return $row;
             });
 
+        // Fix: unique + chunked queries to avoid SQLite error
+        $barangIds = $data->pluck('barang_id')->unique()->values();
+        $lokasiIds = $data->pluck('lokasi_id')->unique()->values();
 
-        $barangList = BarangStok::whereIn('id', $data->pluck('barang_id'))->get()->keyBy('id');
-        $gudangList = \App\Models\LokasiStok::whereIn('id', $data->pluck('lokasi_id'))->get()->keyBy('id');
+        $barangList = collect();
+        $barangIds->chunk(900)->each(function ($chunk) use (&$barangList) {
+            $barangList = $barangList->merge(BarangStok::whereIn('id', $chunk)->get());
+        });
+        $barangList = $barangList->keyBy('id');
+
+        $gudangList = collect();
+        $lokasiIds->chunk(900)->each(function ($chunk) use (&$gudangList) {
+            $gudangList = $gudangList->merge(\App\Models\LokasiStok::whereIn('id', $chunk)->get());
+        });
+        $gudangList = $gudangList->keyBy('id');
 
         $this->stokMenipisList = $data->filter(function ($row) use ($barangList) {
             $barang = $barangList[$row->barang_id] ?? null;
 
-            // Jangan tampilkan jika minimal = 0 (anggap tidak perlu warning)
             if (!$barang || $barang->minimal === 0) {
                 return false;
             }
@@ -172,7 +175,9 @@ class DashboardMaterial extends Component
     }
 
 
-
+    /**
+     * Mempersiapkan data Permintaan Terbaru dengan filter yang benar.
+     */
     public function preparePermintaanTerbaru()
     {
         $statusMap = [
@@ -212,6 +217,7 @@ class DashboardMaterial extends Component
         }
         // Jika user tidak punya unit_id (misal: superadmin), tidak ada filter yang diterapkan, sehingga melihat semua.
 
+        // Lanjutkan dengan sisa query Anda
         $this->permintaanTerbaru = $query->with(['user', 'lokasiStok.unitKerja'])
             ->whereHas('permintaanMaterial')
             ->orderByDesc(
@@ -231,7 +237,6 @@ class DashboardMaterial extends Component
                 ];
             });
     }
-
 
     public function render()
     {

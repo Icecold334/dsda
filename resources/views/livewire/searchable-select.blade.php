@@ -20,20 +20,25 @@
             @click.away="open = false" 
         />
 
-        <ul x-show="open"
-            class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-60 overflow-y-auto shadow-lg">
-            @forelse($filteredOptions as $item)
-                @php
-                    $view = is_array($item) ? $item[$label] : $item->{$label};
-                @endphp
-                <li class="px-4 py-2 cursor-pointer hover:bg-blue-100"
-                    wire:click="select({{ is_array($item) ? $item['id'] : $item->id }})" 
-                    @click="open = false">
-                    {{ $view }}
-                </li>
-            @empty
-                <li class="px-4 py-2 text-gray-500">Tidak ditemukan</li>
-            @endforelse
-        </ul>
-    @endif
+    <ul x-show="open"
+        class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-60 overflow-y-auto shadow-lg" style="display: none;">
+        @forelse($filteredOptions as $item)
+        @php
+            $view = is_array($item) ? ($item[$label] ?? '') : ($item->{$label} ?? '');
+            $itemId = is_array($item) ? ($item['id'] ?? null) : ($item->id ?? null);
+        @endphp
+        <li class="px-4 py-2 cursor-pointer hover:bg-blue-100"
+            wire:click="select('{{ $itemId }}')">
+            {{ $view }}
+        </li>
+        @empty
+        <li class="px-4 py-2 text-gray-500">Tidak ditemukan</li>
+        @endforelse
+    </ul>
+
+    {{-- @if($search)
+    <div class="mt-2 text-sm text-gray-600">
+        Dipilih: {{ $search }}
+    </div>
+    @endif --}}
 </div>
