@@ -10,9 +10,11 @@
     "require": {
         "php": "^8.2",
         "bacon/bacon-qr-code": "^3.0.1",
+        "google/cloud-storage": "^1.48",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
         "league/csv": "^9.23.0",
+        "league/flysystem-google-cloud-storage": "^3.30",
         "livewire/livewire": "^3.5",
         "livewire/volt": "^1.0",
         "phpoffice/phpspreadsheet": "^3.6",

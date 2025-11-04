@@ -35,8 +35,7 @@
     31 => 'Termwind\\Laravel\\TermwindServiceProvider',
     32 => 'Spatie\\Permission\\PermissionServiceProvider',
     33 => 'App\\Providers\\AppServiceProvider',
-    34 => 'App\\Providers\\GoogleCloudStorageServiceProvider',
-    35 => 'App\\Providers\\VoltServiceProvider',
+    34 => 'App\\Providers\\VoltServiceProvider',
   ),
   'eager' => 
   array (
@@ -58,8 +57,7 @@
     15 => 'Termwind\\Laravel\\TermwindServiceProvider',
     16 => 'Spatie\\Permission\\PermissionServiceProvider',
     17 => 'App\\Providers\\AppServiceProvider',
-    18 => 'App\\Providers\\GoogleCloudStorageServiceProvider',
-    19 => 'App\\Providers\\VoltServiceProvider',
+    18 => 'App\\Providers\\VoltServiceProvider',
   ),
   'deferred' => 
   array (

@@ -3,12 +3,18 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Models\LampiranRab;
+use Illuminate\Support\Str;
+use Livewire\Attributes\On;
 use Livewire\WithFileUploads;
 use App\Models\DokumenKontrakStok;
 use App\Models\LampiranPermintaan;
-use App\Models\LampiranRab;
+use function Laravel\Prompts\error;
+use Illuminate\Support\Facades\Log;
+use Google\Cloud\Storage\StorageClient;
+
 use Illuminate\Support\Facades\Request;
-use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Storage;
 
 class UploadSuratKontrak extends Component
 {
@@ -29,38 +35,81 @@ class UploadSuratKontrak extends Component
     public function saveAttachments($kontrak_id, $isRab = false, $isMaterial = false)
     {
         $this->validate([
-            'attachments.*' => 'file|max:5024',  // Validate before saving
+            'attachments.*' => 'file|max:5024',
         ]);
 
-        foreach ($this->attachments as $file) {
-            $path = str_replace($isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak') . '/', '', $file->storeAs($isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak') . '', $file->getClientOriginalName(), 'public'));  // Store the file
+        try {
+            // 🔑 Inisialisasi client langsung dari SDK Google
+            $storage = new StorageClient([
+                'projectId'   => env('GOOGLE_CLOUD_PROJECT_ID'),
+                'keyFilePath' => base_path(env('GOOGLE_CLOUD_KEY_FILE')),
+            ]);
 
-            // Versi yang lebih sederhana
-            // $folder = $isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak');
-            // $path = $file->storeAs($folder, $file->getClientOriginalName(), 'public');
-            
-            if ($isRab) {
-                LampiranRab::create([
-                    'rab_id' => $kontrak_id,  // Associate with kontrak
-                    'path' => $path,
-                ]);
-            } elseif ($isMaterial) {
-                LampiranPermintaan::create([
-                    'permintaan_id' => $kontrak_id,  // Associate with kontrak
-                    'path' => $path,
-                ]);
-            } else {
-                DokumenKontrakStok::create([
-                    'kontrak_id' => $kontrak_id,  // Associate with kontrak
-                    'file' => $path,
-                ]);
+            $bucket = $storage->bucket(env('GOOGLE_CLOUD_STORAGE_BUCKET'));
+
+            foreach ($this->attachments as $file) {
+                $folder = $isRab
+                    ? 'lampiranRab'
+                    : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak');
+
+                // Nama file unik
+                $ext = $file->getClientOriginalExtension();
+                $newFileName = date('Ymd_His') . '_' . Str::random(8) . '.' . $ext;
+                $prefix = config('filesystems.disks.gcs.path_prefix'); // otomatis ambil dsda/dev dari .env
+                $objectPath = trim("{$prefix}/{$folder}/{$newFileName}", '/');
+
+
+                // Upload langsung ke GCS (pakai publicRead ACL)
+                $bucket->upload(
+                    file_get_contents($file->getRealPath()),
+                    [
+                        'name' => $objectPath,
+                        'predefinedAcl' => 'publicRead', // 🔑 auto publik
+                    ]
+                );
+
+                // Simpan hanya nama file ke DB
+                if ($isRab) {
+                    LampiranRab::create([
+                        'rab_id' => $kontrak_id,
+                        'path' => $newFileName,
+                    ]);
+                } elseif ($isMaterial) {
+                    LampiranPermintaan::create([
+                        'permintaan_id' => $kontrak_id,
+                        'path' => $newFileName,
+                    ]);
+                } else {
+                    DokumenKontrakStok::create([
+                        'kontrak_id' => $kontrak_id,
+                        'file' => $newFileName,
+                    ]);
+                }
+
+                Log::info("✅ Upload sukses: {$objectPath}");
             }
-        }
 
-        // Optionally reset the attachments after saving
-        $this->reset('attachments');
-        return redirect()->to($isRab ? 'rab' : ($isMaterial ? 'permintaan/material' : 'kontrak-vendor-stok'));
+            $this->reset('attachments');
+
+            return redirect()->to(
+                $isRab
+                    ? 'rab'
+                    : ($isMaterial ? 'permintaan/material' : 'kontrak-vendor-stok')
+            )->with('success', 'Berhasil mengunggah lampiran.');
+        } catch (\Throwable $e) {
+            Log::error('Upload GCS gagal', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $this->reset('attachments');
+            session()->flash('error', 'Gagal mengunggah file: ' . $e->getMessage());
+            return;
+        }
     }
+
+
+
 
 
     public function updatedNewAttachments()

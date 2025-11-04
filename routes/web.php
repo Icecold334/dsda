@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\UnitKerja;
 use App\Models\Persetujuan;
 use Illuminate\Support\Str;
+use App\Livewire\DataDriver;
 use App\Models\PermintaanStok;
 use App\Livewire\AssetCalendar;
 use Illuminate\Support\Facades\DB;
@@ -14,21 +15,24 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RabController;
+use Google\Cloud\Storage\StorageClient;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AsetController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\KotaController;
 use App\Http\Controllers\MerkController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\TokoController;
+use App\Http\Controllers\UserController;
 use App\Models\DetailPermintaanMaterial;
 use App\Http\Controllers\HargaController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RuangController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\DiskonController;
+use App\Http\Controllers\DriverController;
 use App\Http\Controllers\JurnalController;
-use App\Http\Controllers\MasterProgramController;
 use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\PersonController;
@@ -42,8 +46,11 @@ use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\LampiranController;
 use App\Http\Controllers\MerkStokController;
 use App\Http\Controllers\ProvinsiController;
+use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JenisStokController;
+use App\Http\Controllers\KecamatanController;
+use App\Http\Controllers\KelurahanController;
 use App\Http\Controllers\MerekStokController;
 use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\BagianStokController;
@@ -51,13 +58,13 @@ use App\Http\Controllers\BarangStokController;
 use App\Http\Controllers\KonfirmasiController;
 use App\Http\Controllers\LokasiStokController;
 use App\Http\Controllers\PosisiStokController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\StokOpnameController;
 use App\Http\Controllers\VendorStokController;
 use App\Http\Controllers\PersetujuanController;
 use App\Http\Controllers\AsetNonAktifController;
-use App\Http\Controllers\DriverController;
 use App\Http\Controllers\KategoriStokController;
 use App\Http\Controllers\KontrakVendorController;
+use App\Http\Controllers\MasterProgramController;
 use App\Http\Controllers\TransaksiStokController;
 use App\Http\Controllers\PengirimanStokController;
 use App\Http\Controllers\PermintaanStokController;
@@ -65,11 +72,53 @@ use App\Http\Controllers\KontrakVendorStokController;
 use App\Http\Controllers\TransaksiDaruratStokController;
 use App\Http\Controllers\PengaturanPersetujuanController;
 use App\Http\Controllers\KontrakRetrospektifStokController;
-use App\Http\Controllers\SecurityController;
-use App\Http\Controllers\KecamatanController;
-use App\Http\Controllers\KelurahanController;
-use App\Http\Controllers\StokOpnameController;
-use App\Livewire\DataDriver;
+
+Route::get('/debug-gcs', function () {
+    $keyPath = base_path(env('GOOGLE_CLOUD_KEY_FILE'));
+    return [
+        'key_exists' => file_exists($keyPath),
+        'path' => $keyPath,
+        'readable' => is_readable($keyPath),
+    ];
+});
+Route::get('/gcs-sdk-test', function () {
+    try {
+        $client = new StorageClient([
+            'projectId' => env('GOOGLE_CLOUD_PROJECT_ID'),
+            'keyFilePath' => base_path(env('GOOGLE_CLOUD_KEY_FILE')),
+        ]);
+
+        $bucket = $client->bucket(env('GOOGLE_CLOUD_STORAGE_BUCKET'));
+
+        // coba upload langsung
+        $object = $bucket->upload('halo langsung via SDK', [
+            'name' => 'direct-sdk-test.txt',
+        ]);
+
+        return ['success' => true, 'message' => 'SDK upload success ✅'];
+    } catch (\Throwable $e) {
+        // kirim pesan error asli dari SDK
+        return [
+            'success' => false,
+            'error' => $e->getMessage(),
+            'trace' => substr($e->getTraceAsString(), 0, 500) // biar gak panjang
+        ];
+    }
+});
+Route::get('/debug-env', function () {
+    return [
+        'project_id' => env('GOOGLE_CLOUD_PROJECT_ID'),
+        'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET'),
+        'key_file_env' => env('GOOGLE_CLOUD_KEY_FILE'),
+        'key_file_resolved' => base_path(env('GOOGLE_CLOUD_KEY_FILE')),
+        'config_disk_gcs' => config('filesystems.disks.gcs'),
+    ];
+});
+
+Route::get('/gcs-upload-test', function () {
+    $success = Storage::disk('gcs')->put('test-from-web.txt', 'Halo dari web Laravel!');
+    return ['success' => $success];
+});
 
 Route::get('/', function () {
     return redirect()->to('/login');
