@@ -90,7 +90,7 @@
                             }}</td>
                     <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->tahun_anggaran }}</td>
                     <td class="py-3 px-6 font-semibold text-gray-800">
-                        {{ $transaction->tanggal_kontrak ? date('j F Y', $transaction->tanggal_kontrak) : '---' }}
+                        {{ $transaction->tanggal_kontrak ? date('j F Y', strtotime($transaction->tanggal_kontrak)) : '---' }} 
                     </td>
                     <td class="py-3 px-6 font-semibold text-center text-gray-800">{{ $transaction->jenis_pengadaan }}</td>
                     <td class="py-3 px-6 font-semibold text-center text-gray-800">

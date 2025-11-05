@@ -94,7 +94,8 @@ class DataKontrakVendorStok extends Component
             ->orderBy('id', 'desc')
             ->get()
             ->map(function ($q) {
-                $q->tanggal_search = date('Y-m-d', $q->tanggal_kontrak);
+                $q->tanggal_search = date('Y-m-d', strtotime($q->tanggal_kontrak));
+                // $q->tanggal_search = date('Y-m-d', $q->tanggal_kontrak);
                 return $q;
             })->when($this->tanggal, function ($collection) {
                 return $collection->where('tanggal_search', $this->tanggal);
