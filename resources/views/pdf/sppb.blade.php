@@ -224,44 +224,18 @@
     {{-- Right side: Mengetahui/PPB --}}
     <td width="50%">
       Jakarta, {{ $permintaan->created_at->translatedFormat('d F Y') }} <br>
-      @if ($isKasatpel && $kepalaSeksiPemeliharaan)
-      {{-- If requester is Kasatpel, show Kepala Seksi Pemeliharaan --}}
-      Mengetahui,<br>
-      Kepala Seksi Pemeliharaan<br><br>
-      {{-- ✅ FIX: Ganti asset() dengan public_path() --}}
-      @if ($sign && $kepalaSeksiPemeliharaan->ttd)
-      <img src="{{ public_path('storage/usersTTD/' . $kepalaSeksiPemeliharaan->ttd) }}" width="100" height="50"><br><br>
-    @else
-      <br><br><br>
-    @endif
-      <strong>{{ $kepalaSeksiPemeliharaan->name }}</strong><br>
-      NIP {{ $kepalaSeksiPemeliharaan->nip ?? '....................' }}
-    @elseif ($isKepalaSeksi && $kepalaSudin)
-      {{-- If requester is Kepala Seksi, show Kepala Suku Dinas --}}
-      Mengetahui,<br>
-      Kepala Suku Dinas Sumber Daya Air<br>
-      {{ Str::ucfirst(str_replace('Suku Dinas Sumber Daya Air ', '', $permintaan->unit->nama)) }}<br><br>
-      {{-- ✅ FIX: Ganti asset() dengan public_path() --}}
-      @if ($sign && $kepalaSudin->ttd)
-      <img src="{{ public_path('storage/usersTTD/' . $kepalaSudin->ttd) }}" width="100" height="50"><br><br>
-    @else
-      <br><br><br>
-    @endif
-      <strong>{{ $kepalaSudin->name }}</strong><br>
-      NIP {{ $kepalaSudin->nip ?? '....................' }}
-    @else
-      {{-- Default case: Pejabat Penatausahaan Barang --}}
+      {{-- Untuk SPPB, selalu Pejabat Penatausahaan Barang --}}
       Pejabat Penatausahaan Barang<br>
       Suku Dinas {{ Str::ucfirst(str_replace('Suku Dinas ', '', $permintaan->unit->nama)) }}<br><br>
+      
       {{-- ✅ FIX: Ganti asset() dengan public_path() --}}
-      @if ($sign && $kasubag->ttd)
+      @if ($sign && $kasubag && $kasubag->ttd)
       <img src="{{ public_path('storage/usersTTD/' . $kasubag->ttd) }}" width="100" height="50"><br><br>
-    @else
+      @else
       <br><br><br>
-    @endif
-      <strong>{{ $kasubag->name }}</strong><br>
+      @endif
+      <strong>{{ $kasubag->name ?? '....................' }}</strong><br>
       NIP {{ $kasubag->nip ?? '....................' }}
-    @endif
     </td>
   </tr>
 </table>

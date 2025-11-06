@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('jenis')->nullable(); // Nama konfigurasi persetujuan
             $table->string('tipe')->nullable(); // Nama konfigurasi persetujuan
             $table->text('deskripsi')->nullable(); // Deskripsi konfigurasi
-            $table->integer('urutan_persetujuan')->nullable(); // Urutan untuk menentukan jumlah barang
-            $table->integer('cancel_persetujuan')->nullable();
+            $table->bigInteger('urutan_persetujuan')->nullable(); // Urutan untuk menentukan jumlah barang
+            $table->bigInteger('cancel_persetujuan')->nullable();
             $table->unsignedBigInteger('jabatan_penyelesai_id')->nullable(); // Jabatan penyelesaian
             $table->unsignedBigInteger('user_penyelesai_id')->nullable();
             $table->foreignId('kategori_id')->nullable()->constrained('kategori_stok')->onDelete('set null');
@@ -43,8 +43,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('opsi_persetujuan_id'); // ID opsi persetujuan
             $table->unsignedBigInteger('jabatan_id'); // ID jabatan dari tabel roles
-            $table->integer('urutan'); // Urutan jabatan dalam persetujuan
-            $table->integer('approval')->nullable();
+            $table->bigInteger('urutan'); // Urutan jabatan dalam persetujuan
+            $table->bigInteger('approval')->nullable();
             $table->timestamps();
 
             // Relasi ke tabel opsi_persetujuan

@@ -20,8 +20,8 @@ return new class extends Migration
             $table->text('catatan')->nullable();
             $table->string('img')->nullable();
             $table->foreignId('merk_id')->constrained('merk_stok')->onDelete('cascade');
-            $table->integer('jumlah');
-            $table->integer('jumlah_approve')->nullable();
+            $table->bigInteger('jumlah');
+            $table->bigInteger('jumlah_approve')->nullable();
             $table->boolean('status')->nullable();
             $table->boolean('alocated')->nullable()->default(0);
             $table->timestamps();
