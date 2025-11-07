@@ -130,7 +130,7 @@
                 <div 
                     <label class="block text-sm font-medium">Nama Barang</label>
                     <livewire:searchable-select 
-                        wire:model.live="newBarang" 
+                        wire:model.live="barang_id" 
                         :options="$barangs" 
                         placeholder="Ketik atau pilih nama barang..."
                     />
@@ -225,7 +225,7 @@
             </div>
 
             <div class="flex justify-end">
-                @if ($newBarang && $newSatuan && $jumlah && $newHarga)
+                @if ($barang_id && $newSatuan && $jumlah && $newHarga)
                     <button wire:click="addToList"
                         class="mt-2 bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 transition">
                         <i class="fa fa-plus mr-1"></i> Tambah ke Daftar Barang
