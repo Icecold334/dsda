@@ -6,6 +6,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+dsda_dev/
 .env
 .env.backup
 .env.production
@@ -21,3 +22,5 @@ yarn-error.log
 /.vscode
 /.zed
 database/database.sqlite
+.htaccess
+/public/.htaccess

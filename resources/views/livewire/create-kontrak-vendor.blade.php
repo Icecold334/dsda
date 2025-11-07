@@ -263,7 +263,16 @@
                             $total = $subtotal + $ppn;
                         @endphp
                         <tr class="bg-white border-b hover:bg-gray-50">
-                            <td class="p-2">{{ $item['barang'] }}</td>
+                            @php
+                                $barangName = $item['barang'];
+                                if (is_numeric($barangName)) {
+                                    $found = collect($barangs ?? [])->firstWhere('id', (int) $barangName);
+                                    if ($found) {
+                                        $barangName = $found->nama ?? $found['name'] ?? $found['label'] ?? $barangName;
+                                    }
+                                }
+                            @endphp
+                            <td class="p-2">{{ $barangName }}</td>
                             <td class="p-2">{{ collect($item['specifications'])->filter()->implode(', ') }}</td>
                             <td class="p-2 text-center">{{ $item['jumlah'] }} {{ $item['satuan'] }}</td>
                             @if ($isAdendum)
