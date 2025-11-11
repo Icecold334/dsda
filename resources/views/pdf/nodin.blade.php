@@ -76,6 +76,7 @@
 <table class="header-table">
   <tr>
     <td class="header-logo" width="15%">
+      {{-- Ini logo statis, biarkan pakai public_path() jika PDF generatornya butuh path server --}}
       <img src="{{ public_path('img/dki-logo.svg') }}" alt="Logo DKI">
     </td>
     <td class="header-text" width="85%">
@@ -119,7 +120,6 @@
     </td>
   </tr>
   <tr>
-    <!-- Kiri: metadata -->
     <td style="width: 55%; vertical-align: top;">
       <table class="meta-table">
         <tr>
@@ -141,7 +141,6 @@
       </table>
     </td>
 
-    <!-- Kanan: alamat tujuan -->
     <td style="width: 45%; vertical-align: top; text-align: left;">
       <p style="margin-left: 30px;">
         Kepada <br>
@@ -219,20 +218,25 @@
       Mengetahui,<br>
       Kepala Seksi Pemeliharaan<br><br>
 
-      {{-- PERBAIKAN: Cek TTD Kepala Seksi Pemeliharaan --}}
-      @if ($sign && $pemelDone && isset($pemel) && $pemel && $pemel->ttd && file_exists(public_path('storage/usersTTD/' . $pemel->ttd)))
-      <img src="{{ public_path('storage/usersTTD/' . $pemel->ttd) }}" width="100" height="50"><br><br>
-    @else
+      @php $pemelTtdData = null; @endphp
+      @if ($sign && $pemelDone && isset($pemel) && $pemel && $pemel->ttd && Storage::disk('gcs')->exists('usersTTD/' . $pemel->ttd))
+          @php
+              $pemelTtdData = 'data:image/png;base64,' . base64_encode(Storage::disk('gcs')->get('usersTTD/' . $pemel->ttd));
+          @endphp
+      @endif
+
+      @if ($pemelTtdData)
+      <img src="{{ $pemelTtdData }}" width="100" height="50"><br><br>
+      @else
       <br><br><br><br>
-    @endif
+      @endif
 
       <b>{{ $pemel->name ?? '-' }}</b><br>
       NIP. {{ $pemel->nip ?? '-' }}
     </td>
   @else
     <td align="center" width="50%">
-      <!-- Kosong jika pemohon adalah Kepala Seksi -->
-    </td>
+      </td>
   @endif
 
     <td align="center" width="50%">
@@ -244,12 +248,19 @@
     @endif
       <br><br>
 
-      {{-- PERBAIKAN: Cek TTD Pemohon --}}
-      @if ($sign && isset($pemohon) && $pemohon && $pemohon->ttd && file_exists(public_path('storage/usersTTD/' . $pemohon->ttd)))
-      <img src="{{ public_path('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
-    @else
+      @php $pemohonTtdData = null; @endphp
+      @if ($sign && isset($pemohon) && $pemohon && $pemohon->ttd && Storage::disk('gcs')->exists('usersTTD/' . $pemohon->ttd))
+          @php
+              $pemohonTtdData = 'data:image/png;base64,' . base64_encode(Storage::disk('gcs')->get('usersTTD/' . $pemohon->ttd));
+          @endphp
+      @endif
+
+      @if ($pemohonTtdData)
+      <img src="{{ $pemohonTtdData }}" width="100" height="50"><br><br>
+      @else
       <br><br><br><br>
-    @endif
+      @endif
+
 
       <b>{{ $pemohon->name ?? '-' }}</b><br>
       NIP. {{ $pemohon->nip ?? '-' }}

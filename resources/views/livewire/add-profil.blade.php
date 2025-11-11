@@ -32,7 +32,7 @@
                                     </button>
                                 @endif
                                 <!-- Gambar preview -->
-                                <img src="{{ is_string($img) ? asset('storage/usersFoto/' . $img) : ($img ? $img->temporaryUrl() : asset('img/default-pic.png')) }}"
+                                <img src="{{ is_string($img) ? Storage::disk('gcs')->url('usersFoto/' . $img) : ($img ? $img->temporaryUrl() : asset('img/default-pic.png')) }}"
                                     alt="Preview Image" class="w-full h-full object-cover object-center rounded-lg">
 
                             </div>
@@ -46,15 +46,14 @@
                                 @keydown.escape.window="open = false; document.body.classList.remove('overflow-hidden')">
 
                                 <!-- Gambar Full Preview -->
-                                @if ($img)
-                                    <img src="{{ is_string($img) ? asset('storage/usersFoto/' . $img) : ($img ? $img->temporaryUrl() : asset('img/default-pic.png')) }}"
+                               @if ($img)
+                                    <img src="{{ is_string($img) ? Storage::disk('gcs')->url('usersFoto/' . $img) : ($img ? $img->temporaryUrl() : asset('img/default-pic.png')) }}"
                                         alt="Preview Image" class="max-w-[70rem] max-h-[70rem] mb-4" @click.stop="">
 
-                                    <!-- Tombol Unduh -->
-                                    <a href="{{ is_string($img) ? asset('storage/usersFoto/' . $img) : $img->temporaryUrl() }}"
-                                        download="{{ is_string($img) ? pathinfo($img, PATHINFO_BASENAME) : $img->getClientOriginalName() }}"
-                                        class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200 cursor-pointer">
-                                        Unduh
+                                    <a href="{{ is_string($img) ? Storage::disk('gcs')->url('usersFoto/' . $img) : $img->temporaryUrl() }}"
+                                    download="{{ is_string($img) ? pathinfo($img, PATHINFO_BASENAME) : $img->getClientOriginalName() }}"
+                                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200 cursor-pointer">
+                                    Unduh
                                     </a>
                                 @endif
                             </div>
@@ -105,7 +104,7 @@
                                         </button>
                                     @endif
                                     <!-- Gambar preview -->
-                                    <img src="{{ is_string($ttd) ? asset('storage/usersTTD/' . $ttd) : ($ttd ? $ttd->temporaryUrl() : asset('img/default-pic.png')) }}"
+                                    <img src="{{ is_string($ttd) ? Storage::disk('gcs')->url('usersTTD/' . $ttd) : ($ttd ? $ttd->temporaryUrl() : asset('img/default-pic.png')) }}"
                                         alt="Preview Image" class="w-full h-full object-cover object-center rounded-lg">
 
                                 </div>
@@ -120,16 +119,15 @@
 
                                     <!-- Gambar Full Preview -->
                                     @if ($ttd)
-                                        <img src="{{ is_string($ttd) ? asset('storage/usersTTD/' . $ttd) : ($ttd ? $ttd->temporaryUrl() : asset('img/default-pic.png')) }}"
-                                            alt="Preview Image" class="max-w-[70rem] max-h-[70rem] mb-4" @click.stop="">
+                                    <img src="{{ is_string($ttd) ? Storage::disk('gcs')->url('usersTTD/' . $ttd) : ($ttd ? $ttd->temporaryUrl() : asset('img/default-pic.png')) }}"
+                                        alt="Preview Image" class="max-w-[70rem] max-h-[70rem] mb-4" @click.stop="">
 
-                                        <!-- Tombol Unduh -->
-                                        <a href="{{ is_string($ttd) ? asset('storage/usersTTD/' . $ttd) : $ttd->temporaryUrl() }}"
-                                            download="{{ is_string($ttd) ? pathinfo($ttd, PATHINFO_BASENAME) : $ttd->getClientOriginalName() }}"
-                                            class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200 cursor-pointer">
-                                            Unduh
-                                        </a>
-                                    @endif
+                                    <a href="{{ is_string($ttd) ? Storage::disk('gcs')->url('usersTTD/' . $ttd) : $ttd->temporaryUrl() }}"
+                                    download="{{ is_string($ttd) ? pathinfo($ttd, PATHINFO_BASENAME) : $ttd->getClientOriginalName() }}"
+                                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200 cursor-pointer">
+                                    Unduh
+                                    </a>
+                                @endif
                                 </div>
                             </div>
                     </td>

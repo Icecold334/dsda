@@ -1,4 +1,3 @@
-{{-- File: resources/views/pdf/sppb.blade.php --}}
 <style>
   body {
     font-family: helvetica, sans-serif;
@@ -187,35 +186,56 @@
       Pemohon,<br>
       Ketua Satuan Pelaksana<br>
       Kecamatan {{ $permintaan->user->kecamatan->kecamatan ?? '-' }}<br><br>
-      {{-- ✅ FIX: Ganti asset() dengan public_path() --}}
-      @if ($sign && $pemohon->ttd)
-      <img src="{{ public_path('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
-    @else
+      @php $pemohonTtdData = null; @endphp
+      @if ($sign && $pemohon->ttd && Storage::disk('gcs')->exists('usersTTD/' . $pemohon->ttd))
+          @php
+              $pemohonTtdData = 'data:image/png;base64,' . base64_encode(Storage::disk('gcs')->get('usersTTD/' . $pemohon->ttd));
+          @endphp
+      @endif
+
+      @if ($pemohonTtdData)
+      <img src="{{ $pemohonTtdData }}" width="100" height="50"><br><br>
+      @else
       <br><br><br><br>
-    @endif
+      @endif
       <strong>{{ $pemohon->name }}</strong><br>
       NIP {{ $pemohon->nip ?? '....................' }}
     @elseif ($isKepalaSeksi)
       {{-- If requester is Kepala Seksi --}}
       Pemohon,<br>
       Kepala Seksi<br><br><br>
-      {{-- ✅ FIX: Ganti asset() dengan public_path() --}}
-      @if ($sign && $pemohon->ttd)
-      <img src="{{ public_path('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
-    @else
+      @php $pemohonTtdData = null; @endphp
+      @if ($sign && $pemohon->ttd && Storage::disk('gcs')->exists('usersTTD/' . $pemohon->ttd))
+          @php
+              $pemohonTtdData = 'data:image/png;base64,' . base64_encode(Storage::disk('gcs')->get('usersTTD/' . $pemohon->ttd));
+          @endphp
+      @endif
+
+      @if ($pemohonTtdData)
+      <img src="{{ $pemohonTtdData }}" width="100" height="50"><br><br>
+      @else
       <br><br><br><br>
-    @endif
+      @endif
+
       <strong>{{ $pemohon->name }}</strong><br>
       NIP {{ $pemohon->nip ?? '....................' }}
     @else
       {{-- Default case --}}
       Pemohon,<br><br><br><br>
-      {{-- ✅ FIX: Ganti asset() dengan public_path() --}}
-      @if ($sign && $pemohon->ttd)
-      <img src="{{ public_path('storage/usersTTD/' . $pemohon->ttd) }}" width="100" height="50"><br><br>
-    @else
+
+      @php $pemohonTtdData = null; @endphp
+      @if ($sign && $pemohon->ttd && Storage::disk('gcs')->exists('usersTTD/' . $pemohon->ttd))
+          @php
+              $pemohonTtdData = 'data:image/png;base64,' . base64_encode(Storage::disk('gcs')->get('usersTTD/' . $pemohon->ttd));
+          @endphp
+      @endif
+
+      @if ($pemohonTtdData)
+      <img src="{{ $pemohonTtdData }}" width="100" height="50"><br><br>
+      @else
       <br><br><br><br>
-    @endif
+      @endif
+  
       <strong>{{ $pemohon->name }}</strong><br>
       NIP {{ $pemohon->nip ?? '....................' }}
     @endif
@@ -228,9 +248,15 @@
       Pejabat Penatausahaan Barang<br>
       Suku Dinas {{ Str::ucfirst(str_replace('Suku Dinas ', '', $permintaan->unit->nama)) }}<br><br>
       
-      {{-- ✅ FIX: Ganti asset() dengan public_path() --}}
-      @if ($sign && $kasubag && $kasubag->ttd)
-      <img src="{{ public_path('storage/usersTTD/' . $kasubag->ttd) }}" width="100" height="50"><br><br>
+      @php $kasubagTtdData = null; @endphp
+      @if ($sign && $kasubag && $kasubag->ttd && Storage::disk('gcs')->exists('usersTTD/' . $kasubag->ttd))
+          @php
+              $kasubagTtdData = 'data:image/png;base64,' . base64_encode(Storage::disk('gcs')->get('usersTTD/' . $kasubag->ttd));
+          @endphp
+      @endif
+
+      @if ($kasubagTtdData)
+      <img src="{{ $kasubagTtdData }}" width="100" height="50"><br><br>
       @else
       <br><br><br>
       @endif

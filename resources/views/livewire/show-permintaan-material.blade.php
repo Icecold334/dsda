@@ -103,7 +103,7 @@
             {{-- @can('surat_jalan.read') --}}
             @if ($hasApprovedPengurusBarang)
             @if ($permintaan->suratJalan_path)
-            <a href="{{ asset('storage/suratJalan/' . $permintaan->suratJalan_path) }}" target="_blank"
+            <a href="{{ Storage::disk('gcs')->url('suratJalan/' . $permintaan->suratJalan_path) }}" target="_blank"
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                 Unduh Surat Jalan
             </a>

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
+use Google\Cloud\Storage\StorageClient;
 
 class AddProfil extends Component
 {
@@ -255,47 +256,101 @@ class AddProfil extends Component
             // dd($this->ttd);
 
             // Proses penyimpanan tanda tangan
+            $storage = new StorageClient([
+                'projectId'   => env('GOOGLE_CLOUD_PROJECT_ID'),
+                'keyFilePath' => base_path(env('GOOGLE_CLOUD_KEY_FILE')),
+            ]);
+            $bucket = $storage->bucket(env('GOOGLE_CLOUD_STORAGE_BUCKET'));
+            $prefix = config('filesystems.disks.gcs.path_prefix'); // Ambil 'dsda/dev'
+
+            // -----------------------------------------------------------
+            // 2. Proses Tanda Tangan (TTD)
+            // -----------------------------------------------------------
             $ttdFileName = $user->ttd; // Gunakan TTD lama sebagai default
+
             if ($this->ttd && $this->ttd !== $ttdFileName) { // Jika ada TTD baru dan berbeda
                 // Decode Base64 Image
                 $image = str_replace('data:image/png;base64,', '', $this->ttd);
                 $image = str_replace(' ', '+', $image);
                 $imageData = base64_decode($image);
 
-                // Simpan ke storage
-                $fileName = 'usersTTD/' . uniqid() . '.png';
-                Storage::disk('public')->put($fileName, $imageData);
+                // Buat nama file unik
+                $newTtdName = 'usersTTD/' . uniqid() . '.png';
+                $objectPath = trim("{$prefix}/{$newTtdName}", '/');
 
-                // Hapus TTD lama jika perlu
-                if ($ttdFileName && Storage::disk('public')->exists('usersTTD/' . $ttdFileName)) {
-                    Storage::disk('public')->delete('usersTTD/' . $ttdFileName);
+                // Upload ke GCS dengan 'publicRead'
+                $bucket->upload($imageData, [
+                    'name' => $objectPath,
+                    'predefinedAcl' => 'publicRead',
+                ]);
+
+                // Hapus TTD lama dari GCS
+                if ($ttdFileName) {
+                    $oldObject = $bucket->object(trim("{$prefix}/usersTTD/{$ttdFileName}", '/'));
+                    if ($oldObject->exists()) {
+                        $oldObject->delete();
+                    }
                 }
 
-                // Simpan nama file TTD baru
-                $ttdFileName = str_replace('usersTTD/', '', $fileName);
+                // Simpan nama file TTD baru (tanpa folder)
+                $ttdFileName = str_replace('usersTTD/', '', $newTtdName);
             }
 
+            // -----------------------------------------------------------
+            // 3. Proses Foto Profil (img)
+            // -----------------------------------------------------------
+            $imgFileName = $user->foto; // Default ke foto lama
 
-            // dd($user);
-            $user->update( // Unique fields to check
+            if ($this->img && is_object($this->img)) { // Case 1: Ada file baru di-upload
+                // Buat nama file unik
+                $ext = $this->img->getClientOriginalExtension();
+                $newImgName = 'usersFoto/' . uniqid() . '.' . $ext;
+                $objectPath = trim("{$prefix}/{$newImgName}", '/');
+
+                // Upload ke GCS dengan 'publicRead'
+                $bucket->upload(
+                    file_get_contents($this->img->getRealPath()),
+                    [
+                        'name' => $objectPath,
+                        'predefinedAcl' => 'publicRead',
+                    ]
+                );
+
+                // Hapus foto lama dari GCS
+                if ($imgFileName) {
+                    $oldObject = $bucket->object(trim("{$prefix}/usersFoto/{$imgFileName}", '/'));
+                    if ($oldObject->exists()) {
+                        $oldObject->delete();
+                    }
+                }
+
+                // Simpan nama file baru (tanpa folder)
+                $imgFileName = str_replace('usersFoto/', '', $newImgName);
+            } elseif (is_string($this->img)) { // Case 2: Nggak ada file baru, tetap pakai yg lama
+                $imgFileName = $this->img;
+            } elseif (!$this->img) { // Case 3: Foto dihapus (dikosongkan)
+                // Hapus foto lama dari GCS
+                if ($imgFileName) {
+                    $oldObject = $bucket->object(trim("{$prefix}/usersFoto/{$imgFileName}", '/'));
+                    if ($oldObject->exists()) {
+                        $oldObject->delete();
+                    }
+                }
+                $imgFileName = null; // Set jadi null di database
+            }
+
+            // -----------------------------------------------------------
+            // 4. Update Database
+            // -----------------------------------------------------------
+            $user->update(
                 [
                     'name' => $this->name,
-                    // 'unit_id' => $this->unit_kerja,
-                    // 'lokasi_id' => $this->lokasi_stok,
-                    // 'perusahaan' => $this->perusahaan,
-                    // 'alamat' => $this->alamat,
-                    // 'provinsi' => $this->provinsi,
-                    // 'kota' => $this->kota,
                     'nip' => $this->nip,
-                    'ttd' => $ttdFileName,
-                    'foto' => $this->img
-                        ? (is_object($this->img)
-                            ? str_replace('usersFoto/', '', $this->img->store('usersFoto', 'public'))
-                            : $this->img)
-                        : null,
+                    'ttd' => $ttdFileName, // Nama file TTD (hasil proses di atas)
+                    'foto' => $imgFileName, // Nama file Foto (hasil proses di atas)
                 ]
             );
-            // dd($user);
+
             return redirect()->route('profil.index')->with('success', 'Berhasil Mengubah Profil');
         }
     }
