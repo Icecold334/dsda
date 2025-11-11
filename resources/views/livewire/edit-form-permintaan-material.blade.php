@@ -1,4 +1,5 @@
 <div>
+    
     {{-- Alert Messages --}}
     @if (session()->has('success'))
         <div class=<td>
@@ -240,14 +241,22 @@
                                     <label for="kecamatan_id">Lokasi Kegiatan</label>
                                 </td>
                                 <td>
-                                    <select wire:model.live="kecamatan_id" @disabled($permintaan->status !== 4)
+                                    <select 
+                                        wire:model.live="kecamatan_id" 
+                                        @disabled($permintaan->status !== 4 || $isKasatpel)
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-                                                        @if($permintaan->status !== 4) cursor-not-allowed opacity-50 @endif">
+                                            @if($permintaan->status !== 4 || $isKasatpel) cursor-not-allowed opacity-50 @endif">
                                         <option value="">Pilih Kecamatan</option>
                                         @foreach($kecamatans as $kecamatan)
                                             <option value="{{ $kecamatan->id }}">{{ $kecamatan->kecamatan }}</option>
                                         @endforeach
                                     </select>
+                                    
+                                    @if($isKasatpel && $permintaan->status === 4)
+                                        <small class="text-danger d-block mt-1">
+                                            🔒 <strong>Lokasi kegiatan terkunci</strong> sesuai wilayah kerja Anda
+                                        </small>
+                                    @endif
                                 </td>
                             </tr>
                             <tr>

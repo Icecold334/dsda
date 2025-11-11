@@ -11,9 +11,8 @@
 
         <div class="flex items-center gap-4">
             <div class="flex gap-4">
-                <input type="date" wire:model.live="tanggal" class="border rounded-lg px-4 py-2 w-40" />
                 <input type="text" wire:model.live="search" class="border rounded-lg px-4 py-2 w-40"
-                    placeholder="Cari Jenis Pekerjaan" />
+                    placeholder="Cari Lokasi" />
                 <select wire:model.live="status" class="border rounded-lg px-4 py-2 w-40">
                     <option value="">Semua Status</option>
                     <option value="diproses">diproses</option>

@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Livewire;
 
 use Carbon\Carbon;
@@ -57,6 +58,9 @@ class EditFormPermintaanMaterial extends Component
     public $newKeterangan;
     public $newRabId;
     public $originalJumlah = []; // Track original quantities for change detection
+    public $isKasatpel = false;
+
+
 
     protected $rules = [
         'tanggal_permintaan' => 'required|date',
@@ -76,6 +80,20 @@ class EditFormPermintaanMaterial extends Component
 
     public function mount()
     {
+
+        $currentUser = Auth::user();
+        $this->isKasatpel = str_contains(strtolower($currentUser->username), 'kasatpel');
+
+        // 2. Load semua kecamatan
+        $this->kecamatans = \App\Models\Kecamatan::all(); // Sesuaikan nama model
+
+        // 3. Jika Kasatpel, auto-lock kecamatan
+        if ($this->isKasatpel && $currentUser->kecamatan_id) {
+            $this->kecamatan_id = $currentUser->kecamatan_id;
+            $this->kelurahans = \App\Models\Kelurahan::where('kecamatan_id', $this->kecamatan_id)->get();
+        }
+
+        
         // Load data dari permintaan yang akan diedit
         $this->tanggal_permintaan = Carbon::parse($this->permintaan->tanggal_permintaan)->format('Y-m-d');
         $this->keterangan = $this->permintaan->keterangan;

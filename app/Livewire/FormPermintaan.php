@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Livewire;
 
 use Carbon\Carbon;
@@ -46,6 +47,7 @@ class FormPermintaan extends Component
     public $LokasiLain;
     public $AlamatLokasi;
     public $KontakPerson;
+    public $isKasatpel = false;
     public $kecamatan_id, $kelurahan_id;
     public $kecamatans = [], $kelurahans = [];
 
@@ -199,6 +201,18 @@ class FormPermintaan extends Component
 
     public function mount()
     {
+
+        $currentUser = Auth::user();
+        $this->isKasatpel = str_contains(strtolower($currentUser->username), 'kasatpel');
+
+        // 2. Load semua kecamatan
+        $this->kecamatans = \App\Models\Kecamatan::all(); // Sesuaikan nama model
+
+        // 3. Jika Kasatpel, auto-lock kecamatan
+        if ($this->isKasatpel && $currentUser->kecamatan_id) {
+            $this->kecamatan_id = $currentUser->kecamatan_id;
+            $this->kelurahans = \App\Models\Kelurahan::where('kecamatan_id', $this->kecamatan_id)->get();
+        }
         $kategori = Request::segment(4);
 
         $this->kategori = $kategori;

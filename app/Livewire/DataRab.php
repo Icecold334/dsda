@@ -22,7 +22,6 @@ class DataRab extends Component
     public $searchSpb = '';
 
     public $search = '';
-    public $tanggal = '';
     public $status = '';
     public $tahun = ''; 
 
@@ -32,7 +31,7 @@ class DataRab extends Component
     }
 
     public function updated($propertyName) {
-        if (in_array($propertyName, ['search', 'tanggal', 'status', 'tahun'])) {
+        if (in_array($propertyName, ['search', 'status', 'tahun'])) {
             $this->resetPage();
         }
     }
@@ -47,10 +46,7 @@ class DataRab extends Component
             $query = Rab::with(['user.unitKerja']);
 
             $query->when($this->search, function ($q) {
-                return $q->where('jenis_pekerjaan', 'like', '%' . $this->search . '%');
-            });
-            $query->when($this->tanggal, function ($q) {
-                return $q->whereDate('created_at', $this->tanggal);
+                return $q->where('lokasi', 'like', '%' . $this->search . '%');
             });
             $query->when($this->status, function ($q) {
                 $statusValue = match ($this->status) {
@@ -76,10 +72,7 @@ class DataRab extends Component
 
             
             $query->when($this->search, function ($q) {
-                return $q->where('jenis_pekerjaan', 'like', '%' . $this->search . '%');
-            });
-            $query->when($this->tanggal, function ($q) {
-                return $q->whereDate('created_at', $this->tanggal);
+                return $q->where('lokasi', 'like', '%' . $this->search . '%');
             });
             $query->when($this->status, function ($q) {
                 $statusValue = match ($this->status) {

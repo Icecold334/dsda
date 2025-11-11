@@ -64,6 +64,14 @@
     vertical-align: top;
   }
 </style>
+{{-- <div style="background-color: #ffc; padding: 10px; border: 1px solid red; font-size: 12px; color: black; z-index: 9999;">
+  <p><b>DEBUGGING DATA:</b></p>
+  <p><b>User ID dari Permintaan:</b> {{ $permintaan->user_id ?? 'KOSONG' }}</p>
+  <p><b>Nama User:</b> {{ $permintaan->user?->name ?? 'RELASI USER GAGAL/NULL' }}</p>
+  <p><b>Unit ID dari User:</b> {{ $permintaan->user?->unit_id ?? 'RELASI USER GAGAL / TDK ADA unit_id' }}</p>
+  <p><b>Nama Unit:</b> {{ $permintaan->user?->unitKerja?->nama ?? 'RELASI UNIT GAGAL/NULL' }}</p>
+  <p><b>Alamat Unit:</b> {{ $permintaan->user?->unit?->alamat ?? 'ALAMAT UNIT GAGAL/NULL' }}</p>
+</div> --}}
 
 <table class="header-table">
   <tr>
@@ -73,10 +81,29 @@
     <td class="header-text" width="85%">
       <span style="font-size: 12px">PEMERINTAH PROVINSI DAERAH KHUSUS IBUKOTA JAKARTA<br>
         DINAS SUMBER DAYA AIR <br></span>
-      <strong style="font-size: 14px">SUKU DINAS SUMBER DAYA AIR <br>
-        {{ $isSeribu ? 'KABUPATEN' : 'KOTA' }} ADMINISTRASI {{ Str::upper($sudin) }}</strong>
+     <strong style="font-size: 14px">SUKU DINAS SUMBER DAYA AIR <br>
+        {{ (Str::contains($permintaan->user?->unitKerja?->nama, 'Kepulauan Seribu')) ? 'KABUPATEN' : 'KOTA' }} ADMINISTRASI {{ Str::upper($permintaan->user?->unitKerja?->nama) }}</strong>
       <div class="header-subtext">
-        {{ $permintaan->unit->alamat }}
+        
+        @php
+          $unitAlamat = null;
+          $unit = $permintaan->user?->unitKerja;
+
+          if ($unit) {
+              // 1. Cek dulu alamat unit itu sendiri
+              if (!empty($unit->alamat)) {
+                  $unitAlamat = $unit->alamat;
+              } 
+              // 2. Jika kosong, cek alamat parent-nya
+              else if ($unit->parent && !empty($unit->parent->alamat)) {
+                  $unitAlamat = $unit->parent->alamat;
+              }
+          }
+        @endphp
+
+        {{-- Cetak alamat yang ditemukan --}}
+        {{ $unitAlamat }}
+        
         <br>
         J A K A R T A
       </div>
@@ -93,7 +120,7 @@
   </tr>
   <tr>
     <!-- Kiri: metadata -->
-    <td style="width: 30%; vertical-align: top;">
+    <td style="width: 55%; vertical-align: top;">
       <table class="meta-table">
         <tr>
           <td width="20%">Nomor</td>
@@ -115,13 +142,22 @@
     </td>
 
     <!-- Kanan: alamat tujuan -->
-    <td style="width: 70%; vertical-align: top; text-align: left;">
+    <td style="width: 45%; vertical-align: top; text-align: left;">
       <p style="margin-left: 30px;">
         Kepada <br>
-        Yth.
-        &nbsp;Kepala Suku Dinas Sumber Daya Air<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{ $sudin }} <br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;di Jakarta
+
+        @php
+          $namaUnit = $permintaan->user?->unitKerja?->nama ?? '';
+          
+          // Logika: JIKA nama unit TIDAK dimulai dengan "Suku Dinas..."
+          if (!Str::startsWith($namaUnit, 'Suku Dinas Sumber Daya Air')) {
+            // Tambahkan "Suku Dinas..." di depannya
+            $namaUnit = 'Suku Dinas Sumber Daya Air ' . $namaUnit;
+          }
+        @endphp
+
+        Yth. Kepala {{ $namaUnit }} <br>
+        di Jakarta
       </p>
     </td>
   </tr>
@@ -225,5 +261,16 @@
 
 <div class="tembusan">
   Tembusan:<br>
-  Kepala Subbagian Tata Usaha Suku Dinas Sumber Daya Air {{ $sudin }}
+  
+  @php
+    $namaUnit = $permintaan->user?->unitKerja?->nama ?? '';
+    
+    // Logika: JIKA nama unit TIDAK dimulai dengan "Suku Dinas..."
+    if (!Str::startsWith($namaUnit, 'Suku Dinas Sumber Daya Air')) {
+      // Tambahkan "Suku Dinas..." di depannya
+      $namaUnit = 'Suku Dinas Sumber Daya Air ' . $namaUnit;
+    }
+  @endphp
+
+  Kepala Subbagian Tata Usaha {{ $namaUnit }}
 </div>

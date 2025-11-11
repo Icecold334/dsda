@@ -83,6 +83,11 @@ class CreateKontrakVendor extends Component
         'ukuran' => [],
     ];
 
+    public $specNamaOptions = [];
+    public $specTipeOptions = [];
+    public $specUkuranOptions = [];
+    public $satuanOptions = [];
+
     public function cariKontrakApi()
     {
         if (!$this->tahun_api || !$this->nomor_spk_api) {
@@ -356,13 +361,38 @@ class CreateKontrakVendor extends Component
 
     public function mount()
     {
-        $this->barangs = BarangStok::all();
+        $this->barangs = \App\Models\BarangStok::query()->select('id', 'nama')->get()->unique('nama');
         $this->programs = \App\Models\Program::all();
-        $this->barangSuggestions = BarangStok::pluck('nama')->unique()->sort()->values()->toArray();
-        $this->satuanSuggestions = \App\Models\SatuanBesar::pluck('nama')->unique()->sort()->values()->toArray();
-        $this->specOptions['nama'] = MerkStok::pluck('nama')->filter()->unique()->values()->toArray();
-        $this->specOptions['tipe'] = MerkStok::pluck('tipe')->filter()->unique()->values()->toArray();
-        $this->specOptions['ukuran'] = MerkStok::pluck('ukuran')->filter()->unique()->values()->toArray();
+        
+        // Mengisi properti baru dengan semua pilihan dari database
+        $this->satuanOptions = \App\Models\SatuanBesar::pluck('nama')->unique()->sort()->values()
+        ->map(function ($value) {
+            return ['id' => $value, 'nama' => $value];
+        })
+        ->toArray();
+        $this->specNamaOptions = \App\Models\MerkStok::pluck('nama')->filter()->unique()->sort()->values()
+            ->map(function ($value) {
+                return ['id' => $value, 'nama' => $value];
+            })
+            ->toArray();
+        $this->specTipeOptions = \App\Models\MerkStok::pluck('tipe')->filter()->unique()->sort()->values()
+            ->map(function ($value) {
+                return ['id' => $value, 'nama' => $value];
+            })
+            ->toArray();
+        $this->specUkuranOptions = \App\Models\MerkStok::pluck('ukuran')->filter()->unique()->sort()->values()
+            ->map(function ($value) {
+                return ['id' => $value, 'nama' => $value];
+            })
+            ->toArray();
+        $this->barangSuggestions = [];
+        $this->satuanSuggestions = [];
+        $this->specOptions = [
+            'nama' => [],
+            'tipe' => [],
+            'ukuran' => [],
+        ];
+
         if ($this->id) {
             $this->loadListBarangAdendum($this->id);
         }
@@ -497,17 +527,22 @@ class CreateKontrakVendor extends Component
 
     public function addToList()
     {
-        if (!$this->newBarang || !$this->newSatuan)
+        if (!$this->barang_id || !$this->newSatuan) {
             return;
+        }
 
-        $barang = BarangStok::firstOrCreate([
-            'slug' => Str::slug($this->newBarang),
-            'satuan_besar_id' => $this->getOrCreateSatuan($this->newSatuan),
-        ], [
-            'nama' => $this->newBarang,
-            'jenis_id' => $this->jenis_id,
-            'kode_barang' => now()->format('ymdHis')
-        ]);
+        $barang = \App\Models\BarangStok::find($this->barang_id);
+
+        if (!$barang) {
+            return;
+        }
+
+        $satuanId = $this->getOrCreateSatuan($this->newSatuan);
+
+        if (is_null($barang->satuan_besar_id)) {
+            $barang->satuan_besar_id = $satuanId;
+            $barang->save();
+        }
 
         $this->list[] = [
             'barang_id' => $barang->id,
