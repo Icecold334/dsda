@@ -185,8 +185,8 @@
 
                                 @elseif(isset($item['img']) && $item['img'])
                                     {{-- Non-editable preview --}}
-                                    <a href="{{ asset('storage/fotoPerBarang/' . $item['img']) }}" target="_blank">
-                                        <img src="{{ asset('storage/fotoPerBarang/' . $item['img']) }}" alt="Foto"
+                                    <a href="{{ Storage::disk('gcs')->url('fotoPerBarang/' . $item['img']) }}" target="_blank">
+                                        <img src="{{ Storage::disk('gcs')->url('fotoPerBarang/' . $item['img']) }}" alt="Foto"
                                             class="w-16 h-16 object-cover rounded border inline-block" />
                                     </a>
                                 @else

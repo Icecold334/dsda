@@ -46,7 +46,7 @@
             {{-- SPB --}}
             @can('upload_spb.read')
             @if ($permintaan->spb_path)
-            <a href="{{ asset('storage/spb/' . $permintaan->spb_path) }}" target="_blank"
+            <a href="{{ Storage::disk('gcs')->url('spb/' . $permintaan->spb_path) }}" target="_blank"
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                 Unduh SPB
             </a>
@@ -68,7 +68,7 @@
             @can('upload_sppb.read')
             @if ($hasApprovedKasubbag)
             @if ($permintaan->sppb_path)
-            <a href="{{ asset('storage/sppb/' . $permintaan->sppb_path) }}" target="_blank"
+            <a href="{{ Storage::disk('gcs')->url('sppb/' . $permintaan->sppb_path) }}" target="_blank"
                 class="cursor-pointer text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                 Unduh SPPB
             </a>
@@ -372,7 +372,7 @@
                         <i class="fa-solid fa-file text-gray-500"></i>
                         @endif
                     </span>
-                    <a href="{{ asset('storage/dokumenKontrak/' . $attachment->path) }}" target="_blank"
+                    <a href="{{ Storage::disk('gcs')->url('dokumenKontrak/' . $attachment->path) }}" target="_blank"
                         class="text-gray-800 hover:underline">
                         {{ basename($attachment->path) }}
                     </a>
@@ -579,7 +579,7 @@
                     @endif
                 </div>
                 @if ($signature)
-                <img src="{{ asset('storage/ttdPengiriman/' . $signature) }}" class="border rounded shadow-sm"
+                <img src="{{ Storage::disk('gcs')->url('ttdPengiriman/' . $signature) }}" class="border rounded shadow-sm"
                     height="100" alt="TTD Driver">
                 @elseif ($canUpload || (auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 2))
                 <canvas id="signature-pad-driver" class="border rounded shadow-sm h-25 bg-transparent"
