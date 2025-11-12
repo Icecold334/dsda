@@ -126,7 +126,7 @@
         <x-card title="Tambah Barang">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div <label class="block text-sm font-medium">Nama Barang</label>
-                    <livewire:searchable-select wire:model.live.debounce.500ms="barang_id" :options="$barangs"
+                    <livewire:searchable-select wire:model.live="newBarang" :options="$barangs"
                         placeholder="Ketik atau pilih nama barang..." />
                 </div>
 
@@ -208,6 +208,11 @@
 
             <div class="flex justify-end">
                 @if ($barang_id && $newSatuan && $jumlah && $newHarga)
+                <button wire:click="addToList"
+                    class="mt-2 bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 transition">
+                    <i class="fa fa-plus mr-1"></i> Tambah ke Daftar Barang
+                </button>
+                @if ($newBarang && $newSatuan && $jumlah && $newHarga)
                 <button wire:click="addToList"
                     class="mt-2 bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 transition">
                     <i class="fa fa-plus mr-1"></i> Tambah ke Daftar Barang
