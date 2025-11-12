@@ -527,17 +527,22 @@ class CreateKontrakVendor extends Component
 
     public function addToList()
     {
-        if (!$this->newBarang || !$this->newSatuan)
+        if (!$this->barang_id || !$this->newSatuan) {
             return;
+        }
 
-        $barang = BarangStok::firstOrCreate([
-            'slug' => Str::slug($this->newBarang),
-            'satuan_besar_id' => $this->getOrCreateSatuan($this->newSatuan),
-        ], [
-            'nama' => $this->newBarang,
-            'jenis_id' => $this->jenis_id,
-            'kode_barang' => now()->format('ymdHis')
-        ]);
+        $barang = \App\Models\BarangStok::find($this->barang_id);
+
+        if (!$barang) {
+            return;
+        }
+
+        $satuanId = $this->getOrCreateSatuan($this->newSatuan);
+
+        if (is_null($barang->satuan_besar_id)) {
+            $barang->satuan_besar_id = $satuanId;
+            $barang->save();
+        }
 
         $this->list[] = [
             'barang_id' => $barang->id,

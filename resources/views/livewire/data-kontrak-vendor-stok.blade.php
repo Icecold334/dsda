@@ -2,8 +2,8 @@
     <div class="flex justify-between py-2 mb-3">
 
         @if (session('success'))
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
                     Swal.fire({
                         title: 'Success!',
                         text: "{{ session('success') }}",
@@ -11,18 +11,18 @@
                         confirmButtonText: 'Okay'
                     });
                 });
-            </script>
+        </script>
         @endif
 
         <h1 class="text-2xl font-bold text-primary-900 ">Daftar Kontrak
             @if (auth()->user()->unitKerja)
-                @if (!(auth()->user()->unitKerja->hak ?? 0))
-                    {{ auth()->user()->unitKerja->nama ?? 'Unit Kerja Tidak Diketahui' }}
-                @else
-                    {{ auth()->user()->unitKerja->nama }}
-                @endif
+            @if (!(auth()->user()->unitKerja->hak ?? 0))
+            {{ auth()->user()->unitKerja->nama ?? 'Unit Kerja Tidak Diketahui' }}
             @else
-                Semua Unit Kerja
+            {{ auth()->user()->unitKerja->nama }}
+            @endif
+            @else
+            Semua Unit Kerja
             @endif
         </h1>
 
@@ -35,32 +35,32 @@
                 class="border rounded-lg px-4 py-2 {{ !(auth()->user()->unitKerja->hak ?? 0) ? 'hidden' : '' }}">
                 <option value="">Pilih Jenis</option>
                 @if(isset($jenisOptions))
-                    @foreach ($jenisOptions as $jenis)
-                        <option value="{{ $jenis }}">{{ $jenis }}</option>
-                    @endforeach
+                @foreach ($jenisOptions as $jenis)
+                <option value="{{ $jenis }}">{{ $jenis }}</option>
+                @endforeach
                 @endif
             </select>
 
             <select wire:model.live="metode" class="border rounded-lg px-4 py-2">
                 <option value="">Pilih Metode</option>
                 @if(isset($metodeOptions))
-                    @foreach ($metodeOptions as $metode)
-                        <option value="{{ $metode }}">{{ $metode }}</option>
-                    @endforeach
+                @foreach ($metodeOptions as $metode)
+                <option value="{{ $metode }}">{{ $metode }}</option>
+                @endforeach
                 @endif
             </select>
 
             @can('kontrak.read')
-                <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
-                    <i class="fa fa-sync-alt"></i>
-                </button>
+            <button wire:click="applyFilters" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                <i class="fa fa-sync-alt"></i>
+            </button>
             @endcan
 
             @can('kontrak.create')
-                <a href="{{ route('kontrak-vendor-stok.create') }}"
-                    class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
-                    + Rekam Kontrak Baru
-                </a>
+            <a href="{{ route('kontrak-vendor-stok.create') }}"
+                class="text-primary-900 bg-primary-100 hover:bg-primary-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                + Rekam Kontrak Baru
+            </a>
             @endcan
         </div>
     </div>
@@ -90,7 +90,7 @@
                             }}</td>
                     <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->tahun_anggaran }}</td>
                     <td class="py-3 px-6 font-semibold text-gray-800">
-                        {{ $transaction->tanggal_kontrak ? date('j F Y', strtotime($transaction->tanggal_kontrak)) : '---' }} 
+                        {{ $transaction->tanggal_kontrak ? date('j F Y', $transaction->tanggal_kontrak) : '---' }}
                     </td>
                     <td class="py-3 px-6 font-semibold text-center text-gray-800">{{ $transaction->jenis_pengadaan }}</td>
                     <td class="py-3 px-6 font-semibold text-center text-gray-800">
@@ -131,21 +131,21 @@
                             <i class="fa-solid fa-eye"></i>
                         </a>
 
-                        @can('kontrak.update')
-                            <a href="{{ route('kontrak-vendor-stok.edit', ['kontrak_vendor_stok' => $transaction->id]) }}"
-                                class="text-warning-950 px-3 py-3 rounded-md border hover:bg-slate-300"
-                                data-tooltip-target="tooltip-edit-{{ $transaction->id }}">
-                                <i class="fa-solid fa-pencil"></i>
-                            </a>
-                        @endcan
+                    @can('kontrak.update')
+                    <a href="{{ route('kontrak-vendor-stok.edit', ['kontrak_vendor_stok' => $transaction->id]) }}"
+                        class="text-warning-950 px-3 py-3 rounded-md border hover:bg-slate-300"
+                        data-tooltip-target="tooltip-edit-{{ $transaction->id }}">
+                        <i class="fa-solid fa-pencil"></i>
+                    </a>
+                    @endcan
 
-                        <div id="tooltip-kontrak-{{ $transaction->id }}" role="tooltip"
-                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                            Lihat Detail Kontrak
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
-                    </td>
-                </tr>
+                    <div id="tooltip-kontrak-{{ $transaction->id }}" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                        Lihat Detail Kontrak
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
+                </td>
+            </tr>
             @endforeach
         </tbody>
     </table>
