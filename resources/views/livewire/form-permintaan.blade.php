@@ -10,7 +10,7 @@
                                 Jenis Permintaan *</label>
                         </td>
                         <td>
-                            <select wire:model.live="withRab" @disabled($listCount> 0)
+                            <selectwire:model.live.debounce.500ms="withRab" @disabled($listCount> 0)
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                                 focus:ring-primary-500
                                 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600
@@ -19,10 +19,10 @@
                                 <option value="0">Tanpa {{ $Rkb }}</option>
                                 <option value="1">Menggunakan {{ $Rkb }}</option>
 
-                            </select>
-                            @error('withRab')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                                </select>
+                                @error('withRab')
+                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
 
 
                         </td>
@@ -33,7 +33,7 @@
                                 Pilih Jenis Pekerjaan *</label>
                         </td>
                         <td>
-                            <livewire:searchable-select wire:model.live="rab_id" :options="$rabs"
+                            <livewire:searchable-selectwire:model.live.debounce.500ms="rab_id" :options="$rabs"
                                 label="jenis_pekerjaan" />
 
                         </td>
@@ -44,7 +44,7 @@
                                 Nomor SPB *</label>
                         </td>
                         <td>
-                            <input type="text" wire:model.live="nodin"
+                            <input type="text" wire:model.live.debounce.500ms="nodin"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 placeholder="Nomor SPB">
                         </td>
@@ -55,7 +55,8 @@
                                 Pilih Lokasi Gudang *</label>
                         </td>
                         <td>
-                            <livewire:searchable-select wire:model.live="gudang_id" :options="$gudangs" label='nama' />
+                            <livewire:searchable-selectwire:model.live.debounce.500ms="gudang_id" :options="$gudangs"
+                                label='nama' />
 
                         </td>
                     </tr>
@@ -66,7 +67,7 @@
                                 Jenis Pekerjaan *</label>
                         </td>
                         <td>
-                            <input type="text" wire:model.live="namaKegiatan"
+                            <input type="text" wire:model.live.debounce.500ms="namaKegiatan"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 placeholder="Jenis Pekerjaan">
                         </td>
@@ -174,13 +175,15 @@
                         </td>
                         <td>
                             @if ($tipe == 'permintaan' && $kategori_id == 4)
-                            <input type="datetime-local" id="tanggal_permintaan" wire:model.live="tanggal_permintaan"
+                            <input type="datetime-local" id="tanggal_permintaan"
+                                wire:model.live.debounce.500ms="tanggal_permintaan"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                             @error('tanggal_permintaan')
                             <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
                             @else
-                            <input type="date" id="tanggal_permintaan" wire:model.live="tanggal_permintaan"
+                            <input type="date" id="tanggal_permintaan"
+                                wire:model.live.debounce.500ms="tanggal_permintaan"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                             @error('tanggal_permintaan')
                             <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -195,7 +198,7 @@
                                 Pilih Layanan *</label>
                         </td>
                         <td>
-                            <select wire:model.live="tipePeminjaman" @disabled($listCount> 0 || true)
+                            <selectwire:model.live.debounce.500ms="tipePeminjaman" @disabled($listCount> 0 || true)
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                                 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700
                                 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500
@@ -204,10 +207,10 @@
                                 <option value="Ruangan">Peminjaman Ruangan</option>
                                 <option value="KDO">Peminjaman KDO</option>
                                 <option value="Peralatan Kantor">Peminjaman Peralatan Kantor</option>
-                            </select>
-                            @error('tipePeminjaman')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                                </select>
+                                @error('tipePeminjaman')
+                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
                         </td>
                     </tr>
                     @endif
@@ -218,7 +221,7 @@
                                 Kategori *</label>
                         </td>
                         <td>
-                            <select wire:model.live="kategori_id" @disabled($listCount> 0 || true)
+                            <selectwire:model.live.debounce.500ms="kategori_id" @disabled($listCount> 0 || true)
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                                 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700
                                 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500
@@ -228,10 +231,10 @@
                                 <option value="{{ $kategori->id }}">{{ $kategori->nama }}
                                 </option>
                                 @endforeach
-                            </select>
-                            @error('kategori_id')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                                </select>
+                                @error('kategori_id')
+                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
                         </td>
                     </tr>
                     @endif
@@ -244,7 +247,7 @@
                         </td>
                         <td>
                             <div class="flex items-center">
-                                <select wire:model.live="RuangId"
+                                <selectwire:model.live.debounce.500ms="RuangId"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
 
                                     <option value="">Pilih Lokasi/Ruang</option>
@@ -254,24 +257,24 @@
                                     @endforeach
 
                                     <option value="0">Lokasi/Ruang Lain</option> <!-- Opsi Tambahan -->
-                                </select>
+                                    </select>
 
-                                @error('RuangId')
-                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                @enderror
+                                    @error('RuangId')
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    @enderror
                             </div>
                             <!-- Jika "Lokasi/Ruang Lain" dipilih, tampilkan input tambahan -->
                             @if ($RuangId === '0')
                             <div class="mt-2">
-                                <input type="text" wire:model.live="LokasiLain"
+                                <input type="text" wire:model.live.debounce.500ms="LokasiLain"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
                                     placeholder="Nama Lokasi">
 
-                                <input type="text" wire:model.live="AlamatLokasi"
+                                <input type="text" wire:model.live.debounce.500ms="AlamatLokasi"
                                     class="mt-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
                                     placeholder="Alamat Lokasi">
 
-                                <input type="text" wire:model.live="KontakPerson"
+                                <input type="text" wire:model.live.debounce.500ms="KontakPerson"
                                     class="mt-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
                                     placeholder="Kontak Person">
                             </div>
@@ -286,7 +289,7 @@
                         </td>
                         <td>
                             <div class="flex items-center">
-                                <input type="number" wire:model.live="peserta" min="1"
+                                <input type="number" wire:model.live.debounce.500ms="peserta" min="1"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                     placeholder="Jumlah">
                                 <span
@@ -305,7 +308,7 @@
                         </td>
                         <td>
                             <div class="flex items-center">
-                                <select wire:model.live="KDOId"
+                                <selectwire:model.live.debounce.500ms="KDOId"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
                                     <option value="">Pilih KDO</option>
                                     @foreach ($kdos as $kdo)
@@ -313,11 +316,11 @@
                                         {{ $kdo->merk->nama . ' ' . $kdo->nama . ' - ' . $kdo->noseri }}
                                     </option>
                                     @endforeach
-                                </select>
+                                    </select>
 
-                                @error('KDOId')
-                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                @enderror
+                                    @error('KDOId')
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    @enderror
                             </div>
                         </td>
                     </tr>
@@ -329,7 +332,7 @@
                         </td>
                         <td>
                             <div class="flex items-center">
-                                <input type="date" id="tanggal_masuk" wire:model.live="tanggal_masuk"
+                                <input type="date" id="tanggal_masuk" wire:model.live.debounce.500ms="tanggal_masuk"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 @error('tanggal_masuk')
                                 <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -345,7 +348,7 @@
                         </td>
                         <td>
                             <div class="flex items-center">
-                                <input type="date" id="tanggal_keluar" wire:model.live="tanggal_keluar"
+                                <input type="date" id="tanggal_keluar" wire:model.live.debounce.500ms="tanggal_keluar"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 @error('tanggal_masuk')
                                 <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -360,25 +363,21 @@
                     <tr class="{{ !$withRab ? '' : 'hidden' }}">
                         <td class="font-semibold"><label for="lokasi">Lokasi Kegiatan</label></td>
                         <td>
-                            <livewire:searchable-select 
-                                wire:model.live="kecamatan_id" 
-                                :options="$kecamatans"
-                                label="kecamatan"
-                                :disabled="$isKasatpel" 
-                            />
-                            
-                            
+                            <livewire:searchable-select wire:model.live.debounce.500ms="kecamatan_id"
+                                :options="$kecamatans" label="kecamatan" :disabled="$isKasatpel" />
+
+
                             @if($isKasatpel)
-                                <small class="text-danger d-block mt-1">
-                                    🔒 <strong>Lokasi kegiatan terkunci</strong> sesuai wilayah kerja Anda
-                                </small>
+                            <small class="text-danger d-block mt-1">
+                                🔒 <strong>Lokasi kegiatan terkunci</strong> sesuai wilayah kerja Anda
+                            </small>
                             @endif
                         </td>
                     </tr>
                     <tr class="{{ !$withRab ? '' : 'hidden' }}">
                         <td></td>
                         <td>
-                            <select wire:model.live="kelurahan_id" @disabled(!$kecamatan_id)
+                            <selectwire:model.live.debounce.500ms="kelurahan_id" @disabled(!$kecamatan_id)
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
                                 <option value="">Pilih Kelurahan</option>
                                 @foreach ($kelurahans as $item)
@@ -386,15 +385,16 @@
                                     {{ $item->nama }}
                                 </option>
                                 @endforeach
-                            </select>
+                                </select>
                         </td>
                     </tr>
                     <tr class="{{ !$withRab ? '' : 'hidden' }}">
                         <td></td>
                         <td>
-                            <textarea wire:model.live="lokasiMaterial" rows="2"
+                            <textareawire:model.live.debounce.500ms="lokasiMaterial" rows="2"
                                 placeholder="Detail lokasi tambahan (misal: Jl. ABC No. 123, dekat Lapangan)"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                </textarea>
 
                         </td>
                     </tr>
@@ -428,13 +428,13 @@
                         </td>
                         <td>
                             <div class="flex gap-x-2">
-                                <input type="text" wire:model.live="vol.p"
+                                <input type="text" wire:model.live.debounce.500ms="vol.p"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Panjang">
-                                <input type="text" wire:model.live="vol.l"
+                                <input type="text" wire:model.live.debounce.500ms="vol.l"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Lebar">
-                                <input type="text" wire:model.live="vol.k"
+                                <input type="text" wire:model.live.debounce.500ms="vol.k"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                                     placeholder="Kedalaman">
                             </div>
@@ -447,7 +447,7 @@
                         <td class="font-semibold"><label for="keterangan">Keterangan</label></td>
                         <td>
                             <div class="flex mb-3">
-                                <textarea id="keterangan" wire:model.live="keterangan"
+                                <textarea id="keterangan" wire:model.live.debounce.500ms="keterangan"
                                     @disabled($listCount> 0)
                                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                                         placeholder="Tuliskan Keterangan Pekerjaan. (Contoh : Permohonan dari Ketua RT XX, Kelurahan ABCD)25053546102505354610" rows="4"></textarea>
@@ -472,17 +472,17 @@
                                 Unit Kerja *</label>
                         </td>
                         <td>
-                            <select wire:model.live="unit_id" @disabled(Auth::id() !==1)
+                            <selectwire:model.live.debounce.500ms="unit_id" @disabled(Auth::id() !==1)
                                 class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 <option value="">Pilih Unit Kerja</option>
                                 @foreach ($units as $unit)
                                 <option value="{{ $unit->id }}">{{ $unit->nama }}
                                 </option>
                                 @endforeach
-                            </select>
-                            @error('unit_id')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                                </select>
+                                @error('unit_id')
+                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
                         </td>
                     </tr>
                     <tr>
@@ -491,7 +491,7 @@
                                 Sub Unit *</label>
                         </td>
                         <td>
-                            <select wire:model.live="sub_unit_id" @disabled(!$unit_id && $listCount> 0)
+                            <selectwire:model.live.debounce.500ms="sub_unit_id" @disabled(!$unit_id && $listCount> 0)
                                 class="bg-gray-50 border border-gray-300 {{ !$unit_id ? 'cursor-not-allowed ' : '' }}
                                 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block
                                 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white
@@ -503,10 +503,10 @@
                                 </option>
                                 @endforeach
                                 @endif
-                            </select>
-                            @error('sub_unit_id')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                            @enderror
+                                </select>
+                                @error('sub_unit_id')
+                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
                         </td>
                     </tr>
                 </table>

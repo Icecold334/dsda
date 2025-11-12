@@ -40,12 +40,12 @@
                     </div>
                 </td>
                 <td class="px-6 py-3">
-                    <select wire:model.live='list.{{ $index }}.ppn' disabled
+                    <selectwire:model.live.debounce.500ms='list.{{ $index }}.ppn' disabled
                         class="bg-gray-50 border border-gray-300 cursor-not-allowed text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         <option value="0">Sudah Termasuk PPN</option>
                         <option value="11">11%</option>
                         <option value="12">12%</option>
-                    </select>
+                        </select>
                 <td class="px-6 py-3">
                     <div class="flex">
                         <div
@@ -82,8 +82,8 @@
                                 rounded-lg
                                 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                             {{-- {{ $jenis_id==3 ? '' : 'rounded-l-lg' }} {{ $barang_id ? 'rounded-lg' : '' }} --}}
-                            type="text" wire:model.live="newBarang" wire:blur="blurBarang" wire:focus='focusBarang'
-                            placeholder="Cari Barang">
+                            type="text" wire:model.live.debounce.500ms="newBarang" wire:blur="blurBarang"
+                            wire:focus='focusBarang' placeholder="Cari Barang">
                         @if (!$barang_id)
                         <button wire:click="openBarangModal"
                             class="px-4 py-1 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tambah</button>
@@ -106,8 +106,8 @@
                         @foreach (['merek' => 'Merek', 'tipe' => 'Tipe', 'ukuran' => 'Ukuran'] as $key => $label)
                         <input
                             class="bg-gray-50 border {{ !$barang_id ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
-                            type="text" wire:model.live="specifications.{{ $key }}" @disabled(!$barang_id)
-                            wire:focus="updateSpecification('{{ $key }}', $event.target.value)"
+                            type="text" wire:model.live.debounce.500ms="specifications.{{ $key }}"
+                            @disabled(!$barang_id) wire:focus="updateSpecification('{{ $key }}', $event.target.value)"
                             wire:blur="blurSpecification('{{ $key }}')" placeholder="{{ $label }}">
                         @if (count($suggestions[$key]) > 0)
                         <ul
@@ -127,7 +127,7 @@
                     <div class="flex">
                         <input
                             class="bg-gray-50 border {{ empty($specifications['merek']) && empty($specifications['tipe']) && empty($specifications['ukuran']) ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
-                            type="number" wire:model.live="jumlah" placeholder="Jumlah" @if (
+                            type="number" wire:model.live.debounce.500ms="jumlah" placeholder="Jumlah" @if (
                             empty($specifications['merek']) && empty($specifications['tipe']) &&
                             empty($specifications['ukuran']) ) disabled @endif>
                         <div
@@ -137,12 +137,12 @@
                     </div>
                 </td>
                 <td class="px-6 py-3">
-                    <select wire:model.live='newPpn'
+                    <selectwire:model.live.debounce.500ms='newPpn'
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         <option value="0">Sudah Termasuk PPN</option>
                         <option value="11">11%</option>
                         <option value="12">12%</option>
-                    </select>
+                        </select>
                 </td>
                 <td class="px-6 py-3">
                     <div class="flex">
@@ -241,7 +241,7 @@
             <!-- Nama Barang -->
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-900 dark:text-gray-300">Nama Barang</label>
-                <input type="text" wire:model.live="newBarangName"
+                <input type="text" wire:model.live.debounce.500ms="newBarangName"
                     class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Nama Barang">
                 @error('newBarangName')
@@ -254,7 +254,7 @@
             <div class="mb-4 relative">
                 <label class="block text-sm font-medium text-gray-900 dark:text-gray-300">Kategori
                     Barang</label>
-                <input type="text" wire:model.live="newKategori"
+                <input type="text" wire:model.live.debounce.500ms="newKategori"
                     wire:input="fetchSuggestions('kategori', $event.target.value)"
                     wire:blur="blurSpecification('kategori')"
                     class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -279,7 +279,7 @@
             <!-- Satuan Besar -->
             <div class="mb-4 relative">
                 <label class="block text-sm font-medium text-gray-900 dark:text-gray-300">Satuan Besar</label>
-                <input type="text" wire:model.live="newBarangSatuanBesar"
+                <input type="text" wire:model.live.debounce.500ms="newBarangSatuanBesar"
                     wire:input="fetchSuggestions('satuanBesar', $event.target.value)"
                     wire:blur="blurSpecification('satuanBesar')"
                     class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -304,7 +304,7 @@
             <div class="mb-4 relative">
                 <label class="block text-sm font-medium text-gray-900 dark:text-gray-300">Satuan Kecil
                     (Opsional)</label>
-                <input type="text" wire:model.live="newBarangSatuanKecil"
+                <input type="text" wire:model.live.debounce.500ms="newBarangSatuanKecil"
                     wire:input="fetchSuggestions('satuanKecil', $event.target.value)"
                     wire:blur="blurSpecification('satuanKecil')"
                     class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -331,7 +331,7 @@
                 <label class="block text-sm font-medium text-gray-900 dark:text-gray-300">Jumlah Satuan
                     Kecil dalam
                     Satuan Besar</label>
-                <input type="number" wire:model.live="jumlahKecilDalamBesar"
+                <input type="number" wire:model.live.debounce.500ms="jumlahKecilDalamBesar"
                     class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Contoh: 12">
                 @error('jumlahKecilDalamBesar')

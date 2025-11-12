@@ -3,13 +3,14 @@
         <!-- Tanggal Pembelian Field -->
         <tr wire:ignore>
             <td class="w-1/3"><label for="tanggalPembelian"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal Pembelian *</label></td>
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal Pembelian *</label>
+            </td>
             <td>
-                <input type="date" id="tanggalPembelian" wire:model.live="tanggalPembelian"
+                <input type="date" id="tanggalPembelian" wire:model.live.debounce.500ms="tanggalPembelian"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                     required>
                 @error('tanggalPembelian')
-                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                 @enderror
             </td>
         </tr>
@@ -19,11 +20,11 @@
             <td><label for="toko" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Toko /
                     Distributor *</label></td>
             <td>
-                <input type="text" id="toko" wire:model.live="toko"
+                <input type="text" id="toko" wire:model.live.debounce.500ms="toko"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                     required>
                 @error('toko')
-                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                 @enderror
             </td>
         </tr>
@@ -33,20 +34,20 @@
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">No.
                     Invoice</label></td>
             <td>
-                <input type="text" id="invoice" wire:model.live="invoice"
+                <input type="text" id="invoice" wire:model.live.debounce.500ms="invoice"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
                 @error('invoice')
-                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                 @enderror
             </td>
         </tr>
         <!-- Jumlah Field -->
         <tr>
             <td><label for="jumlah" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jumlah
-                *</label></td>
+                    *</label></td>
             <td>
                 <div class="flex items-center ">
-                    <input type="number" id="jumlah" wire:model.live="jumlah" value="1" min="1"
+                    <input type="number" id="jumlah" wire:model.live.debounce.500ms="jumlah" value="1" min="1"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                         required>
                     <label for="jumlah"
@@ -55,21 +56,21 @@
                     </label>
                 </div>
                 @error('jumlah')
-                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                    @enderror
-                </td>
-                
+                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                @enderror
+            </td>
+
         </tr>
         <!-- Harga Satuan Field -->
         <tr>
             <td><label for="hargaSatuan" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Harga
                     Satuan (Rp) *</label></td>
             <td>
-                <input type="text" id="hargaSatuan" wire:model.live="hargaSatuan"
+                <input type="text" id="hargaSatuan" wire:model.live.debounce.500ms="hargaSatuan"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                     required>
                 @error('hargaSatuan')
-                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                 @enderror
             </td>
         </tr>
@@ -78,18 +79,18 @@
             <td><label for="hargaTotal" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Harga
                     Total (Rp)</label></td>
             <td>
-                <input type="text" id="hargaTotal" wire:model.live="hargaTotal"
+                <input type="text" id="hargaTotal" wire:model.live.debounce.500ms="hargaTotal"
                     class="bg-gray-200 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                     disabled>
             </td>
         </tr>
     </table>
     @push('scripts')
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
                 const jumlahInput = document.querySelector('#jumlah');
                 const hargaSatuanInput = document.querySelector('#hargaSatuan');
                 const hargaTotalInput = document.querySelector('#hargaTotal');
@@ -159,6 +160,6 @@
                     bubbles: true
                 }));
             });
-        </script>
+    </script>
     @endpush
 </x-card>

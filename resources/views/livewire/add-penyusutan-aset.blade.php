@@ -6,11 +6,11 @@
                     Umur Ekonomi *</label>
             </td>
             <td class="">
-                <input type="number" id="umur" wire:model.live="umur"
+                <input type="number" id="umur" wire:model.live.debounce.500ms="umur"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Umur" required />
                 @error('umur')
-                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                 @enderror
             </td>
         </tr>
@@ -20,11 +20,11 @@
                     Penyusutan (Rp)</label>
             </td>
             <td>
-                <input type="text" id="penyusutan" wire:model.live="penyusutan" disabled
+                <input type="text" id="penyusutan" wire:model.live.debounce.500ms="penyusutan" disabled
                     class="bg-gray-50 border border-gray-300 text-gray-900 cursor-not-allowed text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Penyusutan Aset" required />
                 @error('penyusutan')
-                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                 @enderror
             </td>
         </tr>

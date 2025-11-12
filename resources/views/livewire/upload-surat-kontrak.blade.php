@@ -8,7 +8,7 @@
     <div wire:loading wire:target="saveAttachments">
         <livewire:loading>
     </div>
-    <input type="file" wire:model.live="newAttachments" multiple class="hidden" id="fileUpload">
+    <input type="file" wire:model.live.debounce.500ms="newAttachments" multiple class="hidden" id="fileUpload">
     <label for="fileUpload"
         class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">
         + Unggah Lampiran

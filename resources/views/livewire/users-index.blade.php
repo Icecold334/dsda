@@ -6,40 +6,41 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Pencarian</label>
-                <input type="text" wire:model.live="search" id="search" placeholder="Nama, email, username, atau NIP..."
+                <input type="text" wire:model.live.debounce.500ms="search" id="search"
+                    placeholder="Nama, email, username, atau NIP..."
                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
             </div>
 
             <div>
                 <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                <select wire:model.live="role" id="role"
+                <selectwire:model.live.debounce.500ms="role" id="role"
                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
                     <option value="">Semua Role</option>
                     @foreach($roles as $role)
-                        <option value="{{ $role->id }}">{{ $role->name }}</option>
+                    <option value="{{ $role->id }}">{{ $role->name }}</option>
                     @endforeach
-                </select>
+                    </select>
             </div>
 
             <div>
                 <label for="unit" class="block text-sm font-medium text-gray-700 mb-1">Unit Kerja</label>
-                <select wire:model.live="unit" id="unit"
+                <selectwire:model.live.debounce.500ms="unit" id="unit"
                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
                     <option value="">Semua Unit</option>
                     @foreach($units as $unit)
-                        <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                    <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
                     @endforeach
-                </select>
+                    </select>
             </div>
 
             <div>
                 <label for="verified" class="block text-sm font-medium text-gray-700 mb-1">Status Verifikasi</label>
-                <select wire:model.live="verified" id="verified"
+                <selectwire:model.live.debounce.500ms="verified" id="verified"
                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
                     <option value="">Semua Status</option>
                     <option value="1">Terverifikasi</option>
                     <option value="0">Belum Verifikasi</option>
-                </select>
+                    </select>
             </div>
 
             <div class="md:col-span-4 flex space-x-2">
@@ -88,7 +89,7 @@
                         <select name="role_id" id="roleSelect" class="hidden rounded-md border-gray-300 text-sm">
                             <option value="">Pilih Role</option>
                             @foreach($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            <option value="{{ $role->id }}">{{ $role->name }}</option>
                             @endforeach
                         </select>
 
@@ -134,99 +135,99 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($users as $user)
-                            <tr>
-                                <td class="px-6 py-4">
-                                    <input type="checkbox" name="users[]" value="{{ $user->id }}"
-                                        onchange="updateBulkActionBar()"
-                                        class="user-checkbox rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-500 focus:ring-primary-500">
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        @if($user->foto)
-                                            <img class="h-10 w-10 rounded-full mr-3" src="{{ Storage::url($user->foto) }}"
-                                                alt="{{ $user->name }}">
-                                        @else
-                                            <div
-                                                class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center mr-3">
-                                                <span
-                                                    class="text-gray-600 text-sm font-medium">{{ substr($user->name, 0, 2) }}</span>
-                                            </div>
+                        <tr>
+                            <td class="px-6 py-4">
+                                <input type="checkbox" name="users[]" value="{{ $user->id }}"
+                                    onchange="updateBulkActionBar()"
+                                    class="user-checkbox rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    @if($user->foto)
+                                    <img class="h-10 w-10 rounded-full mr-3" src="{{ Storage::url($user->foto) }}"
+                                        alt="{{ $user->name }}">
+                                    @else
+                                    <div
+                                        class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center mr-3">
+                                        <span class="text-gray-600 text-sm font-medium">{{ substr($user->name, 0, 2)
+                                            }}</span>
+                                    </div>
+                                    @endif
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                                        @if($user->username)
+                                        <div class="text-sm text-gray-500">{{ $user->username }}</div>
                                         @endif
-                                        <div>
-                                            <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
-                                            @if($user->username)
-                                                <div class="text-sm text-gray-500">{{ $user->username }}</div>
-                                            @endif
-                                        </div>
                                     </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $user->nip ?? '-' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $user->unitKerja->nama ?? '-' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($user->roles->count() > 0)
-                                        @foreach($user->roles as $role)
-                                            <span
-                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1 mb-1">
-                                                {{ $role->name }}
-                                            </span>
-                                        @endforeach
-                                    @else
-                                        <span class="text-gray-500">No Role</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($user->email_verified_at)
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            Active
-                                        </span>
-                                    @else
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                            Pending
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        <a href="{{ route('users.show', $user) }}"
-                                            class="text-blue-600 hover:text-blue-900">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('users.edit', $user) }}"
-                                            class="text-indigo-600 hover:text-indigo-900">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" onclick="confirmDelete('{{ route('users.destroy', $user) }}')"
-                                            class="text-red-600 hover:text-red-900">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ $user->nip ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ $user->unitKerja->nama ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($user->roles->count() > 0)
+                                @foreach($user->roles as $role)
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1 mb-1">
+                                    {{ $role->name }}
+                                </span>
+                                @endforeach
+                                @else
+                                <span class="text-gray-500">No Role</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($user->email_verified_at)
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Active
+                                </span>
+                                @else
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Pending
+                                </span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('users.show', $user) }}"
+                                        class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('users.edit', $user) }}"
+                                        class="text-indigo-600 hover:text-indigo-900">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" onclick="confirmDelete('{{ route('users.destroy', $user) }}')"
+                                        class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="8" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                    @if($search || $role || $unit || $verified !== '')
-                                        Tidak ada data user yang sesuai dengan filter
-                                    @else
-                                        Tidak ada data user
-                                    @endif
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                @if($search || $role || $unit || $verified !== '')
+                                Tidak ada data user yang sesuai dengan filter
+                                @else
+                                Tidak ada data user
+                                @endif
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
 
             @if($users->hasPages())
-                <div class="px-6 py-3 bg-gray-50">
-                    {{ $users->links() }}
-                </div>
+            <div class="px-6 py-3 bg-gray-50">
+                {{ $users->links() }}
+            </div>
             @endif
         </div>
     </form>

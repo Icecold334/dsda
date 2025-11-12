@@ -4,13 +4,14 @@
             class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">
             + Unggah File SPJ
         </button>
-        <input type="file" id="file-{{ $permintaan->id }}" class="hidden" accept="application/pdf" wire:model.live="file">
+        <input type="file" id="file-{{ $permintaan->id }}" class="hidden" accept="application/pdf"
+            wire:model.live.debounce.500ms="file">
     </div>
 </td>
 
 @push('scripts')
-    <script type="module">
-        window.showFileModal = function(id) {
+<script type="module">
+    window.showFileModal = function(id) {
             Swal.fire({
                 title: 'Unggah File SPJ',
                 html: `
@@ -73,5 +74,5 @@
                 }
             });
         }
-    </script>
+</script>
 @endpush

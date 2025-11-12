@@ -9,7 +9,7 @@
                 </a> --}}
                 <div class="flex space-x-2 items-center">
                     <!-- Input Pencarian -->
-                    <input type="text" wire:model.live="search" placeholder="Cari pengguna..."
+                    <input type="text" wire:model.live.debounce.500ms="search" placeholder="Cari pengguna..."
                         class="px-4 py-2 border rounded-lg w-[25rem]">
 
                     {{-- @if ($search) --}}
@@ -24,36 +24,36 @@
 
             <!-- Daftar Pengguna -->
             @forelse ($users->sortBy('email_verified_at') as $user)
-                <div class="border rounded-lg shadow-md p-4 mb-4 bg-white">
-                    <div class="flex justify-between items-center mb-4">
-                        <p class="text-base font-medium text-gray-700">
-                            <strong>Nama:</strong> <span>{{ $user->name }}</span>
-                            @if (!$user->email_verified_at)
-                                <span
-                                    class="bg-warning-500 text-black text-xs font-medium mx-2 px-2.5 py-0.5 rounded-full ">Belum
-                                    Terverifikasi</span>
-                            @endif
-                        </p>
-                        <div class="flex space-x-2">
-                            <a href="profil/user/{{ $user->id }}"
-                                class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300">
-                                <i class="fa-solid fa-pencil"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="text-sm text-gray-500 space-y-2">
-                        <p><strong>NIP:</strong> {{ $user->nip ?? '-' }}</p>
-                        <p><strong>Email:</strong> {{ $user->email ?? '-' }}</p>
-                        <p><strong>Jabatan:</strong> {{ $user->formatted_roles ?? '-' }}</p>
-                        <p><strong>Username:</strong> {{ $user->username ?? '-' }}</p>
-                        <p><strong>Unit Kerja:</strong> {{ $user->unitKerja->nama ?? '-' }}</p>
-                        <p><strong>Lokasi Gudang:</strong> {{ $user->lokasiStok->nama ?? '-' }}</p>
+            <div class="border rounded-lg shadow-md p-4 mb-4 bg-white">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-base font-medium text-gray-700">
+                        <strong>Nama:</strong> <span>{{ $user->name }}</span>
+                        @if (!$user->email_verified_at)
+                        <span
+                            class="bg-warning-500 text-black text-xs font-medium mx-2 px-2.5 py-0.5 rounded-full ">Belum
+                            Terverifikasi</span>
+                        @endif
+                    </p>
+                    <div class="flex space-x-2">
+                        <a href="profil/user/{{ $user->id }}"
+                            class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300">
+                            <i class="fa-solid fa-pencil"></i>
+                        </a>
                     </div>
                 </div>
+                <div class="text-sm text-gray-500 space-y-2">
+                    <p><strong>NIP:</strong> {{ $user->nip ?? '-' }}</p>
+                    <p><strong>Email:</strong> {{ $user->email ?? '-' }}</p>
+                    <p><strong>Jabatan:</strong> {{ $user->formatted_roles ?? '-' }}</p>
+                    <p><strong>Username:</strong> {{ $user->username ?? '-' }}</p>
+                    <p><strong>Unit Kerja:</strong> {{ $user->unitKerja->nama ?? '-' }}</p>
+                    <p><strong>Lokasi Gudang:</strong> {{ $user->lokasiStok->nama ?? '-' }}</p>
+                </div>
+            </div>
             @empty
-                <div class="text-gray-500 text-sm">
-                    <p>Belum ada pengguna tambahan yang terdaftar.</p>
-                </div>
+            <div class="text-gray-500 text-sm">
+                <p>Belum ada pengguna tambahan yang terdaftar.</p>
+            </div>
             @endforelse
         </div>
     </x-card>
