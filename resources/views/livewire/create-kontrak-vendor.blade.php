@@ -16,19 +16,18 @@
 
                 <div>
                     <label class="block text-sm font-medium">Tahun</label>
-                    <selectwire:model.live.debounce.500ms="tahun_api" {{ $mode_manual ? 'disabled' : '' }}
+                    <select wire:model.live="tahun_api" {{ $mode_manual ? 'disabled' : '' }}
                         class="w-full p-2 border border-gray-300 rounded-md text-sm {{ $mode_manual ? 'bg-gray-100' : '' }}">
                         <option value="">-- Pilih Tahun --</option>
                         @for ($i = now()->year; $i >= now()->year - 5; $i--)
                         <option value="{{ $i }}">{{ $i }}</option>
                         @endfor
-                        </select>
+                    </select>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium">Nomor SPK {{ $isAdendum ? 'Baru' : '' }}</label>
-                    <input type="text" wire:model.live.debounce.500ms="nomor_spk_api" {{ $mode_manual ? 'disabled' : ''
-                        }}
+                    <input type="text" wire:model.live="nomor_spk_api" {{ $mode_manual ? 'disabled' : '' }}
                         class="w-full p-2 border border-gray-300 rounded-md text-sm {{ $mode_manual ? 'bg-gray-100' : '' }}"
                         placeholder="Contoh: 123/SPK/2025">
                 </div>
@@ -72,8 +71,8 @@
                 ] as $field => $label)
                 <div>
                     <label class="block text-sm font-medium">{{ $label }}</label>
-                    <input type="text" wire:model.live.debounce.500ms="{{ $field }}" {{ $readonly_fields &&
-                        !$mode_manual ? 'disabled' : '' }} class="w-full p-2 border border-gray-300 rounded-md text-sm 
+                    <input type="text" wire:model.live="{{ $field }}" {{ $readonly_fields && !$mode_manual ? 'disabled'
+                        : '' }} class="w-full p-2 border border-gray-300 rounded-md text-sm 
                             {{ $readonly_fields && !$mode_manual ? 'bg-gray-100' : '' }}"
                         placeholder="{{ $mode_manual ? 'Isi ' . strtolower($label) : '' }}">
                 </div>
@@ -81,15 +80,15 @@
 
                 <div>
                     <label class="block text-sm font-medium">Tanggal Kontrak</label>
-                    <input type="date" wire:model.live.debounce.500ms="tanggal_kontrak" {{ $readonly_fields &&
-                        !$mode_manual ? 'disabled' : '' }} class="w-full p-2 border border-gray-300 rounded-md text-sm 
+                    <input type="date" wire:model.live="tanggal_kontrak" {{ $readonly_fields && !$mode_manual
+                        ? 'disabled' : '' }} class="w-full p-2 border border-gray-300 rounded-md text-sm 
                         {{ $readonly_fields && !$mode_manual ? 'bg-gray-100' : '' }}">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium">Tanggal Akhir Kontrak</label>
-                    <input type="date" wire:model.live.debounce.500ms="tanggal_akhir_kontrak" {{ $readonly_fields &&
-                        !$mode_manual ? 'disabled' : '' }} class="w-full p-2 border border-gray-300 rounded-md text-sm 
+                    <input type="date" wire:model.live="tanggal_akhir_kontrak" {{ $readonly_fields && !$mode_manual
+                        ? 'disabled' : '' }} class="w-full p-2 border border-gray-300 rounded-md text-sm 
                         {{ $readonly_fields && !$mode_manual ? 'bg-gray-100' : '' }}">
                 </div>
 
@@ -105,13 +104,12 @@
                 @if ($mode_manual)
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium">Metode Pengadaan</label>
-                    <selectwire:model.live.debounce.500ms="metode_id"
-                        class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                    <select wire:model.live="metode_id" class="w-full p-2 border border-gray-300 rounded-md text-sm">
                         <option value="">-- Pilih Metode --</option>
                         @foreach ($metodes as $metode)
                         <option value="{{ $metode->id }}">{{ $metode->nama }}</option>
                         @endforeach
-                        </select>
+                    </select>
                 </div>
                 @endif
             </div>
@@ -126,18 +124,18 @@
         <x-card title="Tambah Barang">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div <label class="block text-sm font-medium">Nama Barang</label>
-                    <livewire:searchable-select wire:model.live="newBarang" :options="$barangs"
+                    <livewire:searchable-select wire:model.live="barang_id" :options="$barangs"
                         placeholder="Ketik atau pilih nama barang..." />
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium">Jumlah</label>
-                    <input type="number" wire:model.live.debounce.500ms="jumlah"
+                    <input type="number" wire:model.live="jumlah"
                         class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Jumlah" min="1">
                 </div>
 
                 <div <label class="block text-sm font-medium">Satuan</label>
-                    <livewire:searchable-select wire:model.live.debounce.500ms="newSatuan" :options="$satuanOptions"
+                    <livewire:searchable-select wire:model.live="newSatuan" :options="$satuanOptions"
                         placeholder="Ketik atau pilih satuan..." />
                 </div>
 
@@ -177,42 +175,36 @@
 
                 <div>
                     <label class="block text-sm font-medium">PPN</label>
-                    <selectwire:model.live.debounce.500ms="newPpn"
-                        class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                    <select wire:model.live="newPpn" class="w-full p-2 border border-gray-300 rounded-md text-sm">
                         <option value="0">Termasuk PPN</option>
                         <option value="11">PPN 11%</option>
                         <option value="12">PPN 12%</option>
-                        </select>
+                    </select>
                 </div>
 
 
                 <div>
                     <label class="block text-sm font-medium">Nama</label>
-                    <livewire:searchable-select wire:model.live.debounce.500ms="specifications.nama"
-                        :options="$specNamaOptions" placeholder="Ketik atau pilih nama..." />
+                    <livewire:searchable-select wire:model.live="specifications.nama" :options="$specNamaOptions"
+                        placeholder="Ketik atau pilih nama..." />
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium">Tipe</label>
-                    <livewire:searchable-select wire:model.live.debounce.500ms="specifications.tipe"
-                        :options="$specTipeOptions" placeholder="Ketik atau pilih tipe..." />
+                    <livewire:searchable-select wire:model.live="specifications.tipe" :options="$specTipeOptions"
+                        placeholder="Ketik atau pilih tipe..." />
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium">Ukuran</label>
-                    <livewire:searchable-select wire:model.live.debounce.500ms="specifications.ukuran"
-                        :options="$specUkuranOptions" placeholder="Ketik atau pilih ukuran..." />
+                    <livewire:searchable-select wire:model.live="specifications.ukuran" :options="$specUkuranOptions"
+                        placeholder="Ketik atau pilih ukuran..." />
                 </div>
 
             </div>
 
             <div class="flex justify-end">
                 @if ($barang_id && $newSatuan && $jumlah && $newHarga)
-                <button wire:click="addToList"
-                    class="mt-2 bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 transition">
-                    <i class="fa fa-plus mr-1"></i> Tambah ke Daftar Barang
-                </button>
-                @if ($newBarang && $newSatuan && $jumlah && $newHarga)
                 <button wire:click="addToList"
                     class="mt-2 bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 transition">
                     <i class="fa fa-plus mr-1"></i> Tambah ke Daftar Barang

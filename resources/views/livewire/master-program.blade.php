@@ -11,7 +11,7 @@
             <!-- Search Input -->
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Cari Program</label>
-                <input type="text" wire:model.live.debounce.500ms.debounce.300ms="search" id="search"
+                <input type="text" wire:model.live.debounce.300ms="search" id="search"
                     placeholder="Cari berdasarkan nama program atau kode..."
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
@@ -19,21 +19,21 @@
             <!-- Unit Kerja Filter -->
             <div>
                 <label for="unit-filter" class="block text-sm font-medium text-gray-700 mb-2">Filter Unit Kerja</label>
-                <selectwire:model.live.debounce.500ms="selectedUnitId" id="unit-filter"
+                <select wire:model.live="selectedUnitId" id="unit-filter"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">Semua Unit Kerja</option>
                     @foreach($unitKerjas as $unit)
-                    <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                        <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
                     @endforeach
-                    </select>
+                </select>
             </div>
         </div>
 
         <!-- Success Message -->
         @if (session()->has('success'))
-        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-            {{ session('success') }}
-        </div>
+            <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                {{ session('success') }}
+            </div>
         @endif
 
         <!-- Programs Table -->
@@ -61,66 +61,66 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($programs as $program)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $program->kode ?? '-' }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900">
-                            {{ $program->program }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900">
-                            @if($editingProgram === $program->id)
-                            <!-- Edit Mode -->
-                            <select wire:model="newUnitId"
-                                class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Pilih Unit Kerja</option>
-                                @foreach($unitKerjas as $unit)
-                                <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
-                                @endforeach
-                            </select>
-                            @error('newUnitId')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                            @else
-                            <!-- Display Mode -->
-                            <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $program->parent ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
-                                {{ $program->parent ? $program->parent->nama : 'Belum Ditentukan' }}
-                            </span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
-                            @if($editingProgram === $program->id)
-                            <!-- Edit Actions -->
-                            <div class="flex justify-center space-x-2">
-                                <button wire:click="updateProgram"
-                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-medium">
-                                    Simpan
-                                </button>
-                                <button wire:click="cancelEdit"
-                                    class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-xs font-medium">
-                                    Batal
-                                </button>
-                            </div>
-                            @else
-                            <!-- Normal Actions -->
-                            <button wire:click="editProgram({{ $program->id }})"
-                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium">
-                                Edit Unit
-                            </button>
-                            @endif
-                        </td>
-                    </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ $program->kode ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                {{ $program->program }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                @if($editingProgram === $program->id)
+                                    <!-- Edit Mode -->
+                                    <select wire:model="newUnitId"
+                                        class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Pilih Unit Kerja</option>
+                                        @foreach($unitKerjas as $unit)
+                                            <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('newUnitId')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                @else
+                                    <!-- Display Mode -->
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $program->parent ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
+                                        {{ $program->parent ? $program->parent->nama : 'Belum Ditentukan' }}
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                @if($editingProgram === $program->id)
+                                    <!-- Edit Actions -->
+                                    <div class="flex justify-center space-x-2">
+                                        <button wire:click="updateProgram"
+                                            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-medium">
+                                            Simpan
+                                        </button>
+                                        <button wire:click="cancelEdit"
+                                            class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-xs font-medium">
+                                            Batal
+                                        </button>
+                                    </div>
+                                @else
+                                    <!-- Normal Actions -->
+                                    <button wire:click="editProgram({{ $program->id }})"
+                                        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium">
+                                        Edit Unit
+                                    </button>
+                                @endif
+                            </td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
-                            @if($search || $selectedUnitId)
-                            Tidak ada program yang sesuai dengan filter.
-                            @else
-                            Belum ada data program.
-                            @endif
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                                @if($search || $selectedUnitId)
+                                    Tidak ada program yang sesuai dengan filter.
+                                @else
+                                    Belum ada data program.
+                                @endif
+                            </td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>

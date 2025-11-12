@@ -185,7 +185,7 @@
                     @can('inventaris_unggah_foto_barang_datang')
                     @if ($item['lokasi_id'] == Auth::user()->lokasiStok->id)
                     <!-- With permission and location matching -->
-                    <input type="file" wire:model.live.debounce.500ms="list.{{ $index }}.bukti"
+                    <input type="file" wire:model.live="list.{{ $index }}.bukti"
                         class="hidden" id="upload-bukti-{{ $index }}">
                     <button type="button"
                         onclick="document.getElementById('upload-bukti-{{ $index }}').click()"

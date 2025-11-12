@@ -5,208 +5,202 @@
             <div>
                 <x-card title="umum" class="mb-3">
                     {{-- <form action=""> --}}
-                        <table class="w-full border-separate border-spacing-y-4">
-                            <tr>
-                                <td style="width: 40%">
-                                    <label for="nama"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                        Nama Aset *</label>
-                                </td>
-                                <td>
-                                    <input type="text" id="nama" wire:model.live.debounce.500ms="nama"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="Nama aset" required />
-                                    @error('nama')
+                    <table class="w-full border-separate border-spacing-y-4">
+                        <tr>
+                            <td style="width: 40%">
+                                <label for="nama"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                    Nama Aset *</label>
+                            </td>
+                            <td>
+                                <input type="text" id="nama" wire:model.live="nama"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    placeholder="Nama aset" required />
+                                @error('nama')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                    @enderror
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label for="kode"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                        Kode Aset *</label>
-                                </td>
-                                <td>
-                                    <input type="text" id="kode" wire:model.live.debounce.500ms="kode"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="Kode Aset" required />
-                                    @error('kode')
+                                @enderror
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="kode"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                    Kode Aset *</label>
+                            </td>
+                            <td>
+                                <input type="text" id="kode" wire:model.live="kode"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    placeholder="Kode Aset" required />
+                                @error('kode')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                    @enderror
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label for="kategori"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                        Kategori *</label>
-                                </td>
-                                <td>
-                                    <select id="kategori" wire:model.live.debounce.500ms="kategori"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                        <option value="0">Tidak Berkategori</option>
-                                        @foreach ($kategoris as $kategoriItem)
+                                @enderror
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="kategori"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                    Kategori *</label>
+                            </td>
+                            <td>
+                                <select id="kategori" wire:model.live="kategori"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                    <option value="0">Tidak Berkategori</option>
+                                    @foreach ($kategoris as $kategoriItem)
                                         {{-- <option value="{{ $kategoriItem->id }}">
-                                            {{ $kategoriItem->parent != null ? '--- ' . $kategoriItem->nama :
-                                            $kategoriItem->nama }}
+                                            {{ $kategoriItem->parent != null ? '--- ' . $kategoriItem->nama : $kategoriItem->nama }}
                                         </option> --}}
                                         @if ($kategoriItem->parent_id == null)
-                                        <!-- Parent kategoriItem -->
-                                        <option value="{{ $kategoriItem->id }}">{{ $kategoriItem->nama }}</option>
+                                            <!-- Parent kategoriItem -->
+                                            <option value="{{ $kategoriItem->id }}">{{ $kategoriItem->nama }}</option>
 
-                                        <!-- Child kategoriItems -->
-                                        @foreach ($kategoris->where('parent_id', $kategoriItem->id) as
-                                        $childkategoriItem)
-                                        <option value="{{ $childkategoriItem->id }}">---
-                                            {{ $childkategoriItem->nama }}</option>
-                                        @endforeach
+                                            <!-- Child kategoriItems -->
+                                            @foreach ($kategoris->where('parent_id', $kategoriItem->id) as $childkategoriItem)
+                                                <option value="{{ $childkategoriItem->id }}">---
+                                                    {{ $childkategoriItem->nama }}</option>
+                                            @endforeach
                                         @endif
-                                        @endforeach
-                                    </select>
-                                    @error('kategori')
+                                    @endforeach
+                                </select>
+                                @error('kategori')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                    @enderror
-                                </td>
-                            </tr>
-                        </table>
-                        {{--
-                    </form> --}}
+                                @enderror
+                            </td>
+                        </tr>
+                    </table>
+                    {{-- </form> --}}
                 </x-card>
 
             </div>
-            {{-- --}}
+            {{--  --}}
             {{-- Detail --}}
             <div>
                 <x-card title="Detail Aset" class="mb-3">
                     {{-- <form wire:submit.prevent="submit"> --}}
-                        <table class="w-full border-separate border-spacing-y-4">
-                            <!-- Merk Field -->
-                            <tr>
-                                <td style="width: 40%"><label for="merk"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Merk
-                                        *</label>
-                                </td>
-                                {{-- <td>
-                                    <input type="text" id="merk" wire:model.live.debounce.500ms="merk"
-                                        wire:focus="focusMerk"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                        placeholder="Masukkan merk" wire:blur="hideSuggestionsMerk" required>
-                                    @if ($showSuggestionsMerk)
+                    <table class="w-full border-separate border-spacing-y-4">
+                        <!-- Merk Field -->
+                        <tr>
+                            <td style="width: 40%"><label for="merk"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Merk *</label>
+                            </td>
+                            {{-- <td>
+                                <input type="text" id="merk" wire:model.live="merk" wire:focus="focusMerk"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                    placeholder="Masukkan merk" wire:blur="hideSuggestionsMerk" required>
+                                @if ($showSuggestionsMerk)
                                     <ul
                                         class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
                                         @foreach ($suggestionsMerk as $suggestionMerk)
-                                        <li wire:click="selectSuggestionMerk({{ $suggestionMerk['id'] }}, '{{ $suggestionMerk['nama'] }}')"
-                                            class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
-                                            {{ $suggestionMerk['nama'] }}
-                                        </li>
+                                            <li wire:click="selectSuggestionMerk({{ $suggestionMerk['id'] }}, '{{ $suggestionMerk['nama'] }}')"
+                                                class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
+                                                {{ $suggestionMerk['nama'] }} 
+                                            </li>
                                         @endforeach
 
                                     </ul>
-                                    @endif
-                                    @error('merk')
+                                @endif
+                                @error('merk')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                    @enderror
-                                </td> --}}
-                                <td>
-                                    <input type="text" wire:model.live.debounce.500ms="merk"
-                                        wire:input="fetchSuggestions('merk', $event.target.value)"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                        placeholder="Masukkan Merk" wire:blur="hideSuggestions('merk')" required>
-                                    @if ($suggestions['merk'])
+                                @enderror
+                            </td> --}}
+                            <td>
+                                <input type="text" wire:model.live="merk"
+                                    wire:input="fetchSuggestions('merk', $event.target.value)"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                    placeholder="Masukkan Merk" wire:blur="hideSuggestions('merk')" required>
+                                @if ($suggestions['merk'])
                                     <ul
                                         class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
                                         @foreach ($suggestions['merk'] as $suggestion)
-                                        <li wire:click="selectSuggestion('merk', '{{ $suggestion }}')"
-                                            class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
-                                            {{ $suggestion }}
-                                        </li>
+                                            <li wire:click="selectSuggestion('merk', '{{ $suggestion }}')"
+                                                class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
+                                                {{ $suggestion }}
+                                            </li>
                                         @endforeach
                                     </ul>
-                                    @endif
-                                    @error('merk')
+                                @endif
+                                @error('merk')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
-                                    @enderror
-                                </td>
+                                @enderror
+                            </td>
 
-                            </tr>
-                            <!-- Tipe Field -->
-                            <tr>
-                                <td><label for="tipe"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipe</label>
-                                </td>
-                                <td>
-                                    <input type="text" id="tipe" wire:model.live.debounce.500ms="tipe"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                        placeholder="Masukkan tipe">
-                                    @error('tipe')
+                        </tr>
+                        <!-- Tipe Field -->
+                        <tr>
+                            <td><label for="tipe"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipe</label>
+                            </td>
+                            <td>
+                                <input type="text" id="tipe" wire:model.live="tipe"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                    placeholder="Masukkan tipe">
+                                @error('tipe')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                    @enderror
-                                </td>
-                            </tr>
-                            <!-- Produsen Field -->
-                            <tr>
-                                <td><label for="produsen"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Produsen</label>
-                                </td>
-                                <td>
-                                    <input type="text" id="produsen" wire:model.live.debounce.500ms="produsen"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                        placeholder="Masukkan produsen">
-                                    @error('produsen')
+                                @enderror
+                            </td>
+                        </tr>
+                        <!-- Produsen Field -->
+                        <tr>
+                            <td><label for="produsen"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Produsen</label>
+                            </td>
+                            <td>
+                                <input type="text" id="produsen" wire:model.live="produsen"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                    placeholder="Masukkan produsen">
+                                @error('produsen')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                    @enderror
-                                </td>
-                            </tr>
-                            <!-- No. Seri / Kode Produksi Field -->
-                            <tr>
-                                <td><label for="noseri"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">No. Seri
-                                        / Kode Produksi</label></td>
-                                <td>
-                                    <input type="text" id="noseri" wire:model.live.debounce.500ms="noseri"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                        placeholder="Masukkan nomor seri atau kode produksi">
-                                    @error('noseri')
+                                @enderror
+                            </td>
+                        </tr>
+                        <!-- No. Seri / Kode Produksi Field -->
+                        <tr>
+                            <td><label for="noseri"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">No. Seri
+                                    / Kode Produksi</label></td>
+                            <td>
+                                <input type="text" id="noseri" wire:model.live="noseri"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                    placeholder="Masukkan nomor seri atau kode produksi">
+                                @error('noseri')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                    @enderror
-                                </td>
-                            </tr>
-                            <!-- Tahun Produksi Field -->
-                            <tr>
-                                <td><label for="tahunProduksi"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tahun
-                                        Produksi</label></td>
-                                <td>
-                                    <input type="text" id="tahunProduksi" wire:model.lazy="tahunProduksi"
-                                        data-numeric-input
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                        placeholder="Masukkan tahun produksi (YYYY)">
-                                    @error('tahunProduksi')
+                                @enderror
+                            </td>
+                        </tr>
+                        <!-- Tahun Produksi Field -->
+                        <tr>
+                            <td><label for="tahunProduksi"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tahun
+                                    Produksi</label></td>
+                            <td>
+                                <input type="text" id="tahunProduksi" wire:model.lazy="tahunProduksi"
+                                    data-numeric-input
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                    placeholder="Masukkan tahun produksi (YYYY)">
+                                @error('tahunProduksi')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                    @enderror
-                                </td>
-                            </tr>
-                            <!-- Deskripsi Field -->
-                            <tr>
-                                <td><label for="deskripsi"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deskripsi</label>
-                                </td>
-                                <td>
-                                    <textarea id="deskripsi" wire:model.live.debounce.500ms="deskripsi"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                        placeholder="Masukkan deskripsi" rows="3"></textarea>
-                                    @error('deskripsi')
+                                @enderror
+                            </td>
+                        </tr>
+                        <!-- Deskripsi Field -->
+                        <tr>
+                            <td><label for="deskripsi"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deskripsi</label>
+                            </td>
+                            <td>
+                                <textarea id="deskripsi" wire:model.live="deskripsi"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                                    placeholder="Masukkan deskripsi" rows="3"></textarea>
+                                @error('deskripsi')
                                     <span class="text-sm text-red-500 font-semibold">{{ the_message }}</span>
-                                    @enderror
-                                </td>
-                            </tr>
-                        </table>
-                        {{--
-                    </form> --}}
+                                @enderror
+                            </td>
+                        </tr>
+                    </table>
+                    {{-- </form> --}}
                     @push('scripts')
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
                                 const numericInputs = document.querySelectorAll('input[data-numeric-input]');
 
                                 numericInputs.forEach(input => {
@@ -218,12 +212,12 @@
                                     });
                                 });
                             });
-                    </script>
+                        </script>
                     @endpush
                 </x-card>
 
             </div>
-            {{-- --}}
+            {{--  --}}
             {{-- Pembelian --}}
             <div>
                 <x-card title="Pembelian">
@@ -235,12 +229,11 @@
                                     Pembelian *</label>
                             </td>
                             <td>
-                                <input type="date" id="tanggalPembelian"
-                                    wire:model.live.debounce.500ms="tanggalPembelian"
+                                <input type="date" id="tanggalPembelian" wire:model.live="tanggalPembelian"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                                     required placeholder="Pilih tanggal">
                                 @error('tanggalPembelian')
-                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
                         </tr>
@@ -252,44 +245,43 @@
                                     Distributor *</label>
                             </td>
                             {{-- <td>
-                                <input type="text" id="toko" wire:model.live.debounce.500ms="toko"
-                                    wire:focus="focusToko"
+                                <input type="text" id="toko" wire:model.live="toko" wire:focus="focusToko"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                     placeholder="Masukkan toko" wire:blur="hideSuggestionsToko" required>
                                 @if ($showSuggestionsToko)
-                                <ul
-                                    class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
-                                    @foreach ($suggestionsToko as $suggestionToko)
-                                    <li wire:click="selectSuggestionToko({{ $suggestionToko['id'] }}, '{{ $suggestionToko['nama'] }}')"
-                                        class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
-                                        {{ $suggestionToko['nama'] }}
-                                    </li>
-                                    @endforeach
+                                    <ul
+                                        class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                        @foreach ($suggestionsToko as $suggestionToko)
+                                            <li wire:click="selectSuggestionToko({{ $suggestionToko['id'] }}, '{{ $suggestionToko['nama'] }}')"
+                                                class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
+                                                {{ $suggestionToko['nama'] }}
+                                            </li>
+                                        @endforeach
 
-                                </ul>
+                                    </ul>
                                 @endif
                                 @error('toko')
-                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td> --}}
                             <td>
-                                <input type="text" wire:model.live.debounce.500ms="toko"
+                                <input type="text" wire:model.live="toko"
                                     wire:input="fetchSuggestions('toko', $event.target.value)"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                     placeholder="Masukkan toko" wire:blur="hideSuggestions('toko')" required>
                                 @if ($suggestions['toko'])
-                                <ul
-                                    class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
-                                    @foreach ($suggestions['toko'] as $suggestion)
-                                    <li wire:click="selectSuggestion('toko', '{{ $suggestion }}')"
-                                        class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
-                                        {{ $suggestion }}
-                                    </li>
-                                    @endforeach
-                                </ul>
+                                    <ul
+                                        class="absolute z-20 w-96 bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                        @foreach ($suggestions['toko'] as $suggestion)
+                                            <li wire:click="selectSuggestion('toko', '{{ $suggestion }}')"
+                                                class="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer transition duration-200">
+                                                {{ $suggestion }}
+                                            </li>
+                                        @endforeach
+                                    </ul>
                                 @endif
                                 @error('toko')
-                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </td>
 
@@ -302,11 +294,11 @@
                                     Invoice</label>
                             </td>
                             <td>
-                                <input type="text" id="invoice" wire:model.live.debounce.500ms="invoice"
+                                <input type="text" id="invoice" wire:model.live="invoice"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                                     placeholder="Masukkan nomor invoice">
                                 @error('invoice')
-                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
                         </tr>
@@ -320,7 +312,7 @@
                             </td>
                             <td>
                                 <div class="flex items-center">
-                                    <input type="number" id="jumlah" wire:model.live.debounce.500ms="jumlah" value="1"
+                                    <input type="number" id="jumlah" wire:model.live="jumlah" value="1"
                                         min="1"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                                         required placeholder="Masukkan jumlah">
@@ -328,7 +320,7 @@
                                         class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">Unit</label>
                                 </div>
                                 @error('jumlah')
-                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
                         </tr>
@@ -341,11 +333,11 @@
                                     (Rp) *</label>
                             </td>
                             <td>
-                                <input type="text" id="hargaSatuan" wire:model.live.debounce.500ms="hargaSatuan"
+                                <input type="text" id="hargaSatuan" wire:model.live="hargaSatuan"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                                     required placeholder="Masukkan harga satuan">
                                 @error('hargaSatuan')
-                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
                         </tr>
@@ -358,7 +350,7 @@
                                     (Rp)</label>
                             </td>
                             <td>
-                                <input type="text" id="hargaTotal" wire:model.live.debounce.500ms="hargaTotal"
+                                <input type="text" id="hargaTotal" wire:model.live="hargaTotal"
                                     class="bg-gray-200 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                                     disabled placeholder="Harga total akan dihitung otomatis">
                             </td>
@@ -373,7 +365,7 @@
                             </td>
                             <td>
                                 <div class="flex items-center">
-                                    <input type="number" id="lamagaransi" wire:model.live.debounce.500ms="lamagaransi"
+                                    <input type="number" id="lamagaransi" wire:model.live="lamagaransi"
                                         value="" min="1"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"
                                         required placeholder="Masukkan Lama Garansi">
@@ -381,7 +373,7 @@
                                         class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">Tahun</label>
                                 </div>
                                 @error('lamagaransi')
-                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
                         </tr>
@@ -400,78 +392,78 @@
                                     + Unggah File
                                 </label>
                                 @error('newGaransiAttachments.*')
-                                <span class="text-sm text-red-500">{{ $message }}</span>
+                                    <span class="text-sm text-red-500">{{ $message }}</span>
                                 @enderror
                                 <div class="mt-3">
                                     @if (!empty($oldgaransiattachments))
-                                    @foreach ($oldgaransiattachments as $attachment)
-                                    <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
-                                        <span class="flex items-center space-x-3">
-                                            @php
-                                            // Lampiran lama menggunakan properti dari model Lampiran
-                                            $filePath = $attachment->file; // Properti `file` dari database
-                                            $fileType = pathinfo($filePath, PATHINFO_EXTENSION);
-                                            @endphp
-                                            <span class="text-primary-600">
-                                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-                                                <i class="fa-solid fa-image text-green-500"></i>
-                                                @elseif($fileType == 'pdf')
-                                                <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                                @elseif(in_array($fileType, ['doc', 'docx']))
-                                                <i class="fa-solid fa-file-word text-blue-500"></i>
-                                                @else
-                                                <i class="fa-solid fa-file text-gray-500"></i>
-                                                @endif
-                                            </span>
+                                        @foreach ($oldgaransiattachments as $attachment)
+                                            <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
+                                                <span class="flex items-center space-x-3">
+                                                    @php
+                                                        // Lampiran lama menggunakan properti dari model Lampiran
+                                                        $filePath = $attachment->file; // Properti `file` dari database
+                                                        $fileType = pathinfo($filePath, PATHINFO_EXTENSION);
+                                                    @endphp
+                                                    <span class="text-primary-600">
+                                                        @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                                            <i class="fa-solid fa-image text-green-500"></i>
+                                                        @elseif($fileType == 'pdf')
+                                                            <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                                        @elseif(in_array($fileType, ['doc', 'docx']))
+                                                            <i class="fa-solid fa-file-word text-blue-500"></i>
+                                                        @else
+                                                            <i class="fa-solid fa-file text-gray-500"></i>
+                                                        @endif
+                                                    </span>
 
-                                            <!-- File name with link to the saved file -->
-                                            <span>
-                                                <a href="{{ asset('storage/GaransiAset/' . $filePath) }}"
-                                                    target="_blank" class="text-gray-800 hover:underline">
-                                                    {{ basename($filePath) }}
-                                                </a>
-                                            </span>
-                                        </span>
-                                        <button type="button" {{--
-                                            wire:click="removeOldAttachment({{ $attachment->id }})" --}}
-                                            onclick="confirmRemove('Apakah Anda yakin ingin menghapus garansi ini? Garansi yang terhapus tidak dapat didownload dan dikembalikan lagi', () => @this.call('removeOldGaransiAttachment',{{ $attachment->id }}))"
-                                            class="text-red-500 hover:text-red-700">
-                                            &times;
-                                        </button>
-                                    </div>
-                                    @endforeach
+                                                    <!-- File name with link to the saved file -->
+                                                    <span>
+                                                        <a href="{{ asset('storage/GaransiAset/' . $filePath) }}"
+                                                            target="_blank" class="text-gray-800 hover:underline">
+                                                            {{ basename($filePath) }}
+                                                        </a>
+                                                    </span>
+                                                </span>
+                                                <button type="button" {{-- wire:click="removeOldAttachment({{ $attachment->id }})" --}}
+                                                    onclick="confirmRemove('Apakah Anda yakin ingin menghapus garansi ini? Garansi yang terhapus tidak dapat didownload dan dikembalikan lagi', () => @this.call('removeOldGaransiAttachment',{{ $attachment->id }}))"
+                                                    class="text-red-500 hover:text-red-700">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                        @endforeach
                                     @endif
                                     @if ($garansiattachments)
-                                    @foreach ($garansiattachments as $index => $attachment)
-                                    <div class="flex  items-center justify-between border-b-4 p-2 rounded my-1">
-                                        <span><span class="text-primary-600 me-3"> @php
-                                                $fileType = $attachment->getClientOriginalExtension();
+                                        @foreach ($garansiattachments as $index => $attachment)
+                                            <div
+                                                class="flex  items-center justify-between border-b-4 p-2 rounded my-1">
+                                                <span><span class="text-primary-600 me-3"> @php
+                                                    $fileType = $attachment->getClientOriginalExtension();
                                                 @endphp
-                                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-                                                <i class="fa-solid fa-image text-green-500"></i>
-                                                @elseif($fileType == 'pdf')
-                                                <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                                @elseif($fileType == 'doc' || $fileType == 'docx')
-                                                <i class="fa-solid fa-file-word text-blue-500"></i>
-                                                @else
-                                                <i class="fa-solid fa-file text-gray-500"></i>
-                                                @endif
-                                            </span><span>{{ $attachment->getClientOriginalName() }}</span></span>
-                                        <button wire:click="removeGaransiAttachment({{ $index }})"
-                                            class="text-red-500 hover:text-red-700">&times;</button>
-                                    </div>
-                                    @endforeach
+                                                        @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                                            <i class="fa-solid fa-image text-green-500"></i>
+                                                        @elseif($fileType == 'pdf')
+                                                            <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                                        @elseif($fileType == 'doc' || $fileType == 'docx')
+                                                            <i class="fa-solid fa-file-word text-blue-500"></i>
+                                                        @else
+                                                            <i class="fa-solid fa-file text-gray-500"></i>
+                                                        @endif
+                                                    </span><span>{{ $attachment->getClientOriginalName() }}</span></span>
+                                                <button wire:click="removeGaransiAttachment({{ $index }})"
+                                                    class="text-red-500 hover:text-red-700">&times;</button>
+                                            </div>
+                                        @endforeach
                                     @endif
                                 </div>
                             </td>
                         </tr>
                     </table>
                     @push('scripts')
-                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-                    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
+                        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
                                 const jumlahInput = document.querySelector('#jumlah');
                                 const hargaSatuanInput = document.querySelector('#hargaSatuan');
                                 const hargaTotalInput = document.querySelector('#hargaTotal');
@@ -547,11 +539,11 @@
                                     bubbles: true
                                 }));
                             });
-                    </script>
+                        </script>
                     @endpush
                 </x-card>
             </div>
-            {{-- --}}
+            {{--  --}}
         </div>
         <div>
             {{-- Foto --}}
@@ -563,12 +555,12 @@
                             <div class="w-60 h-60 overflow-hidden relative flex justify-center rounded-lg cursor-pointer"
                                 @click="open = true; document.body.classList.add('overflow-hidden')">
                                 @if ($img)
-                                <button
-                                    class="absolute top-2 right-2 bg-red-500 hover:bg-red-700 transition duration-200 text-white rounded-full p-1 text-lg leading-none h-8 w-8 flex items-center justify-center shadow"
-                                    wire:click="removeImg"
-                                    @click.stop="document.body.classList.remove('overflow-hidden'); open = false;">
-                                    &times;
-                                </button>
+                                    <button
+                                        class="absolute top-2 right-2 bg-red-500 hover:bg-red-700 transition duration-200 text-white rounded-full p-1 text-lg leading-none h-8 w-8 flex items-center justify-center shadow"
+                                        wire:click="removeImg"
+                                        @click.stop="document.body.classList.remove('overflow-hidden'); open = false;">
+                                        &times;
+                                    </button>
                                 @endif
                                 <img src="{{ is_string($img) ? asset('storage/asetImg/' . $img) : ($img ? $img->temporaryUrl() : asset('img/default-pic.png')) }}"
                                     alt="Preview Image" class="w-full h-full object-cover object-center">
@@ -593,7 +585,7 @@
                             <div class="mb-3 text-sm">
                                 Anda bisa mengunggah satu foto utama aset di sini.
                             </div>
-                            <input type="file" wire:model.live.debounce.500ms="img" accept="image/*" class="hidden"
+                            <input type="file" wire:model.live="img" accept="image/*" class="hidden"
                                 id="imgUpload">
                             <label for="imgUpload"
                                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">
@@ -602,8 +594,8 @@
                         </div>
                     </div>
                     @push('scripts')
-                    <script type="module">
-                        document.addEventListener('DOMContentLoaded', function() {
+                        <script type="module">
+                            document.addEventListener('DOMContentLoaded', function() {
                                 const Toast = Swal.mixin({
                                     toast: true,
                                     position: "top-end",
@@ -624,12 +616,12 @@
                                     });
                                 });
                             });
-                    </script>
+                        </script>
                     @endpush
                 </x-card>
 
             </div>
-            {{-- --}}
+            {{--  --}}
             {{-- Lampiran --}}
             <div>
                 <div>
@@ -639,74 +631,74 @@
                                 <div class="mb-3 text-sm">
                                     Anda bisa mengunggah dokumen, invoice, sertifikat, atau foto tambahan di sini.
                                 </div>
-                                <input type="file" wire:model.live.debounce.500ms="newAttachments" multiple
-                                    class="hidden" id="fileUpload">
+                                <input type="file" wire:model.live="newAttachments" multiple class="hidden"
+                                    id="fileUpload">
                                 <label for="fileUpload"
                                     class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">
                                     + Unggah Lampiran
                                 </label>
                                 @error('newAttachments.*')
-                                <span class="text-sm text-red-500">{{ $message }}</span>
+                                    <span class="text-sm text-red-500">{{ $message }}</span>
                                 @enderror
                                 <div class="mt-3">
                                     @if (!empty($oldattachments))
-                                    @foreach ($oldattachments as $attachment)
-                                    <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
-                                        <span class="flex items-center space-x-3">
-                                            @php
-                                            // Lampiran lama menggunakan properti dari model Lampiran
-                                            $filePath = $attachment->file; // Properti `file` dari database
-                                            $fileType = pathinfo($filePath, PATHINFO_EXTENSION);
-                                            @endphp
-                                            <span class="text-primary-600">
-                                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-                                                <i class="fa-solid fa-image text-green-500"></i>
-                                                @elseif($fileType == 'pdf')
-                                                <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                                @elseif(in_array($fileType, ['doc', 'docx']))
-                                                <i class="fa-solid fa-file-word text-blue-500"></i>
-                                                @else
-                                                <i class="fa-solid fa-file text-gray-500"></i>
-                                                @endif
-                                            </span>
+                                        @foreach ($oldattachments as $attachment)
+                                            <div class="flex items-center justify-between border-b-4 p-2 rounded my-1">
+                                                <span class="flex items-center space-x-3">
+                                                    @php
+                                                        // Lampiran lama menggunakan properti dari model Lampiran
+                                                        $filePath = $attachment->file; // Properti `file` dari database
+                                                        $fileType = pathinfo($filePath, PATHINFO_EXTENSION);
+                                                    @endphp
+                                                    <span class="text-primary-600">
+                                                        @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                                            <i class="fa-solid fa-image text-green-500"></i>
+                                                        @elseif($fileType == 'pdf')
+                                                            <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                                        @elseif(in_array($fileType, ['doc', 'docx']))
+                                                            <i class="fa-solid fa-file-word text-blue-500"></i>
+                                                        @else
+                                                            <i class="fa-solid fa-file text-gray-500"></i>
+                                                        @endif
+                                                    </span>
 
-                                            <!-- File name with link to the saved file -->
-                                            <span>
-                                                <a href="{{ asset('storage/LampiranAset/' . $filePath) }}"
-                                                    target="_blank" class="text-gray-800 hover:underline">
-                                                    {{ basename($filePath) }}
-                                                </a>
-                                            </span>
-                                        </span>
-                                        <button type="button" {{--
-                                            wire:click="removeOldAttachment({{ $attachment->id }})" --}}
-                                            onclick="confirmRemove('Apakah Anda yakin ingin menghapus lampiran ini? Lampiran yang terhapus tidak dapat didownload dan dikembalikan lagi.', () => @this.call('removeOldAttachment',{{ $attachment->id }}))"
-                                            class="text-red-500 hover:text-red-700">
-                                            &times;
-                                        </button>
-                                    </div>
-                                    @endforeach
+                                                    <!-- File name with link to the saved file -->
+                                                    <span>
+                                                        <a href="{{ asset('storage/LampiranAset/' . $filePath) }}"
+                                                            target="_blank" class="text-gray-800 hover:underline">
+                                                            {{ basename($filePath) }}
+                                                        </a>
+                                                    </span>
+                                                </span>
+                                                <button type="button" {{-- wire:click="removeOldAttachment({{ $attachment->id }})" --}}
+                                                    onclick="confirmRemove('Apakah Anda yakin ingin menghapus lampiran ini? Lampiran yang terhapus tidak dapat didownload dan dikembalikan lagi.', () => @this.call('removeOldAttachment',{{ $attachment->id }}))"
+                                                    class="text-red-500 hover:text-red-700">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                        @endforeach
                                     @endif
                                     @if ($attachments)
-                                    @foreach ($attachments as $index => $attachment)
-                                    <div class="flex  items-center justify-between border-b-4 p-2 rounded my-1">
-                                        <span><span class="text-primary-600 me-3"> @php
-                                                $fileType = $attachment->getClientOriginalExtension();
+                                        @foreach ($attachments as $index => $attachment)
+                                            <div
+                                                class="flex  items-center justify-between border-b-4 p-2 rounded my-1">
+                                                <span><span class="text-primary-600 me-3"> @php
+                                                    $fileType = $attachment->getClientOriginalExtension();
                                                 @endphp
-                                                @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
-                                                <i class="fa-solid fa-image text-green-500"></i>
-                                                @elseif($fileType == 'pdf')
-                                                <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                                @elseif($fileType == 'doc' || $fileType == 'docx')
-                                                <i class="fa-solid fa-file-word text-blue-500"></i>
-                                                @else
-                                                <i class="fa-solid fa-file text-gray-500"></i>
-                                                @endif
-                                            </span><span>{{ $attachment->getClientOriginalName() }}</span></span>
-                                        <button wire:click="removeAttachment({{ $index }})"
-                                            class="text-red-500 hover:text-red-700">&times;</button>
-                                    </div>
-                                    @endforeach
+                                                        @if (in_array($fileType, ['png', 'jpg', 'jpeg', 'gif']))
+                                                            <i class="fa-solid fa-image text-green-500"></i>
+                                                        @elseif($fileType == 'pdf')
+                                                            <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                                        @elseif($fileType == 'doc' || $fileType == 'docx')
+                                                            <i class="fa-solid fa-file-word text-blue-500"></i>
+                                                        @else
+                                                            <i class="fa-solid fa-file text-gray-500"></i>
+                                                        @endif
+                                                    </span><span>{{ $attachment->getClientOriginalName() }}</span></span>
+                                                <button wire:click="removeAttachment({{ $index }})"
+                                                    class="text-red-500 hover:text-red-700">&times;</button>
+                                            </div>
+                                        @endforeach
                                     @endif
                                 </div>
                             </div>
@@ -715,12 +707,12 @@
                 </div>
 
             </div>
-            {{-- --}}
+            {{--  --}}
             {{-- Keterangan --}}
             <div>
                 <x-card title="Keterangan" class="mb-3">
                     <div class="flex mb-3">
-                        <textarea id="keterangan" wire:model.live.debounce.500ms="keterangan"
+                        <textarea id="keterangan" wire:model.live="keterangan"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                             placeholder="Masukkan Keterangan" rows="4"></textarea>
                     </div>
@@ -730,13 +722,13 @@
                             Status Peminjaman </label>
                         <label class="flex items-center">
                             <input type="radio" name="peminjaman" id="asetBisaDipinjam"
-                                wire:model.live.debounce.500ms="peminjaman" value="1"
+                                wire:model.live="peminjaman" value="1"
                                 class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
                             <span class="ml-2 text-gray-900 dark:text-white">Bisa Dipinjam</span>
                         </label>
                         <label class="flex items-center">
                             <input type="radio" name="peminjaman" id="asetTidakBisaDipinjam"
-                                wire:model.live.debounce.500ms="peminjaman" value="0"
+                                wire:model.live="peminjaman" value="0"
                                 class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
                             <span class="ml-2 text-gray-900 dark:text-white">Tidak Bisa Dipinjam</span>
                         </label>
@@ -744,21 +736,22 @@
                 </x-card>
 
             </div>
-            {{-- --}}
+            {{--  --}}
             {{-- Penyusutan --}}
             <x-card title="Penyusutan" class="mb-3">
                 <table class="w-full border-separate border-spacing-y-4">
                     <tr>
                         <td style="width: 40%">
-                            <label for="umur" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            <label for="umur"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                 Umur Ekonomi *</label>
                         </td>
                         <td class="">
-                            <input type="number" id="umur" wire:model.live.debounce.500ms="umur"
+                            <input type="number" id="umur" wire:model.live="umur"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Umur" required />
                             @error('umur')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
                         </td>
                     </tr>
@@ -769,17 +762,17 @@
                                 Penyusutan (Rp)</label>
                         </td>
                         <td>
-                            <input type="text" id="penyusutan" wire:model.live.debounce.500ms="penyusutan" disabled
+                            <input type="text" id="penyusutan" wire:model.live="penyusutan" disabled
                                 class="bg-gray-50 border border-gray-300 text-gray-900 cursor-not-allowed text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Penyusutan Aset" required />
                             @error('penyusutan')
-                            <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                             @enderror
                         </td>
                     </tr>
                 </table>
             </x-card>
-            {{-- --}}
+            {{--  --}}
         </div>
     </div>
     <div class="flex justify-end">

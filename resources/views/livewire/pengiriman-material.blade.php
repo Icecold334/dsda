@@ -13,7 +13,7 @@
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Kontrak</label>
                 <div class="flex gap-2">
-                    <input type="text" wire:model.live.debounce.500ms="nomor_kontrak"
+                    <input type="text" wire:model.live="nomor_kontrak"
                         class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" />
                     <button wire:click="cariKontrak"
                         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
@@ -54,20 +54,20 @@
             </div>
             <div class="mb-4">
                 <label class="block text-sm font-medium mb-1">Lokasi Pengiriman (Gudang)</label>
-                <selectwire:model.live.debounce.500ms="gudang_id"
+                <select wire:model.live="gudang_id"
                     class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
                     <option value="">Pilih Gudang</option>
                     @foreach ($listGudang as $gudang)
                     <option value="{{ $gudang->id }}">{{ $gudang->nama }}</option>
                     @endforeach
-                    </select>
-                    @error('gudang_id')
-                    <span class="text-sm text-red-500">{{ $message }}</span>
-                    @enderror
+                </select>
+                @error('gudang_id')
+                <span class="text-sm text-red-500">{{ $message }}</span>
+                @enderror
             </div>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pengiriman</label>
-                <input type="date" wire:model.live.debounce.500ms="tanggal_pengiriman"
+                <input type="date" wire:model.live="tanggal_pengiriman"
                     class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
                 @error('tanggal_pengiriman')
                 <span class="text-sm text-red-500">{{ $message }}</span>
@@ -78,53 +78,53 @@
         <x-card title="Input Barang">
             <div class="mb-4">
                 <label class="block mb-1 font-medium">Pilih Barang</label>
-                <selectwire:model.live.debounce.500ms="newBarangId"
+                <select wire:model.live="newBarangId"
                     class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
                     <option value="">-- Pilih Barang --</option>
                     @foreach ($barangs as $barang)
                     <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
                     @endforeach
-                    </select>
+                </select>
             </div>
 
             <div class="mb-4">
                 <label class="block mb-1 font-medium">Pilih Merk</label>
-                <selectwire:model.live.debounce.500ms="newMerkId"
+                <select wire:model.live="newMerkId"
                     class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
                     <option value="">-- Pilih Merk --</option>
                     @foreach ($merks as $merk)
                     <option value="{{ $merk->id }}">{{ $merk->nama }} {{ $merk->tipe }} {{ $merk->ukuran }}</option>
                     @endforeach
-                    </select>
+                </select>
             </div>
 
             <div class="mb-4">
                 <label class="block mb-1 font-medium">Jumlah (maks: {{ $maxJumlah }})</label>
-                <input type="number" wire:model.live.debounce.500ms="newJumlah" min="1" max="{{ $maxJumlah }}"
+                <input type="number" wire:model.live="newJumlah" min="1" max="{{ $maxJumlah }}"
                     class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
             </div>
 
             <div class="mb-4">
                 <label class="block mb-1 font-medium">Pilih Bagian (Opsional)</label>
-                <selectwire:model.live.debounce.500ms="newBagianId"
+                <select wire:model.live="newBagianId"
                     class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
                     <option value="">-- Pilih Bagian --</option>
                     @foreach ($bagians as $bagian)
                     <option value="{{ $bagian->id }}">{{ $bagian->nama }}</option>
                     @endforeach
-                    </select>
+                </select>
             </div>
 
             <div class="mb-4">
                 <label class="block mb-1 font-medium">Pilih Posisi (Opsional)</label>
-                <selectwire:model.live.debounce.500ms="newPosisiId"
+                <select wire:model.live="newPosisiId"
                     class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                     @disabled(!$newBagianId)>
                     <option value="">-- Pilih Posisi --</option>
                     @foreach ($posisis as $posisi)
                     <option value="{{ $posisi->id }}">{{ $posisi->nama }}</option>
                     @endforeach
-                    </select>
+                </select>
             </div>
 
             <button wire:click="addToList"

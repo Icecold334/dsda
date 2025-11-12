@@ -4,7 +4,7 @@
         <h1 class="text-2xl font-bold text-primary-900">
             Aset Non Aktif
             @if (auth()->user()->unitKerja)
-            {{ auth()->user()->unitKerja->nama }}
+                {{ auth()->user()->unitKerja->nama }}
             @endif
         </h1>
         <div>
@@ -25,31 +25,30 @@
                             <!-- Filter Nama -->
                             <div>
                                 <label for="nama" class="text-sm font-medium">Cari Nama Aset</label>
-                                <input type="text" wire:model.live.debounce.500ms="nama"
-                                    class="border p-2 rounded w-full">
+                                <input type="text" wire:model.live="nama" class="border p-2 rounded w-full">
                             </div>
 
                             <!-- Filter Kategori -->
                             <div>
                                 <label class="text-sm font-medium">Kategori</label>
-                                <selectwire:model.live.debounce.500ms="kategori_id" class="border p-2 rounded w-full">
+                                <select wire:model.live="kategori_id" class="border p-2 rounded w-full">
                                     <option value="">Semua Kategori</option>
                                     @foreach ($kategoris as $kategori)
-                                    <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
+                                        <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
                                     @endforeach
-                                    </select>
+                                </select>
                             </div>
 
                             <!-- Filter Sebab -->
                             <div>
                                 <label for="sebab" class="text-sm font-medium">Sebab</label>
-                                <selectwire:model.live.debounce.500ms="sebab" name="sebab" id="sebab"
+                                <select wire:model.live="sebab" name="sebab" id="sebab"
                                     class="border p-2 rounded w-full">
                                     <option value="">Semua Sebab</option>
                                     @foreach ($sebabs as $sebab)
-                                    <option value="{{ $sebab }}">{{ $sebab }}</option>
+                                        <option value="{{ $sebab }}">{{ $sebab }}</option>
                                     @endforeach
-                                    </select>
+                                </select>
                             </div>
                         </div>
 
@@ -68,23 +67,23 @@
                         <div>
                             <label for="order_by" class="text-sm font-medium">Urutkan
                                 Berdasarkan</label>
-                            <selectwire:model.live.debounce.500ms="orderBy" id="order_by"
+                            <select wire:model.live="orderBy" id="order_by"
                                 class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
                                 <option value="nama">Nama Aset</option>
                                 <option value="tanggalnonaktif">Tanggal Non-Aktif</option>
                                 <option value="sebabnonaktif">Sebab Non-Aktif</option>
-                                </select>
+                            </select>
                         </div>
 
                         <!-- Dropdown untuk Arah Urutan -->
                         <div>
                             <label for="order_direction" class="text-sm font-medium">Arah
                                 Urutan</label>
-                            <selectwire:model.live.debounce.500ms="orderDirection" id="order_direction"
+                            <select wire:model.live="orderDirection" id="order_direction"
                                 class="border border-gray-300 rounded-lg p-2 mt-1 w-full">
                                 <option value="asc">Menaik</option>
                                 <option value="desc">Menurun</option>
-                                </select>
+                            </select>
                         </div>
 
                         <div class="flex justify-end items-center space-x-4">
@@ -94,20 +93,20 @@
                             </button>
 
                             @can('aset_xls')
-                            <div x-data="{ tooltip: false }" class="relative inline-block">
-                                <!-- Tombol Download Excel -->
-                                <button wire:click="exportExcel" @mouseover="tooltip = true"
-                                    @mouseleave="tooltip = false"
-                                    class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
-                                        class="fa-solid fa-file-excel"></i></a>
-                                </button>
+                                <div x-data="{ tooltip: false }" class="relative inline-block">
+                                    <!-- Tombol Download Excel -->
+                                    <button wire:click="exportExcel" @mouseover="tooltip = true"
+                                        @mouseleave="tooltip = false"
+                                        class="bg-white text-blue-500 h-10 border border-blue-500 rounded-lg px-4 py-2 flex items-center hover:bg-blue-500 hover:text-white transition-colors"><i
+                                            class="fa-solid fa-file-excel"></i></a>
+                                    </button>
 
-                                <!-- Tooltip -->
-                                <div x-show="tooltip" x-transition
-                                    class="absolute left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-lg">
-                                    Download dalam format MS Excel
+                                    <!-- Tooltip -->
+                                    <div x-show="tooltip" x-transition
+                                        class="absolute left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-lg">
+                                        Download dalam format MS Excel
+                                    </div>
                                 </div>
-                            </div>
                             @endcan
                         </div>
                     </div>
@@ -130,133 +129,134 @@
         </thead>
         <tbody>
             @if (collect($asets)->isNotEmpty())
-            @foreach ($asets as $aset)
-            <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl ">
-                <td class="py-3 px-6 w-[15rem]">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div x-data="{ isOpen: false, qrImage: '', judul: '', baris1: '', baris2: '' }">
-                            @if (isset($aset['qr_code']))
-                            <!-- Thumbnail QR Code -->
-                            <div class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white cursor-pointer"
-                                @click="isOpen = true; qrImage = '{{ $aset['qr_code']['qr_image'] }}'; judul = '{{ $aset['qr_code']['judul'] }}'; baris1 = '{{ $aset['qr_code']['baris1'] }}'; baris2 = '{{ $aset['qr_code']['baris2'] }}'">
-                                <img class="w-full h-full object-cover object-center rounded-sm"
-                                    src="{{ $aset['qr_code']['qr_image'] }}" alt="QR Code">
-                            </div>
-                            @else
-                            <div class="w-20 h-20 flex justify-center p-1 border-2 rounded-lg bg-white">
-                                <p class="text-gray-500 text-sm">QR Not Found</p>
-                            </div>
-                            @endif
+                @foreach ($asets as $aset)
+                    <tr class="bg-gray-50  hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl ">
+                        <td class="py-3 px-6 w-[15rem]">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div x-data="{ isOpen: false, qrImage: '', judul: '', baris1: '', baris2: '' }">
+                                    @if (isset($aset['qr_code']))
+                                        <!-- Thumbnail QR Code -->
+                                        <div class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white cursor-pointer"
+                                            @click="isOpen = true; qrImage = '{{ $aset['qr_code']['qr_image'] }}'; judul = '{{ $aset['qr_code']['judul'] }}'; baris1 = '{{ $aset['qr_code']['baris1'] }}'; baris2 = '{{ $aset['qr_code']['baris2'] }}'">
+                                            <img class="w-full h-full object-cover object-center rounded-sm"
+                                                src="{{ $aset['qr_code']['qr_image'] }}" alt="QR Code">
+                                        </div>
+                                    @else
+                                        <div class="w-20 h-20 flex justify-center p-1 border-2 rounded-lg bg-white">
+                                            <p class="text-gray-500 text-sm">QR Not Found</p>
+                                        </div>
+                                    @endif
 
-                            <!-- Modal QR Code -->
-                            <div x-show="isOpen"
-                                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-                                x-cloak x-transition:enter="transition ease-out duration-200"
-                                x-transition:enter-start="opacity-0 transform scale-90"
-                                x-transition:leave="transition ease-in duration-200"
-                                x-transition:leave-end="opacity-0 transform scale-90">
+                                    <!-- Modal QR Code -->
+                                    <div x-show="isOpen"
+                                        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                                        x-cloak x-transition:enter="transition ease-out duration-200"
+                                        x-transition:enter-start="opacity-0 transform scale-90"
+                                        x-transition:leave="transition ease-in duration-200"
+                                        x-transition:leave-end="opacity-0 transform scale-90">
 
-                                <div class="bg-white p-4 rounded-lg shadow-lg relative max-w-sm text-center">
-                                    <!-- Tombol Tutup -->
-                                    <button @click="isOpen = false"
-                                        class="absolute -top-4 -right-4 text-gray-600 hover:text-gray-900 w-7 h-7 bg-red-500 rounded-full z-50 text-white">
-                                        X
-                                    </button>
+                                        <div class="bg-white p-4 rounded-lg shadow-lg relative max-w-sm text-center">
+                                            <!-- Tombol Tutup -->
+                                            <button @click="isOpen = false"
+                                                class="absolute -top-4 -right-4 text-gray-600 hover:text-gray-900 w-7 h-7 bg-red-500 rounded-full z-50 text-white">
+                                                X
+                                            </button>
 
-                                    <!-- QR Code & Bingkai -->
-                                    <div class="relative w-full h-full">
-                                        <!-- Bingkai -->
-                                        <img src="{{ asset('img/qrbase.png') }}"
-                                            class="absolute top-0 left-0 w-full h-full object-cover z-10">
+                                            <!-- QR Code & Bingkai -->
+                                            <div class="relative w-full h-full">
+                                                <!-- Bingkai -->
+                                                <img src="{{ asset('img/qrbase.png') }}"
+                                                    class="absolute top-0 left-0 w-full h-full object-cover z-10">
 
-                                        <!-- Konten Modal -->
-                                        <div
-                                            class="relative w-[300px] h-[400px] flex flex-col items-center justify-center">
+                                                <!-- Konten Modal -->
+                                                <div
+                                                    class="relative w-[300px] h-[400px] flex flex-col items-center justify-center">
 
-                                            <!-- Judul QR -->
-                                            <div class="absolute top-2 w-full flex justify-center">
-                                                <div x-text="judul" class="text-lg font-bold text-black z-20">
-                                                </div>
-                                            </div>
+                                                    <!-- Judul QR -->
+                                                    <div class="absolute top-2 w-full flex justify-center">
+                                                        <div x-text="judul" class="text-lg font-bold text-black z-20">
+                                                        </div>
+                                                    </div>
 
-                                            <!-- QR Code -->
-                                            <div
-                                                class="absolute inset-0 flex flex-col items-center justify-center z-20">
-                                                <img :src="qrImage" class="w-72 h-72 object-cover p-1 z-20 mt-5">
+                                                    <!-- QR Code -->
+                                                    <div
+                                                        class="absolute inset-0 flex flex-col items-center justify-center z-20">
+                                                        <img :src="qrImage"
+                                                            class="w-72 h-72 object-cover p-1 z-20 mt-5">
 
-                                                <!-- Baris Keterangan 1 -->
-                                                <div x-text="baris1"
-                                                    class="text-sm text-black font-bold mt-2 text-center z-20">
-                                                </div>
+                                                        <!-- Baris Keterangan 1 -->
+                                                        <div x-text="baris1"
+                                                            class="text-sm text-black font-bold mt-2 text-center z-20">
+                                                        </div>
 
-                                                <!-- Baris Keterangan 2 -->
-                                                <div x-text="baris2"
-                                                    class="text-sm text-black font-semibold text-center z-20">
+                                                        <!-- Baris Keterangan 2 -->
+                                                        <div x-text="baris2"
+                                                            class="text-sm text-black font-semibold text-center z-20">
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <div x-data="{ open: false, imgSrc: '' }">
+                                    <!-- Gambar Thumbnail -->
+                                    <div class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white cursor-pointer"
+                                        @click="open = true; imgSrc = '{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}'">
+                                        <img class="w-full h-full object-cover object-center rounded-sm"
+                                            src="{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}"
+                                            alt="">
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div x-show="open" x-transition:enter="transition ease-out duration-300"
+                                        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                        x-transition:leave="transition ease-in duration-300"
+                                        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                                        class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                                        @click="open = false" @keydown.escape.window="open = false">
+                                        <img :src="imgSrc" class="w-60 h-60 object-cover object-center">
+                                    </div>
+                                </div>
+
                             </div>
-                        </div>
-
-                        <div x-data="{ open: false, imgSrc: '' }">
-                            <!-- Gambar Thumbnail -->
-                            <div class="w-20 h-20 overflow-hidden relative flex justify-center p-1 border-2 rounded-lg bg-white cursor-pointer"
-                                @click="open = true; imgSrc = '{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}'">
-                                <img class="w-full h-full object-cover object-center rounded-sm"
-                                    src="{{ asset($aset->foto ? 'storage/asetImg/' . $aset->foto : 'img/default-pic-thumb.png') }}"
-                                    alt="">
+                        </td>
+                        <td class="py-3 px-6">
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ $aset->nama }}</p>
+                                <p class="text-sm text-gray-500">{{ $aset->kategori->nama ?? 'Tidak Berkategori' }}
+                                </p>
                             </div>
+                        </td>
+                        <td class="py-3 px-6">
+                            <p class="font-semibold text-gray-800">{{ $aset->kode }}</p>
+                            <p class="font-normal text-gray-500 text-sm">Kode Sistem : {{ $aset->systemcode }}</p>
 
-                            <!-- Modal -->
-                            <div x-show="open" x-transition:enter="transition ease-out duration-300"
-                                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                                x-transition:leave="transition ease-in duration-300"
-                                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                                class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-                                @click="open = false" @keydown.escape.window="open = false">
-                                <img :src="imgSrc" class="w-60 h-60 object-cover object-center">
+                        </td>
+                        <td class="py-3 px-6 ">
+                            <p class="font-semibold text-gray-800">
+                                {{ $aset->tglnonaktif ? date('j F Y', $aset->tglnonaktif) : '---' }}
+                            </p>
+                            <p class="text-sm text-gray-500">{{ $aset->alasannonaktif ?? '---' }}</p>
+
+                        </td>
+                        <td class="py-3 px-6">
+                            <a href="{{ route('nonaktifaset.show', ['nonaktifaset' => $aset->id]) }}"
+                                class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
+                                data-tooltip-target="tooltip-aset-{{ $aset->id }}">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            <div id="tooltip-nonaktifaset-{{ $aset->id }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                Lihat Detail Aset
+                                <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
-                        </div>
-
-                    </div>
-                </td>
-                <td class="py-3 px-6">
-                    <div>
-                        <p class="font-semibold text-gray-800">{{ $aset->nama }}</p>
-                        <p class="text-sm text-gray-500">{{ $aset->kategori->nama ?? 'Tidak Berkategori' }}
-                        </p>
-                    </div>
-                </td>
-                <td class="py-3 px-6">
-                    <p class="font-semibold text-gray-800">{{ $aset->kode }}</p>
-                    <p class="font-normal text-gray-500 text-sm">Kode Sistem : {{ $aset->systemcode }}</p>
-
-                </td>
-                <td class="py-3 px-6 ">
-                    <p class="font-semibold text-gray-800">
-                        {{ $aset->tglnonaktif ? date('j F Y', $aset->tglnonaktif) : '---' }}
-                    </p>
-                    <p class="text-sm text-gray-500">{{ $aset->alasannonaktif ?? '---' }}</p>
-
-                </td>
-                <td class="py-3 px-6">
-                    <a href="{{ route('nonaktifaset.show', ['nonaktifaset' => $aset->id]) }}"
-                        class=" text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300 "
-                        data-tooltip-target="tooltip-aset-{{ $aset->id }}">
-                        <i class="fa-solid fa-eye"></i>
-                    </a>
-                    <div id="tooltip-nonaktifaset-{{ $aset->id }}" role="tooltip"
-                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                        Lihat Detail Aset
-                        <div class="tooltip-arrow" data-popper-arrow></div>
-                    </div>
-                </td>
-            </tr>
-            @endforeach
+                        </td>
+                    </tr>
+                @endforeach
             @else
-            <p class="text-gray-600">Tidak ada Aset Non Aktif.</p>
+                <p class="text-gray-600">Tidak ada Aset Non Aktif.</p>
             @endif
         </tbody>
     </table>

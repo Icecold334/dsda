@@ -3,7 +3,7 @@
     <div class="">
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Kontrak</label>
-            <input type="text" wire:model.live.debounce.500ms="nomor_kontrak"
+            <input type="text" wire:model.live="nomor_kontrak"
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" />
             @error('nomor_kontrak')
             <span class="text-sm text-red-500">{{ $message }}</span>
@@ -29,16 +29,16 @@
         </div>
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi Pengiriman (Gudang)</label>
-            <selectwire:model.live.debounce.500ms="gudang_id"
+            <select wire:model.live="gudang_id"
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
                 <option value="">Pilih Gudang</option>
                 @foreach ($listGudang as $gudang)
                 <option value="{{ $gudang->id }}">{{ $gudang->nama }}</option>
                 @endforeach
-                </select>
-                @error('gudang_id')
-                <span class="text-sm text-red-500">{{ $message }}</span>
-                @enderror
+            </select>
+            @error('gudang_id')
+            <span class="text-sm text-red-500">{{ $message }}</span>
+            @enderror
         </div>
         @endif
 

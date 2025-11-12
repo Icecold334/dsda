@@ -10,8 +10,7 @@
     {{-- Tombol Upload Hanya Muncul Sebelum Submit --}}
     @if (!$uploaded)
     {{-- Surat Jalan --}}
-    <input type="file" wire:model.live.debounce.500ms="surat_jalan" accept="image/*" class="hidden"
-        id="uploadSuratJalan">
+    <input type="file" wire:model.live="surat_jalan" accept="image/*" class="hidden" id="uploadSuratJalan">
     <label for="uploadSuratJalan"
         class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">
         + Unggah Surat Jalan
@@ -27,8 +26,7 @@
     @endif
 
     {{-- Foto Barang --}}
-    <input type="file" wire:model.live.debounce.500ms="newFotoBarang" multiple accept="image/*" class="hidden"
-        id="uploadFotoBarang">
+    <input type="file" wire:model.live="newFotoBarang" multiple accept="image/*" class="hidden" id="uploadFotoBarang">
     <label for="uploadFotoBarang"
         class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">
         + Unggah Foto Barang

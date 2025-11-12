@@ -70,7 +70,7 @@
                 <td class="px-6 py-3">
                     <select wire:model="list.{{ $index }}.bagian_id"
                         wire:change="updateBagianId({{ $index }}, $event.target.value)"
-                        wire:model.live.debounce.500ms="list.{{ $index }}.bagian_id"
+                        wire:model.live="list.{{ $index }}.bagian_id"
                         class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['lokasi_id']) || $authLokasi !== $item['lokasi_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                         @disabled(!$item['editable'] || empty($item['lokasi_id']) || $authLokasi !==$item['lokasi_id'])
                         @cannot('inventaris_edit_lokasi_penerimaan') disabled @endcannot>
@@ -83,8 +83,7 @@
                     </select>
                 </td>
                 <td class="px-6 py-3">
-                    <select wire:model="list.{{ $index }}.posisi_id"
-                        wire:model.live.debounce.500ms="list.{{ $index }}.posisi_id"
+                    <select wire:model="list.{{ $index }}.posisi_id" wire:model.live="list.{{ $index }}.posisi_id"
                         class="bg-gray-50 border border-gray-300 {{ !$item['editable'] || empty($item['bagian_id']) || $authLokasi !== $item['bagian_id'] ? 'cursor-not-allowed' : '' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                         @disabled(!$item['editable'] || empty($item['bagian_id']) || $authLokasi !==$item['lokasi_id'])>
                         <option value="">Pilih Posisi</option>
@@ -128,7 +127,7 @@
                         @if ($showDokumen)
                         <input type="number" {{-- wire:model.fill="list.{{ $index }}.jumlah" --}} value=""
                             wire:model="list.{{ $index }}.jumlah_diterima"
-                            wire:model.live.debounce.500ms="list.{{ $index }}.jumlah_diterima" {{--
+                            wire:model.live="list.{{ $index }}.jumlah_diterima" {{--
                             @cannot('inventaris_edit_jumlah_diterima') disabled @endcannot --}} disabled
                             class="bg-gray-50 border {{ 1 ? 'cursor-not-allowed' : '' }} border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             min="1" {{-- max="{{ $item['max_jumlah'] }}" --}} placeholder="Jumlah">
@@ -170,9 +169,8 @@
                     @can('inventaris_unggah_foto_barang_datang')
                     @if ($item['lokasi_id'] == $authLokasi)
                     <!-- With permission and location matching -->
-                    <input type="file" wire:model="list.{{ $index }}.bukti"
-                        wire:model.live.debounce.500ms="list.{{ $index }}.bukti" class="hidden"
-                        id="upload-bukti-{{ $index }}">
+                    <input type="file" wire:model="list.{{ $index }}.bukti" wire:model.live="list.{{ $index }}.bukti"
+                        class="hidden" id="upload-bukti-{{ $index }}">
                     <button type="button" onclick="document.getElementById('upload-bukti-{{ $index }}').click()"
                         class="text-primary-700 bg-gray-200 border border-primary-500 rounded-lg px-3 py-1.5 hover:bg-primary-600 hover:text-white transition">
                         Unggah

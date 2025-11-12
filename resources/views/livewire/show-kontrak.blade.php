@@ -6,7 +6,7 @@
             {{-- @dump($kontrakId) --}}
             <div>
                 <label for="riwayatSelect" class="text-sm font-semibold text-gray-600">Versi Kontrak:</label>
-                <select id="riwayatSelect" wire:model.live.debounce.500ms="kontrakId"
+                <select id="riwayatSelect" wire:model.live="kontrakId"
                     class="border border-gray-300 rounded-md px-2 py-1">
                     <option value="" disabled>Pilih Versi</option>
                     @foreach ($riwayatKontrak as $k)

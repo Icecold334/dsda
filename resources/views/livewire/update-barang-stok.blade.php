@@ -8,7 +8,7 @@
                 <label for="nama_stok">Nama Stok</label>
             </td>
             <td>
-                <input type="text" id="stok" wire:model.live.debounce.500ms="stok"
+                <input type="text" id="stok" wire:model.live="stok"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                     placeholder="Nama Stok" required />
                 @error('stok')
@@ -21,7 +21,7 @@
                 <label for="tipe">Tipe</label>
             </td>
             <td>
-                <input type="text" id="tipe_stok" wire:model.live.debounce.500ms="tipe_stok"
+                <input type="text" id="tipe_stok" wire:model.live="tipe_stok"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                     placeholder="Tipe Stok" required />
                 @error('tipe_stok')
@@ -34,7 +34,7 @@
                 <label for="ukuran">Ukuran</label>
             </td>
             <td>
-                <input type="text" id="ukuran" wire:model.live.debounce.500ms="ukuran"
+                <input type="text" id="ukuran" wire:model.live="ukuran"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                     placeholder="Ukuran Stok" />
                 @error('ukuran')
@@ -49,7 +49,7 @@
                 <label for="nama_barang">Nama Barang</label>
             </td>
             <td>
-                <input type="text" id="barang" wire:model.live.debounce.500ms="barang"
+                <input type="text" id="barang" wire:model.live="barang"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                     placeholder="Nama Barang" required />
                 @error('barang')
@@ -62,7 +62,7 @@
                 <label for="kode_barang">Kode Barang</label>
             </td>
             <td>
-                <input type="text" id="kode_barang" wire:model.live.debounce.500ms="kode_barang"
+                <input type="text" id="kode_barang" wire:model.live="kode_barang"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                     placeholder="Kode Barang" required />
                 @error('kode_barang')
@@ -75,7 +75,7 @@
                 <label for="jenis">Jenis Barang</label>
             </td>
             <td>
-                <select id="jenis" wire:model.live.debounce.500ms="jenis"
+                <select id="jenis" wire:model.live="jenis"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     <option value="">Pilih Jenis Barang</option>
                     @foreach ($jenis_stok as $jenis)
@@ -92,7 +92,7 @@
                 <label for="jenis">Satuan</label>
             </td>
             <td>
-                <select id="jenis" wire:model.live.debounce.500ms="satuan"
+                <select id="jenis" wire:model.live="satuan"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     <option value="">Pilih Satuan</option>
                     @foreach ($satuans as $satuan)
@@ -109,7 +109,7 @@
                 <label for="jenis">Minimal</label>
             </td>
             <td>
-                <input type="number" wire:model.live.debounce.500ms="minimal"
+                <input type="number" wire:model.live="minimal"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                     placeholder="Minimal stok" required />
             </td>
@@ -120,7 +120,7 @@
                 <label for="kategori">Kategori Stok</label>
             </td>
             <td>
-                <select id="kategori" wire:model.live.debounce.500ms="kategori"
+                <select id="kategori" wire:model.live="kategori"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     <option value="">Pilih Kategori Stok</option>
                     @foreach ($kategori_stok as $kategori)
@@ -138,7 +138,7 @@
                 <label for="description">Deskripsi</label>
             </td>
             <td>
-                <textarea id="description" wire:model.live.debounce.500ms="description"
+                <textarea id="description" wire:model.live="description"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                     placeholder="Deskripsi Barang" rows="3"></textarea>
                 @error('description')

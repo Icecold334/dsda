@@ -5,12 +5,12 @@
             <div class="w-60 h-60 overflow-hidden relative flex justify-center rounded-lg cursor-pointer"
                 @click="open = true; document.body.classList.add('overflow-hidden')">
                 @if ($img)
-                <button
-                    class="absolute top-2 right-2 bg-red-500 hover:bg-red-700 transition duration-200 text-white rounded-full p-1 text-lg leading-none h-8 w-8 flex items-center justify-center shadow"
-                    wire:click="removeImg"
-                    @click.stop="document.body.classList.remove('overflow-hidden'); open = false;">
-                    &times;
-                </button>
+                    <button
+                        class="absolute top-2 right-2 bg-red-500 hover:bg-red-700 transition duration-200 text-white rounded-full p-1 text-lg leading-none h-8 w-8 flex items-center justify-center shadow"
+                        wire:click="removeImg"
+                        @click.stop="document.body.classList.remove('overflow-hidden'); open = false;">
+                        &times;
+                    </button>
                 @endif
                 <img src="{{ $img ? $img->temporaryUrl() : asset('img/default-pic.png') }}" alt="Preview Image"
                     class="w-full h-full object-cover object-center">
@@ -35,7 +35,7 @@
             <div class="mb-3 text-sm">
                 Anda bisa mengunggah satu foto utama aset di sini.
             </div>
-            <input type="file" wire:model.live.debounce.500ms="img" accept="image/*" class="hidden" id="imgUpload">
+            <input type="file" wire:model.live="img" accept="image/*" class="hidden" id="imgUpload">
             <label for="imgUpload"
                 class="text-primary-900 bg-primary-100 hover:bg-primary-600 my-2 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 cursor-pointer">
                 + Unggah Foto
@@ -43,8 +43,8 @@
         </div>
     </div>
     @push('scripts')
-    <script type="module">
-        document.addEventListener('DOMContentLoaded', function() {
+        <script type="module">
+            document.addEventListener('DOMContentLoaded', function() {
                 const Toast = Swal.mixin({
                     toast: true,
                     position: "top-end",
@@ -65,6 +65,6 @@
                     });
                 });
             });
-    </script>
+        </script>
     @endpush
 </x-card>

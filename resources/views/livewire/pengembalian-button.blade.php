@@ -5,13 +5,13 @@
             Kembalikan
         </button>
         <input type="file" id="foto-{{ $permintaan->id }}" class="hidden" accept="image/*"
-            wire:model.live.debounce.500ms="fotoPengembalian">
+            wire:model.live="fotoPengembalian">
     </div>
 </td>
 
 @push('scripts')
-<script type="module">
-    window.showPengembalianModal = function(id) {
+    <script type="module">
+        window.showPengembalianModal = function(id) {
             Swal.fire({
                 title: 'Unggah Foto Pengembalian',
                 html: `
@@ -58,5 +58,5 @@
                 }
             });
         }
-</script>
+    </script>
 @endpush
