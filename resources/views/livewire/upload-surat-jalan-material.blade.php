@@ -39,7 +39,7 @@
     @if ($storedSuratJalan)
     <div class="flex items-center space-x-3 border p-2 rounded">
         <i class="fa-solid fa-file-image text-green-500"></i>
-        <a href="{{ Storage::url($storedSuratJalan) }}" target="_blank" class="text-gray-800 hover:underline">
+       <a href="{{ Storage::disk('gcs')->url($storedSuratJalan) }}" target="_blank" class="text-gray-800 hover:underline">
             {{ basename($storedSuratJalan) }}
         </a>
     </div>
@@ -55,7 +55,7 @@
             <span class="flex items-center space-x-3">
                 <i class="fa-solid fa-image text-green-500"></i>
                 @if ($uploaded)
-                <a href="{{ Storage::url($file) }}" target="_blank" class="text-gray-800 hover:underline">
+                <a href="{{ Storage::disk('gcs')->url($file) }}" target="_blank" class="text-gray-800 hover:underline">
                     {{ basename($file) }}
                 </a>
                 @else

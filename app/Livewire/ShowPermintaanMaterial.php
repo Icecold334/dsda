@@ -9,6 +9,7 @@ use App\Models\UnitKerja;
 use Illuminate\Support\Str;
 use Livewire\WithFileUploads;
 use App\Models\FotoPermintaanMaterial;
+use Google\Cloud\Storage\StorageClient;
 use Illuminate\Support\Facades\Storage;
 
 class ShowPermintaanMaterial extends Component
@@ -785,12 +786,35 @@ class ShowPermintaanMaterial extends Component
             return;
         }
 
+        $fileContent = base64_decode($fileData[1]);
         $filename = $type . '_' . time() . '.' . $extension;
-        $filePath = "{$type}/{$filename}";
-        Storage::disk('public')->put($filePath, base64_decode($fileData[1]));
-        $this->permintaan->update([
-            "{$type}_path" => $filename
+
+        $storage = new StorageClient([
+            'projectId'   => env('GOOGLE_CLOUD_PROJECT_ID'),
+            'keyFilePath' => base_path(env('GOOGLE_CLOUD_KEY_FILE')),
         ]);
+        $bucket = $storage->bucket(env('GOOGLE_CLOUD_STORAGE_BUCKET'));
+        $prefix = config('filesystems.disks.gcs.path_prefix');
+
+        // Path di GCS
+        $gcsFolder = $type; // 'spb' atau 'sppb'
+        $gcsPath = "{$gcsFolder}/{$filename}";
+        $objectPath = trim("{$prefix}/{$gcsPath}", '/');
+
+        // Upload ke GCS
+        $bucket->upload(
+            $fileContent,
+            [
+                'name' => $objectPath,
+                'predefinedAcl' => 'publicRead', // OTOMATIS PUBLIC
+            ]
+        );
+
+        // Update DB
+        $this->permintaan->update([
+            "{$type}_path" => $filename // Simpan nama filenya saja
+        ]);
+
         $this->statusRefresh();
 
         session()->flash('success', strtoupper($type) . ' berhasil diunggah.');
