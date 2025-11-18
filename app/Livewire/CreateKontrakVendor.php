@@ -414,6 +414,7 @@ class CreateKontrakVendor extends Component
     }
     public function loadStep2()
     {
+        dd('Load 2');
         $this->programs = \App\Models\Program::all();
 
         $this->dispatch('load-step-3');
@@ -430,7 +431,6 @@ class CreateKontrakVendor extends Component
     }
     public function loadStep4()
     {
-        dd('Load 4');
         $this->specNamaOptions = MerkStok::select('nama')
             ->whereNotNull('nama')->distinct()->orderBy('nama')->pluck('nama')->toArray();
         $this->dispatch('load-step-5');
