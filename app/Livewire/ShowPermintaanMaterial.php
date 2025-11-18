@@ -140,20 +140,37 @@ class ShowPermintaanMaterial extends Component
         $image = str_replace('data:image/png;base64,', '', $signatureData);
         $image = str_replace(' ', '+', $image);
         $imageName = Str::random(20) . '.png';
+        $imageData = base64_decode($image);
 
 
-        Storage::disk('public')->put('ttdPengiriman/' . $imageName, base64_decode($image));
+        $storage = new StorageClient([
+            'projectId'   => env('GOOGLE_CLOUD_PROJECT_ID'),
+            'keyFilePath' => base_path(env('GOOGLE_CLOUD_KEY_FILE')),
+        ]);
+        $bucket = $storage->bucket(env('GOOGLE_CLOUD_STORAGE_BUCKET'));
+        $prefix = config('filesystems.disks.gcs.path_prefix'); // Ambil 'dsda/dev'
+
+        // Path di GCS
+        $gcsFolder = 'ttdPengiriman';
+        $gcsPath = "{$gcsFolder}/{$imageName}";
+        $objectPath = trim("{$prefix}/{$gcsPath}", '/');
+
+        // Upload ke GCS
+        $bucket->upload($imageData, [
+            'name' => $objectPath,
+            'predefinedAcl' => 'publicRead', // OTOMATIS PUBLIC
+        ]);
+
         // Simpan nama file ke database
-
         if ($type == 'driver') {
             $this->signature = $imageName;
             $this->permintaan->update([
-                'ttd_driver' => $imageName,  // pastikan kolom signature tersedia
+                'ttd_driver' => $imageName,
             ]);
         } else {
             $this->securitySignature = $imageName;
             $this->permintaan->update([
-                'ttd_security' => $imageName,  // pastikan kolom signature tersedia
+                'ttd_security' => $imageName,
             ]);
         }
         $this->statusRefresh();
@@ -254,9 +271,9 @@ class ShowPermintaanMaterial extends Component
         $attachment = FotoPermintaanMaterial::find($attachmentId);
 
         if ($attachment && $attachment->permintaan_id == $this->permintaan->id) {
-            // Delete file from storage
-            if (Storage::disk('public')->exists('dokumenKontrak/' . $attachment->path)) {
-                Storage::disk('public')->delete('dokumenKontrak/' . $attachment->path);
+            // Delete file from GCS storage
+            if (Storage::disk('gcs')->exists('dokumenKontrak/' . $attachment->path)) {
+                Storage::disk('gcs')->delete('dokumenKontrak/' . $attachment->path);
             }
 
             // Delete record from database
@@ -269,9 +286,9 @@ class ShowPermintaanMaterial extends Component
     public function resetSignatureDriver()
     {
         if ($this->permintaan->ttd_driver) {
-            // Delete file from storage
-            if (Storage::disk('public')->exists('ttdPengiriman/' . $this->permintaan->ttd_driver)) {
-                Storage::disk('public')->delete('ttdPengiriman/' . $this->permintaan->ttd_driver);
+            // Delete file from GCS storage
+            if (Storage::disk('gcs')->exists('ttdPengiriman/' . $this->permintaan->ttd_driver)) {
+                Storage::disk('gcs')->delete('ttdPengiriman/' . $this->permintaan->ttd_driver);
             }
 
             // Update database
@@ -284,10 +301,10 @@ class ShowPermintaanMaterial extends Component
 
     public function resetSignatureSecurity()
     {
-        if ($this->permintaan->ttd_security) {
-            // Delete file from storage
-            if (Storage::disk('public')->exists('ttdPengiriman/' . $this->permintaan->ttd_security)) {
-                Storage::disk('public')->delete('ttdPengiriman/' . $this->permintaan->ttd_security);
+       if ($this->permintaan->ttd_security) {
+            // Delete file from GCS storage
+            if (Storage::disk('gcs')->exists('ttdPengiriman/' . $this->permintaan->ttd_security)) {
+                Storage::disk('gcs')->delete('ttdPengiriman/' . $this->permintaan->ttd_security);
             }
 
             // Update database
@@ -307,9 +324,9 @@ class ShowPermintaanMaterial extends Component
         }
 
         if ($this->permintaan->ttd_driver) {
-            // Delete old signature file from storage
-            if (Storage::disk('public')->exists('ttdPengiriman/' . $this->permintaan->ttd_driver)) {
-                Storage::disk('public')->delete('ttdPengiriman/' . $this->permintaan->ttd_driver);
+            // Delete old signature file from GCS storage
+            if (Storage::disk('gcs')->exists('ttdPengiriman/' . $this->permintaan->ttd_driver)) {
+                Storage::disk('gcs')->delete('ttdPengiriman/' . $this->permintaan->ttd_driver);
             }
 
             // Reset signature in database
@@ -324,15 +341,15 @@ class ShowPermintaanMaterial extends Component
     public function retrySignatureSecurity()
     {
         // Hanya Pengurus Barang yang bisa mengulang TTD saat status sedang dikirim
-        if (!auth()->user()->hasRole('Pengurus Barang') || $this->permintaan->status != 2) {
+       if (!auth()->user()->hasRole('Pengurus Barang') || $this->permintaan->status != 2) {
             session()->flash('error', 'Anda tidak memiliki akses untuk mengulang tanda tangan.');
             return;
         }
 
         if ($this->permintaan->ttd_security) {
-            // Delete old signature file from storage
-            if (Storage::disk('public')->exists('ttdPengiriman/' . $this->permintaan->ttd_security)) {
-                Storage::disk('public')->delete('ttdPengiriman/' . $this->permintaan->ttd_security);
+            // Delete old signature file from GCS storage
+            if (Storage::disk('gcs')->exists('ttdPengiriman/' . $this->permintaan->ttd_security)) {
+                Storage::disk('gcs')->delete('ttdPengiriman/' . $this->permintaan->ttd_security);
             }
 
             // Reset signature in database

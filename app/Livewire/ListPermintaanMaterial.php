@@ -21,6 +21,8 @@ use App\Helpers\StokHelper;
 use App\Models\Merk;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Google\Cloud\Storage\StorageClient;
+use Illuminate\Support\Facades\Storage;
 
 class ListPermintaanMaterial extends Component
 {
@@ -83,7 +85,7 @@ class ListPermintaanMaterial extends Component
                             return 0;
                         });
 
-                     $stokMaksimalUntukEdit = $sisaStokGudang + $item->jumlah;
+                    $stokMaksimalUntukEdit = $sisaStokGudang + $item->jumlah;
                 }
 
                 // Siapkan data untuk list (sisa kode Anda)
@@ -101,8 +103,8 @@ class ListPermintaanMaterial extends Component
                     'editable' => true,
                 ];
             }
-        
-            
+
+
             // --- 4. Simpan state asli untuk deteksi perubahan ---
             $this->originalList = $this->list;
         }
@@ -255,14 +257,42 @@ class ListPermintaanMaterial extends Component
         // Simpan file ke storage
         $file = $this->list[$index]['img'];
         $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-        $file->storeAs('fotoPerBarang', $filename, 'public');
+        $storage = new StorageClient([
+            'projectId'   => env('GOOGLE_CLOUD_PROJECT_ID'),
+            'keyFilePath' => base_path(env('GOOGLE_CLOUD_KEY_FILE')),
+        ]);
+        $bucket = $storage->bucket(env('GOOGLE_CLOUD_STORAGE_BUCKET'));
+        $prefix = config('filesystems.disks.gcs.path_prefix'); // 'dsda/dev'
+
+        // Path di GCS
+        $gcsFolder = 'fotoPerBarang';
+        $gcsPath = "{$gcsFolder}/{$filename}";
+        $objectPath = trim("{$prefix}/{$gcsPath}", '/');
+
+        // Upload ke GCS
+        $bucket->upload(
+            file_get_contents($file->getRealPath()), // Ambil konten filenya
+            [
+                'name' => $objectPath,
+                'predefinedAcl' => 'publicRead', // OTOMATIS PUBLIC
+            ]
+        );
 
         // Simpan ke database sesuai model terkait
         $itemId = $this->list[$index]['id'] ?? null;
         if ($itemId) {
-            $this->permintaan->permintaanMaterial()->where('id', $itemId)->update([
+            $itemDb = $this->permintaan->permintaanMaterial()->find($itemId);
+            $oldFile = $itemDb->img; // Ambil nama file lama
+
+            // Update database dengan nama file baru
+            $itemDb->update([
                 'img' => $filename,
             ]);
+
+            // Hapus file lama dari GCS (JIKA ADA)
+            if ($oldFile && Storage::disk('gcs')->exists("{$gcsFolder}/{$oldFile}")) {
+                Storage::disk('gcs')->delete("{$gcsFolder}/{$oldFile}");
+            }
         }
 
         // Update list agar sekarang nilai img jadi string (bukan file)

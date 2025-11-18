@@ -607,8 +607,8 @@
                     @endif
                 </div>
                 @if ($securitySignature)
-                <img src="{{ asset('storage/ttdPengiriman/' . $securitySignature) }}" class="border rounded shadow-sm"
-                    height="100" alt="TTD Keamanan">
+                <img src="{{ Storage::disk('gcs')->url('ttdPengiriman/' . $securitySignature) }}" class="border rounded shadow-sm"
+                        height="100" alt="TTD Keamanan">
                 @elseif ($canUpload || (auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 2))
                 <canvas id="signature-pad-security" class="border rounded shadow-sm h-25 bg-transparent"
                     height="100"></canvas>
