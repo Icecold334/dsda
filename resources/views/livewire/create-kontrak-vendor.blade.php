@@ -135,7 +135,8 @@
                         class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Jumlah" min="1">
                 </div>
 
-                <div> <label class="block text-sm font-medium">Satuan</label>
+                <div>
+                    <label class="block text-sm font-medium">Satuan</label>
                     <livewire:searchable-select wire:model.live="newSatuan" :options="$satuanOptions"
                         placeholder="Ketik atau pilih satuan..." />
                 </div>
