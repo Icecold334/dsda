@@ -123,7 +123,8 @@
 
         <x-card title="Tambah Barang">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div <label class="block text-sm font-medium">Nama Barang</label>
+                <div>
+                    <label class="block text-sm font-medium">Nama Barang</label>
                     <livewire:searchable-select wire:model.live="barang_id" :options="$barangs"
                         placeholder="Ketik atau pilih nama barang..." />
                 </div>
