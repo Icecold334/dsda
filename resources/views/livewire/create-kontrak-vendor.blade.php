@@ -1,5 +1,5 @@
 <div>
-    <div wire:init="loadStep1">
+    {{-- <div wire:init="loadStep1"> --}}
         @if(!$loaded)
         <livewire:loading />
         @else
