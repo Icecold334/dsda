@@ -420,7 +420,6 @@ class CreateKontrakVendor extends Component
     }
     public function loadStep3()
     {
-        dd('load step 3');
         $this->satuanOptions = SatuanBesar::select('nama')
             ->distinct()->orderBy('nama')
             ->get()
@@ -433,6 +432,7 @@ class CreateKontrakVendor extends Component
     {
         $this->specNamaOptions = MerkStok::select('nama')
             ->whereNotNull('nama')->distinct()->orderBy('nama')->pluck('nama')->toArray();
+        dd('load step 4');
         $this->dispatch('load-step-5');
     }
     public function loadStep5()
