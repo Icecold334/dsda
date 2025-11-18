@@ -433,11 +433,11 @@ class CreateKontrakVendor extends Component
 
         $this->specTipeOptions = MerkStok::select('tipe')
             ->whereNotNull('tipe')->distinct()->orderBy('tipe')->pluck('tipe')->toArray();
-        dd('load step 3');
 
         $this->specUkuranOptions = MerkStok::select('ukuran')
             ->whereNotNull('ukuran')->distinct()->orderBy('ukuran')->pluck('ukuran')->toArray();
 
+        dd('load step 3');
         $this->loaded = true;
     }
 
