@@ -118,8 +118,7 @@
 
     <div class="grid grid-cols-2 gap-6">
         <x-card title="Upload Dokumen">
-            {{--
-            <livewire:upload-surat-kontrak /> --}}
+            <livewire:upload-surat-kontrak />
         </x-card>
 
         <x-card title="Tambah Barang">
