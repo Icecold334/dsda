@@ -360,6 +360,8 @@ class CreateKontrakVendor extends Component
         'load-step-2' => 'loadStep2',
         'load-step-3' => 'loadStep3',
         'load-step-4' => 'loadStep4',
+        'load-step-5' => 'loadStep5',
+        'load-step-6' => 'loadStep6',
         'load-adendum' => 'loadListBarangAdendum',
     ];
 
@@ -430,14 +432,19 @@ class CreateKontrakVendor extends Component
     {
         $this->specNamaOptions = MerkStok::select('nama')
             ->whereNotNull('nama')->distinct()->orderBy('nama')->pluck('nama')->toArray();
-
+        $this->dispatch('load-step-5');
+    }
+    public function loadStep5()
+    {
         $this->specTipeOptions = MerkStok::select('tipe')
             ->whereNotNull('tipe')->distinct()->orderBy('tipe')->pluck('tipe')->toArray();
-
+        $this->dispatch('load-step-6');
+    }
+    public function loadStep6()
+    {
         $this->specUkuranOptions = MerkStok::select('ukuran')
             ->whereNotNull('ukuran')->distinct()->orderBy('ukuran')->pluck('ukuran')->toArray();
 
-        dd('load step 3');
         $this->loaded = true;
     }
 
