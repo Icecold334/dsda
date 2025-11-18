@@ -4,23 +4,18 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\Toko;
-use App\Models\Satuan;
 use App\Models\Program;
 use Livewire\Component;
 use App\Models\Kegiatan;
 use App\Models\MerkStok;
-use App\Models\JenisStok;
-use App\Models\BarangStok;
 use App\Models\SubKegiatan;
 use Illuminate\Support\Str;
 use Livewire\WithFileUploads;
-use App\Models\PengirimanStok;
 use App\Models\UraianRekening;
 use App\Models\ListKontrakStok;
 use App\Models\MetodePengadaan;
 use App\Models\KontrakVendorStok;
 use App\Models\AktivitasSubKegiatan;
-use App\Models\DetailPengirimanStok;
 use App\Models\SatuanBesar;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -361,30 +356,12 @@ class CreateKontrakVendor extends Component
 
     public function mount()
     {
-        $this->barangs = \App\Models\BarangStok::query()->select('id', 'nama')->get()->unique('nama');
-        $this->programs = \App\Models\Program::all();
-
-        // Mengisi properti baru dengan semua pilihan dari database
-        $this->satuanOptions = \App\Models\SatuanBesar::pluck('nama')->unique()->sort()->values()
-            ->map(function ($value) {
-                return ['id' => $value, 'nama' => $value];
-            })
-            ->toArray();
-        $this->specNamaOptions = \App\Models\MerkStok::pluck('nama')->filter()->unique()->sort()->values()
-            ->map(function ($value) {
-                return ['id' => $value, 'nama' => $value];
-            })
-            ->toArray();
-        $this->specTipeOptions = \App\Models\MerkStok::pluck('tipe')->filter()->unique()->sort()->values()
-            ->map(function ($value) {
-                return ['id' => $value, 'nama' => $value];
-            })
-            ->toArray();
-        $this->specUkuranOptions = \App\Models\MerkStok::pluck('ukuran')->filter()->unique()->sort()->values()
-            ->map(function ($value) {
-                return ['id' => $value, 'nama' => $value];
-            })
-            ->toArray();
+        $this->barangs = [];
+        $this->programs = [];
+        $this->satuanOptions = [];
+        $this->specNamaOptions = [];
+        $this->specTipeOptions = [];
+        $this->specUkuranOptions = [];
         $this->barangSuggestions = [];
         $this->satuanSuggestions = [];
         $this->specOptions = [
@@ -658,12 +635,8 @@ class CreateKontrakVendor extends Component
         return $ids;
     }
 
-    // public function render()
-    // {
-    //     return view('livewire.create-kontrak-vendor', [
-    //         'metodes' => MetodePengadaan::all(),
-    //         'barangs' => $this->barangs,
-    //         'vendors' => Toko::all(),
-    //     ]);
-    // }
+    public function render()
+    {
+        return view('livewire.create-kontrak-vendor');
+    }
 }
