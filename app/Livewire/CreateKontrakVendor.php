@@ -424,6 +424,7 @@ class CreateKontrakVendor extends Component
             ->map(fn($v) => ['id' => $v->nama, 'nama' => $v->nama])
             ->toArray();
 
+        dd('load step 3');
         $this->dispatch('load-step-4');
     }
     public function loadStep4()
