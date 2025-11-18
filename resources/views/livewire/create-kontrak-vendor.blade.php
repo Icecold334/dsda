@@ -4,7 +4,7 @@
     </div>
 
     <div class="grid grid-cols-2 gap-6 mb-6">
-        {{-- <x-card title="Sumber Data Kontrak">
+        <x-card title="Sumber Data Kontrak">
             <div class="flex flex-col gap-4">
                 @if ($isAdendum)
                 <div>
@@ -51,7 +51,7 @@
                 </div>
                 @endif
             </div>
-        </x-card> --}}
+        </x-card>
 
         <x-card title="Informasi Kontrak">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

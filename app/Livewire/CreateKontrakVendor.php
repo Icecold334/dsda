@@ -88,63 +88,64 @@ class CreateKontrakVendor extends Component
     public $specUkuranOptions = [];
     public $satuanOptions = [];
 
-    public function cariKontrakApi()
-    {
-        if (!$this->tahun_api || !$this->nomor_spk_api) {
-            $this->dispatch('alert', [
-                'type' => 'warning',
-                'message' => 'Tahun dan nomor kontrak harus diisi terlebih dahulu.'
-            ]);
-            return;
-        }
+    public function cariKontrakApi() {}
+    // public function cariKontrakApi()
+    // {
+    //     if (!$this->tahun_api || !$this->nomor_spk_api) {
+    //         $this->dispatch('alert', [
+    //             'type' => 'warning',
+    //             'message' => 'Tahun dan nomor kontrak harus diisi terlebih dahulu.'
+    //         ]);
+    //         return;
+    //     }
 
-        $url = "https://emonev.dsdajakarta.id/api/kontrak/{$this->tahun_api}";
+    //     $url = "https://emonev.dsdajakarta.id/api/kontrak/{$this->tahun_api}";
 
-        $response = Http::timeout(180)
-            ->withOptions(['verify' => public_path('cacert.pem')])
-            ->withBasicAuth('inventa', 'aF7xPq92LmZTkw38RbCn0vMUyJDg1shKXtbEWuAQ5oYclVGriHzSmNd6jeLfOBT3')
-            ->get($url);
+    //     $response = Http::timeout(180)
+    //         ->withOptions(['verify' => public_path('cacert.pem')])
+    //         ->withBasicAuth('inventa', 'aF7xPq92LmZTkw38RbCn0vMUyJDg1shKXtbEWuAQ5oYclVGriHzSmNd6jeLfOBT3')
+    //         ->get($url);
 
-        if (!$response->successful()) {
-            $this->dispatch('alert', [
-                'type' => 'error',
-                'message' => 'Gagal mengambil data dari API.'
-            ]);
-            return;
-        }
+    //     if (!$response->successful()) {
+    //         $this->dispatch('alert', [
+    //             'type' => 'error',
+    //             'message' => 'Gagal mengambil data dari API.'
+    //         ]);
+    //         return;
+    //     }
 
-        $data = collect($response->json()['data'] ?? [])
-            ->firstWhere('no_spk', $this->nomor_spk_api);
+    //     $data = collect($response->json()['data'] ?? [])
+    //         ->firstWhere('no_spk', $this->nomor_spk_api);
 
-        if (!$data) {
-            // Dispatch event untuk menampilkan konfirmasi manual entry
-            $this->dispatch('kontrak-tidak-ditemukan');
-            return;
-        }
+    //     if (!$data) {
+    //         // Dispatch event untuk menampilkan konfirmasi manual entry
+    //         $this->dispatch('kontrak-tidak-ditemukan');
+    //         return;
+    //     }
 
-        $this->hasil_cari_api = true;
-        $this->mode_manual = false;
-        $this->readonly_fields = true;
+    //     $this->hasil_cari_api = true;
+    //     $this->mode_manual = false;
+    //     $this->readonly_fields = true;
 
-        // Set semua field dari API
-        $this->tanggal_kontrak = $data['tgl_spk'];
-        $this->tanggal_akhir_kontrak = $data['tgl_akhir_spk'];
-        $this->nominal_kontrak = number_format((int) $data['nilai_kontrak'], 0, '', '.');
-        $this->nama_paket = $data['nama_paket'];
-        $this->jenis_pengadaan = $data['jenis_pengadaan'];
-        $this->nama_penyedia = $data['nama_penyedia'];
-        $this->tahun_anggaran = $data['tahun_anggaran'];
-        $this->dinas_sudin = $data['dinas_sudin'];
-        $this->nama_bidang_seksi = $data['nama_bidang_seksi'];
+    //     // Set semua field dari API
+    //     $this->tanggal_kontrak = $data['tgl_spk'];
+    //     $this->tanggal_akhir_kontrak = $data['tgl_akhir_spk'];
+    //     $this->nominal_kontrak = number_format((int) $data['nilai_kontrak'], 0, '', '.');
+    //     $this->nama_paket = $data['nama_paket'];
+    //     $this->jenis_pengadaan = $data['jenis_pengadaan'];
+    //     $this->nama_penyedia = $data['nama_penyedia'];
+    //     $this->tahun_anggaran = $data['tahun_anggaran'];
+    //     $this->dinas_sudin = $data['dinas_sudin'];
+    //     $this->nama_bidang_seksi = $data['nama_bidang_seksi'];
 
-        $this->program = $data['kode_program'] . ' - ' . $data['program'];
-        $this->kegiatan = $data['kode_kegiatan'] . ' - ' . $data['kegiatan'];
-        $this->sub_kegiatan = $data['kode_sub_kegiatan'] . ' - ' . $data['sub_kegiatan'];
-        $this->aktivitas_sub_kegiatan = $data['kode_aktivitas_sub_kegiatan'] . ' - ' . $data['aktivitas_sub_kegiatan'];
-        $this->rekening = $data['kode_rekening'] . ' - ' . $data['uraian_kode_rekening'];
+    //     $this->program = $data['kode_program'] . ' - ' . $data['program'];
+    //     $this->kegiatan = $data['kode_kegiatan'] . ' - ' . $data['kegiatan'];
+    //     $this->sub_kegiatan = $data['kode_sub_kegiatan'] . ' - ' . $data['sub_kegiatan'];
+    //     $this->aktivitas_sub_kegiatan = $data['kode_aktivitas_sub_kegiatan'] . ' - ' . $data['aktivitas_sub_kegiatan'];
+    //     $this->rekening = $data['kode_rekening'] . ' - ' . $data['uraian_kode_rekening'];
 
-        $this->hitungDurasiKontrak();
-    }
+    //     $this->hitungDurasiKontrak();
+    // }
 
     public function lanjutkanModeManual()
     {
@@ -363,13 +364,13 @@ class CreateKontrakVendor extends Component
     {
         $this->barangs = \App\Models\BarangStok::query()->select('id', 'nama')->get()->unique('nama');
         $this->programs = \App\Models\Program::all();
-        
+
         // Mengisi properti baru dengan semua pilihan dari database
         $this->satuanOptions = \App\Models\SatuanBesar::pluck('nama')->unique()->sort()->values()
-        ->map(function ($value) {
-            return ['id' => $value, 'nama' => $value];
-        })
-        ->toArray();
+            ->map(function ($value) {
+                return ['id' => $value, 'nama' => $value];
+            })
+            ->toArray();
         $this->specNamaOptions = \App\Models\MerkStok::pluck('nama')->filter()->unique()->sort()->values()
             ->map(function ($value) {
                 return ['id' => $value, 'nama' => $value];
