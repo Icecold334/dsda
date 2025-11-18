@@ -357,7 +357,6 @@ class CreateKontrakVendor extends Component
     public $dokumen;
 
     protected $listeners = [
-        'start-loader' => 'loadStep1',
         'load-step-2' => 'loadStep2',
         'load-step-3' => 'loadStep3',
         'load-step-4' => 'loadStep4',
@@ -403,10 +402,7 @@ class CreateKontrakVendor extends Component
     //         $this->loadListBarangAdendum($this->id);
     //     }
     // }
-    public function mount()
-    {
-        $this->dispatch('start-loader');
-    }
+    public function mount() {}
     public function loadStep1()
     {
         $this->barangs = \App\Models\BarangStok::select('id', 'nama')
