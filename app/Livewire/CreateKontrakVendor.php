@@ -407,7 +407,6 @@ class CreateKontrakVendor extends Component
     {
         $this->barangs = \App\Models\BarangStok::select('id', 'nama')
             ->distinct()->orderBy('nama')->get();
-        dd('load step 1');
 
         $this->dispatch('load-step-2');
     }
