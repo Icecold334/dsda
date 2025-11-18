@@ -414,8 +414,8 @@ class CreateKontrakVendor extends Component
     }
     public function loadStep2()
     {
-        dd('Load 2');
         $this->programs = \App\Models\Program::all();
+        dd('Load programs');
 
         $this->dispatch('load-step-3');
     }
