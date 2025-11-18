@@ -445,7 +445,7 @@ class CreateKontrakVendor extends Component
         $this->specUkuranOptions = MerkStok::select('ukuran')
             ->whereNotNull('ukuran')->distinct()->orderBy('ukuran')->pluck('ukuran')->toArray();
 
-        dump('Loaded all steps');
+        dd('Loaded all steps');
         $this->loaded = true;
     }
 
