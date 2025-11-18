@@ -442,10 +442,10 @@ class CreateKontrakVendor extends Component
     }
     public function loadStep6()
     {
+        dd('Loaded all steps');
         $this->specUkuranOptions = MerkStok::select('ukuran')
             ->whereNotNull('ukuran')->distinct()->orderBy('ukuran')->pluck('ukuran')->toArray();
 
-        dd('Loaded all steps');
         $this->loaded = true;
     }
 
