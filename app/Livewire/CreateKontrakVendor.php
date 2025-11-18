@@ -415,12 +415,12 @@ class CreateKontrakVendor extends Component
     public function loadStep2()
     {
         $this->programs = \App\Models\Program::all();
-        dd('Load programs');
 
         $this->dispatch('load-step-3');
     }
     public function loadStep3()
     {
+        dd('load step 3');
         $this->satuanOptions = SatuanBesar::select('nama')
             ->distinct()->orderBy('nama')
             ->get()
