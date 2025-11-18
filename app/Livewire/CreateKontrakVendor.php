@@ -425,8 +425,9 @@ class CreateKontrakVendor extends Component
             ->get()
             ->map(fn($v) => ['id' => $v->nama, 'nama' => $v->nama])
             ->toArray();
+        $this->loaded = true;
 
-        $this->dispatch('load-step-4');
+        // $this->dispatch('load-step-4');
     }
     public function loadStep4()
     {
@@ -436,7 +437,6 @@ class CreateKontrakVendor extends Component
     }
     public function loadStep5()
     {
-        dd('load step 5');
         $this->specTipeOptions = MerkStok::select('tipe')
             ->whereNotNull('tipe')->distinct()->orderBy('tipe')->pluck('tipe')->toArray();
         $this->dispatch('load-step-6');
