@@ -446,6 +446,7 @@ class CreateKontrakVendor extends Component
             ->whereNotNull('ukuran')->distinct()->orderBy('ukuran')->pluck('ukuran')->toArray();
 
         $this->loaded = true;
+        dump('Loaded all steps');
     }
 
 
