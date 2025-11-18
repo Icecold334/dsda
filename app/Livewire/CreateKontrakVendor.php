@@ -24,6 +24,8 @@ class CreateKontrakVendor extends Component
 {
     use WithFileUploads;
     public $id;
+    public $loaded = false;
+
     // === SECTION: VENDOR ===
     public $vendor_id, $nama, $alamat, $kontak, $showAddVendorForm = false;
 
@@ -354,26 +356,97 @@ class CreateKontrakVendor extends Component
     // === SECTION: DOKUMEN ===
     public $dokumen;
 
+    protected $listeners = [
+        'start-loader' => 'loadStep1',
+        'load-step-2' => 'loadStep2',
+        'load-step-3' => 'loadStep3',
+        'load-step-4' => 'loadStep4',
+        'load-adendum' => 'loadListBarangAdendum',
+    ];
+
+
+    // public function mount()
+    // {
+    //     $this->barangs = \App\Models\BarangStok::query()->select('id', 'nama')->get()->unique('nama');
+    //     $this->programs = \App\Models\Program::all();
+
+    //     // Mengisi properti baru dengan semua pilihan dari database
+    //     $this->satuanOptions = \App\Models\SatuanBesar::pluck('nama')->unique()->sort()->values()
+    //         ->map(function ($value) {
+    //             return ['id' => $value, 'nama' => $value];
+    //         })
+    //         ->toArray();
+    //     $this->specNamaOptions = \App\Models\MerkStok::pluck('nama')->filter()->unique()->sort()->values()
+    //         ->map(function ($value) {
+    //             return ['id' => $value, 'nama' => $value];
+    //         })
+    //         ->toArray();
+    //     $this->specTipeOptions = \App\Models\MerkStok::pluck('tipe')->filter()->unique()->sort()->values()
+    //         ->map(function ($value) {
+    //             return ['id' => $value, 'nama' => $value];
+    //         })
+    //         ->toArray();
+    //     $this->specUkuranOptions = \App\Models\MerkStok::pluck('ukuran')->filter()->unique()->sort()->values()
+    //         ->map(function ($value) {
+    //             return ['id' => $value, 'nama' => $value];
+    //         })
+    //         ->toArray();
+    //     $this->barangSuggestions = [];
+    //     $this->satuanSuggestions = [];
+    //     $this->specOptions = [
+    //         'nama' => [],
+    //         'tipe' => [],
+    //         'ukuran' => [],
+    //     ];
+
+    //     if ($this->id) {
+    //         $this->loadListBarangAdendum($this->id);
+    //     }
+    // }
     public function mount()
     {
-        $this->barangs = [];
-        $this->programs = [];
-        $this->satuanOptions = [];
-        $this->specNamaOptions = [];
-        $this->specTipeOptions = [];
-        $this->specUkuranOptions = [];
-        $this->barangSuggestions = [];
-        $this->satuanSuggestions = [];
-        $this->specOptions = [
-            'nama' => [],
-            'tipe' => [],
-            'ukuran' => [],
-        ];
-
-        if ($this->id) {
-            $this->loadListBarangAdendum($this->id);
-        }
+        $this->dispatch('start-loader');
     }
+    public function loadStep1()
+    {
+        $this->barangs = \App\Models\BarangStok::select('id', 'nama')
+            ->distinct()->orderBy('nama')->get();
+
+        $this->dispatch('load-step-2');
+    }
+    public function loadStep2()
+    {
+        $this->programs = \App\Models\Program::all();
+
+        $this->dispatch('load-step-3');
+    }
+    public function loadStep3()
+    {
+        $this->satuanOptions = SatuanBesar::select('nama')
+            ->distinct()->orderBy('nama')
+            ->get()
+            ->map(fn($v) => ['id' => $v->nama, 'nama' => $v->nama])
+            ->toArray();
+
+        $this->dispatch('load-step-4');
+    }
+    public function loadStep4()
+    {
+        $this->specNamaOptions = MerkStok::select('nama')
+            ->whereNotNull('nama')->distinct()->orderBy('nama')->pluck('nama')->toArray();
+
+        $this->specTipeOptions = MerkStok::select('tipe')
+            ->whereNotNull('tipe')->distinct()->orderBy('tipe')->pluck('tipe')->toArray();
+
+        $this->specUkuranOptions = MerkStok::select('ukuran')
+            ->whereNotNull('ukuran')->distinct()->orderBy('ukuran')->pluck('ukuran')->toArray();
+
+        $this->loaded = true;
+    }
+
+
+
+
 
     public function loadListBarangAdendum($id)
     {
@@ -637,6 +710,10 @@ class CreateKontrakVendor extends Component
 
     public function render()
     {
-        return view('livewire.create-kontrak-vendor');
+        return view('livewire.create-kontrak-vendor', [
+            'metodes' => MetodePengadaan::all(),
+            'barangs' => $this->barangs,
+            'vendors' => Toko::all(),
+        ]);
     }
 }
