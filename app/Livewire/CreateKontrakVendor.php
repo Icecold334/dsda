@@ -658,12 +658,12 @@ class CreateKontrakVendor extends Component
         return $ids;
     }
 
-    public function render()
-    {
-        return view('livewire.create-kontrak-vendor', [
-            'metodes' => MetodePengadaan::all(),
-            'barangs' => $this->barangs,
-            'vendors' => Toko::all(),
-        ]);
-    }
+    // public function render()
+    // {
+    //     return view('livewire.create-kontrak-vendor', [
+    //         'metodes' => MetodePengadaan::all(),
+    //         'barangs' => $this->barangs,
+    //         'vendors' => Toko::all(),
+    //     ]);
+    // }
 }
