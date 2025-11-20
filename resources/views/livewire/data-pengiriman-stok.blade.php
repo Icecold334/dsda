@@ -75,8 +75,7 @@
                 <td class="py-3 px-6 text-center">
                    <div class="flex items-center justify-center gap-2">
 
-                    {{-- TOMBOL EDIT (Diperbaiki) --}}
-                    @can('penerimaan.update')
+                    @can('penerimaan.read')
                     <a href="{{ route('pengiriman-stok.show', ['pengiriman_stok' => $datang->id]) }}"
                         class="text-blue-500 px-3 py-2 rounded-md border hover:bg-slate-200"
                         data-tooltip-target="tooltip-edit-{{ $datang->id }}">
@@ -88,7 +87,6 @@
                     </div>
                     @endcan
                     
-                    {{-- TOMBOL HAPUS (Ditambahkan) --}}
                     @can('penerimaan.delete')
                     <form action="{{ route('pengiriman-stok.destroy', $datang->id) }}" method="POST">
                         @csrf
