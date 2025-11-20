@@ -161,8 +161,17 @@
         <tbody class="">
             @foreach ($kontrak->listKontrak as $transaksi)
             <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
+                @php
+                $barangName = $transaksi->merkStok->barangStok->nama;
+                if (is_numeric($barangName)) {
+                $found = App\Models\BarangStok::firstWhere('id', (int) $barangName);
+                if ($found) {
+                $barangName = $found->nama ?? $found['name'] ?? $found['label'] ?? $barangName;
+                }
+                }
+                @endphp
                 <td class="py-3 px-6 font-semibold">
-                    {{ $transaksi->merkStok->barangStok->nama }}
+                    {{ $barangName }}
                 </td>
                 <td class="py-3 px-6 font-semibold">
                     <table class="w-full">
