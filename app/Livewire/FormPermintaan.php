@@ -378,7 +378,7 @@ class FormPermintaan extends Component
         //     return [$tipe => collect($saluran[$tipe])->unique($uniqueKey)];
         // });
         // $this->saluran = $hasil;
-        $this->kecamatans = Kecamatan::where('unit_id', $this->unit_id)->get();
+        // $this->kecamatans = Kecamatan::where('unit_id', $this->unit_id)->get();
     }
 
     public function updatedKecamatanId()

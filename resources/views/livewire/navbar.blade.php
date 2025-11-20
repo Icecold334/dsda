@@ -40,7 +40,7 @@
                 @endcan
 
                 @if (auth()->user()->unitKerja?->hak == 1)
-                            <livewire:nav-item href="/dashboard" title="home" />
+                            <!-- <livewire:nav-item href="/dashboard" title="home" /> -->
                             <livewire:nav-item title="Pelayanan Umum" :child="[
                         ['href' => '/permintaan/umum', 'title' => 'Form Pelayanan Umum'],
                         ['href' => '/permintaan-stok', 'title' => 'List Pelayanan Umum'],
