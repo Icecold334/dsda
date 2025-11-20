@@ -43,6 +43,11 @@ class DataKontrakVendorStok extends Component
         $this->fetchData();
     }
 
+    public function updatedSearch()
+    {
+        $this->fetchData();
+    }
+
     public function fetchData()
     {
         $user = Auth::user();

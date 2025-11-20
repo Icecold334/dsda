@@ -95,7 +95,7 @@ class DataPermintaanMaterial extends Component
             $this->resetPage();
         }
     }
-
+    // update search
     public function updatingSearch()
     {
         $this->resetPage();
