@@ -439,6 +439,7 @@ class ShowPermintaanMaterial extends Component
             2 => ['label' => 'Sedang Dikirim', 'color' => 'info'],
             3 => ['label' => 'Selesai', 'color' => 'primary'],
             4 => ['label' => 'Draft', 'color' => 'secondary'],
+            5 => ['label' => 'Adendum', 'color' => 'warning'],
         ];
 
         // Tambahkan properti dinamis

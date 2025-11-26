@@ -22,7 +22,7 @@
         </thead>
         <tbody>
             @foreach ($list as $index => $item)
-                   <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
+                   <tr class="{{ (isset($item['is_replacing']) && $item['is_replacing']) ? 'line-through bg-gray-200 opacity-60' : 'bg-gray-50 hover:bg-gray-200 hover:shadow-lg' }} transition duration-200 rounded-2xl">
                         <td class="py-3 px-6 {{ $isSeribu && $withRab ? '' : 'hidden' }}">
                             <select wire:model.live="list.{{ $index }}.rab_id" disabled class="bg-gray-50 border cursor-not-allowed border-gray-300 text-gray-900 text-sm rounded-lg
                                 focus:ring-primary-500
@@ -39,10 +39,11 @@
                             @enderror
                         </td>
                         
-                        {{-- permision pengurus barang nama barang --}}                   
+                        {{-- permision pengurus barang nama barang --}} 
                         <td class="py-3 px-6 ">
                             <select wire:model.live="list.{{ $index }}.merk" disabled
                                 class="bg-gray-50 border border-gray-300 cursor-not-allowed  text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                 @disabled(isset($item['is_replacing']) && $item['is_replacing'])>
                                 <option value="{{ $item['merk']->id }}">{{ $item['merk']->barangStok->nama }}
                                     {{-- - {{
                                     $item['merk']->nama ?? 'Tanpa merk' }} - {{
@@ -63,7 +64,7 @@
                                     wire:model.live="list.{{ $index }}.merk_id"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
                                     {{-- Dropdown akan di-disable jika 'Nama Barang' belum dipilih --}}
-                                    @disabled(empty($item['barang_id']))>
+                                    @disabled(empty($item['barang_id']) || (isset($item['is_replacing']) && $item['is_replacing']))>
                                     {{-- <option value="">Pilih Spesifikasi</option> --}}
                                     
                                     {{-- Loop ke 'available_merks' yang sudah difilter secara otomatis di komponen --}}
@@ -105,7 +106,7 @@
                                         max="{{ $stokTersedia }}"
                                         placeholder="Maksimal: {{ $stokTersedia }} (berdasarkan stok gudang)"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                        {{ !isset($item['merk']) || $stokTersedia <= 0 ? 'disabled' : '' }}>
+                                        @disabled(!isset($item['merk']) || (isset($item['is_replacing']) && $item['is_replacing']))>
                                 @else
                                     <input type="number" 
                                         value="{{ $item['jumlah'] }}" 
@@ -197,6 +198,27 @@
 
                         @endif
                         <td class="py-3 px-6">
+                            @if(auth()->user()->hasRole('Pengurus Barang') && $permintaan->status == 1 && !is_null($permintaan->rab_id) && isset($item['id']))
+                                
+                                @if(isset($item['is_replacing']) && $item['is_replacing'])
+                                    {{-- Tombol Batal Ganti (X) --}}
+                                    <button type="button" wire:click="undoReplacement({{ $index }})" class="text-danger-900 border-danger-600 border bg-danger-100 hover:bg-danger-600 hover:text-white rounded-lg px-3 py-1">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                @else
+                                    {{-- Tombol Ganti Barang (Pensil) --}}
+                                    <button type="button" wire:click="markForReplacement({{ $index }})" class="text-blue-900 border-blue-600 border bg-blue-100 hover:bg-blue-600 hover:text-white rounded-lg px-3 py-1">
+                                        <i class="fa-solid fa-pencil"></i>
+                                    </button>
+                                @endif
+
+                            @elseif($showRule && !$isShow)
+                                {{-- Tombol Hapus untuk Draft Baru (X Merah Biasa) --}}
+                                <button wire:click="removeFromList({{ $index }})" class="text-danger-900 border-danger-600 border bg-danger-100 hover:bg-danger-600 hover:text-white rounded-lg px-3 py-1">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                </button>
+                            @endif
+
                             @if ($showRule && !$isShow)
                                 <button wire:click="removeFromList({{ $index }})"
                                     class="text-danger-900 border-danger-600 text-xl border bg-danger-100 hover:bg-danger-600 hover:text-white font-medium rounded-lg px-3 py-1 transition duration-200">
@@ -336,11 +358,72 @@
                 @endif
             @endif
         </tbody>
+        @if ($showRule || $showAddForm)
+            <tfoot>
+                <tr class="bg-gray-50 rounded-2xl">
+                    
+                    {{-- 1. RKB (Tambahkan logic hidden ini agar sejajar dengan thead) --}}
+                    <td class="py-3 px-6 {{ $isSeribu && $withRab ? '' : 'hidden' }}">
+                        <select wire:model.live="newRabId" class="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5">
+                            <option value="">Pilih RKB</option>
+                            @foreach ($rabs as $rab)
+                                <option value="{{ $rab->id }}">{{ $rab->jenis_pekerjaan }}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    
+                    {{-- 2. Nama Barang --}}
+                    <td class="py-3 px-6">
+                        <select wire:model.live="newBarangId" class="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5">
+                            <option value="">Pilih Barang</option>
+                            @foreach ($barangs as $barang)
+                                <option value="{{ $barang->id }}">{{ $barang->nama }}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    
+                    {{-- 3. Spesifikasi --}}
+                    <td class="py-3 px-6">
+                        <select wire:model.live="newMerkId" @disabled(!$newBarangId) class="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5">
+                            <option value="">Pilih Spesifikasi</option>
+                            @foreach ($merks as $merk)
+                                <option value="{{ $merk->id }}">{{ $merk->nama }} - {{ $merk->tipe }}</option>
+                            @endforeach
+                        </select>
+                    </td>
+
+                    {{-- 4. Volume --}}
+                    <td class="py-3 px-6">
+                        <div class="flex items-center">
+                            <input type="number" wire:model.live="newJumlah" placeholder="Max: {{ $newMerkMax }}" class="bg-gray-50 border border-gray-300 rounded-l-lg block w-full p-2.5">
+                            <span class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5">{{ $newUnit }}</span>
+                        </div>
+                    </td>
+
+                    {{-- 5. Keterangan (Tambahkan logic hidden juga di sini agar sejajar) --}}
+                    <td class="px-6 py-3 {{ $isSeribu && $withRab ? '' : 'hidden' }}">
+                        <textarea wire:model.live="newKeterangan" rows="1" class="w-full border border-gray-300 rounded-lg px-4 py-2" placeholder="Ket."></textarea>
+                    </td>
+
+                    {{-- 6. Foto (Hanya muncul jika isShow true) --}}
+                    @if($isShow) 
+                        <td></td> 
+                    @endif 
+
+                    {{-- 7. Tombol Aksi --}}
+                    <td class="py-3 px-6 text-center">
+                        <button wire:click="addToList" class="text-primary-900 border-primary-600 border bg-primary-100 hover:bg-primary-600 hover:text-white rounded-lg px-3 py-1">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tfoot>
+        @endif
     </table>
 
     {{-- simpan perubahan pada Daftar Permintaan Material user Pengurus Barang --}}
     <div class="flex justify-center">
-    {{-- Tombol ini HANYA akan muncul jika $isDataChanged bernilai true --}}
+    {{-- Tombol ini HANYA akan muncul jika $isDataChanged bernilai true --}}    
     @if ($isDataChanged)
         <button 
             wire:click="updateData" {{-- Panggil method baru untuk update --}}

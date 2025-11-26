@@ -37,6 +37,7 @@ class ListPermintaanMaterial extends Component
     public $originalList = [];
     public $isDataChanged = false;
     public $allBarangStok;
+    public $showAddForm = false;
 
 
     public function mount($permintaan)
@@ -83,7 +84,7 @@ class ListPermintaanMaterial extends Component
                             return 0;
                         });
 
-                     $stokMaksimalUntukEdit = $sisaStokGudang + $item->jumlah;
+                    $stokMaksimalUntukEdit = $sisaStokGudang + $item->jumlah;
                 }
 
                 // Siapkan data untuk list (sisa kode Anda)
@@ -101,8 +102,8 @@ class ListPermintaanMaterial extends Component
                     'editable' => true,
                 ];
             }
-        
-            
+
+
             // --- 4. Simpan state asli untuk deteksi perubahan ---
             $this->originalList = $this->list;
         }
@@ -551,52 +552,127 @@ class ListPermintaanMaterial extends Component
         }
     }
 
+    public function markForReplacement($index)
+    {
+        // Tandai item untuk diganti (dicoret) & munculkan form bawah
+        $this->list[$index]['is_replacing'] = true;
+        $this->showAddForm = true;
+        $this->checkForChanges();
+    }
+
+    public function undoReplacement($index)
+    {
+        // Batalkan penggantian
+        $this->list[$index]['is_replacing'] = false;
+        $this->showAddForm = false;
+        $this->checkForChanges();
+    }
+
 
     // fungsi tersebut digunakan untuk mengupdate data permintaan material 
     public function updateData()
     {
-        // Validasi dulu sebelum menyimpan
         $this->validate([
             'list.*.jumlah' => 'required|numeric|min:1',
-            'list.*.merk_id' => 'required', // Tambahkan validasi untuk merk_id
+            'list.*.merk_id' => 'required',
         ]);
 
         try {
             DB::transaction(function () {
-                foreach ($this->list as $item) {
-                    $permintaanMaterial = PermintaanMaterial::find($item['id']);
+                $hasRab = !is_null($this->permintaan->rab_id);
+                $isAdendumTriggered = false;
 
+                foreach ($this->list as $item) {
+                    // A. ITEM DIGANTI (DIHAPUS)
+                    if (isset($item['is_replacing']) && $item['is_replacing'] === true) {
+                        $itemToDelete = PermintaanMaterial::find($item['id']);
+                        if ($itemToDelete) {
+                            if (!$hasRab) {
+                                // Kalau Non-RAB, hapus transaksinya langsung
+                                $itemToDelete->transaksi()->where('tipe', 'Pengajuan')->delete();
+                            }
+                            $itemToDelete->delete();
+                            $isAdendumTriggered = true;
+                        }
+                        continue;
+                    }
+
+                    // B. ITEM BARU DITAMBAHKAN
+                    if (!isset($item['id'])) {
+                        $newItem = PermintaanMaterial::create([
+                            'detail_permintaan_id' => $this->permintaan->id,
+                            'user_id' => Auth::id(),
+                            'merk_id' => $item['merk_id'],
+                            'jumlah' => $item['jumlah'],
+                            'alocated' => 0,
+                            'rab_id' => $hasRab ? $this->permintaan->rab_id : null,
+                            'deskripsi' => $item['keterangan'] ?? null,
+                        ]);
+
+                        if (!$hasRab) {
+                            // Kalau Non-RAB, buat transaksi stok langsung
+                            TransaksiStok::create([
+                                'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
+                                'permintaan_id' => $newItem->id,
+                                'tipe' => 'Pengajuan',
+                                'merk_id' => $newItem->merk_id,
+                                'jumlah' => $newItem->jumlah,
+                                'lokasi_id' => $this->permintaan->gudang_id,
+                                'user_id' => Auth::id(),
+                                'tanggal' => now(),
+                            ]);
+                        }
+                        $isAdendumTriggered = true;
+                        continue;
+                    }
+
+                    // C. ITEM LAMA DIEDIT
+                    $permintaanMaterial = PermintaanMaterial::find($item['id']);
                     if ($permintaanMaterial) {
-                        // [DIUBAH] Cek perubahan pada 'jumlah' ATAU 'merk_id'
                         $isChanged = $permintaanMaterial->jumlah != $item['jumlah'] ||
                             $permintaanMaterial->merk_id != $item['merk_id'];
 
                         if ($isChanged) {
-                            // [DIUBAH] Update kedua kolom: jumlah dan merk_id
                             $permintaanMaterial->update([
                                 'jumlah' => $item['jumlah'],
                                 'merk_id' => $item['merk_id'],
                             ]);
 
-                            // [DIUBAH] Update kedua kolom di TransaksiStok juga
-                            TransaksiStok::where('permintaan_id', $permintaanMaterial->id)
-                                ->where('tipe', 'Pengajuan')
-                                ->update([
-                                    'jumlah' => $item['jumlah'],
-                                    'merk_id' => $item['merk_id'],
-                                ]);
+                            if ($hasRab) {
+                                $isAdendumTriggered = true; // RAB berubah -> Adendum
+                            } else {
+                                // Non-RAB -> Update Stok Langsung
+                                TransaksiStok::where('permintaan_id', $permintaanMaterial->id)
+                                    ->where('tipe', 'Pengajuan')
+                                    ->update([
+                                        'jumlah' => $item['jumlah'],
+                                        'merk_id' => $item['merk_id'],
+                                    ]);
+                            }
                         }
                     }
                 }
+
+                // D. POST-PROCESSING
+                if ($hasRab && $isAdendumTriggered) {
+                    // Flow Adendum: Ubah Status ke 5 & Notifikasi
+                    $this->permintaan->update([
+                        'status' => 5,
+                        'keterangan' => $this->permintaan->keterangan . ' (Menunggu Validasi Adendum)',
+                    ]);
+
+                    $msg = 'Perubahan disimpan. Menunggu validasi Perencanaan untuk Adendum.';
+                } else {
+                    $msg = 'Perubahan data berhasil disimpan.';
+                }
+
+                $this->mount($this->permintaan->fresh());
+                $this->isDataChanged = false;
+                $this->showAddForm = false;
+                $this->dispatch('alert', message: $msg, type: 'success');
             });
-
-            // Setelah berhasil, reset kembali state-nya
-            $this->originalList = $this->list; // Update data asli dengan data terbaru
-            $this->isDataChanged = false; // Sembunyikan kembali tombol simpan
-
-            $this->dispatch('alert', message: 'Perubahan berhasil disimpan.', type: 'success');
         } catch (\Exception $e) {
-            $this->dispatch('alert', message: 'Gagal menyimpan perubahan.', type: 'error');
+            $this->dispatch('alert', message: 'Gagal: ' . $e->getMessage(), type: 'error');
         }
     }
 
