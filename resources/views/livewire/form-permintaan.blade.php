@@ -360,18 +360,14 @@
                     <tr class="{{ !$withRab ? '' : 'hidden' }}">
                         <td class="font-semibold"><label for="lokasi">Lokasi Kegiatan</label></td>
                         <td>
-                            <livewire:searchable-select 
-                                wire:model.live="kecamatan_id" 
-                                :options="$kecamatans"
-                                label="kecamatan"
-                                :disabled="$isKasatpel" 
-                            />
-                            
-                            
+                            <livewire:searchable-select wire:model.live="kecamatan_id" :options="$kecamatans"
+                                label="kecamatan" :disabled="$isKasatpel" />
+
+
                             @if($isKasatpel)
-                                <small class="text-danger d-block mt-1">
-                                    🔒 <strong>Lokasi kegiatan terkunci</strong> sesuai wilayah kerja Anda
-                                </small>
+                            <small class="text-danger d-block mt-1">
+                                🔒 <strong>Lokasi kegiatan terkunci</strong> sesuai wilayah kerja Anda
+                            </small>
                             @endif
                         </td>
                     </tr>

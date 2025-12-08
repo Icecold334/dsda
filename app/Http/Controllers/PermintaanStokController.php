@@ -64,7 +64,6 @@ class PermintaanStokController extends Controller
             $last = app($model)::latest()->first();
         }
         $kategori = KategoriStok::where('slug', $kategori)->first();
-
         return view('permintaan.create', compact('tipe', 'last', 'kategori'));
     }
 
@@ -260,7 +259,6 @@ class PermintaanStokController extends Controller
                 'success' => true,
                 'message' => 'Permintaan berhasil dihapus oleh admin.'
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

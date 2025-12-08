@@ -15,84 +15,85 @@
                 <livewire:nav-item href="/dashboard" title="dashboard" />
 
                 @can('kontrak.read')
-                    <livewire:nav-item href="/kontrak-vendor-stok" title="Daftar Kontrak" />
+                <livewire:nav-item href="/kontrak-vendor-stok" title="Daftar Kontrak" />
                 @endcan
                 @can('rab.read')
-                    <livewire:nav-item title="Daftar RAB" href='/rab' />
+                <livewire:nav-item title="Daftar RAB" href='/rab' />
                 @endcan
 
                 @php
-                    $formBarangItems = [];
-                    if (auth()->user()->can('permintaan.read')) {
-                        $formBarangItems[] = ['href' => '/permintaan/material', 'title' => 'Permintaan Barang'];
-                    }
-                    if (auth()->user()->can('penerimaan.read')) {
-                        $formBarangItems[] = ['href' => '/pengiriman-stok', 'title' => 'Pengiriman Barang'];
-                    }
+                $formBarangItems = [];
+                if (auth()->user()->can('permintaan.read')) {
+                $formBarangItems[] = ['href' => '/permintaan/material', 'title' => 'Permintaan Barang'];
+                }
+                if (auth()->user()->can('penerimaan.read')) {
+                $formBarangItems[] = ['href' => '/pengiriman-stok', 'title' => 'Pengiriman Barang'];
+                }
                 @endphp
 
                 @if (count($formBarangItems) > 0)
-                    <livewire:nav-item title="Form Barang" :child="$formBarangItems" />
+                <livewire:nav-item title="Form Barang" :child="$formBarangItems" />
                 @endif
 
                 @can('riwayat_transaksi.read')
-                    <livewire:nav-item href="/log-barang" title="Riwayat Barang" />
+                <livewire:nav-item href="/log-barang" title="Riwayat Barang" />
                 @endcan
 
                 @if (auth()->user()->unitKerja?->hak == 1)
-                            <livewire:nav-item href="/dashboard" title="home" />
-                            <livewire:nav-item title="Pelayanan Umum" :child="[
+                {{--
+                <livewire:nav-item href="/dashboard" title="home" /> --}}
+                <livewire:nav-item title="Pelayanan Umum" :child="[
                         ['href' => '/permintaan/umum', 'title' => 'Form Pelayanan Umum'],
                         ['href' => '/permintaan-stok', 'title' => 'List Pelayanan Umum'],
                     ]" />
                 @endif
 
                 @if (auth()->check() && ($this->getUnitKerjaHak() ?? (auth()->user()->unitKerja?->hak ?? 1)))
-                            <livewire:nav-item title="aset" :child="[
+                <livewire:nav-item title="aset" :child="[
                         ['href' => '/aset', 'title' => 'aset aktif'],
                         ['href' => '/nonaktifaset', 'title' => 'aset non aktif'],
                     ]" />
                 @endif
 
                 @php
-                    $masterDataItems = [];
-                    // if (auth()->user()->can('data_barang')) {
-                    $masterDataItems[] = ['href' => '/stok', 'title' => 'Stok'];
-                    $masterDataItems[] = ['href' => '/stok/sudin/sudin', 'title' => 'Stok Sudin'];
-                    $masterDataItems[] = ['href' => '/barang', 'title' => 'Barang'];
-                    // }
-                    if (auth()->user()->can('data_kategori')) {
-                        $masterDataItems[] = ['href' => '/kategori', 'title' => 'kategori'];
-                    }
-                    if (auth()->user()->can('data_toko')) {
-                        $masterDataItems[] = ['href' => '/toko', 'title' => 'Toko / distributor'];
-                    }
-                    if (auth()->user()->can('data_lokasi_gudang')) {
-                        $masterDataItems[] = ['href' => '/lokasi-stok', 'title' => 'lokasi gudang'];
-                    }
-                    if (auth()->user()->can('unit_kerja.read')) {
-                        $masterDataItems[] = ['href' => '/unit-kerja', 'title' => 'Unit Kerja'];
-                    }
-                    if (auth()->user()->can('kecamatan.read')) {
-                        $masterDataItems[] = ['href' => '/kecamatan', 'title' => 'Kecamatan'];
-                    }
-                    if (auth()->user()->can('kelurahan.read')) {
-                        $masterDataItems[] = ['href' => '/kelurahan', 'title' => 'Kelurahan'];
-                    }
-                    // Add User management for superadmin only
-                    if (auth()->user()->hasRole('superadmin')) {
-                        $masterDataItems[] = ['href' => '/users', 'title' => 'User'];
-                        $masterDataItems[] = ['href' => '/master-program', 'title' => 'Master Program'];
-                    }
-                    if (auth()->user()->can('data_driver')) {
-                        $masterDataItems[] = ['href' => '/driver', 'title' => 'Driver'];
-                    }
-                    if (auth()->user()->can('data_security')) {
-                        $masterDataItems[] = ['href' => '/security', 'title' => 'Security'];
-                    }
+                $masterDataItems = [];
+                // if (auth()->user()->can('data_barang')) {
+                $masterDataItems[] = ['href' => '/stok', 'title' => 'Stok'];
+                $masterDataItems[] = ['href' => '/stok/sudin/sudin', 'title' => 'Stok Sudin'];
+                $masterDataItems[] = ['href' => '/barang', 'title' => 'Barang'];
+                // }
+                if (auth()->user()->can('data_kategori')) {
+                $masterDataItems[] = ['href' => '/kategori', 'title' => 'kategori'];
+                }
+                if (auth()->user()->can('data_toko')) {
+                $masterDataItems[] = ['href' => '/toko', 'title' => 'Toko / distributor'];
+                }
+                if (auth()->user()->can('data_lokasi_gudang')) {
+                $masterDataItems[] = ['href' => '/lokasi-stok', 'title' => 'lokasi gudang'];
+                }
+                if (auth()->user()->can('unit_kerja.read')) {
+                $masterDataItems[] = ['href' => '/unit-kerja', 'title' => 'Unit Kerja'];
+                }
+                if (auth()->user()->can('kecamatan.read')) {
+                $masterDataItems[] = ['href' => '/kecamatan', 'title' => 'Kecamatan'];
+                }
+                if (auth()->user()->can('kelurahan.read')) {
+                $masterDataItems[] = ['href' => '/kelurahan', 'title' => 'Kelurahan'];
+                }
+                // Add User management for superadmin only
+                if (auth()->user()->hasRole('superadmin')) {
+                $masterDataItems[] = ['href' => '/users', 'title' => 'User'];
+                $masterDataItems[] = ['href' => '/master-program', 'title' => 'Master Program'];
+                }
+                if (auth()->user()->can('data_driver')) {
+                $masterDataItems[] = ['href' => '/driver', 'title' => 'Driver'];
+                }
+                if (auth()->user()->can('data_security')) {
+                $masterDataItems[] = ['href' => '/security', 'title' => 'Security'];
+                }
                 @endphp
                 @if (count($masterDataItems) > 0)
-                    <livewire:nav-item title="master data" :child="$masterDataItems" />
+                <livewire:nav-item title="master data" :child="$masterDataItems" />
                 @endif
 
                 {{-- @can('qr_print') --}}
