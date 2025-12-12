@@ -34,6 +34,7 @@
             {{ $slot }}
         </main>
     </div>
+    @stack('scripts')
 </body>
 <script>
     window.addEventListener('showSweetAlert', event => {

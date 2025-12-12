@@ -18,6 +18,7 @@
                     <option value="diproses">diproses</option>
                     <option value="ditolak">ditolak</option>
                     <option value="disetujui">disetujui</option>
+                    <option value="adendum">adendum</option>
                 </select>
                 <select wire:model.live="tahun" class="border rounded-lg px-3 py-2 w-32">
                     <option value="">Semua Tahun</option>
@@ -119,6 +120,80 @@
                                 Lihat Riwayat Permintaan
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
+
+                            <!-- Tombol Adendum -->
+                            @php
+                                $isKasatpel = $user->hasRole('Kepala Satuan Pelaksana');
+                                $isDisetujui = $rab->status === 2;
+                                $pendingAdendum = $rab->pendingAdendums->first();
+                                $hasPendingAdendum = !is_null($pendingAdendum);
+                                $isRabCreator = $user->id === $rab->user_id;
+                                $hasAdendumHistory = ($rab->adendum_histories_count ?? 0) > 0;
+                            @endphp
+
+                            @if($isKasatpel && $isDisetujui && !$hasPendingAdendum)
+                                <a href="{{ route('rab.adendum', ['rab' => $rab->id]) }}"
+                                    class="text-purple-600 hover:text-white hover:bg-purple-600 px-3 py-2 rounded border border-purple-600 transition duration-200"
+                                    data-tooltip-target="tooltip-adendum-{{ $rab->id }}">
+                                    <i class="fa-solid fa-file-pen"></i>
+                                </a>
+                                <div id="tooltip-adendum-{{ $rab->id }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Buat Adendum RAB
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            @endif
+
+                            <!-- Tombol Konfirmasi Adendum untuk Pembuat RAB (termasuk Kasie yang membuat RAB) -->
+                            @php
+                                // Cek apakah pembuat RAB adalah Kasie/Kepala Seksi Perencanaan
+                                $rabCreator = $rab->user;
+                                $isKasieCreator = $rabCreator && (
+                                    $rabCreator->hasRole('Kepala Seksi') 
+                                    // || 
+                                    // $rabCreator->hasRole('Kepala Seksi Perencanaan') ||
+                                    // $rabCreator->roles->contains(function ($role) {
+                                    //     return str_contains($role->name, 'Kepala Seksi') || str_contains($role->name, 'Kasie');
+                                    // })
+                                );
+                            @endphp
+                            @if($isRabCreator && $hasPendingAdendum)
+                                <a href="{{ route('rab.adendum.approve', ['rab' => $rab->id, 'adendum' => $pendingAdendum->id]) }}"
+                                    class="relative text-orange-600 hover:text-white hover:bg-orange-600 px-3 py-2 rounded border-2 border-orange-600 transition duration-200 font-semibold animate-pulse"
+                                    data-tooltip-target="tooltip-confirm-adendum-{{ $rab->id }}">
+                                    <i class="fa-solid fa-file-circle-check"></i>
+                                    @php
+                                        $pendingCount = $rab->pendingAdendums->count();
+                                    @endphp
+                                    @if($pendingCount > 0)
+                                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                            {{ $pendingCount }}
+                                        </span>
+                                    @endif
+                                </a>
+                                <div id="tooltip-confirm-adendum-{{ $rab->id }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Konfirmasi Adendum RAB (Menunggu)
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            @endif
+
+                            <!-- Tombol History Adendum untuk RAB yang sudah memiliki adendum ter-approve -->
+                            @php
+                                $hasApprovedAdendum = $rab->approvedAdendums->count() > 0;
+                            @endphp
+                            @if($hasAdendumHistory || $hasApprovedAdendum)
+                                <a href="{{ route('rab.adendum.history', ['rab' => $rab->id]) }}"
+                                    class="text-indigo-600 hover:text-white hover:bg-indigo-600 px-3 py-2 rounded border border-indigo-600 transition duration-200"
+                                    data-tooltip-target="tooltip-history-adendum-{{ $rab->id }}">
+                                    <i class="fa-solid fa-history"></i>
+                                </a>
+                                <div id="tooltip-history-adendum-{{ $rab->id }}" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    History Adendum RAB
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            @endif
                         </div>
                     </td>
                 </tr>

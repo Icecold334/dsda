@@ -43,12 +43,16 @@ class DataRab extends Component
         // Check if user is superadmin
         if ($user->hasRole('superadmin') || $user->unit_id === null) {
             // Superadmin dapat melihat semua RAB dari semua suku dinas
-            $query = Rab::with(['user.unitKerja']);
+            $query = Rab::with(['user.unitKerja', 'pendingAdendums', 'approvedAdendums'])
+                ->withCount('adendumHistories');
 
             $query->when($this->search, function ($q) {
                 return $q->where('lokasi', 'like', '%' . $this->search . '%');
             });
             $query->when($this->status, function ($q) {
+                if ($this->status === 'adendum') {
+                    return $q->whereHas('pendingAdendums');
+                }
                 $statusValue = match ($this->status) {
                     'diproses' => null, 'ditolak' => 0, 'disetujui' => 2, default => 'ignore',
                 };
@@ -65,7 +69,9 @@ class DataRab extends Component
 
         } else {
             // User biasa hanya bisa melihat RAB dari unit mereka/bawahan mereka
-            $query = Rab::whereHas('user.unitKerja', function ($unit) {
+            $query = Rab::with(['user.unitKerja', 'pendingAdendums'])
+                ->withCount('adendumHistories')
+                ->whereHas('user.unitKerja', function ($unit) {
                 $unit->where('parent_id', $this->unit_id)
                     ->orWhere('id', $this->unit_id);
             });
@@ -75,6 +81,9 @@ class DataRab extends Component
                 return $q->where('lokasi', 'like', '%' . $this->search . '%');
             });
             $query->when($this->status, function ($q) {
+                if ($this->status === 'adendum') {
+                    return $q->whereHas('pendingAdendums');
+                }
                 $statusValue = match ($this->status) {
                     'diproses' => null, 'ditolak' => 0, 'disetujui' => 2, default => 'ignore',
                 };
@@ -101,9 +110,19 @@ class DataRab extends Component
                 3 => ['label' => 'Selesai', 'color' => 'primary'],
             ];
 
-            // Tambahkan properti dinamis ke dalam object
+            // Cek apakah ada pending adendum
+            $hasPendingAdendum = $rab->pendingAdendums->count() > 0;
+            
+            // Jika ada pending adendum, tampilkan status "Adendum"
+            if ($hasPendingAdendum) {
+                $rab->status_teks = 'Adendum';
+                $rab->status_warna = 'warning';
+            } else {
+                // Jika tidak ada pending adendum, tampilkan status RAB asli
             $rab->status_teks = $statusMap[$rab->status]['label'] ?? 'Tidak diketahui';
             $rab->status_warna = $statusMap[$rab->status]['color'] ?? 'gray';
+            }
+            
             return $rab;
         });
 

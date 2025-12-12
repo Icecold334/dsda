@@ -79,4 +79,28 @@ class Rab extends Model
     {
         return $this->belongsTo(UraianRekening::class, 'uraian_rekening_id');
     }
+
+    // Relasi ke Adendum RAB
+    public function adendums()
+    {
+        return $this->hasMany(AdendumRab::class, 'rab_id');
+    }
+
+    // Relasi ke Adendum RAB yang pending approval
+    public function pendingAdendums()
+    {
+        return $this->hasMany(AdendumRab::class, 'rab_id')->where('is_approved', false);
+    }
+
+    // Relasi ke Adendum RAB yang sudah ter-approve
+    public function approvedAdendums()
+    {
+        return $this->hasMany(AdendumRab::class, 'rab_id')->where('is_approved', true);
+    }
+
+    // Relasi ke semua history adendum
+    public function adendumHistories()
+    {
+        return $this->hasMany(AdendumHistory::class, 'rab_id');
+    }
 }
