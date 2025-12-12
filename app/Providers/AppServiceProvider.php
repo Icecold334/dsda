@@ -98,7 +98,7 @@ class AppServiceProvider extends ServiceProvider
         App::setLocale('id');
         \Carbon\Carbon::setLocale('id');
         \Illuminate\Support\Facades\Date::setLocale('id');
-        // Auth::loginUsingId(225);
+        // Auth::loginUsingId(17);
         // pusat
         // Auth::loginUsingId(341); //superadmin
 

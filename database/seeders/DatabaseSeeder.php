@@ -191,7 +191,6 @@ class DatabaseSeeder extends Seeder
         $barang = BarangStok::all();
         $details = DetailPermintaanStok::all();
         // $lokasis = LokasiStok::all();
-
         for ($i = 0; $i < 2975; $i++) {
             $detail = $details->random();
             PermintaanStok::create([

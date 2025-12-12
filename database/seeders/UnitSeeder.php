@@ -422,208 +422,208 @@ class UnitSeeder extends Seeder
         $this->unitSeed();
         $this->lokasiSeed();
 
-        // $jenisList = ['umum', 'spare-part', 'material']; // Daftar jenis
-        // $tipe = 'permintaan'; // Tipe permintaan
+        $jenisList = ['umum', 'spare-part', 'material']; // Daftar jenis
+        $tipe = 'permintaan'; // Tipe permintaan
 
-        // foreach ($this->units as $unitName => $unitData) {
-        //     $unit = UnitKerja::where('nama', $unitName)->first();
+        foreach ($this->units as $unitName => $unitData) {
+            $unit = UnitKerja::where('nama', $unitName)->first();
 
-        //     // Ambil semua role untuk unit ini
-        //     $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
-        //         $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
-        //     })
-        //         ->get()
-        //         ->pluck('roles') // Ambil seluruh data role dari relasi
-        //         ->flatten()
-        //         ->unique('id')
-        //         ->pluck('id') // Ambil hanya ID
-        //         ->toArray(); // Konversi ke array
+            // Ambil semua role untuk unit ini
+            $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
+                $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
+            })
+                ->get()
+                ->pluck('roles') // Ambil seluruh data role dari relasi
+                ->flatten()
+                ->unique('id')
+                ->pluck('id') // Ambil hanya ID
+                ->toArray(); // Konversi ke array
 
-        //     // Daftar role yang HARUS digunakan untuk jenis 'umum' dalam urutan tetap
-        //     $rolePriorityForUmum = [
-        //         'Customer Services',
-        //         'Penanggung Jawab'
-        //         // 'Kepala Subbagian'
-        //     ];
+            // Daftar role yang HARUS digunakan untuk jenis 'umum' dalam urutan tetap
+            $rolePriorityForUmum = [
+                'Customer Services',
+                'Penanggung Jawab'
+                // 'Kepala Subbagian'
+            ];
 
-        //     // Ambil ID dari role yang sesuai untuk 'umum'
-        //     $roleIdMapping = Role::whereIn('name', $rolePriorityForUmum)
-        //         ->get()
-        //         ->mapWithKeys(function ($role) {
-        //             return [$role->name => $role->id];
-        //         })
-        //         ->toArray();
+            // Ambil ID dari role yang sesuai untuk 'umum'
+            $roleIdMapping = Role::whereIn('name', $rolePriorityForUmum)
+                ->get()
+                ->mapWithKeys(function ($role) {
+                    return [$role->name => $role->id];
+                })
+                ->toArray();
 
-        //     // Susun berdasarkan urutan yang telah ditentukan
-        //     $filteredRolesForUmum = [];
-        //     foreach ($rolePriorityForUmum as $roleName) {
-        //         if (isset($roleIdMapping[$roleName])) {
-        //             $filteredRolesForUmum[] = $roleIdMapping[$roleName];
-        //         }
-        //     }
-        //     foreach ($jenisList as $jenis) {
-        //         // Tentukan approval roles berdasarkan jenis
-        //         if ($jenis === 'umum') {
-        //             // Jika jenis 'umum', ambil semua role dalam urutan tetap
-        //             $approvalRoles = $filteredRolesForUmum;
-        //         } else {
-        //             // Jika bukan 'umum', pilih 3 role secara acak
-        //             $approvalRoles = collect($allRoles)
-        //                 ->shuffle()
-        //                 ->take(3)
-        //                 ->toArray();
-        //         }
+            // Susun berdasarkan urutan yang telah ditentukan
+            $filteredRolesForUmum = [];
+            foreach ($rolePriorityForUmum as $roleName) {
+                if (isset($roleIdMapping[$roleName])) {
+                    $filteredRolesForUmum[] = $roleIdMapping[$roleName];
+                }
+            }
+            foreach ($jenisList as $jenis) {
+                // Tentukan approval roles berdasarkan jenis
+                if ($jenis === 'umum') {
+                    // Jika jenis 'umum', ambil semua role dalam urutan tetap
+                    $approvalRoles = $filteredRolesForUmum;
+                } else {
+                    // Jika bukan 'umum', pilih 3 role secara acak
+                    $approvalRoles = collect($allRoles)
+                        ->shuffle()
+                        ->take(3)
+                        ->toArray();
+                }
 
-        //         // Simpan roles ke $unitData
-        //         $unitData['roles'] = $approvalRoles;
+                // Simpan roles ke $unitData
+                $unitData['roles'] = $approvalRoles;
 
-        //         // Filter role untuk finalizer (ambil dari role yang tidak dipilih untuk approval)
-        //         $availableFinalizerRoles = array_diff($allRoles, $approvalRoles);
+                // Filter role untuk finalizer (ambil dari role yang tidak dipilih untuk approval)
+                $availableFinalizerRoles = array_diff($allRoles, $approvalRoles);
 
-        //         // Pilih secara acak untuk finalizer jika ada yang tersedia
-        //         $finalizerRole = !empty($availableFinalizerRoles) ? Arr::random($availableFinalizerRoles) : null;
+                // Pilih secara acak untuk finalizer jika ada yang tersedia
+                $finalizerRole = !empty($availableFinalizerRoles) ? Arr::random($availableFinalizerRoles) : null;
 
-        //         // Simpan konfigurasi persetujuan
-        //         $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
-        //             'unit_id' => $unit->id,
-        //             'uuid' => Str::uuid(), // Generate UUID unik
-        //             'jenis' => $jenis,
-        //             'tipe' => $tipe,
-        //             'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
-        //             'urutan_persetujuan' => 1, // Urutan persetujuan pertama
-        //             'cancel_persetujuan' => 2, // Urutan pembatalan kedua
-        //             'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
-        //         ]);
+                // Simpan konfigurasi persetujuan
+                $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
+                    'unit_id' => $unit->id,
+                    'uuid' => Str::uuid(), // Generate UUID unik
+                    'jenis' => $jenis,
+                    'tipe' => $tipe,
+                    'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
+                    'urutan_persetujuan' => 1, // Urutan persetujuan pertama
+                    'cancel_persetujuan' => 2, // Urutan pembatalan kedua
+                    'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
+                ]);
 
-        //         // Simpan role untuk setiap opsi persetujuan dalam urutan tetap
-        //         foreach ($approvalRoles as $index => $role) {
-        //             // Tentukan nilai approval berdasarkan nama role
-        //             $roleName = array_search($role, $roleIdMapping); // Cari nama role berdasarkan ID
+                // Simpan role untuk setiap opsi persetujuan dalam urutan tetap
+                foreach ($approvalRoles as $index => $role) {
+                    // Tentukan nilai approval berdasarkan nama role
+                    $roleName = array_search($role, $roleIdMapping); // Cari nama role berdasarkan ID
 
-        //             // Jika role adalah "Customer Services" atau "Penanggung Jawab", approval = 1, selain itu 0/null
-        //             // $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
+                    // Jika role adalah "Customer Services" atau "Penanggung Jawab", approval = 1, selain itu 0/null
+                    // $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
 
-        //             \App\Models\JabatanPersetujuan::create([
-        //                 'opsi_persetujuan_id' => $approvalConfiguration->id,
-        //                 'jabatan_id' => $role,
-        //                 'urutan' => $index + 1,
-        //                 // 'approval' => $approvalValue,
-        //             ]);
-        //         }
-        //     }
-        // }
-        // $jenisList = ['kdo', 'ruangan', 'alat']; // Daftar jenis
-        // $tipe = 'peminjaman'; // Tipe permintaan
+                    \App\Models\JabatanPersetujuan::create([
+                        'opsi_persetujuan_id' => $approvalConfiguration->id,
+                        'jabatan_id' => $role,
+                        'urutan' => $index + 1,
+                        // 'approval' => $approvalValue,
+                    ]);
+                }
+            }
+        }
+        $jenisList = ['kdo', 'ruangan', 'alat']; // Daftar jenis
+        $tipe = 'peminjaman'; // Tipe permintaan
 
-        // $rolePriorityForPeminjaman = [
-        //     'Customer Services',
-        //     'Penanggung Jawab'
-        //     // 'Kepala Subbagian'
-        // ];
+        $rolePriorityForPeminjaman = [
+            'Customer Services',
+            'Penanggung Jawab'
+            // 'Kepala Subbagian'
+        ];
 
-        // // Ambil ID dari role yang sesuai untuk 'peminjaman'
-        // $roleIdMapping = Role::whereIn('name', $rolePriorityForPeminjaman)
-        //     ->get()
-        //     ->mapWithKeys(function ($role) {
-        //         return [$role->name => $role->id];
-        //     })
-        //     ->toArray();
+        // Ambil ID dari role yang sesuai untuk 'peminjaman'
+        $roleIdMapping = Role::whereIn('name', $rolePriorityForPeminjaman)
+            ->get()
+            ->mapWithKeys(function ($role) {
+                return [$role->name => $role->id];
+            })
+            ->toArray();
 
-        // foreach ($this->units as $unitName => $unitData) {
-        //     $unit = UnitKerja::where('nama', $unitName)->first();
+        foreach ($this->units as $unitName => $unitData) {
+            $unit = UnitKerja::where('nama', $unitName)->first();
 
-        //     // Ambil semua role untuk unit ini
-        //     $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
-        //         $query->where('parent_id', $unit->id)
-        //             ->orWhere('unit_id', $unit->id);
-        //     })
-        //         ->get()
-        //         ->pluck('roles') // Ambil seluruh data role dari relasi
-        //         ->flatten()
-        //         ->unique('id')
-        //         ->pluck('id') // Ambil hanya ID
-        //         ->toArray(); // Konversi ke array
+            // Ambil semua role untuk unit ini
+            $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
+                $query->where('parent_id', $unit->id)
+                    ->orWhere('unit_id', $unit->id);
+            })
+                ->get()
+                ->pluck('roles') // Ambil seluruh data role dari relasi
+                ->flatten()
+                ->unique('id')
+                ->pluck('id') // Ambil hanya ID
+                ->toArray(); // Konversi ke array
 
-        //     // Susun berdasarkan urutan yang telah ditentukan
-        //     $filteredRolesForPeminjaman = [];
-        //     foreach ($rolePriorityForPeminjaman as $roleName) {
-        //         if (isset($roleIdMapping[$roleName])) {
-        //             $filteredRolesForPeminjaman[] = $roleIdMapping[$roleName];
-        //         }
-        //     }
+            // Susun berdasarkan urutan yang telah ditentukan
+            $filteredRolesForPeminjaman = [];
+            foreach ($rolePriorityForPeminjaman as $roleName) {
+                if (isset($roleIdMapping[$roleName])) {
+                    $filteredRolesForPeminjaman[] = $roleIdMapping[$roleName];
+                }
+            }
 
-        //     // Simpan roles ke $unitData
-        //     $unitData['roles'] = $filteredRolesForPeminjaman;
+            // Simpan roles ke $unitData
+            $unitData['roles'] = $filteredRolesForPeminjaman;
 
-        //     // Filter role untuk finalizer (ambil dari role yang tidak dipilih untuk approval)
-        //     $availableFinalizerRoles = array_diff($allRoles, $filteredRolesForPeminjaman);
+            // Filter role untuk finalizer (ambil dari role yang tidak dipilih untuk approval)
+            $availableFinalizerRoles = array_diff($allRoles, $filteredRolesForPeminjaman);
 
-        //     // Pilih finalizer secara acak jika ada yang tersedia
-        //     $finalizerRole = !empty($availableFinalizerRoles) ? Arr::random($availableFinalizerRoles) : null;
+            // Pilih finalizer secara acak jika ada yang tersedia
+            $finalizerRole = !empty($availableFinalizerRoles) ? Arr::random($availableFinalizerRoles) : null;
 
-        //     foreach ($jenisList as $jenis) {
-        //         // Simpan konfigurasi persetujuan
-        //         $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
-        //             'unit_id' => $unit->id,
-        //             'uuid' => \Illuminate\Support\Str::uuid(), // Generate UUID unik
-        //             'jenis' => $jenis,
-        //             'tipe' => $tipe,
-        //             'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
-        //             'urutan_persetujuan' => 1, // Urutan persetujuan pertama
-        //             'cancel_persetujuan' => 2, // Urutan pembatalan kedua
-        //             'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
-        //         ]);
+            foreach ($jenisList as $jenis) {
+                // Simpan konfigurasi persetujuan
+                $approvalConfiguration = \App\Models\OpsiPersetujuan::create([
+                    'unit_id' => $unit->id,
+                    'uuid' => \Illuminate\Support\Str::uuid(), // Generate UUID unik
+                    'jenis' => $jenis,
+                    'tipe' => $tipe,
+                    'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
+                    'urutan_persetujuan' => 1, // Urutan persetujuan pertama
+                    'cancel_persetujuan' => 2, // Urutan pembatalan kedua
+                    'jabatan_penyelesai_id' => $finalizerRole, // Jabatan penyelesaian
+                ]);
 
-        //         // Simpan role untuk setiap opsi persetujuan dalam urutan tetap
-        //         foreach ($filteredRolesForPeminjaman as $index => $role) {
-        //             // Tentukan nilai approval berdasarkan nama role
-        //             $roleName = array_search($role, $roleIdMapping);
+                // Simpan role untuk setiap opsi persetujuan dalam urutan tetap
+                foreach ($filteredRolesForPeminjaman as $index => $role) {
+                    // Tentukan nilai approval berdasarkan nama role
+                    $roleName = array_search($role, $roleIdMapping);
 
-        //             // Jika role adalah "Customer Services" atau "Penanggung Jawab", approval = 1, selain itu 0/null
-        //             // $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
+                    // Jika role adalah "Customer Services" atau "Penanggung Jawab", approval = 1, selain itu 0/null
+                    // $approvalValue = in_array($roleName, ['Customer Services', 'Penanggung Jawab']) ? 1 : 0;
 
-        //             \App\Models\JabatanPersetujuan::create([
-        //                 'opsi_persetujuan_id' => $approvalConfiguration->id,
-        //                 'jabatan_id' => $role,
-        //                 'urutan' => $index + 1,
-        //                 // 'approval' => $approvalValue,
-        //             ]);
-        //         }
-        //     }
-        // }
+                    \App\Models\JabatanPersetujuan::create([
+                        'opsi_persetujuan_id' => $approvalConfiguration->id,
+                        'jabatan_id' => $role,
+                        'urutan' => $index + 1,
+                        // 'approval' => $approvalValue,
+                    ]);
+                }
+            }
+        }
 
-        // $jenisList = ['barang']; // Daftar jenis
-        // $tipe = 'pengiriman'; // Tipe permintaan
-        // foreach ($this->units as $unitName => $unitData) {
-        //     $unit = UnitKerja::where('nama', $unitName)->first();
+        $jenisList = ['barang']; // Daftar jenis
+        $tipe = 'pengiriman'; // Tipe permintaan
+        foreach ($this->units as $unitName => $unitData) {
+            $unit = UnitKerja::where('nama', $unitName)->first();
+            // Ambil semua role untuk unit ini
+            $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
+                $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
+            })
+                ->whereHas('roles', function ($role) {
+                    return $role->where('name', 'Pemeriksa Barang');
+                })
+                ->get()
+                ->pluck('id') // Ambil hanya ID
+                ->toArray();
+            if (count($allRoles) > 0) {
+                $finalizerRole = Arr::random($allRoles);
 
-        //     // Ambil semua role untuk unit ini
-        //     $allRoles = User::whereHas('unitKerja', function ($query) use ($unit) {
-        //         $query->where('parent_id', $unit->id)->orWhere('unit_id', $unit->id);
-        //     })
-        //         ->whereHas('roles', function ($role) {
-        //             return $role->where('name', 'Pemeriksa Barang');
-        //         })
-        //         ->get()
-        //         ->pluck('id') // Ambil hanya ID
-        //         ->toArray();
-
-        //     $finalizerRole = Arr::random($allRoles);
-
-        //     foreach ($jenisList as $jenis) {
-        //         // Simpan konfigurasi persetujuan
-        //         $approvalConfiguration = OpsiPersetujuan::create([
-        //             'unit_id' => $unit->id,
-        //             'uuid' => Str::uuid(), // Generate UUID unik
-        //             'jenis' => $jenis,
-        //             'tipe' => $tipe,
-        //             'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
-        //             'urutan_persetujuan' => 1, // Urutan persetujuan pertama
-        //             'cancel_persetujuan' => 2, // Urutan pembatalan kedua
-        //             'user_penyelesai_id' => $finalizerRole, // user penyelesaian
-        //         ]);
-        //     }
-        // }
+                foreach ($jenisList as $jenis) {
+                    // Simpan konfigurasi persetujuan
+                    $approvalConfiguration = OpsiPersetujuan::create([
+                        'unit_id' => $unit->id,
+                        'uuid' => Str::uuid(), // Generate UUID unik
+                        'jenis' => $jenis,
+                        'tipe' => $tipe,
+                        'deskripsi' => "Konfigurasi persetujuan untuk unit $unitName dengan jenis $jenis.",
+                        'urutan_persetujuan' => 1, // Urutan persetujuan pertama
+                        'cancel_persetujuan' => 2, // Urutan pembatalan kedua
+                        'user_penyelesai_id' => $finalizerRole, // user penyelesaian
+                    ]);
+                } # code...
+            }
+        }
     }
 
     private function lokasiSeed()
