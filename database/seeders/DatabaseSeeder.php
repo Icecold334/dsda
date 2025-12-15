@@ -191,16 +191,28 @@ class DatabaseSeeder extends Seeder
         $barang = BarangStok::all();
         $details = DetailPermintaanStok::all();
         // $lokasis = LokasiStok::all();
+
         for ($i = 0; $i < 2975; $i++) {
             $detail = $details->random();
+
+            if (!$detail->kategori_id) {
+                continue;
+            }
+
+            $barangByKategori = $barang->where('kategori_id', $detail->kategori_id);
+
+            if ($barangByKategori->isEmpty()) {
+                continue;
+            }
+
             PermintaanStok::create([
                 'detail_permintaan_id' => $detail->id,
                 'user_id' => $users->random()->id,
-                'barang_id' => $barang->where('kategori_id', $detail->kategori_id)->random()->id,
+                'barang_id' => $barangByKategori->random()->id,
                 'jumlah' => rand(10, 100),
-                // 'lokasi_id' => $lokasis->random()->id,
             ]);
         }
+
 
         // $requests = [];
         // for ($i = 0; $i < 100; $i++) {
