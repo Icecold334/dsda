@@ -64,6 +64,10 @@ class CreateKontrakVendor extends Component
     // === SECTION: BARANG ===
     public $barang_id, $newBarang, $jumlah, $newHarga, $newPpn = 0;
     public $specifications = ['nama' => '', 'tipe' => '', 'ukuran' => ''];
+    // Separate properties for wire:model binding (workaround for nested array binding issue)
+    public $specNama = '';
+    public $specTipe = '';
+    public $specUkuran = '';
     public $barangs, $list = [], $total = 0;
     public $suggestions = [
         'nama' => [],
@@ -404,7 +408,11 @@ class CreateKontrakVendor extends Component
     //         $this->loadListBarangAdendum($this->id);
     //     }
     // }
-    public function mount() {}
+    public function mount() 
+    {
+        // Initialize specRenderKey to ensure wire:key works
+        $this->specRenderKey = now()->timestamp;
+    }
     public function loadStep1()
     {
         $this->barangs = \App\Models\BarangStok::select('id', 'nama')
@@ -496,6 +504,19 @@ class CreateKontrakVendor extends Component
 
     public function updated($property)
     {
+        // Sync separate properties to specifications array
+        if ($property === 'specNama') {
+            $this->specifications['nama'] = $this->specNama;
+        }
+
+        if ($property === 'specTipe') {
+            $this->specifications['tipe'] = $this->specTipe;
+        }
+
+        if ($property === 'specUkuran') {
+            $this->specifications['ukuran'] = $this->specUkuran;
+        }
+
         if ($property === 'program_id') {
             $this->kegiatans = \App\Models\Kegiatan::where('program_id', $this->program_id)->get();
             $this->kegiatan_id = $this->sub_kegiatan_id = $this->aktivitas_id = $this->rekening_id = null;
@@ -558,6 +579,10 @@ class CreateKontrakVendor extends Component
         $this->newBarang = $name;
         $this->updatedBarangId();
         $this->specifications = ['nama' => '', 'tipe' => '', 'ukuran' => ''];
+        // Reset separate properties too
+        $this->specNama = '';
+        $this->specTipe = '';
+        $this->specUkuran = '';
         $this->specOptions = ['nama' => [], 'tipe' => [], 'ukuran' => []];
         $this->fetchSpesifikasiOptions();
     }
@@ -566,7 +591,14 @@ class CreateKontrakVendor extends Component
     {
         $this->specRenderKey = now()->timestamp;
         $this->specifications = ['nama' => '', 'tipe' => '', 'ukuran' => ''];
+        // Reset separate properties too
+        $this->specNama = '';
+        $this->specTipe = '';
+        $this->specUkuran = '';
         $this->specOptions = ['nama' => [], 'tipe' => [], 'ukuran' => []];
+        $this->specNamaOptions = [];
+        $this->specTipeOptions = [];
+        $this->specUkuranOptions = [];
         $this->fetchSpesifikasiOptions();
     }
 
@@ -575,14 +607,59 @@ class CreateKontrakVendor extends Component
         if (!$this->barang_id)
             return;
 
-        $this->specOptions['nama'] = MerkStok::where('barang_id', $this->barang_id)->pluck('nama')->unique()->values()->toArray();
-        $this->specOptions['tipe'] = MerkStok::where('barang_id', $this->barang_id)->pluck('tipe')->unique()->values()->toArray();
-        $this->specOptions['ukuran'] = MerkStok::where('barang_id', $this->barang_id)->pluck('ukuran')->unique()->values()->toArray();
+        // Ambil opsi spesifikasi berdasarkan barang yang dipilih (barang_id only, ignoring satuan)
+        // Business logic: Specifications are the same for a barang regardless of satuan
+        $namaOptions = MerkStok::where('barang_id', $this->barang_id)
+            ->whereNotNull('nama')
+            ->distinct()
+            ->orderBy('nama')
+            ->pluck('nama')
+            ->toArray();
+        $tipeOptions = MerkStok::where('barang_id', $this->barang_id)
+            ->whereNotNull('tipe')
+            ->distinct()
+            ->orderBy('tipe')
+            ->pluck('tipe')
+            ->toArray();
+        $ukuranOptions = MerkStok::where('barang_id', $this->barang_id)
+            ->whereNotNull('ukuran')
+            ->distinct()
+            ->orderBy('ukuran')
+            ->pluck('ukuran')
+            ->toArray();
+
+        // Simpan juga ke specOptions (legacy) dan ke spec*Options yang dipakai komponen
+        $this->specOptions['nama'] = $namaOptions;
+        $this->specOptions['tipe'] = $tipeOptions;
+        $this->specOptions['ukuran'] = $ukuranOptions;
+
+        $this->specNamaOptions = collect($namaOptions)
+            ->map(fn($v) => ['id' => $v, 'nama' => $v])
+            ->toArray();
+        $this->specTipeOptions = collect($tipeOptions)
+            ->map(fn($v) => ['id' => $v, 'nama' => $v])
+            ->toArray();
+        $this->specUkuranOptions = collect($ukuranOptions)
+            ->map(fn($v) => ['id' => $v, 'nama' => $v])
+            ->toArray();
     }
 
     public function addToList()
     {
         if (!$this->barang_id || !$this->newSatuan) {
+            return;
+        }
+
+        // Validate that at least one specification (nama, tipe, or ukuran) is filled
+        $hasSpecification = !empty($this->specifications['nama']) || 
+                           !empty($this->specifications['tipe']) || 
+                           !empty($this->specifications['ukuran']);
+
+        if (!$hasSpecification) {
+            $this->dispatch('alert', [
+                'type' => 'warning',
+                'message' => 'Minimal salah satu dari Nama, Tipe, atau Ukuran harus diisi.'
+            ]);
             return;
         }
 
@@ -611,7 +688,7 @@ class CreateKontrakVendor extends Component
             'can_delete' => true,
         ];
 
-        $this->reset(['newBarang', 'newSatuan', 'jumlah', 'newHarga', 'newPpn', 'specifications']);
+        $this->reset(['newBarang', 'newSatuan', 'jumlah', 'newHarga', 'newPpn', 'specifications', 'specNama', 'specTipe', 'specUkuran']);
         $this->calculateTotal();
 
         $this->dispatch('reset-harga-field');
@@ -647,6 +724,21 @@ class CreateKontrakVendor extends Component
         $this->validate([
             'list' => 'required|array|min:1',
         ]);
+
+        // Validate that each item in the list has at least one specification
+        foreach ($this->list as $index => $item) {
+            $hasSpecification = !empty($item['specifications']['nama']) || 
+                               !empty($item['specifications']['tipe']) || 
+                               !empty($item['specifications']['ukuran']);
+            
+            if (!$hasSpecification) {
+                $this->dispatch('alert', [
+                    'type' => 'error',
+                    'message' => "Barang \"{$item['barang']}\" harus memiliki minimal salah satu dari Nama, Tipe, atau Ukuran."
+                ]);
+                return;
+            }
+        }
 
         $kontrak = KontrakVendorStok::create([
             'vendor_id' => $this->vendor_id,

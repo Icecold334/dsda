@@ -193,32 +193,42 @@
 
                     <div>
                         <label class="block text-sm font-medium">Nama</label>
-                        <livewire:searchable-select wire:model.live="specifications.nama" :options="$specNamaOptions"
+                        <livewire:searchable-select wire:key="spec-nama-{{ $specRenderKey }}" wire:model.live="specNama" :options="$specNamaOptions"
                             placeholder="Ketik atau pilih nama..." />
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium">Tipe</label>
-                        <livewire:searchable-select wire:model.live="specifications.tipe" :options="$specTipeOptions"
+                        <livewire:searchable-select wire:key="spec-tipe-{{ $specRenderKey }}" wire:model.live="specTipe" :options="$specTipeOptions"
                             placeholder="Ketik atau pilih tipe..." />
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium">Ukuran</label>
-                        <livewire:searchable-select wire:model.live="specifications.ukuran"
+                        <livewire:searchable-select wire:key="spec-ukuran-{{ $specRenderKey }}" wire:model.live="specUkuran"
                             :options="$specUkuranOptions" placeholder="Ketik atau pilih ukuran..." />
                     </div>
 
                 </div>
 
                 <div class="flex justify-end">
-                    @if ($barang_id && $newSatuan && $jumlah && $newHarga)
+                    @php
+                        $hasSpecification = !empty($specifications['nama']) || !empty($specifications['tipe']) || !empty($specifications['ukuran']);
+                        $canAdd = $barang_id && $newSatuan && $jumlah && $newHarga && $hasSpecification;
+                    @endphp
+                    @if ($canAdd)
                     <button wire:click="addToList"
                         class="mt-2 bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 transition">
                         <i class="fa fa-plus mr-1"></i> Tambah ke Daftar Barang
                     </button>
                     @else
-                    <span class="text-sm text-gray-500 mt-2">Lengkapi semua data sebelum menambahkan</span>
+                    <span class="text-sm text-gray-500 mt-2">
+                        @if (!$barang_id || !$newSatuan || !$jumlah || !$newHarga)
+                            Lengkapi semua data sebelum menambahkan
+                        @elseif (!$hasSpecification)
+                            Minimal salah satu dari Nama, Tipe, atau Ukuran harus diisi
+                        @endif
+                    </span>
                     @endif
                 </div>
             </x-card>

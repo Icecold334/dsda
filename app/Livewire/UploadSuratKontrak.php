@@ -28,9 +28,12 @@ class UploadSuratKontrak extends Component
     #[On('saveDokumen')]
     public function saveAttachments($kontrak_id, $isRab = false, $isMaterial = false)
     {
-        $this->validate([
-            'attachments.*' => 'file|max:5024',  // Validate before saving
-        ]);
+        // Only validate if there are attachments
+        if (!empty($this->attachments)) {
+            $this->validate([
+                'attachments.*' => 'file|max:5024',  // Validate before saving
+            ]);
+        }
 
         foreach ($this->attachments as $file) {
             $path = str_replace($isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak') . '/', '', $file->storeAs($isRab ? 'lampiranRab' : ($isMaterial ? 'lampiranMaterial' : 'dokumenKontrak') . '', $file->getClientOriginalName(), 'public'));  // Store the file
@@ -59,7 +62,17 @@ class UploadSuratKontrak extends Component
 
         // Optionally reset the attachments after saving
         $this->reset('attachments');
-        return redirect()->to($isRab ? 'rab' : ($isMaterial ? 'permintaan/material' : 'kontrak-vendor-stok'));
+        
+        // For kontrak-vendor-stok, re-dispatch the event so JavaScript can handle redirect
+        // For RAB and Material, redirect to index
+        if ($isRab) {
+            return redirect()->to('rab');
+        } elseif ($isMaterial) {
+            return redirect()->to('permintaan/material');
+        }
+        // Re-dispatch saveDokumen event so JavaScript listener can handle redirect
+        $this->dispatch('saveDokumen', kontrak_id: $kontrak_id);
+        return null;
     }
 
 

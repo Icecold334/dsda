@@ -8,11 +8,11 @@
     {{-- Mode NORMAL: Searchable dropdown --}}
     <input type="text"
         class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-        placeholder="Cari..." wire:model.live="search" @focus="open = true" @click.away="open = false" />
+        placeholder="Cari..." wire:model.live="search" @focus="open = true; $wire.handleFocus()" @click.away="open = false" @blur="setTimeout(() => { open = false; $wire.handleBlur(); }, 200)" />
 
     <ul x-show="open"
-        class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-60 overflow-y-auto shadow-lg"
-        style="display: none;">
+        x-cloak
+        class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-60 overflow-y-auto shadow-lg">
         @forelse($filteredOptions as $item)
         @php
         $view = is_array($item) ? ($item[$label] ?? '') : ($item->{$label} ?? '');
