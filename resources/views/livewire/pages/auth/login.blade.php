@@ -32,7 +32,7 @@ new #[Layout('layouts.guest')] class extends Component {
             redirect()->to('/dashboard');
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Clear form ketika login gagal
-            $this->form->username = '';
+            $this->form->email = '';
             $this->form->password = '';
             throw $e;
         }
@@ -57,24 +57,24 @@ new #[Layout('layouts.guest')] class extends Component {
 
             <!-- Error Messages -->
             @if ($errors->any())
-                <div class="error-messages"
-                    style="background-color: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
-                    <ul style="margin: 0; padding-left: 20px;">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+            <div class="error-messages"
+                style="background-color: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
+                <ul style="margin: 0; padding-left: 20px;">
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
             @endif
 
             <div class="actual-form">
                 <div class="input-wrap">
-                    <input class="input-field @error('form.username') error @enderror" type="text"
-                        wire:model="form.username" name="username" id="username-login" autocomplete="off">
-                    <label>Username</label>
-                    @error('form.username')
-                        <span class="error-text"
-                            style="color: #dc2626; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                    <input class="input-field @error('form.email') error @enderror" type="text" wire:model="form.email"
+                        name="email" id="email-login" autocomplete="off">
+                    <label>Email</label>
+                    @error('form.email')
+                    <span class="error-text"
+                        style="color: #dc2626; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -86,8 +86,8 @@ new #[Layout('layouts.guest')] class extends Component {
                         <i class="fas fa-eye eye-icon"></i>
                     </span>
                     @error('form.password')
-                        <span class="error-text"
-                            style="color: #dc2626; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                    <span class="error-text"
+                        style="color: #dc2626; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -105,38 +105,38 @@ new #[Layout('layouts.guest')] class extends Component {
 
             <!-- Error Messages for Registration -->
             @if (
-                    $errors->any() && (
-                        $errors->has('registerForm.name') ||
-                        $errors->has('registerForm.email') ||
-                        $errors->has('registerForm.nomor') ||
-                        $errors->has('registerForm.password') ||
-                        $errors->has('registerForm.password_confirmation') ||
-                        $errors->has('registerForm.parent_id')
-                    )
-                )
-                <div class="error-messages"
-                    style="background-color: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
-                    <ul style="margin: 0; padding-left: 20px;">
-                        @if ($errors->has('registerForm.name'))
-                            <li>{{ $errors->first('registerForm.name') }}</li>
-                        @endif
-                        @if ($errors->has('registerForm.email'))
-                            <li>{{ $errors->first('registerForm.email') }}</li>
-                        @endif
-                        @if ($errors->has('registerForm.nomor'))
-                            <li>{{ $errors->first('registerForm.nomor') }}</li>
-                        @endif
-                        @if ($errors->has('registerForm.password'))
-                            <li>{{ $errors->first('registerForm.password') }}</li>
-                        @endif
-                        @if ($errors->has('registerForm.password_confirmation'))
-                            <li>{{ $errors->first('registerForm.password_confirmation') }}</li>
-                        @endif
-                        @if ($errors->has('registerForm.parent_id'))
-                            <li>{{ $errors->first('registerForm.parent_id') }}</li>
-                        @endif
-                    </ul>
-                </div>
+            $errors->any() && (
+            $errors->has('registerForm.name') ||
+            $errors->has('registerForm.email') ||
+            $errors->has('registerForm.nomor') ||
+            $errors->has('registerForm.password') ||
+            $errors->has('registerForm.password_confirmation') ||
+            $errors->has('registerForm.parent_id')
+            )
+            )
+            <div class="error-messages"
+                style="background-color: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
+                <ul style="margin: 0; padding-left: 20px;">
+                    @if ($errors->has('registerForm.name'))
+                    <li>{{ $errors->first('registerForm.name') }}</li>
+                    @endif
+                    @if ($errors->has('registerForm.email'))
+                    <li>{{ $errors->first('registerForm.email') }}</li>
+                    @endif
+                    @if ($errors->has('registerForm.nomor'))
+                    <li>{{ $errors->first('registerForm.nomor') }}</li>
+                    @endif
+                    @if ($errors->has('registerForm.password'))
+                    <li>{{ $errors->first('registerForm.password') }}</li>
+                    @endif
+                    @if ($errors->has('registerForm.password_confirmation'))
+                    <li>{{ $errors->first('registerForm.password_confirmation') }}</li>
+                    @endif
+                    @if ($errors->has('registerForm.parent_id'))
+                    <li>{{ $errors->first('registerForm.parent_id') }}</li>
+                    @endif
+                </ul>
+            </div>
             @endif
 
             <div class="actual-form">
@@ -145,10 +145,10 @@ new #[Layout('layouts.guest')] class extends Component {
                         wire:model="registerForm.parent_id">
                         <option value="">Pilih Unit Kerja</option>
                         @foreach ($unitkerjas as $parent)
-                            <option value="{{ $parent->id }}">{{ $parent->nama }}</option>
-                            @foreach ($parent->children as $child)
-                                <option value="{{ $child->id }}">--- {{ $child->nama }}</option>
-                            @endforeach
+                        <option value="{{ $parent->id }}">{{ $parent->nama }}</option>
+                        @foreach ($parent->children as $child)
+                        <option value="{{ $child->id }}">--- {{ $child->nama }}</option>
+                        @endforeach
                         @endforeach
                     </select>
                     <label>Unit Kerja</label>
