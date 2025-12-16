@@ -18,7 +18,9 @@
                 <livewire:nav-item href="/kontrak-vendor-stok" title="Daftar Kontrak" />
                 @endcan
                 @can('rab.read')
+                @if (auth()->user()->unitKerja?->hak != 1)
                 <livewire:nav-item title="Daftar RAB" href='/rab' />
+                @endif
                 @endcan
 
                 @php
@@ -31,7 +33,7 @@
                 }
                 @endphp
 
-                @if (count($formBarangItems) > 0)
+                @if (count($formBarangItems) > 0 && auth()->user()->unitKerja?->hak != 1)
                 <livewire:nav-item title="Form Barang" :child="$formBarangItems" />
                 @endif
 
