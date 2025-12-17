@@ -147,6 +147,123 @@
     @endforelse
 
       </x-card>
+
+      <!-- Card Overview History Adendum -->
+      <x-card title="Overview History Adendum" class="mt-3">
+        @if($totalAdendums > 0)
+          <div class="space-y-4">
+            <!-- Statistik Adendum -->
+            <div class="grid grid-cols-3 gap-4">
+              <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <div class="text-sm text-blue-600 font-medium">Total Adendum</div>
+                <div class="text-2xl font-bold text-blue-900 mt-1">{{ $totalAdendums }}</div>
+              </div>
+              <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                <div class="text-sm text-green-600 font-medium">Disetujui</div>
+                <div class="text-2xl font-bold text-green-900 mt-1">{{ $approvedAdendums }}</div>
+              </div>
+              <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                <div class="text-sm text-yellow-600 font-medium">Menunggu</div>
+                <div class="text-2xl font-bold text-yellow-900 mt-1">{{ $pendingAdendums }}</div>
+              </div>
+            </div>
+
+            <!-- Statistik History -->
+            @if($totalHistories > 0)
+              <div class="border-t border-gray-200 pt-4">
+                <div class="text-sm font-semibold text-gray-700 mb-3">Ringkasan History</div>
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span class="text-sm text-gray-600">Dibuat: <strong>{{ $createCount }}</strong></span>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span class="text-sm text-gray-600">Disetujui: <strong>{{ $approveCount }}</strong></span>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span class="text-sm text-gray-600">Ditolak: <strong>{{ $rejectCount }}</strong></span>
+                  </div>
+                </div>
+              </div>
+            @endif
+
+            <!-- Tombol Lihat History dan Buat Adendum -->
+            <div class="pt-4 border-t border-gray-200 space-y-2">
+              <a href="{{ route('rab.adendum.history', ['rab' => $rab->id]) }}"
+                class="inline-flex items-center justify-center w-full px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-200">
+                <i class="fa-solid fa-history mr-2"></i>
+                Lihat Detail History Adendum
+              </a>
+              
+              @php
+                $user = auth()->user();
+                $isKasatpel = $user->hasRole('Kepala Satuan Pelaksana');
+                $isDisetujui = $rab->status === 2;
+                $hasPendingAdendum = $rab->pendingAdendums->count() > 0;
+                $isRabCreator = $rab->user_id === $user->id;
+                $pendingAdendum = $rab->pendingAdendums->first();
+                
+                // Cek apakah pembuat RAB adalah Kasie/Kepala Seksi Perencanaan
+                $rabCreator = $rab->user;
+                $isKasieCreator = $rabCreator && (
+                    $rabCreator->hasRole('Kepala Seksi') 
+                    // || 
+                    // $rabCreator->hasRole('Kepala Seksi Perencanaan') ||
+                    // $rabCreator->roles->contains(function ($role) {
+                    //     return str_contains($role->name, 'Kepala Seksi') || str_contains($role->name, 'Kasie');
+                    // })
+                );
+              @endphp
+              
+              <!-- Tombol Konfirmasi Adendum untuk Pembuat RAB (termasuk Kasie yang membuat RAB) -->
+              @if($isRabCreator && $hasPendingAdendum && $pendingAdendum)
+                <a href="{{ route('rab.adendum.approve', ['rab' => $rab->id, 'adendum' => $pendingAdendum->id]) }}"
+                  class="relative inline-flex items-center justify-center w-full px-4 py-2.5 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition duration-200 animate-pulse">
+                  <i class="fa-solid fa-file-circle-check mr-2"></i>
+                  Konfirmasi Adendum RAB
+                  @if($rab->pendingAdendums->count() > 0)
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {{ $rab->pendingAdendums->count() }}
+                    </span>
+                  @endif
+                </a>
+              @endif
+              
+              @if($isKasatpel && $isDisetujui && !$hasPendingAdendum)
+                <a href="{{ route('rab.adendum', ['rab' => $rab->id]) }}"
+                  class="inline-flex items-center justify-center w-full px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition duration-200">
+                  <i class="fa-solid fa-file-pen mr-2"></i>
+                  Buat Adendum RAB
+                </a>
+              @endif
+            </div>
+          </div>
+        @else
+          <div class="text-center py-6">
+            <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <i class="fa-solid fa-file-circle-question text-2xl text-gray-400"></i>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Belum ada adendum untuk RAB ini</p>
+            
+            @php
+              $user = auth()->user();
+              $isKasatpel = $user->hasRole('Kepala Satuan Pelaksana');
+              $isDisetujui = $rab->status === 2;
+              $hasPendingAdendum = $rab->pendingAdendums->count() > 0;
+            @endphp
+            
+            @if($isKasatpel && $isDisetujui && !$hasPendingAdendum)
+              <a href="{{ route('rab.adendum', ['rab' => $rab->id]) }}"
+                class="inline-flex items-center justify-center px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition duration-200">
+                <i class="fa-solid fa-file-pen mr-2"></i>
+                Buat Adendum RAB
+              </a>
+            @endif
+          </div>
+        @endif
+      </x-card>
     </div>
     <div class="col-span-2">
       <x-card title="daftar permintaan">

@@ -7,37 +7,36 @@ use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // Remove FOREIGN_KEY_CHECKS — not needed in migrations
+
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('unit_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
-            $table->foreignId('kecamatan_id')->nullable()->constrained('kecamatans')->onDelete('cascade');
-            $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->onDelete('cascade');
+
+            // Important: foreignId()->constrained() only works if the other tables already exist
+            $table->foreignId('unit_id')->nullable()->constrained('unit_kerja')->nullOnDelete();
+            $table->foreignId('kecamatan_id')->nullable()->constrained('kecamatans')->nullOnDelete();
+            $table->foreignId('lokasi_id')->nullable()->constrained('lokasi_stok')->nullOnDelete();
+
             $table->string('name');
-            $table->bigInteger('nip')->nullable()
-                ->default('1');
-            $table->string('ttd', 256)
-                ->nullable();
-            // ->default('1');
-            $table->string('foto', 256)
-                ->nullable();
-            // ->default('1');
+
+            $table->bigInteger('nip')->nullable()->default(1);
+            $table->string('ttd', 256)->nullable();
+            $table->string('foto', 256)->nullable();
             $table->string('username', 256)->nullable();
-            $table->text('hak')->nullable(); // Hak akses spesifik yang bisa dikelola dengan role Spatie
+            $table->text('hak')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->text('alamat')->nullable();
+
             $table->string('perusahaan')->nullable();
             $table->bigInteger('provinsi')->nullable();
             $table->bigInteger('kota')->nullable();
             $table->string('no_wa')->nullable();
             $table->string('keterangan')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });
@@ -58,13 +57,10 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        // Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

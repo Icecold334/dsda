@@ -4,23 +4,18 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\Toko;
-use App\Models\Satuan;
 use App\Models\Program;
 use Livewire\Component;
 use App\Models\Kegiatan;
 use App\Models\MerkStok;
-use App\Models\JenisStok;
-use App\Models\BarangStok;
 use App\Models\SubKegiatan;
 use Illuminate\Support\Str;
 use Livewire\WithFileUploads;
-use App\Models\PengirimanStok;
 use App\Models\UraianRekening;
 use App\Models\ListKontrakStok;
 use App\Models\MetodePengadaan;
 use App\Models\KontrakVendorStok;
 use App\Models\AktivitasSubKegiatan;
-use App\Models\DetailPengirimanStok;
 use App\Models\SatuanBesar;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -29,6 +24,8 @@ class CreateKontrakVendor extends Component
 {
     use WithFileUploads;
     public $id;
+    public $loaded = false;
+
     // === SECTION: VENDOR ===
     public $vendor_id, $nama, $alamat, $kontak, $showAddVendorForm = false;
 
@@ -359,44 +356,102 @@ class CreateKontrakVendor extends Component
     // === SECTION: DOKUMEN ===
     public $dokumen;
 
-    public function mount()
-    {
-        $this->barangs = \App\Models\BarangStok::query()->select('id', 'nama')->get()->unique('nama');
-        $this->programs = \App\Models\Program::all();
-        
-        // Mengisi properti baru dengan semua pilihan dari database
-        $this->satuanOptions = \App\Models\SatuanBesar::pluck('nama')->unique()->sort()->values()
-        ->map(function ($value) {
-            return ['id' => $value, 'nama' => $value];
-        })
-        ->toArray();
-        $this->specNamaOptions = \App\Models\MerkStok::pluck('nama')->filter()->unique()->sort()->values()
-            ->map(function ($value) {
-                return ['id' => $value, 'nama' => $value];
-            })
-            ->toArray();
-        $this->specTipeOptions = \App\Models\MerkStok::pluck('tipe')->filter()->unique()->sort()->values()
-            ->map(function ($value) {
-                return ['id' => $value, 'nama' => $value];
-            })
-            ->toArray();
-        $this->specUkuranOptions = \App\Models\MerkStok::pluck('ukuran')->filter()->unique()->sort()->values()
-            ->map(function ($value) {
-                return ['id' => $value, 'nama' => $value];
-            })
-            ->toArray();
-        $this->barangSuggestions = [];
-        $this->satuanSuggestions = [];
-        $this->specOptions = [
-            'nama' => [],
-            'tipe' => [],
-            'ukuran' => [],
-        ];
+    protected $listeners = [
+        'load-step-2' => 'loadStep2',
+        'load-step-3' => 'loadStep3',
+        'load-step-4' => 'loadStep4',
+        'load-step-5' => 'loadStep5',
+        'load-step-6' => 'loadStep6',
+        'load-adendum' => 'loadListBarangAdendum',
+    ];
 
-        if ($this->id) {
-            $this->loadListBarangAdendum($this->id);
-        }
+
+    // public function mount()
+    // {
+    //     $this->barangs = \App\Models\BarangStok::query()->select('id', 'nama')->get()->unique('nama');
+    //     $this->programs = \App\Models\Program::all();
+
+    //     // Mengisi properti baru dengan semua pilihan dari database
+    //     $this->satuanOptions = \App\Models\SatuanBesar::pluck('nama')->unique()->sort()->values()
+    //         ->map(function ($value) {
+    //             return ['id' => $value, 'nama' => $value];
+    //         })
+    //         ->toArray();
+    //     $this->specNamaOptions = \App\Models\MerkStok::pluck('nama')->filter()->unique()->sort()->values()
+    //         ->map(function ($value) {
+    //             return ['id' => $value, 'nama' => $value];
+    //         })
+    //         ->toArray();
+    //     $this->specTipeOptions = \App\Models\MerkStok::pluck('tipe')->filter()->unique()->sort()->values()
+    //         ->map(function ($value) {
+    //             return ['id' => $value, 'nama' => $value];
+    //         })
+    //         ->toArray();
+    //     $this->specUkuranOptions = \App\Models\MerkStok::pluck('ukuran')->filter()->unique()->sort()->values()
+    //         ->map(function ($value) {
+    //             return ['id' => $value, 'nama' => $value];
+    //         })
+    //         ->toArray();
+    //     $this->barangSuggestions = [];
+    //     $this->satuanSuggestions = [];
+    //     $this->specOptions = [
+    //         'nama' => [],
+    //         'tipe' => [],
+    //         'ukuran' => [],
+    //     ];
+
+    //     if ($this->id) {
+    //         $this->loadListBarangAdendum($this->id);
+    //     }
+    // }
+    public function mount() {}
+    public function loadStep1()
+    {
+        $this->barangs = \App\Models\BarangStok::select('id', 'nama')
+            ->distinct()->orderBy('nama')->get();
+
+        $this->dispatch('load-step-2');
     }
+    public function loadStep2()
+    {
+        $this->programs = \App\Models\Program::all();
+
+        $this->dispatch('load-step-3');
+    }
+    public function loadStep3()
+    {
+        $this->satuanOptions = SatuanBesar::select('nama')
+            ->distinct()->orderBy('nama')
+            ->get()
+            ->map(fn($v) => ['id' => $v->nama, 'nama' => $v->nama])
+            ->toArray();
+        $this->loaded = true;
+
+        // $this->dispatch('load-step-4');
+    }
+    public function loadStep4()
+    {
+        $this->specNamaOptions = MerkStok::select('nama')
+            ->whereNotNull('nama')->distinct()->orderBy('nama')->pluck('nama')->toArray();
+        $this->dispatch('load-step-5');
+    }
+    public function loadStep5()
+    {
+        $this->specTipeOptions = MerkStok::select('tipe')
+            ->whereNotNull('tipe')->distinct()->orderBy('tipe')->pluck('tipe')->toArray();
+        $this->dispatch('load-step-6');
+    }
+    public function loadStep6()
+    {
+        $this->specUkuranOptions = MerkStok::select('ukuran')
+            ->whereNotNull('ukuran')->distinct()->orderBy('ukuran')->pluck('ukuran')->toArray();
+
+        $this->loaded = true;
+    }
+
+
+
+
 
     public function loadListBarangAdendum($id)
     {

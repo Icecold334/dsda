@@ -25,12 +25,12 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium">Nomor SPK {{ $isAdendum ? 'Baru' : '' }}</label>
-                    <input type="text" wire:model.live="nomor_spk_api" {{ $mode_manual ? 'disabled' : '' }}
-                        class="w-full p-2 border border-gray-300 rounded-md text-sm {{ $mode_manual ? 'bg-gray-100' : '' }}"
-                        placeholder="Contoh: 123/SPK/2025">
-                </div>
+                    <div>
+                        <label class="block text-sm font-medium">Nomor SPK {{ $isAdendum ? 'Baru' : '' }}</label>
+                        <input type="text" wire:model.live="nomor_spk_api" {{ $mode_manual ? 'disabled' : '' }}
+                            class="w-full p-2 border border-gray-300 rounded-md text-sm {{ $mode_manual ? 'bg-gray-100' : '' }}"
+                            placeholder="Contoh: 123/SPK/2025">
+                    </div>
 
                 @if (!$mode_manual)
                 <button wire:click="cariKontrakApi"
@@ -90,7 +90,7 @@
                     <input type="date" wire:model.live="tanggal_akhir_kontrak" {{ $readonly_fields && !$mode_manual
                         ? 'disabled' : '' }} class="w-full p-2 border border-gray-300 rounded-md text-sm 
                         {{ $readonly_fields && !$mode_manual ? 'bg-gray-100' : '' }}">
-                </div>
+                    </div>
 
                 @if ($durasi_kontrak)
                 <div class="md:col-span-2">
@@ -116,10 +116,10 @@
         </x-card>
     </div>
 
-    <div class="grid grid-cols-2 gap-6">
-        <x-card title="Upload Dokumen">
-            <livewire:upload-surat-kontrak />
-        </x-card>
+        <div class="grid grid-cols-2 gap-6">
+            <x-card title="Upload Dokumen">
+                <livewire:upload-surat-kontrak />
+            </x-card>
 
         <x-card title="Tambah Barang">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -128,18 +128,18 @@
                         placeholder="Ketik atau pilih nama barang..." />
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium">Jumlah</label>
-                    <input type="number" wire:model.live="jumlah"
-                        class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Jumlah" min="1">
-                </div>
+                    <div>
+                        <label class="block text-sm font-medium">Jumlah</label>
+                        <input type="number" wire:model.live="jumlah"
+                            class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Jumlah" min="1">
+                    </div>
 
                 <div <label class="block text-sm font-medium">Satuan</label>
                     <livewire:searchable-select wire:model.live="newSatuan" :options="$satuanOptions"
                         placeholder="Ketik atau pilih satuan..." />
                 </div>
 
-                <div x-data="{
+                    <div x-data="{
                 formatted: '',
                 get raw() {
                     let val = @entangle('newHarga').live;
@@ -168,10 +168,10 @@
                     });
                 }
             }">
-                    <label class="block text-sm font-medium">Harga Satuan</label>
-                    <input type="text" x-model="formatted" @input="raw = $event.target.value"
-                        class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Rp 0">
-                </div>
+                        <label class="block text-sm font-medium">Harga Satuan</label>
+                        <input type="text" x-model="formatted" @input="raw = $event.target.value"
+                            class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Rp 0">
+                    </div>
 
                 <div>
                     <label class="block text-sm font-medium">PPN</label>
@@ -201,7 +201,7 @@
                         placeholder="Ketik atau pilih ukuran..." />
                 </div>
 
-            </div>
+                </div>
 
             <div class="flex justify-end">
                 @if ($barang_id && $newSatuan && $jumlah && $newHarga)
@@ -290,13 +290,16 @@
         </table>
     </x-card>
 
-    <div class="flex justify-center mt-6">
-        <button wire:click="saveKontrak" @disabled(!$hasil_cari_api)
-            class="bg-primary-600 text-white px-5 py-2 rounded hover:bg-primary-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
-            <i class="fa fa-save mr-2"></i> Simpan Kontrak
-        </button>
+        <div class="flex justify-center mt-6">
+            <button wire:click="saveKontrak" @disabled(!$hasil_cari_api)
+                class="bg-primary-600 text-white px-5 py-2 rounded hover:bg-primary-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                <i class="fa fa-save mr-2"></i> Simpan Kontrak
+            </button>
+        </div>
     </div>
+    @endif
 </div>
+
 
 @push('scripts')
 <script>

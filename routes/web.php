@@ -433,6 +433,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'permintaan-stok' => PermintaanStokController::class,
     ]);
 
+    // Routes untuk Adendum RAB
+    Route::get('rab/{rab}/adendum', [RabController::class, 'adendum'])->name('rab.adendum');
+    Route::get('rab/{rab}/adendum/history', [RabController::class, 'adendumHistory'])->name('rab.adendum.history');
+    Route::get('rab/{rab}/adendum/{adendum}/approve', [RabController::class, 'approveAdendum'])->name('rab.adendum.approve');
+
     // Admin routes for permintaan - no restrictions (superadmin only)
     Route::prefix('admin/permintaan')->group(function () {
         Route::get('{id}/edit', [PermintaanStokController::class, 'adminEdit'])->name('permintaan.admin-edit');

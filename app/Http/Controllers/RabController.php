@@ -89,6 +89,8 @@ class RabController extends Controller
         }
 
         $rab->lamaPengerjaan = $lamaPengerjaan ?: '0 hari';
+        $hasil = $hasil ?? [];
+
         switch ($rab->saluran_jenis) {
             case 'tersier':
                 $keySaluran = 'idPhb';
@@ -108,12 +110,33 @@ class RabController extends Controller
                 break;
         }
 
-        if ($rab->saluran_jenis) {
-            $rab->saluran_nama = collect($hasil[$rab->saluran_jenis])->where($keySaluran, $rab->saluran_id)->first()[$namaSaluran];
+        if ($rab->saluran_jenis && isset($hasil[$rab->saluran_jenis])) {
+            $rab->saluran_nama = optional(
+                collect($hasil[$rab->saluran_jenis])->where($keySaluran, $rab->saluran_id)->first()
+            )[$namaSaluran] ?? null;
         }
         $RKB = $this->RKB;
 
-        return view('rab.show', compact('rab', 'RKB'));
+        // Load data history adendum
+        $rab->load(['adendums.user', 'pendingAdendums']);
+
+        // Ambil semua history adendum berdasarkan rab_id (history tetap ada meski adendum dihapus)
+        $adendumHistories = \App\Models\AdendumHistory::where('rab_id', $rab->id)->get();
+
+        // Hitung statistik history adendum
+        $totalHistories = $adendumHistories->count();
+        $createCount = $adendumHistories->where('action', 'create')->count();
+        $approveCount = $adendumHistories->where('action', 'approve')->count();
+        $rejectCount = $adendumHistories->where('action', 'reject')->count();
+
+        // Total adendum diambil dari history "create" (fallback ke jumlah adendum aktif jika belum ada history)
+        $totalAdendums = $createCount > 0 ? $createCount : ($rab->adendums->count() ?? 0);
+
+        // Pending = total create - (approve + reject), minimal 0
+        $pendingAdendums = max($totalAdendums - ($approveCount + $rejectCount), 0);
+        $approvedAdendums = $approveCount;
+
+        return view('rab.show', compact('rab', 'RKB', 'totalAdendums', 'approvedAdendums', 'pendingAdendums', 'totalHistories', 'createCount', 'approveCount', 'rejectCount'));
     }
 
 
@@ -146,5 +169,50 @@ class RabController extends Controller
     public function destroy(Rab $rab)
     {
         //
+    }
+
+    /**
+     * Show the form for creating a new adendum for the specified RAB.
+     */
+    public function adendum(Rab $rab)
+    {
+        $user = Auth::user();
+
+        // Check authorization
+        if (!$this->canAccessRab($rab, $user)) {
+            abort(403, 'Unauthorized access to this RAB');
+        }
+
+        return view('rab.adendum', ['rabId' => $rab->id]);
+    }
+
+    /**
+     * Display the history of adendums for the specified RAB.
+     */
+    public function adendumHistory(Rab $rab)
+    {
+        $user = Auth::user();
+
+        // Check authorization
+        if (!$this->canAccessRab($rab, $user)) {
+            abort(403, 'Unauthorized access to this RAB');
+        }
+
+        return view('rab.history-adendum', ['rabId' => $rab->id]);
+    }
+
+    /**
+     * Show the approval page for a specific adendum.
+     */
+    public function approveAdendum(Rab $rab, $adendum)
+    {
+        $user = Auth::user();
+
+        // Check authorization
+        if (!$this->canAccessRab($rab, $user)) {
+            abort(403, 'Unauthorized access to this RAB');
+        }
+
+        return view('rab.approval-adendum', ['rabId' => $rab->id, 'adendumId' => $adendum]);
     }
 }

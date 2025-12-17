@@ -684,6 +684,11 @@ class EditRab extends Component
             // Delete RAB history records
             \App\Models\RabHistory::where('rab_id', $this->rab->id)->delete();
 
+            // Delete approvals (polymorphic relationship - must be deleted manually)
+            \App\Models\Persetujuan::where('approvable_id', $this->rab->id)
+                ->where('approvable_type', \App\Models\Rab::class)
+                ->delete();
+
             // Delete lampiran files and records
             foreach ($this->rab->lampiran as $lampiran) {
                 // Delete physical file
