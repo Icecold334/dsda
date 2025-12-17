@@ -221,8 +221,10 @@ class DashboardMaterial extends Component
         $this->permintaanTerbaru = $query->with(['user', 'lokasiStok.unitKerja'])
             ->whereHas('permintaanMaterial')
             ->orderByDesc(
-                DB::raw('(SELECT created_at FROM permintaan_material WHERE permintaan_material.detail_permintaan_id = detail_permintaan_material.id)')
-            )
+                    DB::raw('(SELECT MAX(created_at) FROM permintaan_material WHERE permintaan_material.detail_permintaan_id = detail_permintaan_material.id)')
+                )
+            //     DB::raw('(SELECT created_at FROM permintaan_material WHERE permintaan_material.detail_permintaan_id = detail_permintaan_material.id)')
+            // )
             ->take(10)
             ->get()
             ->map(function ($detail) use ($statusMap) {

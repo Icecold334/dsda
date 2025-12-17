@@ -82,63 +82,54 @@
         </thead>
         <tbody>
             @foreach ($groupedTransactions as $index => $transaction)
-            <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
-                <td class="py-3 px-6"></td>
-                <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->nomor_kontrak }}</td>
-                <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->nama_paket }}</td>
-                <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->vendorStok->nama ?? 'Unknown Vendor'
-                    }}</td>
-                <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->tahun_anggaran }}</td>
-                <td class="py-3 px-6 font-semibold text-gray-800">
-                    {{ $transaction->tanggal_kontrak ? date('j F Y', $transaction->tanggal_kontrak) : '---' }}
-                </td>
-                <td class="py-3 px-6 font-semibold text-center text-gray-800">{{ $transaction->jenis_pengadaan }}</td>
-                <td class="py-3 px-6 font-semibold text-center text-gray-800">
-                    {{ $transaction->parent ? 'Adendum' : 'Baru' }}
-                </td>
-                <td class="py-3 px-6">
-                    <table class="w-full text-sm border-spacing-y-2">
-                        <thead class="text-primary-800">
-                            <tr>
-                                <th class="w-1/3">Barang</th>
-                                <th class="w-1/3">Jumlah</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($transaction->listKontrak->take(3) as $tran)
-                            <tr class="border-b-[1px] border-primary-800">
-                                @php
-                                $barangName = $tran->merkStok->barangStok->nama;
-                                if (is_numeric($barangName)) {
-                                $found = App\Models\BarangStok::firstWhere('id', (int) $barangName);
-                                if ($found) {
-                                $barangName = $found->nama ?? $found['name'] ?? $found['label'] ?? $barangName;
-                                }
-                                }
-                                @endphp
-                                <td class="border-r-4 px-2">
-                                    {{ $barangName }}
-                                </td>
-                                <td class="px-2">{{ $tran->jumlah }} {{ $tran->merkStok->barangStok->satuanBesar->nama
-                                    }}</td>
-                            </tr>
-                            @endforeach
-                            @if ($transaction->listKontrak->count() > 3)
-                            <tr class="border-b-[1px] border-primary-800">
-                                <td colspan="2" class="text-center font-semibold px-2">
-                                    {{ $transaction->listKontrak->count() - 3 }} Transaksi Lain
-                                </td>
-                            </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                </td>
-                <td class="py-3 px-6 text-center flex gap-2">
-                    <a href="{{ route('kontrak-vendor-stok.show', ['kontrak_vendor_stok' => $transaction->id]) }}"
-                        class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
-                        data-tooltip-target="tooltip-kontrak-{{ $transaction->id }}">
-                        <i class="fa-solid fa-eye"></i>
-                    </a>
+                <tr class="bg-gray-50 hover:bg-gray-200 hover:shadow-lg transition duration-200 rounded-2xl">
+                    <td class="py-3 px-6"></td>
+                    <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->nomor_kontrak }}</td>
+                    <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->nama_paket }}</td>
+                    <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->vendorStok->nama ?? 'Unknown Vendor'
+                            }}</td>
+                    <td class="py-3 px-6 font-semibold text-gray-800">{{ $transaction->tahun_anggaran }}</td>
+                    <td class="py-3 px-6 font-semibold text-gray-800">
+                        {{ $transaction->tanggal_kontrak ? date('j F Y', $transaction->tanggal_kontrak) : '---' }}
+                    </td>
+                    <td class="py-3 px-6 font-semibold text-center text-gray-800">{{ $transaction->jenis_pengadaan }}</td>
+                    <td class="py-3 px-6 font-semibold text-center text-gray-800">
+                        {{ $transaction->parent ? 'Adendum' : 'Baru' }}
+                    </td>
+                    <td class="py-3 px-6">
+                        <table class="w-full text-sm border-spacing-y-2">
+                            <thead class="text-primary-800">
+                                <tr>
+                                    <th class="w-1/3">Barang</th>
+                                    <th class="w-1/3">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($transaction->listKontrak->take(3) as $tran)
+                                    <tr class="border-b-[1px] border-primary-800">
+                                        <td class="border-r-4 px-2">
+                                            {{ $tran->merkStok->barangStok->nama }}
+                                        </td>
+                                        <td class="px-2">{{ $tran->jumlah }} {{ $tran->merkStok->barangStok->satuanBesar->nama
+                                                    }}</td>
+                                    </tr>
+                                @endforeach
+                                @if ($transaction->listKontrak->count() > 3)
+                                    <tr class="border-b-[1px] border-primary-800">
+                                        <td colspan="2" class="text-center font-semibold px-2">
+                                            {{ $transaction->listKontrak->count() - 3 }} Transaksi Lain
+                                        </td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </td>
+                    <td class="py-3 px-6 text-center flex gap-2">
+                        <a href="{{ route('kontrak-vendor-stok.show', ['kontrak_vendor_stok' => $transaction->id]) }}"
+                            class="text-primary-950 px-3 py-3 rounded-md border hover:bg-slate-300"
+                            data-tooltip-target="tooltip-kontrak-{{ $transaction->id }}">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
 
                     @can('kontrak.update')
                     <a href="{{ route('kontrak-vendor-stok.edit', ['kontrak_vendor_stok' => $transaction->id]) }}"

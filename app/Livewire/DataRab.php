@@ -213,7 +213,7 @@ class DataRab extends Component
     public function render()
     {
         $rabs = $this->fetchData();
-
+        // daftar tahun
         $daftarTahun = Rab::select(DB::raw("strftime('%Y', created_at) as tahun"))
             ->distinct()
             ->orderBy('tahun', 'desc')

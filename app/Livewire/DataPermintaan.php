@@ -118,16 +118,49 @@ class DataPermintaan extends Component
      */
     private function getPermintaanQuery()
     {
+        // 1. AMBIL USER & UNIT ID LANGSUNG (Bypass variable component yang error)
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $realUnitId = $user->unit_id;
+        
+        // Cek Role Super Admin (Sesuaikan nama role di DB kamu)
+        $isSuperAdmin = $user->hasRole(['superadmin', 'Super Admin']);
 
-        $permintaan = DetailPermintaanStok::where('jenis_id', $this->getJenisId())
-            ->when($this->unit_id, function ($query) {
-                $query->whereHas('unit', function ($unit) {
-                    $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
-                });
-            })->get();
+        // ============================================================
+        // SAFETY LOCK (PENGAMAN MUTLAK)
+        // ============================================================
+        // Kalau BUKAN Super Admin, DAN Unit ID-nya Kosong...
+        // MAKA: STOP! Return collection kosong. Jangan kasih data apapun!
+        if (!$isSuperAdmin && empty($realUnitId)) {
+            return collect([]); 
+        }
+        // ============================================================
 
+        // 2. QUERY PERMINTAAN STOK
+        $permintaanQuery = DetailPermintaanStok::where('jenis_id', $this->getJenisId());
+
+        // FILTER WAJIB: KUNCI KE UNIT ID USER (Kecuali Super Admin)
+        if (!$isSuperAdmin) {
+            $permintaanQuery->whereHas('unit', function ($unit) use ($realUnitId) {
+                $unit->where('parent_id', $realUnitId)->orWhere('id', $realUnitId);
+            });
+        }
+        
+        $permintaan = $permintaanQuery->get();
+
+        // 3. QUERY PERMINTAAN MATERIAL (YANG TADINYA BOCOR)
         if ($this->getJenisId() == 1) {
-            $permintaan = DetailPermintaanMaterial::all()->map(function ($perm) {
+            // GANTI 'all()' DENGAN QUERY BUILDER
+            $materialQuery = DetailPermintaanMaterial::query();
+
+            // FILTER WAJIB MATERIAL
+            if (!$isSuperAdmin) {
+                $materialQuery->whereHas('user.unitKerja', function ($unit) use ($realUnitId) {
+                    $unit->where('parent_id', $realUnitId)->orWhere('id', $realUnitId);
+                });
+            }
+
+            // Ambil data dan mapping status
+            $permintaan = $materialQuery->get()->map(function ($perm) {
                 $statusMap = [
                     null => ['label' => 'Diproses', 'color' => 'warning'],
                     0 => ['label' => 'Ditolak', 'color' => 'danger'],
@@ -136,7 +169,6 @@ class DataPermintaan extends Component
                     3 => ['label' => 'Selesai', 'color' => 'primary'],
                 ];
 
-                // Menambahkan properti dinamis
                 $perm->status_teks = $statusMap[$perm->status]['label'] ?? 'Tidak diketahui';
                 $perm->status_warna = $statusMap[$perm->status]['color'] ?? 'gray';
 
@@ -156,15 +188,28 @@ class DataPermintaan extends Component
      */
     private function getPeminjamanQuery()
     {
-        $peminjaman = DetailPeminjamanAset::when($this->unit_id, function ($query) {
-            $query->whereHas('unit', function ($unit) {
-                $unit->where('parent_id', $this->unit_id)->orWhere('id', $this->unit_id);
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $realUnitId = $user->unit_id;
+        $isSuperAdmin = $user->hasRole(['superadmin', 'Super Admin']);
+
+        // SAFETY LOCK PEMINJAMAN
+        if (!$isSuperAdmin && empty($realUnitId)) {
+            return collect([]);
+        }
+
+        $peminjamanQuery = DetailPeminjamanAset::query();
+
+        // FILTER WAJIB PEMINJAMAN
+        if (!$isSuperAdmin) {
+            $peminjamanQuery->whereHas('unit', function ($unit) use ($realUnitId) {
+                $unit->where('parent_id', $realUnitId)->orWhere('id', $realUnitId);
             });
-        })->get();
+        }
+
+        $peminjaman = $peminjamanQuery->get();
 
         return $peminjaman->isNotEmpty() ? $peminjaman->map(function ($item) {
-            return
-                $this->mapData($item, 'peminjaman');
+            return $this->mapData($item, 'peminjaman');
         }) : collect([]);
     }
 

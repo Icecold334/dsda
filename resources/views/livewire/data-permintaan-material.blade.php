@@ -91,7 +91,7 @@
                     <td class="px-6 py-3 font-semibold text-center {{ $isSeribu ? 'hidden' : '' }}">
                         {{ $permintaan['lokasi'] }}
                     </td>
-                    <td class="px-6 py-3 font-semibold text-center">{{ date('j F Y', $permintaan['tanggal']) }}</td>
+                    <td class="px-6 py-3 font-semibold text-center">{{ date('j F Y', strtotime($permintaan['tanggal'])) }}</td>
                     <td class="px-6 py-3 font-semibold text-center">{{ $permintaan['created_at']->format('d F Y') }}</td>
                     <td class="py-3 px-6 font-semibold {{ $tipe == 'material' ? 'hidden' : '' }}">
                         <div class="text-gray-600 text-sm">
