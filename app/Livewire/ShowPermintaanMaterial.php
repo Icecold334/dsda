@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use TCPDF;
+use BaconQrCode\Writer;
+use BaconQrCode\Renderer\GDLibRenderer;
 use App\Models\User;
 use Livewire\Component;
 use App\Models\UnitKerja;
@@ -589,13 +591,57 @@ class ShowPermintaanMaterial extends Component
     public function qrCode()
     {
         $kode = $this->permintaan->kode_permintaan;
+
         // Path filesystem yang benar
-        $path = storage_path('app/public/qr_permintaan_material/' . $kode . '.png');
+        // $path = storage_path('app/public/qr_permintaan_material/' . $kode . '.png');
         // dd($path);
 
         // if (!file_exists($path)) {
         //     abort(404, 'QR Code not found.');
         // }
+
+        $qrFolder = 'qr_permintaan_material';
+        $qrTarget = "{$qrFolder}/{$kode}.png";
+        $path = Storage::disk('public')->path($qrTarget);
+
+        // Always regenerate fresh so the text matches the current nodin value
+        if (!Storage::disk('public')->exists($qrFolder)) {
+            Storage::disk('public')->makeDirectory($qrFolder);
+        }
+
+        $qrContent = url("qr/material/3/{$kode}");
+        $renderer = new GDLibRenderer(400);
+        $writer = new Writer($renderer);
+
+        $tempPath = Storage::disk('public')->path("{$qrFolder}/temp_{$kode}.png");
+        $writer->writeFile($qrContent, $tempPath);
+
+        // Add Nomor SPB text below QR code
+        $qrImage = imagecreatefrompng($tempPath);
+        $qrWidth = imagesx($qrImage);
+        $qrHeight = imagesy($qrImage);
+        $padding = 20;
+        $textHeight = 30;
+        $newHeight = $qrHeight + $textHeight + $padding;
+        $canvas = imagecreatetruecolor($qrWidth, $newHeight);
+        $white = imagecolorallocate($canvas, 255, 255, 255);
+        $black = imagecolorallocate($canvas, 0, 0, 0);
+        imagefill($canvas, 0, 0, $white);
+        imagecopy($canvas, $qrImage, 0, 0, 0, 0, $qrWidth, $qrHeight);
+        $text = 'Nomor SPB: ' . ($this->permintaan->nodin ?? '-');
+        $fontBuiltIn = 5;
+        $textWidth = strlen($text) * imagefontwidth($fontBuiltIn);
+        $textX = ($qrWidth - $textWidth) / 2;
+        $textY = $qrHeight + $padding;
+        imagestring($canvas, $fontBuiltIn, (int) $textX, (int) $textY, $text, $black);
+        imagepng($canvas, $path);
+        imagedestroy($qrImage);
+        imagedestroy($canvas);
+
+        if (file_exists($tempPath)) {
+            unlink($tempPath);
+        }
+
         $this->statusRefresh();
 
         return response()->download($path, $kode . '.png');

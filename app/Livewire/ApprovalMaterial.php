@@ -43,6 +43,7 @@ class ApprovalMaterial extends Component
     public $listSecurities = [];
     // public $showModal = false;
     public $selectedDriverId, $selectedSecurityId, $nopol;
+    public $unit_id;
     // public $noSuratJalan;
     // public $driverName, $securityName, $nopolData;
 
@@ -62,7 +63,7 @@ class ApprovalMaterial extends Component
             'driver' => $this->permintaan->driver,
             'security' => $this->permintaan->security,
             'nopol' => $this->permintaan->nopol,
-            'ttd_driver'   => $this->permintaan->ttd_driver,
+            'ttd_driver' => $this->permintaan->ttd_driver,
             'ttd_security' => $this->permintaan->ttd_security,
         ];
     }
@@ -89,6 +90,7 @@ class ApprovalMaterial extends Component
     {
         $this->isPenulis = $this->permintaan->user_id === Auth::id();
         $this->penulis = $this->permintaan->user;
+        $this->unit_id = $this->permintaan->user->unit_id;
         $permintaan = $this->permintaan;
         if ($this->permintaan->persetujuan->where('file')) {
             $this->files = $this->permintaan->persetujuan->filter(fn($persetujuan) => $persetujuan->file !== null)->pluck('file');
@@ -305,8 +307,11 @@ class ApprovalMaterial extends Component
             $tempQrPath = Storage::disk('public')->path($qrFolder . '/temp_' . $permintaan->kode_permintaan . '.png');
             $writer->writeFile($qrContent, $tempQrPath);
 
-            // Buat image dengan text di bawah QR code menggunakan keterangan SPPB yang diinput Kepala Subbagian Tata Usaha
-            $this->addTextToQrCode($tempQrPath, Storage::disk('public')->path($qrTarget), $sppb);
+            // // Buat image dengan text di bawah QR code menggunakan keterangan SPPB yang diinput Kepala Subbagian Tata Usaha
+            // $this->addTextToQrCode($tempQrPath, Storage::disk('public')->path($qrTarget), $sppb);
+
+            // Buat image dengan text di bawah QR code menggunakan Nomor SPB (nodin)
+            $this->addTextToQrCode($tempQrPath, Storage::disk('public')->path($qrTarget), $permintaan->nodin);
 
             // Hapus file temporary
             if (file_exists($tempQrPath)) {
@@ -325,23 +330,23 @@ class ApprovalMaterial extends Component
                 //    dengan data yang diambil dari sumber yang paling akurat.
                 TransaksiStok::create([
                     'kode_transaksi_stok' => fake()->unique()->numerify('TRX#####'),
-                    'tipe'            => 'Pengeluaran',
-                    'permintaan_id'   => $item->id, // [BENAR] Tautkan ke PermintaanMaterial
+                    'tipe' => 'Pengeluaran',
+                    'permintaan_id' => $item->id, // [BENAR] Tautkan ke PermintaanMaterial
 
                     // [BENAR] Ambil jumlah FINAL dari PermintaanMaterial
-                    'jumlah'          => $item->jumlah,
+                    'jumlah' => $item->jumlah,
 
                     // [BENAR] Ambil data lain dari sumber yang paling akurat ($item dan $permintaan)
-                    'merk_id'         => $item->merk_id,
-                    'lokasi_id'       => $permintaan->gudang_id,
-                    'user_id'         => $permintaan->user_id,
-                    'tanggal'         => now()->format('Y-m-d'),
+                    'merk_id' => $item->merk_id,
+                    'lokasi_id' => $permintaan->gudang_id,
+                    'user_id' => $permintaan->user_id,
+                    'tanggal' => now()->format('Y-m-d'),
 
                     // Kolom lain bisa disesuaikan
-                    'vendor_id'       => null,
-                    'bagian_id'       => null,
-                    'posisi_id'       => null,
-                    'harga'           => fake()->numberBetween(1, 10) * 100,
+                    'vendor_id' => null,
+                    'bagian_id' => null,
+                    'posisi_id' => null,
+                    'harga' => fake()->numberBetween(1, 10) * 100,
                 ]);
 
                 // 2. [DIUBAH] Hapus transaksi 'Pengajuan' yang lama secara spesifik
@@ -351,7 +356,7 @@ class ApprovalMaterial extends Component
 
             // 3. Update status permintaan utama setelah semua loop selesai
             $this->permintaan->update([
-                'status'     => 2, // Status: Dikirim
+                'status' => 2, // Status: Dikirim
                 'suratJalan' => $noSuratJalan,
             ]);
         }
@@ -372,7 +377,7 @@ class ApprovalMaterial extends Component
     }
 
     /**
-     * Menambahkan text keterangan SPPB di bawah QR code
+     * Menambahkan text Nomor SPB di bawah QR code
      */
     private function addTextToQrCode($qrImagePath, $outputPath, $spbNumber)
     {
@@ -399,7 +404,7 @@ class ApprovalMaterial extends Component
         imagecopy($canvas, $qrImage, 0, 0, 0, 0, $qrWidth, $qrHeight);
 
         // Tentukan text dan posisi
-        $text = "Nomor SPPB: " . $spbNumber;
+        $text = "Nomor SPB: " . $spbNumber;
         $fontPath = $this->getFontPath();
 
         if ($fontPath && file_exists($fontPath)) {
