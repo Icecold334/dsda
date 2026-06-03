@@ -113,6 +113,7 @@ class ShowStokMaterial extends Component
             $result[$key]['spesifikasi'][$spec] = [
                 'jumlah' => ($result[$key]['spesifikasi'][$spec]['jumlah'] ?? 0) + $jumlah,
                 'merk_id' => $trx->merkStok->id,
+                'kode_merk' => $trx->merkStok->kode ?? '-',
             ];
         }
 
