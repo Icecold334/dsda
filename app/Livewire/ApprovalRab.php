@@ -49,7 +49,6 @@ class ApprovalRab extends Component
         $this->lastRoles = [];
 
         $date = Carbon::parse($this->rab->created_at);
-
         foreach ($this->roles as $role) {
             // dd($this->rab->user->unit_id);
             $users = User::whereHas('roles', function ($query) use ($role) {
@@ -67,10 +66,12 @@ class ApprovalRab extends Component
                         });
                     });
                 })
-                ->whereDate('created_at', '<', $date->format('Y-m-d H:i:s'))
+                ->where('created_at', '<', $date->format('Y-m-d H:i:s'))
+                ->orderByDesc('created_at')
                 ->limit(1)
                 ->get();
-
+            // dump($users->jsonSerialize());
+            // dd($date->format('Y-m-d H:i:s'));
 
             $propertyKey = Str::slug($role); // Generate dynamic key for roles
             $this->roleLists[$propertyKey] = $users;
@@ -111,7 +112,7 @@ class ApprovalRab extends Component
                 $previousUser = $index > 0 ? $allApproval[$index - 1] : null;
                 $currentUser = $allApproval[$index];
                 $previousApprovalStatus = optional(optional($previousUser)->persetujuan()
-                    ?->where('approvable_id', $this->rab->id ?? 0)
+                        ?->where('approvable_id', $this->rab->id ?? 0)
                     ->where('approvable_type', Rab::class)
                     ->first())->is_approved;
                 $this->showButton = $previousUser &&
@@ -157,7 +158,7 @@ class ApprovalRab extends Component
 
     public function approveConfirmed($status, $message = null)
     {
-        $rab  = $this->rab;
+        $rab = $this->rab;
         if ($status) {
             $currentIndex = collect($this->roleLists)->flatten(1)->search(Auth::user());
             if ($currentIndex != count($this->roleLists) - 1) {
