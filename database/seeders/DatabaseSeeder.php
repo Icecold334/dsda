@@ -76,6 +76,7 @@ class DatabaseSeeder extends Seeder
             AkunSudinSeeder::class,
             AdminMaintenanceSeeder::class,
             DriverSecuritySeeder::class,
+            KasatpelBaruSeeder::class,
         ]);
 
 
