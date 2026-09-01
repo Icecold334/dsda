@@ -181,7 +181,7 @@
                     @foreach ($aset->histories as $history)
                         <tr>
                             <td class="font-semibold w-40">Sejak Tanggal</td>
-                            <td colspan="3">{{ date('d M Y', $history->tanggal) }}</td>
+                            <td colspan="3">{{ date('d M Y', strtotime($history->tanggal)) }}</td>
                         </tr>
                         <tr>
                             <td class="font-semibold w-40">Penanggung Jawab</td>
@@ -228,7 +228,7 @@
                 <tbody>
                     @foreach ($aset->keuangans as $finance)
                         <tr class="border-b">
-                            <td class="py-2 px-4">{{ date('d M Y', $finance->tanggal) }}</td>
+                            <td class="py-2 px-4">{{ date('d M Y', strtotime($finance->tanggal)) }}</td>
                             <td class="py-2 px-4">
                                 {{ $finance->tipe === 'in' ? 'Pemasukan' : ($finance->tipe === 'out' ? 'Pengeluaran' : 'Tidak Diketahui') }}
                             </td>

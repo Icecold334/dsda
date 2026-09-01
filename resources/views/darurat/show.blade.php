@@ -101,7 +101,7 @@
                         {{ $transaksi->merkStok->barangStok->satuanBesar->nama }}
                     </td>
                     <td class="py-3 px-6 font-semibold">
-                        {{ date('j F Y', $transaksi->tanggal) }}
+                        {{ date('j F Y', strtotime($transaksi->tanggal)) }}
                     </td>
                     <td class="py-3 px-6 font-semibold">
                         {{ $transaksi->deskripsi }}

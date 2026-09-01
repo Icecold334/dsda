@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Notification;
 
 class ApprovalPermintaan extends Component
 {
+    public $unit_id;
+
     use WithFileUploads;
 
     public $permintaan;

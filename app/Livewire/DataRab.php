@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 
 class DataRab extends Component
 {
+
     use WithPagination, WithoutUrlPagination;
 
     public $Rkb, $RKB, $sudin, $unit_id;
@@ -195,7 +196,7 @@ class DataRab extends Component
     {
         $rabs = $this->fetchData();
 
-        $daftarTahun = Rab::select(DB::raw("strftime('%Y', created_at) as tahun"))
+        $daftarTahun = Rab::select(DB::raw("YEAR(created_at) as tahun"))
             ->distinct()
             ->orderBy('tahun', 'desc')
             ->pluck('tahun');

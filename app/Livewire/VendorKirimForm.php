@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 
 class VendorKirimForm extends Component
 {
+    public $unit_id;
+
     public $nomor_kontrak;
     public $kontrak;
     public $gudang_id;

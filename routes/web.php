@@ -441,7 +441,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-function downloadGabunganPdf($id)
+if (!function_exists('downloadGabunganPdf')) {
+    function downloadGabunganPdf($id)
 {
     $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
     $pdf->SetMargins(20, 5, 20);
@@ -550,6 +551,7 @@ function downloadGabunganPdf($id)
     return response($pdf->Output('', 'S'))
         ->header('Content-Type', 'application/pdf')
         ->header('Content-Disposition', 'attachment; filename="SPB_SPPB.pdf"');
+}
 }
 
 

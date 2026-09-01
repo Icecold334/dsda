@@ -9,6 +9,8 @@ use Livewire\Component;
 
 class DownloadRab extends Component
 {
+    public $unit_id;
+
     public $rab, $Rkb, $RAB, $sudin;
 
     public function download($withSign = true)

@@ -7,7 +7,7 @@
                     <div class="mb-3 border rounded-md p-4 bg-gray-50 shadow-sm">
                         <div class="flex">
                             <div class="font-semibold text-gray-800 w-1/3">Sejak Tanggal</div>
-                            <div class="w-2/3">{{ date('d M Y', $history->tanggal) }}</div>
+                            <div class="w-2/3">{{ date('d M Y', strtotime($history->tanggal)) }}</div>
                         </div>
                         <div class="flex">
                             <div class="font-semibold text-gray-800 w-1/3">Penanggung Jawab</div>
@@ -52,9 +52,9 @@
                         </div>
                         <div class="text-lg font-bold text-primary-700">
                             @if ($agenda->tipe === 'bulanan')
-                                Setiap Tanggal {{ date('j', $agenda->tanggal) }}
+                                Setiap Tanggal {{ date('j', strtotime($agenda->tanggal)) }}
                             @elseif ($agenda->tipe === 'tanggal_tertentu')
-                                {{ date('d M Y', $agenda->tanggal) }}
+                                {{ date('d M Y', strtotime($agenda->tanggal)) }}
                             @else
                                 {{ $agenda->keterangan }}
                             @endif
@@ -84,7 +84,7 @@
                             </div>
                             <div class="ml-3">
                                 <div class="text-sm font-semibold text-gray-700">
-                                    {{ date('d M Y', $transaction->tanggal) }}
+                                    {{ date('d M Y', strtotime($transaction->tanggal)) }}
                                 </div>
                                 <div class="text-sm text-gray-600">
                                     {{ $transaction->keterangan }}
@@ -108,7 +108,7 @@
             @if ($jurnals->isNotEmpty())
                 @foreach ($jurnals as $jurnal)
                     <div class="mb-3 border rounded-md p-3 bg-gray-50">
-                        <div><strong>Tanggal:</strong> {{ date('d M Y', $jurnal->tanggal) }}</div>
+                        <div><strong>Tanggal:</strong> {{ date('d M Y', strtotime($jurnal->tanggal)) }}</div>
                         <div><strong>Keterangan:</strong> {{ $jurnal->keterangan }}</div>
                     </div>
                 @endforeach

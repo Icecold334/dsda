@@ -18,7 +18,15 @@ class DataMaterialSeeder extends Seeder
      */
     public function run(): void
     {
-        $csv = Reader::createFromPath(public_path('databarang.csv'), 'r');
+        $filePath = public_path('databarang.csv');
+
+        if (!file_exists($filePath)) {
+            $this->command->warn('File databarang.csv tidak ditemukan di folder public/. Seeder dilewati.');
+            $this->command->warn('Letakkan file databarang.csv di: ' . $filePath);
+            return;
+        }
+
+        $csv = Reader::createFromPath($filePath, 'r');
         $csv->setHeaderOffset(0); // Kolom pertama sebagai header
         foreach ($csv as $row) {
             DB::transaction(function () use ($row) {

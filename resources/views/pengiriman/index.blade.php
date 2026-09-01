@@ -54,7 +54,7 @@
                         {{ $datang->kode_pengiriman_stok }}
                     </td>
                     <td class="px-6 py-3 font-semibold">
-                        {{ date('j F Y', $datang->tanggal) }}
+                        {{ date('j F Y', strtotime($datang->tanggal)) }}
                     </td>
                     <td class="px-6 py-3 text-center">
                         <span

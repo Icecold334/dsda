@@ -19,6 +19,7 @@ class DataLogBarangMaterial extends Component
     use WithPagination;
 
     public $sudin, $Rkb, $RKB, $isSeribu;
+    public $unit_id;
     public $noteModalVisible, $selectedItemHistory, $list, $withRab;
     public $modalVisible = false;
     public $detailList = [], $dataSelected;
@@ -31,6 +32,19 @@ class DataLogBarangMaterial extends Component
 
     public function mount()
     {
+        // Ambil unit_id dari user yang login
+        $user = auth()->user();
+        if ($this->unit_id === null) {
+            $unitId = $user->unit_id;
+            // Kalau unit punya parent, pakai parent (unit pusat)
+            if ($unitId) {
+                $unit = \App\Models\UnitKerja::find($unitId);
+                $this->unit_id = $unit?->parent_id ?? $unitId;
+            } else {
+                // Superadmin atau user tanpa unit: pakai unit pusat pertama
+                $this->unit_id = \App\Models\UnitKerja::whereNull('parent_id')->value('id');
+            }
+        }
         $this->applyFilters();
     }
 

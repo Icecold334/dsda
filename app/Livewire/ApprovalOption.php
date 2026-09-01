@@ -8,6 +8,8 @@ use Livewire\Component;
 
 class ApprovalOption extends Component
 {
+    public $unit_id;
+
     public $roles = []; // Simpan ID role
     public $user = []; // Simpan ID role
     // public $rolesAvailable;

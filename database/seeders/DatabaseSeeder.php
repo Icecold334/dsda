@@ -167,7 +167,7 @@ class DatabaseSeeder extends Seeder
             $f = $faker->boolean;
             $requests[] = [
                 'kode_permintaan' => 'REQ-' . strtoupper(Str::random(6)),
-                'tanggal_permintaan' => strtotime(Carbon::now()),
+                'tanggal_permintaan' => Carbon::now()->format('Y-m-d'),
                 'user_id' => User::where('unit_id', $parentUnit->id)->inRandomOrder()->first()->id,
                 'kategori_id' => $f ? KategoriStok::inRandomOrder()->first()->id : null,
                 // 'approval_configuration_id' => OpsiPersetujuan::where('jenis', 'umum')

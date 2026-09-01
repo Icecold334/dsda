@@ -39,7 +39,7 @@
                                     <tbody>
                                         <tr>
                                             <td class="font-semibold w-40">Sejak Tanggal</td>
-                                            <td>{{ date('j F Y', $item->tanggal) }}</td>
+                                            <td>{{ date('j F Y', strtotime($item->tanggal)) }}</td>
                                         </tr>
                                         <tr>
                                             <td class="font-semibold w-40">Penanggung Jawab</td>
@@ -132,12 +132,12 @@
                             @elseif ($item->tipe === 'tahunan')
                                 <div class="text-sm font-semibold text-gray-500">Tahunan</div>
                                 <div class="text-lg font-bold text-primary-700">
-                                    Setiap {{ date('j F', $item->tanggal) }}
+                                    Setiap {{ date('j F', strtotime($item->tanggal)) }}
                                 </div>
                             @elseif ($item->tipe === 'tanggal_tertentu')
                                 <div class="text-sm font-semibold text-gray-500">Tanggal</div>
                                 <div class="text-lg font-bold text-primary-700">
-                                    {{ date('j F Y', $item->tanggal) }}
+                                    {{ date('j F Y', strtotime($item->tanggal)) }}
                                 </div>
                             @else
                                 <div class="text-sm font-semibold text-gray-500">Tipe Tidak Diketahui</div>
@@ -204,7 +204,7 @@
                                 <!-- Transaction Details -->
                                 <div>
                                     <div class="text-sm font-semibold text-gray-800">
-                                        {{ date('d M Y', $item->tanggal) }}
+                                        {{ date('d M Y', strtotime($item->tanggal)) }}
                                     </div>
                                     <div class="text-sm text-gray-600">{{ $item->keterangan }}</div>
                                 </div>

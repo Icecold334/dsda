@@ -61,7 +61,7 @@ class DataPengirimanStok extends Component
             ->orderBy('id', 'desc')
             ->get()
             ->map(function ($q) {
-                $q->tanggal_search = date('Y-m-d', $q->tanggal);
+                $q->tanggal_search = date('Y-m-d', strtotime($q->tanggal));
                 return $q;
             })->when($this->tanggal, function ($query) {
                 return $query->where('tanggal_search', $this->tanggal);

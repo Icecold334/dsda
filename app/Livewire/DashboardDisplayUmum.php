@@ -48,13 +48,13 @@ class DashboardDisplayUmum extends Component
                 $query->where('status', 1);
             })
             ->orderBy('aset_id')
-            ->orderBy('tanggal', 'desc')
+            ->orderBy('created_at', 'desc')
             ->take(5)
             ->get()
             ->unique('aset_id');
 
         foreach ($this->peminjamans as $peminjaman) {
-            $peminjaman->formatted_date = Carbon::parse($peminjaman->tanggal)->translatedFormat('l, j M Y');
+            $peminjaman->formatted_date = Carbon::parse($peminjaman->created_at)->translatedFormat('l, j M Y');
             if ($peminjaman->detailPeminjaman->kategori_id == 2) {
                 $peminjaman->nama = $peminjaman->ruang->nama ?? '-';
             } elseif ($peminjaman->detailPeminjaman->kategori_id == 1) {

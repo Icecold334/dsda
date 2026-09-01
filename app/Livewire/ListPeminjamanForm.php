@@ -35,7 +35,7 @@ class ListPeminjamanForm extends Component
     public $tipe;
     public $newWaktu;
     public $waktus;
-    public $unit_id;
+
     public $sub_unit_id;
     public $tanggal_peminjaman;
     public $keterangan;

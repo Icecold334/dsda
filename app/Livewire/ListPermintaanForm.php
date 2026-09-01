@@ -37,7 +37,6 @@ class ListPermintaanForm extends Component
 {
     use WithFileUploads;
 
-    public $unit_id;
     public $kategori_id;
     public $sub_unit_id;
     public $tanggal_permintaan;

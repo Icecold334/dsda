@@ -459,7 +459,7 @@ class TransaksiDaruratList extends Component
         $newKontrak = KontrakVendorStok::create([
             'nomor_kontrak' => $this->nomor_kontrak, // Method to generate contract number if needed
             'vendor_id' => $this->vendor_id,
-            'tanggal_kontrak' => strtotime(date('Y-m-d H:i:s')),
+            'tanggal_kontrak' => date('Y-m-d H:i:s'),
             'metode_id' => $this->metode_id,
             'user_id' => Auth::id(),
             'type' => false,

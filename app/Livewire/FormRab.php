@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Cache;
 
 class FormRab extends Component
 {
+    public $unit_id;
+
     public $listCount;
 
     public $kecamatan_id, $kelurahan_id;

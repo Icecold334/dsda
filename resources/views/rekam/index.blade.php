@@ -65,7 +65,7 @@
                     </td>
                     <td class="py-3 px-6">
                         <p class="font-semibold text-gray-800">
-                            {{ $transaction->tanggal_kontrak ? date('j F Y', $transaction->tanggal_kontrak) : '---' }}
+                            {{ $transaction->tanggal_kontrak ? date('j F Y', strtotime($transaction->tanggal_kontrak)) : '---' }}
                         </p>
                     </td>
                     <td class="py-3 px-6">

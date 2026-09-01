@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class DataSecurity extends Component
 {
+
     public $securities, $nama, $securityId;
     public $showModal = false, $isEdit = false, $unit_id;
 

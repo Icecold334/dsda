@@ -362,7 +362,7 @@
                                             @if ($user->can('riwayat_tanggal'))
                                                 <tr>
                                                     <td class="font-semibold w-40">Sejak Tanggal</td>
-                                                    <td>{{ date('d M Y', $history->tanggal) }}</td>
+                                                    <td>{{ date('d M Y', strtotime($history->tanggal)) }}</td>
                                                 </tr>
                                             @endif
                                             @if ($user->can('riwayat_person'))
@@ -435,7 +435,7 @@
                                             ? '<i class="fa-solid fa-arrow-right-from-bracket"></i>'
                                             : '<i class="fa-solid fa-arrow-right-to-bracket"></i>' !!}
                                     </td>
-                                    <td class="px-4 py-2">{{ date('d M Y', $finance->tanggal) }}</td>
+                                    <td class="px-4 py-2">{{ date('d M Y', strtotime($finance->tanggal)) }}</td>
                                     <td class="px-4 py-2">{{ rupiah($finance->nominal) }}</td>
                                     <td class="px-4 py-2">{{ $finance->keterangan }}</td>
                                 </tr>
@@ -499,12 +499,12 @@
                                     @elseif ($agenda->tipe === 'tahunan')
                                         <div class="text-sm font-semibold text-gray-500">Tahunan</div>
                                         <div class="text-md font-bold text-gray-700">
-                                            Setiap {{ date('j F', $agenda->tanggal) }}
+                                            Setiap {{ date('j F', strtotime($agenda->tanggal)) }}
                                         </div>
                                     @elseif ($agenda->tipe === 'tanggal_tertentu')
                                         <div class="text-sm font-semibold text-gray-500">Tanggal</div>
                                         <div class="text-md font-bold text-gray-700">
-                                            {{ date('j F Y', $agenda->tanggal) }}
+                                            {{ date('j F Y', strtotime($agenda->tanggal)) }}
                                         </div>
                                     @else
                                         <div class="text-sm font-semibold text-gray-500">Tipe Tidak Diketahui</div>

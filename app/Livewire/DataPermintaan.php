@@ -29,11 +29,14 @@ class DataPermintaan extends Component
     public $jenisOptions = []; // List of jenis options
     public $lokasiOptions = []; // List of jenis options
 
+    use Concerns\HasUnitKerja;
+
     public $tipe;
     // public $permintaans;
 
     public function mount()
     {
+        $this->initializeHasUnitKerja();
         $this->tipe = Request::segment(2);
         $this->unitOptions = $this->unit_id ? UnitKerja::where('id', $this->unit_id)->get() : UnitKerja::whereNull('parent_id')->get();
         $this->nonUmum = request()->is('permintaan/spare-part') || request()->is('permintaan/material');

@@ -764,7 +764,7 @@ class CreateKontrakVendor extends Component
         $kontrak = KontrakVendorStok::create([
             'vendor_id' => $this->vendor_id,
             'nomor_kontrak' => $this->nomor_spk_api,
-            'tanggal_kontrak' => strtotime($this->tanggal_kontrak),
+            'tanggal_kontrak' => $this->tanggal_kontrak,
             'tanggal_akhir_kontrak' => strtotime($this->tanggal_akhir_kontrak),
             'metode_id' => $this->metode_id,
             'jenis_id' => $this->jenis_id,

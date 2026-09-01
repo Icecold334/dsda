@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ShowPermintaanMaterial extends Component
 {
+    public $unit_id;
+
 
     use WithFileUploads;
     public $permintaan, $isOut = false, $Rkb, $RKB, $sudin, $isSeribu, $withRab;

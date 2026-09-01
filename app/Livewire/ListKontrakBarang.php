@@ -10,6 +10,7 @@ use App\Models\PengirimanStok;
 
 class ListKontrakBarang extends Component
 {
+
     public $vendor_id;
     public $jenis_id;
     public $merkList, $unit_id;

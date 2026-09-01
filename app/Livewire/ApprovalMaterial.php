@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Notification;
 
 class ApprovalMaterial extends Component
 {
+    public $unit_id;
+
 
     public $permintaan;
     public $currentApprovalIndex;

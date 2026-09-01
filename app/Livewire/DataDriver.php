@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class DataDriver extends Component
 {
+
     public $drivers, $nama, $nopol, $unit_id;
     public $driverId; // untuk edit
     public $isEdit = false;

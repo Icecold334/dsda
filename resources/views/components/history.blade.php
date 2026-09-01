@@ -13,7 +13,7 @@
                         <table class="w-full text-sm">
                             <tr>
                                 <td style="width: 50%">Sejak Tanggal</td>
-                                <td>{{ date('j F Y', $history->tanggal) }}</td>
+                                <td>{{ date('j F Y', strtotime($history->tanggal)) }}</td>
                             </tr>
                             <tr>
                                 <td>Penanggung Jawab</td>

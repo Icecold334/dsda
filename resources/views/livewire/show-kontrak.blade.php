@@ -11,7 +11,7 @@
                     <option value="" disabled>Pilih Versi</option>
                     @foreach ($riwayatKontrak as $k)
                     <option value="{{ $k->id }}">
-                        #{{ $k->nomor_kontrak }} - {{ date('d M Y', $k->tanggal_kontrak) }}
+                        #{{ $k->nomor_kontrak }} - {{ date('d M Y', strtotime($k->tanggal_kontrak)) }}
                     </option>
                     @endforeach
                 </select>
@@ -52,7 +52,7 @@
                     </tr> --}}
                     <tr>
                         <td>Tanggal Kontrak</td>
-                        <td>{{ date('j F Y', $kontrak->tanggal_kontrak) }}</td>
+                        <td>{{ date('j F Y', strtotime($kontrak->tanggal_kontrak)) }}</td>
                     </tr>
 
                     {{-- Informasi Tambahan --}}

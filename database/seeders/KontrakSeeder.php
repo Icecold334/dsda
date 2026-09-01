@@ -34,7 +34,7 @@ class KontrakSeeder extends Seeder
                 'updated_at' => now()
             ];
         }
-        MetodePengadaan::insert($datas);
+        MetodePengadaan::insertOrIgnore($datas);
 
         $metodes = MetodePengadaan::all();
         $tokos = Toko::all();
@@ -47,7 +47,7 @@ class KontrakSeeder extends Seeder
                 'metode_id' => $metodes->random()->id,
                 'jenis_id' => 3,
                 'vendor_id' => $tokos->random()->id,
-                'tanggal_kontrak' => strtotime(fake()->date()),
+                'tanggal_kontrak' => fake()->date('Y-m-d'),
                 'user_id' => $users->random()->id,
                 'type' => 1,
                 'status' => 1,

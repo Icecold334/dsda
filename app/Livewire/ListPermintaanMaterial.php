@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\DB;
 
 class ListPermintaanMaterial extends Component
 {
+    public $unit_id;
+
     use WithFileUploads;
     public $readonlyAlokasiMerkId = null;
     public $readonlyAlokasiIndex = null;

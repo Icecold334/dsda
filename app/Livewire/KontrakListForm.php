@@ -338,7 +338,7 @@ class KontrakListForm extends Component
 
         $kontrak = KontrakVendorStok::create([
             'vendor_id' => $this->vendor_id,
-            'tanggal_kontrak' => strtotime($this->tanggal_kontrak),
+            'tanggal_kontrak' => $this->tanggal_kontrak,
             'metode_id' => $this->metode_id,
             'jenis_id' => $this->jenis_id,
             'user_id' => Auth::user()->id,

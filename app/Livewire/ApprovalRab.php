@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Notification;
 
 class ApprovalRab extends Component
 {
+    public $unit_id;
+
     public $rab;
     public $currentApprovalIndex;
     public $penulis;

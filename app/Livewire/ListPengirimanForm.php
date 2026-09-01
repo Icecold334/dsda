@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\Notification;
 
 class ListPengirimanForm extends Component
 {
+    public $unit_id;
+
     use WithFileUploads;
     public $showApprovalModal = false;
     public $noteModalVisible = false; // Untuk mengatur visibilitas modal catatan
