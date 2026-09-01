@@ -54,7 +54,7 @@ class BaseInventaSeeder extends Seeder
             DB::table('history')->insert([
                 'user_id' => User::inRandomOrder()->first()->id,
                 'aset_id' => Aset::inRandomOrder()->first()->id,
-                'tanggal' => now()->format('Y-m-d'),
+                'tanggal' => now()->timestamp,
                 'person_id' => Person::inRandomOrder()->first()->id ?? null,
                 'lokasi_id' => Lokasi::inRandomOrder()->first()->id ?? null,
                 'jumlah' => rand(1, 10),
@@ -70,7 +70,7 @@ class BaseInventaSeeder extends Seeder
             DB::table('keuangan')->insert([
                 'user_id' => User::inRandomOrder()->first()->id,
                 'aset_id' => Aset::inRandomOrder()->first()->id,
-                'tanggal' => now()->format('Y-m-d'),
+                'tanggal' => now()->timestamp,
                 'tipe' => $faker->randomElement(['in', 'out']),
                 'keterangan' => $faker->sentence,
                 'nominal' => $faker->numberBetween(1000, 10000),
@@ -85,7 +85,7 @@ class BaseInventaSeeder extends Seeder
                 'aset_id' => Aset::inRandomOrder()->first()->id,
                 'tipe' => $faker->randomElement(['mingguan', 'bulanan']),
                 'hari' => $faker->numberBetween(1, 7),
-                'tanggal' => now()->format('Y-m-d'),
+                'tanggal' => now()->timestamp,
                 'bulan' => $faker->numberBetween(1, 12),
                 'tahun' => $faker->numberBetween(2020, 2023),
                 'keterangan' => $faker->sentence,
@@ -98,7 +98,7 @@ class BaseInventaSeeder extends Seeder
             DB::table('jurnal')->insert([
                 'user_id' => User::inRandomOrder()->first()->id,
                 'aset_id' => Aset::inRandomOrder()->first()->id,
-                'tanggal' => now()->format('Y-m-d'),
+                'tanggal' => now()->timestamp,
                 'keterangan' => $faker->sentence,
                 'status' => 1,
             ]);
