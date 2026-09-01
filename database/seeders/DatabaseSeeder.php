@@ -195,10 +195,13 @@ class DatabaseSeeder extends Seeder
 
         for ($i = 0; $i < 2975; $i++) {
             $detail = $details->random();
+            $filteredBarang = $barang->where('kategori_id', $detail->kategori_id);
+            $barangId = $filteredBarang->count() > 0 ? $filteredBarang->random()->id : $barang->random()->id;
+
             PermintaanStok::create([
                 'detail_permintaan_id' => $detail->id,
                 'user_id' => $users->random()->id,
-                'barang_id' => $barang->where('kategori_id', $detail->kategori_id)->random()->id,
+                'barang_id' => $barangId,
                 'jumlah' => rand(10, 100),
                 // 'lokasi_id' => $lokasis->random()->id,
             ]);
