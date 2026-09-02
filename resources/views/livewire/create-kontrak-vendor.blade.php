@@ -193,26 +193,38 @@
 
                     <div>
                         <label class="block text-sm font-medium">Nama</label>
-                        <livewire:searchable-select wire:model.live="specifications.nama" :options="$specNamaOptions"
-                            placeholder="Ketik atau pilih nama..." />
+                        <input type="text" wire:model.live="specifications.nama" list="nama-options" class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Ketik atau pilih nama..." />
+                        <datalist id="nama-options">
+                            @foreach($specNamaOptions as $opt)
+                                <option value="{{ $opt }}"></option>
+                            @endforeach
+                        </datalist>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium">Tipe</label>
-                        <livewire:searchable-select wire:model.live="specifications.tipe" :options="$specTipeOptions"
-                            placeholder="Ketik atau pilih tipe..." />
+                        <input type="text" wire:model.live="specifications.tipe" list="tipe-options" class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Ketik atau pilih tipe..." />
+                        <datalist id="tipe-options">
+                            @foreach($specTipeOptions as $opt)
+                                <option value="{{ $opt }}"></option>
+                            @endforeach
+                        </datalist>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium">Ukuran</label>
-                        <livewire:searchable-select wire:model.live="specifications.ukuran"
-                            :options="$specUkuranOptions" placeholder="Ketik atau pilih ukuran..." />
+                        <input type="text" wire:model.live="specifications.ukuran" list="ukuran-options" class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Ketik atau pilih ukuran..." />
+                        <datalist id="ukuran-options">
+                            @foreach($specUkuranOptions as $opt)
+                                <option value="{{ $opt }}"></option>
+                            @endforeach
+                        </datalist>
                     </div>
 
                 </div>
 
                 <div class="flex justify-end">
-                    @if ($barang_id && $newSatuan && $jumlah && $newHarga)
+                    @if ($barang_id && $newSatuan && $jumlah && $newHarga && (!empty(trim($specifications['nama'] ?? '')) || !empty(trim($specifications['tipe'] ?? '')) || !empty(trim($specifications['ukuran'] ?? ''))))
                     <button wire:click="addToList"
                         class="mt-2 bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 transition">
                         <i class="fa fa-plus mr-1"></i> Tambah ke Daftar Barang

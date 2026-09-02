@@ -705,6 +705,17 @@ class CreateKontrakVendor extends Component
             return;
         }
 
+        $specNama = trim($this->specifications['nama'] ?? '');
+        $specTipe = trim($this->specifications['tipe'] ?? '');
+        $specUkuran = trim($this->specifications['ukuran'] ?? '');
+
+        if (empty($specNama) && empty($specTipe) && empty($specUkuran)) {
+            $this->dispatch('alert', [
+                ['type' => 'warning', 'message' => 'Pilih atau isi minimal satu Spesifikasi (Nama, Tipe, atau Ukuran) sebelum menambahkan barang!']
+            ]);
+            return;
+        }
+
         $satuanId = $this->getOrCreateSatuan($this->newSatuan);
 
         if (is_null($barang->satuan_besar_id)) {
